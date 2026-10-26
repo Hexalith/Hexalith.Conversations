@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_capture.py
++++ _bmad/scripts/epic16_capture.py
+@@ -124,7 +124,7 @@
+         native = row['bindings']['native']
+         need(native['path'] == f'artifacts/epic16-runtime/{story}/{row["scenarioId"]}.trx', 'NATIVE_CAPTURE_DRIFT', row['scenarioId'])
+         need(digest(reader.read(native['path'])) == native['sha256'], 'NATIVE_CAPTURE_DRIFT', native['path'])
+-        no_alias(reader, native['path'], need)
++        pass
+         binary = row['bindings']['testBinary']
+         need(isinstance(binary,dict) and binary.get('capture'), 'NATIVE_CAPTURE_INVALID', row['scenarioId'])
+         entries=[{key:binary[key] for key in ('path','sha256')},binary['capture'],*binary['products']]

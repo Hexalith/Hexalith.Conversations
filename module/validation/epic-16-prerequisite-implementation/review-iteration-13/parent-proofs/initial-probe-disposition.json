@@ -1,0 +1,6 @@
+{
+  "exitCode": 1,
+  "phase": "positive fixture setup",
+  "blocker": "CONTRACT_DRIFT",
+  "reason": "The retained native fixture intentionally pins its own public-source baseline contract; the parent initially restored only entry trust. Restore the same test-only contract pin as the original successful fixture; this is not an observed product defect."
+}

@@ -1,0 +1,16 @@
+{
+  "reason": "Initial legacy command accidentally selected the whole historical generator module. Interrupted after detecting broader selection; this incomplete run is not counted as the required72 legacy controls.",
+  "pid": 74487,
+  "signal": "SIGINT",
+  "observedArgv": [
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "_bmad/scripts/tests/test_generate_story_record.py",
+    "--basetemp=/tmp/epic16-r13-legacy",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/legacy/result.xml"
+  ],
+  "time": 1793001278.7454846,
+  "correctSelector": "story_111 or story_112 or standalone_generator"
+}

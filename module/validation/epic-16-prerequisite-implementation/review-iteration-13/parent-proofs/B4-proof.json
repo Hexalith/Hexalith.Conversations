@@ -1,0 +1,17 @@
+{
+  "fixture": "/tmp/epic16-r13-parent-bpqmnwpq/fixture",
+  "candidate": "ac22b7bdb06890292f63a40ac8698b6dd62786e5",
+  "originalNativeFixture": "/tmp/epic16-r12-packaging-hnufd2q0/packaging/test_round6_genuine_native_cap0/fresh-checkout",
+  "result": "PASS",
+  "pairWritten": true,
+  "observations": [
+    {
+      "path": "artifacts/epic16-runtime/16.2/AC-16.2-01.trx",
+      "oldSha256": "e6282067da89bf8cdf95c01e00d960eaf9470ccda4b198d872660455d9458c6f",
+      "newSha256": "dd1b5d04db275af6fcb8b717d594f9b580bf70729e95e79a545c2bcd19e84a3f",
+      "receiptSha256": "e6282067da89bf8cdf95c01e00d960eaf9470ccda4b198d872660455d9458c6f"
+    }
+  ],
+  "method": "Change TRX between the real five scenario evaluations and real final inventory; all other caller guards run unmodified",
+  "scope": "Disposable fixture only; no runtime authority"
+}

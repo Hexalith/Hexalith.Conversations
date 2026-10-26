@@ -1,0 +1,11 @@
+--- .gitattributes
++++ .gitattributes
+@@ -153,7 +153,7 @@
+ # Retained native debug symbols, signing keys, opaque build caches and apphosts.
+ # Keep source, schema, command streams and untouched raw TRX readable as text.
+ module/validation/epic-16-prerequisite-implementation/**/*.pdb -text -diff
+-module/validation/epic-16-prerequisite-implementation/**/*.snk -text -diff
++module/validation/epic-16-prerequisite-implementation/**/*.snk -text diff
+ module/validation/epic-16-prerequisite-implementation/**/*.cache -text -diff
+ module/validation/epic-16-prerequisite-implementation/**/apphost -text -diff
+ module/validation/epic-16-prerequisite-implementation/**/Epic16.NativeHelper -text -diff

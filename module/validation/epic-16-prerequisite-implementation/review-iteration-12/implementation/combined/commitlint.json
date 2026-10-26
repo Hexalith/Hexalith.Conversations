@@ -178,5 +178,15 @@
     "exitCode": 0,
     "stdout": "",
     "stderr": ""
+  },
+  "test: bind disposable compiled root baseline": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: alter only external root compilation input": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
   }
 }

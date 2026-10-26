@@ -1,0 +1,60 @@
+{
+  "checks": [
+    {
+      "input": "module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-native/cycle/mutant/stdin.json",
+      "inputSha256": "43719758bc3df8e15d774091be5310286c951cfe53928315ede2ff248b748a1f",
+      "argv": [
+        "dotnet",
+        "/tmp/epic16-native-oracle-17q_jd0s/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+      ],
+      "cwd": "/tmp/epic16-native-oracle-17q_jd0s",
+      "exitCode": 1,
+      "expected": "invalid evidence"
+    },
+    {
+      "input": "module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-native/cycle/original/stdin.json",
+      "inputSha256": "c3669b8ea68c1b5ea4baee0ccd4c85d81f2db7cd5c5bdeea9656a16f6f0b7df1",
+      "argv": [
+        "dotnet",
+        "/tmp/epic16-native-oracle-17q_jd0s/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+      ],
+      "cwd": "/tmp/epic16-native-oracle-17q_jd0s",
+      "exitCode": 0,
+      "expected": "PASS"
+    },
+    {
+      "input": "module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-native/null/inspection/stdin.json",
+      "inputSha256": "8314efa5342c868c52530e29fc1a1cc2b78310f67a9d114eb1b62f16939005ab",
+      "argv": [
+        "dotnet",
+        "/tmp/epic16-native-oracle-17q_jd0s/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+      ],
+      "cwd": "/tmp/epic16-native-oracle-17q_jd0s",
+      "exitCode": 1,
+      "expected": "invalid evidence"
+    },
+    {
+      "input": "module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-native/optional/inspection/stdin.json",
+      "inputSha256": "bdc40e3c0b9f1f91fa78b3f17cde145fbe13f8b65905f37d07fdf3b0029ec103",
+      "argv": [
+        "dotnet",
+        "/tmp/epic16-native-oracle-17q_jd0s/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+      ],
+      "cwd": "/tmp/epic16-native-oracle-17q_jd0s",
+      "exitCode": 1,
+      "expected": "invalid evidence"
+    },
+    {
+      "input": "module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-native/vararg/inspection/stdin.json",
+      "inputSha256": "a784b40c4d2c1ebf710fd34d6e6d8d091547fd4f074e605380ce7139c92e9d8e",
+      "argv": [
+        "dotnet",
+        "/tmp/epic16-native-oracle-17q_jd0s/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+      ],
+      "cwd": "/tmp/epic16-native-oracle-17q_jd0s",
+      "exitCode": 1,
+      "expected": "invalid evidence"
+    }
+  ],
+  "helperSha256": "12981695c4e60380d3dd1fe975db7cf0a6bb4736bd13b63d60d1ccc03e8a17c2"
+}

@@ -1,0 +1,29 @@
+{
+  "name": "raw-native-digest",
+  "path": "_bmad/scripts/epic16_capture.py",
+  "old": "need(digest(reader.read(native['path'])) == native['sha256'], 'NATIVE_CAPTURE_DRIFT', native['path'])",
+  "new": "reader.read(native['path'])",
+  "selector": "round13_generator_rereads_native and changed",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r13-mutant-raw-native-digest-9973wzu7/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round13_generator_rereads_native and changed",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-corrected/raw-native-digest/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r13-mutant-raw-native-digest-9973wzu7",
+  "exitCode": 1,
+  "elapsedSeconds": 32.665268000011565,
+  "originalSha256": "a05acdd2300589e9c08c67ffa1c397c615f3fccfdd1b1e753d8e8e60c9947e99",
+  "mutatedSha256": "4d4eef2c08708fe8533fdcfa977aec83d5704ac76787839042b0c1d180e04371",
+  "testSha256": "ad6049e16ab218872880723fcdfa15da86f0858fa4802bb50ba7d1a02c82330d",
+  "tests": {
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  }
+}

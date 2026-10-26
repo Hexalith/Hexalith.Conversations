@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="16.213" timestamp="2026-10-26T11:05:52.854567+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round14_untrusted_exception_details_remain_generic[unrelated]" time="14.619"><failure message="AssertionError: assert {'id': 'MEASU...tate': 'FAIL'} == {'id': 'MEASU...tate': 'FAIL'}&#10;  &#10;  Omitting 2 identical items, use -vv to show&#10;  Differing items:&#10;  {'subject': 'UNTRUSTED-SECRET-R14'} != {'subject': 'AC-16.1-01'}&#10;  Use -v to get more diff">repository = PosixPath('/tmp/pytest-of-administrator/pytest-811/test_round14_untrusted_excepti0/fixture')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x75fe8d849550&gt;
+error = 'unrelated'
+
+    @pytest.mark.parametrize('error',['unrelated','parser'])
+    def test_round14_untrusted_exception_details_remain_generic(repository,monkeypatch,error):
+        scenario='AC-16.1-01';assert evaluate(repository,scenario)['result']=='PASS'
+        canary='UNTRUSTED-SECRET-R14'
+        def fail(*args):
+            if error=='parser':int(canary)
+            raise ValueError(canary)
+        monkeypatch.setattr(tooling.measurements,'evaluate',fail)
+        result=evaluate(repository,scenario);rejected(result,'MEASUREMENT_INVALID')
+&gt;       assert result['assertionLedger'][-1]==dict(id='MEASUREMENT_INVALID',subject=scenario,state='FAIL')
+E       AssertionError: assert {'id': 'MEASU...tate': 'FAIL'} == {'id': 'MEASU...tate': 'FAIL'}
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Differing items:
+E         {'subject': 'UNTRUSTED-SECRET-R14'} != {'subject': 'AC-16.1-01'}
+E         Use -v to get more diff
+
+_bmad/scripts/tests/test_epic16_tooling.py:5030: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round14_untrusted_exception_details_remain_generic[parser]" time="0.684"><failure message="assert {'id': 'MEASU...tate': 'FAIL'} == {'id': 'MEASU...tate': 'FAIL'}&#10;  &#10;  Omitting 2 identical items, use -vv to show&#10;  Differing items:&#10;  {'subject': &quot;invalid literal for int() with base 10: 'UNTRUSTED-SECRET-R14'&quot;} != {'subject': 'AC-16.1-01'}&#10;  Use -v to get more diff">repository = PosixPath('/tmp/pytest-of-administrator/pytest-811/test_round14_untrusted_excepti1/fixture')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x75fe8d9db610&gt;
+error = 'parser'
+
+    @pytest.mark.parametrize('error',['unrelated','parser'])
+    def test_round14_untrusted_exception_details_remain_generic(repository,monkeypatch,error):
+        scenario='AC-16.1-01';assert evaluate(repository,scenario)['result']=='PASS'
+        canary='UNTRUSTED-SECRET-R14'
+        def fail(*args):
+            if error=='parser':int(canary)
+            raise ValueError(canary)
+        monkeypatch.setattr(tooling.measurements,'evaluate',fail)
+        result=evaluate(repository,scenario);rejected(result,'MEASUREMENT_INVALID')
+&gt;       assert result['assertionLedger'][-1]==dict(id='MEASUREMENT_INVALID',subject=scenario,state='FAIL')
+E       assert {'id': 'MEASU...tate': 'FAIL'} == {'id': 'MEASU...tate': 'FAIL'}
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Differing items:
+E         {'subject': "invalid literal for int() with base 10: 'UNTRUSTED-SECRET-R14'"} != {'subject': 'AC-16.1-01'}
+E         Use -v to get more diff
+
+_bmad/scripts/tests/test_epic16_tooling.py:5030: AssertionError</failure></testcase></testsuite></testsuites>

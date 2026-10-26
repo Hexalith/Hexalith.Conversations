@@ -1,0 +1,21 @@
+{
+  "frozenFiles": 86,
+  "boundSources": 71,
+  "testHashesVerified": 3,
+  "counts": {
+    "combined-final-order": 3032,
+    "focused-final-order": 131,
+    "legacy-final-order": 72
+  },
+  "previousCombinedCasesPreserved": 2879,
+  "newCombinedCases": 153,
+  "newRound13Cases": 127,
+  "allPriorLegacyCasesPreserved": true,
+  "all19PriorPackagingCasesPreserved": true,
+  "allEightMatrixRowsCoveredByExecutedEvidence": true,
+  "allFocusedCasesPassInCombined": true,
+  "independentParentControls": 30,
+  "allFinalSourceArchivesVerified": true,
+  "allFinalRunsSourceUnchanged": true,
+  "runtimeAuthority": "none; separate held-state audit"
+}

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="6.539" timestamp="2026-10-26T11:05:30.518553+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round14_nested_definition_cycle_is_invalid_evidence" time="5.775"><failure message="epic16_native.HelperUnavailable: fixed helper host failed: exit=-6; stdout=''; stderr='dataReader, System.Reflection.Metadata.TypeDefinitionHandle, System.Collections.Generic.HashSet`1&lt;System.Reflection.Metadata.TypeDefinitionHandle&gt;)\n   at Hexalith.Conversations.Tooling.SignatureNames.DefinitionName(System.Reflection.Metadata.MetadataReader, System.Reflection.Metadata.TypeDefinitionHandle, System.Collections.Generic.HashSet`1&lt;System.Reflection.Metadata.TypeDefinitionHandle&gt;)\n   at Hexalith.Conversations.Tooling.SignatureNames.DefinitionName(System.Reflection.Metadata.MetadataReader, System.Reflection.Metadata.TypeDefinitionHandle, System.Collections.Generic.HashSet`1&lt;System.Reflection.Metadata.TypeDefinitionHandle&gt;)\n   at Hexalith.Conversations.Tooling.SignatureNames.Name(System.Reflection.Metadata.MetadataReader, System.Reflection.Metadata.EntityHandle)\n   at Hexalith.Conversations.Tooling.TestConstruction+&lt;&gt;c__DisplayClass1_0.&lt;Validate&gt;b__0(System.Reflection.Metadata.TypeDefinitionHandle)\n   at System.Linq.Enumerable.ToDictionary[[System.Reflection.Metadata.TypeDefinitionHandle, System.Reflection.Metadata, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a],[System.__Canon, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Reflection.Metadata.TypeDefinitionHandle, System.Reflection.Metadata, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a]](System.Collections.Generic.IEnumerable`1&lt;System.Reflection.Metadata.TypeDefinitionHandle&gt;, System.Func`2&lt;System.Reflection.Metadata.TypeDefinitionHandle,System.__Canon&gt;, System.Func`2&lt;System.Reflection.Metadata.TypeDefinitionHandle,System.Reflection.Metadata.TypeDefinitionHandle&gt;, System.Collections.Generic.IEqualityComparer`1&lt;System.__Canon&gt;)\n   at Hexalith.Conversations.Tooling.TestConstruction.Validate(System.Reflection.Metadata.MetadataReader, System.Reflection.Metadata.TypeDefinitionHandle)\n   at Hexalith.Conversations.Tooling.Program.Inspect(System.Text.Json.JsonElement)\n   at Hexalith.Conversations.Tooling.Program.Main()\n'">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-807/test_round14_nested_definition0')
+
+    def test_round14_nested_definition_cycle_is_invalid_evidence(tmp_path):
+        directory=tmp_path/'native'
+        binary,commands=round13_build(directory,'namespace Synthetic; public class TestClass { [Xunit.Fact] public void Scenario01() {} } public class Outer { public class Inner {} }')
+        original=binary.read_bytes()
+        assert tooling.native_helper.inspect_assembly(original,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        locations=round13_locations(original);table=locations['nested'];width=table['size']//2
+        target=next(row['coded']//4 for row in locations['types'] if row['name']=='Synthetic.Outer+Inner')
+        mutant=bytearray(original)
+        for row in range(table['rows']):
+            start=table['offset']+row*table['size']
+            if int.from_bytes(original[start:start+width],'little')==target:
+                mutant[start+width:start+2*width]=target.to_bytes(width,'little');break
+        else:pytest.fail('NestedClass target missing')
+        changed=[i for i,(a,b) in enumerate(zip(original,mutant)) if a!=b]
+        assert len(changed)==1
+        (directory/'mutant.dll.bytes').write_bytes(mutant)
+        (directory/'mutation.json').write_text(json.dumps(dict(offset=changed[0],before=original[changed[0]],after=mutant[changed[0]],originalSha256=digest(original),mutantSha256=digest(mutant)),indent=2)+'\n')
+&gt;       with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(bytes(mutant),'a'*40,'Synthetic.TestClass','Scenario01')
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:5002: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_bmad/scripts/epic16_native.py:166: in inspect_assembly
+    return _run(dict(operation='metadata', assembly=base64.b64encode(content).decode(),
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+request = {'operation': 'metadata', 'assembly': 'TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...AAAAAAAAAAAAAAAAAAAAAAAAA', 'revision': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'type': 'Synthetic.TestClass', ...}
+
+    def _run(request):
+        workspace, assembly = _helper()
+        try:
+            result = subprocess.run(['dotnet', str(assembly)], input=json.dumps(request).encode(),
+                cwd=workspace.name, capture_output=True, timeout=60)
+        except (OSError, subprocess.TimeoutExpired) as error:
+            raise HelperUnavailable('fixed helper execution unavailable') from error
+        if result.returncode:
+            if result.returncode == 1 and result.stdout == b'' and result.stderr == b'Invalid native evidence.':
+                raise ValueError('invalid native evidence')
+&gt;           raise HelperUnavailable(_process_failure('fixed helper host failed', result))
+E           epic16_native.HelperUnavailable: fixed helper host failed: exit=-6; stdout=''; stderr='dataReader, System.Reflection.Metadata.TypeDefinitionHandle, System.Collections.Generic.HashSet`1&lt;System.Reflection.Metadata.TypeDefinitionHandle&gt;)\n   at Hexalith.Conversations.Tooling.SignatureNames.DefinitionName(System.Reflection.Metadata.MetadataReader, System.Reflection.Metadata.TypeDefinitionHandle, System.Collections.Generic.HashSet`1&lt;System.Reflection.Metadata.TypeDefinitionHandle&gt;)\n   at Hexalith.Conversations.Tooling.SignatureNames.DefinitionName(System.Reflection.Metadata.MetadataReader, System.Reflection.Metadata.TypeDefinitionHandle, System.Collections.Generic.HashSet`1&lt;System.Reflection.Metadata.TypeDefinitionHandle&gt;)\n   at Hexalith.Conversations.Tooling.SignatureNames.Name(System.Reflection.Metadata.MetadataReader, System.Reflection.Metadata.EntityHandle)\n   at Hexalith.Conversations.Tooling.TestConstruction+&lt;&gt;c__DisplayClass1_0.&lt;Validate&gt;b__0(System.Reflection.Metadata.TypeDefinitionHandle)\n   at System.Linq.Enumerable.ToDictionary[[System.Reflection.Metadata.TypeDefinitionHandle, System.Reflection.Metadata, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a],[System.__Canon, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Reflection.Metadata.TypeDefinitionHandle, System.Reflection.Metadata, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a]](System.Collections.Generic.IEnumerable`1&lt;System.Reflection.Metadata.TypeDefinitionHandle&gt;, System.Func`2&lt;System.Reflection.Metadata.TypeDefinitionHandle,System.__Canon&gt;, System.Func`2&lt;System.Reflection.Metadata.TypeDefinitionHandle,System.Reflection.Metadata.TypeDefinitionHandle&gt;, System.Collections.Generic.IEqualityComparer`1&lt;System.__Canon&gt;)\n   at Hexalith.Conversations.Tooling.TestConstruction.Validate(System.Reflection.Metadata.MetadataReader, System.Reflection.Metadata.TypeDefinitionHandle)\n   at Hexalith.Conversations.Tooling.Program.Inspect(System.Text.Json.JsonElement)\n   at Hexalith.Conversations.Tooling.Program.Main()\n'
+
+_bmad/scripts/epic16_native.py:149: HelperUnavailable</failure></testcase></testsuite></testsuites>

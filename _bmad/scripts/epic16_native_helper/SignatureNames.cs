@@ -31,10 +31,12 @@ internal sealed class SignatureNames : ISignatureTypeProvider<string, object?>
     /// <summary>Names a defined type including its declaring type.</summary>
     public string GetTypeFromDefinition(MetadataReader reader, TypeDefinitionHandle handle, byte rawTypeKind) => WithKind(DefinitionName(reader, handle), rawTypeKind);
     /// <summary>Names a declaration without a signature-only class/value marker.</summary>
-    private string DefinitionName(MetadataReader reader, TypeDefinitionHandle handle)
+    private string DefinitionName(MetadataReader reader, TypeDefinitionHandle handle, HashSet<TypeDefinitionHandle>? visited = null)
     {
+        visited ??= [];
+        if (!visited.Add(handle)) throw new InvalidDataException("Cyclic nested type definition.");
         TypeDefinition type = reader.GetTypeDefinition(handle);
-        return type.IsNested ? DefinitionName(reader, type.GetDeclaringType()) + "+" + reader.GetString(type.Name)
+        return type.IsNested ? DefinitionName(reader, type.GetDeclaringType(), visited) + "+" + reader.GetString(type.Name)
             : reader.GetString(type.Namespace) + "." + reader.GetString(type.Name);
     }
     /// <summary>Names an external type with its assembly ownership.</summary>

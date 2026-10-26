@@ -1,0 +1,29 @@
+{
+  "name": "nullable-enum-default",
+  "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+  "old": "if (underlying is not null && EnumPrimitive(reader, underlying) is not null)",
+  "new": "if (false)",
+  "selector": "round13_selected_typed_defaults and nullable-enum",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r13-mutant-nullable-enum-default-0a3i4l1b/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round13_selected_typed_defaults and nullable-enum",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final-constraint/nullable-enum-default/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r13-mutant-nullable-enum-default-0a3i4l1b",
+  "exitCode": 1,
+  "elapsedSeconds": 5.391223198996158,
+  "originalSha256": "fe4e695373ea16df32c097b98ba221d9b43f1fb7f442ad887700bb81145b547f",
+  "mutatedSha256": "a60c26d10176849c65dc12d0ec77e02ed98f71965b4459d7df3ea4c047e7d1da",
+  "testSha256": "129d5a61270c9f2783d5581c66dd69fe5b79a28b2e3da0d7a1bd59f4d4ed31f3",
+  "tests": {
+    "tests": 2,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  }
+}

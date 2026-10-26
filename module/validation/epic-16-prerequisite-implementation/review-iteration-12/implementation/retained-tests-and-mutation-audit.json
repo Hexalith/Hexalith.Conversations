@@ -1,0 +1,3059 @@
+{
+  "priorCombined": 2416,
+  "retainedCombined": 2416,
+  "currentCombined": 2879,
+  "newCases": [
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_native_values_and_control_boundaries[at-threshold]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_native_values_and_control_boundaries[configuration-empty]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_native_values_and_control_boundaries[disabled]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_native_values_and_control_boundaries[maps]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_native_values_and_control_boundaries[missing-member]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_native_values_and_control_boundaries[nullable]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_native_values_and_control_boundaries[reader-read]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_native_values_and_control_boundaries[reader-write]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_native_values_and_control_boundaries[unmapped-role]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_native_values_and_control_boundaries[unsafe-member]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_native_values_and_control_boundaries[zero-lag]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_state_derives_from_actual_inputs[conflict-identical]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_state_derives_from_actual_inputs[conflict-missing]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_state_derives_from_actual_inputs[float-freshness]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_state_derives_from_actual_inputs[freshness]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_state_derives_from_actual_inputs[future-clock]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_state_derives_from_actual_inputs[gap-missing]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_state_derives_from_actual_inputs[gap-tenant]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_state_derives_from_actual_inputs[health]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_state_derives_from_actual_inputs[projection]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_state_derives_from_actual_inputs[source]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_state_derives_from_actual_inputs[stale-current]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_state_derives_from_actual_inputs[unavailable-error]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_state_derives_from_actual_inputs[unavailable-snapshot]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_state_derives_from_actual_inputs[unknown-metadata]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_authorization_state_derives_from_actual_inputs[unknown-snapshot]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_enqueue_transaction_cannot_reuse_lifecycle_commit[0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_enqueue_transaction_cannot_reuse_lifecycle_commit[1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_enqueue_transaction_cannot_reuse_lifecycle_commit[2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[ack-present-path21-value21-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[ack-present-path21-value21-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[ack-reference-path20-foreign-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[ack-reference-path20-foreign-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[ack-unexecuted-path19-False-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[ack-unexecuted-path19-False-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[after-path24-11-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[after-path24-11-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[after-unexecuted-path25-False-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[after-unexecuted-path25-False-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-count-path8-one-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-count-path8-one-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-incomplete-path4-False-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-incomplete-path4-False-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-order-path9-1-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-order-path9-1-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-reference-path17-value17-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-reference-path17-value17-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-scope-path7-foreign-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-scope-path7-foreign-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-unexecuted-path3-False-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-unexecuted-path3-False-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[commits-path18-value18-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[commits-path18-value18-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[completion-incomplete-path5-False-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[completion-incomplete-path5-False-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[delivery-content-path28-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[delivery-content-path28-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[delivery-path6-foreign-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[delivery-path6-foreign-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[expected-path11-foreign-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[expected-path11-foreign-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[fault-path26-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[fault-path26-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[missing-path1-None-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[missing-path1-None-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[number-path10-2-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[number-path10-2-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[outcome-path16-Healthy-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[outcome-path16-Healthy-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[positive-path0-None-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[positive-path0-None-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[processing-unexecuted-path2-False-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[processing-unexecuted-path2-False-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[proposed-path12-99-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[proposed-path12-99-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[restoration-path23-Unavailable-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[restoration-path23-Unavailable-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[restoration-unexecuted-path22-False-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[restoration-unexecuted-path22-False-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[result-path15-Completed-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[result-path15-Completed-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[source-path27-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[source-path27-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[success-path13-True-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[success-path13-True-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[transaction-path14-invented-4]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[transaction-path14-invented-5]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_helper_prerequisite_diagnostics_remain_structured_blocked[build]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_helper_prerequisite_diagnostics_remain_structured_blocked[sdk]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[both-build]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[both-sdk]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[oversized-build]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[oversized-sdk]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stderr-build]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stderr-sdk]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stdout-build]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stdout-sdk]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_input_oracle_matches_compiled_actual_commons_evaluator"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_access_principal_admission_precedes_read[ actor-a]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_access_principal_admission_precedes_read[\\x1c]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_access_principal_admission_precedes_read[a\\x1fb]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_access_principal_admission_precedes_read[a\\x7fb]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_access_principal_admission_precedes_read[a\\x85b]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_access_principal_admission_precedes_read[a\\x9fb]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_access_principal_admission_precedes_read[actor-a ]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_access_principal_admission_precedes_read[actor-extra]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_framework_identity_matches_supported_source_return_and_params[custom-params]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_framework_identity_matches_supported_source_return_and_params[custom-task]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_framework_identity_matches_supported_source_return_and_params[external-metadata]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_framework_identity_matches_supported_source_return_and_params[external-stamp]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_framework_identity_matches_supported_source_return_and_params[genuine-params]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_framework_identity_matches_supported_source_return_and_params[genuine]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_framework_identity_matches_supported_source_return_and_params[local-stamp]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_framework_identity_matches_supported_source_return_and_params[metadata-version]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[ tenant-a-False]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[\\u79df\\u6237-True]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[caf\\xe9-True]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[cafe\\u0301-False]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant a-False]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant-\\xc5-True]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant/a-False]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant:a-False]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\\U0001f600-False]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\\u0378-False]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\\u200b-False]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\\ue000-False]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\\x1c-False]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\\x7f-False]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_params_requires_complete_framework_attribute_blob"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_read_operations_are_distinct_and_ordered[request-reuse]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_read_operations_are_distinct_and_ordered[response-operation]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_read_operations_are_distinct_and_ordered[same-order]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_read_operations_are_distinct_and_ordered[store-operation]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[after-path16-11-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[after-path16-11-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[after-path16-11-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[after-path16-11-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[before-path15-10-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[before-path15-10-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[before-path15-10-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[before-path15-10-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[cas-order-path5-99-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[cas-order-path5-99-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[cas-order-path5-99-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[cas-order-path5-99-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[cas-unexecuted-path4-False-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[cas-unexecuted-path4-False-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[cas-unexecuted-path4-False-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[cas-unexecuted-path4-False-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[expectation-path10-21-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[expectation-path10-21-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[expectation-path10-21-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[expectation-path10-21-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[incomplete-path3-False-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[incomplete-path3-False-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[incomplete-path3-False-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[incomplete-path3-False-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[missing-path1-__remove__-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[missing-path1-__remove__-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[missing-path1-__remove__-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[missing-path1-__remove__-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[newer-result-path12-False-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[newer-result-path12-False-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[newer-result-path12-False-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[newer-result-path12-False-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[positive-path0-None-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[positive-path0-None-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[positive-path0-None-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[positive-path0-None-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[process-path8-process-replica-b-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[process-path8-process-replica-b-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[process-path8-process-replica-b-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[process-path8-process-replica-b-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[proposal-path11-stale invention-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[proposal-path11-stale invention-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[proposal-path11-stale invention-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[proposal-path11-stale invention-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-early-path24-1-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-early-path24-1-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-early-path24-1-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-early-path24-1-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-key-path20-foreign-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-key-path20-foreign-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-key-path20-foreign-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-key-path20-foreign-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-scope-path19-foreign-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-scope-path19-foreign-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-scope-path19-foreign-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-scope-path19-foreign-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-state-path21-wrong-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-state-path21-wrong-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-state-path21-wrong-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-state-path21-wrong-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-transaction-path22-unrelated-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-transaction-path22-unrelated-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-transaction-path22-unrelated-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-transaction-path22-unrelated-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-unexecuted-path17-False-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-unexecuted-path17-False-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-unexecuted-path17-False-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-unexecuted-path17-False-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[repair-path25-value25-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[repair-path25-value25-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[repair-path25-value25-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[repair-path25-value25-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[replica-path7-replica-b-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[replica-path7-replica-b-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[replica-path7-replica-b-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[replica-path7-replica-b-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[request-path9-unrelated-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[request-path9-unrelated-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[request-path9-unrelated-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[request-path9-unrelated-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[response-incomplete-path18-False-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[response-incomplete-path18-False-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[response-incomplete-path18-False-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[response-incomplete-path18-False-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[response-path23-True-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[response-path23-True-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[response-path23-True-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[response-path23-True-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[scope-path6-foreign-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[scope-path6-foreign-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[scope-path6-foreign-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[scope-path6-foreign-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[stale-result-path13-True-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[stale-result-path13-True-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[stale-result-path13-True-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[stale-result-path13-True-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[transaction-path14-unexpected-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[transaction-path14-unexpected-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[transaction-path14-unexpected-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[transaction-path14-unexpected-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[unexecuted-path2-False-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[unexecuted-path2-False-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[unexecuted-path2-False-2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[unexecuted-path2-False-3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_rejects_coherent_shared_process[0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_rejects_coherent_shared_process[1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_rejects_coherent_shared_process[2]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_reverse_save_rejects_coherent_shared_process[3]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-0-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-0-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-1-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-1-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-2-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-2-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-3-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-3-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-4-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-4-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-5-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[allowed-path15-True-5-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-0-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-0-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-1-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-1-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-2-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-2-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-3-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-3-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-4-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-4-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-5-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[missing-path1-__remove__-5-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-0-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-0-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-1-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-1-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-2-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-2-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-3-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-3-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-4-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-4-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-5-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[order-path11-3-5-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-0-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-0-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-1-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-1-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-2-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-2-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-3-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-3-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-4-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-4-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-5-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[positive-path0-None-5-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-0-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-0-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-1-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-1-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-2-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-2-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-3-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-3-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-4-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-4-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-5-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[principal-path6-unrelated-5-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-0-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-0-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-1-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-1-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-2-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-2-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-3-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-3-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-4-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-4-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-5-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[process-path7-unrelated-5-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-0-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-0-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-1-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-1-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-2-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-2-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-3-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-3-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-4-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-4-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-5-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-5-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-0-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-0-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-1-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-1-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-2-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-2-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-3-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-3-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-4-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-4-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-5-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-key-path10-foreign-5-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-0-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-0-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-1-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-1-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-2-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-2-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-3-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-3-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-4-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-4-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-5-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-unexecuted-path3-False-5-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-0-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-0-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-1-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-1-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-2-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-2-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-3-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-3-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-4-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-4-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-5-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[record-path9-foreign-5-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-0-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-0-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-1-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-1-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-2-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-2-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-3-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-3-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-4-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-4-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-5-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[repair-path17-value17-5-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-0-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-0-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-1-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-1-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-2-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-2-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-3-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-3-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-4-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-4-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-5-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-path8-unrelated-5-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-0-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-0-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-1-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-1-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-2-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-2-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-3-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-3-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-4-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-4-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-5-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[request-unexecuted-path2-False-5-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-0-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-0-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-1-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-1-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-2-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-2-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-3-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-3-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-4-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-4-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-5-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-incomplete-path4-False-5-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-0-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-0-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-1-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-1-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-2-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-2-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-3-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-3-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-4-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-4-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-5-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-5-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-0-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-0-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-1-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-1-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-2-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-2-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-3-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-3-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-4-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-4-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-5-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[scope-path5-foreign-5-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-0-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-0-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-1-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-1-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-2-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-2-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-3-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-3-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-4-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-4-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-5-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[sequence-path16-99-5-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-0-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-0-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-1-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-1-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-2-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-2-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-3-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-3-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-4-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-4-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-5-AC-16.1-01]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-5-AC-16.1-02]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_source_stamp_requires_exact_native_constructor_and_blob[product-constructor-signature]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_source_stamp_requires_exact_native_constructor_and_blob[product-named-blob]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_source_stamp_requires_exact_native_constructor_and_blob[product-trailing-blob]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_source_stamp_requires_exact_native_constructor_and_blob[test-constructor-signature]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_source_stamp_requires_exact_native_constructor_and_blob[test-named-blob]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round12_source_stamp_requires_exact_native_constructor_and_blob[test-trailing-blob]"
+    ]
+  ],
+  "priorLegacy": 72,
+  "identicalLegacy": true,
+  "combinedSourceUnchanged": false,
+  "currentCodeTestsIdenticalToCombined": true,
+  "mutantFailuresPassingOnFinalSource": [
+    {
+      "directory": "mutations",
+      "mutation": "tenant-operation-order",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-early-path24-1-0]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-operation-order",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-early-path24-1-1]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-operation-order",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-early-path24-1-2]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-operation-order",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-early-path24-1-3]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-operation-order",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-order-path9-1-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-operation-order",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-order-path9-1-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-operation-order",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_read_operations_are_distinct_and_ordered[same-order]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-operation-scope",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-scope-path19-foreign-0]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-operation-scope",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-scope-path19-foreign-1]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-operation-scope",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-scope-path19-foreign-2]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-operation-scope",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-scope-path19-foreign-3]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-operation-scope",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-scope-path7-foreign-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-operation-scope",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-scope-path7-foreign-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-original-cas",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[expectation-path10-21-0]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-original-cas",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[expectation-path10-21-1]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-original-cas",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[expectation-path10-21-2]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-original-cas",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[expectation-path10-21-3]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[unexecuted-path2-False-0]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[unexecuted-path2-False-1]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[unexecuted-path2-False-2]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[unexecuted-path2-False-3]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[incomplete-path3-False-0]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[incomplete-path3-False-1]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[incomplete-path3-False-2]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[incomplete-path3-False-3]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-unexecuted-path17-False-0]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-unexecuted-path17-False-1]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-unexecuted-path17-False-2]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-unexecuted-path17-False-3]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[response-incomplete-path18-False-0]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[response-incomplete-path18-False-1]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[response-incomplete-path18-False-2]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[response-incomplete-path18-False-3]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[processing-unexecuted-path2-False-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[processing-unexecuted-path2-False-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-unexecuted-path3-False-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-unexecuted-path3-False-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-incomplete-path4-False-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-incomplete-path4-False-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[completion-incomplete-path5-False-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[completion-incomplete-path5-False-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[ack-unexecuted-path19-False-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[ack-unexecuted-path19-False-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[restoration-unexecuted-path22-False-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[restoration-unexecuted-path22-False-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[after-unexecuted-path25-False-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "tenant-executed-completed",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[after-unexecuted-path25-False-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-native-proposal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[proposal-path11-stale invention-0]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-native-proposal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[proposal-path11-stale invention-1]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-native-proposal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[proposal-path11-stale invention-2]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-native-proposal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[proposal-path11-stale invention-3]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-durable-chain",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[before-path15-10-0]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-durable-chain",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[before-path15-10-1]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-durable-chain",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[before-path15-10-2]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-durable-chain",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[before-path15-10-3]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-cas-result",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[newer-result-path12-False-0]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-cas-result",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[newer-result-path12-False-1]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-cas-result",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[newer-result-path12-False-2]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-cas-result",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[newer-result-path12-False-3]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-cas-result",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[stale-result-path13-True-0]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-cas-result",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[stale-result-path13-True-1]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-cas-result",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[stale-result-path13-True-2]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-cas-result",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[stale-result-path13-True-3]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-preserved-after",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[after-path16-11-0]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-preserved-after",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[after-path16-11-1]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-preserved-after",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[after-path16-11-2]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-preserved-after",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[after-path16-11-3]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-read-identities",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_read_operations_are_distinct_and_ordered[store-operation]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-read-identities",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_read_operations_are_distinct_and_ordered[response-operation]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-final-store-read",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-state-path21-wrong-0]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-final-store-read",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-state-path21-wrong-1]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-final-store-read",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-state-path21-wrong-2]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-final-store-read",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-state-path21-wrong-3]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-final-store-read",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-transaction-path22-unrelated-0]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-final-store-read",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-transaction-path22-unrelated-1]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-final-store-read",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-transaction-path22-unrelated-2]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-final-store-read",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-transaction-path22-unrelated-3]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-process-replicas",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_rejects_coherent_shared_process[0]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-process-replicas",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_rejects_coherent_shared_process[1]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-process-replicas",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_rejects_coherent_shared_process[2]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "reverse-process-replicas",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_reverse_save_rejects_coherent_shared_process[3]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-source-state",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_authorization_state_derives_from_actual_inputs[projection]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-stored-cause",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_authorization_state_derives_from_actual_inputs[health]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-freshness",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_authorization_state_derives_from_actual_inputs[freshness]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-freshness",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_authorization_state_derives_from_actual_inputs[future-clock]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-missing-metadata",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_authorization_state_derives_from_actual_inputs[unknown-snapshot]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-missing-metadata",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_authorization_state_derives_from_actual_inputs[unavailable-snapshot]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-principal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_access_principal_admission_precedes_read[\\x1c]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-principal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_access_principal_admission_precedes_read[a\\x1fb]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-principal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_access_principal_admission_precedes_read[a\\x7fb]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-principal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_access_principal_admission_precedes_read[a\\x85b]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-principal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_access_principal_admission_precedes_read[a\\x9fb]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-principal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant/a-False]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-principal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant:a-False]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-principal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[ tenant-a-False]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-principal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant a-False]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-principal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\\x1c-False]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-principal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\\x7f-False]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-principal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[cafe\\u0301-False]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-principal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\\u200b-False]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-principal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\\ue000-False]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-principal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\\u0378-False]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-principal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\\U0001f600-False]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-policy",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-0-AC-16.1-01]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-policy",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-0-AC-16.1-02]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-policy",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-1-AC-16.1-01]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-policy",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-1-AC-16.1-02]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-policy",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-2-AC-16.1-01]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-policy",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-2-AC-16.1-02]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-policy",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-3-AC-16.1-01]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-policy",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-3-AC-16.1-02]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-policy",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-4-AC-16.1-01]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-policy",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-4-AC-16.1-02]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-policy",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-5-AC-16.1-01]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-policy",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-5-AC-16.1-02]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-attempt-count",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-count-path8-one-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-attempt-count",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-count-path8-one-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-proposal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[number-path10-2-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-proposal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[number-path10-2-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-proposal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[expected-path11-foreign-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-proposal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[expected-path11-foreign-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-proposal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[proposed-path12-99-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-proposal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[proposed-path12-99-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-provider-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[success-path13-True-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-provider-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[success-path13-True-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-provider-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[transaction-path14-invented-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-provider-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[transaction-path14-invented-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-provider-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[result-path15-Completed-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-provider-outcome",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[result-path15-Completed-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-terminal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[outcome-path16-Healthy-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-terminal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[outcome-path16-Healthy-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-terminal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-reference-path17-value17-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-terminal",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-reference-path17-value17-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-ack-observation",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[ack-reference-path20-foreign-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-ack-observation",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[ack-reference-path20-foreign-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-restoration",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[restoration-path23-Unavailable-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-restoration",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[restoration-path23-Unavailable-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-preserved-state",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[after-path24-11-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-preserved-state",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[after-path24-11-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-injected-correlation",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[fault-path26-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff-4]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "failure-injected-correlation",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[fault-path26-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff-5]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "diagnostic-exit",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stderr-sdk]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "diagnostic-exit",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stderr-build]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "diagnostic-exit",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stdout-sdk]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "diagnostic-exit",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stdout-build]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "diagnostic-exit",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[both-sdk]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "diagnostic-exit",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[both-build]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "diagnostic-exit",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[oversized-sdk]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "diagnostic-exit",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[oversized-build]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "diagnostic-stdout",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stdout-sdk]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "diagnostic-stdout",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stdout-build]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "enqueue-stage-transactions",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_enqueue_transaction_cannot_reuse_lifecycle_commit[0]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "enqueue-stage-transactions",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_enqueue_transaction_cannot_reuse_lifecycle_commit[1]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "enqueue-stage-transactions",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_enqueue_transaction_cannot_reuse_lifecycle_commit[2]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "diagnostic-stderr",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stderr-sdk]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "diagnostic-stderr",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stderr-build]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "diagnostic-bound",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[oversized-sdk]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "diagnostic-bound",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[oversized-build]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "product-source-owner",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[external-stamp]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "product-source-owner",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[external-metadata]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "test-source-owner",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[local-stamp]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "test-source-owner",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[external-stamp]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "test-source-owner",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[external-metadata]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-0-AC-16.1-01]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-0-AC-16.1-02]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-1-AC-16.1-01]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-1-AC-16.1-02]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-2-AC-16.1-01]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-2-AC-16.1-02]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-3-AC-16.1-01]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-3-AC-16.1-02]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-4-AC-16.1-01]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-4-AC-16.1-02]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-5-AC-16.1-01]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-5-AC-16.1-02]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-0-AC-16.1-01]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-0-AC-16.1-02]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-1-AC-16.1-01]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-1-AC-16.1-02]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-2-AC-16.1-01]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-2-AC-16.1-02]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-3-AC-16.1-01]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-3-AC-16.1-02]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-4-AC-16.1-01]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-4-AC-16.1-02]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-5-AC-16.1-01]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "access-response",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-5-AC-16.1-02]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "source-constructor-signature",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_source_stamp_requires_exact_native_constructor_and_blob[test-constructor-signature]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "source-constructor-signature",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_source_stamp_requires_exact_native_constructor_and_blob[product-constructor-signature]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "test-source-blob",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_source_stamp_requires_exact_native_constructor_and_blob[test-named-blob]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "product-source-blob",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_source_stamp_requires_exact_native_constructor_and_blob[product-named-blob]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "async-return-owner",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[custom-task]"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "params-complete-blob",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_params_requires_complete_framework_attribute_blob"
+    },
+    {
+      "directory": "mutations",
+      "mutation": "params-framework-owner",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[custom-params]"
+    },
+    {
+      "directory": "mutations-notice",
+      "mutation": "async-return-owner",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[custom-task]"
+    },
+    {
+      "directory": "mutations-notice",
+      "mutation": "test-source-blob",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_source_stamp_requires_exact_native_constructor_and_blob[test-named-blob]"
+    },
+    {
+      "directory": "mutations-notice",
+      "mutation": "test-source-owner",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[local-stamp]"
+    },
+    {
+      "directory": "mutations-notice",
+      "mutation": "test-source-owner",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[external-stamp]"
+    },
+    {
+      "directory": "mutations-notice",
+      "mutation": "test-source-owner",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[external-metadata]"
+    }
+  ]
+}

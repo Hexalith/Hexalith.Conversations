@@ -1,0 +1,31 @@
+{
+  "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "type": "Synthetic.TestClass",
+  "method": "Scenario01",
+  "originalDirectory": "/tmp/review13-blind-9r644fs3",
+  "originalBuildCommand": [
+    "dotnet",
+    "build",
+    "Evidence.csproj",
+    "-c",
+    "Debug",
+    "--nologo",
+    "-m:1",
+    "-p:NuGetAudit=false"
+  ],
+  "originalBuildExitCode": 0,
+  "originalBuildStreams": "Not retained by the original probe.",
+  "originalRunnerCommand": null,
+  "originalRunnerStreams": "No evidence runner was executed for this original metadata-only probe.",
+  "mutation": {
+    "beforeHex": "0100085a5a756e697175650000",
+    "afterHex": "0100085a5a756e697175650100",
+    "occurrences": 1,
+    "description": "Set the custom-attribute named-argument count to one without supplying named-argument bytes."
+  },
+  "validBinary": "valid.dll.bytes",
+  "mutatedBinary": "mutated.dll.bytes",
+  "mutatedBinaryRetention": "Exact original in-memory mutation recreated from the retained original compiled assembly.",
+  "validSha256": "040dd46dc442c5f9b26f9a2e7b6d3dcb61149c7abce53d7368f1775c7dbccd2e",
+  "mutatedSha256": "53153e7a6a7188f654e08e2c011b673c248cc085830cf647f2a49c88865402c2"
+}

@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "hexalith.conversations.epic16-measured-result.v1",
+  "storyId": "16.2",
+  "scenarioId": "AC-16.2-01",
+  "validationScope": "runtime",
+  "runtimeQualified": false,
+  "authority": {
+    "implementationHold": "ACTIVE",
+    "executionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  },
+  "result": "BLOCKED",
+  "exitCode": 2,
+  "candidate": {
+    "commit": "7c91876bb22dc14012b22333bcf9b3f93f643115",
+    "parent": "b33815e5be3f87ad5f2666f20b4c46b1033a8045",
+    "gitlinks": [
+      {
+        "path": "references/Hexalith.Commons",
+        "commit": "81290936360e99c2a687e513879d4e24a95b5a8d"
+      },
+      {
+        "path": "references/Hexalith.EventStore",
+        "commit": "728d7c898c4e70b12c8e650e66b95b9f8a28a42e"
+      },
+      {
+        "path": "references/Hexalith.Tenants",
+        "commit": "dc3e3d332158e4c0e60c53cf6dd5a6c93fa47cdf"
+      }
+    ],
+    "changedPaths": [
+      "_bmad-output/implementation-artifacts/spec-16-2-make-replay-time-deterministic-and-missing-index-state-truthful.md",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+      "tests/Hexalith.Conversations.IntegrationTests/Epic16/Story16_2EvidenceTests.cs"
+    ]
+  },
+  "bindings": {},
+  "counts": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0
+  },
+  "assertionLedger": [
+    {
+      "id": "preservation",
+      "subject": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "NATIVE_HELPER_UNAVAILABLE",
+      "subject": "fixed helper host failed: exit=150; stdout=''; stderr='You must install or update .NET to run this application.'",
+      "state": "BLOCKED"
+    }
+  ],
+  "blockers": [
+    "NATIVE_HELPER_UNAVAILABLE"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "_bmad/scripts/tests/test_epic16_tooling.py::test_qualified_runtime_evaluate_binds_binary_dependency_canonicalizer_and_ancestor",
+    "--basetemp=/tmp/epic16-r13-diagnostic-qualified-runtime",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/diagnostic-qualified-runtime/result.xml"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "environment": {
+    "EPIC16_COMMITLINT_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/diagnostic-qualified-runtime/commitlint.json",
+    "EPIC16_R11_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/diagnostic-qualified-runtime/native",
+    "EPIC16_R10_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/diagnostic-qualified-runtime/native-r10",
+    "EPIC16_R12_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/diagnostic-qualified-runtime/native-r12"
+  },
+  "started": 1793003336.0909798,
+  "sourceSha256": "ce612c8a307df05a2703b08524cb502caa830bb4cfa3630ac4bf5c7564999026",
+  "exitCode": 1,
+  "elapsedSeconds": 24.441521167755127,
+  "sourceUnchanged": true,
+  "stdoutSha256": "86f9ed6d942553ecde10ab8b8630e4c6e49651af04055402c77dcdc4a303c673",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

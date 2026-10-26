@@ -1,0 +1,1 @@
+[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")] namespace Synthetic; public class OtherFact : Xunit.FactAttribute {} public class IndirectFact : OtherFact {} public class TestClass { [Xunit.Fact][OtherFact] public void Scenario01() {} }

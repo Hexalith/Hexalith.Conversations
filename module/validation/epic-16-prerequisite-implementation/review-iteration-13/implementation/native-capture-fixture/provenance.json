@@ -1,0 +1,286 @@
+{
+  "scope": "Synthetic observations and nine source-stamped stand-ins; genuine xUnit 4.0.2 fixture runner; test-only trust; no product runtime qualification",
+  "sourceFixture": "/tmp/epic16-r13-focused-final-constraint/test_round6_genuine_native_cap0/fresh-checkout",
+  "test": "test_round6_genuine_native_capture_publication_survives_fresh_checkout",
+  "verificationRun": "iteration-13 completed focused-final-constraint run, same frozen source as final combined verification",
+  "testSource": {
+    "path": "_bmad/scripts/tests/test_epic16_tooling.py",
+    "sha256": "129d5a61270c9f2783d5581c66dd69fe5b79a28b2e3da0d7a1bd59f4d4ed31f3"
+  },
+  "candidate": "7c91876bb22dc14012b22333bcf9b3f93f643115",
+  "publicationCommit": "f1aaceb6d09c02391da169b7c0f35c7d3f0ed8f5",
+  "lifecycleCommit": "8d0609dc22418b2262e0021a9c3334b707555931",
+  "publicationPaths": [
+    "artifacts/epic16-runtime/16.2/AC-16.2-01.capture.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-01.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-01.trx",
+    "artifacts/epic16-runtime/16.2/AC-16.2-02.capture.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-02.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-02.trx",
+    "artifacts/epic16-runtime/16.2/AC-16.2-03.capture.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-03.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-03.trx",
+    "artifacts/epic16-runtime/16.2/AC-16.2-04.capture.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-04.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-04.trx",
+    "artifacts/epic16-runtime/16.2/AC-16.2-05.capture.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-05.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-05.trx",
+    "artifacts/epic16-runtime/16.2/binaries/1435cd716646332fd448ff481a422910860cff09101f923403a9cae7b417dd5a.dll",
+    "artifacts/epic16-runtime/16.2/binaries/3938207dd6315715dcbe5f7c9be9625a15eddb8087babe37067e7cc814837d39.dll",
+    "artifacts/epic16-runtime/16.2/binaries/5fb4dffb7c344311616d899034b541490bed74b8669dfeb87a8cfc386e32094e.dll",
+    "artifacts/epic16-runtime/16.2/binaries/6b6b209c395e168aa4a1478fe0ce53aa8f4358b2449e65a852c731a54b4a1b22.dll",
+    "artifacts/epic16-runtime/16.2/binaries/6e1becf84ff1066cdbf6155ba1e4d1fb33dfcbe3d26be54867f44d48b33eb2e0.dll",
+    "artifacts/epic16-runtime/16.2/binaries/759e42be5fd448880947fee819841da4e713873d0c8fc18ecdfb4402154ec743.dll",
+    "artifacts/epic16-runtime/16.2/binaries/ceffca5eba8b3234da23d5e3754428d34ac45526af9f69ed80e81164033826e9.dll",
+    "artifacts/epic16-runtime/16.2/binaries/d131f35d5339502e63b6fedd7cc30764ac67283c2fa1d3c29dbf8c2ec0caedda.dll",
+    "artifacts/epic16-runtime/16.2/binaries/d921572c6219576bf6c4e89350aa7172c00840f62b89d903b2106f966e5851da.dll",
+    "artifacts/epic16-runtime/16.2/binaries/db5b83685341f0a2c77e820e6887ad9af78aaf41bba0cc4b1f57f75c9313f39d.dll",
+    "artifacts/epic16-runtime/16.2/binaries/e0eebd2b499fb50e273e80cd50307de92c4d6fe0fe8a5852d6b7a3a0758fbec7.dll",
+    "docs/release-evidence/story-16.2-final-record-v2.json",
+    "docs/release-evidence/story-16.2-final-record-v2.md"
+  ],
+  "publicationPathCount": 28,
+  "retainedAssemblyCount": 11,
+  "captureCount": 5,
+  "rawTrxCount": 5,
+  "retained": [
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-01.capture.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-01.capture.json.bytes",
+      "sha256": "14f1713a0114245136afdde5d298b077334ae8a93ab5e8319452964d8d3ff18a",
+      "gitObjectId": "b78ce7e50788fed18c5cfe80967063828f8e569a",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-01.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-01.json.bytes",
+      "sha256": "dacf2852c8bda40f281731867ab987f64b3306d9c565a665a3d9902293b8f1ad",
+      "gitObjectId": "55ec244c294bd3899f14717a05c9f91fd3d4c9f2",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-01.trx",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-01.trx.bytes",
+      "sha256": "8fab3c6f5e7e852f529a2b299e6812fcf818dd8ca1b43b8509da6bd6e30da187",
+      "gitObjectId": "287321c6f178df14a7747ad028830b50d1019838",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-02.capture.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-02.capture.json.bytes",
+      "sha256": "82d2393f69dee527129ed94de8891c6c1ba830f45c2038a49d20076b1a31b875",
+      "gitObjectId": "eb7bdb6fcd08dca048600ce2119b5c2f18f2ff33",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-02.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-02.json.bytes",
+      "sha256": "492139ce94c6645bb307e7e0e9a95bb4ca33a268d9f314b1f6672dec66192367",
+      "gitObjectId": "c0ce26f81ff00f9dd47b9af2f769313e93a8b480",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-02.trx",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-02.trx.bytes",
+      "sha256": "fe1a2b0409c7439d68b6f9477ad547bb621ed2bb390ed14682d3abd7a9d3c14d",
+      "gitObjectId": "668fd8d362d5da22bde18e7d0ce45535a3334e74",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-03.capture.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-03.capture.json.bytes",
+      "sha256": "c985fca1f5a8c44906721319d4756269b43956f9f50223330fdedbefb90aed1f",
+      "gitObjectId": "09ebf432efa9b3ad397063bf7ba660e472c564f6",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-03.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-03.json.bytes",
+      "sha256": "1fe3fb6fcd231a472f3acdb74de872beabf8aac690bcc5cc1288a4c4bd55b34f",
+      "gitObjectId": "9c9fb600891d1600309c567c01d827dc4f1f145c",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-03.trx",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-03.trx.bytes",
+      "sha256": "db694d363097bc5cbdf71719a6ab4fb5b14a4abff1cecfc30a2df1a32605b501",
+      "gitObjectId": "02b3321f094b50defed1c77f9305c8b58e8eed83",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-04.capture.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-04.capture.json.bytes",
+      "sha256": "3cfb8290f0cfccc801e5a938b16d319e6eeceb2433f20aab9be3325d98714916",
+      "gitObjectId": "d0ee2f9c00c6ce49d9139a12360a001a6a433d3e",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-04.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-04.json.bytes",
+      "sha256": "bcb178a215ee99a0fe3be926e5476ecc9b212d646a4ba01ac2b41872fa7bc5f9",
+      "gitObjectId": "d24e321846eeec7645f92b650173b85ec61db9f8",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-04.trx",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-04.trx.bytes",
+      "sha256": "d81d0558bbfe4ae4618de438f86927f3905c7865d92f2b8ff40493236652f87f",
+      "gitObjectId": "f50e2591f03b6afd23d0246c39c5395f62640d1c",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-05.capture.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-05.capture.json.bytes",
+      "sha256": "a42cc88f067e213176362290bbfec3e4d7165aebb6d0ca5999b54cc76867424a",
+      "gitObjectId": "ef364c98e1698a7d5227833170a66925293f4bc7",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-05.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-05.json.bytes",
+      "sha256": "eeddb956e643575ed0b9c4bdd84e6e631331134a4387deb7c2b1d94d8f055dd4",
+      "gitObjectId": "5d0aa1767c10c6eeba941ff793add2b46a12bd69",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-05.trx",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__AC-16.2-05.trx.bytes",
+      "sha256": "0a368d81b3396aed3f66db5c30f317b8c295580df06c2a1f9ec48f6a46aca7d4",
+      "gitObjectId": "6bae9dff0e924a114a8195d5ae2508b88daecdc9",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/1435cd716646332fd448ff481a422910860cff09101f923403a9cae7b417dd5a.dll",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__1435cd716646332fd448ff481a422910860cff09101f923403a9cae7b417dd5a.dll.bytes",
+      "sha256": "1435cd716646332fd448ff481a422910860cff09101f923403a9cae7b417dd5a",
+      "gitObjectId": "3d2f6f90e6c7f57dcd8b49a3715d75d0026b3582",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/3938207dd6315715dcbe5f7c9be9625a15eddb8087babe37067e7cc814837d39.dll",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__3938207dd6315715dcbe5f7c9be9625a15eddb8087babe37067e7cc814837d39.dll.bytes",
+      "sha256": "3938207dd6315715dcbe5f7c9be9625a15eddb8087babe37067e7cc814837d39",
+      "gitObjectId": "8f41dadd7fc873c2a21a9bad95c79d1d875df11a",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/5fb4dffb7c344311616d899034b541490bed74b8669dfeb87a8cfc386e32094e.dll",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__5fb4dffb7c344311616d899034b541490bed74b8669dfeb87a8cfc386e32094e.dll.bytes",
+      "sha256": "5fb4dffb7c344311616d899034b541490bed74b8669dfeb87a8cfc386e32094e",
+      "gitObjectId": "e1248d72f724c1dab3450a62e33d986cb00c0638",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/6b6b209c395e168aa4a1478fe0ce53aa8f4358b2449e65a852c731a54b4a1b22.dll",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__6b6b209c395e168aa4a1478fe0ce53aa8f4358b2449e65a852c731a54b4a1b22.dll.bytes",
+      "sha256": "6b6b209c395e168aa4a1478fe0ce53aa8f4358b2449e65a852c731a54b4a1b22",
+      "gitObjectId": "6333c5a2dd23990c86134c75fe366f3a7c277bf9",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/6e1becf84ff1066cdbf6155ba1e4d1fb33dfcbe3d26be54867f44d48b33eb2e0.dll",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__6e1becf84ff1066cdbf6155ba1e4d1fb33dfcbe3d26be54867f44d48b33eb2e0.dll.bytes",
+      "sha256": "6e1becf84ff1066cdbf6155ba1e4d1fb33dfcbe3d26be54867f44d48b33eb2e0",
+      "gitObjectId": "db1ba1a9369ff38ce0a40a00e790dbb4e34c1682",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/759e42be5fd448880947fee819841da4e713873d0c8fc18ecdfb4402154ec743.dll",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__759e42be5fd448880947fee819841da4e713873d0c8fc18ecdfb4402154ec743.dll.bytes",
+      "sha256": "759e42be5fd448880947fee819841da4e713873d0c8fc18ecdfb4402154ec743",
+      "gitObjectId": "91a1506643622b09b0d088ba9a6b3480a4aba187",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/ceffca5eba8b3234da23d5e3754428d34ac45526af9f69ed80e81164033826e9.dll",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__ceffca5eba8b3234da23d5e3754428d34ac45526af9f69ed80e81164033826e9.dll.bytes",
+      "sha256": "ceffca5eba8b3234da23d5e3754428d34ac45526af9f69ed80e81164033826e9",
+      "gitObjectId": "491d0b52fc367ae80d5d26d5651bc54a1ec7e6c5",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/d131f35d5339502e63b6fedd7cc30764ac67283c2fa1d3c29dbf8c2ec0caedda.dll",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__d131f35d5339502e63b6fedd7cc30764ac67283c2fa1d3c29dbf8c2ec0caedda.dll.bytes",
+      "sha256": "d131f35d5339502e63b6fedd7cc30764ac67283c2fa1d3c29dbf8c2ec0caedda",
+      "gitObjectId": "985f47038bc96c24f5550390cec12fd6ebf3bef3",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/d921572c6219576bf6c4e89350aa7172c00840f62b89d903b2106f966e5851da.dll",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__d921572c6219576bf6c4e89350aa7172c00840f62b89d903b2106f966e5851da.dll.bytes",
+      "sha256": "d921572c6219576bf6c4e89350aa7172c00840f62b89d903b2106f966e5851da",
+      "gitObjectId": "282e9b68636b577ba76f0f7412225f0210e74a17",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/db5b83685341f0a2c77e820e6887ad9af78aaf41bba0cc4b1f57f75c9313f39d.dll",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__db5b83685341f0a2c77e820e6887ad9af78aaf41bba0cc4b1f57f75c9313f39d.dll.bytes",
+      "sha256": "db5b83685341f0a2c77e820e6887ad9af78aaf41bba0cc4b1f57f75c9313f39d",
+      "gitObjectId": "c0860bf1fa89d3706ca6866efb4d21e00c982d7e",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/e0eebd2b499fb50e273e80cd50307de92c4d6fe0fe8a5852d6b7a3a0758fbec7.dll",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__e0eebd2b499fb50e273e80cd50307de92c4d6fe0fe8a5852d6b7a3a0758fbec7.dll.bytes",
+      "sha256": "e0eebd2b499fb50e273e80cd50307de92c4d6fe0fe8a5852d6b7a3a0758fbec7",
+      "gitObjectId": "cafba65c9b2193bc9bec4863d7061902e7dad831",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "docs/release-evidence/story-16.2-final-record-v2.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/docs__release-evidence__story-16.2-final-record-v2.json.bytes",
+      "sha256": "e50e1512565a2d11cf730f531d08357c94c1ebc2364b47eddbce296ce30883c0",
+      "gitObjectId": "7093dce2bbdd2ee8bda48c87356cedce11e47f8d",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "docs/release-evidence/story-16.2-final-record-v2.md",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/docs__release-evidence__story-16.2-final-record-v2.md.bytes",
+      "sha256": "2ad7c384cc11df7ef193dca5b79d7de0d5468565190bd6044ab656d3b589abf3",
+      "gitObjectId": "0406119c04d81333e911b8b7430faee3225d15c8",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "tests/Hexalith.Conversations.IntegrationTests/Epic16/Story16_2EvidenceTests.cs",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/tests__Hexalith.Conversations.IntegrationTests__Epic16__Story16_2EvidenceTests.cs.bytes",
+      "sha256": "9f03cc78c75546f8f51a929021100cfcacc4ea3a3bcce62a47ab23da2503ab9d",
+      "gitObjectId": "52a4f74d8043a719f3188cba67ae7b53877160dd",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/_bmad-output__planning-artifacts__epic-16-tooling-v1__story-contracts__16.2.json.bytes",
+      "sha256": "6fe5131e6c8eceb0b892ef1008e07c3b830024e3c092eac101eb7c0905154f80",
+      "gitObjectId": "8f3c1eed0126522ce817f936b469714065d287b7",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/_bmad-output__planning-artifacts__epic-16-tooling-v1__binding.json.bytes",
+      "sha256": "cf7050c32a3b9e80ce843f68b0af0cdae17a94a0456258afceb9b441e2d7786c",
+      "gitObjectId": "fd97b00573cedf1ad32237cca5f71b2d329c8e25",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "fixture-entry.json",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/fixture-entry.json.bytes",
+      "sha256": "b4a08d48e74f4e9d925e9b229dfce77547eaa3838eb18b47c5726deb937d8698",
+      "gitObjectId": "1fe063fdd62f7d28579c5332028c7ac2fc1838b8",
+      "gitObjectType": "blob"
+    },
+    {
+      "fixturePath": "_bmad-output/implementation-artifacts/spec-16-2-make-replay-time-deterministic-and-missing-index-state-truthful.md",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/_bmad-output__implementation-artifacts__spec-16-2-make-replay-time-deterministic-and-missing-index-state-truthful.md.bytes",
+      "sha256": "198385937a9903f7ac4648a3e4b7fee457c3d315efd745df8f630c2ffb639657",
+      "gitObjectId": "4490d7558afd25fdbe6dcf6ad0494dac0481641f",
+      "gitObjectType": "blob"
+    }
+  ],
+  "gitObjects": "git-objects.json",
+  "extraction": "git show lifecycleCommit:path; exact committed fixture bytes",
+  "originalRawNativeBytesUnchanged": true,
+  "originalMeasurementDirectoryUnavailableToVerifier": true,
+  "externalBuildAndPayloadDirectoriesDeleted": true,
+  "fixtureBuildOutputsAbsentFromFreshCheckout": true
+}

@@ -1,0 +1,11 @@
+--- frozen/.gitattributes
++++ observed/.gitattributes
+@@ -113,7 +113,7 @@
+ _bmad/scripts/tests/fixtures/epic16-adoption-v2-gitattributes.txt -text
+ _bmad/scripts/tests/fixtures/epic16-adoption-v2-generator.py.gz binary
+ _bmad/schemas/epic-16-tooling-v1.schema.json text eol=lf
+-module/validation/epic-16-prerequisite-implementation/** -text diff
++module/validation/epic-16-prerequisite-implementation/** -text diff -whitespace
+ 
+ # The helper fixture preserves exact upstream source bytes.
+ _bmad/scripts/epic16_native_helper/* text eol=lf

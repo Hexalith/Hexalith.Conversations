@@ -1,0 +1,29 @@
+{
+  "name": "domain-predicate-explanation",
+  "path": "_bmad/scripts/epic16_domain.py",
+  "old": "if not condition: raise PredicateError(detail)",
+  "new": "if not condition: raise ValueError(detail)",
+  "selector": "round14_real_evaluator_retains and domain",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r14-mutant-domain-predicate-explanation-3d_ddkyr/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round14_real_evaluator_retains and domain",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-verification/mutations/domain-predicate-explanation/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r14-mutant-domain-predicate-explanation-3d_ddkyr",
+  "exitCode": 1,
+  "elapsedSeconds": 15.599295010004425,
+  "originalSha256": "b59cc54ea133a7c831047294bf34a7d92c5b63421578cb57ce47ed3b61a98cf3",
+  "mutatedSha256": "a2e40cbf99c951b3beeb466cab4956bf1eed2d6087d8e30359c084701ebc9c02",
+  "testSha256": "041019802d8f68321ae6354d48f4c8ecb78312b39a6df709b7cb30d9bc2a38a7",
+  "tests": {
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  }
+}

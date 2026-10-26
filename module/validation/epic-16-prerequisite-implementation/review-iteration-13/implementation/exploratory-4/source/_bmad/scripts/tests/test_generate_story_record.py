@@ -1,0 +1,14643 @@
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["pytest>=8.0", "jsonschema>=4.0"]
+# ///
+"""Hermetic tests for the story final-record generator."""
+
+import ast
+import builtins
+import hashlib
+import io
+import json
+import os
+import re
+import shutil
+import shlex
+import struct
+import subprocess
+import sys
+import time
+import unicodedata
+from contextlib import redirect_stdout
+from copy import deepcopy
+from importlib import util as importlib_util
+from pathlib import Path
+from xml.etree import ElementTree
+
+import jsonschema
+import pytest
+
+
+SCRIPT = Path(__file__).resolve().parents[1] / "generate_story_record.py"
+WORKSPACE = SCRIPT.parents[2]
+STORY_FILE = (
+    WORKSPACE
+    / "_bmad-output/implementation-artifacts"
+    / "6-8-generate-the-final-story-record-mechanically-from-measured-state.md"
+)
+RUNBOOK = WORKSPACE / "docs/runbooks/story-final-record-generation.md"
+TRX_NAMESPACE = "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"
+
+# V12 replaces the retired quick-dev/dev-auto route assumptions with these exact
+# current logical routes. The story-record generator remains covered hermetically
+# below; current-route lifecycle enforcement is owned by the V12 promotion and
+# evidence gates rather than by the retired Story 6.8 integration assertions.
+CURRENT_LIFECYCLE_WORKFLOWS = (
+    "bmad-build/step-04-review.md",
+    "bmad-build/step-05-present.md",
+    "bmad-build/step-oneshot.md",
+    "bmad-build-auto/step-04-review.md",
+    "bmad-code-review/steps/step-04-present.md",
+)
+GIT_ENVIRONMENT_OVERRIDES = {
+    "GIT_DIR",
+    "GIT_WORK_TREE",
+    "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_COMMON_DIR",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_NAMESPACE",
+}
+
+
+def fixture_git_environment() -> dict[str, str]:
+    environment = dict(os.environ)
+    for name in GIT_ENVIRONMENT_OVERRIDES:
+        environment.pop(name, None)
+    environment.update(
+        {
+            "GIT_AUTHOR_NAME": "Fixture Author",
+            "GIT_AUTHOR_EMAIL": "fixture-author@example.invalid",
+            "GIT_COMMITTER_NAME": "Fixture Committer",
+            "GIT_COMMITTER_EMAIL": "fixture-committer@example.invalid",
+            "GIT_CONFIG_GLOBAL": os.devnull,
+            "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_TERMINAL_PROMPT": "0",
+        }
+    )
+    return environment
+
+
+GIT_ENV = fixture_git_environment()
+
+
+def load_generator():
+    spec = importlib_util.spec_from_file_location("generate_story_record", SCRIPT)
+    module = importlib_util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
+
+
+def run_git(repository: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [
+            "git",
+            "-c",
+            "init.defaultBranch=main",
+            "-c",
+            "commit.gpgsign=false",
+            "-c",
+            "protocol.file.allow=always",
+            "-C",
+            str(repository),
+            *arguments,
+        ],
+        check=True,
+        capture_output=True,
+        env=GIT_ENV,
+        text=True,
+        timeout=30,
+    )
+
+
+def sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def write_trx(
+    path: Path,
+    passed: int = 3,
+    failed: int = 0,
+    skipped: int = 0,
+    project: str = "Fixture",
+    code_base: Path | None = None,
+    include_test_ids: bool = False,
+) -> None:
+    """Write a TRX whose summary agrees with the results it contains."""
+    if code_base is None:
+        repository = next(
+            (parent for parent in (path.parent, *path.parents) if (parent / ".git").exists()),
+            None,
+        )
+        if repository is not None:
+            candidate = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+            code_base = (
+                repository
+                / "tests"
+                / project
+                / "bin"
+                / "Release"
+                / "net10.0"
+                / f"{project}.dll"
+            )
+            code_base.parent.mkdir(parents=True, exist_ok=True)
+            code_base.write_bytes(
+                f"fixture managed assembly 1.0.0+{candidate}\0".encode("ascii")
+            )
+        else:
+            code_base = Path(f"/fixture/{project}.dll")
+    results = [
+        f'<UnitTestResult testName="{project}.P{index}" outcome="Passed" />'
+        for index in range(passed)
+    ]
+    results += [
+        f'<UnitTestResult testName="{project}.F{index}" outcome="Failed" />'
+        for index in range(failed)
+    ]
+    results += [
+        f'<UnitTestResult testName="{project}.S{index}" outcome="NotExecuted" />'
+        for index in range(skipped)
+    ]
+    if include_test_ids:
+        definitions = []
+        for index, result in enumerate(results):
+            test_id = f"{index:04d}"
+            test_name = re.search(r'testName="([^"]+)"', result).group(1)
+            results[index] = result.replace(' outcome=', f' testId="{test_id}" outcome=', 1)
+            definitions.append(
+                f'    <UnitTest name="{test_name}" id="{test_id}">'
+                f'<TestMethod codeBase="{code_base}" /></UnitTest>'
+            )
+        definition_rows = "\n".join(definitions) + "\n"
+    else:
+        definition_rows = f'    <UnitTest name="fixture"><TestMethod codeBase="{code_base}" /></UnitTest>\n'
+    executed = passed + failed
+    total = executed + skipped
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        '<?xml version="1.0" encoding="utf-8"?>\n'
+        f'<TestRun id="fixture" name="fixture" xmlns="{TRX_NAMESPACE}">\n'
+        "  <Results>\n    " + "\n    ".join(results) + "\n  </Results>\n"
+        "  <TestDefinitions>\n"
+        f"{definition_rows}"
+        "  </TestDefinitions>\n"
+        '  <ResultSummary outcome="Completed">\n'
+        f'    <Counters total="{total}" executed="{executed}" passed="{passed}" '
+        f'failed="{failed}" error="0" timeout="0" aborted="0" inconclusive="0" '
+        f'notRunnable="0" notExecuted="{skipped}" disconnected="0" />\n'
+        "  </ResultSummary>\n"
+        "</TestRun>\n",
+        encoding="utf-8",
+    )
+
+
+STORY_TEMPLATE = """---
+story_key: 'fixture-story'
+status: 'in-progress'
+baseline_commit: '{baseline}'
+---
+
+# Fixture Story
+
+## Dev Agent Record
+
+### File List
+
+### Boundary Confirmation
+
+Fixture.
+"""
+
+
+def build_umbrella(tmp_path: Path) -> dict[str, object]:
+    """A root-only umbrella with one declared submodule, a story record and a TRX."""
+    source = tmp_path / "source"
+    source.mkdir()
+    run_git(source, "init")
+    (source / "tracked.txt").write_text("captured\n", encoding="utf-8")
+    run_git(source, "add", "--all")
+    run_git(source, "commit", "-m", "source")
+
+    origin = tmp_path / "origin.git"
+    origin.mkdir()
+    run_git(origin, "init", "--bare")
+    run_git(source, "remote", "add", "origin", str(origin))
+    run_git(source, "push", "--set-upstream", "origin", "main")
+
+    umbrella = tmp_path / "umbrella"
+    umbrella.mkdir()
+    run_git(umbrella, "init")
+    (umbrella / "seed.txt").write_text("seed\n", encoding="utf-8")
+    (umbrella / ".gitignore").write_text("bin/\nobj/\nresults/\n", encoding="utf-8")
+    (umbrella / "_bmad-output/implementation-artifacts").mkdir(parents=True)
+    (umbrella / "tests/Fixture").mkdir(parents=True)
+    (umbrella / "tests/Fixture/Fixture.csproj").write_text(
+        "<Project />\n", encoding="utf-8"
+    )
+    (umbrella / "Fixture.slnx").write_text(
+        '<Solution><Folder Name="/tests/"><Project Path="tests/Fixture/Fixture.csproj" />'
+        "</Folder></Solution>\n",
+        encoding="utf-8",
+    )
+    run_git(umbrella, "add", "--all")
+    run_git(umbrella, "commit", "-m", "seed")
+    run_git(umbrella, "submodule", "add", str(source), "references/Example")
+    run_git(umbrella, "commit", "-m", "add submodule")
+    baseline = run_git(umbrella, "rev-parse", "HEAD").stdout.strip()
+
+    story = "_bmad-output/implementation-artifacts/fixture-story.md"
+    (umbrella / story).write_text(
+        STORY_TEMPLATE.format(baseline=baseline), encoding="utf-8"
+    )
+    (umbrella / "changed.txt").write_text("changed\n", encoding="utf-8")
+    run_git(umbrella, "add", story, "changed.txt")
+    run_git(umbrella, "commit", "-m", "story and change")
+    candidate = run_git(umbrella, "rev-parse", "HEAD").stdout.strip()
+
+    artifact = "results/fixture.trx"
+    write_trx(umbrella / artifact)
+    return {
+        "repository": umbrella,
+        "baseline": baseline,
+        "candidate": candidate,
+        "story": story,
+        "artifact": artifact,
+    }
+
+
+@pytest.fixture()
+def umbrella(tmp_path: Path) -> dict[str, object]:
+    return build_umbrella(tmp_path)
+
+
+def invoke(fixture: dict[str, object], *extra: str) -> tuple[int, dict]:
+    """Run the generator as a subprocess and parse its document."""
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--repository",
+            str(fixture["repository"]),
+            "--story",
+            str(fixture["story"]),
+            "--format",
+            "json",
+            *extra,
+        ],
+        check=False,
+        capture_output=True,
+        env=GIT_ENV,
+        text=True,
+        timeout=120,
+    )
+    return result.returncode, json.loads(result.stdout)
+
+
+def codes(document: dict) -> set[str]:
+    return {item["code"] for item in document["blockers"]}
+
+
+def measured(fixture: dict[str, object], *extra: str) -> tuple[int, dict]:
+    return invoke(fixture, "--test-results", f"Fixture={fixture['artifact']}", *extra)
+
+
+def bundled(fixture: dict[str, object], *extra: str) -> tuple[int, dict]:
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--repository",
+            str(fixture["repository"]),
+            "--story",
+            str(fixture["story"]),
+            "--format",
+            "bundle",
+            "--test-results",
+            f"Fixture={fixture['artifact']}",
+            *extra,
+        ],
+        check=False,
+        capture_output=True,
+        env=GIT_ENV,
+        text=True,
+        timeout=120,
+    )
+    return result.returncode, json.loads(result.stdout)
+
+
+def insert_generated_block(fixture: dict[str, object], block: str) -> None:
+    story_file = fixture["repository"] / fixture["story"]
+    content = story_file.read_text(encoding="utf-8")
+    module = load_generator()
+    anchor, start, end = module.record_anchor(content)
+    assert anchor is not None
+    story_file.write_text(content[:start] + block + content[end:], encoding="utf-8")
+
+
+def set_file_list(fixture: dict[str, object], paths: list[str]) -> None:
+    story_file = fixture["repository"] / fixture["story"]
+    bullets = "\n".join(f"- `{path}` (modified)" for path in paths)
+    content = story_file.read_text(encoding="utf-8").replace(
+        "### File List\n\n### Boundary Confirmation",
+        f"### File List\n\n{bullets}\n\n### Boundary Confirmation",
+    )
+    story_file.write_text(content, encoding="utf-8")
+
+
+def add_test_project(fixture: dict[str, object], name: str) -> None:
+    repository = fixture["repository"]
+    project = repository / f"tests/{name}/{name}.csproj"
+    project.parent.mkdir(parents=True)
+    project.write_text("<Project />\n", encoding="utf-8")
+    solution = repository / "Fixture.slnx"
+    solution.write_text(
+        solution.read_text(encoding="utf-8").replace(
+            "</Folder>", f'<Project Path="tests/{name}/{name}.csproj" /></Folder>'
+        ),
+        encoding="utf-8",
+    )
+    run_git(repository, "add", "Fixture.slnx", str(project.relative_to(repository)))
+    run_git(repository, "commit", "-m", f"add {name} test project")
+
+
+# --------------------------------------------------------------------------- #
+# Contract: exit codes, document shape, anti-vacuity
+# --------------------------------------------------------------------------- #
+
+
+def test_a_fully_derived_record_passes(umbrella: dict[str, object]) -> None:
+    code, document = measured(umbrella)
+    assert code == 0, document["blockers"]
+    assert document["result"] == "pass"
+    assert document["schema"] == "story-final-record-v1"
+    assert document["derived"] == {
+        "test_results": True,
+        "candidate": True,
+        "record_section": True,
+    }
+    assert document["test_results"]["totals"] == {
+        "total": 3,
+        "executed": 3,
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0,
+    }
+    assert document["build_manifest"]["candidate"] == umbrella["candidate"]
+    assert [
+        item["project"] for item in document["build_manifest"]["projects"]
+    ] == ["Fixture"]
+    assert re.fullmatch(
+        r"[0-9a-f]{64}", document["build_manifest"]["projects"][0]["sha256"]
+    )
+
+
+def test_test_binary_must_embed_the_exact_candidate_revision(
+    umbrella: dict[str, object],
+) -> None:
+    binary = (
+        umbrella["repository"]
+        / "tests/Fixture/bin/Release/net10.0/Fixture.dll"
+    )
+    binary.write_bytes(b"fixture managed assembly 1.0.0+" + b"0" * 40 + b"\0")
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "TEST_BUILD_NOT_BOUND" in codes(document)
+    assert document["build_manifest"]["projects"][0]["source_revision"] is None
+
+
+def test_test_result_must_not_predate_its_candidate_bound_binary(
+    umbrella: dict[str, object],
+) -> None:
+    artifact = umbrella["repository"] / umbrella["artifact"]
+    binary = (
+        umbrella["repository"]
+        / "tests/Fixture/bin/Release/net10.0/Fixture.dll"
+    )
+    future = artifact.stat().st_mtime_ns + 1_000_000_000
+    os.utime(binary, ns=(future, future))
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "TEST_BUILD_NOT_BOUND" in codes(document)
+
+
+def test_totals_are_summed_across_projects_not_transcribed(
+    umbrella: dict[str, object],
+) -> None:
+    add_test_project(umbrella, "Second")
+    write_trx(umbrella["repository"] / umbrella["artifact"])
+    write_trx(umbrella["repository"] / "results/second.trx", passed=5, project="Second")
+    code, document = invoke(
+        umbrella,
+        "--test-results",
+        f"Fixture={umbrella['artifact']}",
+        "--test-results",
+        "Second=results/second.trx",
+    )
+    assert code == 0, document["blockers"]
+    assert document["test_results"]["totals"] == {
+        "total": 8,
+        "executed": 8,
+        "passed": 8,
+        "failed": 0,
+        "skipped": 0,
+    }
+
+
+def test_a_run_that_derives_no_test_artifact_cannot_report_a_pass(
+    umbrella: dict[str, object],
+) -> None:
+    code, document = invoke(umbrella)
+    assert code == 1
+    assert document["result"] == "blocked"
+    assert "RECORD_NOT_DERIVED" in codes(document)
+
+
+def test_a_record_with_no_replaceable_section_blocks(
+    umbrella: dict[str, object],
+) -> None:
+    story_file = umbrella["repository"] / umbrella["story"]
+    story_file.write_text(
+        "---\nstory_key: 'x'\n---\n\n# Nothing here\n", encoding="utf-8"
+    )
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "RECORD_NOT_DERIVED" in codes(document)
+    assert document["derived"]["record_section"] is False
+
+
+def test_an_invocation_error_still_emits_a_parseable_document(
+    umbrella: dict[str, object],
+) -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--repository",
+            str(umbrella["repository"]),
+            "--format",
+            "json",
+        ],
+        check=False,
+        capture_output=True,
+        env=GIT_ENV,
+        text=True,
+        timeout=60,
+    )
+    assert result.returncode == 2
+    document = json.loads(result.stdout)
+    assert document["result"] == "error"
+    assert codes(document) == {"INVALID_SCOPE"}
+    # Every top-level key is pre-seeded so a consumer never KeyErrors on failure.
+    for key in ("file_list", "test_results", "promotions", "blockers", "warnings"):
+        assert key in document
+
+
+def test_a_gate_error_honours_the_requested_format_before_argparse_succeeds() -> None:
+    module = load_generator()
+    assert module.pre_parse_output_format(["--format", "markdown"]) == "markdown"
+    assert module.pre_parse_output_format(["--format=markdown"]) == "markdown"
+    assert module.pre_parse_output_format(["--f", "markdown"]) == "markdown"
+    assert module.pre_parse_output_format(["--format", "bundle"]) == "bundle"
+    assert module.pre_parse_output_format([]) == "json"
+
+
+@pytest.mark.parametrize("arguments,expected", [
+    (["--format", "json", "--format", "markdown"], "markdown"),
+    (["--format=markdown", "--f=bundle"], "bundle"),
+    (["--f", "bundle", "--forma=json"], "json"),
+])
+def test_early_gate_error_uses_argparse_last_format(arguments, expected, monkeypatch) -> None:
+    module = load_generator()
+    assert module.build_parser().parse_args(arguments).format == expected
+
+    class BrokenParser:
+        def parse_args(self, _arguments):
+            raise module.GateError("INVALID_SCOPE", "injected early error")
+
+    monkeypatch.setattr(module, "build_parser", BrokenParser)
+    captured = io.StringIO()
+    with redirect_stdout(captured):
+        assert module.main(arguments) == 2
+    content = captured.getvalue()
+    if expected == "markdown":
+        assert content.startswith(module.RECORD_BEGIN_MARKER)
+        assert "INVALID_SCOPE" in content
+    else:
+        document = json.loads(content)
+        if expected == "bundle":
+            document = document["document"]
+        assert codes(document) == {"INVALID_SCOPE"}
+
+
+def test_early_gate_error_ignores_format_tokens_after_option_terminator() -> None:
+    result = subprocess.run(
+        [sys.executable, str(SCRIPT), "--format", "markdown", "--", "--format", "bundle"],
+        check=False, capture_output=True, text=True, env=GIT_ENV, timeout=60,
+    )
+    assert result.returncode == 2
+    assert result.stdout.startswith(load_generator().RECORD_BEGIN_MARKER)
+    assert "INVALID_SCOPE" in result.stdout
+
+
+@pytest.mark.parametrize("declaration", [
+    '[submodule "duplicate"]\npath = references/Example\n',
+    '[submodule "references/Example"]\npath = references/Example\n',
+])
+def test_committed_root_paths_reject_duplicate_declarations(umbrella, declaration) -> None:
+    module = load_generator()
+    repository = umbrella["repository"]
+    assert module.root_submodule_paths(repository, "HEAD") == ["references/Example"]
+    modules = repository / ".gitmodules"
+    modules.write_text(modules.read_text(encoding="utf-8") + declaration, encoding="utf-8")
+    run_git(repository, "add", ".gitmodules")
+    run_git(repository, "commit", "-m", "test: repeat a root declaration")
+    # The observer must use committed declarations even when the worktree hides the duplicate.
+    modules.write_text('[submodule "valid"]\npath = references/Example\n', encoding="utf-8")
+    with pytest.raises(module.GateError) as failure:
+        module.root_submodule_paths(repository, "HEAD")
+    assert failure.value.code == "INVALID_SCOPE"
+    assert "duplicate" in str(failure.value).lower()
+
+
+def test_one_bundle_is_inserted_and_verified_by_digest(
+    umbrella: dict[str, object],
+) -> None:
+    code, bundle = bundled(umbrella)
+    assert code == 0, bundle["document"]["blockers"]
+    assert bundle["schema"] == "story-final-record-bundle-v1"
+    assert (
+        hashlib.sha256(bundle["markdown"].encode()).hexdigest()
+        == bundle["markdown_sha256"]
+    )
+    insert_generated_block(umbrella, bundle["markdown"])
+
+    verification = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--repository",
+            str(umbrella["repository"]),
+            "--story",
+            str(umbrella["story"]),
+            "--verify-record-sha256",
+            bundle["markdown_sha256"],
+            "--format",
+            "json",
+        ],
+        check=False,
+        capture_output=True,
+        env=GIT_ENV,
+        text=True,
+        timeout=60,
+    )
+    assert verification.returncode == 0, verification.stdout
+
+    story_file = umbrella["repository"] / umbrella["story"]
+    story_file.write_text(
+        story_file.read_text(encoding="utf-8").replace(
+            "Fixture | PARSED", "Fixture | NOT_RUN"
+        ),
+        encoding="utf-8",
+    )
+    code, document = invoke(
+        umbrella,
+        "--verify-record-sha256",
+        bundle["markdown_sha256"],
+    )
+    assert code == 1
+    assert "RECORD_CONTENT_DRIFT" in codes(document)
+
+
+def test_test_project_scope_is_exact_and_artifacts_bind_to_assemblies(
+    umbrella: dict[str, object],
+) -> None:
+    code, document = invoke(
+        umbrella,
+        "--test-results",
+        f"Fixture={umbrella['artifact']}",
+        "--test-results",
+        f"Fixture={umbrella['artifact']}",
+    )
+    assert code == 1
+    assert "TEST_PROJECT_SCOPE_MISMATCH" in codes(document)
+
+    write_trx(umbrella["repository"] / umbrella["artifact"], project="Foreign")
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "TEST_PROJECT_SCOPE_MISMATCH" in codes(document)
+
+
+def test_zero_failed_and_unapproved_skipped_results_block(
+    umbrella: dict[str, object],
+) -> None:
+    write_trx(umbrella["repository"] / umbrella["artifact"], passed=0)
+    assert "TEST_RESULTS_EMPTY" in codes(measured(umbrella)[1])
+
+    write_trx(umbrella["repository"] / umbrella["artifact"], passed=2, failed=1)
+    assert "TEST_RESULTS_FAILED" in codes(measured(umbrella)[1])
+
+    write_trx(umbrella["repository"] / umbrella["artifact"], passed=2, skipped=1)
+    assert "TEST_SKIP_NOT_ALLOWED" in codes(measured(umbrella)[1])
+
+    story_file = umbrella["repository"] / umbrella["story"]
+    story_file.write_text(
+        story_file.read_text(encoding="utf-8").replace(
+            "---\n\n# Fixture Story",
+            "allowed_skipped_tests:\n"
+            "  - test: 'Fixture.S0'\n"
+            "    reason: 'requires the opt-in live service lane'\n"
+            "---\n\n# Fixture Story",
+        ),
+        encoding="utf-8",
+    )
+    code, document = measured(umbrella)
+    assert code == 0, document["blockers"]
+
+
+def test_deferred_measurements_unevaluated_promotion_cannot_pass(umbrella) -> None:
+    code, document = measured(umbrella, "--baseline", umbrella["candidate"])
+    assert code == 1
+    assert "PROMOTION_GATE_NOT_PASS" in codes(document)
+    assert document["promotion_gate"]["result"] == "pass"
+    assert "SCOPE_NOT_EVALUATED" in {
+        row["code"] for row in document["promotion_gate"]["warnings"]
+    }
+
+    code, document = measured(
+        umbrella, "--baseline", umbrella["candidate"], "--submodule", "references/Example"
+    )
+    assert code == 0, document["blockers"]
+    assert document["promotion_gate"]["evaluated"]
+
+
+@pytest.mark.parametrize("sprint", ["absent", "committed", "uncommitted"])
+@pytest.mark.parametrize("equal_baseline", [False, True])
+def test_deferred_portability_output_accounting(umbrella, sprint, equal_baseline) -> None:
+    repository = umbrella["repository"]
+    story = repository / umbrella["story"]
+    sprint_path = story.parent / "sprint-status.yaml"
+    if sprint != "absent":
+        sprint_path.write_text("development_status: {}\n", encoding="utf-8")
+        if sprint == "committed":
+            run_git(repository, "add", sprint_path.relative_to(repository).as_posix())
+            run_git(repository, "commit", "-m", "fixture sprint")
+    candidate = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    content = story.read_text(encoding="utf-8").replace(
+        "baseline_commit:", f"file_list_commit: '{candidate}'\nbaseline_commit:",
+    )
+    if equal_baseline:
+        content = content.replace(str(umbrella["baseline"]), candidate)
+    story.write_text(content, encoding="utf-8")
+    write_trx(repository / umbrella["artifact"])
+    code, bundle = bundled(umbrella, "--submodule", "references/Example")
+    assert code == 0, bundle["document"]["blockers"]
+    expected = {umbrella["story"]}
+    if not equal_baseline:
+        expected.add("changed.txt")
+    if sprint != "absent":
+        expected.add(sprint_path.relative_to(repository).as_posix())
+    assert set(bundle["document"]["file_list"]["derived"]) == expected
+    insert_generated_block(umbrella, bundle["markdown"])
+    code, document = historical_fixture(umbrella)
+    assert code == 0, document["blockers"]
+    assert set(document["file_list"]["derived"]) == expected
+    if sprint == "committed":
+        sprint_entry = f"- `{sprint_path.relative_to(repository).as_posix()}` ({'modified' if equal_baseline else 'new'})\n"
+        assert sprint_entry in bundle["markdown"]
+        insert_generated_block(umbrella, bundle["markdown"].replace(sprint_entry, ""))
+        code, document = historical_fixture(umbrella)
+        assert code == 1
+        assert "FILE_LIST_DRIFT" in codes(document)
+        assert document["file_list"]["missing"] == [sprint_path.relative_to(repository).as_posix()]
+        insert_generated_block(umbrella, bundle["markdown"])
+    if sprint != "absent":
+        # Historical verification cannot depend on a former output's presence today.
+        sprint_path.unlink()
+        code, document = historical_fixture(umbrella)
+        assert code == 0, document["blockers"]
+    annotation = "modified" if equal_baseline else "new"
+    original = f"- `{umbrella['story']}` ({annotation})"
+    assert original in bundle["markdown"]
+    insert_generated_block(umbrella, bundle["markdown"].replace(
+        original, "- `seed.txt` (modified)",
+    ))
+    code, document = historical_fixture(umbrella)
+    assert code == 1
+    assert "FILE_LIST_DRIFT" in codes(document)
+    assert document["file_list"]["missing"] == [umbrella["story"]]
+    assert document["file_list"]["unexpected"] == ["seed.txt"]
+
+
+@pytest.mark.parametrize("mode", ["directory", "gitlink"])
+def test_deferred_portability_sprint_output_rejects_incompatible_candidate_modes(umbrella, mode) -> None:
+    repository = umbrella["repository"]
+    story = repository / umbrella["story"]
+    sprint_path = (story.parent / "sprint-status.yaml").relative_to(repository).as_posix()
+    if mode == "directory":
+        directory = repository / sprint_path
+        directory.mkdir()
+        (directory / "tracked.txt").write_text("fixture source\n", encoding="utf-8")
+        run_git(repository, "add", sprint_path)
+    else:
+        run_git(repository, "update-index", "--add", "--cacheinfo", f"160000,{umbrella['candidate']},{sprint_path}")
+    run_git(repository, "commit", "-m", "fixture incompatible sprint mode")
+    candidate = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    story.write_text(story.read_text(encoding="utf-8").replace(
+        "baseline_commit:", f"file_list_commit: '{candidate}'\nbaseline_commit:",
+    ).replace(str(umbrella["baseline"]), candidate), encoding="utf-8")
+    write_trx(repository / umbrella["artifact"])
+    code, bundle = bundled(umbrella, "--submodule", "references/Example")
+    assert code == 0, bundle["document"]["blockers"]
+    assert bundle["document"]["file_list"]["derived"] == [umbrella["story"]]
+    insert_generated_block(umbrella, bundle["markdown"])
+    code, document = historical_fixture(umbrella)
+    assert code == 0, document["blockers"]
+    insert_generated_block(umbrella, bundle["markdown"].replace(
+        "### File List\n", f"### File List\n\n- `{sprint_path}` (modified)\n",
+    ))
+    code, document = historical_fixture(umbrella)
+    assert code == 1
+    assert "FILE_LIST_DRIFT" in codes(document)
+
+
+@pytest.mark.parametrize("phase", ["staged-delta", "promotion"])
+def test_deferred_portability_head_movement_cannot_pass(umbrella, monkeypatch, phase) -> None:
+    module = load_generator()
+    repository = umbrella["repository"]
+    candidate = umbrella["candidate"]
+    original = module.run_git
+    moved = False
+    staged_revisions = []
+
+    def observe_git(path, *arguments, **kwargs):
+        nonlocal moved
+        result = original(path, *arguments, **kwargs)
+        if path == repository and arguments[:2] == ("diff-index", "--cached"):
+            staged_revisions.append(arguments[-2])
+            if phase == "staged-delta" and not moved:
+                run_git(repository, "commit", "--allow-empty", "-m", "concurrent fixture commit")
+                moved = True
+        return result
+
+    monkeypatch.setattr(module, "run_git", observe_git)
+    promotion = module.run_promotion_gate
+
+    def observe_promotion(*args):
+        nonlocal moved
+        assert args[2] == candidate
+        result = promotion(*args)
+        if phase == "promotion":
+            run_git(repository, "commit", "--allow-empty", "-m", "concurrent fixture commit")
+            moved = True
+        return result
+
+    monkeypatch.setattr(module, "run_promotion_gate", observe_promotion)
+    args = module.build_parser().parse_args([
+        "--repository", str(repository), "--story", umbrella["story"],
+        "--test-results", f"Fixture={umbrella['artifact']}",
+    ])
+    document = module.verify(args)
+    assert moved
+    assert document["result"] == "blocked"
+    assert "CANDIDATE_NOT_FINAL" in codes(document)
+    assert document["candidate"] == candidate
+    assert document["candidate_binding"]["head"] == candidate
+    assert staged_revisions == [candidate]
+
+
+def test_deferred_measurements_remote_requirement_reaches_the_checker(umbrella) -> None:
+    arguments = ("--submodule", "references/Example", "--require-remote", "references/Example")
+    code, document = measured(umbrella, *arguments)
+    assert code == 0, document["blockers"]
+
+    repository = umbrella["repository"]
+    submodule = repository / "references/Example"
+    run_git(submodule, "commit", "--allow-empty", "-m", "unpublished source")
+    run_git(repository, "add", "references/Example")
+    run_git(repository, "commit", "-m", "promote unpublished source")
+    write_trx(repository / umbrella["artifact"])
+    code, document = measured(umbrella, "--submodule", "references/Example")
+    assert code == 0, document["blockers"]
+
+    code, document = measured(umbrella, *arguments)
+    assert code == 1
+    assert "PROMOTION_GATE_NOT_PASS" in codes(document)
+    assert "REMOTE_COMMIT_UNAVAILABLE" in codes(document["promotion_gate"])
+    assert document["promotion_gate"]["result"] == "blocked"
+
+
+@pytest.mark.parametrize("occurrences", [1, 2])
+def test_deferred_measurements_skip_occurrences_roundtrip(umbrella, occurrences) -> None:
+    repository = umbrella["repository"]
+    add_test_project(umbrella, "SecondFixture")
+    umbrella["candidate"] = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    story = repository / umbrella["story"]
+    story.write_text(story.read_text(encoding="utf-8").replace(
+        "baseline_commit:",
+        f"file_list_commit: '{umbrella['candidate']}'\n"
+        "allowed_skipped_tests:\n  - test: 'Shared.Tests.OptionalLane'\n"
+        "    reason: 'requires an opt-in service'\nbaseline_commit:",
+    ), encoding="utf-8")
+    for project, artifact, skipped in (
+        ("Fixture", umbrella["artifact"], 1),
+        ("SecondFixture", "results/second.trx", occurrences - 1),
+    ):
+        path = repository / artifact
+        write_trx(path, passed=2, skipped=skipped, project=project)
+        path.write_text(path.read_text(encoding="utf-8").replace(
+            f'{project}.S0', 'Shared.Tests.OptionalLane'
+        ), encoding="utf-8")
+    code, bundle = bundled(umbrella, "--test-results", "SecondFixture=results/second.trx")
+    assert code == 0, bundle["document"]["blockers"]
+    assert bundle["document"]["test_results"]["totals"]["skipped"] == occurrences
+    insert_generated_block(umbrella, bundle["markdown"])
+    code, document = historical_fixture(umbrella)
+    assert code == 0, document["blockers"]
+    assert document["test_results"]["totals"]["skipped"] == occurrences
+    assert document["test_results"]["observed_skips"] == {"Shared.Tests.OptionalLane": occurrences}
+    rerendered = load_generator().render_markdown(document)
+    insert_generated_block(umbrella, rerendered)
+    code, verified = historical_fixture(umbrella)
+    assert code == 0, verified["blockers"]
+    assert verified["test_results"]["observed_skips"] == document["test_results"]["observed_skips"]
+
+    # The count must account for every skipped occurrence, not just its identity.
+    observed = "yes" if occurrences == 1 else str(occurrences)
+    for replacement in ("no", str(occurrences + 1), "-1", "1.5", "missing"):
+        insert_generated_block(umbrella, bundle["markdown"].replace(
+            f"| Shared.Tests.OptionalLane | requires an opt-in service | {observed} |",
+            f"| Shared.Tests.OptionalLane | requires an opt-in service | {replacement} |",
+        ))
+        code, document = historical_fixture(umbrella)
+        assert code == 1, replacement
+        assert codes(document) & {"TEST_SKIP_NOT_ALLOWED", "TEST_COUNT_INCONSISTENT"}
+
+
+@pytest.mark.parametrize("legacy", [False, True])
+def test_deferred_measurements_legacy_execution_counts_are_unavailable(umbrella, legacy) -> None:
+    bundle = prepare_generated_record(umbrella)
+    if legacy:
+        block = bundle["markdown"].replace(
+            "| Total | Executed | Passed |", "| Total | Passed |"
+        ).replace(
+            "| Fixture | PARSED | 3 | 3 | 3 | 0 | 0 |",
+            "| Fixture | PARSED | 3 | 3 | 0 | 0 |",
+        ).replace(
+            "| **Total (computed)** | **1 parsed** | **3** | **3** | **3** | **0** | **0** |",
+            "| **Total (computed)** | **1 parsed** | **3** | **3** | **0** | **0** |",
+        )
+        insert_generated_block(umbrella, block)
+    code, document = historical_fixture(umbrella)
+    assert code == 0, document["blockers"]
+    expected = None if legacy else 3
+    assert document["test_results"]["projects"][0]["counts"]["executed"] == expected
+    assert document["test_results"]["totals"]["executed"] == expected
+    if legacy:
+        rendered = load_generator().render_markdown(document)
+        assert "Executed: — (not recorded in the legacy table)." in rendered
+        insert_generated_block(umbrella, rendered)
+        code, verified = historical_fixture(umbrella)
+        assert code == 0, verified["blockers"]
+        assert verified["test_results"]["totals"]["executed"] is None
+
+
+def test_deferred_measurements_mixed_legacy_tables_do_not_invent_totals() -> None:
+    module = load_generator()
+    digest = "a" * 64
+    block = (
+        "### Test Results\n\n"
+        "| Project | State | Total | Executed | Passed | Failed | Skipped | Digest |\n"
+        "| --- | --- | --- | --- | --- | --- | --- | --- |\n"
+        f"| Legacy | PARSED | 2 | 2 | 0 | 0 | {digest} |\n"
+        f"| Modern | PARSED | 3 | 3 | 3 | 0 | 0 | {digest} |\n"
+        "| **Total (computed)** | **2 parsed** | **5** | **5** | **0** | **0** | — |\n"
+    )
+    with pytest.raises(ValueError, match="mixes legacy and modern"):
+        module.parse_recorded_test_results(block)
+
+
+@pytest.mark.parametrize("executed", ["—", "-3", "999"])
+def test_deferred_measurements_modern_execution_evidence_cannot_be_hidden_or_inconsistent(
+    umbrella, executed,
+) -> None:
+    bundle = prepare_generated_record(umbrella)
+    tampered = bundle["markdown"].replace(
+        "| Fixture | PARSED | 3 | 3 | 3 | 0 | 0 |",
+        f"| Fixture | PARSED | 3 | {executed} | 3 | 0 | 0 |",
+    ).replace(
+        "| **Total (computed)** | **1 parsed** | **3** | **3** | **3** | **0** | **0** |",
+        f"| **Total (computed)** | **1 parsed** | **3** | **{executed}** | **3** | **0** | **0** |",
+    )
+    insert_generated_block(umbrella, tampered)
+    code, document = historical_fixture(umbrella)
+    assert code == 1
+    assert "TEST_COUNT_INCONSISTENT" in codes(document)
+
+
+@pytest.mark.parametrize("receipt, total, passed, failed", [
+    ("artifacts/v9/10.4/AC-10.4-01.trx", 1, 1, 0),
+    ("docs/release-evidence/conformance-oracle-pre-split-story-9.2.trx", 415, 412, 3),
+])
+def test_deferred_measurements_native_trx_receipts(tmp_path, receipt, total, passed, failed) -> None:
+    module = load_generator()
+    content = (WORKSPACE / receipt).read_bytes()
+    parsed = module.parse_trx(content)
+    assert parsed["reported"] == dict(total=total, executed=total, passed=passed, failed=failed, skipped=0)
+    assert parsed["recomputed"] == dict(total=total, passed=passed, failed=failed, skipped=0)
+    assert module.count_disagreements(parsed) == []
+    assert parsed["assemblies"] == ["Hexalith.Conversations.Conformance.Tests"]
+    assert len(parsed["code_bases"]) == 1
+    assert len({row["test"] for row in parsed["results"]}) == total
+
+    artifact = tmp_path / "native.trx"
+    artifact.write_bytes(content)
+    for fault in (False, True):
+        if fault:
+            root = ElementTree.fromstring(content)
+            root.find('./{*}ResultSummary/{*}Counters').set('total', str(total + 1))
+            artifact.write_bytes(ElementTree.tostring(root))
+        blockers, warnings = [], []
+        results = module.derive_test_results(
+            tmp_path, [("Hexalith.Conversations.Conformance.Tests", "native.trx")],
+            {"Hexalith.Conversations.Conformance.Tests": "tests/Conformance.csproj"},
+            {}, blockers, warnings,
+        )
+        assert results["projects"][0]["sha256"] == sha256_file(artifact)
+        assert results["totals"]["failed"] == failed
+        assert {row["code"] for row in blockers} == (
+            ({"TEST_RESULTS_FAILED"} if failed else set())
+            | ({"TEST_COUNT_INCONSISTENT"} if fault else set())
+        )
+    assert (WORKSPACE / receipt).read_bytes() == content
+
+
+@pytest.mark.parametrize("scalar, expected", [
+    ("'revision' # explanation", "revision"),
+    ('"revision"\t# explanation', "revision"),
+    ("'owner''s # revision' # explanation", "owner's # revision"),
+    (r'"escaped \"quote\" # value" # explanation', 'escaped "quote" # value'),
+    ("plain#value # explanation", "plain#value"),
+    ("'|' # literal", "|"),
+    ('">" # literal', ">"),
+    ("'# literal hash'", "# literal hash"),
+])
+def test_deferred_parsing_commented_scalars_preserve_values(scalar, expected) -> None:
+    assert load_generator().parse_yaml_scalar(scalar) == expected
+
+
+@pytest.mark.parametrize("scalar", ["'unclosed", '"unclosed', "'value' garbage", '"value"#comment'])
+def test_deferred_parsing_malformed_quoted_scalars_fail_closed(scalar) -> None:
+    module = load_generator()
+    with pytest.raises(module.GateError) as failure:
+        module.parse_yaml_scalar(scalar)
+    assert failure.value.code == "INVALID_SCOPE"
+
+
+@pytest.mark.parametrize("bom, comment", [(True, False), (False, True), (True, True)])
+def test_deferred_parsing_frontmatter_binds_the_real_baseline(umbrella, bom, comment) -> None:
+    story = umbrella["repository"] / umbrella["story"]
+    content = story.read_text(encoding="utf-8")
+    if comment:
+        content = content.replace(f"'{umbrella['baseline']}'", f"'{umbrella['baseline']}' # retained baseline")
+    story.write_text(("\ufeff" if bom else "") + content, encoding="utf-8")
+    code, document = measured(umbrella)
+    assert code == 0, document["blockers"]
+    assert document["baseline"] == umbrella["baseline"]
+    assert document["derived"]["record_section"]
+
+
+@pytest.mark.parametrize("reason", [
+    "|", ">", "|-", ">+", "|2", ">2-", "| # empty block", "# comment only", "'   '",
+])
+def test_deferred_parsing_block_skip_reasons_cannot_approve_a_skip(umbrella, reason) -> None:
+    story = umbrella["repository"] / umbrella["story"]
+    story.write_text(story.read_text(encoding="utf-8").replace(
+        "---\n\n# Fixture Story",
+        "allowed_skipped_tests:\n  - test: 'Fixture.S0'\n"
+        f"    reason: {reason}\n---\n\n# Fixture Story",
+    ), encoding="utf-8")
+    write_trx(umbrella["repository"] / umbrella["artifact"], passed=2, skipped=1)
+    code, document = measured(umbrella)
+    assert code == 2
+    assert codes(document) == {"INVALID_SCOPE"}
+
+
+@pytest.mark.parametrize("root_story", [False, True])
+def test_deferred_parsing_sprint_output_is_normalized_and_dirt_still_blocks(umbrella, root_story) -> None:
+    repository = umbrella["repository"]
+    if root_story:
+        run_git(repository, "mv", umbrella["story"], "story.md")
+        umbrella["story"] = "story.md"
+    sprint = Path(umbrella["story"]).parent / "sprint-status.yaml"
+    (repository / sprint).write_text("status: in-progress\n", encoding="utf-8")
+    run_git(repository, "add", sprint.as_posix())
+    run_git(repository, "commit", "-m", "add sprint output")
+    umbrella["candidate"] = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    (repository / sprint).write_text("status: review\n", encoding="utf-8")
+    write_trx(repository / umbrella["artifact"])
+    code, document = measured(umbrella)
+    assert code == 0, document["blockers"]
+    assert sprint.as_posix() in document["file_list"]["derived"]
+    assert all(not path.startswith("./") for path in document["file_list"]["derived"])
+    (repository / "seed.txt").write_text("unrelated dirt\n", encoding="utf-8")
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "seed.txt" in {item["path"] for item in document["blockers"] if item["code"] == "WORKTREE_NOT_CLEAN"}
+
+
+@pytest.mark.parametrize("prose", [
+    "Use `<!-- STORY-FINAL-RECORD:BEGIN -->` and `<!-- STORY-FINAL-RECORD:END -->`.",
+    "> <!-- STORY-FINAL-RECORD:BEGIN -->\n> <!-- STORY-FINAL-RECORD:END -->",
+    "```markdown\n<!-- STORY-FINAL-RECORD:BEGIN -->\n<!-- STORY-FINAL-RECORD:END -->\n```",
+    "~~~markdown\n<!-- STORY-FINAL-RECORD:BEGIN -->\n<!-- STORY-FINAL-RECORD:END -->\n~~~",
+    "```markdown\n<!-- STORY-FINAL-RECORD:BEGIN -->\n### File List\n<!-- STORY-FINAL-RECORD:END -->\n```",
+    "Literal `example\n<!-- STORY-FINAL-RECORD:BEGIN -->\n<!-- STORY-FINAL-RECORD:END -->\nend`.",
+    "<pre>\n<!-- STORY-FINAL-RECORD:BEGIN -->\n<!-- STORY-FINAL-RECORD:END -->\n</pre>",
+    "Literal \\\\`example\n<!-- STORY-FINAL-RECORD:BEGIN -->\n<!-- STORY-FINAL-RECORD:END -->\nend`.",
+])
+def test_deferred_parsing_prose_markers_do_not_hijack_live_or_historical_records(umbrella, prose) -> None:
+    module = load_generator()
+    story = umbrella["repository"] / umbrella["story"]
+    content = story.read_text(encoding="utf-8").replace("# Fixture Story", f"# Fixture Story\n\n{prose}")
+    story.write_text(content, encoding="utf-8")
+    anchor, start, _ = module.record_anchor(content)
+    assert anchor == "story-file-list"
+    assert content[start:].startswith("### File List\n")
+    code, document = measured(umbrella)
+    assert code == 0, document["blockers"]
+    code, document = invoke(umbrella, "--historical")
+    assert code == 0, document["blockers"]
+    assert document["classification"] == "pre-generator"
+    prepare_generated_record(umbrella)
+    assert prose in story.read_text(encoding="utf-8")
+    code, document = invoke(umbrella, "--historical")
+    assert code == 0, document["blockers"]
+    assert document["classification"] == "generated"
+
+
+@pytest.mark.parametrize("markers", [
+    "<!-- STORY-FINAL-RECORD:BEGIN -->",
+    "<!-- STORY-FINAL-RECORD:END -->\n<!-- STORY-FINAL-RECORD:BEGIN -->",
+    "<!-- STORY-FINAL-RECORD:BEGIN -->\n<!-- STORY-FINAL-RECORD:BEGIN -->\n<!-- STORY-FINAL-RECORD:END -->",
+])
+def test_deferred_parsing_malformed_structural_markers_still_block(umbrella, markers) -> None:
+    story = umbrella["repository"] / umbrella["story"]
+    story.write_text(story.read_text(encoding="utf-8") + "\n" + markers + "\n", encoding="utf-8")
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "RECORD_NOT_DERIVED" in codes(document)
+
+
+def test_deferred_parsing_duplicate_heading_with_trailing_spaces_still_blocks(umbrella) -> None:
+    story = umbrella["repository"] / umbrella["story"]
+    story.write_text(story.read_text(encoding="utf-8") + "\n### File List  \n", encoding="utf-8")
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "FILE_LIST_DRIFT" in codes(document)
+
+
+@pytest.mark.parametrize("fault", ["trailing", "leading", "tab"])
+def test_deferred_parsing_whitespace_cannot_demote_a_tampered_generated_record(umbrella, fault) -> None:
+    module = load_generator()
+    prepare_generated_record(umbrella)
+    story = umbrella["repository"] / umbrella["story"]
+    content = story.read_text(encoding="utf-8").replace(
+        "| Fixture | PARSED | 3 | 3 | 3 | 0 | 0 |", "| Fixture | PARSED | 4 | 3 | 3 | 0 | 0 |"
+    )
+    for marker in (module.RECORD_BEGIN_MARKER, module.RECORD_END_MARKER):
+        content = content.replace(marker, marker + "  " if fault == "trailing" else ("\t" if fault == "tab" else "    ") + marker)
+    content = content.replace("**Final record** —", "    **Final record** —")
+    story.write_text(content, encoding="utf-8")
+    code, document = invoke(umbrella, "--historical")
+    assert code == 1
+    assert document["classification"] == "malformed-generated"
+    assert "RECORD_NOT_DERIVED" in codes(document)
+
+
+@pytest.mark.parametrize("literal", ["  ```example", "  ~~~example", "  <!-- STORY-FINAL-RECORD:BEGIN -->"])
+def test_deferred_parsing_frontmatter_literals_cannot_change_markdown_context(umbrella, literal) -> None:
+    story = umbrella["repository"] / umbrella["story"]
+    story.write_text(story.read_text(encoding="utf-8").replace(
+        "status: 'in-progress'", f"description: |\n{literal}\nstatus: 'in-progress'"
+    ), encoding="utf-8")
+    code, document = measured(umbrella)
+    assert code == 0, document["blockers"]
+    assert document["record"]["anchor"] == "story-file-list"
+
+
+def test_deferred_parsing_unmatched_prose_tick_cannot_cross_a_heading(umbrella) -> None:
+    set_file_list(umbrella, [umbrella["story"], "changed.txt"])
+    story = umbrella["repository"] / umbrella["story"]
+    story.write_text(story.read_text(encoding="utf-8").replace(
+        "### File List\n", "Use `literal\n### File List\n"
+    ), encoding="utf-8")
+    code, document = measured(umbrella)
+    assert code == 0, document["blockers"]
+    assert document["record"]["anchor"] == "story-file-list"
+
+
+@pytest.mark.parametrize("backslashes", [1, 2, 3, 4])
+def test_deferred_parsing_backtick_escape_uses_backslash_parity(backslashes) -> None:
+    module = load_generator()
+    content = "Literal " + "\\" * backslashes + "`example\n" + module.RECORD_BEGIN_MARKER + "\n" + module.RECORD_END_MARKER + "\nend`.\n### File List\n"
+    anchor, _, _ = module.record_anchor(content)
+    assert anchor == ("generated-block" if backslashes % 2 else "story-file-list")
+
+
+def test_valid_error_counter_mapping_and_unknown_outcomes(
+    umbrella: dict[str, object],
+) -> None:
+    artifact = umbrella["repository"] / umbrella["artifact"]
+    write_trx(artifact, passed=2, failed=1)
+    content = (
+        artifact.read_text(encoding="utf-8")
+        .replace('outcome="Failed"', 'outcome="Error"')
+        .replace('failed="1" error="0"', 'failed="0" error="1"')
+    )
+    artifact.write_text(content, encoding="utf-8")
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "TEST_RESULTS_FAILED" in codes(document)
+    assert "TEST_COUNT_INCONSISTENT" not in codes(document)
+
+    artifact.write_text(
+        content.replace('outcome="Passed"', 'outcome="Mystery"', 1), encoding="utf-8"
+    )
+    assert "TEST_COUNT_INCONSISTENT" in codes(measured(umbrella)[1])
+
+
+# --------------------------------------------------------------------------- #
+# AC8 fault injection: one mutation per guard, each restored byte-identically
+# --------------------------------------------------------------------------- #
+
+
+def test_injection_altered_parsed_count_trips_the_count_guard(
+    umbrella: dict[str, object],
+) -> None:
+    artifact = umbrella["repository"] / umbrella["artifact"]
+    before = sha256_file(artifact)
+    original = artifact.read_bytes()
+
+    artifact.write_text(
+        artifact.read_text(encoding="utf-8").replace('passed="3"', 'passed="2"'),
+        encoding="utf-8",
+    )
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "TEST_COUNT_INCONSISTENT" in codes(document)
+
+    artifact.write_bytes(original)
+    assert sha256_file(artifact) == before
+
+
+def test_injection_submodule_internal_path_trips_the_boundary_guard(
+    umbrella: dict[str, object],
+) -> None:
+    story_file = umbrella["repository"] / umbrella["story"]
+    before = sha256_file(story_file)
+    original = story_file.read_bytes()
+
+    set_file_list(umbrella, ["references/Example/src/Leaked.cs"])
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "SUBMODULE_INTERNAL_PATH" in codes(document)
+    # The path is refused, never quietly carried into the derived list.
+    assert not any(
+        path.startswith("references/Example/")
+        for path in document["file_list"]["derived"]
+    )
+
+    story_file.write_bytes(original)
+    assert sha256_file(story_file) == before
+    assert "SUBMODULE_INTERNAL_PATH" not in codes(measured(umbrella)[1])
+
+
+def test_injection_repointed_candidate_trips_the_binding_guard(
+    umbrella: dict[str, object],
+) -> None:
+    repository = umbrella["repository"]
+    story_hash = sha256_file(repository / umbrella["story"])
+    head = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+
+    # Move the declared gitlink after the candidate: the record would otherwise
+    # bind to a superseded promotion.
+    run_git(
+        repository / "references/Example", "commit", "--allow-empty", "-m", "advance"
+    )
+    run_git(repository, "add", "references/Example")
+    run_git(repository, "commit", "-m", "advance gitlink")
+
+    code, document = measured(
+        umbrella, "--candidate", head, "--submodule", "references/Example"
+    )
+    assert code == 1
+    assert "CANDIDATE_NOT_FINAL" in codes(document)
+    assert document["candidate_binding"]["gitlinks_moved_after_candidate"] == [
+        "references/Example"
+    ]
+
+    run_git(repository, "reset", "--hard", head)
+    assert run_git(repository, "rev-parse", "HEAD").stdout.strip() == head
+    assert sha256_file(repository / umbrella["story"]) == story_hash
+
+
+def test_injection_dropped_declared_gitlink_trips_the_promotion_gate(
+    umbrella: dict[str, object],
+) -> None:
+    repository = umbrella["repository"]
+    head = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    story_hash = sha256_file(repository / umbrella["story"])
+
+    run_git(repository, "rm", "--cached", "references/Example")
+    run_git(repository, "commit", "-m", "drop the declared gitlink")
+
+    code, document = measured(umbrella, "--submodule", "references/Example")
+    assert code == 1
+    assert "PROMOTION_GATE_NOT_PASS" in codes(document)
+    # The embedded checker document is preserved verbatim, so its own stable
+    # codes stay available to the caller.
+    embedded = {item["code"] for item in document["promotion_gate"]["blockers"]}
+    assert "GITLINK_MISSING_IN_CANDIDATE" in embedded
+
+    run_git(repository, "reset", "--hard", head)
+    assert run_git(repository, "rev-parse", "HEAD").stdout.strip() == head
+    assert sha256_file(repository / umbrella["story"]) == story_hash
+
+
+def test_injection_deleted_result_artifact_trips_the_not_run_guard(
+    umbrella: dict[str, object],
+) -> None:
+    artifact = umbrella["repository"] / umbrella["artifact"]
+    before = sha256_file(artifact)
+    original = artifact.read_bytes()
+
+    artifact.unlink()
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "TEST_RESULTS_MISSING" in codes(document)
+    assert [item["state"] for item in document["test_results"]["projects"]] == [
+        "NOT_RUN"
+    ]
+
+    artifact.write_bytes(original)
+    assert sha256_file(artifact) == before
+
+
+def test_injection_backdated_artifact_trips_the_staleness_guard(
+    umbrella: dict[str, object],
+) -> None:
+    artifact = umbrella["repository"] / umbrella["artifact"]
+    before = sha256_file(artifact)
+    stat = artifact.stat()
+
+    os.utime(artifact, (stat.st_atime - 86_400, stat.st_mtime - 86_400))
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "TEST_RESULTS_STALE" in codes(document)
+
+    os.utime(artifact, ns=(stat.st_atime_ns, stat.st_mtime_ns))
+    assert sha256_file(artifact) == before
+    assert measured(umbrella)[0] == 0
+
+
+def test_staleness_exclusion_does_not_hide_a_genuinely_stale_artifact(
+    umbrella: dict[str, object],
+) -> None:
+    """D3 excludes the generator's own write targets, and only those."""
+    repository = umbrella["repository"]
+    artifact = repository / umbrella["artifact"]
+    stat = artifact.stat()
+
+    # Touching only the excluded output targets must NOT report staleness...
+    os.utime(repository / umbrella["story"], (stat.st_atime + 600, stat.st_mtime + 600))
+    assert "TEST_RESULTS_STALE" not in codes(measured(umbrella)[1])
+
+    # ...while touching any ordinary derived path still must.
+    os.utime(repository / "changed.txt", (stat.st_atime + 600, stat.st_mtime + 600))
+    assert "TEST_RESULTS_STALE" in codes(measured(umbrella)[1])
+
+
+# --------------------------------------------------------------------------- #
+# Decoys the sibling checker proved necessary
+# --------------------------------------------------------------------------- #
+
+
+def commit_decoy(fixture: dict[str, object], name: str, content: str) -> None:
+    """Commit a decoy into the range so it is inside the record's derived scope."""
+    (fixture["repository"] / name).write_text(content, encoding="utf-8")
+    run_git(fixture["repository"], "add", "--", name)
+    run_git(fixture["repository"], "commit", "-m", "decoy")
+    write_trx(fixture["repository"] / fixture["artifact"])
+
+
+def test_a_filename_containing_the_literal_digits_160000_is_not_a_gitlink(
+    umbrella: dict[str, object],
+) -> None:
+    commit_decoy(umbrella, "blob-160000-not-a-gitlink.txt", "160000 160000 160000\n")
+    code, document = measured(umbrella)
+    assert code == 0, document["blockers"]
+    assert "blob-160000-not-a-gitlink.txt" in document["file_list"]["derived"]
+    assert [item["path"] for item in document["promotions"]] == []
+
+
+def test_a_filename_containing_a_backslash_does_not_abort_the_run(
+    umbrella: dict[str, object],
+) -> None:
+    commit_decoy(umbrella, "back\\slash.txt", "decoy\n")
+    code, document = measured(umbrella)
+    # An ordinary file with an unusual name is measured, never a reason to
+    # abort: aborting would block on state the record must simply report.
+    assert code == 0, document["blockers"]
+    assert "back\\slash.txt" in document["file_list"]["derived"]
+
+
+def test_worktree_dirt_outside_the_committed_range_blocks(
+    umbrella: dict[str, object],
+) -> None:
+    """A record binds to a revision, so it cannot claim a path that revision lacks."""
+    (umbrella["repository"] / "someone-elses-file.txt").write_text(
+        "theirs\n", encoding="utf-8"
+    )
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "someone-elses-file.txt" not in document["file_list"]["derived"]
+    assert "WORKTREE_NOT_CLEAN" in codes(document)
+
+
+def test_dirty_in_range_source_also_blocks(umbrella: dict[str, object]) -> None:
+    (umbrella["repository"] / "changed.txt").write_text(
+        "dirty after candidate\n", encoding="utf-8"
+    )
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "WORKTREE_NOT_CLEAN" in codes(document)
+
+
+def test_ordinary_post_candidate_commit_blocks_but_output_only_commit_is_allowed(
+    umbrella: dict[str, object],
+) -> None:
+    repository = umbrella["repository"]
+    candidate = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    (repository / "ordinary.txt").write_text("source\n", encoding="utf-8")
+    run_git(repository, "add", "ordinary.txt")
+    run_git(repository, "commit", "-m", "ordinary source commit")
+    code, document = measured(umbrella, "--candidate", candidate)
+    assert code == 1
+    assert (
+        "ordinary.txt" in document["candidate_binding"]["changed_paths_after_candidate"]
+    )
+    assert "CANDIDATE_NOT_FINAL" in codes(document)
+
+
+def test_output_only_post_candidate_commit_is_allowed(
+    umbrella: dict[str, object],
+) -> None:
+    repository = umbrella["repository"]
+    candidate = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    story_file = repository / umbrella["story"]
+    story_file.write_text(
+        story_file.read_text(encoding="utf-8") + "\nOutput note.\n", encoding="utf-8"
+    )
+    run_git(repository, "add", str(umbrella["story"]))
+    run_git(repository, "commit", "-m", "record output")
+    code, document = measured(umbrella, "--candidate", candidate)
+    assert code == 0, document["blockers"]
+    assert document["candidate_binding"]["changed_paths_after_candidate"] == [
+        umbrella["story"]
+    ]
+
+
+def test_nanosecond_staleness_detects_a_later_edit_in_the_same_second(
+    umbrella: dict[str, object],
+) -> None:
+    repository = umbrella["repository"]
+    artifact = repository / umbrella["artifact"]
+    second = artifact.stat().st_mtime_ns // 1_000_000_000 + 10
+    os.utime(artifact, ns=(second * 1_000_000_000 + 100, second * 1_000_000_000 + 100))
+    source = repository / "changed.txt"
+    os.utime(source, ns=(second * 1_000_000_000 + 200, second * 1_000_000_000 + 200))
+    assert "TEST_RESULTS_STALE" in codes(measured(umbrella)[1])
+
+
+def test_symlinked_result_artifact_cannot_escape_the_repository(
+    umbrella: dict[str, object], tmp_path: Path
+) -> None:
+    outside = tmp_path / "outside.trx"
+    write_trx(outside, code_base=Path("/fixture/Fixture.dll"))
+    artifact = umbrella["repository"] / umbrella["artifact"]
+    artifact.unlink()
+    artifact.symlink_to(outside)
+    code, document = measured(umbrella)
+    assert code == 2
+    assert codes(document) == {"INVALID_SCOPE"}
+
+
+def test_one_artifact_snapshot_supplies_both_counts_and_hash(
+    umbrella: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    module = load_generator()
+    artifact = umbrella["repository"] / umbrella["artifact"]
+    snapshot = artifact.read_bytes()
+    artifact.write_bytes(snapshot.replace(b'passed="3"', b'passed="2"'))
+    monkeypatch.setattr(module, "read_file_snapshot", lambda _: (snapshot, 123456789))
+    blockers: list[dict] = []
+    result = module.derive_test_results(
+        umbrella["repository"],
+        [("Fixture", umbrella["artifact"])],
+        {"Fixture": "tests/Fixture/Fixture.csproj"},
+        {},
+        blockers,
+        [],
+    )
+    assert blockers == []
+    assert result["projects"][0]["counts"]["passed"] == 3
+    assert result["projects"][0]["sha256"] == hashlib.sha256(snapshot).hexdigest()
+
+
+def test_removed_gitlink_is_structural_promotion_state_not_a_file(
+    umbrella: dict[str, object],
+) -> None:
+    repository = umbrella["repository"]
+    run_git(repository, "rm", "-f", "references/Example")
+    (repository / ".gitmodules").write_text("", encoding="utf-8")
+    run_git(repository, "add", ".gitmodules")
+    run_git(repository, "commit", "-m", "remove gitlink declaration and entry")
+    _, document = measured(umbrella)
+    assert "references/Example" not in document["file_list"]["derived"]
+    assert "references/Example" in {item["path"] for item in document["promotions"]}
+
+
+def test_gitlink_detection_overrides_ambient_ignore_configuration(
+    umbrella: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repository = umbrella["repository"]
+    run_git(repository, "config", "submodule.Example.ignore", "all")
+    run_git(
+        repository / "references/Example", "commit", "--allow-empty", "-m", "advance"
+    )
+    run_git(repository, "add", "references/Example")
+    run_git(repository, "commit", "-m", "advance hidden gitlink")
+    monkeypatch.setenv("GIT_CONFIG_COUNT", "1")
+    monkeypatch.setenv("GIT_CONFIG_KEY_0", "submodule.Example.ignore")
+    monkeypatch.setenv("GIT_CONFIG_VALUE_0", "all")
+    write_trx(repository / umbrella["artifact"])
+    module = load_generator()
+    hardened = module.git_environment()
+    assert "GIT_CONFIG_COUNT" not in hardened
+    code, document = measured(umbrella, "--submodule", "references/Example")
+    assert code == 0, document["blockers"]
+    assert "references/Example" in {
+        item["path"] for item in document["promotions"] if item["changed_in_range"]
+    }
+
+
+def test_worktree_column_rename_consumes_the_original_path_token(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    module = load_generator()
+    outputs = iter((b" R new.txt\0old.txt\0", b"", b""))
+
+    def fake_git(*_args, **_kwargs):
+        return subprocess.CompletedProcess([], 0, next(outputs), b"")
+
+    monkeypatch.setattr(module, "run_git", fake_git)
+    assert module.worktree_path_status(Path("/fixture")) == {"new.txt": "R"}
+
+
+def test_unmatched_generated_marker_fails_closed(umbrella: dict[str, object]) -> None:
+    story_file = umbrella["repository"] / umbrella["story"]
+    story_file.write_text(
+        story_file.read_text(encoding="utf-8").replace(
+            "### File List", "<!-- STORY-FINAL-RECORD:BEGIN -->\n### File List"
+        ),
+        encoding="utf-8",
+    )
+    code, document = measured(umbrella)
+    assert code == 1
+    assert document["record"]["anchor"] is None
+    assert "RECORD_NOT_DERIVED" in codes(document)
+
+
+def test_markdown_rendering_escapes_legal_delimiters() -> None:
+    module = load_generator()
+    assert module.markdown_code("tick`file.txt") == "``tick`file.txt``"
+    assert module.markdown_table_text("Pipe|Project") == r"Pipe\|Project"
+    record = (
+        "<!-- STORY-FINAL-RECORD:BEGIN -->\n\n### File List\n\n"
+        "- ``tick`file.txt`` (new)\n\n<!-- STORY-FINAL-RECORD:END -->\n"
+    )
+    assert module.declared_file_list(record) == (["tick`file.txt"], 1)
+
+
+# --------------------------------------------------------------------------- #
+# File list, baseline and drift
+# --------------------------------------------------------------------------- #
+
+
+def test_a_disagreeing_declared_file_list_blocks_as_drift(
+    umbrella: dict[str, object],
+) -> None:
+    set_file_list(umbrella, ["a-path-that-never-changed.txt"])
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "FILE_LIST_DRIFT" in codes(document)
+    assert "a-path-that-never-changed.txt" in document["file_list"]["unexpected"]
+
+
+def test_an_agreeing_declared_file_list_does_not_block(
+    umbrella: dict[str, object],
+) -> None:
+    derived = measured(umbrella)[1]["file_list"]["derived"]
+    set_file_list(umbrella, derived)
+    code, document = measured(umbrella)
+    assert code == 0, document["blockers"]
+    assert document["file_list"]["missing"] == []
+    assert document["file_list"]["unexpected"] == []
+
+
+def test_a_second_file_list_is_a_conformance_failure(
+    umbrella: dict[str, object],
+) -> None:
+    story_file = umbrella["repository"] / umbrella["story"]
+    story_file.write_text(
+        story_file.read_text(encoding="utf-8").replace(
+            "### Boundary Confirmation",
+            "### File List\n\n- `extra.txt` (new)\n\n### Boundary Confirmation",
+        ),
+        encoding="utf-8",
+    )
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "FILE_LIST_DRIFT" in codes(document)
+
+
+def test_an_untrustworthy_baseline_blocks(umbrella: dict[str, object]) -> None:
+    for baseline in ("NO_VCS", "0" * 40):
+        code, document = measured(umbrella, "--baseline", baseline)
+        assert code == 1, baseline
+        assert "BASELINE_NOT_TRUSTWORTHY" in codes(document), baseline
+
+
+def test_a_non_ancestor_baseline_blocks(umbrella: dict[str, object]) -> None:
+    repository = umbrella["repository"]
+    run_git(repository, "checkout", "-b", "sidebranch", umbrella["baseline"])
+    (repository / "divergent.txt").write_text("divergent\n", encoding="utf-8")
+    run_git(repository, "add", "divergent.txt")
+    run_git(repository, "commit", "-m", "divergent")
+    divergent = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    run_git(repository, "checkout", "main")
+
+    code, document = measured(umbrella, "--baseline", divergent)
+    assert code == 1
+    assert "BASELINE_NOT_TRUSTWORTHY" in codes(document)
+
+
+def test_gitlinks_are_reported_as_promotions_and_never_as_file_list_paths(
+    umbrella: dict[str, object],
+) -> None:
+    repository = umbrella["repository"]
+    run_git(
+        repository / "references/Example", "commit", "--allow-empty", "-m", "advance"
+    )
+    run_git(repository, "add", "references/Example")
+    run_git(repository, "commit", "-m", "promote")
+    write_trx(repository / umbrella["artifact"])
+
+    code, document = measured(umbrella, "--submodule", "references/Example")
+    assert "references/Example" not in document["file_list"]["derived"]
+    promotion = next(
+        item for item in document["promotions"] if item["path"] == "references/Example"
+    )
+    assert promotion["recorded_mode"] == "160000"
+    assert promotion["recorded_gitlink"] != promotion["baseline_gitlink"]
+    assert promotion["declared"] is True
+    assert code == 0, document["blockers"]
+
+
+# --------------------------------------------------------------------------- #
+# Markdown renderer
+# --------------------------------------------------------------------------- #
+
+
+def render(fixture: dict[str, object], *extra: str) -> str:
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--repository",
+            str(fixture["repository"]),
+            "--story",
+            str(fixture["story"]),
+            "--format",
+            "markdown",
+            *extra,
+        ],
+        check=False,
+        capture_output=True,
+        env=GIT_ENV,
+        text=True,
+        timeout=120,
+    )
+    return result.stdout
+
+
+def test_the_renderer_names_what_it_derived(umbrella: dict[str, object]) -> None:
+    derived = render(umbrella, "--test-results", f"Fixture={umbrella['artifact']}")
+    assert "story-final-record-v1" in derived
+    assert "The JSON document is authoritative" in derived
+    assert "test results **yes**" in derived
+    assert "1 test artifact(s) parsed" in derived
+    assert "### Test Build Manifest" in derived
+    assert f"Candidate `{umbrella['candidate']}` was clean-rebuilt" in derived
+    artifact_hash = sha256_file(umbrella["repository"] / umbrella["artifact"])
+    assert f"`{artifact_hash}`" in derived
+    assert f"`{artifact_hash[:16]}`" not in derived
+
+
+def test_a_nothing_derived_run_renders_visibly_differently(
+    umbrella: dict[str, object],
+) -> None:
+    """A vacuous run must never be byte-identical to a fully measured one."""
+    derived = render(umbrella, "--test-results", f"Fixture={umbrella['artifact']}")
+    vacuous = render(umbrella)
+    assert derived != vacuous
+    assert "test results **NO**" in vacuous
+    assert "0 test artifact(s) parsed" in vacuous
+    assert "**BLOCKER** `RECORD_NOT_DERIVED`" in vacuous
+
+
+def test_the_rendered_block_is_delimited_so_a_rerun_replaces_its_own_output(
+    umbrella: dict[str, object],
+) -> None:
+    module = load_generator()
+    block = render(umbrella, "--test-results", f"Fixture={umbrella['artifact']}")
+    assert block.startswith(module.RECORD_BEGIN_MARKER)
+    assert block.rstrip().endswith(module.RECORD_END_MARKER)
+
+    story_file = umbrella["repository"] / umbrella["story"]
+    story_file.write_text(
+        story_file.read_text(encoding="utf-8").replace(
+            "### File List\n\n### Boundary Confirmation",
+            f"{block}\n### Boundary Confirmation",
+        ),
+        encoding="utf-8",
+    )
+    code, document = measured(umbrella)
+    assert document["record"]["anchor"] == "generated-block"
+    assert document["record"]["generated_block"] is True
+    assert code == 0, document["blockers"]
+
+
+def test_a_red_suite_is_legible_in_the_rendered_block(
+    umbrella: dict[str, object],
+) -> None:
+    write_trx(
+        umbrella["repository"] / umbrella["artifact"], passed=2, failed=1, skipped=1
+    )
+    rendered = render(umbrella, "--test-results", f"Fixture={umbrella['artifact']}")
+    assert "**This suite is not fully green: 1 failed, 1 skipped.**" in rendered
+
+
+# --------------------------------------------------------------------------- #
+# AC7 historical mode
+# --------------------------------------------------------------------------- #
+
+
+def historical_fixture(fixture: dict[str, object]) -> tuple[int, dict]:
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--repository",
+            str(fixture["repository"]),
+            "--historical",
+            "--story",
+            str(fixture["story"]),
+            "--format",
+            "json",
+        ],
+        check=False,
+        capture_output=True,
+        env=GIT_ENV,
+        text=True,
+        timeout=120,
+    )
+    return result.returncode, json.loads(result.stdout)
+
+
+def prepare_generated_record(fixture: dict[str, object]) -> dict:
+    story_file = fixture["repository"] / fixture["story"]
+    story_file.write_text(
+        story_file.read_text(encoding="utf-8").replace(
+            "baseline_commit:",
+            f"file_list_commit: '{fixture['candidate']}'\nbaseline_commit:",
+        ),
+        encoding="utf-8",
+    )
+    code, bundle = bundled(fixture)
+    assert code == 0, bundle["document"]["blockers"]
+    insert_generated_block(fixture, bundle["markdown"])
+    return bundle
+
+
+def readonly_repository_snapshot(repository: Path) -> dict:
+    """Capture working files, ignored outputs and Git administration without refreshing the index."""
+    observations = {
+        "head": run_git(repository, "rev-parse", "HEAD").stdout,
+        "refs": run_git(repository, "show-ref").stdout,
+        "index": run_git(repository, "ls-files", "--stage", "-z").stdout,
+        "status": run_git(repository, "--no-optional-locks", "status", "--porcelain=v1",
+                          "--untracked-files=all", "--ignore-submodules=none", "-z").stdout,
+    }
+    def tree_snapshot(root: Path) -> dict:
+        entries = {".": ("directory", root.stat().st_mode)}
+        for path in sorted(root.rglob("*")):
+            relative = path.relative_to(root).as_posix()
+            if path.is_symlink():
+                entries[relative] = ("symlink", os.readlink(path))
+            elif path.is_file():
+                metadata = path.stat()
+                entries[relative] = ("file", path.read_bytes(), metadata.st_mode, metadata.st_mtime_ns)
+            elif path.is_dir():
+                entries[relative] = ("directory", path.stat().st_mode)
+        return entries
+
+    git_directories = {
+        Path(run_git(repository, "rev-parse", "--absolute-git-dir").stdout.strip()),
+        Path(run_git(repository, "rev-parse", "--path-format=absolute", "--git-common-dir").stdout.strip()),
+    }
+    return {**observations, "files": tree_snapshot(repository),
+            "git_administration": {str(root): tree_snapshot(root) for root in git_directories}}
+
+
+@pytest.mark.parametrize("mutation", ["create", "remove", "mode"])
+def test_readonly_snapshot_detects_directory_mutations(umbrella, mutation) -> None:
+    repository = umbrella["repository"]
+    directory = repository / "results/empty-directory"
+    directory.mkdir()
+    directory.chmod(0o755)
+    before = readonly_repository_snapshot(repository)
+    if mutation == "create":
+        (repository / "results/new-empty-directory").mkdir()
+    elif mutation == "remove":
+        directory.rmdir()
+    else:
+        directory.chmod(0o700)
+    assert readonly_repository_snapshot(repository) != before
+
+
+@pytest.mark.parametrize("linked_worktree", [False, True])
+@pytest.mark.parametrize("historical_mode", [False, True])
+@pytest.mark.parametrize("failing", [False, True])
+def test_readonly_verification_preserves_complete_repository_state(
+    umbrella, historical_mode, failing, linked_worktree,
+) -> None:
+    if linked_worktree:
+        linked = umbrella["repository"].parent / "linked-umbrella"
+        run_git(umbrella["repository"], "worktree", "add", "--detach", str(linked), "HEAD")
+        umbrella = {**umbrella, "repository": linked}
+        write_trx(linked / umbrella["artifact"])
+    prepare_generated_record(umbrella)
+    repository = umbrella["repository"]
+    # Force a stat refresh opportunity without changing the tracked source bytes.
+    source = repository / "changed.txt"
+    timestamp = time.time_ns() + 2_000_000_000
+    os.utime(source, ns=(timestamp, timestamp))
+    if failing:
+        if historical_mode:
+            record = repository / umbrella["story"]
+            record.write_text(record.read_text(encoding="utf-8").replace("| PARSED |", "| BROKEN |", 1),
+                              encoding="utf-8")
+        else:
+            write_trx(repository / umbrella["artifact"], passed=2, failed=1)
+    # The successful live measurement must remain newer than unchanged source stats.
+    os.utime(repository / umbrella["artifact"], ns=(timestamp + 1, timestamp + 1))
+    (repository / "results/untracked-note.txt").write_bytes(b"retain ignored content\n")
+    (repository / "results/empty-directory").mkdir()
+    before = readonly_repository_snapshot(repository)
+    if linked_worktree:
+        assert len(before["git_administration"]) == 2
+        assert any("index" in entries for entries in before["git_administration"].values())
+        assert all(not Path(root).is_relative_to(repository) for root in before["git_administration"])
+    code, document = historical_fixture(umbrella) if historical_mode else measured(umbrella)
+    assert (code != 0) is failing, document["blockers"]
+    assert readonly_repository_snapshot(repository) == before
+
+
+@pytest.mark.parametrize("generated", [False, True])
+def test_historical_mode_verifies_disposable_closed_records_without_mutating_them(
+    umbrella, generated,
+) -> None:
+    repository = umbrella["repository"]
+    story = repository / umbrella["story"]
+    expected_paths = sorted(["changed.txt", umbrella["story"]])
+    if generated:
+        prepare_generated_record(umbrella)
+    else:
+        story.write_text(story.read_text(encoding="utf-8").replace(
+            "baseline_commit:", f"file_list_commit: '{umbrella['candidate']}'\nbaseline_commit:",
+        ).replace("### File List\n", "### File List\n\n" + "\n".join(
+            f"- `{path}`" for path in expected_paths
+        ) + "\n"), encoding="utf-8")
+    before = readonly_repository_snapshot(repository)
+    code, document = historical_fixture(umbrella)
+    assert readonly_repository_snapshot(repository) == before
+    assert document["mode"] == "historical"
+    assert document["classification"] == ("generated" if generated else "pre-generator")
+    assert code == 0, document["blockers"]
+    assert document["result"] == "pass"
+    assert "former uncommitted working tree is not reconstructed" in document["boundary"]
+    assert document["promotion_gate"] is None
+    assert document["file_list"]["derived"] == expected_paths
+    assert document["file_list"]["declared"] == expected_paths
+    assert document["file_list"]["missing"] == []
+    assert document["file_list"]["unexpected"] == []
+    if generated:
+        assert document["record"]["anchor"] == "generated-block"
+        assert document["record"]["generated_block"] is True
+        assert document["record"]["declared_list_count"] == 1
+        assert document["warnings"] == []
+    else:
+        assert "RECORD_NOT_DERIVED" in {row["code"] for row in document["warnings"]}
+
+
+@pytest.mark.parametrize("extra_paths", [[], ["first.txt", "second.txt", "nested/third.txt"]])
+def test_historical_mode_reproduces_disposable_committed_file_list(umbrella, extra_paths) -> None:
+    repository = umbrella["repository"]
+    for path in extra_paths:
+        target = repository / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("fixture source\n", encoding="utf-8")
+    if extra_paths:
+        run_git(repository, "add", *extra_paths)
+        run_git(repository, "commit", "-m", "fixture inventory")
+        umbrella["candidate"] = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+        write_trx(repository / umbrella["artifact"])
+    prepare_generated_record(umbrella)
+    code, document = historical_fixture(umbrella)
+    assert code == 0, document["blockers"]
+    assert document["file_list"]["derived"] == sorted(["changed.txt", umbrella["story"], *extra_paths])
+    assert document["file_list"]["missing"] == []
+    assert document["file_list"]["unexpected"] == []
+    assert document["promotions"] == []
+
+
+def test_historical_pre_generator_equal_baseline_does_not_add_record_outputs(umbrella) -> None:
+    repository = umbrella["repository"]
+    story = repository / umbrella["story"]
+    sprint = story.parent / "sprint-status.yaml"
+    sprint.write_text("development_status: {}\n", encoding="utf-8")
+    run_git(repository, "add", sprint.relative_to(repository).as_posix())
+    run_git(repository, "commit", "-m", "fixture unchanged sprint")
+    candidate = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    story.write_text(story.read_text(encoding="utf-8").replace(
+        "baseline_commit:", f"file_list_commit: '{candidate}'\nbaseline_commit:",
+    ).replace(str(umbrella["baseline"]), candidate), encoding="utf-8")
+    before = readonly_repository_snapshot(repository)
+    code, document = historical_fixture(umbrella)
+    assert readonly_repository_snapshot(repository) == before
+    assert code == 0, document["blockers"]
+    assert document["classification"] == "pre-generator"
+    assert document["file_list"]["derived"] == []
+    assert document["file_list"]["declared"] == []
+    assert document["file_list"]["missing"] == []
+    assert document["file_list"]["unexpected"] == []
+
+
+@pytest.mark.parametrize("delta", ["delete", "rename"])
+def test_historical_independent_legacy_record_with_promotion_and_source_removal(umbrella, delta) -> None:
+    """Keep a supported v1 shape independent of the current producer/renderer."""
+    repository = umbrella["repository"]
+    submodule = repository / "references/Example"
+    previous = run_git(submodule, "rev-parse", "HEAD").stdout.strip()
+    (submodule / "tracked.txt").write_text("promoted fixture\n", encoding="utf-8")
+    run_git(submodule, "add", "tracked.txt")
+    run_git(submodule, "commit", "-m", "fixture promotion")
+    promoted = run_git(submodule, "rev-parse", "HEAD").stdout.strip()
+    run_git(repository, "add", "references/Example")
+    expected_paths = sorted(["changed.txt", umbrella["story"], "seed.txt"])
+    if delta == "delete":
+        run_git(repository, "rm", "seed.txt")
+    else:
+        run_git(repository, "mv", "seed.txt", "renamed-seed.txt")
+        expected_paths = sorted([*expected_paths, "renamed-seed.txt"])
+    run_git(repository, "commit", "-m", "fixture source delta and promotion")
+    candidate = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    story = repository / umbrella["story"]
+    story.write_text(story.read_text(encoding="utf-8").replace(
+        "baseline_commit:", f"file_list_commit: '{candidate}'\nbaseline_commit:",
+    ).replace("status: 'in-progress'", "status: 'done'"), encoding="utf-8")
+    # The seven-column counts, legacy hash prefix and absent build manifest are
+    # intentional compatibility inputs, not output from generate/render helpers.
+    block = (
+        "<!-- STORY-FINAL-RECORD:BEGIN -->\n"
+        "**Final record** — `story-final-record-v1`, result **PASS**, mode `live`.\n\n"
+        f"Baseline `{umbrella['baseline']}` → candidate `{candidate}`.\n\n"
+        "### File List\n\n" + "\n".join(f"- `{path}`" for path in expected_paths)
+        + "\n\n### Test Results\n\n"
+        "| Test project | State | Total | Passed | Failed | Skipped | Artifact SHA-256 |\n"
+        "| --- | --- | --- | --- | --- | --- | --- |\n"
+        "| Fixture | PARSED | 3 | 3 | 0 | 0 | 0123456789abcdef |\n"
+        "| **Total (computed)** | **1 parsed** | **3** | **3** | **0** | **0** | — |\n\n"
+        "### Allowed Skipped Tests\n\n_None._\n\n"
+        "### Gitlink Promotions\n\n"
+        "| Path | Declared | Mode | Recorded | Baseline |\n"
+        "| --- | --- | --- | --- | --- |\n"
+        f"| references/Example | yes | 160000 | {promoted} | {previous} |\n\n"
+        "<!-- STORY-FINAL-RECORD:END -->\n"
+    )
+    insert_generated_block(umbrella, block)
+    before = readonly_repository_snapshot(repository)
+    code, document = historical_fixture(umbrella)
+    assert readonly_repository_snapshot(repository) == before
+    assert code == 0, document["blockers"]
+    assert document["classification"] == "generated"
+    assert document["file_list"]["derived"] == expected_paths
+    assert document["file_list"]["declared"] == expected_paths
+    assert document["test_results"]["totals"] == {
+        "total": 3, "executed": None, "passed": 3, "failed": 0, "skipped": 0,
+    }
+    assert document["promotions"] == [{
+        "path": "references/Example", "declared": True, "recorded_mode": "160000",
+        "recorded_gitlink": promoted, "baseline_gitlink": previous,
+        "baseline_mode": "160000", "changed_in_range": True,
+    }]
+
+
+def test_historical_mode_parses_generated_counts_and_rejects_tampering(
+    umbrella: dict[str, object],
+) -> None:
+    prepare_generated_record(umbrella)
+    code, document = historical_fixture(umbrella)
+    assert code == 0, document["blockers"]
+    assert document["test_results"]["totals"]["total"] == 3
+    assert document["derived"]["test_results"] is True
+
+    story_file = umbrella["repository"] / umbrella["story"]
+    story_file.write_text(
+        story_file.read_text(encoding="utf-8").replace(
+            "| Fixture | PARSED | 3 | 3 | 3 | 0 | 0 |",
+            "| Fixture | PARSED | 4 | 3 | 3 | 0 | 0 |",
+        ),
+        encoding="utf-8",
+    )
+    code, document = historical_fixture(umbrella)
+    assert code == 1
+    assert "TEST_COUNT_INCONSISTENT" in codes(document)
+
+
+def test_historical_mode_rejects_schema_demotion_and_promotion_tampering(
+    umbrella: dict[str, object],
+) -> None:
+    bundle = prepare_generated_record(umbrella)
+    story_file = umbrella["repository"] / umbrella["story"]
+    story_file.write_text(
+        story_file.read_text(encoding="utf-8").replace(
+            "story-final-record-v1", "removed-schema", 1
+        ),
+        encoding="utf-8",
+    )
+    code, document = historical_fixture(umbrella)
+    assert code == 1
+    assert document["classification"] == "malformed-generated"
+
+    insert_generated_block(umbrella, bundle["markdown"])
+    content = story_file.read_text(encoding="utf-8")
+    content = content.replace(
+        "_None. No root gitlink changed between the baseline and the candidate._",
+        "| Path | Declared | Recorded mode | Recorded commit | Baseline commit |\n"
+        "| --- | --- | --- | --- | --- |\n"
+        "| `references/Example` | yes | `160000` | `deadbeef` | `deadbeef` |",
+    )
+    story_file.write_text(content, encoding="utf-8")
+    code, document = historical_fixture(umbrella)
+    assert code == 1
+    assert "RECORD_CONTENT_DRIFT" in codes(document)
+
+
+def test_historical_mode_blocks_a_resolved_nonancestor_baseline(
+    umbrella: dict[str, object],
+) -> None:
+    repository = umbrella["repository"]
+    run_git(repository, "checkout", "-b", "side", umbrella["baseline"])
+    (repository / "side.txt").write_text("side\n", encoding="utf-8")
+    run_git(repository, "add", "side.txt")
+    run_git(repository, "commit", "-m", "side")
+    divergent = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    run_git(repository, "checkout", "main")
+    write_trx(repository / umbrella["artifact"])
+    prepare_generated_record(umbrella)
+    story_file = repository / umbrella["story"]
+    story_file.write_text(
+        story_file.read_text(encoding="utf-8").replace(
+            str(umbrella["baseline"]), divergent
+        ),
+        encoding="utf-8",
+    )
+    code, document = historical_fixture(umbrella)
+    assert code == 1
+    assert "BASELINE_NOT_TRUSTWORTHY" in codes(document)
+
+
+def test_historical_mode_blocks_on_a_generated_record(tmp_path: Path) -> None:
+    """The demotion to warnings applies only to pre-generator records."""
+    fixture = build_umbrella(tmp_path)
+    repository = fixture["repository"]
+    story_file = repository / fixture["story"]
+    story_file.write_text(
+        story_file.read_text(encoding="utf-8")
+        .replace(
+            "baseline_commit:",
+            f"file_list_commit: '{fixture['candidate']}'\nbaseline_commit:",
+        )
+        .replace(
+            "### File List\n\n### Boundary Confirmation",
+            "<!-- STORY-FINAL-RECORD:BEGIN -->\n\n"
+            "story-final-record-v1\n\n"
+            "### File List\n\n- `references/Example/leaked.cs` (new)\n\n"
+            "<!-- STORY-FINAL-RECORD:END -->\n\n### Boundary Confirmation",
+        ),
+        encoding="utf-8",
+    )
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--repository",
+            str(repository),
+            "--historical",
+            "--story",
+            str(fixture["story"]),
+            "--format",
+            "json",
+        ],
+        check=False,
+        capture_output=True,
+        env=GIT_ENV,
+        text=True,
+        timeout=60,
+    )
+    document = json.loads(result.stdout)
+    assert document["classification"] == "malformed-generated"
+    assert result.returncode == 1
+    assert "SUBMODULE_INTERNAL_PATH" in codes(document)
+
+
+# --------------------------------------------------------------------------- #
+# Current-route boundary and parity after V12 supersession
+# --------------------------------------------------------------------------- #
+
+
+def story_file_list() -> list[str]:
+    content = STORY_FILE.read_text(encoding="utf-8")
+    module = load_generator()
+    paths, _ = module.declared_file_list(content)
+    return paths
+
+
+def test_current_route_inventory_matches_the_v12_gate_contract() -> None:
+    """Retired route names must not creep back into a current-tree assertion."""
+    sibling_path = (
+        Path(__file__).resolve().parent / "test_verify_submodule_promotion.py"
+    )
+    spec = importlib_util.spec_from_file_location(
+        "sibling_promotion_tests", sibling_path
+    )
+    sibling = importlib_util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(sibling)
+
+    assert set(CURRENT_LIFECYCLE_WORKFLOWS) == set(sibling.WORKFLOW_GATE_CONTRACTS)
+    assert not any("bmad-quick-dev" in path for path in CURRENT_LIFECYCLE_WORKFLOWS)
+    assert not any("bmad-dev-auto" in path for path in CURRENT_LIFECYCLE_WORKFLOWS)
+
+
+def test_v12_gate_span_does_not_absorb_story_record_enforcement() -> None:
+    """Story-record text outside a lifecycle gate must not satisfy that gate."""
+    sibling_path = (
+        Path(__file__).resolve().parent / "test_verify_submodule_promotion.py"
+    )
+    spec = importlib_util.spec_from_file_location(
+        "sibling_promotion_tests", sibling_path
+    )
+    sibling = importlib_util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(sibling)
+
+    for relative_path in CURRENT_LIFECYCLE_WORKFLOWS:
+        markers, _ = sibling.WORKFLOW_GATE_CONTRACTS[relative_path]
+        content = (WORKSPACE / ".agents/skills" / relative_path).read_text(
+            encoding="utf-8"
+        )
+        start, end = sibling.promotion_gate_span(content, markers)
+        if start < 0:
+            # The current-change policy retired this historical V12 gate.
+            assert "current-change-validation.md" in content, relative_path
+            assert markers[0] not in content, relative_path
+            continue
+        assert "generate_story_record.py" not in content[start:end], relative_path
+
+
+def test_both_skill_trees_stay_byte_identical_for_every_changed_file() -> None:
+    for relative_path in CURRENT_LIFECYCLE_WORKFLOWS:
+        agent_file = WORKSPACE / ".agents/skills" / relative_path
+        claude_file = WORKSPACE / ".claude/skills" / relative_path
+        assert agent_file.read_bytes() == claude_file.read_bytes(), relative_path
+
+
+def test_every_emitted_code_is_documented_in_the_runbook() -> None:
+    """A blocker or warning code that no runbook row explains is not shippable."""
+    module = load_generator()
+    runbook = RUNBOOK.read_text(encoding="utf-8")
+    source = SCRIPT.read_text(encoding="utf-8")
+    for code in module.BLOCKER_REMEDIATION:
+        assert f"`{code}`" in runbook, code
+    tree = ast.parse(source)
+    emitted = {
+        node.args[0].value
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id in {"GateError", "diagnostic", "blocker"}
+        and node.args
+        and isinstance(node.args[0], ast.Constant)
+        and isinstance(node.args[0].value, str)
+        and re.fullmatch(r"[A-Z_]+", node.args[0].value)
+    }
+    for code in emitted:
+        assert f"`{code}`" in runbook, code
+
+
+def test_the_story_file_list_carries_no_submodule_internal_path() -> None:
+    assert [path for path in story_file_list() if path.startswith("references/")] == []
+
+
+# --------------------------------------------------------------------------- #
+# 7.1-SCHEMAS checkpoint: v2_schema_contract (no generator import or call)
+# --------------------------------------------------------------------------- #
+
+OUTPUT_SCHEMA_INVALID = "OUTPUT_SCHEMA_INVALID"
+FROZEN_STORY_CONTRACT_SCHEMA_DIGEST = (
+    "33f0b5dc21f56811b8b4307e52f900f2431e31b5ec0301c314c23f47464dabb0"
+)
+HOLD_PATH = WORKSPACE / "_bmad-output/planning-artifacts/implementation-hold-v1.json"
+STORY_CONTRACT_SCHEMA = WORKSPACE / "_bmad/schemas/v9-story-contract-v1.schema.json"
+ACCEPTANCE_RESULT_SCHEMA = WORKSPACE / "_bmad/schemas/v9-acceptance-result-v1.schema.json"
+FROZEN_INVENTORY_SCHEMA = WORKSPACE / "_bmad/schemas/v9-frozen-inventory-v1.schema.json"
+FINAL_RECORD_SCHEMA = WORKSPACE / "_bmad/schemas/story-final-record-v2.schema.json"
+STORY_7_1_CONTRACT = (
+    WORKSPACE / "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json"
+)
+NEW_SCHEMA_FIXTURES = (
+    ACCEPTANCE_RESULT_SCHEMA,
+    FROZEN_INVENTORY_SCHEMA,
+    FINAL_RECORD_SCHEMA,
+)
+CANONICAL_SCHEMA_PATHS = (STORY_CONTRACT_SCHEMA, *NEW_SCHEMA_FIXTURES)
+SCHEMA_IDENTITIES = {
+    STORY_CONTRACT_SCHEMA: "hexalith.conversations.story-contract.v1",
+    ACCEPTANCE_RESULT_SCHEMA: "hexalith.conversations.acceptance-result.v1",
+    FROZEN_INVENTORY_SCHEMA: "hexalith.conversations.frozen-inventory.v1",
+    FINAL_RECORD_SCHEMA: "hexalith.conversations.story-final-record.v2",
+}
+SCHEMA_AUTHORITY_BOUNDARY_ANNOTATIONS = {
+    ACCEPTANCE_RESULT_SCHEMA: (
+        "Authority boundary: this schema validates document structure only; "
+        "producers and verifiers must derive command outcomes, candidate identity, "
+        "digest bindings, and any assertion ledger from executed commands and "
+        "committed evidence."
+    ),
+    FROZEN_INVENTORY_SCHEMA: (
+        "Authority boundary: this schema validates document structure only; "
+        "producers and verifiers must independently recompute the canonical NFC "
+        "UTF-8 LF inventory digest from the ordered items."
+    ),
+    FINAL_RECORD_SCHEMA: (
+        "Authority boundary: this schema validates document structure only; "
+        "producers and verifiers must derive candidate, gitlink, scenario, output, "
+        "and summary facts from committed evidence rather than caller-authored "
+        "claims."
+    ),
+}
+HOLD_PLANNING_CANDIDATE = "1e9a61126d3b7a55b514b7c7c8942d5af03355e5"
+HOLD_BUNDLE_DIGEST = "159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055"
+HOLD_IR0_DIGEST = "862a880ca621c4f9b60328bc2f1ce353951d5ae7fcce811cffb6d050e8b122ad"
+STORY_7_1_INVENTORY_ITEMS = (
+    "V8-6.8-AC1",
+    "V8-6.8-AC6-ANTI-VACUITY",
+    "V8-6.8-PROHIBITIONS-SOURCE-BOUNDARY",
+)
+STORY_7_1_INVENTORY_DIGEST = (
+    "5fb79e8d9251c3187f2a2de7d4ae3766ab962015e628d345f8033bf14ba8e36e"
+)
+ROOT_GITLINK_PATHS = (
+    "references/Hexalith.AI.Tools",
+    "references/Hexalith.Builds",
+    "references/Hexalith.Commons",
+    "references/Hexalith.EventStore",
+    "references/Hexalith.Folders",
+    "references/Hexalith.FrontComposer",
+    "references/Hexalith.Memories",
+    "references/Hexalith.Parties",
+    "references/Hexalith.Projects",
+    "references/Hexalith.Tenants",
+)
+
+
+def v2_schema_contract_hold_is_lifted() -> None:
+    hold = json.loads(HOLD_PATH.read_text(encoding="utf-8"))
+    if (
+        hold.get("effectiveState") != "LIFTED"
+        or hold.get("scope", {}).get("unlocks") != ["7.1-SCHEMAS"]
+        or hold.get("scope", {}).get("planningCandidate") != HOLD_PLANNING_CANDIDATE
+        or hold.get("scope", {}).get("bundleDigest") != HOLD_BUNDLE_DIGEST
+        or hold.get("scope", {}).get("ir0Sha256") != HOLD_IR0_DIGEST
+    ):
+        raise AssertionError("BLOCKED: 7.1-SCHEMAS hold drift; treat hold as ACTIVE")
+
+
+def v2_schema_contract_load(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def v2_schema_contract_validator(schema: dict) -> jsonschema.Draft202012Validator:
+    jsonschema.Draft202012Validator.check_schema(schema)
+    return jsonschema.Draft202012Validator(schema)
+
+
+def v2_schema_contract_reject(schema: dict, instance: object) -> str:
+    with pytest.raises(jsonschema.ValidationError):
+        v2_schema_contract_validator(schema).validate(instance)
+    return OUTPUT_SCHEMA_INVALID
+
+
+def v2_schema_contract_object_nodes(schema: object) -> list[dict]:
+    nodes: list[dict] = []
+    if isinstance(schema, dict):
+        if schema.get("type") == "object":
+            nodes.append(schema)
+        for value in schema.values():
+            nodes.extend(v2_schema_contract_object_nodes(value))
+    elif isinstance(schema, list):
+        for item in schema:
+            nodes.extend(v2_schema_contract_object_nodes(item))
+    return nodes
+
+
+def v2_schema_contract_resolve(root: object, path: tuple) -> object:
+    current = root
+    for step in path:
+        current = current[step]
+    return current
+
+
+def v2_schema_contract_delete(root: dict, path: tuple) -> dict:
+    mutated = deepcopy(root)
+    parent = v2_schema_contract_resolve(mutated, path[:-1])
+    del parent[path[-1]]
+    return mutated
+
+
+def v2_schema_contract_inject(root: dict, path: tuple) -> dict:
+    mutated = deepcopy(root)
+    target = v2_schema_contract_resolve(mutated, path)
+    target["undeclaredField"] = True
+    return mutated
+
+
+def v2_schema_contract_object_paths(value: object, path: tuple = ()) -> list[tuple]:
+    found: list[tuple] = []
+    if isinstance(value, dict):
+        found.append(path)
+        for key, child in value.items():
+            found.extend(v2_schema_contract_object_paths(child, path + (key,)))
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            found.extend(v2_schema_contract_object_paths(child, path + (index,)))
+    return found
+
+
+def v2_schema_contract_assert_closed(schema: dict) -> None:
+    for node in v2_schema_contract_object_nodes(schema):
+        if node.get("additionalProperties") is not False:
+            raise jsonschema.ValidationError("object is not recursively closed")
+        required = node.get("required")
+        properties = node.get("properties")
+        if isinstance(required, list) and isinstance(properties, dict):
+            missing = [name for name in required if name not in properties]
+            if missing:
+                raise jsonschema.ValidationError(
+                    f"required field missing from properties: {missing}"
+                )
+
+
+def v2_schema_contract_inventory_digest(items: list[str]) -> str:
+    payload = "".join(
+        f"{unicodedata.normalize('NFC', item)}\n" for item in items
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def v2_schema_contract_gitlinks() -> list[dict[str, str]]:
+    return [
+        {
+            "path": path,
+            "commit": HOLD_PLANNING_CANDIDATE,
+            "mode": "160000",
+        }
+        for path in ROOT_GITLINK_PATHS
+    ]
+
+
+def v2_schema_contract_acceptance_result(*, with_ledger: bool) -> dict:
+    document = {
+        "schemaVersion": "hexalith.conversations.acceptance-result.v1",
+        "storyId": "7.1",
+        "scenarioId": "AC-7.1-01",
+        "command": (
+            "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py "
+            "-k v2_schema_contract --junitxml=artifacts/v9/schema-slice/"
+            "v2-schema-contract.xml"
+        ),
+        "exitCode": 0,
+        "result": "PASS",
+        "blockers": [],
+        "candidate": HOLD_PLANNING_CANDIDATE,
+        "inputs": [
+            {
+                "path": "_bmad/schemas/v9-story-contract-v1.schema.json",
+                "sha256": FROZEN_STORY_CONTRACT_SCHEMA_DIGEST,
+            }
+        ],
+        "outputs": [
+            {
+                "path": "artifacts/v9/schema-slice/v2-schema-contract.xml",
+                "sha256": "a" * 64,
+            }
+        ],
+    }
+    if with_ledger:
+        document["assertionLedger"] = [
+            {
+                "id": "SCHEMA-METASCHEMA",
+                "subject": "draft-2020-12",
+                "state": "PASS",
+            }
+        ]
+    return document
+
+
+def v2_schema_contract_frozen_inventory() -> dict:
+    items = list(STORY_7_1_INVENTORY_ITEMS)
+    return {
+        "schemaVersion": "hexalith.conversations.frozen-inventory.v1",
+        "inventoryId": "V9-7.1-ENTRY-v1",
+        "digestAlgorithm": "sha256",
+        "canonicalization": "nfc-utf8-lf-displayed-ids",
+        "items": items,
+        "sha256": v2_schema_contract_inventory_digest(items),
+    }
+
+
+def v2_schema_contract_final_record() -> dict:
+    return {
+        "schemaVersion": "hexalith.conversations.story-final-record.v2",
+        "storyId": "7.1",
+        "authority": {
+            "epic": "epic-6-authority-2026-08-03-v10",
+            "architecture": "conversations-architecture-2026-08-03-v10",
+            "planningCandidate": HOLD_PLANNING_CANDIDATE,
+            "bundleDigest": HOLD_BUNDLE_DIGEST,
+        },
+        "candidate": {
+            "commit": HOLD_PLANNING_CANDIDATE,
+            "gitlinks": v2_schema_contract_gitlinks(),
+        },
+        "predecessors": ["6.2"],
+        "inventory": {
+            "id": "V9-7.1-ENTRY-v1",
+            "sha256": STORY_7_1_INVENTORY_DIGEST,
+        },
+        "scenarios": [
+            {
+                "scenarioId": "AC-7.1-01",
+                "command": (
+                    "python3 -m pytest -q "
+                    "_bmad/scripts/tests/test_generate_story_record.py "
+                    "-k v2_schema_contract"
+                ),
+                "exitCode": 0,
+                "result": "PASS",
+                "blockers": [],
+                "assertionLedger": [
+                    {"id": "AC-7.1-01#0001", "subject": "fixture::assertion", "state": "PASS"}
+                ],
+            }
+        ],
+        "faultInjection": {
+            "results": [
+                {
+                    "id": "MISSING_REQUIRED_FIELD",
+                    "expectedBlocker": "OUTPUT_SCHEMA_INVALID",
+                }
+            ]
+        },
+        "outputs": {
+            "json": {
+                "path": "docs/release-evidence/story-7.1-final-record-v2.json",
+                "sha256": "b" * 64,
+            },
+            "markdown": {
+                "path": "docs/release-evidence/story-7.1-final-record-v2.md",
+                "sha256": "c" * 64,
+            },
+        },
+        "rollback": {
+            "boundary": (
+                "remove only new v2 schemas, generator-core changes, "
+                "Story 7.1 tests/results, and Story 7.1 final-record outputs; "
+                "preserve the v1 generator, Story 6.8 provenance, all completed "
+                "records, and the v1-v8 prefix."
+            )
+        },
+        "summary": {
+            "required": 6,
+            "passed": 6,
+            "failed": 0,
+            "blocked": 0,
+            "skipped": 0,
+            "notRun": 0,
+        },
+        "renderedMarkdownSha256": "d" * 64,
+    }
+
+
+def v2_schema_contract_valid_pairs() -> list[tuple[Path, dict]]:
+    return [
+        (STORY_CONTRACT_SCHEMA, v2_schema_contract_load(STORY_7_1_CONTRACT)),
+        (ACCEPTANCE_RESULT_SCHEMA, v2_schema_contract_acceptance_result(with_ledger=False)),
+        (ACCEPTANCE_RESULT_SCHEMA, v2_schema_contract_acceptance_result(with_ledger=True)),
+        (FROZEN_INVENTORY_SCHEMA, v2_schema_contract_frozen_inventory()),
+        (FINAL_RECORD_SCHEMA, v2_schema_contract_final_record()),
+    ]
+
+
+def v2_restore_schema_fixture(path: Path, original: bytes, metadata: os.stat_result) -> None:
+    """Restore a tracked schema without making unrelated test results stale."""
+    if path.read_bytes() != original:
+        path.write_bytes(original)
+    if path.stat().st_mtime_ns != metadata.st_mtime_ns:
+        os.utime(path, ns=(metadata.st_atime_ns, metadata.st_mtime_ns))
+
+
+def test_v2_schema_contract_hold_drift_is_blocked(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    drifted = json.loads(HOLD_PATH.read_text(encoding="utf-8"))
+    drifted["scope"]["planningCandidate"] = "0" * 40
+    fake = tmp_path / "implementation-hold-v1.json"
+    fake.write_text(json.dumps(drifted), encoding="utf-8")
+    monkeypatch.setattr(
+        sys.modules[__name__],
+        "HOLD_PATH",
+        fake,
+    )
+    with pytest.raises(AssertionError, match="BLOCKED: 7.1-SCHEMAS hold drift"):
+        v2_schema_contract_hold_is_lifted()
+    real_hold = WORKSPACE / "_bmad-output/planning-artifacts/implementation-hold-v1.json"
+    assert (
+        json.loads(real_hold.read_text(encoding="utf-8"))["scope"]["planningCandidate"]
+        == HOLD_PLANNING_CANDIDATE
+    )
+
+
+def test_v2_schema_contract_hold_metaschema_and_identities() -> None:
+    v2_schema_contract_hold_is_lifted()
+    assert sha256_file(STORY_CONTRACT_SCHEMA) == FROZEN_STORY_CONTRACT_SCHEMA_DIGEST
+    for path in CANONICAL_SCHEMA_PATHS:
+        schema = v2_schema_contract_load(path)
+        v2_schema_contract_validator(schema)
+        v2_schema_contract_assert_closed(schema)
+        assert schema["properties"]["schemaVersion"]["const"] == SCHEMA_IDENTITIES[path]
+        assert schema["$id"].startswith("https://hexalith.io/schemas/conversations/")
+        for definition, length in (("commit", 40), ("digest", 64)):
+            validator = jsonschema.Draft202012Validator(schema["$defs"][definition])
+            assert validator.is_valid("a" * length)
+            for invalid in ("a" * (length - 1), "a" * (length + 1), "A" * length, "g" * length):
+                assert not validator.is_valid(invalid)
+            # The original frozen V9 schemas retain their historical $ anchor.
+            # The current final-record schema must also reject terminal newlines.
+            if path == FINAL_RECORD_SCHEMA:
+                assert not validator.is_valid("a" * length + "\n")
+    empty_ledger = v2_schema_contract_acceptance_result(with_ledger=False)
+    empty_ledger["assertionLedger"] = []
+    v2_schema_contract_validator(
+        v2_schema_contract_load(ACCEPTANCE_RESULT_SCHEMA)
+    ).validate(empty_ledger)
+
+
+def test_v2_schema_contract_authority_boundary_annotations() -> None:
+    v2_schema_contract_hold_is_lifted()
+    for path, annotation in SCHEMA_AUTHORITY_BOUNDARY_ANNOTATIONS.items():
+        assert v2_schema_contract_load(path)["description"] == annotation
+
+
+def test_v2_schema_contract_valid_in_memory_instances() -> None:
+    v2_schema_contract_hold_is_lifted()
+    inventory = v2_schema_contract_frozen_inventory()
+    assert inventory["sha256"] == STORY_7_1_INVENTORY_DIGEST
+    assert inventory["schemaVersion"] != "hexalith.conversations.v9-inventory.v1"
+    for path, instance in v2_schema_contract_valid_pairs():
+        v2_schema_contract_validator(v2_schema_contract_load(path)).validate(instance)
+
+
+def test_v2_schema_contract_rejects_missing_and_extra_fields() -> None:
+    v2_schema_contract_hold_is_lifted()
+    nested_required = (
+        (
+            ACCEPTANCE_RESULT_SCHEMA,
+            v2_schema_contract_acceptance_result(with_ledger=True),
+            (
+                ("inputs", 0, "path"),
+                ("outputs", 0, "sha256"),
+                ("assertionLedger", 0, "subject"),
+            ),
+        ),
+        (
+            FROZEN_INVENTORY_SCHEMA,
+            v2_schema_contract_frozen_inventory(),
+            (("items",), ("sha256",)),
+        ),
+        (
+            FINAL_RECORD_SCHEMA,
+            v2_schema_contract_final_record(),
+            (
+                ("authority", "bundleDigest"),
+                ("candidate", "commit"),
+                ("candidate", "gitlinks", 0, "mode"),
+                ("inventory", "id"),
+                ("scenarios", 0, "scenarioId"),
+                ("faultInjection", "results"),
+                ("outputs", "json", "path"),
+                ("rollback", "boundary"),
+                ("summary", "notRun"),
+            ),
+        ),
+        (
+            STORY_CONTRACT_SCHEMA,
+            v2_schema_contract_load(STORY_7_1_CONTRACT),
+            (("authority", "planningCandidate"), ("finalRecord", "summary", "passed")),
+        ),
+    )
+    before = {fixture: (fixture.read_bytes(), fixture.stat()) for fixture in NEW_SCHEMA_FIXTURES}
+    try:
+        for path, instance in v2_schema_contract_valid_pairs():
+            schema = v2_schema_contract_load(path)
+            for field in schema["required"]:
+                assert (
+                    v2_schema_contract_reject(
+                        schema, v2_schema_contract_delete(instance, (field,))
+                    )
+                    == OUTPUT_SCHEMA_INVALID
+                )
+            for object_path in v2_schema_contract_object_paths(instance):
+                assert (
+                    v2_schema_contract_reject(
+                        schema, v2_schema_contract_inject(instance, object_path)
+                    )
+                    == OUTPUT_SCHEMA_INVALID
+                )
+        for path, instance, removals in nested_required:
+            schema = v2_schema_contract_load(path)
+            for removal in removals:
+                assert (
+                    v2_schema_contract_reject(
+                        schema, v2_schema_contract_delete(instance, removal)
+                    )
+                    == OUTPUT_SCHEMA_INVALID
+                )
+    finally:
+        for fixture, (original, metadata) in before.items():
+            v2_restore_schema_fixture(fixture, original, metadata)
+    assert all(
+        fixture.read_bytes() == original
+        and fixture.stat().st_mtime_ns == metadata.st_mtime_ns
+        for fixture, (original, metadata) in before.items()
+    )
+
+
+def test_v2_schema_contract_rejects_invalid_bindings() -> None:
+    v2_schema_contract_hold_is_lifted()
+    acceptance_schema = v2_schema_contract_load(ACCEPTANCE_RESULT_SCHEMA)
+    inventory_schema = v2_schema_contract_load(FROZEN_INVENTORY_SCHEMA)
+    record_schema = v2_schema_contract_load(FINAL_RECORD_SCHEMA)
+    before = {fixture: (fixture.read_bytes(), fixture.stat()) for fixture in NEW_SCHEMA_FIXTURES}
+    try:
+        acceptance = v2_schema_contract_acceptance_result(with_ledger=True)
+        acceptance["schemaVersion"] = "hexalith.conversations.v9-inventory.v1"
+        assert v2_schema_contract_reject(acceptance_schema, acceptance) == (
+            OUTPUT_SCHEMA_INVALID
+        )
+
+        acceptance = v2_schema_contract_acceptance_result(with_ledger=False)
+        acceptance["candidate"] = HOLD_PLANNING_CANDIDATE.upper()
+        assert v2_schema_contract_reject(acceptance_schema, acceptance) == (
+            OUTPUT_SCHEMA_INVALID
+        )
+
+        acceptance = v2_schema_contract_acceptance_result(with_ledger=False)
+        acceptance["candidate"] = "abc"
+        assert v2_schema_contract_reject(acceptance_schema, acceptance) == (
+            OUTPUT_SCHEMA_INVALID
+        )
+
+        acceptance = v2_schema_contract_acceptance_result(with_ledger=False)
+        acceptance["inputs"][0]["sha256"] = "A" * 64
+        assert v2_schema_contract_reject(acceptance_schema, acceptance) == (
+            OUTPUT_SCHEMA_INVALID
+        )
+
+        acceptance = v2_schema_contract_acceptance_result(with_ledger=False)
+        acceptance["outputs"][0]["path"] = "/tmp/escape.json"
+        assert v2_schema_contract_reject(acceptance_schema, acceptance) == (
+            OUTPUT_SCHEMA_INVALID
+        )
+
+        acceptance = v2_schema_contract_acceptance_result(with_ledger=False)
+        acceptance["outputs"][0]["path"] = "docs/../secrets.json"
+        assert v2_schema_contract_reject(acceptance_schema, acceptance) == (
+            OUTPUT_SCHEMA_INVALID
+        )
+
+        acceptance = v2_schema_contract_acceptance_result(with_ledger=False)
+        acceptance["outputs"][0]["path"] = "docs\\release-evidence\\escape.json"
+        assert v2_schema_contract_reject(acceptance_schema, acceptance) == (
+            OUTPUT_SCHEMA_INVALID
+        )
+
+        acceptance = v2_schema_contract_acceptance_result(with_ledger=False)
+        acceptance["blockers"] = ["OUTPUT_SCHEMA_INVALID", "OUTPUT_SCHEMA_INVALID"]
+        assert v2_schema_contract_reject(acceptance_schema, acceptance) == (
+            OUTPUT_SCHEMA_INVALID
+        )
+
+        inventory = v2_schema_contract_frozen_inventory()
+        inventory["items"] = [inventory["items"][0], *inventory["items"]]
+        assert v2_schema_contract_reject(inventory_schema, inventory) == (
+            OUTPUT_SCHEMA_INVALID
+        )
+
+        inventory = v2_schema_contract_frozen_inventory()
+        inventory["digestAlgorithm"] = "sha1"
+        assert v2_schema_contract_reject(inventory_schema, inventory) == (
+            OUTPUT_SCHEMA_INVALID
+        )
+
+        record = v2_schema_contract_final_record()
+        record["candidate"]["gitlinks"][0], record["candidate"]["gitlinks"][1] = (
+            record["candidate"]["gitlinks"][1],
+            record["candidate"]["gitlinks"][0],
+        )
+        assert v2_schema_contract_reject(record_schema, record) == OUTPUT_SCHEMA_INVALID
+
+        record = v2_schema_contract_final_record()
+        record["candidate"]["gitlinks"][0]["mode"] = "100644"
+        assert v2_schema_contract_reject(record_schema, record) == OUTPUT_SCHEMA_INVALID
+
+        record = v2_schema_contract_final_record()
+        record["faultInjection"]["results"] = [
+            record["faultInjection"]["results"][0],
+            record["faultInjection"]["results"][0],
+        ]
+        assert v2_schema_contract_reject(record_schema, record) == OUTPUT_SCHEMA_INVALID
+
+        record = v2_schema_contract_final_record()
+        record["predecessors"] = ["6.2", "6.2"]
+        assert v2_schema_contract_reject(record_schema, record) == OUTPUT_SCHEMA_INVALID
+
+        record = v2_schema_contract_final_record()
+        record["scenarios"][0].pop("assertionLedger")
+        assert v2_schema_contract_reject(record_schema, record) == OUTPUT_SCHEMA_INVALID
+    finally:
+        for fixture, (original, metadata) in before.items():
+            v2_restore_schema_fixture(fixture, original, metadata)
+    assert all(
+        fixture.read_bytes() == original
+        and fixture.stat().st_mtime_ns == metadata.st_mtime_ns
+        for fixture, (original, metadata) in before.items()
+    )
+
+
+def test_v2_schema_contract_restores_permissive_and_inconsistent_fixtures() -> None:
+    v2_schema_contract_hold_is_lifted()
+    story_contract_before = STORY_CONTRACT_SCHEMA.read_bytes()
+    mutations = (
+        (
+            ACCEPTANCE_RESULT_SCHEMA,
+            lambda document: document.update({"additionalProperties": True}),
+        ),
+        (
+            FROZEN_INVENTORY_SCHEMA,
+            lambda document: document["properties"].pop("sha256"),
+        ),
+        (
+            FINAL_RECORD_SCHEMA,
+            lambda document: document["$defs"]["authority"]["properties"].pop(
+                "bundleDigest"
+            ),
+        ),
+    )
+    for path, mutate in mutations:
+        before = path.read_bytes()
+        metadata = path.stat()
+        try:
+            document = json.loads(before)
+            mutate(document)
+            path.write_bytes(
+                json.dumps(document, indent=2, ensure_ascii=True).encode("utf-8")
+                + b"\n"
+            )
+            try:
+                v2_schema_contract_assert_closed(document)
+                raise AssertionError("permissive or inconsistent schema was accepted")
+            except jsonschema.ValidationError:
+                assert OUTPUT_SCHEMA_INVALID == OUTPUT_SCHEMA_INVALID
+        finally:
+            v2_restore_schema_fixture(path, before, metadata)
+        assert path.read_bytes() == before
+        assert path.stat().st_mtime_ns == metadata.st_mtime_ns
+    assert STORY_CONTRACT_SCHEMA.read_bytes() == story_contract_before
+    assert sha256_file(STORY_CONTRACT_SCHEMA) == FROZEN_STORY_CONTRACT_SCHEMA_DIGEST
+
+
+def test_v2_schema_contract_pass_requires_an_assertion_ledger() -> None:
+    v2_schema_contract_hold_is_lifted()
+    record_schema = v2_schema_contract_load(FINAL_RECORD_SCHEMA)
+    record = v2_schema_contract_final_record()
+    record["scenarios"][0]["assertionLedger"] = []
+    assert v2_schema_contract_reject(record_schema, record) == OUTPUT_SCHEMA_INVALID
+    record["scenarios"][0]["assertionLedger"] = [
+        {"id": "AC-7.1-01#1", "subject": "x", "state": "PASS"}
+    ]
+    assert v2_schema_contract_reject(record_schema, record) == OUTPUT_SCHEMA_INVALID
+
+
+# --------------------------------------------------------------------------- #
+# Story 7.1 v2 generator route (`--contract`)
+# --------------------------------------------------------------------------- #
+#
+# Roots of trust are pinned here, in the consuming test source: the schema
+# files, the frozen gitlink order, and the digest rules are re-derived below
+# rather than read back from the generator under test.
+
+V2_FAILURE_SCHEMA = WORKSPACE / "_bmad/schemas/story-record-generator-failure-v1.schema.json"
+V2_AUTHORITY_BUNDLE = WORKSPACE / "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json"
+V2_CONTRACT_PATH = "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json"
+V2_BUNDLE_PATH = "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json"
+V2_TARGET_PATH = "_bmad/scripts/tests/test_generate_story_record.py"
+V2_TARGET_MODULE = "_bmad.scripts.tests.test_generate_story_record"
+V2_OUTPUT_JSON = "docs/release-evidence/story-7.1-final-record-v2.json"
+V2_OUTPUT_MARKDOWN = "docs/release-evidence/story-7.1-final-record-v2.md"
+V2_FIXED_DATE = "2026-01-01T00:00:00+00:00"
+V2_FIXED_EPOCH = 1767225600
+V2_RESULT_MTIME_NS = (V2_FIXED_EPOCH + 86400) * 1_000_000_000
+V2_ZERO = "0" * 64
+V2_GIT_ENV = dict(
+    GIT_ENV, GIT_AUTHOR_DATE=V2_FIXED_DATE, GIT_COMMITTER_DATE=V2_FIXED_DATE
+)
+# The real root declaration order, deliberately not ordinal, so the fixture
+# proves the generator sorts raw gitlinks ordinally instead of echoing input order.
+V2_DECLARATION_ORDER = (
+    "references/Hexalith.AI.Tools",
+    "references/Hexalith.EventStore",
+    "references/Hexalith.Projects",
+    "references/Hexalith.Folders",
+    "references/Hexalith.Tenants",
+    "references/Hexalith.FrontComposer",
+    "references/Hexalith.Parties",
+    "references/Hexalith.Memories",
+    "references/Hexalith.Commons",
+    "references/Hexalith.Builds",
+)
+
+
+def v2_git(repository: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [
+            "git",
+            "-c",
+            "init.defaultBranch=main",
+            "-c",
+            "commit.gpgsign=false",
+            "-C",
+            str(repository),
+            *arguments,
+        ],
+        check=True,
+        capture_output=True,
+        env=V2_GIT_ENV,
+        text=True,
+        timeout=30,
+    )
+
+
+def v2_gitlink_commit(path: str) -> str:
+    return hashlib.sha1(f"fixture-gitlink:{path}".encode("utf-8")).hexdigest()
+
+
+def v2_contract() -> dict:
+    return json.loads(STORY_7_1_CONTRACT.read_text(encoding="utf-8"))
+
+
+def v2_pytest_scenarios() -> list[tuple[str, str, str]]:
+    """(scenario id, -k selector, JUnit path) read from the frozen contract."""
+    scenarios = []
+    for scenario in v2_contract()["scenarios"][:5]:
+        command = scenario["command"]
+        selector = re.search(r" -k (\S+) ", command).group(1)
+        junit = re.search(r"--junitxml=(\S+)$", command).group(1)
+        scenarios.append((scenario["id"], selector, junit))
+    return scenarios
+
+
+def v2_junit(
+    selector: str,
+    cases: list[tuple[str, str | None]] | None = None,
+    *,
+    classname: str = V2_TARGET_MODULE,
+    counters: dict[str, int] | None = None,
+) -> bytes:
+    """A pytest-shaped JUnit document whose counters agree with its testcases."""
+    if cases is None:
+        cases = [(f"test_{selector}_first", None), (f"test_{selector}_second", None)]
+    counted = {
+        "tests": len(cases),
+        "failures": sum(1 for _, child in cases if child == "failure"),
+        "errors": sum(1 for _, child in cases if child == "error"),
+        "skipped": sum(1 for _, child in cases if child == "skipped"),
+    }
+    counted.update(counters or {})
+    body = []
+    for name, child in cases:
+        if child is None:
+            body.append(f'<testcase classname="{classname}" name="{name}" time="0.001" />')
+        else:
+            body.append(
+                f'<testcase classname="{classname}" name="{name}" time="0.001">'
+                f'<{child} message="fixture" /></testcase>'
+            )
+    return (
+        '<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests">'
+        f'<testsuite name="pytest" errors="{counted["errors"]}" '
+        f'failures="{counted["failures"]}" skipped="{counted["skipped"]}" '
+        f'tests="{counted["tests"]}" time="0.010" timestamp="2026-01-02T00:00:00+00:00" '
+        'hostname="fixture">' + "".join(body) + "</testsuite></testsuites>"
+    ).encode("utf-8")
+
+
+def v2_write_result(repository: Path, junit: str, content: bytes) -> None:
+    path = repository / junit
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(content)
+    os.utime(path, ns=(V2_RESULT_MTIME_NS, V2_RESULT_MTIME_NS))
+
+
+@pytest.mark.parametrize("passing_exits,accepted", [([0, 7], True), ([7], False)])
+def test_v2_scenario_honors_nondefault_passing_exit_codes(tmp_path, passing_exits, accepted) -> None:
+    module = load_generator()
+    scenario = deepcopy(v2_contract()["scenarios"][0])
+    scenario["resultSemantics"]["passExitCodes"] = passing_exits
+    command = module.v2_pytest_command(shlex.split(scenario["command"]))
+    record, category, findings = module.v2_scenario_from_results(
+        tmp_path, scenario, command, 0,
+        snapshot=(v2_junit(command["selector"]), 1),
+    )
+    assert record["exitCode"] == 0
+    assert record["assertionLedger"] and all(row["state"] == "PASS" for row in record["assertionLedger"])
+    assert record["result"] == ("PASS" if accepted else "FAIL")
+    assert category == ("passed" if accepted else "failed")
+    assert [row["code"] for row in findings] == ([] if accepted else ["TEST_RESULTS_FAILED"])
+    assert record["blockers"] == ([] if accepted else ["TEST_RESULTS_FAILED"])
+
+
+def build_v2_repository(tmp_path: Path, *, gitlinks: bool = True) -> dict[str, object]:
+    """A hermetic committed candidate carrying the real Story 7.1 contract."""
+    repository = tmp_path / "v2-candidate"
+    repository.mkdir(parents=True)
+    v2_git(repository, "init")
+    (repository / ".gitignore").write_text("artifacts/\n", encoding="utf-8")
+    for relative, source in (
+        (V2_CONTRACT_PATH, STORY_7_1_CONTRACT),
+        (V2_BUNDLE_PATH, V2_AUTHORITY_BUNDLE),
+    ):
+        target = repository / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(source.read_bytes())
+    target = repository / V2_TARGET_PATH
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("# fixture scenario target\n", encoding="utf-8")
+    if gitlinks:
+        (repository / ".gitmodules").write_text(
+            "".join(
+                f'[submodule "{path}"]\n\tpath = {path}\n'
+                f"\turl = https://example.invalid/{path.rsplit('/', 1)[1]}.git\n"
+                for path in V2_DECLARATION_ORDER
+            ),
+            encoding="utf-8",
+        )
+    v2_git(repository, "add", "--all")
+    if gitlinks:
+        for path in V2_DECLARATION_ORDER:
+            # An uninitialized submodule checkout: the gitlink exists, its
+            # directory is empty, and nothing is ever cloned or traversed.
+            (repository / path).mkdir(parents=True)
+            v2_git(
+                repository,
+                "update-index",
+                "--add",
+                "--cacheinfo",
+                f"160000,{v2_gitlink_commit(path)},{path}",
+            )
+    v2_git(repository, "commit", "-m", "story 7.1 fixture candidate")
+    candidate = v2_git(repository, "rev-parse", "HEAD").stdout.strip()
+    results = {}
+    for scenario_id, selector, junit in v2_pytest_scenarios():
+        v2_write_result(repository, junit, v2_junit(selector))
+        results[scenario_id] = junit
+    return {"repository": repository, "candidate": candidate, "results": results}
+
+
+def v2_arguments(repository: Path, *overrides: str, replace: bool = False) -> list[str]:
+    if replace:
+        return ["--repository", str(repository), *overrides]
+    return [
+        "--repository",
+        str(repository),
+        "--contract",
+        V2_CONTRACT_PATH,
+        "--format",
+        "bundle",
+        "--output-json",
+        V2_OUTPUT_JSON,
+        "--output-markdown",
+        V2_OUTPUT_MARKDOWN,
+        *overrides,
+    ]
+
+
+def v2_run(arguments: list[str]) -> subprocess.CompletedProcess[bytes]:
+    return subprocess.run(
+        [sys.executable, str(SCRIPT), *arguments],
+        check=False,
+        capture_output=True,
+        env=GIT_ENV,
+        timeout=120,
+    )
+
+
+def v2_outputs(repository: Path) -> tuple[bytes | None, bytes | None]:
+    return tuple(
+        (repository / path).read_bytes() if (repository / path).exists() else None
+        for path in (V2_OUTPUT_JSON, V2_OUTPUT_MARKDOWN)
+    )
+
+
+def v2_snapshot(repository: Path) -> tuple[str | None, dict[str, tuple]]:
+    """HEAD plus every non-.git file's bytes, symlink target, and result-file mtime."""
+    head = subprocess.run(
+        ["git", "-C", str(repository), "rev-parse", "--verify", "-q", "HEAD"],
+        check=False,
+        capture_output=True,
+        env=GIT_ENV,
+        text=True,
+    ).stdout.strip() or None
+    files: dict[str, tuple] = {}
+    for path in sorted(repository.rglob("*")):
+        relative = path.relative_to(repository).as_posix()
+        if relative == ".git" or relative.startswith(".git/"):
+            continue
+        if path.is_symlink():
+            files[relative] = ("symlink", os.readlink(path))
+        elif path.is_file():
+            # Result-file mtimes are evidence (staleness); other mtimes are not.
+            mtime = path.stat().st_mtime_ns if relative.startswith("artifacts/") else None
+            files[relative] = ("file", path.read_bytes(), mtime)
+    return head, files
+
+
+def v2_failure_validator() -> jsonschema.Draft202012Validator:
+    return v2_schema_contract_validator(v2_schema_contract_load(V2_FAILURE_SCHEMA))
+
+
+def v2_assert_failure(
+    result: subprocess.CompletedProcess[bytes],
+    expected: set[str],
+    *,
+    exit_code: int = 1,
+) -> dict:
+    """A failure is schema-valid, payload-free, traceback-free, and never a record."""
+    document = json.loads(result.stdout.decode("utf-8"))
+    v2_failure_validator().validate(document)
+    assert result.returncode == exit_code, document
+    assert document["exitCode"] == exit_code
+    assert document["result"] == ("FAIL" if exit_code == 1 else "BLOCKED")
+    assert expected <= set(document["blockers"]), document
+    assert document["blockers"] == list(
+        dict.fromkeys(item["code"] for item in document["diagnostics"])
+    )
+    assert "schemaVersion" in document
+    assert document["schemaVersion"] != "hexalith.conversations.story-final-record.v2"
+    assert result.stderr == b""
+    assert b"Traceback" not in result.stdout
+    return document
+
+
+def v2_json_digest(record: dict) -> str:
+    """Pinned rule: SHA-256 of the canonical JSON with all three digest fields zeroed."""
+    draft = deepcopy(record)
+    draft["outputs"]["json"]["sha256"] = V2_ZERO
+    draft["outputs"]["markdown"]["sha256"] = V2_ZERO
+    draft["renderedMarkdownSha256"] = V2_ZERO
+    rendered = json.dumps(draft, indent=2, ensure_ascii=False) + "\n"
+    return hashlib.sha256(rendered.encode("utf-8")).hexdigest()
+
+
+def v2_assert_pass(repository: Path, result: subprocess.CompletedProcess[bytes]) -> dict:
+    assert result.returncode == 0, result.stdout.decode("utf-8", "replace")
+    assert result.stderr == b""
+    json_bytes, markdown_bytes = v2_outputs(repository)
+    assert result.stdout == json_bytes
+    record = json.loads(json_bytes.decode("utf-8"))
+    v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA)).validate(
+        record
+    )
+    json_digest = v2_json_digest(record)
+    markdown_digest = hashlib.sha256(markdown_bytes).hexdigest()
+    assert record["outputs"]["json"]["sha256"] == json_digest
+    assert record["outputs"]["markdown"]["sha256"] == markdown_digest
+    assert record["renderedMarkdownSha256"] == markdown_digest
+    assert f"`{json_digest}`".encode("ascii") in markdown_bytes
+    assert b"\r" not in json_bytes and b"\r" not in markdown_bytes
+    assert json_bytes.endswith(b"\n") and markdown_bytes.endswith(b"\n")
+    json_bytes.decode("utf-8")
+    markdown_bytes.decode("utf-8")
+    return record
+
+
+# ---- AC-7.1-02: v2_deterministic_bundle ------------------------------------ #
+
+
+def test_v2_deterministic_bundle_is_byte_identical_schema_valid_and_cross_bound(
+    tmp_path: Path,
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    first = v2_run(v2_arguments(repository))
+    record = v2_assert_pass(repository, first)
+    first_outputs = v2_outputs(repository)
+    second = v2_run(v2_arguments(repository))
+    v2_assert_pass(repository, second)
+    assert v2_outputs(repository) == first_outputs
+    assert second.stdout == first.stdout
+
+    contract = v2_contract()
+    assert record["storyId"] == "7.1"
+    assert record["candidate"]["commit"] == fixture["candidate"]
+    assert [item["path"] for item in record["candidate"]["gitlinks"]] == list(
+        ROOT_GITLINK_PATHS
+    )
+    assert record["candidate"]["gitlinks"] == [
+        {"path": path, "commit": v2_gitlink_commit(path), "mode": "160000"}
+        for path in ROOT_GITLINK_PATHS
+    ]
+    bundle = json.loads(V2_AUTHORITY_BUNDLE.read_text(encoding="utf-8"))
+    recomputed_bundle = hashlib.sha256(
+        "".join(f"{row['sha256']}  {row['path']}\n" for row in bundle["artifacts"]).encode(
+            "utf-8"
+        )
+    ).hexdigest()
+    assert record["authority"] == {
+        "epic": contract["authority"]["epic"],
+        "architecture": contract["authority"]["architecture"],
+        "planningCandidate": contract["authority"]["planningCandidate"],
+        "bundleDigest": recomputed_bundle,
+    }
+    assert recomputed_bundle == HOLD_BUNDLE_DIGEST
+    assert record["inventory"] == contract["inventory"]
+    assert record["inventory"]["sha256"] == v2_schema_contract_inventory_digest(
+        list(STORY_7_1_INVENTORY_ITEMS)
+    )
+    assert record["predecessors"] == contract["predecessors"]
+    assert record["rollback"] == contract["rollback"]
+    assert record["summary"] == {
+        "required": 6,
+        "passed": 6,
+        "failed": 0,
+        "blocked": 0,
+        "skipped": 0,
+        "notRun": 0,
+    }
+    assert record["outputs"]["json"]["path"] == V2_OUTPUT_JSON
+    assert record["outputs"]["markdown"]["path"] == V2_OUTPUT_MARKDOWN
+    assert [item["scenarioId"] for item in record["scenarios"]] == [
+        item["id"] for item in contract["scenarios"]
+    ]
+    for scenario, declared in zip(record["scenarios"], contract["scenarios"]):
+        assert scenario["command"] == declared["command"]
+        assert (scenario["exitCode"], scenario["result"], scenario["blockers"]) == (
+            0,
+            "PASS",
+            [],
+        )
+        assert scenario["assertionLedger"]
+        assert [entry["id"] for entry in scenario["assertionLedger"]] == [
+            f"{declared['id']}#{ordinal:04d}"
+            for ordinal in range(1, len(scenario["assertionLedger"]) + 1)
+        ]
+        assert {entry["state"] for entry in scenario["assertionLedger"]} == {"PASS"}
+    for scenario_id, selector, junit in v2_pytest_scenarios():
+        scenario = next(item for item in record["scenarios"] if item["scenarioId"] == scenario_id)
+        assert scenario["resultFile"] == {
+            "path": junit,
+            "sha256": sha256_file(repository / junit),
+        }
+        assert [entry["subject"] for entry in scenario["assertionLedger"]] == [
+            f"{V2_TARGET_MODULE}::test_{selector}_first",
+            f"{V2_TARGET_MODULE}::test_{selector}_second",
+        ]
+    assert "resultFile" not in record["scenarios"][5]
+    assert record["faultInjection"] == {"results": []}
+    assert load_generator().v2_verify_pair(*first_outputs) == []
+
+    # The digest only binds the Markdown to its own renderer; prove its content.
+    markdown_lines = first_outputs[1].decode("utf-8").splitlines()
+    for scenario in record["scenarios"]:
+        assert any(
+            line.startswith(
+                f"| `{scenario['scenarioId']}` | `0` | `PASS` | `none` "
+                f"| `{len(scenario['assertionLedger'])}` |"
+            )
+            for line in markdown_lines
+        ), scenario["scenarioId"]
+        for entry in scenario["assertionLedger"]:
+            assert (
+                f"| `{entry['id']}` | `{entry['subject']}` | `{entry['state']}` |"
+                in markdown_lines
+            ), entry["id"]
+    assert "| `6` | `6` | `0` | `0` | `0` | `0` |" in markdown_lines
+
+
+def test_v2_deterministic_bundle_is_identical_across_rebuilt_fixtures(
+    tmp_path: Path,
+) -> None:
+    left = build_v2_repository(tmp_path / "left")
+    right = build_v2_repository(tmp_path / "right")
+    assert left["candidate"] == right["candidate"]
+    for fixture in (left, right):
+        v2_assert_pass(fixture["repository"], v2_run(v2_arguments(fixture["repository"])))
+    assert v2_outputs(left["repository"]) == v2_outputs(right["repository"])
+
+
+def test_v2_deterministic_bundle_rendering_drift_is_record_content_drift(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    sentinel = b"previous output\n"
+    for path in (V2_OUTPUT_JSON, V2_OUTPUT_MARKDOWN):
+        (repository / path).parent.mkdir(parents=True, exist_ok=True)
+        (repository / path).write_bytes(sentinel)
+    before = v2_snapshot(repository)
+    module = load_generator()
+    original = module.v2_render_markdown
+    calls = iter(range(1_000))
+
+    def drifting(record: dict, json_digest: str) -> str:
+        return original(record, json_digest) + f"<!-- drift {next(calls)} -->\n"
+
+    monkeypatch.setattr(module, "v2_render_markdown", drifting)
+    assert module.main(v2_arguments(repository)) == 1
+    document = json.loads(capsys.readouterr().out)
+    v2_failure_validator().validate(document)
+    assert "RECORD_CONTENT_DRIFT" in document["blockers"]
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_deterministic_bundle_verifier_detects_tampered_pairs(tmp_path: Path) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_assert_pass(repository, v2_run(v2_arguments(repository)))
+    json_bytes, markdown_bytes = v2_outputs(repository)
+    module = load_generator()
+    assert module.v2_verify_pair(json_bytes, markdown_bytes) == []
+    assert module.v2_verify_pair(json_bytes, markdown_bytes + b"edited\n")
+    tampered = json.loads(json_bytes)
+    tampered["summary"]["passed"] = 5
+    assert module.v2_verify_pair(
+        (json.dumps(tampered, indent=2, ensure_ascii=False) + "\n").encode("utf-8"),
+        markdown_bytes,
+    )
+    assert module.v2_verify_pair(json_bytes.replace(b"\n", b"\r\n"), markdown_bytes)
+
+
+# ---- AC-7.1-03: v2_rejects_caller_authored_facts ---------------------------- #
+
+V2_CALLER_FACTS = (
+    ("--passed", "6"),
+    ("--summary=6/6/0/0/0/0",),
+    ("--test-results", "AC-7.1-01=artifacts/v9/7.1/AC-7.1-01.xml"),
+    ("--candidate", "HEAD"),
+    ("--commit", "0" * 40),
+    ("--changed-path", "docs/runbooks/story-final-record-generation.md"),
+    ("--gitlink", "references/Hexalith.Builds=" + "0" * 40),
+    ("--result", "PASS"),
+    ("--verdict=PASS",),
+)
+
+
+@pytest.mark.parametrize("fact", V2_CALLER_FACTS, ids=lambda fact: fact[0].split("=")[0])
+def test_v2_rejects_caller_authored_facts(tmp_path: Path, fact: tuple[str, ...]) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    document = v2_assert_failure(
+        v2_run(v2_arguments(repository, *fact)), {"CALLER_AUTHORED_FACT"}
+    )
+    assert fact[0].split("=")[0] in {item["subject"] for item in document["diagnostics"]}
+    assert v2_outputs(repository) == (None, None)
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_rejects_caller_authored_facts_in_output_paths(tmp_path: Path) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    arguments = v2_arguments(
+        repository,
+        "--contract",
+        V2_CONTRACT_PATH,
+        "--format",
+        "bundle",
+        "--output-json",
+        "docs/release-evidence/caller-chosen.json",
+        "--output-markdown",
+        V2_OUTPUT_MARKDOWN,
+        replace=True,
+    )
+    v2_assert_failure(v2_run(arguments), {"CALLER_AUTHORED_FACT"})
+    assert not (repository / "docs/release-evidence/caller-chosen.json").exists()
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_rejects_caller_authored_facts_before_any_passing_record(tmp_path: Path) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_assert_pass(repository, v2_run(v2_arguments(repository)))
+    passing = v2_outputs(repository)
+    before = v2_snapshot(repository)
+    v2_assert_failure(
+        v2_run(v2_arguments(repository, "--passed", "6", "--failed", "0")),
+        {"CALLER_AUTHORED_FACT"},
+    )
+    assert v2_outputs(repository) == passing
+    assert v2_snapshot(repository) == before
+
+
+# ---- AC-7.1-04: v2_rejects_empty_derivation --------------------------------- #
+
+
+def test_v2_rejects_empty_derivation_without_any_parsed_result(tmp_path: Path) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    saved = {junit: (repository / junit).read_bytes() for junit in fixture["results"].values()}
+    try:
+        for junit in saved:
+            (repository / junit).unlink()
+        v2_assert_failure(
+            v2_run(v2_arguments(repository)),
+            {"RECORD_NOT_DERIVED", "ASSERTION_LEDGER_EMPTY", "TEST_RESULTS_MISSING"},
+        )
+        assert v2_outputs(repository) == (None, None)
+    finally:
+        for junit, content in saved.items():
+            v2_write_result(repository, junit, content)
+    assert v2_snapshot(repository) == before
+    v2_assert_pass(repository, v2_run(v2_arguments(repository)))
+
+
+def test_v2_rejects_empty_derivation_without_any_executed_assertion(tmp_path: Path) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    saved = {junit: (repository / junit).read_bytes() for junit in fixture["results"].values()}
+    try:
+        for _, selector, junit in v2_pytest_scenarios():
+            v2_write_result(repository, junit, v2_junit(selector, cases=[]))
+        document = v2_assert_failure(
+            v2_run(v2_arguments(repository)),
+            {"RECORD_NOT_DERIVED", "ASSERTION_LEDGER_EMPTY"},
+        )
+        assert "TEST_RESULTS_MISSING" not in document["blockers"]
+        assert v2_outputs(repository) == (None, None)
+    finally:
+        for junit, content in saved.items():
+            v2_write_result(repository, junit, content)
+    assert v2_snapshot(repository) == before
+    v2_assert_pass(repository, v2_run(v2_arguments(repository)))
+
+
+def test_v2_rejects_empty_derivation_without_a_resolved_candidate(tmp_path: Path) -> None:
+    repository = tmp_path / "unborn"
+    repository.mkdir()
+    v2_git(repository, "init")
+    target = repository / V2_CONTRACT_PATH
+    target.parent.mkdir(parents=True)
+    target.write_bytes(STORY_7_1_CONTRACT.read_bytes())
+    before = v2_snapshot(repository)
+    v2_assert_failure(
+        v2_run(v2_arguments(repository)),
+        {"RECORD_NOT_DERIVED", "ASSERTION_LEDGER_EMPTY"},
+    )
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_rejects_empty_derivation_without_a_derived_gitlink_path(tmp_path: Path) -> None:
+    fixture = build_v2_repository(tmp_path, gitlinks=False)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    v2_assert_failure(v2_run(v2_arguments(repository)), {"RECORD_NOT_DERIVED"})
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_rejects_empty_derivation_for_one_empty_scenario(tmp_path: Path) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    _, selector, junit = v2_pytest_scenarios()[2]
+    original = (repository / junit).read_bytes()
+    before = v2_snapshot(repository)
+    try:
+        v2_write_result(repository, junit, v2_junit(selector, cases=[]))
+        document = v2_assert_failure(
+            v2_run(v2_arguments(repository)), {"ASSERTION_LEDGER_EMPTY"}
+        )
+        assert {item["subject"] for item in document["diagnostics"]} >= {"AC-7.1-03"}
+        assert v2_outputs(repository) == (None, None)
+    finally:
+        v2_write_result(repository, junit, original)
+    assert v2_snapshot(repository) == before
+    v2_assert_pass(repository, v2_run(v2_arguments(repository)))
+
+
+# ---- AC-7.1-05: v2_malformed_input_is_schema_valid_failure ------------------ #
+
+V2_PAYLOAD_SENTINEL = "PAYLOAD-SENTINEL-4b1d"
+
+
+def v2_contract_bytes(mutate) -> bytes:
+    """A contract that still validates against its schema after `mutate`."""
+    contract = v2_contract()
+    mutate(contract)
+    v2_schema_contract_validator(v2_schema_contract_load(STORY_CONTRACT_SCHEMA)).validate(
+        contract
+    )
+    return (json.dumps(contract, indent=2) + "\n").encode("utf-8")
+
+
+def v2_foreign_scenario_id(contract: dict) -> None:
+    contract["scenarios"][4]["id"] = "AC-7.2-05"
+
+
+def v2_swapped_output_paths(contract: dict) -> None:
+    contract["finalRecord"]["paths"].reverse()
+
+
+def v2_commit_contract(repository: Path, content: bytes) -> None:
+    (repository / V2_CONTRACT_PATH).write_bytes(content)
+    v2_git(repository, "add", V2_CONTRACT_PATH)
+    v2_git(repository, "commit", "-m", "mutated contract")
+
+
+@pytest.mark.parametrize(
+    "content",
+    (
+        b'{"schemaVersion": "' + V2_PAYLOAD_SENTINEL.encode("ascii") + b'", ',
+        json.dumps(
+            dict(v2_contract(), schemaVersion="hexalith.conversations.story-contract.v9")
+            | {"storyId": V2_PAYLOAD_SENTINEL}
+        ).encode("utf-8"),
+        json.dumps(v2_contract() | {"undeclared": V2_PAYLOAD_SENTINEL}).encode("utf-8"),
+        b'{"storyId": "7.1", "storyId": "' + V2_PAYLOAD_SENTINEL.encode("ascii") + b'"}',
+        v2_contract_bytes(v2_foreign_scenario_id),
+        v2_contract_bytes(v2_swapped_output_paths),
+    ),
+    ids=(
+        "malformed-json",
+        "unknown-schema-identity",
+        "closed-schema-violation",
+        "duplicate-key",
+        "foreign-scenario-id",
+        "swapped-output-paths",
+    ),
+)
+def test_v2_malformed_input_is_schema_valid_failure_for_contracts(
+    tmp_path: Path, content: bytes
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    try:
+        v2_commit_contract(repository, content)
+        result = v2_run(v2_arguments(repository))
+        document = v2_assert_failure(result, {"INPUT_SCHEMA_INVALID"})
+        assert document["blockers"] == ["INPUT_SCHEMA_INVALID"]
+        assert V2_PAYLOAD_SENTINEL.encode("ascii") not in result.stdout + result.stderr
+        assert v2_outputs(repository) == (None, None)
+    finally:
+        v2_git(repository, "reset", "--hard", "-q", str(fixture["candidate"]))
+    assert v2_snapshot(repository) == before
+    v2_assert_pass(repository, v2_run(v2_arguments(repository)))
+
+
+@pytest.mark.parametrize(
+    "arguments",
+    (
+        ("--format", "markdown"),
+        ("--bogus-" + V2_PAYLOAD_SENTINEL.lower(), "x"),
+        ("positional-" + V2_PAYLOAD_SENTINEL,),
+        ("--contract", V2_CONTRACT_PATH),
+        ("--output-json",),
+        ("--contract=",),
+    ),
+    ids=(
+        "unsupported-format",
+        "unknown-option",
+        "positional",
+        "duplicate-option",
+        "missing-value",
+        "empty-value",
+    ),
+)
+def test_v2_malformed_input_is_schema_valid_failure_for_arguments(
+    tmp_path: Path, arguments: tuple[str, ...]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    result = v2_run(v2_arguments(repository, *arguments))
+    document = v2_assert_failure(result, {"ARGUMENT_INVALID"})
+    assert document["blockers"] == ["ARGUMENT_INVALID"]
+    assert V2_PAYLOAD_SENTINEL.encode("ascii") not in result.stdout + result.stderr
+    assert V2_PAYLOAD_SENTINEL.lower().encode("ascii") not in result.stdout
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_malformed_input_is_schema_valid_failure_for_missing_arguments(
+    tmp_path: Path,
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    arguments = v2_arguments(repository, "--contract", V2_CONTRACT_PATH, replace=True)
+    document = v2_assert_failure(v2_run(arguments), {"ARGUMENT_INVALID"})
+    assert document["blockers"] == ["ARGUMENT_INVALID"]
+    assert {"--output-json", "--output-markdown"} <= {
+        item["subject"] for item in document["diagnostics"]
+    }
+    for arguments in (
+        v2_arguments(tmp_path / "missing-repository"),
+        v2_arguments(repository, "--contract", "../escape.json", replace=True),
+    ):
+        document = v2_assert_failure(v2_run(arguments), {"ARGUMENT_INVALID"})
+        assert document["blockers"] == ["ARGUMENT_INVALID"]
+    assert v2_snapshot(repository) == before
+
+
+@pytest.mark.parametrize(
+    "content",
+    (
+        b"<testsuites><testsuite " + V2_PAYLOAD_SENTINEL.encode("ascii"),
+        b'<?xml version="1.0"?><!DOCTYPE lol [<!ENTITY a "' + V2_PAYLOAD_SENTINEL.encode(
+            "ascii"
+        ) + b'">]><testsuites />',
+        b'<testsuites><testsuite tests="0" failures="0" errors="0" skipped="0">'
+        b'<testsuite tests="0" failures="0" errors="0" skipped="0" /></testsuite></testsuites>',
+    ),
+    ids=("malformed-xml", "doctype", "nested-suite"),
+)
+def test_v2_malformed_input_is_schema_valid_failure_for_results(
+    tmp_path: Path, content: bytes
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    junit = fixture["results"]["AC-7.1-02"]
+    original = (repository / junit).read_bytes()
+    before = v2_snapshot(repository)
+    try:
+        v2_write_result(repository, junit, content)
+        result = v2_run(v2_arguments(repository))
+        document = v2_assert_failure(result, {"INPUT_SCHEMA_INVALID"})
+        assert document["blockers"] == ["INPUT_SCHEMA_INVALID"]
+        assert V2_PAYLOAD_SENTINEL.encode("ascii") not in result.stdout + result.stderr
+    finally:
+        v2_write_result(repository, junit, original)
+    assert v2_snapshot(repository) == before
+    v2_assert_pass(repository, v2_run(v2_arguments(repository)))
+
+
+def test_v2_malformed_input_is_schema_valid_failure_schema_is_closed() -> None:
+    schema = v2_schema_contract_load(V2_FAILURE_SCHEMA)
+    v2_schema_contract_validator(schema)
+    v2_schema_contract_assert_closed(schema)
+    assert schema["properties"]["schemaVersion"]["const"] == (
+        "hexalith.conversations.story-record-generator-failure.v1"
+    )
+    assert schema["$id"].startswith("https://hexalith.io/schemas/conversations/")
+    validator = v2_failure_validator()
+    valid = {
+        "schemaVersion": "hexalith.conversations.story-record-generator-failure.v1",
+        "result": "FAIL",
+        "exitCode": 1,
+        "blockers": ["ARGUMENT_INVALID"],
+        "diagnostics": [
+            {"code": "ARGUMENT_INVALID", "subject": "argv", "message": "fixture"}
+        ],
+    }
+    validator.validate(valid)
+    for mutation in (
+        {"exitCode": 2},
+        {"result": "PASS", "exitCode": 0},
+        {"blockers": []},
+        {"diagnostics": []},
+        {"record": {}},
+        {"storyId": "6.8"},
+        {"diagnostics": [{"code": "X", "subject": "argv", "message": "line\nbreak"}]},
+    ):
+        assert v2_schema_contract_reject(schema, valid | mutation) == OUTPUT_SCHEMA_INVALID
+
+
+# ---- Fault injection and byte-identical restoration ------------------------- #
+
+
+def v2_fault_result(repository: Path, fixture: dict, scenario: int, content: bytes) -> None:
+    _, _, junit = v2_pytest_scenarios()[scenario]
+    v2_write_result(repository, junit, content)
+
+
+def v2_fault_stale(repository: Path, fixture: dict) -> None:
+    junit = fixture["results"]["AC-7.1-04"]
+    stale = (V2_FIXED_EPOCH - 1) * 1_000_000_000
+    os.utime(repository / junit, ns=(stale, stale))
+
+
+def v2_fault_dirt(repository: Path, fixture: dict) -> None:
+    (repository / "unrelated-dirt.txt").write_text("dirt\n", encoding="utf-8")
+
+
+def v2_fault_dirty_contract(repository: Path, fixture: dict) -> None:
+    path = repository / V2_CONTRACT_PATH
+    path.write_bytes(path.read_bytes() + b"\n")
+
+
+def v2_fault_symlink(repository: Path, fixture: dict) -> None:
+    junit = repository / fixture["results"]["AC-7.1-05"]
+    outside = repository.parent / "outside.xml"
+    outside.write_bytes(junit.read_bytes())
+    junit.unlink()
+    junit.symlink_to(outside)
+
+
+def v2_fault_commit(mutate):
+    def apply(repository: Path, fixture: dict) -> None:
+        mutate(repository)  # stages exactly its own change; outputs stay untracked
+        v2_git(repository, "commit", "-q", "-m", "fault")
+        for junit in fixture["results"].values():
+            os.utime(repository / junit, ns=(V2_RESULT_MTIME_NS, V2_RESULT_MTIME_NS))
+
+    return apply
+
+
+def v2_mutate_bundle_digest(repository: Path) -> None:
+    path = repository / V2_BUNDLE_PATH
+    bundle = json.loads(path.read_text(encoding="utf-8"))
+    bundle["artifacts"][0]["sha256"] = "f" * 64
+    path.write_text(json.dumps(bundle, indent=2) + "\n", encoding="utf-8")
+    v2_git(repository, "add", V2_BUNDLE_PATH)
+
+
+def v2_mutate_extra_gitlink(repository: Path) -> None:
+    v2_git(
+        repository,
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        f"160000,{v2_gitlink_commit('extra')},references/Hexalith.Undeclared",
+    )
+
+
+def v2_mutate_gitlink_mode(repository: Path) -> None:
+    path = "references/Hexalith.Builds"
+    v2_git(repository, "rm", "-q", "--cached", path)
+    (repository / path).rmdir()
+    (repository / path).write_text("not a gitlink\n", encoding="utf-8")
+    v2_git(repository, "add", path)
+
+
+def v2_mutate_bundle(mutate):
+    """Rewrite the committed V9 bundle with its digest recomputed from its own rows."""
+
+    def apply(repository: Path) -> None:
+        path = repository / V2_BUNDLE_PATH
+        bundle = json.loads(path.read_text(encoding="utf-8"))
+        mutate(bundle)
+        bundle["bundleDigest"] = hashlib.sha256(
+            "".join(f"{row['sha256']}  {row['path']}\n" for row in bundle["artifacts"]).encode(
+                "utf-8"
+            )
+        ).hexdigest()
+        path.write_text(json.dumps(bundle, indent=2) + "\n", encoding="utf-8")
+        v2_git(repository, "add", V2_BUNDLE_PATH)
+
+    return apply
+
+
+def v2_swap_rows(bundle: dict) -> None:
+    rows = bundle["artifacts"]
+    rows[0], rows[1] = rows[1], rows[0]
+
+
+def v2_duplicate_row(bundle: dict) -> None:
+    bundle["artifacts"][1]["path"] = bundle["artifacts"][0]["path"]
+
+
+def v2_remove_bundle(repository: Path) -> None:
+    v2_git(repository, "rm", "-q", V2_BUNDLE_PATH)
+
+
+def v2_mutate_contract(mutate):
+    """Commit a still schema-valid contract whose scenario commands were edited."""
+
+    def apply(repository: Path) -> None:
+        path = repository / V2_CONTRACT_PATH
+        contract = json.loads(path.read_text(encoding="utf-8"))
+        mutate(contract["scenarios"])
+        v2_schema_contract_validator(v2_schema_contract_load(STORY_CONTRACT_SCHEMA)).validate(
+            contract
+        )
+        path.write_text(json.dumps(contract, indent=2) + "\n", encoding="utf-8")
+        v2_git(repository, "add", V2_CONTRACT_PATH)
+
+    return apply
+
+
+def v2_self_not_last(scenarios: list[dict]) -> None:
+    scenarios[4], scenarios[5] = scenarios[5], scenarios[4]
+
+
+def v2_self_output_mismatch(scenarios: list[dict]) -> None:
+    scenarios[5]["command"] = scenarios[5]["command"].replace(
+        V2_OUTPUT_JSON, "docs/release-evidence/elsewhere.json"
+    )
+
+
+def v2_self_repository_mismatch(scenarios: list[dict]) -> None:
+    scenarios[5]["command"] = scenarios[5]["command"].replace(
+        "--repository .", "--repository ../another-checkout"
+    )
+
+
+def v2_uncommitted_target(scenarios: list[dict]) -> None:
+    scenarios[0]["command"] = scenarios[0]["command"].replace(
+        V2_TARGET_PATH, "_bmad/scripts/tests/test_not_committed.py"
+    )
+
+
+def v2_shared_junit(scenarios: list[dict]) -> None:
+    scenarios[1]["command"] = scenarios[1]["command"].replace(
+        "AC-7.1-02.xml", "AC-7.1-01.xml"
+    )
+
+
+def v2_self_contract_mismatch(scenarios: list[dict]) -> None:
+    scenarios[5]["command"] = scenarios[5]["command"].replace(
+        V2_CONTRACT_PATH, "_bmad-output/planning-artifacts/v9/story-contracts/7.2.json"
+    )
+
+
+def v2_self_markdown_mismatch(scenarios: list[dict]) -> None:
+    scenarios[5]["command"] = scenarios[5]["command"].replace(
+        V2_OUTPUT_MARKDOWN, "docs/release-evidence/elsewhere.md"
+    )
+
+
+def v2_junit_below_gitlink(scenarios: list[dict]) -> None:
+    scenarios[0]["command"] = scenarios[0]["command"].replace(
+        "artifacts/v9/7.1/AC-7.1-01.xml", "references/Hexalith.Builds/AC-7.1-01.xml"
+    )
+
+
+def v2_fault_duplicate_testcase(repository: Path, fixture: dict) -> None:
+    _, selector, _ = v2_pytest_scenarios()[0]
+    name = f"test_{selector}_first"
+    v2_fault_result(repository, fixture, 0, v2_junit(selector, [(name, None), (name, None)]))
+
+
+V2_FAULTS = {
+    "failing-testcase": (
+        lambda repository, fixture: v2_fault_result(
+            repository,
+            fixture,
+            1,
+            v2_junit(
+                "v2_deterministic_bundle",
+                [("test_v2_deterministic_bundle_a", None), ("test_v2_deterministic_bundle_b", "failure")],
+            ),
+        ),
+        "TEST_RESULTS_FAILED",
+    ),
+    "erroring-testcase": (
+        lambda repository, fixture: v2_fault_result(
+            repository,
+            fixture,
+            1,
+            v2_junit("v2_deterministic_bundle", [("test_v2_deterministic_bundle_a", "error")]),
+        ),
+        "TEST_RESULTS_FAILED",
+    ),
+    "skipped-testcase": (
+        lambda repository, fixture: v2_fault_result(
+            repository,
+            fixture,
+            0,
+            v2_junit(
+                "v2_schema_contract",
+                [("test_v2_schema_contract_a", None), ("test_v2_schema_contract_b", "skipped")],
+            ),
+        ),
+        "TEST_SKIP_NOT_ALLOWED",
+    ),
+    "counter-disagreement": (
+        lambda repository, fixture: v2_fault_result(
+            repository,
+            fixture,
+            3,
+            v2_junit("v2_rejects_empty_derivation", counters={"tests": 7}),
+        ),
+        "TEST_COUNT_INCONSISTENT",
+    ),
+    "foreign-selector": (
+        lambda repository, fixture: v2_fault_result(
+            repository, fixture, 4, v2_junit("v2_schema_contract")
+        ),
+        "SCENARIO_RESULT_MISMATCH",
+    ),
+    "foreign-module": (
+        lambda repository, fixture: v2_fault_result(
+            repository,
+            fixture,
+            4,
+            v2_junit("v2_malformed_input_is_schema_valid_failure", classname="tests.other"),
+        ),
+        "SCENARIO_RESULT_MISMATCH",
+    ),
+    "stale-result": (v2_fault_stale, "TEST_RESULTS_STALE"),
+    "symlinked-result": (v2_fault_symlink, "INPUT_SCHEMA_INVALID"),
+    "unrelated-dirt": (v2_fault_dirt, "WORKTREE_NOT_CLEAN"),
+    "uncommitted-contract-edit": (v2_fault_dirty_contract, "WORKTREE_NOT_CLEAN"),
+    "bundle-digest-drift": (v2_fault_commit(v2_mutate_bundle_digest), "AUTHORITY_BINDING_INVALID"),
+    "undeclared-gitlink": (v2_fault_commit(v2_mutate_extra_gitlink), "GITLINK_INVENTORY_DRIFT"),
+    "non-gitlink-mode": (v2_fault_commit(v2_mutate_gitlink_mode), "GITLINK_INVENTORY_DRIFT"),
+    "bundle-planning-candidate-drift": (
+        v2_fault_commit(
+            v2_mutate_bundle(lambda bundle: bundle.update(planningCandidate="0" * 40))
+        ),
+        "AUTHORITY_BINDING_INVALID",
+    ),
+    "bundle-rows-unsorted": (
+        v2_fault_commit(v2_mutate_bundle(v2_swap_rows)),
+        "AUTHORITY_BINDING_INVALID",
+    ),
+    "bundle-rows-duplicated": (
+        v2_fault_commit(v2_mutate_bundle(v2_duplicate_row)),
+        "AUTHORITY_BINDING_INVALID",
+    ),
+    "bundle-missing": (v2_fault_commit(v2_remove_bundle), "AUTHORITY_BINDING_INVALID"),
+    "self-invocation-not-last": (
+        v2_fault_commit(v2_mutate_contract(v2_self_not_last)),
+        "SCENARIO_COMMAND_UNSUPPORTED",
+    ),
+    "self-invocation-output-mismatch": (
+        v2_fault_commit(v2_mutate_contract(v2_self_output_mismatch)),
+        "SCENARIO_RESULT_MISMATCH",
+    ),
+    "self-invocation-repository-mismatch": (
+        v2_fault_commit(v2_mutate_contract(v2_self_repository_mismatch)),
+        "SCENARIO_RESULT_MISMATCH",
+    ),
+    "uncommitted-pytest-target": (
+        v2_fault_commit(v2_mutate_contract(v2_uncommitted_target)),
+        "SCENARIO_COMMAND_UNSUPPORTED",
+    ),
+    "shared-junit-path": (
+        v2_fault_commit(v2_mutate_contract(v2_shared_junit)),
+        "SCENARIO_RESULT_MISMATCH",
+    ),
+    "self-invocation-contract-mismatch": (
+        v2_fault_commit(v2_mutate_contract(v2_self_contract_mismatch)),
+        "SCENARIO_RESULT_MISMATCH",
+    ),
+    "self-invocation-markdown-mismatch": (
+        v2_fault_commit(v2_mutate_contract(v2_self_markdown_mismatch)),
+        "SCENARIO_RESULT_MISMATCH",
+    ),
+    "junit-below-gitlink": (
+        v2_fault_commit(v2_mutate_contract(v2_junit_below_gitlink)),
+        "SCENARIO_COMMAND_UNSUPPORTED",
+    ),
+    "duplicate-testcase": (v2_fault_duplicate_testcase, "SCENARIO_RESULT_MISMATCH"),
+}
+
+
+@pytest.mark.parametrize("fault", sorted(V2_FAULTS))
+def test_v2_fault_injection_blocks_and_restores_byte_identically(
+    tmp_path: Path, fault: str
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_assert_pass(repository, v2_run(v2_arguments(repository)))
+    baseline_outputs = v2_outputs(repository)
+    before = v2_snapshot(repository)
+    mutate, expected = V2_FAULTS[fault]
+    try:
+        mutate(repository, fixture)
+        v2_assert_failure(v2_run(v2_arguments(repository)), {expected})
+        assert v2_outputs(repository) == baseline_outputs
+    finally:
+        v2_git(repository, "reset", "--hard", "-q", str(fixture["candidate"]))
+        (repository / "unrelated-dirt.txt").unlink(missing_ok=True)
+        (repository.parent / "outside.xml").unlink(missing_ok=True)
+        for path in V2_DECLARATION_ORDER:
+            (repository / path).mkdir(parents=True, exist_ok=True)
+        for scenario_id, selector, junit in v2_pytest_scenarios():
+            (repository / junit).unlink(missing_ok=True)
+            v2_write_result(repository, junit, v2_junit(selector))
+        for path, content in zip((V2_OUTPUT_JSON, V2_OUTPUT_MARKDOWN), baseline_outputs):
+            (repository / path).write_bytes(content)
+    assert v2_snapshot(repository) == before
+    v2_assert_pass(repository, v2_run(v2_arguments(repository)))
+    assert v2_outputs(repository) == baseline_outputs
+
+
+def test_v2_fault_injection_shared_junit_path_is_a_story_level_mismatch(
+    tmp_path: Path,
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_fault_commit(v2_mutate_contract(v2_shared_junit))(repository, fixture)
+    document = v2_assert_failure(
+        v2_run(v2_arguments(repository)), {"SCENARIO_RESULT_MISMATCH"}
+    )
+    # The shared file also fails AC-7.1-02's selector; require the story-level check.
+    assert {
+        "code": "SCENARIO_RESULT_MISMATCH",
+        "subject": "7.1",
+        "message": "two scenarios declare the same JUnit result path",
+    } in document["diagnostics"]
+
+
+@pytest.mark.parametrize(
+    "output_json",
+    (V2_CONTRACT_PATH, "references/Hexalith.Builds/story-7.1-final-record-v2.json"),
+    ids=("aliases-the-contract", "below-a-gitlink"),
+)
+def test_v2_fault_injection_rejects_an_output_path_that_aliases_an_input_or_a_gitlink(
+    tmp_path: Path, output_json: str
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+
+    def redirect(contract: dict) -> None:
+        contract["finalRecord"]["paths"][0] = output_json
+        contract["scenarios"][5]["command"] = contract["scenarios"][5]["command"].replace(
+            V2_OUTPUT_JSON, output_json
+        )
+
+    (repository / V2_CONTRACT_PATH).write_bytes(v2_contract_bytes(redirect))
+    v2_git(repository, "add", V2_CONTRACT_PATH)
+    v2_fault_commit(lambda repository: None)(repository, fixture)
+    before = v2_snapshot(repository)
+    arguments = v2_arguments(
+        repository,
+        "--contract",
+        V2_CONTRACT_PATH,
+        "--format",
+        "bundle",
+        "--output-json",
+        output_json,
+        "--output-markdown",
+        V2_OUTPUT_MARKDOWN,
+        replace=True,
+    )
+    document = v2_assert_failure(v2_run(arguments), {"OUTPUT_PATH_INVALID"})
+    assert [
+        item["subject"]
+        for item in document["diagnostics"]
+        if item["code"] == "OUTPUT_PATH_INVALID"
+    ] == ["--output-json"]
+    assert v2_snapshot(repository) == before
+
+
+# ---- BLOCKED class, output containment, and output rollback ---------------- #
+# These fall outside the AC-7.1-05 selector: its contract row covers only exit
+# `1` input failures. The read-back drift tests belong to AC-7.1-02.
+
+
+def v2_in_process(
+    module, repository: Path, capsys: pytest.CaptureFixture[str], exit_code: int
+) -> dict:
+    assert module.main(v2_arguments(repository)) == exit_code
+    captured = capsys.readouterr()
+    assert captured.err == ""
+    assert "Traceback" not in captured.out
+    document = json.loads(captured.out)
+    v2_failure_validator().validate(document)
+    assert document["exitCode"] == exit_code
+    assert document["result"] == ("FAIL" if exit_code == 1 else "BLOCKED")
+    return document
+
+
+def v2_seed_outputs(repository: Path) -> tuple[bytes, bytes]:
+    pair = (b"previous json\n", b"previous markdown\n")
+    for path, content in zip((V2_OUTPUT_JSON, V2_OUTPUT_MARKDOWN), pair):
+        (repository / path).parent.mkdir(parents=True, exist_ok=True)
+        (repository / path).write_bytes(content)
+    return pair
+
+
+def test_v2_blocked_when_schemas_are_unavailable(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    module = load_generator()
+    empty = tmp_path / "no-schemas"
+    empty.mkdir()
+    monkeypatch.setattr(module, "V2_SCHEMA_DIRECTORY", empty)
+    document = v2_in_process(module, repository, capsys, 2)
+    assert document["blockers"] == ["SCHEMA_UNAVAILABLE"]
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_blocked_when_git_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    module = load_generator()
+    original = module.run_git
+
+    def failing(repository_path: Path, *arguments: str, **options):
+        if arguments[:2] == ("ls-tree", "-r"):
+            raise module.GateError("GIT_COMMAND_FAILED", "forced fixture failure")
+        return original(repository_path, *arguments, **options)
+
+    monkeypatch.setattr(module, "run_git", failing)
+    document = v2_in_process(module, repository, capsys, 2)
+    assert document["blockers"] == ["GIT_COMMAND_FAILED"]
+    assert "forced fixture failure" not in json.dumps(document)
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_blocked_when_head_resolution_git_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    module = load_generator()
+    original = module.run_git
+
+    def failing(repository_path: Path, *arguments: str, **options):
+        if arguments[:3] == ("rev-parse", "--verify", "HEAD^{commit}"):
+            raise module.GateError("GIT_COMMAND_FAILED", "forced fixture failure")
+        return original(repository_path, *arguments, **options)
+
+    monkeypatch.setattr(module, "run_git", failing)
+    document = v2_in_process(module, repository, capsys, 2)
+    assert document["blockers"] == ["GIT_COMMAND_FAILED"]
+    assert "forced fixture failure" not in json.dumps(document)
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_blocked_when_jsonschema_is_unavailable(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    module = load_generator()
+    real_import = builtins.__import__
+
+    def refuse(name: str, *arguments: object, **keywords: object) -> object:
+        if name == "jsonschema":
+            raise ImportError("no module named jsonschema")
+        return real_import(name, *arguments, **keywords)
+
+    monkeypatch.setattr(builtins, "__import__", refuse)
+    exit_code = module.main(v2_arguments(repository))
+    monkeypatch.undo()
+    assert exit_code == 2
+    captured = capsys.readouterr()
+    assert captured.err == ""
+    assert "Traceback" not in captured.out
+    document = json.loads(captured.out)
+    v2_failure_validator().validate(document)
+    assert document["exitCode"] == 2
+    assert document["result"] == "BLOCKED"
+    assert document["blockers"] == ["SCHEMA_VALIDATOR_UNAVAILABLE"]
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_output_rejects_a_symlinked_leaf(
+    tmp_path: Path,
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    decoy = repository / "docs/release-evidence/decoy.json"
+    decoy.parent.mkdir(parents=True)
+    decoy.write_bytes(b"decoy\n")
+    leaf = repository / V2_OUTPUT_JSON
+    leaf.symlink_to("decoy.json")
+    v2_git(repository, "add", "docs/release-evidence/decoy.json")
+    v2_git(repository, "commit", "-q", "-m", "decoy")
+    for junit in fixture["results"].values():
+        os.utime(repository / junit, ns=(V2_RESULT_MTIME_NS, V2_RESULT_MTIME_NS))
+    before = v2_snapshot(repository)
+    v2_assert_failure(v2_run(v2_arguments(repository)), {"OUTPUT_PATH_INVALID"})
+    assert leaf.is_symlink() and os.readlink(leaf) == "decoy.json"
+    assert decoy.read_bytes() == b"decoy\n"
+    assert not (repository / V2_OUTPUT_MARKDOWN).exists()
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_output_rolls_back_when_the_second_replace_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    pair = v2_seed_outputs(repository)
+    before = v2_snapshot(repository)
+    module = load_generator()
+    original = os.replace
+    staged: list[str] = []
+
+    def failing_second(source, target) -> None:
+        if str(source).endswith(".tmp"):
+            staged.append(str(target))
+            if len(staged) == 2:
+                raise OSError("forced second replace failure")
+        original(source, target)
+
+    monkeypatch.setattr(module.os, "replace", failing_second)
+    document = v2_in_process(module, repository, capsys, 2)
+    assert document["blockers"] == ["OUTPUT_WRITE_FAILED"]
+    assert len(staged) == 2
+    assert v2_outputs(repository) == pair
+    assert v2_snapshot(repository) == before
+    assert "every replaced output was restored" in json.dumps(document)
+
+
+def test_v2_output_rolls_back_when_the_second_replace_fails_without_seeded_outputs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    module = load_generator()
+    original = os.replace
+    staged: list[str] = []
+
+    def failing_second(source, target) -> None:
+        if str(source).endswith(".tmp"):
+            staged.append(str(target))
+            if len(staged) == 2:
+                raise OSError("forced second replace failure")
+        original(source, target)
+
+    monkeypatch.setattr(module.os, "replace", failing_second)
+    document = v2_in_process(module, repository, capsys, 2)
+    assert document["blockers"] == ["OUTPUT_WRITE_FAILED"]
+    assert len(staged) == 2
+    assert v2_outputs(repository) == (None, None)
+    assert v2_snapshot(repository) == before
+    assert "every replaced output was restored" in json.dumps(document)
+
+
+def test_v2_output_reports_a_failed_restore(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    module = load_generator()
+    original = os.replace
+    staged: list[str] = []
+
+    def failing_second(source, target) -> None:
+        if str(source).endswith(".tmp"):
+            staged.append(str(target))
+            if len(staged) == 2:
+                raise OSError("forced second replace failure")
+        original(source, target)
+
+    monkeypatch.setattr(module.os, "replace", failing_second)
+    monkeypatch.setattr(module, "v2_restore_outputs", lambda replaced, originals: False)
+    document = v2_in_process(module, repository, capsys, 2)
+    assert document["blockers"] == ["OUTPUT_WRITE_FAILED"]
+    payload = json.dumps(document)
+    assert "one or more replaced outputs could not be restored" in payload
+    assert "every replaced output was restored" not in payload
+    assert v2_outputs(repository)[0] is not None
+
+
+def test_v2_deterministic_bundle_read_back_drift_rolls_back_without_seeded_outputs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    module = load_generator()
+    original = os.replace
+
+    def concurrent_writer(source, target) -> None:
+        original(source, target)
+        if str(source).endswith(".tmp") and str(target).endswith(".md"):
+            with open(target, "ab") as handle:
+                handle.write(b"concurrent edit\n")
+
+    monkeypatch.setattr(module.os, "replace", concurrent_writer)
+    document = v2_in_process(module, repository, capsys, 1)
+    assert document["blockers"] == ["RECORD_CONTENT_DRIFT"]
+    assert v2_outputs(repository) == (None, None)
+    assert v2_snapshot(repository) == before
+    assert "every replaced output was restored" in json.dumps(document)
+
+
+def test_v2_deterministic_bundle_read_back_drift_rolls_back(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    pair = v2_seed_outputs(repository)
+    before = v2_snapshot(repository)
+    module = load_generator()
+    original = os.replace
+
+    def concurrent_writer(source, target) -> None:
+        original(source, target)
+        if str(source).endswith(".tmp") and str(target).endswith(".md"):
+            with open(target, "ab") as handle:
+                handle.write(b"concurrent edit\n")
+
+    monkeypatch.setattr(module.os, "replace", concurrent_writer)
+    document = v2_in_process(module, repository, capsys, 1)
+    assert document["blockers"] == ["RECORD_CONTENT_DRIFT"]
+    assert v2_outputs(repository) == pair
+    assert v2_snapshot(repository) == before
+
+
+# ---- v1 regression and documentation ---------------------------------------- #
+
+
+def test_v2_route_leaves_the_v1_route_unchanged(umbrella: dict[str, object]) -> None:
+    code, document = measured(umbrella)
+    assert code == 0, document["blockers"]
+    assert document["schema"] == "story-final-record-v1"
+    assert "schemaVersion" not in document
+    abbreviated = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--repository",
+            str(umbrella["repository"]),
+            "--contr",
+            V2_CONTRACT_PATH,
+        ],
+        check=False,
+        capture_output=True,
+        env=GIT_ENV,
+        text=True,
+        timeout=120,
+    )
+    assert abbreviated.returncode == 2
+    legacy = json.loads(abbreviated.stdout)
+    assert legacy["schema"] == "story-final-record-v1"
+    assert [item["code"] for item in legacy["blockers"]] == ["INVALID_SCOPE"]
+    module = load_generator()
+    assert module.is_v2_invocation(["--contract", "x"])
+    assert module.is_v2_invocation(["--contract=x"])
+    assert not module.is_v2_invocation(["--contr", "x", "--story", "--contract-x"])
+
+
+def test_v2_every_code_is_documented_in_the_runbook() -> None:
+    module = load_generator()
+    runbook = RUNBOOK.read_text(encoding="utf-8")
+    assert "## 9. Contract-bound v2 route" in runbook
+    for code, exit_class in module.V2_CODES.items():
+        assert exit_class in {"FAIL", "BLOCKED"}
+        assert f"`{code}`" in runbook, code
+    assert set(module.V2_SCHEMA_FILES.values()) == {
+        FINAL_RECORD_SCHEMA.name,
+        V2_FAILURE_SCHEMA.name,
+        STORY_CONTRACT_SCHEMA.name,
+        "v9-authority-bundle-v1.schema.json",
+        "v14-story-contract-v1.schema.json",
+    }
+
+
+STORY_7_2_CONTRACT = WORKSPACE / "_bmad-output/planning-artifacts/v9/story-contracts/7.2.json"
+STORY_7_2_SPEC = WORKSPACE / "_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md"
+STORY_7_2_CONTRACT_PATH = "_bmad-output/planning-artifacts/v9/story-contracts/7.2.json"
+STORY_7_2_SPEC_PATH = "_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md"
+STORY_7_2_SPRINT_PATH = "_bmad-output/implementation-artifacts/sprint-status.yaml"
+STORY_7_2_OUTPUT_JSON = "docs/release-evidence/story-7.2-final-record-v2.json"
+STORY_7_2_OUTPUT_MARKDOWN = "docs/release-evidence/story-7.2-final-record-v2.md"
+STORY_7_2_PROJECTS = tuple(sorted(path.stem for path in WORKSPACE.glob("tests/*/*.csproj")))
+STORY_7_2_ACCEPTANCE_SCHEMA = WORKSPACE / "_bmad/schemas/v9-acceptance-result-v1.schema.json"
+
+
+def v2_7_2_arguments(repository: Path) -> list[str]:
+    return v2_arguments(repository, "--contract", STORY_7_2_CONTRACT_PATH,
+                        "--output-json", STORY_7_2_OUTPUT_JSON,
+                        "--output-markdown", STORY_7_2_OUTPUT_MARKDOWN, replace=True)
+
+
+def v2_7_2_assert_pass(repository: Path, result: subprocess.CompletedProcess[bytes]) -> dict:
+    assert result.returncode == 0, result.stdout.decode("utf-8", "replace")
+    json_bytes = (repository / STORY_7_2_OUTPUT_JSON).read_bytes()
+    markdown_bytes = (repository / STORY_7_2_OUTPUT_MARKDOWN).read_bytes()
+    assert result.stdout == json_bytes
+    record = json.loads(json_bytes)
+    v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA)).validate(record)
+    assert record["outputs"]["json"]["sha256"] == v2_json_digest(record)
+    assert record["outputs"]["markdown"]["sha256"] == hashlib.sha256(markdown_bytes).hexdigest()
+    assert load_generator().v2_verify_pair(json_bytes, markdown_bytes) == []
+    return record
+
+
+def v2_7_2_results(repository: Path) -> None:
+    contract = json.loads(STORY_7_2_CONTRACT.read_bytes())
+    for scenario in contract["scenarios"][:10]:
+        selector = re.search(r" -k (\S+) ", scenario["command"]).group(1)
+        junit = re.search(r"--junitxml=(\S+)$", scenario["command"]).group(1)
+        v2_write_result(repository, junit, v2_junit(selector))
+
+
+def v2_7_2_trx(repository: Path, name: str, *, passed: int = 2,
+               failed: int = 0, skipped: int = 0) -> Path:
+    path = repository / f"artifacts/v9/7.2/test-results/{name}.trx"
+    write_trx(path, passed=passed, failed=failed, skipped=skipped, project=name,
+              code_base=Path(f"/fixture/{name}.dll"), include_test_ids=True)
+    # Anchor after every fixture write and commit, not only the spec, so slow
+    # runners never read a freshly written result as stale.
+    current = max((repository / STORY_7_2_SPEC_PATH).stat().st_mtime_ns,
+                  (repository / STORY_7_2_CONTRACT_PATH).stat().st_mtime_ns,
+                  time.time_ns())
+    os.utime(path, ns=(current + 10_000_000_000, current + 10_000_000_000))
+    return path
+
+
+def build_v2_7_2_repository(tmp_path: Path) -> dict[str, object]:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    baseline = fixture["candidate"]
+    for relative, source in (
+        (STORY_7_2_CONTRACT_PATH, STORY_7_2_CONTRACT),
+        ("docs/release-evidence/story-7.1-final-record-v2.json",
+         WORKSPACE / "docs/release-evidence/story-7.1-final-record-v2.json"),
+        ("docs/release-evidence/story-7.1-final-record-v2.md",
+         WORKSPACE / "docs/release-evidence/story-7.1-final-record-v2.md"),
+    ):
+        target = repository / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(source.read_bytes())
+    spec = STORY_7_2_SPEC.read_text(encoding="utf-8")
+    spec = re.sub(r"^baseline_commit:.*$", f"baseline_commit: '{baseline}'", spec,
+                  count=1, flags=re.MULTILINE)
+    spec = re.sub(r"^status:.*$", "status: 'in-progress'", spec,
+                  count=1, flags=re.MULTILINE)
+    spec_path = repository / STORY_7_2_SPEC_PATH
+    spec_path.parent.mkdir(parents=True, exist_ok=True)
+    spec_path.write_text(spec, encoding="utf-8")
+    sprint = repository / STORY_7_2_SPRINT_PATH
+    sprint.write_text(
+        "last_updated: 2026-09-25\n"
+        "development_status:\n"
+        "  epic-7: in-progress\n"
+        "  7-2-derive-test-path-candidate-submodule-and-gitlink-facts: in-progress\n",
+        encoding="utf-8",
+    )
+    slnx = repository / "Hexalith.Conversations.slnx"
+    slnx.write_text("<Solution><Folder Name=\"/src/\">"
+                   '<Project Path="src/Fixture.Domain/Fixture.Domain.csproj" />'
+                   '</Folder><Folder Name="/solution-items/">'
+                   '<File Path="tests/SolutionItem/Extra.csproj" />'
+                   '</Folder><Folder Name="/tests/">' + "".join(
+        f'<Project Path="tests/{name}/{name}.csproj" />' for name in STORY_7_2_PROJECTS
+    ) + "</Folder></Solution>\n", encoding="utf-8")
+    source_project = repository / "src/Fixture.Domain/Fixture.Domain.csproj"
+    source_project.parent.mkdir(parents=True)
+    source_project.write_text("<Project />\n", encoding="utf-8")
+    solution_item = repository / "tests/SolutionItem/Extra.csproj"
+    solution_item.parent.mkdir(parents=True)
+    solution_item.write_text("<Project />\n", encoding="utf-8")
+    for name in STORY_7_2_PROJECTS:
+        path = repository / f"tests/{name}/{name}.csproj"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("<Project />\n", encoding="utf-8")
+    (repository / "docs/decoy-160000.txt").write_text(
+        "160000 is text, not a Git mode\n", encoding="utf-8")
+    v2_git(repository, "add", "--all")
+    v2_git(repository, "commit", "-m", "story 7.2 fixture candidate")
+    fixture["candidate"] = v2_git(repository, "rev-parse", "HEAD").stdout.strip()
+    fixture["baseline"] = baseline
+    v2_7_2_results(repository)
+    for name in STORY_7_2_PROJECTS:
+        v2_7_2_trx(repository, name)
+    return fixture
+
+
+def v2_7_2_snapshot_and_fault(fixture: dict[str, object], mutate,
+                              expected: str) -> None:
+    repository = fixture["repository"]
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    before = v2_snapshot(repository)
+    outputs = tuple((repository / path).read_bytes() for path in
+                    (STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN))
+    try:
+        restore = mutate(repository)
+        document = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {expected})
+        assert document["blockers"] == [expected]
+        assert outputs == tuple((repository / path).read_bytes() for path in
+                                (STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN))
+    finally:
+        restore()
+    assert v2_snapshot(repository) == before
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    assert outputs == tuple((repository / path).read_bytes() for path in
+                            (STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN))
+
+
+def v2_7_2_replace(path: Path, content: bytes):
+    original = path.read_bytes()
+    modified = path.stat().st_mtime_ns
+    path.write_bytes(content)
+    os.utime(path, ns=(modified, modified))
+
+    def restore() -> None:
+        path.write_bytes(original)
+        os.utime(path, ns=(modified, modified))
+
+    return restore
+
+
+def test_v2_derives_required_test_totals(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    record = v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    measured = record["measurements"]
+    assert [row["project"] for row in measured["testProjects"]] == list(STORY_7_2_PROJECTS)
+    expected_total = 2 * len(STORY_7_2_PROJECTS)
+    assert measured["testTotals"] == {"total": expected_total, "executed": expected_total,
+                                      "passed": expected_total, "failed": 0, "skipped": 0}
+    assert all(row["counts"]["total"] == 2 for row in measured["testProjects"])
+    assert "src/Fixture.Domain/Fixture.Domain.csproj" in measured["changedPaths"]
+    assert "tests/SolutionItem/Extra.csproj" in measured["changedPaths"]
+    assert all(row["projectPath"].startswith("tests/") for row in measured["testProjects"])
+    assert not (repository / "artifacts/v9/7.2/test-results/Extra.trx").exists()
+    assert measured["baseline"] == fixture["baseline"]
+    assert measured["changedPaths"] == sorted(measured["changedPaths"])
+    assert measured["predecessorRecord"]["sha256"] == sha256_file(
+        repository / "docs/release-evidence/story-7.1-final-record-v2.json")
+    markdown = (repository / STORY_7_2_OUTPUT_MARKDOWN).read_text(encoding="utf-8")
+    assert "## Story 7.2 measurements" in markdown
+    for row in measured["testProjects"]:
+        assert f"| `{row['project']}` | `{row['resultFile']['path']}` | `2` |" in markdown
+    assert f"| `TOTAL` | `none` | `{expected_total}` |" in markdown
+    assert "``" not in markdown
+    for path in measured["changedPaths"]:
+        assert f"- `{path}`" in markdown
+    acceptance = {
+        "schemaVersion": "hexalith.conversations.acceptance-result.v1",
+        "storyId": "7.2", "scenarioId": "AC-7.2-01",
+        "command": json.loads(STORY_7_2_CONTRACT.read_bytes())["scenarios"][0]["command"],
+        "exitCode": 0, "result": "PASS", "blockers": [],
+        "candidate": fixture["candidate"],
+        "inputs": [row["resultFile"] for row in measured["testProjects"]],
+        "outputs": [record["outputs"]["json"], record["outputs"]["markdown"]],
+        "assertionLedger": [
+            {"id": f"AC-7.2-01#{index:04d}", "subject": row["project"], "state": "PASS"}
+            for index, row in enumerate(measured["testProjects"], 1)
+        ],
+    }
+    v2_schema_contract_validator(v2_schema_contract_load(STORY_7_2_ACCEPTANCE_SCHEMA)).validate(acceptance)
+
+
+def test_v2_blocks_missing_result(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    path = fixture["repository"] / f"artifacts/v9/7.2/test-results/{STORY_7_2_PROJECTS[0]}.trx"
+    def mutate(_):
+        original = path.read_bytes()
+        modified = path.stat().st_mtime_ns
+        path.unlink()
+        def restore():
+            path.write_bytes(original)
+            os.utime(path, ns=(modified, modified))
+        return restore
+    v2_7_2_snapshot_and_fault(fixture, mutate, "TEST_RESULTS_MISSING")
+
+
+def test_v2_blocks_stale_result(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    path = fixture["repository"] / f"artifacts/v9/7.2/test-results/{STORY_7_2_PROJECTS[0]}.trx"
+    def mutate(_):
+        original = path.stat().st_mtime_ns
+        os.utime(path, ns=(1, 1))
+        return lambda: os.utime(path, ns=(original, original))
+    v2_7_2_snapshot_and_fault(fixture, mutate, "TEST_RESULTS_STALE")
+
+
+def test_v2_blocks_result_older_than_changed_source(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    source = repository / STORY_7_2_CONTRACT_PATH
+    result = repository / f"artifacts/v9/7.2/test-results/{STORY_7_2_PROJECTS[0]}.trx"
+    def mutate(_):
+        original = source.stat().st_mtime_ns
+        os.utime(source, ns=(result.stat().st_mtime_ns + 1_000_000_000, ) * 2)
+        return lambda: os.utime(source, ns=(original, original))
+    v2_7_2_snapshot_and_fault(fixture, mutate, "TEST_RESULTS_STALE")
+
+
+def test_v2_blocks_failed_test(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    path = fixture["repository"] / f"artifacts/v9/7.2/test-results/{STORY_7_2_PROJECTS[0]}.trx"
+    v2_7_2_snapshot_and_fault(fixture,
+        lambda _: v2_7_2_replace(path, path.read_bytes().replace(b'outcome="Passed"', b'outcome="Failed"', 1)
+                                 .replace(b'passed="2"', b'passed="1"').replace(b'failed="0"', b'failed="1"')),
+        "TEST_FAILED")
+
+
+def test_v2_blocks_executed_count_below_passed_results(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    path = fixture["repository"] / f"artifacts/v9/7.2/test-results/{STORY_7_2_PROJECTS[0]}.trx"
+    v2_7_2_snapshot_and_fault(
+        fixture,
+        lambda _: v2_7_2_replace(path, path.read_bytes().replace(b'executed="2"', b'executed="0"', 1)),
+        "TEST_FAILED",
+    )
+
+
+def test_v2_blocks_foreign_result_test_id(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    path = fixture["repository"] / f"artifacts/v9/7.2/test-results/{STORY_7_2_PROJECTS[0]}.trx"
+    v2_7_2_snapshot_and_fault(
+        fixture,
+        lambda _: v2_7_2_replace(path, path.read_bytes().replace(b'testId="0000"', b'testId="foreign"', 1)),
+        "TEST_RESULTS_MISSING",
+    )
+
+
+def test_v2_blocks_unapproved_skip(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    path = fixture["repository"] / f"artifacts/v9/7.2/test-results/{STORY_7_2_PROJECTS[0]}.trx"
+    v2_7_2_snapshot_and_fault(fixture,
+        lambda _: v2_7_2_replace(path, path.read_bytes().replace(b'outcome="Passed"', b'outcome="NotExecuted"', 1)
+                                 .replace(b'passed="2"', b'passed="1"').replace(b'notExecuted="0"', b'notExecuted="1"')
+                                 .replace(b'executed="2"', b'executed="1"')),
+        "TEST_SKIPPED")
+
+
+@pytest.mark.parametrize("policy", ["exact", "wrong-prefix", "wrong-name", "absent"])
+def test_v2_story_7_2_skip_policy_requires_the_exact_test_identity(
+    tmp_path: Path, policy: str,
+) -> None:
+    """A synthetic committed approval admits only its complete skipped-test identity."""
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    project = STORY_7_2_PROJECTS[0]
+    approved = {
+        "exact": f"{project}.S0",
+        "wrong-prefix": f"{STORY_7_2_PROJECTS[1]}.S0",
+        "wrong-name": f"{project}.S01",
+    }.get(policy)
+    if approved is not None:
+        spec = repository / STORY_7_2_SPEC_PATH
+        spec.write_text(spec.read_text(encoding="utf-8").replace(
+            "allowed_skipped_tests: []",
+            f"allowed_skipped_tests:\n  - test: '{approved}'\n    reason: 'Hermetic approval fixture.'",
+            1,
+        ), encoding="utf-8")
+        v2_git(repository, "add", "--", STORY_7_2_SPEC_PATH)
+        v2_git(repository, "commit", "-m", "test: commit synthetic skip approval")
+        v2_7_2_results(repository)
+    for name in STORY_7_2_PROJECTS:
+        v2_7_2_trx(repository, name, passed=1 if name == project else 2,
+                     skipped=1 if name == project else 0)
+    result = v2_run(v2_7_2_arguments(repository))
+    if policy != "exact":
+        failure = v2_assert_failure(result, {"TEST_SKIPPED"})
+        assert failure["blockers"] == ["TEST_SKIPPED"]
+        return
+    record = v2_7_2_assert_pass(repository, result)
+    total = 2 * len(STORY_7_2_PROJECTS)
+    assert record["measurements"]["testTotals"] == {
+        "total": total, "executed": total - 1, "passed": total - 1, "failed": 0, "skipped": 1,
+    }
+    skipped_project = next(row for row in record["measurements"]["testProjects"] if row["project"] == project)
+    assert skipped_project["counts"] == {
+        "total": 2, "executed": 1, "passed": 1, "failed": 0, "skipped": 1,
+    }
+
+
+def test_v2_blocks_not_run(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    path = fixture["repository"] / f"artifacts/v9/7.2/test-results/{STORY_7_2_PROJECTS[0]}.trx"
+    v2_7_2_snapshot_and_fault(fixture,
+        lambda _: v2_7_2_replace(path, path.read_bytes().replace(
+            b'<UnitTestResult testName="' + STORY_7_2_PROJECTS[0].encode(), b'<Removed testName="' + STORY_7_2_PROJECTS[0].encode())
+            .replace(b'total="2"', b'total="0"').replace(b'executed="2"', b'executed="0"')
+            .replace(b'passed="2"', b'passed="0"')),
+        "TEST_NOT_RUN")
+
+
+def test_v2_derives_singular_file_list_and_blocks_dirt(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    record = v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    changed = subprocess.run(["git", "-C", str(repository), "diff", "--name-only",
+                              "--no-renames", fixture["baseline"], fixture["candidate"]],
+                             check=True, capture_output=True, text=True).stdout.splitlines()
+    assert record["measurements"]["changedPaths"] == sorted(changed)
+    dirt = repository / "unrelated-source.txt"
+    def mutate(_):
+        dirt.write_text("dirty\n", encoding="utf-8")
+        return lambda: dirt.unlink()
+    v2_7_2_snapshot_and_fault(fixture, mutate, "SOURCE_TREE_DIRTY")
+    module = load_generator()
+    original = module.committed_path_status
+    before = v2_snapshot(repository)
+    def divergent(repository_arg, baseline_arg, candidate_arg):
+        return {**original(repository_arg, baseline_arg, candidate_arg),
+                "invented-path.txt": "A"}
+    module.committed_path_status = divergent
+    try:
+        with pytest.raises(module.V2Stop) as error:
+            module.v2_story_7_2_measurements(repository, fixture["candidate"],
+                record["candidate"]["gitlinks"],
+                {STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN},
+                module.v2_load_schemas()[1])
+        assert {row["code"] for row in error.value.findings} == {"FILE_LIST_DRIFT"}
+    finally:
+        module.committed_path_status = original
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_blocks_submodule_internal_path(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    module = load_generator()
+    before = v2_snapshot(repository)
+    original_status = module.committed_path_status
+    original_git = module.run_git
+    internal_path = ROOT_GITLINK_PATHS[0] + "/internal.txt"
+    def derived_internal_path(repository_arg, baseline_arg, candidate_arg):
+        paths = original_status(repository_arg, baseline_arg, candidate_arg)
+        if baseline_arg == fixture["baseline"] and candidate_arg == fixture["candidate"]:
+            return {**paths, internal_path: "A"}
+        return paths
+    def matching_raw_path(repository_arg, *arguments, **options):
+        result = original_git(repository_arg, *arguments, **options)
+        if (arguments[:3] == ("diff", "--name-only", "--no-renames")
+                and arguments[4:6] == (fixture["baseline"], fixture["candidate"])):
+            return subprocess.CompletedProcess(result.args, result.returncode,
+                                               result.stdout + internal_path.encode() + b"\0",
+                                               result.stderr)
+        return result
+    module.committed_path_status = derived_internal_path
+    module.run_git = matching_raw_path
+    try:
+        output = io.StringIO()
+        with redirect_stdout(output):
+            exit_code = module.v2_main(v2_7_2_arguments(repository))
+        failure = json.loads(output.getvalue())
+        v2_failure_validator().validate(failure)
+        assert exit_code == failure["exitCode"] == 1
+        assert failure["result"] == "FAIL"
+        assert failure["blockers"] == ["SUBMODULE_INTERNAL_PATH"]
+    finally:
+        module.committed_path_status = original_status
+        module.run_git = original_git
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_resolves_raw_gitlinks(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    record = v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    assert len(record["candidate"]["gitlinks"]) == 10
+    assert all(row["mode"] == "160000" for row in record["candidate"]["gitlinks"])
+    module = load_generator()
+    assert module.v2_raw_gitlinks(repository, fixture["candidate"]) == [
+        (row["path"], row["commit"]) for row in record["candidate"]["gitlinks"]]
+    assert "docs/decoy-160000.txt" in record["measurements"]["changedPaths"]
+    before = v2_snapshot(repository)
+    missing_path = ROOT_GITLINK_PATHS[0]
+    v2_git(repository, "update-index", "--force-remove", missing_path)
+    v2_git(repository, "commit", "-m", "remove gitlink")
+    findings = []
+    module.v2_gitlinks(repository, v2_git(repository, "rev-parse", "HEAD").stdout.strip(),
+                       findings, "7.2")
+    assert {row["code"] for row in findings} == {"GITLINK_SCOPE_MISMATCH"}
+    v2_git(repository, "reset", "--hard", "-q", fixture["candidate"])
+    assert v2_snapshot(repository) == before
+    v2_git(repository, "update-index", "--add", "--cacheinfo",
+           f"160000,{'a' * 40},references/Extra")
+    v2_git(repository, "commit", "-m", "add extra gitlink")
+    findings = []
+    module.v2_gitlinks(repository, v2_git(repository, "rev-parse", "HEAD").stdout.strip(),
+                       findings, "7.2")
+    assert {row["code"] for row in findings} == {"GITLINK_SCOPE_MISMATCH"}
+    v2_git(repository, "reset", "--hard", "-q", fixture["candidate"])
+    assert v2_snapshot(repository) == before
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
+    record_only = v2_snapshot(repository)
+    moved = ROOT_GITLINK_PATHS[0]
+    v2_git(repository, "update-index", "--cacheinfo",
+           f"160000,{'a' * 40},{moved}")
+    v2_git(repository, "commit", "-m", "move gitlink")
+    moved_failure = v2_assert_failure(v2_run(v2_7_2_arguments(repository)),
+                                      {"GITLINK_DRIFT", "CANDIDATE_NOT_FINAL"})
+    assert set(moved_failure["blockers"]) == {"GITLINK_DRIFT", "CANDIDATE_NOT_FINAL"}
+    v2_git(repository, "reset", "--hard", "-q", record_only[0])
+    assert v2_snapshot(repository) == record_only
+
+
+def test_v2_excludes_changed_gitlink_from_root_paths(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    moved = ROOT_GITLINK_PATHS[0]
+    v2_git(repository, "update-index", "--cacheinfo", f"160000,{'a' * 40},{moved}")
+    v2_git(repository, "commit", "-m", "move fixture gitlink")
+    v2_7_2_results(repository)
+    for name in STORY_7_2_PROJECTS:
+        v2_7_2_trx(repository, name)
+    record = v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    assert moved not in record["measurements"]["changedPaths"]
+    assert next(row for row in record["candidate"]["gitlinks"] if row["path"] == moved)["commit"] == "a" * 40
+
+
+def test_v2_blocks_superseded_candidate(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
+    before = v2_snapshot(repository)
+    target = repository / V2_TARGET_PATH
+    target.write_text(target.read_text(encoding="utf-8") + "# superseding source\n",
+                      encoding="utf-8")
+    v2_git(repository, "add", V2_TARGET_PATH)
+    v2_git(repository, "commit", "-m", "supersede candidate")
+    superseded = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
+    assert superseded["blockers"] == ["CANDIDATE_NOT_FINAL"]
+    v2_git(repository, "reset", "--hard", "-q", before[0])
+    assert v2_snapshot(repository) == before
+    spec_path = repository / STORY_7_2_SPEC_PATH
+    original_time = spec_path.stat().st_mtime_ns
+    spec_path.write_text(spec_path.read_text(encoding="utf-8").replace(
+        fixture["baseline"], "0" * 40, 1), encoding="utf-8")
+    v2_git(repository, "add", STORY_7_2_SPEC_PATH)
+    v2_git(repository, "commit", "-m", "invalidate baseline")
+    # Retract the committed pair so the bad baseline is evaluated as a new candidate.
+    output_bytes = [(repository / path).read_bytes() for path in
+                    (STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)]
+    v2_git(repository, "rm", "-q", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "retract prior pair")
+    for name in STORY_7_2_PROJECTS:
+        v2_7_2_trx(repository, name)
+    untrusted = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"BASELINE_NOT_TRUSTWORTHY"})
+    assert untrusted["blockers"] == ["BASELINE_NOT_TRUSTWORTHY"]
+    v2_git(repository, "reset", "--hard", "-q", before[0])
+    os.utime(spec_path, ns=(original_time, original_time))
+    for path, content in zip((STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN), output_bytes):
+        (repository / path).write_bytes(content)
+    v2_7_2_restore_result_mtimes(repository, before)
+    assert v2_snapshot(repository) == before
+
+
+
+def v2_7_2_outputs(repository: Path) -> tuple[bytes, bytes]:
+    return tuple((repository / path).read_bytes() for path in
+                 (STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN))
+
+
+def v2_7_2_restore_result_mtimes(repository: Path, snapshot: tuple) -> None:
+    for relative, entry in snapshot[1].items():
+        if relative.startswith("artifacts/") and entry[0] == "file":
+            os.utime(repository / relative, ns=(entry[2], entry[2]))
+
+
+def test_v2_retains_candidate_across_record_only_commit(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    outputs = v2_7_2_outputs(repository)
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
+    record = v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    assert record["candidate"]["commit"] == fixture["candidate"]
+    assert v2_git(repository, "rev-parse", "HEAD").stdout.strip() != fixture["candidate"]
+    assert v2_7_2_outputs(repository) == outputs
+
+
+def test_v2_blocks_invalid_prior_pair(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
+    before = v2_snapshot(repository)
+    outputs = v2_7_2_outputs(repository)
+    json_path = repository / STORY_7_2_OUTPUT_JSON
+    markdown_path = repository / STORY_7_2_OUTPUT_MARKDOWN
+    v2_git(repository, "rm", "-q", STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "remove prior markdown")
+    incomplete = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"RECORD_CONTENT_DRIFT"})
+    assert incomplete["blockers"] == ["RECORD_CONTENT_DRIFT"]
+    v2_git(repository, "reset", "--hard", "-q", before[0])
+    assert v2_snapshot(repository) == before
+    json_path.write_bytes(outputs[0].replace(b'"storyId": "7.2"', b'"storyId": "7.1"', 1))
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON)
+    v2_git(repository, "commit", "-m", "corrupt prior record")
+    tampered = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"RECORD_CONTENT_DRIFT"})
+    assert tampered["blockers"] == ["RECORD_CONTENT_DRIFT"]
+    v2_git(repository, "reset", "--hard", "-q", before[0])
+    assert v2_7_2_outputs(repository) == outputs
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_uncommitted_prior_pair_does_not_pin_candidate(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    source = repository / V2_TARGET_PATH
+    source.write_text(source.read_text(encoding="utf-8") + "# new source\n", encoding="utf-8")
+    v2_git(repository, "add", V2_TARGET_PATH)
+    v2_git(repository, "commit", "-m", "source successor")
+    v2_7_2_results(repository)
+    for name in STORY_7_2_PROJECTS:
+        v2_7_2_trx(repository, name)
+    record = v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    assert record["candidate"]["commit"] == v2_git(repository, "rev-parse", "HEAD").stdout.strip()
+
+
+def test_v2_retains_candidate_across_lifecycle_bookkeeping(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    original = v2_7_2_outputs(repository)
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
+    spec = repository / STORY_7_2_SPEC_PATH
+    spec.write_text(spec.read_text(encoding="utf-8").replace("status: 'in-progress'", "status: 'in-review'", 1), encoding="utf-8")
+    sprint = repository / STORY_7_2_SPRINT_PATH
+    sprint.write_text(
+        sprint.read_text(encoding="utf-8").replace(
+            "7-2-derive-test-path-candidate-submodule-and-gitlink-facts: in-progress",
+            "7-2-derive-test-path-candidate-submodule-and-gitlink-facts: in-review",
+            1,
+        ).replace("last_updated: 2026-09-25", "last_updated: 2026-09-27", 1),
+        encoding="utf-8",
+    )
+    v2_git(repository, "add", STORY_7_2_SPEC_PATH, STORY_7_2_SPRINT_PATH)
+    v2_git(repository, "commit", "-m", "lifecycle bookkeeping")
+    latest_result_ns = max((repository / f"artifacts/v9/7.2/test-results/{name}.trx").stat().st_mtime_ns
+                           for name in STORY_7_2_PROJECTS)
+    lifecycle_ns = latest_result_ns + 1_000_000_000
+    os.utime(spec, ns=(lifecycle_ns, lifecycle_ns))
+    os.utime(sprint, ns=(lifecycle_ns, lifecycle_ns))
+    assert spec.stat().st_mtime_ns > latest_result_ns
+    assert sprint.stat().st_mtime_ns > latest_result_ns
+    record = v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    assert record["candidate"]["commit"] == fixture["candidate"]
+    assert v2_7_2_outputs(repository) == original
+
+
+def test_v2_retains_candidate_across_a_sprint_header_date_comment(tmp_path: Path) -> None:
+    """A comment-only `# last_updated` date change remains lifecycle bookkeeping."""
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    sprint = repository / STORY_7_2_SPRINT_PATH
+    sprint.write_text(
+        "# last_updated: 2026-09-25\n" + sprint.read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    v2_git(repository, "add", STORY_7_2_SPRINT_PATH)
+    v2_git(repository, "commit", "-m", "record sprint header date")
+    for name in STORY_7_2_PROJECTS:
+        v2_7_2_trx(repository, name)
+    candidate = v2_git(repository, "rev-parse", "HEAD").stdout.strip()
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    original = v2_7_2_outputs(repository)
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
+    sprint.write_text(
+        sprint.read_text(encoding="utf-8").replace(
+            "# last_updated: 2026-09-25", "# last_updated: 2026-09-26", 1
+        ),
+        encoding="utf-8",
+    )
+    v2_git(repository, "add", STORY_7_2_SPRINT_PATH)
+    v2_git(repository, "commit", "-m", "refresh sprint header date")
+    record = v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    assert record["candidate"]["commit"] == candidate
+    assert v2_7_2_outputs(repository) == original
+
+
+def test_v2_blocks_unrelated_sprint_status_change_after_record(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
+    before = v2_snapshot(repository)
+    original = v2_7_2_outputs(repository)
+    sprint = repository / STORY_7_2_SPRINT_PATH
+    sprint.write_text(sprint.read_text(encoding="utf-8").replace(
+        "epic-7: in-progress", "epic-7: done", 1), encoding="utf-8")
+    v2_git(repository, "add", STORY_7_2_SPRINT_PATH)
+    v2_git(repository, "commit", "-m", "change unrelated sprint status")
+    failure = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
+    assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
+    assert failure["diagnostics"][0]["message"].endswith(f": {STORY_7_2_SPRINT_PATH}")
+    assert v2_7_2_outputs(repository) == original
+    v2_git(repository, "reset", "--hard", "-q", before[0])
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_blocks_non_status_spec_change_after_record(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    original = v2_7_2_outputs(repository)
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
+    spec = repository / STORY_7_2_SPEC_PATH
+    spec.write_text(spec.read_text(encoding="utf-8") + "\nLater source edit.\n", encoding="utf-8")
+    v2_git(repository, "add", STORY_7_2_SPEC_PATH)
+    v2_git(repository, "commit", "-m", "change story source")
+    failure = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
+    assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
+    assert failure["diagnostics"][0]["message"].endswith(f": {STORY_7_2_SPEC_PATH}")
+    assert v2_7_2_outputs(repository) == original
+
+
+@pytest.mark.parametrize("edit", ("followup-field", "final-record-region"))
+def test_v2_story_7_2_retention_rejects_record_region_and_followup(
+    tmp_path: Path, edit: str
+) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    original = v2_7_2_outputs(repository)
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
+    spec = repository / STORY_7_2_SPEC_PATH
+    if edit == "followup-field":
+        spec.write_text(
+            spec.read_text(encoding="utf-8").replace(
+                "status: 'in-progress'\n",
+                "status: 'in-progress'\nfollowup_review_recommended: false\n",
+                1,
+            ),
+            encoding="utf-8",
+        )
+    else:
+        spec.write_bytes(
+            spec.read_bytes()
+            + b"\n"
+            + RECORD_BEGIN_LINE
+            + b"\n"
+            + original[1]
+            + RECORD_END_LINE
+            + b"\n"
+        )
+    v2_git(repository, "add", STORY_7_2_SPEC_PATH)
+    v2_git(repository, "commit", "-m", "story 7.2 lifecycle edit that retention must reject")
+    failure = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
+    assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
+    assert v2_7_2_outputs(repository) == original
+    v2_git(repository, "reset", "--hard", "-q", "HEAD~1")
+    inserted = spec.read_bytes() + b"\n" + RECORD_BEGIN_LINE + b"\n" + original[1] + RECORD_END_LINE + b"\n"
+    spec.write_bytes(inserted)
+    verify = [
+        "--repository", str(repository),
+        "--contract", STORY_7_2_CONTRACT_PATH,
+        "--verify-inserted-record", STORY_7_2_SPEC_PATH,
+    ]
+    rejected = v2_assert_failure(v2_run(verify), {"RECORD_CONTENT_DRIFT"})
+    assert rejected["blockers"] == ["RECORD_CONTENT_DRIFT"]
+    assert v2_7_2_outputs(repository) == original
+
+
+def test_v2_blocks_orphaned_record_candidate(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
+    tree = v2_git(repository, "rev-parse", "HEAD^{tree}").stdout.strip()
+    rewritten = v2_git(repository, "commit-tree", tree, "-p", fixture["baseline"], "-m", "rewritten record").stdout.strip()
+    v2_git(repository, "reset", "--hard", "-q", rewritten)
+    failure = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
+    assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
+
+
+def test_v2_blocks_resolvable_nonancestor_baseline(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    baseline_tree = v2_git(repository, "rev-parse", f"{fixture['baseline']}^{{tree}}").stdout.strip()
+    sibling = v2_git(repository, "commit-tree", baseline_tree, "-p", fixture["baseline"],
+                     "-m", "sibling baseline").stdout.strip()
+    spec = repository / STORY_7_2_SPEC_PATH
+    spec.write_text(spec.read_text(encoding="utf-8").replace(fixture["baseline"], sibling, 1), encoding="utf-8")
+    v2_git(repository, "add", STORY_7_2_SPEC_PATH)
+    v2_git(repository, "commit", "-m", "use nonancestor baseline")
+    v2_7_2_results(repository)
+    for name in STORY_7_2_PROJECTS:
+        v2_7_2_trx(repository, name)
+    failure = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"BASELINE_NOT_TRUSTWORTHY"})
+    assert failure["blockers"] == ["BASELINE_NOT_TRUSTWORTHY"]
+
+
+def test_v2_blocks_repeated_gitmodules_path(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    gitmodules = repository / ".gitmodules"
+    gitmodules.write_text(gitmodules.read_text(encoding="utf-8")
+                          + f'[submodule "duplicate"]\n\tpath = {ROOT_GITLINK_PATHS[0]}\n'
+                          + "\turl = https://example.invalid/duplicate.git\n", encoding="utf-8")
+    v2_git(repository, "add", ".gitmodules")
+    v2_git(repository, "commit", "-m", "repeat a submodule path")
+    module = load_generator()
+    findings = []
+    assert module.v2_gitlinks(repository, v2_git(repository, "rev-parse", "HEAD").stdout.strip(),
+                              findings, "7.2") == []
+    assert [row["code"] for row in findings] == ["GITLINK_SCOPE_MISMATCH"]
+    failure = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"GITLINK_SCOPE_MISMATCH"})
+    assert failure["blockers"] == ["GITLINK_SCOPE_MISMATCH"]
+    v2_git(repository, "reset", "--hard", "-q", fixture["candidate"])
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_blocks_foreign_assembly_result(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    own, other = STORY_7_2_PROJECTS[0], STORY_7_2_PROJECTS[1]
+    path = fixture["repository"] / f"artifacts/v9/7.2/test-results/{own}.trx"
+    v2_7_2_snapshot_and_fault(fixture,
+        lambda _: v2_7_2_replace(path, path.read_bytes().replace(
+            f"/fixture/{own}.dll".encode(), f"/fixture/{other}.dll".encode())),
+        "TEST_RESULTS_MISSING")
+
+
+def test_v2_blocks_header_row_disagreement(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    path = fixture["repository"] / f"artifacts/v9/7.2/test-results/{STORY_7_2_PROJECTS[0]}.trx"
+    # The header still reports every test passed; only a result row disagrees.
+    v2_7_2_snapshot_and_fault(fixture,
+        lambda _: v2_7_2_replace(path, path.read_bytes().replace(
+            b'outcome="Passed"', b'outcome="Failed"', 1)),
+        "TEST_FAILED")
+
+
+@pytest.mark.parametrize("fault", ["tampered-json", "missing-markdown"])
+def test_v2_blocks_invalid_predecessor_record(tmp_path: Path, fault: str) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    if fault == "tampered-json":
+        target = repository / "docs/release-evidence/story-7.1-final-record-v2.json"
+        predecessor = json.loads(target.read_bytes())
+        predecessor["rollback"]["boundary"] += " tampered"
+        target.write_text(json.dumps(predecessor, indent=2) + "\n", encoding="utf-8")
+        v2_git(repository, "add", "docs/release-evidence/story-7.1-final-record-v2.json")
+    else:
+        v2_git(repository, "rm", "-q", "docs/release-evidence/story-7.1-final-record-v2.md")
+    v2_git(repository, "commit", "-m", "invalidate predecessor")
+    v2_7_2_results(repository)
+    for name in STORY_7_2_PROJECTS:
+        v2_7_2_trx(repository, name)
+    failure = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"AUTHORITY_BINDING_INVALID"})
+    assert failure["blockers"] == ["AUTHORITY_BINDING_INVALID"]
+    assert not (repository / STORY_7_2_OUTPUT_JSON).exists()
+    v2_git(repository, "reset", "--hard", "-q", fixture["candidate"])
+    v2_7_2_restore_result_mtimes(repository, before)
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_schema_requires_measurements_only_for_story_7_2(tmp_path: Path) -> None:
+    validator = v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA))
+    story_7_1 = json.loads((WORKSPACE / "docs/release-evidence/story-7.1-final-record-v2.json").read_bytes())
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    story_7_2 = v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    for record, should_accept in ((story_7_1, True), (story_7_2, False)):
+        assert validator.is_valid(record)
+        without = dict(record)
+        without.pop("measurements", None)
+        assert validator.is_valid(without) == should_accept
+    story_7_1["measurements"] = story_7_2["measurements"]
+    assert not validator.is_valid(story_7_1)
+
+
+
+# --------------------------------------------------------------------------- #
+# Story 7.3: generation gates every blocking completion transition
+# --------------------------------------------------------------------------- #
+#
+# The fixtures copy the governed skill trees, the render configuration, the
+# frozen Story 7.3 contract, and the committed Story 7.1/7.2 pairs into a
+# hermetic repository, so the verifier and the generator run against real route
+# bodies without ever mutating this checkout. Every fault restores the fixture
+# byte-identically, including its acceptance-result evidence.
+
+VERIFIER_SCRIPT = SCRIPT.parent / "verify_story_completion_workflows.py"
+STORY_7_3_CONTRACT = WORKSPACE / "_bmad-output/planning-artifacts/v9/story-contracts/7.3.json"
+STORY_7_3_CONTRACT_PATH = "_bmad-output/planning-artifacts/v9/story-contracts/7.3.json"
+STORY_7_3_SPEC_PATH = (
+    "_bmad-output/implementation-artifacts/"
+    "spec-7-3-integrate-generation-into-every-blocking-completion-transition.md"
+)
+STORY_7_3_SPRINT_ROW = "7-3-integrate-generation-into-every-blocking-completion-transition"
+STORY_7_3_OUTPUT_JSON = "docs/release-evidence/story-7.3-final-record-v2.json"
+STORY_7_3_OUTPUT_MARKDOWN = "docs/release-evidence/story-7.3-final-record-v2.md"
+STORY_7_3_RESULTS = "artifacts/v9/7.3"
+STORY_7_3_SKILLS = ("bmad-build", "bmad-build-auto", "bmad-code-review")
+STORY_7_3_COPIED_FILES = (
+    STORY_7_3_CONTRACT_PATH,
+    "docs/release-evidence/story-7.1-final-record-v2.json",
+    "docs/release-evidence/story-7.1-final-record-v2.md",
+    "docs/release-evidence/story-7.2-final-record-v2.json",
+    "docs/release-evidence/story-7.2-final-record-v2.md",
+    "_bmad/scripts/verify_story_completion_workflows.py",
+    "_bmad/config.toml",
+    "_bmad/config.user.toml",
+    "_bmad/custom/config.toml",
+    "_bmad/custom/bmad-build.toml",
+    "_bmad/custom/bmad-build-auto.toml",
+)
+RECORD_BEGIN_LINE = b"<!-- STORY-FINAL-RECORD:BEGIN -->"
+RECORD_END_LINE = b"<!-- STORY-FINAL-RECORD:END -->"
+
+
+def load_completion_verifier():
+    spec = importlib_util.spec_from_file_location(
+        "verify_story_completion_workflows", VERIFIER_SCRIPT
+    )
+    module = importlib_util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
+
+
+COMPLETION_VERIFIER = load_completion_verifier()
+STORY_7_3_BODIES = COMPLETION_VERIFIER.BODY_PATHS
+STORY_7_3_TWINS = COMPLETION_VERIFIER.TWIN_LABELS
+
+
+def v2_7_3_route(label: str):
+    logical = label.split("/skills/", 1)[1]
+    return next(route for route in COMPLETION_VERIFIER.ROUTES if route.path == logical)
+
+
+def v2_7_3_affected(body: str) -> list[str]:
+    """A .claude body's render twin is rendered from it, so it carries the same fault."""
+    twin = f"{COMPLETION_VERIFIER.TWIN_PREFIX}{body}"
+    return [body, twin] if twin in STORY_7_3_TWINS else [body]
+
+
+def v2_7_3_block_span(text: str) -> tuple[int, int]:
+    start = text.index(COMPLETION_VERIFIER.BLOCK_BEGIN)
+    end = text.index(COMPLETION_VERIFIER.BLOCK_END) + len(COMPLETION_VERIFIER.BLOCK_END)
+    return start, end
+
+
+def v2_7_3_spec(baseline: str) -> str:
+    return (
+        "---\n"
+        "title: 'Fixture Story 7.3'\n"
+        "status: 'in-progress'\n"
+        f"baseline_commit: '{baseline}'\n"
+        "---\n\n"
+        "# Fixture Story 7.3\n\n"
+        "## Verification\n\n"
+        "Fixture verification notes.\n"
+    )
+
+
+def v2_7_3_verify(repository: Path, scenario_id: str, *overrides: str) -> subprocess.CompletedProcess[bytes]:
+    arguments = overrides or (
+        "--repository",
+        str(repository),
+        "--contract",
+        STORY_7_3_CONTRACT_PATH,
+        "--scenario",
+        scenario_id,
+        "--output",
+        f"{STORY_7_3_RESULTS}/{scenario_id}.json",
+    )
+    return subprocess.run(
+        [sys.executable, str(VERIFIER_SCRIPT), *arguments],
+        check=False,
+        capture_output=True,
+        env=GIT_ENV,
+        timeout=120,
+    )
+
+
+def v2_7_3_verify_in_process(
+    module, repository: Path, scenario_id: str, capsys: pytest.CaptureFixture[str]
+) -> tuple[int, dict]:
+    exit_code = module.main(
+        [
+            "--repository",
+            str(repository),
+            "--contract",
+            STORY_7_3_CONTRACT_PATH,
+            "--scenario",
+            scenario_id,
+            "--output",
+            f"{STORY_7_3_RESULTS}/{scenario_id}.json",
+        ]
+    )
+    captured = capsys.readouterr()
+    assert "Traceback" not in captured.out + captured.err
+    return exit_code, json.loads(captured.out)
+
+
+def v2_7_3_acceptance_validator() -> jsonschema.Draft202012Validator:
+    return v2_schema_contract_validator(v2_schema_contract_load(ACCEPTANCE_RESULT_SCHEMA))
+
+
+def v2_7_3_assert_verifier(
+    result: subprocess.CompletedProcess[bytes], exit_code: int, blockers: list[str]
+) -> dict:
+    """The verifier's stdout is the acceptance result it wrote; it is schema-valid."""
+    document = json.loads(result.stdout.decode("utf-8"))
+    assert result.returncode == exit_code, (document, result.stderr)
+    assert b"Traceback" not in result.stdout + result.stderr
+    v2_7_3_acceptance_validator().validate(document)
+    assert document["exitCode"] == exit_code
+    assert document["result"] == {0: "PASS", 1: "FAIL", 2: "BLOCKED"}[exit_code]
+    assert document["blockers"] == blockers
+    return document
+
+
+def v2_7_3_results(repository: Path) -> None:
+    """Measured evidence for every scenario before the self-invocation."""
+    contract = json.loads(STORY_7_3_CONTRACT.read_bytes())
+    for scenario in contract["scenarios"]:
+        command = scenario["command"]
+        if " -m pytest " in command:
+            selector = re.search(r" -k (\S+) ", command).group(1)
+            junit = re.search(r"--junitxml=(\S+)$", command).group(1)
+            v2_write_result(repository, junit, v2_junit(selector))
+    for scenario_id in ("AC-7.3-01", "AC-7.3-02"):
+        v2_7_3_assert_verifier(v2_7_3_verify(repository, scenario_id), 0, [])
+
+
+def build_v2_7_3_repository(
+    tmp_path: Path, *, results: bool = True, mutate=None
+) -> dict[str, object]:
+    """A hermetic committed Story 7.3 candidate carrying the real governed routes."""
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    baseline = fixture["candidate"]
+    for relative in STORY_7_3_COPIED_FILES:
+        source = WORKSPACE / relative
+        if source.is_file():
+            target = repository / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(source.read_bytes())
+    for tree in COMPLETION_VERIFIER.SKILL_TREES:
+        for skill in STORY_7_3_SKILLS:
+            shutil.copytree(
+                WORKSPACE / tree / skill,
+                repository / tree / skill,
+                ignore=shutil.ignore_patterns("__pycache__"),
+            )
+    spec_path = repository / STORY_7_3_SPEC_PATH
+    spec_path.parent.mkdir(parents=True, exist_ok=True)
+    spec_path.write_text(v2_7_3_spec(baseline), encoding="utf-8")
+    (repository / STORY_7_2_SPRINT_PATH).write_text(
+        "last_updated: 2026-09-29\n"
+        "development_status:\n"
+        "  epic-7: in-progress\n"
+        f"  {STORY_7_3_SPRINT_ROW}: in-progress\n",
+        encoding="utf-8",
+    )
+    if mutate is not None:
+        mutate(repository)
+    v2_git(repository, "add", "--all")
+    v2_git(repository, "commit", "-m", "story 7.3 fixture candidate")
+    fixture["candidate"] = v2_git(repository, "rev-parse", "HEAD").stdout.strip()
+    fixture["baseline"] = baseline
+    if results:
+        v2_7_3_results(repository)
+    return fixture
+
+
+def v2_7_3_arguments(repository: Path) -> list[str]:
+    return v2_arguments(
+        repository,
+        "--contract",
+        STORY_7_3_CONTRACT_PATH,
+        "--format",
+        "bundle",
+        "--output-json",
+        STORY_7_3_OUTPUT_JSON,
+        "--output-markdown",
+        STORY_7_3_OUTPUT_MARKDOWN,
+        replace=True,
+    )
+
+
+def v2_7_3_verify_arguments(repository: Path, spec: str = STORY_7_3_SPEC_PATH) -> list[str]:
+    return [
+        "--repository",
+        str(repository),
+        "--contract",
+        STORY_7_3_CONTRACT_PATH,
+        "--verify-inserted-record",
+        spec,
+    ]
+
+
+def v2_7_3_outputs(repository: Path) -> tuple[bytes | None, bytes | None]:
+    return tuple(
+        (repository / path).read_bytes() if (repository / path).exists() else None
+        for path in (STORY_7_3_OUTPUT_JSON, STORY_7_3_OUTPUT_MARKDOWN)
+    )
+
+
+def v2_7_3_assert_pass(repository: Path, result: subprocess.CompletedProcess[bytes]) -> dict:
+    assert result.returncode == 0, result.stdout.decode("utf-8", "replace")
+    assert result.stderr == b""
+    json_bytes, markdown_bytes = v2_7_3_outputs(repository)
+    assert result.stdout == json_bytes
+    record = json.loads(json_bytes)
+    v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA)).validate(record)
+    assert record["outputs"]["json"]["sha256"] == v2_json_digest(record)
+    assert record["renderedMarkdownSha256"] == hashlib.sha256(markdown_bytes).hexdigest()
+    assert load_generator().v2_verify_pair(json_bytes, markdown_bytes) == []
+    assert record["summary"] == json.loads(STORY_7_3_CONTRACT.read_bytes())["finalRecord"]["summary"]
+    return record
+
+
+def v2_7_3_lifecycle(repository: Path) -> tuple[bytes, bytes]:
+    return (
+        (repository / STORY_7_3_SPEC_PATH).read_bytes(),
+        (repository / STORY_7_2_SPRINT_PATH).read_bytes(),
+    )
+
+
+def v2_7_3_replace(path: Path, content: bytes):
+    """Replace one file and return a restore that puts back its bytes and mtime."""
+    original = path.read_bytes()
+    metadata = path.stat()
+    path.write_bytes(content)
+
+    def restore() -> None:
+        path.write_bytes(original)
+        os.utime(path, ns=(metadata.st_atime_ns, metadata.st_mtime_ns))
+
+    return restore
+
+
+def v2_7_3_isolated(repository: Path, fault, check) -> None:
+    """Run one fault and restore the fixture, including result evidence, byte-identically."""
+    before = v2_snapshot(repository)
+    results = repository / STORY_7_3_RESULTS
+    saved = {
+        path.name: (path.read_bytes(), path.stat().st_mtime_ns)
+        for path in (results.iterdir() if results.is_dir() else ())
+        if path.is_file()
+    }
+    restore = fault(repository)
+    try:
+        check()
+    finally:
+        restore()
+        if results.is_dir():
+            for path in results.iterdir():
+                if path.name not in saved:
+                    path.unlink()
+        for name, (content, mtime) in saved.items():
+            (results / name).write_bytes(content)
+            os.utime(results / name, ns=(mtime, mtime))
+    assert v2_snapshot(repository) == before
+
+
+def v2_7_3_remove_block(repository: Path, label: str):
+    path = repository / label
+    text = path.read_text(encoding="utf-8")
+    start, end = v2_7_3_block_span(text)
+    return v2_7_3_replace(path, (text[:start] + text[end + 1 :]).encode("utf-8"))
+
+
+def v2_7_3_insert_record(repository: Path, markdown: bytes):
+    spec = repository / STORY_7_3_SPEC_PATH
+    content = spec.read_bytes()
+    return v2_7_3_replace(
+        spec, content + b"\n" + RECORD_BEGIN_LINE + b"\n" + markdown + RECORD_END_LINE + b"\n"
+    )
+
+
+def v2_7_3_passing_pair(fixture: dict[str, object]) -> tuple[dict, bytes, bytes]:
+    """Generate the pair and commit it as the record-only successor."""
+    repository = fixture["repository"]
+    record = v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+    json_bytes, markdown_bytes = v2_7_3_outputs(repository)
+    v2_git(repository, "add", STORY_7_3_OUTPUT_JSON, STORY_7_3_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
+    return record, json_bytes, markdown_bytes
+
+
+# ---- AC-7.3-03: v2_workflow_verifies_inserted_digest ------------------------ #
+
+
+def test_v2_workflow_verifies_inserted_digest_matching_bytes_pass_and_altered_bytes_fail(
+    tmp_path: Path,
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    record, json_bytes, markdown_bytes = v2_7_3_passing_pair(fixture)
+    assert record["candidate"]["commit"] == fixture["candidate"]
+    v2_7_3_insert_record(repository, markdown_bytes)
+    spec = (repository / STORY_7_3_SPEC_PATH).read_bytes()
+    start = spec.index(RECORD_BEGIN_LINE) + len(RECORD_BEGIN_LINE) + 1
+    inserted = spec[start : spec.index(RECORD_END_LINE)]
+    assert inserted == markdown_bytes
+    assert hashlib.sha256(inserted).hexdigest() == record["renderedMarkdownSha256"]
+    verified = v2_run(v2_7_3_verify_arguments(repository))
+    assert verified.returncode == 0, verified.stdout
+    assert verified.stdout == json_bytes
+    assert verified.stderr == b""
+    absolute = v2_run(v2_7_3_verify_arguments(repository, str(repository / STORY_7_3_SPEC_PATH)))
+    assert absolute.returncode == 0, absolute.stdout
+
+    position = start + markdown_bytes.index(b"| `7` |")
+    altered = spec[:position] + b"| `8` |" + spec[position + len(b"| `7` |") :]
+
+    def fault(repository_path: Path):
+        return v2_7_3_replace(repository_path / STORY_7_3_SPEC_PATH, altered)
+
+    def check() -> None:
+        document = v2_assert_failure(
+            v2_run(v2_7_3_verify_arguments(repository)), {"RECORD_CONTENT_DRIFT"}
+        )
+        assert document["blockers"] == ["RECORD_CONTENT_DRIFT"]
+        assert document["storyId"] == "7.3"
+
+    v2_7_3_isolated(repository, fault, check)
+    assert v2_run(v2_7_3_verify_arguments(repository)).returncode == 0
+
+
+@pytest.mark.parametrize(
+    "fault",
+    (
+        "no-marker-pair",
+        "duplicated-marker-pair",
+        "truncated-region",
+        "trailing-byte-in-region",
+        "marker-not-on-its-own-line",
+        "end-marker-without-trailing-lf",
+        "uncommitted-pair",
+        "edited-working-tree-json",
+        "edited-working-tree-markdown",
+        "inconsistent-committed-json",
+        "foreign-story-committed-json",
+    ),
+)
+def test_v2_workflow_verifies_inserted_digest_rejects_malformed_insertions(
+    tmp_path: Path, fault: str
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    if fault == "uncommitted-pair":
+        v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+        markdown_bytes = v2_7_3_outputs(repository)[1]
+    else:
+        _, _, markdown_bytes = v2_7_3_passing_pair(fixture)
+    v2_7_3_insert_record(repository, markdown_bytes)
+    spec_path = repository / STORY_7_3_SPEC_PATH
+    spec = spec_path.read_bytes()
+
+    def mutate(repository_path: Path):
+        if fault == "no-marker-pair":
+            return v2_7_3_replace(spec_path, spec.replace(RECORD_BEGIN_LINE, b"<!-- removed -->"))
+        if fault == "duplicated-marker-pair":
+            return v2_7_3_replace(spec_path, spec + RECORD_BEGIN_LINE + b"\n" + RECORD_END_LINE + b"\n")
+        if fault == "truncated-region":
+            return v2_7_3_replace(spec_path, spec.replace(markdown_bytes, markdown_bytes[:-40]))
+        if fault == "trailing-byte-in-region":
+            return v2_7_3_replace(spec_path, spec.replace(RECORD_END_LINE, b"\n" + RECORD_END_LINE))
+        if fault == "marker-not-on-its-own-line":
+            return v2_7_3_replace(spec_path, spec.replace(RECORD_BEGIN_LINE, b"x " + RECORD_BEGIN_LINE))
+        if fault == "end-marker-without-trailing-lf":
+            assert spec.endswith(RECORD_END_LINE + b"\n")
+            return v2_7_3_replace(spec_path, spec[:-1])
+        if fault == "uncommitted-pair":
+            return lambda: None
+        target = repository_path / STORY_7_3_OUTPUT_JSON
+        if fault == "edited-working-tree-json":
+            return v2_7_3_replace(target, target.read_bytes().replace(b'"7.3"', b'"7.3" ', 1))
+        if fault == "edited-working-tree-markdown":
+            target = repository_path / STORY_7_3_OUTPUT_MARKDOWN
+            return v2_7_3_replace(target, target.read_bytes() + b"dirty\n")
+        # A canonically rendered but internally inconsistent, or foreign, JSON record
+        # committed with a matching working tree reaches the pair-validity check.
+        record = json.loads(target.read_bytes())
+        if fault == "inconsistent-committed-json":
+            record["rollback"]["boundary"] += " changed"
+        else:
+            record["storyId"] = "7.2"
+        head = v2_git(repository_path, "rev-parse", "HEAD").stdout.strip()
+        target.write_bytes((json.dumps(record, indent=2, ensure_ascii=False) + "\n").encode("utf-8"))
+        v2_git(repository_path, "add", STORY_7_3_OUTPUT_JSON)
+        v2_git(repository_path, "commit", "-q", "-m", "commit a record that does not verify")
+        return lambda: v2_git(repository_path, "reset", "-q", "--keep", head)
+
+    def check() -> None:
+        document = v2_assert_failure(
+            v2_run(v2_7_3_verify_arguments(repository)), {"RECORD_CONTENT_DRIFT"}
+        )
+        assert document["blockers"] == ["RECORD_CONTENT_DRIFT"]
+
+    v2_7_3_isolated(repository, mutate, check)
+
+
+def test_v2_workflow_verifies_inserted_digest_and_reproduces_the_pair_after_lifecycle_commits(
+    tmp_path: Path,
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    _, json_bytes, markdown_bytes = v2_7_3_passing_pair(fixture)
+    v2_7_3_insert_record(repository, markdown_bytes)
+    assert v2_run(v2_7_3_verify_arguments(repository)).returncode == 0
+    spec = repository / STORY_7_3_SPEC_PATH
+    spec.write_text(
+        spec.read_text(encoding="utf-8")
+        .replace(
+            "status: 'in-progress'",
+            "status: 'done'\nfollowup_review_recommended: false",
+            1,
+        )
+        .replace(
+            "## Verification\n\nFixture verification notes.",
+            "## Verification\n\nFixture verification notes.\n\n"
+            "## Review Triage Log\n\n- `[false]` fixture review row.\n\n"
+            "## Auto Run Result\n\n- Fixture lifecycle summary.",
+            1,
+        ),
+        encoding="utf-8",
+    )
+    sprint = repository / STORY_7_2_SPRINT_PATH
+    sprint.write_text(
+        sprint.read_text(encoding="utf-8")
+        .replace(f"{STORY_7_3_SPRINT_ROW}: in-progress", f"{STORY_7_3_SPRINT_ROW}: review", 1)
+        .replace("last_updated: 2026-09-29", "last_updated: 2026-09-30", 1),
+        encoding="utf-8",
+    )
+    v2_git(repository, "add", STORY_7_3_SPEC_PATH, STORY_7_2_SPRINT_PATH)
+    v2_git(repository, "commit", "-m", "lifecycle bookkeeping")
+    assert v2_run(v2_7_3_verify_arguments(repository)).returncode == 0
+    record = v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+    assert record["candidate"]["commit"] == fixture["candidate"]
+    assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
+    lifecycle = v2_snapshot(repository)
+
+    spec.write_text(spec.read_text(encoding="utf-8") + "\nLater source edit.\n", encoding="utf-8")
+    v2_git(repository, "add", STORY_7_3_SPEC_PATH)
+    v2_git(repository, "commit", "-m", "change story source")
+    failure = v2_assert_failure(v2_run(v2_7_3_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
+    assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
+    assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
+    v2_git(repository, "reset", "--hard", "-q", lifecycle[0])
+    assert v2_snapshot(repository) == lifecycle
+
+
+def test_v2_workflow_verifies_inserted_digest_rejects_committed_source_changes(
+    tmp_path: Path,
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    _, json_bytes, markdown_bytes = v2_7_3_passing_pair(fixture)
+    v2_7_3_insert_record(repository, markdown_bytes)
+    assert v2_run(v2_7_3_verify_arguments(repository)).returncode == 0
+    head = v2_git(repository, "rev-parse", "HEAD").stdout.strip()
+    source = repository / STORY_7_3_BODIES[0]
+    original = source.read_bytes()
+
+    def fault(repository_path: Path):
+        source.write_bytes(original + b"\nforbidden source change\n")
+        v2_git(repository_path, "add", STORY_7_3_BODIES[0])
+        v2_git(repository_path, "commit", "-m", "test: commit forbidden source change")
+        return lambda: v2_git(repository_path, "reset", "-q", "--keep", head)
+
+    def check() -> None:
+        for phase in ("source-commit", "subsequent-revert"):
+            if phase == "subsequent-revert":
+                source.write_bytes(original)
+                v2_git(repository, "add", STORY_7_3_BODIES[0])
+                v2_git(repository, "commit", "-m", "test: revert forbidden source change")
+            document = v2_assert_failure(
+                v2_run(v2_7_3_verify_arguments(repository)), {"CANDIDATE_NOT_FINAL"}
+            )
+            assert document["blockers"] == ["CANDIDATE_NOT_FINAL"], phase
+            assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes), phase
+
+    v2_7_3_isolated(repository, fault, check)
+
+
+@pytest.mark.parametrize("sprint_status", ("review", "done"))
+@pytest.mark.parametrize("moves_gitlink", (False, True), ids=("lifecycle-only", "moves-gitlink"))
+def test_v2_done_commit_moving_a_gitlink_fails_inserted_record_verification(
+    tmp_path: Path, moves_gitlink: bool, sprint_status: str
+) -> None:
+    """The generator side of each gate route's post-done-commit rerun (Epic 7 retro F-6).
+
+    A lifecycle-only done commit keeps the record final; one that also stages a gitlink
+    must fail that rerun.
+    """
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    _, json_bytes, markdown_bytes = v2_7_3_passing_pair(fixture)
+    v2_7_3_insert_record(repository, markdown_bytes)
+    assert v2_run(v2_7_3_verify_arguments(repository)).returncode == 0
+    spec = repository / STORY_7_3_SPEC_PATH
+    spec.write_text(
+        spec.read_text(encoding="utf-8").replace("status: 'in-progress'", "status: 'done'", 1),
+        encoding="utf-8",
+    )
+    sprint = repository / STORY_7_2_SPRINT_PATH
+    sprint.write_text(
+        sprint.read_text(encoding="utf-8").replace(
+            f"{STORY_7_3_SPRINT_ROW}: in-progress", f"{STORY_7_3_SPRINT_ROW}: {sprint_status}", 1
+        ),
+        encoding="utf-8",
+    )
+    v2_git(repository, "add", STORY_7_3_SPEC_PATH, STORY_7_2_SPRINT_PATH)
+    if moves_gitlink:
+        moved = ROOT_GITLINK_PATHS[0]
+        v2_git(repository, "update-index", "--cacheinfo", f"160000,{'a' * 40},{moved}")
+    v2_git(repository, "commit", "-m", "done commit")
+
+    result = v2_run(v2_7_3_verify_arguments(repository))
+    if moves_gitlink:
+        document = v2_assert_failure(result, {"CANDIDATE_NOT_FINAL", "GITLINK_DRIFT"})
+        assert document["blockers"] == ["CANDIDATE_NOT_FINAL", "GITLINK_DRIFT"]
+        assert all(item["message"].endswith(moved) for item in document["diagnostics"]), document
+    else:
+        assert result.returncode == 0, result.stdout.decode("utf-8", "replace")
+    assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
+
+
+DONE_COMMIT_RERUN_CLAUSE = (
+    "rerun its `--verify-inserted-record` command at the new `HEAD` and require exit `0`. "
+    "On any other exit, apply the gate's blocker branch, committing the return to `in-progress` "
+    "as a new validated Conventional Commit"
+)
+
+
+def test_every_gate_route_reruns_inserted_record_verification_after_its_done_commit() -> None:
+    """The rerun sits outside the Story 7.3 block, so AC-7.3-01/02 cannot see it; pin it here."""
+    for tree in COMPLETION_VERIFIER.SKILL_TREES:
+        for route in COMPLETION_VERIFIER.ROUTES:
+            surface = f"{tree}/{route.path}"
+            text = (WORKSPACE / surface).read_text(encoding="utf-8")
+            assert text.count(DONE_COMMIT_RERUN_CLAUSE) == 1, surface
+            clause = text.index(DONE_COMMIT_RERUN_CLAUSE)
+            assert clause > text.index(COMPLETION_VERIFIER.BLOCK_END), surface
+            assert clause > text.index(route.transition), surface
+
+
+def test_v2_workflow_accepts_a_separate_blocker_rollback_to_the_candidate_status(
+    tmp_path: Path,
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    _, json_bytes, markdown_bytes = v2_7_3_passing_pair(fixture)
+    spec = repository / STORY_7_3_SPEC_PATH
+    sprint = repository / STORY_7_2_SPRINT_PATH
+    spec.write_text(
+        spec.read_text(encoding="utf-8").replace("status: 'in-progress'", "status: 'done'", 1),
+        encoding="utf-8",
+    )
+    sprint.write_text(
+        sprint.read_text(encoding="utf-8")
+        .replace(f"{STORY_7_3_SPRINT_ROW}: in-progress", f"{STORY_7_3_SPRINT_ROW}: review", 1)
+        .replace("last_updated: 2026-09-29", "last_updated: 2026-09-30", 1),
+        encoding="utf-8",
+    )
+    v2_git(repository, "add", STORY_7_3_SPEC_PATH, STORY_7_2_SPRINT_PATH)
+    v2_git(repository, "commit", "-m", "enter review")
+    spec.write_text(
+        spec.read_text(encoding="utf-8").replace("status: 'done'", "status: 'in-progress'", 1),
+        encoding="utf-8",
+    )
+    sprint.write_text(
+        sprint.read_text(encoding="utf-8")
+        .replace(f"{STORY_7_3_SPRINT_ROW}: review", f"{STORY_7_3_SPRINT_ROW}: in-progress", 1),
+        encoding="utf-8",
+    )
+    v2_git(repository, "add", STORY_7_3_SPEC_PATH, STORY_7_2_SPRINT_PATH)
+    v2_git(repository, "commit", "-m", "roll back blocked review")
+
+    record = v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+    assert record["candidate"]["commit"] == fixture["candidate"]
+    assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
+
+
+@pytest.mark.parametrize("original_value", (None, "false", "true"))
+def test_v2_workflow_accepts_followup_as_the_final_frontmatter_field(
+    tmp_path: Path, original_value: str | None,
+) -> None:
+    def seed(repository: Path) -> None:
+        if original_value is not None:
+            spec = repository / STORY_7_3_SPEC_PATH
+            spec.write_bytes(spec.read_bytes().replace(
+                b"\n---\n", f"\nfollowup_review_recommended: {original_value}\n---\n".encode(), 1,
+            ))
+
+    fixture = build_v2_7_3_repository(tmp_path, results=False, mutate=seed)
+    repository = fixture["repository"]
+    original = (repository / STORY_7_3_SPEC_PATH).read_bytes()
+    changed = original.replace(b"status: 'in-progress'", b"status: 'done'", 1)
+    if original_value is None:
+        changed = changed.replace(b"\n---\n", b"\nfollowup_review_recommended: true\n---\n", 1)
+    else:
+        replacement = "false" if original_value == "true" else "true"
+        changed = changed.replace(
+            f"followup_review_recommended: {original_value}\n---\n".encode(),
+            f"followup_review_recommended: {replacement}\n---\n".encode(), 1,
+        )
+
+    assert load_generator().v2_working_spec_lifecycle_only_change(
+        repository, fixture["candidate"], STORY_7_3_SPEC_PATH, changed, record_region=True,
+    )
+
+
+@pytest.mark.parametrize("phase", ("first-add", "replacement"))
+def test_v2_retained_candidate_requires_pair_changes_to_be_record_only(
+    tmp_path: Path, phase: str
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    if phase == "first-add":
+        v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+    else:
+        v2_7_3_passing_pair(fixture)
+        for scenario_id in ("AC-7.3-01", "AC-7.3-02"):
+            v2_7_3_assert_verifier(v2_7_3_verify(repository, scenario_id), 0, [])
+        v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+    spec = repository / STORY_7_3_SPEC_PATH
+    spec.write_text(
+        spec.read_text(encoding="utf-8").replace("status: 'in-progress'", "status: 'done'", 1),
+        encoding="utf-8",
+    )
+    v2_git(
+        repository,
+        "add",
+        STORY_7_3_OUTPUT_JSON,
+        STORY_7_3_OUTPUT_MARKDOWN,
+        STORY_7_3_SPEC_PATH,
+    )
+    v2_git(repository, "commit", "-m", "mix record and lifecycle changes")
+
+    failure = v2_assert_failure(v2_run(v2_7_3_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
+    assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
+    assert failure["diagnostics"][0]["message"].endswith(
+        ": " + ", ".join(sorted((STORY_7_3_OUTPUT_JSON, STORY_7_3_OUTPUT_MARKDOWN)))
+    )
+
+
+def test_v2_retained_candidate_rejects_an_intermediate_source_commit_that_is_reverted(
+    tmp_path: Path,
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    _, json_bytes, markdown_bytes = v2_7_3_passing_pair(fixture)
+    source = repository / STORY_7_3_BODIES[0]
+    original = source.read_bytes()
+    source.write_bytes(original + b"\nintermediate source change\n")
+    v2_git(repository, "add", STORY_7_3_BODIES[0])
+    v2_git(repository, "commit", "-m", "intermediate source change")
+    source.write_bytes(original)
+    v2_git(repository, "add", STORY_7_3_BODIES[0])
+    v2_git(repository, "commit", "-m", "revert intermediate source change")
+
+    failure = v2_assert_failure(v2_run(v2_7_3_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
+    assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
+    # The diagnostic names the path that broke retention, not only the commit.
+    assert failure["diagnostics"][0]["message"].endswith(f": {STORY_7_3_BODIES[0]}")
+    assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
+
+
+def test_v2_retained_candidate_rejects_a_lifecycle_commit_before_the_record_only_commit(
+    tmp_path: Path,
+) -> None:
+    """Every commit after the candidate must carry the pair, so lifecycle cannot come first."""
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+    json_bytes, markdown_bytes = v2_7_3_outputs(repository)
+    spec = repository / STORY_7_3_SPEC_PATH
+    sprint = repository / STORY_7_2_SPRINT_PATH
+    spec.write_text(
+        spec.read_text(encoding="utf-8").replace("status: 'in-progress'", "status: 'done'", 1),
+        encoding="utf-8",
+    )
+    sprint.write_text(
+        sprint.read_text(encoding="utf-8")
+        .replace(f"{STORY_7_3_SPRINT_ROW}: in-progress", f"{STORY_7_3_SPRINT_ROW}: review", 1)
+        .replace("last_updated: 2026-09-29", "last_updated: 2026-09-30", 1),
+        encoding="utf-8",
+    )
+    v2_git(repository, "add", STORY_7_3_SPEC_PATH, STORY_7_2_SPRINT_PATH)
+    v2_git(repository, "commit", "-m", "lifecycle bookkeeping before the record")
+    lifecycle = v2_git(repository, "rev-parse", "HEAD").stdout.strip()
+    v2_git(repository, "add", STORY_7_3_OUTPUT_JSON, STORY_7_3_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only commit after lifecycle")
+    v2_7_3_insert_record(repository, markdown_bytes)
+    before = v2_snapshot(repository)
+
+    for arguments in (v2_7_3_arguments(repository), v2_7_3_verify_arguments(repository)):
+        failure = v2_assert_failure(v2_run(arguments), {"CANDIDATE_NOT_FINAL"})
+        assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
+        # The lifecycle commit is otherwise valid; it fails only because it lacks the pair.
+        assert lifecycle in failure["diagnostics"][0]["message"]
+        assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
+        assert v2_snapshot(repository) == before
+
+
+@pytest.mark.parametrize(
+    ("heading", "route_owned"),
+    (("## Review Triage Log", True), ("## Auto Run Result", True), ("## Unowned Notes", False)),
+)
+def test_v2_retained_candidate_masks_a_route_section_that_trails_the_inserted_record(
+    tmp_path: Path, heading: str, route_owned: bool
+) -> None:
+    """A route-owned section appended after the record at end of file is lifecycle state."""
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    _, json_bytes, markdown_bytes = v2_7_3_passing_pair(fixture)
+    v2_7_3_insert_record(repository, markdown_bytes)
+    spec = repository / STORY_7_3_SPEC_PATH
+    content = spec.read_bytes().replace(b"status: 'in-progress'", b"status: 'done'", 1)
+    assert content.endswith(RECORD_END_LINE + b"\n")
+    spec.write_bytes(content + b"\n" + heading.encode("utf-8") + b"\n\n- Fixture row.\n")
+
+    verified = v2_run(v2_7_3_verify_arguments(repository))
+    if route_owned:
+        assert verified.returncode == 0, verified.stdout
+        assert verified.stdout == json_bytes
+    else:
+        document = v2_assert_failure(verified, {"RECORD_CONTENT_DRIFT"})
+        assert document["blockers"] == ["RECORD_CONTENT_DRIFT"]
+    v2_git(repository, "add", STORY_7_3_SPEC_PATH)
+    v2_git(repository, "commit", "-m", "lifecycle with a trailing section")
+
+    result = v2_run(v2_7_3_arguments(repository))
+    if route_owned:
+        record = v2_7_3_assert_pass(repository, result)
+        assert record["candidate"]["commit"] == fixture["candidate"]
+    else:
+        failure = v2_assert_failure(result, {"CANDIDATE_NOT_FINAL"})
+        assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
+    assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
+
+
+@pytest.mark.parametrize("fault", ("unrelated-dirt", "unrelated-spec-edit"))
+def test_v2_verify_inserted_rejects_changes_outside_the_designated_record(
+    tmp_path: Path, fault: str
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    _, _, markdown_bytes = v2_7_3_passing_pair(fixture)
+    v2_7_3_insert_record(repository, markdown_bytes)
+    if fault == "unrelated-dirt":
+        extra = repository / "unrelated.txt"
+        extra.write_text("dirty\n", encoding="utf-8")
+        expected = "WORKTREE_NOT_CLEAN"
+    else:
+        spec = repository / STORY_7_3_SPEC_PATH
+        spec.write_text(spec.read_text(encoding="utf-8") + "\nUnrelated spec edit.\n", encoding="utf-8")
+        expected = "RECORD_CONTENT_DRIFT"
+
+    document = v2_assert_failure(v2_run(v2_7_3_verify_arguments(repository)), {expected})
+    assert document["blockers"] == [expected]
+
+
+def test_v2_workflow_verifies_inserted_digest_in_a_preseeded_marker_pair(tmp_path: Path) -> None:
+    def seed(repository: Path) -> None:
+        spec = repository / STORY_7_3_SPEC_PATH
+        spec.write_bytes(spec.read_bytes() + b"\n" + RECORD_BEGIN_LINE + b"\n" + RECORD_END_LINE + b"\n")
+
+    fixture = build_v2_7_3_repository(tmp_path, mutate=seed)
+    repository = fixture["repository"]
+    _, json_bytes, markdown_bytes = v2_7_3_passing_pair(fixture)
+    spec = repository / STORY_7_3_SPEC_PATH
+    spec.write_bytes(spec.read_bytes().replace(RECORD_END_LINE, markdown_bytes + RECORD_END_LINE, 1))
+    assert v2_run(v2_7_3_verify_arguments(repository)).returncode == 0
+    v2_git(repository, "add", STORY_7_3_SPEC_PATH)
+    v2_git(repository, "commit", "-m", "insert record")
+    record = v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+    assert record["candidate"]["commit"] == fixture["candidate"]
+    assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
+
+
+def test_v2_story_7_3_accepts_results_rerun_after_the_record_only_commit(tmp_path: Path) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    _, json_bytes, markdown_bytes = v2_7_3_passing_pair(fixture)
+    heads = [v2_git(repository, "rev-parse", "HEAD").stdout.strip()]
+    v2_7_3_insert_record(repository, markdown_bytes)
+    spec = repository / STORY_7_3_SPEC_PATH
+    spec.write_text(
+        spec.read_text(encoding="utf-8").replace("status: 'in-progress'", "status: 'done'", 1),
+        encoding="utf-8",
+    )
+    v2_git(repository, "add", STORY_7_3_SPEC_PATH)
+    v2_git(repository, "commit", "-m", "lifecycle bookkeeping")
+    heads.append(v2_git(repository, "rev-parse", "HEAD").stdout.strip())
+    original = json.loads(json_bytes)
+    for head in heads:
+        for path, content in zip((STORY_7_3_OUTPUT_JSON, STORY_7_3_OUTPUT_MARKDOWN),
+                                 (json_bytes, markdown_bytes)):
+            (repository / path).write_bytes(content)
+        v2_git(repository, "checkout", "-q", "--detach", head)
+        for scenario_id in ("AC-7.3-01", "AC-7.3-02"):
+            document = v2_7_3_assert_verifier(v2_7_3_verify(repository, scenario_id), 0, [])
+            assert document["candidate"] == head != fixture["candidate"]
+        record = v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+        # The retained candidate and every derived fact survive; only the two rerun
+        # results are rebound, because the record binds each result file's digest.
+        assert record["candidate"] == original["candidate"]
+        assert record["workflowIntegration"] == original["workflowIntegration"]
+        assert record["scenarios"][2:] == original["scenarios"][2:]
+        for scenario in record["scenarios"][:2]:
+            assert scenario["result"] == "PASS"
+            assert scenario["resultFile"]["sha256"] == sha256_file(
+                repository / scenario["resultFile"]["path"]
+            )
+        regenerated = v2_7_3_outputs(repository)
+        v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+        assert v2_7_3_outputs(repository) == regenerated
+
+
+# ---- AC-7.3-04: v2_fault_removed_workflow_invocation ----------------------- #
+
+
+@pytest.mark.parametrize("body", STORY_7_3_BODIES)
+def test_v2_fault_removed_workflow_invocation(tmp_path: Path, body: str) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    route = v2_7_3_route(body)
+    original = (repository / body).read_text(encoding="utf-8")
+
+    def check() -> None:
+        mutated = (repository / body).read_text(encoding="utf-8")
+        assert COMPLETION_VERIFIER.BLOCK_BEGIN not in mutated
+        # The transition itself is untouched; only its gate is gone.
+        assert mutated.count(route.transition) == original.count(route.transition)
+        document = v2_7_3_assert_verifier(
+            v2_7_3_verify(repository, "AC-7.3-01"), 1, ["WORKFLOW_INTEGRATION_MISSING"]
+        )
+        failed = {row["subject"] for row in document["assertionLedger"] if row["state"] == "FAIL"}
+        assert failed == {
+            f"{surface}::{check_name}"
+            for surface in v2_7_3_affected(body)
+            for check_name in (
+                "completion-gate-block-present",
+                "generator-invocation-in-block",
+                "block-in-gate-span-before-transition",
+            )
+        }
+
+    v2_7_3_isolated(repository, lambda path: v2_7_3_remove_block(path, body), check)
+    v2_7_3_assert_verifier(v2_7_3_verify(repository, "AC-7.3-01"), 0, [])
+
+
+@pytest.mark.parametrize("body", STORY_7_3_BODIES)
+def test_v2_fault_removed_workflow_invocation_inside_the_block(tmp_path: Path, body: str) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    text = (repository / body).read_text(encoding="utf-8")
+    gutted = text.replace(COMPLETION_VERIFIER.GENERATOR_COMMAND, "the record is optional")
+    assert gutted != text
+
+    def check() -> None:
+        document = v2_7_3_assert_verifier(
+            v2_7_3_verify(repository, "AC-7.3-01"), 1, ["WORKFLOW_INTEGRATION_MISSING"]
+        )
+        assert {row["subject"] for row in document["assertionLedger"] if row["state"] == "FAIL"} == {
+            f"{surface}::generator-invocation-in-block" for surface in v2_7_3_affected(body)
+        }
+
+    v2_7_3_isolated(
+        repository, lambda path: v2_7_3_replace(path / body, gutted.encode("utf-8")), check
+    )
+
+
+@pytest.mark.parametrize("variant", ("end-removed", "stray-end", "end-before-begin"))
+@pytest.mark.parametrize("body", STORY_7_3_BODIES)
+def test_v2_fault_removed_workflow_invocation_marker_structure(
+    tmp_path: Path, body: str, variant: str
+) -> None:
+    """An incomplete or out-of-order marker pair is no block at all, never a partial one."""
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    text = (repository / body).read_text(encoding="utf-8")
+    begin = COMPLETION_VERIFIER.BLOCK_BEGIN + "\n"
+    end = COMPLETION_VERIFIER.BLOCK_END + "\n"
+    assert text.count(begin) == 1 and text.count(end) == 1
+    if variant == "end-removed":
+        mutated = text.replace(end, "", 1)
+    elif variant == "stray-end":
+        mutated = text.replace(end, end + end, 1)
+    else:
+        mutated = text.replace(end, "", 1).replace(begin, end + begin, 1)
+    assert mutated != text
+    affected = v2_7_3_affected(body)
+
+    def check() -> None:
+        presence = v2_7_3_assert_verifier(
+            v2_7_3_verify(repository, "AC-7.3-01"), 1, ["WORKFLOW_INTEGRATION_MISSING"]
+        )
+        assert {row["subject"] for row in presence["assertionLedger"] if row["state"] == "FAIL"} == {
+            f"{surface}::{check_name}"
+            for surface in affected
+            for check_name in (
+                "completion-gate-block-present",
+                "generator-invocation-in-block",
+                "block-in-gate-span-before-transition",
+            )
+        }
+        parity = v2_7_3_assert_verifier(
+            v2_7_3_verify(repository, "AC-7.3-02"), 1, ["SURFACE_PARITY_DRIFT"]
+        )
+        assert {row["subject"] for row in parity["assertionLedger"] if row["state"] == "FAIL"} == {
+            f"{surface}::{check_name}"
+            for surface in affected
+            for check_name in ("block-bytes-identical-across-surfaces", "block-states-gate-contract")
+        }
+
+    v2_7_3_isolated(
+        repository, lambda path: v2_7_3_replace(path / body, mutated.encode("utf-8")), check
+    )
+
+
+@pytest.mark.parametrize("twin", STORY_7_3_TWINS)
+def test_v2_fault_removed_workflow_invocation_in_a_render_twin(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], twin: str
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    module = load_completion_verifier()
+    original = module.render_twins
+
+    def without_block(repository_path: Path) -> dict[str, str]:
+        twins = original(repository_path)
+        start, end = v2_7_3_block_span(twins[twin])
+        twins[twin] = twins[twin][:start] + twins[twin][end:]
+        return twins
+
+    def check() -> None:
+        monkeypatch.setattr(module, "render_twins", without_block)
+        exit_code, document = v2_7_3_verify_in_process(module, repository, "AC-7.3-01", capsys)
+        monkeypatch.undo()
+        assert exit_code == 1
+        assert document["blockers"] == ["WORKFLOW_INTEGRATION_MISSING"]
+        assert {row["subject"] for row in document["assertionLedger"] if row["state"] == "FAIL"} == {
+            f"{twin}::completion-gate-block-present",
+            f"{twin}::generator-invocation-in-block",
+            f"{twin}::block-in-gate-span-before-transition",
+        }
+
+    v2_7_3_isolated(repository, lambda path: (lambda: None), check)
+
+
+def test_v2_fault_removed_workflow_invocation_blocks_the_record(tmp_path: Path) -> None:
+    body = ".claude/skills/bmad-build/step-05-present.md"
+
+    def remove(repository: Path) -> None:
+        text = (repository / body).read_text(encoding="utf-8")
+        start, end = v2_7_3_block_span(text)
+        (repository / body).write_text(text[:start] + text[end + 1 :], encoding="utf-8")
+
+    fixture = build_v2_7_3_repository(tmp_path, results=False, mutate=remove)
+    repository = fixture["repository"]
+    v2_7_3_assert_verifier(v2_7_3_verify(repository, "AC-7.3-01"), 1, ["WORKFLOW_INTEGRATION_MISSING"])
+    v2_7_3_assert_verifier(v2_7_3_verify(repository, "AC-7.3-02"), 1, ["SURFACE_PARITY_DRIFT"])
+    lifecycle = v2_7_3_lifecycle(repository)
+    before = v2_snapshot(repository)
+    document = v2_assert_failure(
+        v2_run(v2_7_3_arguments(repository)),
+        {"WORKFLOW_INTEGRATION_MISSING", "SURFACE_PARITY_DRIFT", "TEST_RESULTS_FAILED"},
+    )
+    assert "TEST_RESULTS_MISSING" in document["blockers"]  # AC-7.3-03..06 were not run here
+    assert v2_7_3_outputs(repository) == (None, None)
+    assert v2_7_3_lifecycle(repository) == lifecycle
+    assert v2_snapshot(repository) == before
+
+
+# ---- AC-7.3-05: v2_fault_displaced_workflow_invocation --------------------- #
+
+
+@pytest.mark.parametrize("body", STORY_7_3_BODIES)
+def test_v2_fault_displaced_workflow_invocation(tmp_path: Path, body: str) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    route = v2_7_3_route(body)
+    text = (repository / body).read_text(encoding="utf-8")
+    start, end = v2_7_3_block_span(text)
+    block = text[start:end]
+    decoy = f"Decoy text: `{COMPLETION_VERIFIER.GENERATOR_COMMAND}`"
+    displaced = text[:start] + decoy + text[end:] + "\n" + block + "\n"
+
+    def check() -> None:
+        mutated = (repository / body).read_text(encoding="utf-8")
+        gate = mutated.index(route.gate)
+        follower = mutated.index(route.follower, gate)
+        # Whole-file and in-span vocabulary are both still present: they cannot pass.
+        assert COMPLETION_VERIFIER.GENERATOR_COMMAND in mutated[gate:follower]
+        assert mutated.index(COMPLETION_VERIFIER.BLOCK_BEGIN) > mutated.index(route.transition)
+        document = v2_7_3_assert_verifier(
+            v2_7_3_verify(repository, "AC-7.3-01"), 1, ["WORKFLOW_INTEGRATION_DISPLACED"]
+        )
+        assert {row["subject"] for row in document["assertionLedger"] if row["state"] == "FAIL"} == {
+            f"{surface}::block-in-gate-span-before-transition" for surface in v2_7_3_affected(body)
+        }
+
+    v2_7_3_isolated(
+        repository, lambda path: v2_7_3_replace(path / body, displaced.encode("utf-8")), check
+    )
+    v2_7_3_assert_verifier(v2_7_3_verify(repository, "AC-7.3-01"), 0, [])
+
+
+@pytest.mark.parametrize("twin", STORY_7_3_TWINS)
+def test_v2_fault_displaced_workflow_invocation_in_a_render_twin(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], twin: str
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    module = load_completion_verifier()
+    original = module.render_twins
+
+    def displaced(repository_path: Path) -> dict[str, str]:
+        twins = original(repository_path)
+        start, end = v2_7_3_block_span(twins[twin])
+        block = twins[twin][start:end]
+        twins[twin] = twins[twin][:start] + twins[twin][end:] + "\n" + block + "\n"
+        return twins
+
+    def check() -> None:
+        monkeypatch.setattr(module, "render_twins", displaced)
+        exit_code, document = v2_7_3_verify_in_process(module, repository, "AC-7.3-01", capsys)
+        monkeypatch.undo()
+        assert exit_code == 1
+        assert document["blockers"] == ["WORKFLOW_INTEGRATION_DISPLACED"]
+
+    v2_7_3_isolated(repository, lambda path: (lambda: None), check)
+
+
+@pytest.mark.parametrize(
+    "variant",
+    (
+        "before-the-gate-heading",
+        "decoy-gate-heading",
+        "gate-heading-removed",
+        "transition-moved-into-the-span",
+        "only-transition-moved-before-the-gate",
+        "only-transition-moved-into-the-span",
+        "second-block-after-the-transition",
+    ),
+)
+def test_v2_fault_displaced_workflow_invocation_variants(tmp_path: Path, variant: str) -> None:
+    body = ".agents/skills/bmad-code-review/steps/step-04-present.md"
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    route = v2_7_3_route(body)
+    text = (repository / body).read_text(encoding="utf-8")
+    start, end = v2_7_3_block_span(text)
+    block = text[start:end]
+    if variant == "before-the-gate-heading":
+        without = text[:start] + text[end:]
+        gate = without.index(route.gate)
+        mutated = without[:gate] + block + "\n\n" + without[gate:]
+    elif variant == "decoy-gate-heading":
+        mutated = route.gate + "\n\n" + text
+    elif variant == "gate-heading-removed":
+        mutated = text.replace(route.gate, "#### Removed gate", 1)
+    elif variant == "transition-moved-into-the-span":
+        mutated = text[:end] + f"\n{route.transition}\n" + text[end:]
+    elif variant.startswith("only-transition-moved"):
+        # Relocate the single transition, so only the transition-before-span-end rule can fire.
+        assert text.count(route.transition) == 1 and text.index(route.transition) > end
+        without = text.replace(route.transition, "the review outcome", 1)
+        anchor = without.index(route.gate) if variant.endswith("before-the-gate") else start
+        mutated = without[:anchor] + route.transition + "\n\n" + without[anchor:]
+    else:
+        mutated = text + "\n" + block + "\n"
+
+    def check() -> None:
+        result = v2_7_3_verify(repository, "AC-7.3-01")
+        document = v2_7_3_assert_verifier(result, 1, ["WORKFLOW_INTEGRATION_DISPLACED"])
+        if variant.startswith("only-transition-moved"):
+            assert b"a lifecycle transition precedes the end of the gate span" in result.stderr
+            assert {
+                row["subject"] for row in document["assertionLedger"] if row["state"] == "FAIL"
+            } == {f"{body}::block-in-gate-span-before-transition"}
+
+    v2_7_3_isolated(
+        repository, lambda path: v2_7_3_replace(path / body, mutated.encode("utf-8")), check
+    )
+
+
+# ---- AC-7.3-06: v2_blocker_prevents_state_transition ----------------------- #
+
+
+def test_v2_blocker_prevents_state_transition_when_generation_fails(tmp_path: Path) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    lifecycle = v2_7_3_lifecycle(repository)
+    result = repository / STORY_7_3_RESULTS / "AC-7.3-02.json"
+    failed = json.loads(result.read_bytes())
+    failed.update(
+        exitCode=1,
+        result="FAIL",
+        blockers=["SURFACE_PARITY_DRIFT"],
+        assertionLedger=[dict(failed["assertionLedger"][0], state="FAIL")],
+    )
+
+    def fault(repository_path: Path):
+        return v2_7_3_replace(result, (json.dumps(failed, indent=2) + "\n").encode("utf-8"))
+
+    def check() -> None:
+        document = v2_assert_failure(
+            v2_run(v2_7_3_arguments(repository)), {"SURFACE_PARITY_DRIFT", "TEST_RESULTS_FAILED"}
+        )
+        assert document["blockers"] == ["SURFACE_PARITY_DRIFT", "TEST_RESULTS_FAILED"]
+        assert all(item["subject"] == "AC-7.3-02" for item in document["diagnostics"])
+        assert v2_7_3_outputs(repository) == (None, None)
+        assert v2_7_3_lifecycle(repository) == lifecycle
+
+    v2_7_3_isolated(repository, fault, check)
+    v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+
+
+@pytest.mark.parametrize("environment", ("schemas-unavailable", "git-fails"))
+def test_v2_blocker_prevents_state_transition_when_generation_is_blocked(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    environment: str,
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    lifecycle = v2_7_3_lifecycle(repository)
+    before = v2_snapshot(repository)
+    module = load_generator()
+    if environment == "schemas-unavailable":
+        empty = tmp_path / "no-schemas"
+        empty.mkdir()
+        monkeypatch.setattr(module, "V2_SCHEMA_DIRECTORY", empty)
+        expected = ["SCHEMA_UNAVAILABLE"]
+    else:
+        original = module.run_git
+
+        def failing(repository_path: Path, *arguments: str, **options):
+            if arguments[:2] == ("ls-tree", "-r"):
+                raise module.GateError("GIT_COMMAND_FAILED", "forced fixture failure")
+            return original(repository_path, *arguments, **options)
+
+        monkeypatch.setattr(module, "run_git", failing)
+        expected = ["GIT_COMMAND_FAILED"]
+    assert module.main(v2_7_3_arguments(repository)) == 2
+    captured = capsys.readouterr()
+    document = json.loads(captured.out)
+    v2_failure_validator().validate(document)
+    assert document["result"] == "BLOCKED"
+    assert document["blockers"] == expected
+    assert v2_7_3_outputs(repository) == (None, None)
+    assert v2_7_3_lifecycle(repository) == lifecycle
+    assert v2_snapshot(repository) == before
+
+
+@pytest.mark.parametrize("surface", (*STORY_7_3_BODIES, *STORY_7_3_TWINS))
+def test_v2_blocker_prevents_state_transition_on_every_surface(surface: str) -> None:
+    """Each installed surface and render twin HALTs in progress and claims no CI gate."""
+    if surface.startswith(COMPLETION_VERIFIER.TWIN_PREFIX):
+        text = load_completion_verifier().render_twins(WORKSPACE)[surface]
+    else:
+        text = (WORKSPACE / surface).read_text(encoding="utf-8")
+    route = v2_7_3_route(surface)
+    start, end = v2_7_3_block_span(text)
+    block = text[start:end]
+    assert COMPLETION_VERIFIER.placement_problem(text, route, start, end) is None
+    branch = block.index("Blocker branch:")
+    assert branch > block.index(COMPLETION_VERIFIER.GENERATOR_COMMAND)
+    assert branch > block.index(COMPLETION_VERIFIER.VERIFY_COMMAND)
+    blocker_branch = block[branch:]
+    for clause in (
+        "on any nonzero exit, summary mismatch, required commit that is not authorized, "
+        "commit failure, or verification failure",
+        "keep or return `{spec_file}` and the story's sprint-status row to `in-progress`",
+        "never write `review` or `done`",
+        "Report the exact command, its exit, and every stable blocker code, then HALT",
+    ):
+        assert clause in blocker_branch, (surface, clause)
+    assert "no CI job or hook enforces it" in block
+    assert COMPLETION_VERIFIER.CI_CLAIM.search(block) is None
+    assert COMPLETION_VERIFIER.CI_CLAIM.search("this gate is enforced by CI") is not None
+
+
+# ---- Story 7.3 verifier matrix and generator bindings ----------------------- #
+
+
+def test_story_completion_verifier_passes_on_the_integrated_repository() -> None:
+    module = load_completion_verifier()
+    contract = json.loads(STORY_7_3_CONTRACT.read_bytes())
+    candidate = run_git(WORKSPACE, "rev-parse", "HEAD").stdout.strip()
+    expected_inputs = [
+        {"path": path, "sha256": sha256_file(WORKSPACE / path)} for path in STORY_7_3_BODIES
+    ]
+    for scenario in contract["scenarios"][:2]:
+        findings, rows, inputs = module.evaluate(WORKSPACE, candidate, scenario)
+        assert findings == [], findings
+        assert rows and all(state == "PASS" for _, state in rows)
+        assert len(rows) == (3 if scenario["id"] == "AC-7.3-01" else 2) * 11
+        assert inputs == expected_inputs
+
+
+def test_story_completion_verifier_emits_schema_valid_acceptance_results(tmp_path: Path) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    for scenario_id in ("AC-7.3-01", "AC-7.3-02"):
+        result = v2_7_3_verify(repository, scenario_id)
+        document = v2_7_3_assert_verifier(result, 0, [])
+        assert result.stderr == b""
+        assert (repository / STORY_7_3_RESULTS / f"{scenario_id}.json").read_bytes() == result.stdout
+        assert document["candidate"] == fixture["candidate"]
+        assert document["command"] == next(
+            item["command"] for item in json.loads(STORY_7_3_CONTRACT.read_bytes())["scenarios"]
+            if item["id"] == scenario_id
+        )
+        assert [row["path"] for row in document["inputs"]] == sorted(STORY_7_3_BODIES)
+        assert all(
+            row["sha256"] == sha256_file(repository / row["path"]) for row in document["inputs"]
+        )
+        assert document["assertionLedger"]
+        assert all(row["state"] == "PASS" for row in document["assertionLedger"])
+    # The twins are rendered in memory only: no render snapshot is ever published.
+    assert not (repository / "_bmad/render").exists()
+
+
+def test_story_completion_verifier_preserves_parity_after_autocrlf_checkout(tmp_path: Path) -> None:
+    def seed(repository: Path) -> None:
+        (repository / ".gitattributes").write_bytes((WORKSPACE / ".gitattributes").read_bytes())
+        (repository / "autocrlf-control.md").write_bytes(b"control\n")
+
+    fixture = build_v2_7_3_repository(tmp_path, results=False, mutate=seed)
+    repository = fixture["repository"]
+    v2_git(repository, "config", "core.autocrlf", "true")
+    for relative in ("autocrlf-control.md", *STORY_7_3_BODIES):
+        (repository / relative).unlink()
+    v2_git(repository, "checkout-index", "--force", "--", "autocrlf-control.md", *STORY_7_3_BODIES)
+    assert (repository / "autocrlf-control.md").read_bytes() == b"control\r\n"
+    for body in STORY_7_3_BODIES:
+        content = (repository / body).read_bytes()
+        assert b"\r" not in content, body
+        assert sha256_file(repository / body) == hashlib.sha256(
+            v2_git(repository, "show", f"HEAD:{body}").stdout.encode("utf-8")
+        ).hexdigest()
+    for scenario_id in ("AC-7.3-01", "AC-7.3-02"):
+        document = v2_7_3_assert_verifier(v2_7_3_verify(repository, scenario_id), 0, [])
+        assert all(row["state"] == "PASS" for row in document["assertionLedger"])
+    assert not (repository / "_bmad/render").exists()
+
+
+def test_story_completion_verifier_does_not_follow_the_predictable_temp_symlink(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    module = load_completion_verifier()
+    relative = f"{STORY_7_3_RESULTS}/AC-7.3-01.json"
+    target = repository / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    outside = tmp_path / "outside.json"
+    outside.write_bytes(b"outside\n")
+    predictable = target.with_name(f".{target.name}.{os.getpid()}.tmp")
+    predictable.symlink_to(outside)
+    collision = target.with_name(f".{target.name}.collision.tmp")
+    collision.symlink_to(outside)
+    tokens = iter(("collision", "safe"))
+    monkeypatch.setattr(module.secrets, "token_hex", lambda _: next(tokens))
+
+    module.write_output(repository, relative, b"derived\n")
+
+    assert target.read_bytes() == b"derived\n"
+    assert outside.read_bytes() == b"outside\n"
+    assert predictable.is_symlink()
+    assert collision.is_symlink()
+
+
+@pytest.mark.parametrize("collision_kind", ("regular-file", "symlink"))
+def test_story_completion_verifier_preserves_collisions_when_temp_names_are_exhausted(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, collision_kind: str,
+) -> None:
+    repository = tmp_path / "repository"
+    repository.mkdir()
+    module = load_completion_verifier()
+    relative = f"{STORY_7_3_RESULTS}/AC-7.3-01.json"
+    target = repository / relative
+    target.parent.mkdir(parents=True)
+    target.write_bytes(b"prior result\n")
+    outside = tmp_path / "outside.json"
+    outside.write_bytes(b"outside\n")
+    collision = target.with_name(f".{target.name}.collision.tmp")
+    if collision_kind == "symlink":
+        collision.symlink_to(outside)
+    else:
+        collision.write_bytes(b"occupied\n")
+    monkeypatch.setattr(module.secrets, "token_hex", lambda _: "collision")
+
+    with pytest.raises(module.Blocked) as stopped:
+        module.write_output(repository, relative, b"derived\n")
+
+    assert stopped.value.finding["code"] == "OUTPUT_WRITE_FAILED"
+    assert target.read_bytes() == b"prior result\n"
+    assert outside.read_bytes() == b"outside\n"
+    assert collision.is_symlink() == (collision_kind == "symlink")
+    assert collision.read_bytes() == (b"outside\n" if collision_kind == "symlink" else b"occupied\n")
+
+
+# Every clause the one block must state, written out here rather than imported, so
+# a clause the verifier stops requiring is caught instead of silently shared.
+STORY_7_3_REQUIRED_BLOCK_CLAUSES = (
+    "uv run --frozen --no-sync python3 _bmad/scripts/generate_story_record.py --repository . "
+    "--contract <contract> --format bundle --output-json <json> --output-markdown <md>",
+    "`_bmad-output/planning-artifacts/v9/story-contracts/<story-id>.json`",
+    "the spec cannot opt out",
+    "`finalRecord.paths`",
+    "Require exit `0`",
+    "`finalRecord.summary`",
+    "record-only commit",
+    "`<!-- STORY-FINAL-RECORD:BEGIN -->`",
+    "`<!-- STORY-FINAL-RECORD:END -->`",
+    "uv run --frozen --no-sync python3 _bmad/scripts/generate_story_record.py --repository . "
+    "--contract <contract> --verify-inserted-record {spec_file}",
+    "to `in-progress`",
+    "never write `review` or `done`",
+    "Report the exact command, its exit, and every stable blocker code",
+    "then HALT",
+    "no CI job or hook enforces it",
+)
+V2_7_3_DRIFTS = (
+    "one-body-byte",
+    "one-tree-only",
+    "uniform-ci-claim",
+    "uniform-render-token",
+    *(f"uniform-clause-loss-{index:02d}" for index in range(len(STORY_7_3_REQUIRED_BLOCK_CLAUSES))),
+)
+
+
+def test_story_completion_verifier_requires_exactly_the_listed_block_clauses() -> None:
+    required = {clause for _, clause in COMPLETION_VERIFIER.REQUIRED_CLAUSES}
+    assert set(STORY_7_3_REQUIRED_BLOCK_CLAUSES) == required | {COMPLETION_VERIFIER.GENERATOR_COMMAND}
+
+
+@pytest.mark.parametrize("drift", V2_7_3_DRIFTS)
+def test_story_completion_verifier_reports_surface_parity_drift(tmp_path: Path, drift: str) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    first = STORY_7_3_BODIES[0]
+    if drift in ("one-body-byte", "one-tree-only"):
+        targets = [first if drift == "one-body-byte" else ".claude/skills/bmad-build/step-oneshot.md"]
+        change = ("then HALT.", "then HALT!")
+    elif drift == "uniform-ci-claim":
+        targets = list(STORY_7_3_BODIES)
+        change = ("no CI job or hook enforces it.", "no CI job or hook enforces it; CI enforces it.")
+    elif drift == "uniform-render-token":
+        # A real render resolves this token, so only the twins' bytes change.
+        targets = list(STORY_7_3_BODIES)
+        change = ("then HALT.", "then HALT {{.implementation_artifacts}}.")
+    else:
+        targets = list(STORY_7_3_BODIES)
+        clause = STORY_7_3_REQUIRED_BLOCK_CLAUSES[int(drift.rsplit("-", 1)[1])]
+        change = (clause, "removed clause")
+
+    def in_block(text: str) -> str:
+        start, end = v2_7_3_block_span(text)
+        block = text[start:end]
+        assert change[0] in block
+        count = 1 if drift in ("one-body-byte", "one-tree-only") else -1
+        return text[:start] + block.replace(*change, count) + text[end:]
+
+    def fault(repository_path: Path):
+        restores = [
+            v2_7_3_replace(
+                repository_path / target,
+                in_block((repository_path / target).read_text(encoding="utf-8")).encode("utf-8"),
+            )
+            for target in targets
+        ]
+        return lambda: [restore() for restore in restores]
+
+    def check() -> None:
+        document = v2_7_3_assert_verifier(
+            v2_7_3_verify(repository, "AC-7.3-02"), 1, ["SURFACE_PARITY_DRIFT"]
+        )
+        failed_rows = {
+            row["subject"] for row in document["assertionLedger"] if row["state"] == "FAIL"
+        }
+        failed = {subject.split("::")[0] for subject in failed_rows}
+        if drift == "one-body-byte":
+            assert failed == {first}
+        elif drift == "one-tree-only":
+            # The twin renders from the .claude tree, so it drifts with its body.
+            assert failed == {targets[0], f"render:{targets[0]}"}
+        elif drift == "uniform-render-token":
+            assert failed_rows == {
+                f"{twin}::block-bytes-identical-across-surfaces" for twin in STORY_7_3_TWINS
+            }
+        elif drift == "uniform-ci-claim":
+            assert failed == {*STORY_7_3_BODIES, *STORY_7_3_TWINS}
+        else:
+            assert failed_rows == {
+                f"{surface}::block-states-gate-contract"
+                for surface in (*STORY_7_3_BODIES, *STORY_7_3_TWINS)
+            }
+        if change[0] != STORY_7_3_REQUIRED_BLOCK_CLAUSES[0]:
+            v2_7_3_assert_verifier(v2_7_3_verify(repository, "AC-7.3-01"), 0, [])
+
+    v2_7_3_isolated(repository, fault, check)
+
+
+def test_story_completion_verifier_reports_render_twin_drift(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    module = load_completion_verifier()
+    original = module.render_twins
+    twin = STORY_7_3_TWINS[0]
+
+    def drifted(repository_path: Path) -> dict[str, str]:
+        twins = original(repository_path)
+        twins[twin] = twins[twin].replace("then HALT.", "then HALT!", 1)
+        return twins
+
+    def check() -> None:
+        monkeypatch.setattr(module, "render_twins", drifted)
+        exit_code, document = v2_7_3_verify_in_process(module, repository, "AC-7.3-02", capsys)
+        monkeypatch.undo()
+        assert exit_code == 1
+        assert document["blockers"] == ["SURFACE_PARITY_DRIFT"]
+        failed = {row["subject"] for row in document["assertionLedger"] if row["state"] == "FAIL"}
+        assert failed == {f"{twin}::block-bytes-identical-across-surfaces"}
+
+    v2_7_3_isolated(repository, lambda path: (lambda: None), check)
+
+
+@pytest.mark.parametrize(
+    "fault",
+    (
+        "contract-not-7.3",
+        "unknown-scenario",
+        "undeclared-output",
+        "abbreviated-option",
+        "unreadable-body",
+        "render-configuration-missing",
+        "output-escapes",
+    ),
+)
+def test_story_completion_verifier_blocks_unreadable_inputs(tmp_path: Path, fault: str) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    base = [
+        "--repository",
+        str(repository),
+        "--contract",
+        STORY_7_3_CONTRACT_PATH,
+        "--scenario",
+        "AC-7.3-01",
+        "--output",
+        f"{STORY_7_3_RESULTS}/AC-7.3-01.json",
+    ]
+    arguments = list(base)
+    mutate = lambda path: (lambda: None)  # noqa: E731
+    if fault == "contract-not-7.3":
+        arguments[3] = STORY_7_2_CONTRACT_PATH
+        target = repository / STORY_7_2_CONTRACT_PATH
+        target.parent.mkdir(parents=True, exist_ok=True)
+
+        def mutate(path: Path):
+            target.write_bytes(STORY_7_2_CONTRACT.read_bytes())
+            return target.unlink
+
+        expected = "CONTRACT_UNSUPPORTED"
+    elif fault == "unknown-scenario":
+        arguments[5] = "AC-7.3-03"
+        expected = "ARGUMENT_INVALID"
+    elif fault == "undeclared-output":
+        arguments[7] = f"{STORY_7_3_RESULTS}/elsewhere.json"
+        expected = "ARGUMENT_INVALID"
+    elif fault == "abbreviated-option":
+        arguments[6] = "--out"
+        expected = "ARGUMENT_INVALID"
+    elif fault == "unreadable-body":
+        mutate = lambda path: v2_7_3_replace(path / STORY_7_3_BODIES[0], b"\xff\xfe not utf-8\n")  # noqa: E731
+        expected = "SURFACE_UNREADABLE"
+    elif fault == "render-configuration-missing":
+        mutate = lambda path: v2_7_3_replace(path / "_bmad/config.toml", b"not = [valid toml\n")  # noqa: E731
+        expected = "RENDER_UNAVAILABLE"
+    else:
+        outside = tmp_path / "outside-results"
+        outside.mkdir()
+        results = repository / STORY_7_3_RESULTS
+
+        def mutate(path: Path):
+            results.parent.mkdir(parents=True, exist_ok=True)
+            results.symlink_to(outside, target_is_directory=True)
+            return results.unlink
+
+        expected = "OUTPUT_WRITE_FAILED"
+
+    def check() -> None:
+        result = v2_7_3_verify(repository, "AC-7.3-01", *arguments)
+        assert result.returncode == 2
+        assert b"Traceback" not in result.stdout + result.stderr
+        document = json.loads(result.stdout)
+        assert document["result"] == "BLOCKED"
+        assert document["exitCode"] == 2
+        assert document["blockers"] == [expected]
+        written = repository / STORY_7_3_RESULTS / "AC-7.3-01.json"
+        if expected == "OUTPUT_WRITE_FAILED":
+            # The derived result is reported, but nothing is written outside the repository.
+            v2_7_3_acceptance_validator().validate(document)
+            assert document["inputs"] == [] and document["assertionLedger"] == []
+            assert list(outside.iterdir()) == []
+        elif expected in ("SURFACE_UNREADABLE", "RENDER_UNAVAILABLE"):
+            # A contract-bound blocked result is evidence: no input, no ledger, no PASS.
+            v2_7_3_acceptance_validator().validate(document)
+            assert document["inputs"] == [] and document["assertionLedger"] == []
+            assert written.read_bytes() == result.stdout
+        else:
+            assert document["schemaVersion"] != "hexalith.conversations.acceptance-result.v1"
+            assert not written.exists()
+
+    v2_7_3_isolated(repository, mutate, check)
+
+
+def test_story_completion_verifier_inventory_matches_the_generator() -> None:
+    module = load_generator()
+    assert tuple(COMPLETION_VERIFIER.BODY_PATHS) == module.V2_7_3_WORKFLOW_BODIES
+    assert len(STORY_7_3_BODIES) == 8 and len(STORY_7_3_TWINS) == 3
+    assert (
+        set(COMPLETION_VERIFIER.FAIL_CODES) | set(COMPLETION_VERIFIER.BLOCKED_CODES)
+        == set(module.V2_PROPAGATED_ACCEPTANCE_CODES)
+    )
+    runbook = RUNBOOK.read_text(encoding="utf-8")
+    for code in (*COMPLETION_VERIFIER.FAIL_CODES, *COMPLETION_VERIFIER.BLOCKED_CODES):
+        assert f"`{code}`" in runbook, code
+
+
+def test_v2_story_7_3_propagates_every_stable_verifier_code(tmp_path: Path) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    path = repository / STORY_7_3_RESULTS / "AC-7.3-01.json"
+    document = json.loads(path.read_bytes())
+    codes = sorted(COMPLETION_VERIFIER.FAIL_CODES | COMPLETION_VERIFIER.BLOCKED_CODES)
+    path.write_text(
+        json.dumps(dict(document, exitCode=1, result="FAIL", blockers=codes), indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    failure = v2_assert_failure(
+        v2_run(v2_7_3_arguments(repository)),
+        {"TEST_RESULTS_FAILED", *codes},
+        exit_code=2,
+    )
+    assert set(failure["blockers"]) == {"TEST_RESULTS_FAILED", *codes}
+
+
+def test_v2_story_7_3_record_binds_contract_bodies_and_predecessors(tmp_path: Path) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    first = v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+    outputs = v2_7_3_outputs(repository)
+    second = v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+    assert first == second and v2_7_3_outputs(repository) == outputs
+    integration = first["workflowIntegration"]
+    assert integration["contract"] == {
+        "path": STORY_7_3_CONTRACT_PATH,
+        "sha256": sha256_file(STORY_7_3_CONTRACT),
+    }
+    assert integration["workflowBodies"] == [
+        {"path": path, "sha256": sha256_file(repository / path)} for path in STORY_7_3_BODIES
+    ]
+    for scenario_id in ("AC-7.3-01", "AC-7.3-02"):
+        result = json.loads((repository / STORY_7_3_RESULTS / f"{scenario_id}.json").read_bytes())
+        assert result["inputs"] == integration["workflowBodies"]
+    assert integration["predecessorRecords"] == [
+        {"storyId": story, "path": path, "sha256": sha256_file(WORKSPACE / path)}
+        for story, path in (
+            ("7.1", "docs/release-evidence/story-7.1-final-record-v2.json"),
+            ("7.2", "docs/release-evidence/story-7.2-final-record-v2.json"),
+        )
+    ]
+    assert [scenario["result"] for scenario in first["scenarios"]] == ["PASS"] * 7
+    assert first["scenarios"][0]["resultFile"]["path"] == f"{STORY_7_3_RESULTS}/AC-7.3-01.json"
+    assert len(first["scenarios"][-1]["assertionLedger"]) == 12
+    assert [row["subject"] for row in first["scenarios"][-1]["assertionLedger"][-3:]] == [
+        "generator::acceptance-results-bound-to-candidate",
+        "generator::workflow-bodies-equal-acceptance-inputs",
+        "generator::predecessor-records-7.1-7.2-verified",
+    ]
+    assert "measurements" not in first
+    markdown = outputs[1].decode("utf-8")
+    assert "## Story 7.3 workflow integration" in markdown
+    assert "candidate, measured JUnit results, and acceptance results" in markdown
+    assert f"- Story contract: `{integration['contract']['path']}`" in markdown
+    assert f"- Story contract SHA-256: `{integration['contract']['sha256']}`" in markdown
+    for body in integration["workflowBodies"]:
+        assert f"| `{body['path']}` | `{body['sha256']}` |" in markdown
+    for item in integration["predecessorRecords"]:
+        assert f"| `{item['storyId']}` | `{item['path']}` | `{item['sha256']}` |" in markdown
+    assert "## Story 7.2 measurements" not in markdown
+
+
+V2_7_3_ACCEPTANCE_FAULTS = {
+    "missing": ("TEST_RESULTS_MISSING",),
+    "stale-mtime": ("TEST_RESULTS_STALE",),
+    "other-candidate": ("TEST_RESULTS_STALE",),
+    "tampered-input-digest": ("TEST_RESULTS_STALE",),
+    "command-mismatch": ("SCENARIO_RESULT_MISMATCH",),
+    "story-id-mismatch": ("SCENARIO_RESULT_MISMATCH",),
+    "scenario-id-mismatch": ("SCENARIO_RESULT_MISMATCH",),
+    "state-exit-disagree": ("SCENARIO_RESULT_MISMATCH",),
+    "inputs-not-governed-set": ("SCENARIO_RESULT_MISMATCH",),
+    "malformed-json": ("INPUT_SCHEMA_INVALID",),
+    "schema-violation": ("INPUT_SCHEMA_INVALID",),
+    "symlinked-result": ("INPUT_SCHEMA_INVALID",),
+    "ledger-id-mismatch": ("SCENARIO_RESULT_MISMATCH",),
+    "duplicate-ledger-subject": ("SCENARIO_RESULT_MISMATCH",),
+    "passing-with-failed-row": ("TEST_COUNT_INCONSISTENT",),
+    "passing-with-blocker": ("TEST_COUNT_INCONSISTENT",),
+    "passing-without-ledger": ("ASSERTION_LEDGER_EMPTY",),
+    "failed-with-verifier-blocker": ("TEST_RESULTS_FAILED", "WORKFLOW_INTEGRATION_DISPLACED"),
+}
+
+
+@pytest.mark.parametrize("fault", sorted(V2_7_3_ACCEPTANCE_FAULTS))
+def test_v2_story_7_3_acceptance_result_faults_block_the_record(tmp_path: Path, fault: str) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    path = repository / STORY_7_3_RESULTS / "AC-7.3-01.json"
+    document = json.loads(path.read_bytes())
+
+    def rewritten(**changes) -> bytes:
+        return (json.dumps(dict(document, **changes), indent=2) + "\n").encode("utf-8")
+
+    def mutate(repository_path: Path):
+        if fault == "missing":
+            original = path.read_bytes()
+            path.unlink()
+            return lambda: path.write_bytes(original)
+        if fault == "stale-mtime":
+            mtime = path.stat().st_mtime_ns
+            os.utime(path, ns=(1, 1))
+            return lambda: os.utime(path, ns=(mtime, mtime))
+        if fault == "symlinked-result":
+            outside = tmp_path / "outside-AC-7.3-01.json"
+            outside.write_bytes(path.read_bytes())
+            path.unlink()
+            path.symlink_to(outside)
+            return path.unlink
+        content = {
+            "other-candidate": lambda: rewritten(candidate=fixture["baseline"]),
+            "tampered-input-digest": lambda: rewritten(
+                inputs=[dict(document["inputs"][0], sha256="0" * 64), *document["inputs"][1:]]
+            ),
+            "command-mismatch": lambda: rewritten(command=document["command"] + " --extra"),
+            "story-id-mismatch": lambda: rewritten(storyId="7.1"),
+            "scenario-id-mismatch": lambda: rewritten(scenarioId="AC-7.3-02"),
+            "state-exit-disagree": lambda: rewritten(exitCode=1),
+            "inputs-not-governed-set": lambda: rewritten(inputs=document["inputs"][1:]),
+            "malformed-json": lambda: b'{"schemaVersion": ',
+            "schema-violation": lambda: rewritten(undeclared=True),
+            "ledger-id-mismatch": lambda: rewritten(
+                assertionLedger=[
+                    dict(document["assertionLedger"][0], id="AC-7.3-01#9999"),
+                    *document["assertionLedger"][1:],
+                ]
+            ),
+            "duplicate-ledger-subject": lambda: rewritten(
+                assertionLedger=[
+                    document["assertionLedger"][0],
+                    dict(
+                        document["assertionLedger"][1],
+                        subject=document["assertionLedger"][0]["subject"],
+                    ),
+                    *document["assertionLedger"][2:],
+                ]
+            ),
+            "passing-with-failed-row": lambda: rewritten(
+                assertionLedger=[dict(document["assertionLedger"][0], state="FAIL")]
+            ),
+            "passing-with-blocker": lambda: rewritten(blockers=["WORKFLOW_INTEGRATION_MISSING"]),
+            "passing-without-ledger": lambda: rewritten(assertionLedger=[]),
+            "failed-with-verifier-blocker": lambda: rewritten(
+                exitCode=1, result="FAIL", blockers=["WORKFLOW_INTEGRATION_DISPLACED"]
+            ),
+        }[fault]()
+        return v2_7_3_replace(path, content)
+
+    def check() -> None:
+        expected = set(V2_7_3_ACCEPTANCE_FAULTS[fault])
+        failure = v2_assert_failure(v2_run(v2_7_3_arguments(repository)), expected)
+        assert set(failure["blockers"]) == expected
+        assert v2_7_3_outputs(repository) == (None, None)
+
+    v2_7_3_isolated(repository, mutate, check)
+    v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+
+
+def test_v2_story_7_3_acceptance_command_requires_a_committed_script(tmp_path: Path) -> None:
+    """A verifier script present in the working tree but absent from the candidate cannot pass."""
+    script = "_bmad/scripts/verify_story_completion_workflows.py"
+
+    def keep_script_uncommitted(repository: Path) -> None:
+        exclude = repository / ".git/info/exclude"
+        exclude.parent.mkdir(parents=True, exist_ok=True)
+        existing = exclude.read_text(encoding="utf-8") if exclude.exists() else ""
+        exclude.write_text(f"{existing}/{script}\n", encoding="utf-8")
+
+    fixture = build_v2_7_3_repository(tmp_path, mutate=keep_script_uncommitted)
+    repository = fixture["repository"]
+    assert (repository / script).is_file()
+    assert v2_git(repository, "ls-files", "--", script).stdout == ""
+    for scenario_id in ("AC-7.3-01", "AC-7.3-02"):
+        assert (repository / STORY_7_3_RESULTS / f"{scenario_id}.json").is_file()
+    before = v2_snapshot(repository)
+
+    failure = v2_assert_failure(
+        v2_run(v2_7_3_arguments(repository)), {"SCENARIO_COMMAND_UNSUPPORTED"}
+    )
+    assert failure["blockers"] == ["SCENARIO_COMMAND_UNSUPPORTED"]
+    assert {
+        item["subject"]
+        for item in failure["diagnostics"]
+        if "must name a committed script" in item["message"]
+    } == {"AC-7.3-01", "AC-7.3-02"}
+    assert v2_7_3_outputs(repository) == (None, None)
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_story_7_3_git_failure_reading_an_acceptance_input_is_blocked(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    module = load_generator()
+    original = module.run_git
+    body = STORY_7_3_BODIES[0]
+
+    def failing(repository_path: Path, *arguments: str, **options):
+        if arguments[:2] == ("ls-tree", "-z") and body in arguments:
+            raise module.GateError("GIT_COMMAND_FAILED", "forced fixture failure")
+        return original(repository_path, *arguments, **options)
+
+    monkeypatch.setattr(module, "run_git", failing)
+    assert module.main(v2_7_3_arguments(repository)) == 2
+    captured = capsys.readouterr()
+    document = json.loads(captured.out)
+    v2_failure_validator().validate(document)
+    assert document["result"] == "BLOCKED"
+    assert document["blockers"] == ["GIT_COMMAND_FAILED"]
+    assert "forced fixture failure" not in json.dumps(document)
+    assert v2_7_3_outputs(repository) == (None, None)
+    assert v2_snapshot(repository) == before
+
+
+@pytest.mark.parametrize(
+    "fault",
+    ("tampered-7.2-json", "missing-7.1-markdown", "mismatched-7.2-predecessor"),
+)
+def test_v2_story_7_3_invalid_predecessor_records_block_the_record(tmp_path: Path, fault: str) -> None:
+    def mutate(repository: Path) -> None:
+        if fault in ("tampered-7.2-json", "mismatched-7.2-predecessor"):
+            target = repository / "docs/release-evidence/story-7.2-final-record-v2.json"
+            record = json.loads(target.read_bytes())
+            if fault == "tampered-7.2-json":
+                record["rollback"]["boundary"] += " tampered"
+                target.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+            else:
+                record["measurements"]["predecessorRecord"]["sha256"] = "0" * 64
+                _, json_bytes, markdown_bytes = load_generator().v2_finalize(record)
+                target.write_bytes(json_bytes)
+                (
+                    repository / "docs/release-evidence/story-7.2-final-record-v2.md"
+                ).write_bytes(markdown_bytes)
+        else:
+            (repository / "docs/release-evidence/story-7.1-final-record-v2.md").unlink()
+
+    fixture = build_v2_7_3_repository(tmp_path, mutate=mutate)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    failure = v2_assert_failure(v2_run(v2_7_3_arguments(repository)), {"AUTHORITY_BINDING_INVALID"})
+    assert failure["blockers"] == ["AUTHORITY_BINDING_INVALID"]
+    assert v2_7_3_outputs(repository) == (None, None)
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_story_7_3_verification_mode_accepts_only_its_own_options(tmp_path: Path) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    for arguments in (
+        [*v2_7_3_verify_arguments(repository), "--output-json", STORY_7_3_OUTPUT_JSON],
+        [*v2_7_3_verify_arguments(repository), "--format", "bundle"],
+        [*v2_7_3_verify_arguments(repository), "--verify-inserted-record", STORY_7_3_SPEC_PATH],
+        v2_7_3_verify_arguments(repository, "../outside.md"),
+        v2_7_3_verify_arguments(repository, "missing-spec.md"),
+        v2_7_3_verify_arguments(repository, STORY_7_3_BODIES[0]),
+    ):
+        document = v2_assert_failure(v2_run(arguments), {"ARGUMENT_INVALID"})
+        assert document["blockers"] == ["ARGUMENT_INVALID"]
+    unknown = v2_assert_failure(
+        v2_run(["--unknown", "value", *v2_7_3_verify_arguments(repository)]),
+        {"ARGUMENT_INVALID"},
+    )
+    diagnostic = unknown["diagnostics"][0]["message"]
+    assert "--verify-inserted-record" in diagnostic
+    assert "--output-json" not in diagnostic
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_story_7_3_schema_requires_workflow_integration_only_for_story_7_3() -> None:
+    validator = v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA))
+    story_7_1 = json.loads((WORKSPACE / "docs/release-evidence/story-7.1-final-record-v2.json").read_bytes())
+    story_7_2 = json.loads((WORKSPACE / "docs/release-evidence/story-7.2-final-record-v2.json").read_bytes())
+    integration = {
+        "contract": {"path": STORY_7_3_CONTRACT_PATH, "sha256": "a" * 64},
+        "workflowBodies": [{"path": path, "sha256": "b" * 64} for path in STORY_7_3_BODIES],
+        "predecessorRecords": [
+            {"storyId": "7.1", "path": "docs/release-evidence/story-7.1-final-record-v2.json", "sha256": "c" * 64},
+            {"storyId": "7.2", "path": "docs/release-evidence/story-7.2-final-record-v2.json", "sha256": "d" * 64},
+        ],
+    }
+    assert validator.is_valid(story_7_1) and validator.is_valid(story_7_2)
+    assert not validator.is_valid(dict(story_7_1, workflowIntegration=integration))
+    assert not validator.is_valid(dict(story_7_2, workflowIntegration=integration))
+    story_7_3 = dict(story_7_1, storyId="7.3", workflowIntegration=integration)
+    assert validator.is_valid(story_7_3)
+    assert not validator.is_valid({key: value for key, value in story_7_3.items() if key != "workflowIntegration"})
+    assert not validator.is_valid(
+        dict(story_7_3, workflowIntegration=dict(integration, workflowBodies=integration["workflowBodies"][1:]))
+    )
+    assert not validator.is_valid(dict(story_7_3, workflowIntegration=dict(integration, extra=True)))
+
+
+def test_v2_story_7_3_changes_leave_story_7_1_and_7_2_pairs_byte_identical() -> None:
+    """The committed predecessor pairs still re-render and re-verify byte for byte."""
+    module = load_generator()
+    for story in ("7.1", "7.2"):
+        json_bytes = (WORKSPACE / f"docs/release-evidence/story-{story}-final-record-v2.json").read_bytes()
+        markdown_bytes = (WORKSPACE / f"docs/release-evidence/story-{story}-final-record-v2.md").read_bytes()
+        assert module.v2_verify_pair(json_bytes, markdown_bytes) == []
+        record = json.loads(json_bytes)
+        assert record["scenarios"][-1]["assertionLedger"] == module.v2_self_ledger(
+            record["scenarios"][-1]["scenarioId"], story
+        )
+
+
+# ---- Story 7.4: frozen historical and fault-injection contract --------------- #
+
+STORY_7_4_CONTRACT_PATH = "_bmad-output/planning-artifacts/v9/story-contracts/7.4.json"
+
+# Story 7.4 explicitly verifies these frozen historical fixture identities.
+# They are not the retired v1 assertions against live workspace classifications.
+V2_HISTORY_RECORDS = (
+    "spec-6-1-rebaseline-architecture-and-planning-authority.md",
+    "6-2-migrate-conversations-to-platform-owned-hosting.md",
+    "6-7-mechanically-block-incomplete-submodule-promotions-from-completion.md",
+)
+STORY_7_4_SPEC_PATH = (
+    "_bmad-output/implementation-artifacts/"
+    "spec-7-4-verify-historical-mode-and-required-fault-injection-blockers.md"
+)
+STORY_7_4_OUTPUTS = (
+    "docs/release-evidence/story-7.4-final-record-v2.json",
+    "docs/release-evidence/story-7.4-final-record-v2.md",
+)
+STORY_7_4_FAULTS = tuple(load_generator().V2_REQUIRED_FAULTS.items())
+
+
+def v2_7_4_call(module, arguments: list[str]) -> tuple[int, dict]:
+    output = io.StringIO()
+    with redirect_stdout(output):
+        exit_code = module.main(arguments)
+    return exit_code, json.loads(output.getvalue())
+
+
+def v2_7_4_snapshot_hash(repository: Path) -> str:
+    """Hash root fixture bytes, modes and HEAD; separately compare all result mtimes."""
+    head, files = v2_snapshot(repository)
+    digest = hashlib.sha256((head or "").encode("ascii"))
+    for relative, entry in sorted(files.items()):
+        digest.update(relative.encode("utf-8") + b"\0")
+        digest.update(str((repository / relative).lstat().st_mode & 0o7777).encode("ascii") + b"\0")
+        digest.update(entry[0].encode("ascii") + b"\0")
+        digest.update(entry[1] if isinstance(entry[1], bytes) else entry[1].encode("utf-8"))
+        digest.update(b"\0")
+    return digest.hexdigest()
+
+
+def v2_7_4_restore_file(target: Path, content: bytes, metadata: os.stat_result) -> None:
+    target.write_bytes(content)
+    os.chmod(target, metadata.st_mode & 0o7777)
+    os.utime(target, ns=(metadata.st_atime_ns, metadata.st_mtime_ns))
+
+
+def v2_7_4_observe_fault(tmp_path: Path, fault_id: str) -> dict:
+    """Execute one frozen mutation against PASS, restore, then prove PASS again."""
+    module = load_generator()
+    workflow = fault_id in ("WORKFLOW_REMOVED", "WORKFLOW_DISPLACED", "MARKDOWN_DIGEST")
+    fixture = build_v2_7_3_repository(tmp_path) if workflow else build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    arguments = v2_7_3_arguments(repository) if workflow else v2_7_2_arguments(repository)
+    assert v2_7_4_call(module, arguments)[0] == 0
+    if fault_id == "CANDIDATE" or fault_id == "MARKDOWN_DIGEST":
+        pair = (STORY_7_3_OUTPUT_JSON, STORY_7_3_OUTPUT_MARKDOWN) if workflow else (
+            STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+        v2_git(repository, "add", *pair)
+        v2_git(repository, "commit", "-m", "test(story): retain record-only fault fixture")
+    if fault_id == "MARKDOWN_DIGEST":
+        v2_7_3_insert_record(repository, (repository / STORY_7_3_OUTPUT_MARKDOWN).read_bytes())
+        arguments = v2_7_3_verify_arguments(repository)
+    verifier_arguments = ["--repository", str(repository), "--contract", STORY_7_3_CONTRACT_PATH,
+                          "--scenario", "AC-7.3-01", "--output", f"{STORY_7_3_RESULTS}/AC-7.3-01.json"]
+    runner = COMPLETION_VERIFIER if fault_id.startswith("WORKFLOW_") else module
+    if runner is COMPLETION_VERIFIER:
+        arguments = verifier_arguments
+    baseline_exit, baseline = v2_7_4_call(runner, arguments)
+    assert baseline_exit == 0
+    before = v2_snapshot(repository)
+    before_hash = v2_7_4_snapshot_hash(repository)
+    saved = {relative: (entry[1], (repository / relative).stat())
+             for relative, entry in before[1].items() if entry[0] == "file"}
+    # Only the observing runner's declared receipt is rolled back; every byte,
+    # mode and timestamp the mutation changed must come back through its undo.
+    receipts = [f"{STORY_7_3_RESULTS}/AC-7.3-01.json"] if runner is COMPLETION_VERIFIER else []
+    undo = lambda: None
+    observed = None
+    try:
+        path = repository / f"artifacts/v9/7.2/test-results/{STORY_7_2_PROJECTS[0]}.trx"
+        if fault_id == "COUNT":
+            scenario = json.loads(STORY_7_2_CONTRACT.read_bytes())["scenarios"][0]
+            result = repository / re.search(r"--junitxml=(\S+)$", scenario["command"]).group(1)
+            undo = v2_7_2_replace(result, result.read_bytes().replace(b'tests="2"', b'tests="3"'))
+        elif fault_id == "SUBMODULE_PATH":
+            original_status, original_git = module.committed_path_status, module.run_git
+            internal = ROOT_GITLINK_PATHS[0] + "/internal.txt"
+            def status(repo, baseline, candidate):
+                paths = original_status(repo, baseline, candidate)
+                return {**paths, internal: "A"} if baseline == fixture["baseline"] else paths
+            def raw(repo, *args, **kwargs):
+                result = original_git(repo, *args, **kwargs)
+                if (args[:3] == ("diff", "--name-only", "--no-renames")
+                        and args[4:6] == (fixture["baseline"], fixture["candidate"])):
+                    return subprocess.CompletedProcess(result.args, result.returncode,
+                                                       result.stdout + internal.encode() + b"\0", result.stderr)
+                return result
+            module.committed_path_status, module.run_git = status, raw
+            def undo():
+                module.committed_path_status, module.run_git = original_status, original_git
+        elif fault_id in ("CANDIDATE", "GITLINK"):
+            if fault_id == "CANDIDATE":
+                source = repository / V2_TARGET_PATH
+                source.write_bytes(source.read_bytes() + b"# superseded source\n")
+                v2_git(repository, "add", V2_TARGET_PATH)
+            else:
+                v2_git(repository, "update-index", "--force-remove", ROOT_GITLINK_PATHS[0])
+            v2_git(repository, "commit", "-m", "test(story): apply isolated frozen mutation")
+            undo = lambda: v2_git(repository, "reset", "--hard", "-q", before[0])
+        elif fault_id == "RESULT_MISSING":
+            content, metadata = saved[path.relative_to(repository).as_posix()]
+            path.unlink()
+            undo = lambda: v2_7_4_restore_file(path, content, metadata)
+        elif fault_id == "RESULT_STALE":
+            metadata = path.stat()
+            os.utime(path, ns=(1, 1))
+            undo = lambda: os.utime(path, ns=(metadata.st_atime_ns, metadata.st_mtime_ns))
+        elif fault_id == "RESULT_FAILED":
+            undo = v2_7_2_replace(path, path.read_bytes().replace(b'outcome="Passed"', b'outcome="Failed"', 1)
+                                    .replace(b'passed="2"', b'passed="1"').replace(b'failed="0"', b'failed="1"'))
+        elif fault_id == "RESULT_SKIPPED":
+            undo = v2_7_2_replace(path, path.read_bytes().replace(b'outcome="Passed"', b'outcome="NotExecuted"', 1)
+                                    .replace(b'passed="2"', b'passed="1"').replace(b'notExecuted="0"', b'notExecuted="1"')
+                                    .replace(b'executed="2"', b'executed="1"'))
+        elif fault_id == "RESULT_NOT_RUN":
+            undo = v2_7_2_replace(path, path.read_bytes().replace(b'<UnitTestResult ', b'<Removed ')
+                                    .replace(b'total="2"', b'total="0"').replace(b'executed="2"', b'executed="0"')
+                                    .replace(b'passed="2"', b'passed="0"'))
+        elif fault_id == "LEDGER_EMPTY":
+            scenario = json.loads(STORY_7_2_CONTRACT.read_bytes())["scenarios"][0]
+            result_path = repository / re.search(r"--junitxml=(\S+)$", scenario["command"]).group(1)
+            selector = re.search(r" -k (\S+) ", scenario["command"]).group(1)
+            undo = v2_7_2_replace(result_path, v2_junit(selector, cases=[]))
+        elif fault_id == "WORKFLOW_REMOVED":
+            undo = v2_7_3_remove_block(repository, STORY_7_3_BODIES[0])
+        elif fault_id == "WORKFLOW_DISPLACED":
+            body = repository / STORY_7_3_BODIES[0]
+            text = body.read_text(encoding="utf-8")
+            start, end = v2_7_3_block_span(text)
+            displaced = text[:start] + text[end:] + "\n" + text[start:end] + "\n"
+            undo = v2_7_3_replace(body, displaced.encode("utf-8"))
+        elif fault_id == "MARKDOWN_DIGEST":
+            spec = repository / STORY_7_3_SPEC_PATH
+            undo = v2_7_3_replace(spec, spec.read_bytes().replace(b"# Story 7.3 Final Record", b"# Altered Final Record"))
+        observed_exit, observed = v2_7_4_call(runner, arguments)
+        assert observed_exit == observed["exitCode"] == 1, "FAULT_NOT_DETECTED"
+        assert observed["result"] == "FAIL", "FAULT_NOT_DETECTED"
+        assert dict(STORY_7_4_FAULTS)[fault_id] in observed["blockers"], "FAULT_NOT_DETECTED"
+    finally:
+        undo()
+        for relative in receipts:
+            v2_7_4_restore_file(repository / relative, *saved[relative])
+    assert v2_snapshot(repository) == before, "FIXTURE_NOT_RESTORED"
+    after_hash = v2_7_4_snapshot_hash(repository)
+    assert before_hash == after_hash, "FIXTURE_NOT_RESTORED"
+    restored_exit, restored = v2_7_4_call(runner, arguments)
+    assert restored_exit == 0
+    return {"id": fault_id, "expectedBlocker": dict(STORY_7_4_FAULTS)[fault_id],
+            "baselineResult": "PASS", "baselineExitCode": baseline_exit,
+            "observedBlockers": observed["blockers"], "observedExitCode": observed_exit,
+            "beforeSha256": before_hash, "afterSha256": after_hash,
+            "restoredResult": "PASS", "restoredExitCode": restored_exit}
+
+
+@pytest.mark.parametrize("fault_id", [fault for fault, _ in STORY_7_4_FAULTS])
+def test_v2_complete_fault_matrix(tmp_path: Path, fault_id: str, record_property) -> None:
+    row = v2_7_4_observe_fault(tmp_path, fault_id)
+    record_property(load_generator().V2_FAULT_PROPERTY, json.dumps(row, sort_keys=True))
+
+
+@pytest.mark.parametrize("fault_id", [fault for fault, _ in STORY_7_4_FAULTS])
+def test_v2_fault_fixtures_restore_byte_identically(tmp_path: Path, fault_id: str, record_property) -> None:
+    row = v2_7_4_observe_fault(tmp_path, fault_id)
+    record_property(load_generator().V2_FAULT_PROPERTY, json.dumps(row, sort_keys=True))
+
+
+@pytest.mark.parametrize("state, blocker", [("missing", "TEST_RESULTS_MISSING"),
+    ("skipped", "TEST_SKIPPED"), ("not-run", "TEST_NOT_RUN"), ("empty", "ASSERTION_LEDGER_EMPTY")])
+def test_v2_required_lane_cannot_pass_vacuously(tmp_path: Path, state: str, blocker: str) -> None:
+    fault = {"missing": "RESULT_MISSING", "skipped": "RESULT_SKIPPED", "not-run": "RESULT_NOT_RUN",
+             "empty": "LEDGER_EMPTY"}[state]
+    row = v2_7_4_observe_fault(tmp_path, fault)
+    assert blocker in row["observedBlockers"]
+
+
+def v2_7_4_arguments(repository: Path) -> list[str]:
+    return ["--repository", str(repository), "--contract", STORY_7_4_CONTRACT_PATH,
+            "--format", "bundle", "--output-json", STORY_7_4_OUTPUTS[0],
+            "--output-markdown", STORY_7_4_OUTPUTS[1]]
+
+
+def v2_7_4_historical_arguments(repository: Path) -> list[str]:
+    return ["--repository", str(repository), "--contract", STORY_7_4_CONTRACT_PATH,
+            "--historical", "--format", "json", "--output-json", "artifacts/v9/7.4/AC-7.4-01.json"]
+
+
+def v2_7_4_unit_fault_rows() -> list[dict]:
+    """Schema-reader fixture declarations; live AC-03/04 execute and measure above."""
+    return [{"id": fault, "expectedBlocker": blocker, "baselineResult": "PASS", "baselineExitCode": 0,
+             "observedBlockers": [blocker], "observedExitCode": 1, "beforeSha256": V2_ZERO,
+             "afterSha256": V2_ZERO, "restoredResult": "PASS", "restoredExitCode": 0}
+            for fault, blocker in STORY_7_4_FAULTS]
+
+
+def v2_7_4_fault_junit(selector: str, rows: list[dict]) -> bytes:
+    from xml.etree import ElementTree
+    content = v2_junit(selector, [(f"test_{selector}_{ordinal:04d}[{row['id']}]", None)
+                                for ordinal, row in enumerate(rows, 1)])
+    root = ElementTree.fromstring(content)
+    for case, row in zip(root[0].findall("testcase"), rows):
+        properties = ElementTree.SubElement(case, "properties")
+        ElementTree.SubElement(properties, "property", name=load_generator().V2_FAULT_PROPERTY,
+                              value=json.dumps(row, sort_keys=True))
+    return ElementTree.tostring(root, encoding="utf-8")
+
+
+def build_v2_7_4_repository(tmp_path: Path, *, results: bool = True) -> dict:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    # Read-only root-object access lets isolated fixtures verify the actual closed
+    # objects without cloning, fetching, checking out, or traversing any submodule.
+    objects = WORKSPACE / run_git(WORKSPACE, "rev-parse", "--git-path", "objects").stdout.strip()
+    (repository / ".git/objects/info/alternates").write_text(str(objects.resolve()) + "\n", encoding="utf-8")
+    module = load_generator()
+    paths = [STORY_7_4_CONTRACT_PATH, module.V2_HISTORY_FIXTURE_PATH, module.V2_GENERATOR_PATH,
+             *(f"_bmad-output/implementation-artifacts/{name}" for name in V2_HISTORY_RECORDS),
+             *(f"docs/release-evidence/story-{story}-final-record-v2.{extension}"
+               for story in ("7.1", "7.2", "7.3") for extension in ("json", "md"))]
+    for relative in paths:
+        target = repository / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((WORKSPACE / relative).read_bytes())
+    (repository / STORY_7_4_SPEC_PATH).write_text(v2_7_3_spec(fixture["candidate"]).replace("7.3", "7.4"), encoding="utf-8")
+    (repository / STORY_7_2_SPRINT_PATH).write_text(
+        "last_updated: 2026-10-01\ndevelopment_status:\n"
+        "  7-4-verify-historical-mode-and-required-fault-injection-blockers: in-progress\n", encoding="utf-8")
+    v2_git(repository, "add", "--all")
+    v2_git(repository, "commit", "-m", "test(story): create story 7.4 fixture candidate")
+    fixture["candidate"] = v2_git(repository, "rev-parse", "HEAD").stdout.strip()
+    if results:
+        exit_code, document = v2_7_4_call(module, v2_7_4_historical_arguments(repository))
+        assert exit_code == 0, document
+        for scenario in json.loads((WORKSPACE / STORY_7_4_CONTRACT_PATH).read_bytes())["scenarios"][1:5]:
+            selector = re.search(r" -k (\S+) ", scenario["command"]).group(1)
+            junit = re.search(r"--junitxml=(\S+)$", scenario["command"]).group(1)
+            content = (v2_7_4_fault_junit(selector, v2_7_4_unit_fault_rows())
+                       if scenario["id"] in ("AC-7.4-03", "AC-7.4-04") else v2_junit(selector))
+            v2_write_result(repository, junit, content)
+    return fixture
+
+
+def test_v2_historical_mode_states_worktree_limit(tmp_path: Path) -> None:
+    fixture = build_v2_7_4_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    module = load_generator()
+    before = v2_snapshot(repository)
+    code, document = v2_7_4_call(module, v2_7_4_historical_arguments(repository))
+    assert code == document["exitCode"] == 0
+    assert document["result"] == "PASS" and document["assertionLedger"]
+    v2_7_3_acceptance_validator().validate(document)
+    assert any("former uncommitted working tree is not reconstructed" in row["subject"]
+               for row in document["assertionLedger"])
+    facts, _, _ = module.v2_history_facts(repository, fixture["candidate"], module.v2_load_schemas()[1])
+    assert facts["records"][0]["recordedCandidate"] is None
+    assert [row["classification"] for row in facts["records"]] == ["pre-generator", "generated", "pre-generator"]
+    assert facts["records"][0]["warnings"]
+    assert facts["records"][1]["archivedDeclarations"]
+    assert all(row["status"] == "recorded-only" for row in facts["records"][1]["archivedDeclarations"])
+    after = v2_snapshot(repository)
+    assert before[0] == after[0]
+    assert {p: entry for p, entry in after[1].items() if p != "artifacts/v9/7.4/AC-7.4-01.json"} == before[1]
+
+
+@pytest.mark.parametrize("fault, blocker", [("closed-worktree", "HISTORICAL_RECORD_DRIFT"),
+    ("closed-commit", "HISTORICAL_RECORD_DRIFT"), ("closed-mode", "HISTORICAL_RECORD_DRIFT"),
+    ("missing-object", "HISTORICAL_BLOB_UNRESOLVED"), ("blob-digest", "HISTORICAL_RECORD_DRIFT")])
+def test_v2_story_7_4_historical_missing_or_drifted_objects(tmp_path: Path, monkeypatch,
+                                                          fault: str, blocker: str) -> None:
+    fixture = build_v2_7_4_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    module = load_generator()
+    record = repository / f"_bmad-output/implementation-artifacts/{V2_HISTORY_RECORDS[0]}"
+    if fault == "closed-mode":
+        # Identical bytes; only the committed path mode differs from the closure.
+        v2_git(repository, "update-index", "--chmod=+x", str(record.relative_to(repository)))
+        v2_git(repository, "commit", "-m", "test(story): alter closed record mode")
+    elif fault.startswith("closed-"):
+        record.write_bytes(record.read_bytes() + b"\nchanged closed bytes\n")
+        if fault == "closed-commit":
+            v2_git(repository, "add", str(record.relative_to(repository)))
+            v2_git(repository, "commit", "-m", "test(story): alter closed fixture")
+    elif fault == "missing-object":
+        original = module.resolve_commit
+        monkeypatch.setattr(module, "resolve_commit", lambda repo, rev, code:
+                            None if rev == module.V2_HISTORY_ANCHORS[0][2] else original(repo, rev, code))
+    else:
+        path = repository / module.V2_HISTORY_FIXTURE_PATH
+        content = json.loads(path.read_bytes())
+        content["records"][0]["boundBlobs"][0]["sha256"] = V2_ZERO
+        path.write_text(json.dumps(content) + "\n", encoding="utf-8")
+        v2_git(repository, "add", module.V2_HISTORY_FIXTURE_PATH)
+        v2_git(repository, "commit", "-m", "test(story): alter historical binding fixture")
+    code, document = v2_7_4_call(module, v2_7_4_historical_arguments(repository))
+    assert code == 1 and document["result"] == "FAIL" and document["blockers"] == [blocker]
+    assert not document["assertionLedger"]
+    v2_7_3_acceptance_validator().validate(document)
+
+
+@pytest.mark.parametrize("fault, blocker", [("incomplete", "FAULT_NOT_DETECTED"),
+    ("duplicate", "FAULT_NOT_DETECTED"), ("unknown", "FAULT_NOT_DETECTED"),
+    ("wrong-blocker", "FAULT_NOT_DETECTED"), ("undetected", "FAULT_NOT_DETECTED"),
+    ("restoration-drift", "FIXTURE_NOT_RESTORED"), ("lane-drift", "FIXTURE_NOT_RESTORED"),
+    ("metadata-missing", "FAULT_NOT_DETECTED"), ("expected-blocker", "FAULT_NOT_DETECTED"),
+    ("swapped-parameter", "FAULT_NOT_DETECTED"), ("malformed-json", "FAULT_NOT_DETECTED"),
+    ("two-properties", "FAULT_NOT_DETECTED")])
+def test_v2_story_7_4_rejects_fault_metadata(tmp_path: Path, fault: str, blocker: str) -> None:
+    fixture = build_v2_7_4_repository(tmp_path)
+    repository = fixture["repository"]
+    rows = v2_7_4_unit_fault_rows()
+    scenario = "AC-7.4-04" if fault == "lane-drift" else "AC-7.4-03"
+    selector = "v2_fault_fixtures_restore_byte_identically" if scenario.endswith("04") else "v2_complete_fault_matrix"
+    if fault == "incomplete": rows.pop()
+    elif fault == "duplicate":
+        rows[-1] = dict(rows[0], beforeSha256="b" * 64, afterSha256="b" * 64)
+    elif fault == "unknown": rows[0]["id"] = "UNKNOWN"
+    elif fault == "wrong-blocker": rows[0]["observedBlockers"] = ["TEST_RESULTS_MISSING"]
+    elif fault == "undetected": rows[0]["observedExitCode"] = 0
+    elif fault == "restoration-drift": rows[0]["afterSha256"] = "a" * 64
+    elif fault == "lane-drift": rows[0]["beforeSha256"] = rows[0]["afterSha256"] = "a" * 64
+    elif fault == "expected-blocker": rows[0]["expectedBlocker"] = "RECORD_CONTENT_DRIFT"
+    content = v2_junit(selector) if fault == "metadata-missing" else v2_7_4_fault_junit(selector, rows)
+    if fault in ("swapped-parameter", "malformed-json", "two-properties"):
+        from xml.etree import ElementTree
+        root = ElementTree.fromstring(content)
+        cases = root[0].findall("testcase")
+        first, second = (case.find("properties/property") for case in cases[:2])
+        if fault == "swapped-parameter":  # each testcase now carries the other's distinct row
+            first.attrib["value"], second.attrib["value"] = second.get("value"), first.get("value")
+        elif fault == "malformed-json":
+            first.set("value", "{")
+        else:
+            cases[0].find("properties").append(deepcopy(first))
+        content = ElementTree.tostring(root, encoding="utf-8")
+    v2_write_result(repository, f"artifacts/v9/7.4/{scenario}.xml", content)
+    if fault == "expected-blocker":  # both lanes agree, so only the frozen mapping can reject it
+        v2_write_result(repository, "artifacts/v9/7.4/AC-7.4-04.xml",
+                        v2_7_4_fault_junit("v2_fault_fixtures_restore_byte_identically", rows))
+    failure = v2_assert_failure(v2_run(v2_7_4_arguments(repository)), {blocker})
+    assert failure["result"] == "FAIL"
+    if fault == "duplicate":
+        assert any("fault set is incomplete, duplicated, or unknown" in row["message"]
+                   for row in failure["diagnostics"])
+    assert not (repository / STORY_7_4_OUTPUTS[0]).exists()
+
+
+def test_v2_story_7_4_deterministic_record_retention_and_insertion(tmp_path: Path) -> None:
+    fixture = build_v2_7_4_repository(tmp_path)
+    repository = fixture["repository"]
+    module = load_generator()
+    first_exit, first = v2_7_4_call(module, v2_7_4_arguments(repository))
+    assert first_exit == 0, first
+    outputs = tuple((repository / path).read_bytes() for path in STORY_7_4_OUTPUTS)
+    required_limits = (
+        "A former uncommitted working tree is not reconstructed and is not claimed.",
+        "Original TRX, test binaries, and raw promotion results were uncommitted; archived declarations are recorded-only.",
+        "Story 6.1 has no recorded candidate; its closure commit is not a reconstructed candidate.",
+        "Pre-generator findings retain their approved warning disposition.",
+        "Only root Git objects are read; submodule contents, former runtime state, and CI enforcement are not verified.",
+    )
+    for limit in required_limits:
+        assert ("- " + limit + "\n").encode("utf-8") in outputs[1]
+    markdown = outputs[1].decode("utf-8")
+    assert ("| Fault | Expected blocker | Observed exit | Observed blockers | Before SHA-256 | After SHA-256 |"
+            in markdown)
+    for row in first["faultInjection"]["results"]:
+        assert (f"| `{row['id']}` | `{row['expectedBlocker']}` | `{row['observedExitCode']}` "
+                f"| `{', '.join(row['observedBlockers'])}` | `{row['beforeSha256']}` | `{row['afterSha256']}` |"
+                in markdown)
+    for row in first["historicalVerification"]["predecessorRecords"]:
+        assert f"| `{row['storyId']}` | `{row['path']}` | `{row['sha256']}` |" in markdown
+    for row in first["historicalVerification"]["records"]:
+        warnings = f"`{', '.join(row['warnings'])}`" if row["warnings"] else "none"
+        assert (f"| `{row['storyId']}` | `{row['classification']}` | `{row['closure']['commit']}` " in markdown
+                and f"| `{len(row['boundBlobs'])}` | {warnings} |" in markdown)
+    assert module.v2_verify_pair(*outputs) == []
+    v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA)).validate(first)
+    assert first["summary"] == {"required": 6, "passed": 6, "failed": 0, "blocked": 0, "skipped": 0, "notRun": 0}
+    assert len(first["faultInjection"]["results"]) == 13
+    assert [row["storyId"] for row in first["historicalVerification"]["predecessorRecords"]] == ["7.1", "7.2", "7.3"]
+    assert v2_7_4_call(module, v2_7_4_arguments(repository)) == (0, first)
+    assert tuple((repository / path).read_bytes() for path in STORY_7_4_OUTPUTS) == outputs
+    v2_git(repository, "add", *STORY_7_4_OUTPUTS)
+    v2_git(repository, "commit", "-m", "test(story): create record-only successor")
+    spec = repository / STORY_7_4_SPEC_PATH
+    spec.write_bytes(spec.read_bytes() + b"\n" + RECORD_BEGIN_LINE + b"\n" + outputs[1] + RECORD_END_LINE + b"\n")
+    inserted = spec.read_bytes().split(RECORD_BEGIN_LINE + b"\n", 1)[1].split(RECORD_END_LINE, 1)[0]
+    for limit in required_limits:
+        assert ("- " + limit + "\n").encode("utf-8") in inserted
+    arguments = ["--repository", str(repository), "--contract", STORY_7_4_CONTRACT_PATH,
+                 "--verify-inserted-record", STORY_7_4_SPEC_PATH]
+    assert v2_7_4_call(module, arguments) == (0, first)
+    spec.write_bytes(spec.read_bytes().replace(b"status: 'in-progress'", b"status: 'done'"))
+    sprint = repository / STORY_7_2_SPRINT_PATH
+    sprint.write_bytes(sprint.read_bytes().replace(b": in-progress", b": done"))
+    v2_git(repository, "add", STORY_7_4_SPEC_PATH, STORY_7_2_SPRINT_PATH)
+    v2_git(repository, "commit", "-m", "test(story): complete story fixture")
+    assert v2_7_4_call(module, arguments) == (0, first)
+    assert v2_7_4_call(module, v2_7_4_arguments(repository)) == (0, first)
+    assert tuple((repository / path).read_bytes() for path in STORY_7_4_OUTPUTS) == outputs
+
+
+@pytest.mark.parametrize("story", ["7.1", "7.2", "7.3"])
+def test_v2_story_7_4_preserves_predecessor_pairs(story: str) -> None:
+    module = load_generator()
+    paths = [f"docs/release-evidence/story-{story}-final-record-v2.{ext}" for ext in ("json", "md")]
+    baseline = "4732206d17985acb967d8a98174e0f3ba989fe99"
+    original = tuple(run_git(WORKSPACE, "show", f"{baseline}:{path}").stdout.encode("utf-8") for path in paths)
+    assert tuple((WORKSPACE / path).read_bytes() for path in paths) == original
+    assert module.v2_verify_pair(*original) == []
+
+
+
+@pytest.mark.parametrize("lane", ["AC-7.4-01", "AC-7.4-03", "AC-7.4-04"])
+def test_v2_story_7_4_rejects_artifact_changes_between_digest_and_metadata_reads(
+    tmp_path: Path, monkeypatch, lane: str
+) -> None:
+    fixture = build_v2_7_4_repository(tmp_path)
+    repository = fixture["repository"]
+    module = load_generator()
+    original = module.read_file_snapshot
+    reads = 0
+    def changing(path):
+        nonlocal reads
+        content, mtime = original(path)
+        if path.name == lane + (".json" if lane.endswith("01") else ".xml"):
+            reads += 1
+            if reads == 2:
+                return content + b"\n", mtime
+        return content, mtime
+    monkeypatch.setattr(module, "read_file_snapshot", changing)
+    before = v2_snapshot(repository)
+    code, document = v2_7_4_call(module, v2_7_4_arguments(repository))
+    assert code == 1 and document["blockers"] == ["TEST_RESULTS_STALE"]
+    assert reads == 2 and v2_snapshot(repository) == before
+
+
+@pytest.mark.parametrize("story", ["7.2", "7.3"])
+def test_v2_story_7_4_rejects_a_verified_pair_with_a_broken_predecessor_chain(tmp_path: Path, story: str) -> None:
+    fixture = build_v2_7_4_repository(tmp_path)
+    repository = fixture["repository"]
+    module = load_generator()
+    json_path = repository / f"docs/release-evidence/story-{story}-final-record-v2.json"
+    markdown_path = repository / f"docs/release-evidence/story-{story}-final-record-v2.md"
+    record = json.loads(json_path.read_bytes())
+    if story == "7.2": record["measurements"]["predecessorRecord"]["sha256"] = V2_ZERO
+    else: record["workflowIntegration"]["predecessorRecords"][1]["sha256"] = V2_ZERO
+    _, json_bytes, markdown_bytes = module.v2_finalize(record)
+    json_path.write_bytes(json_bytes)
+    markdown_path.write_bytes(markdown_bytes)
+    assert module.v2_verify_pair(json_bytes, markdown_bytes) == []
+    v2_git(repository, "add", str(json_path.relative_to(repository)), str(markdown_path.relative_to(repository)))
+    v2_git(repository, "commit", "-m", "test(story): break predecessor chain fixture")
+    code, historical = v2_7_4_call(module, v2_7_4_historical_arguments(repository))
+    assert code == 0
+    failure = v2_assert_failure(v2_run(v2_7_4_arguments(repository)), {"AUTHORITY_BINDING_INVALID"})
+    assert failure["result"] == "FAIL"
+
+
+def test_v2_story_7_4_schema_requires_closed_history_and_observed_fault_fields(tmp_path: Path) -> None:
+    fixture = build_v2_7_4_repository(tmp_path)
+    code, record = v2_7_4_call(load_generator(), v2_7_4_arguments(fixture["repository"]))
+    assert code == 0
+    validator = v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA))
+    assert validator.is_valid(record)
+    without = deepcopy(record)
+    without.pop("historicalVerification")
+    assert not validator.is_valid(without)
+    for branch in (record["historicalVerification"], record["faultInjection"]["results"][0],
+                   record["historicalVerification"]["records"][0]):
+        branch["extra"] = True
+        assert not validator.is_valid(record)
+        branch.pop("extra")
+    bare = deepcopy(record)
+    bare["faultInjection"]["results"] = [{"id": row["id"], "expectedBlocker": row["expectedBlocker"]}
+                                         for row in record["faultInjection"]["results"]]
+    assert not validator.is_valid(bare)
+    for story in ("7.1", "7.2", "7.3"):
+        predecessor = json.loads((WORKSPACE / f"docs/release-evidence/story-{story}-final-record-v2.json").read_bytes())
+        assert validator.is_valid(predecessor)
+        predecessor["historicalVerification"] = record["historicalVerification"]
+        assert not validator.is_valid(predecessor)
+
+
+def test_v2_story_7_4_missing_recorded_baseline_is_historical_blob_unresolved(tmp_path: Path, monkeypatch) -> None:
+    fixture = build_v2_7_4_repository(tmp_path, results=False)
+    module = load_generator()
+    pinned = json.loads((fixture["repository"] / module.V2_HISTORY_FIXTURE_PATH).read_bytes())
+    baseline = pinned["records"][0]["baseline"]["commit"]
+    original = module.resolve_commit
+    monkeypatch.setattr(module, "resolve_commit", lambda repo, rev, code:
+                        None if rev == baseline else original(repo, rev, code))
+    code, document = v2_7_4_call(module, v2_7_4_historical_arguments(fixture["repository"]))
+    assert code == 1 and document["blockers"] == ["HISTORICAL_BLOB_UNRESOLVED"]
+
+
+def test_v2_story_7_4_historical_receipt_cannot_omit_verified_limits(tmp_path: Path) -> None:
+    fixture = build_v2_7_4_repository(tmp_path)
+    repository = fixture["repository"]
+    path = repository / "artifacts/v9/7.4/AC-7.4-01.json"
+    receipt = json.loads(path.read_bytes())
+    receipt["assertionLedger"][0]["subject"] = "history::unclaimed limitation omitted"
+    path.write_text(json.dumps(receipt) + "\n", encoding="utf-8")
+    v2_assert_failure(v2_run(v2_7_4_arguments(repository)), {"HISTORICAL_RECORD_DRIFT"})
+
+
+
+@pytest.mark.parametrize("kind", ["commit", "root-tree", "nested-tree", "blob", "gitmodules-blob"])
+def test_v2_story_7_4_missing_tree_or_blob_is_fail_not_blocked(tmp_path: Path, monkeypatch, kind: str) -> None:
+    historical_fixture = build_v2_7_4_repository(tmp_path / "historical", results=False)
+    isolated = build_v2_repository(tmp_path / "missing-object")
+    repository = isolated["repository"]
+    revision = isolated["candidate"]
+    module = load_generator()
+    expression = {"commit": revision, "root-tree": revision + "^{tree}",
+                  "nested-tree": revision + ":_bmad/scripts/tests",
+                  "blob": revision + ":" + V2_TARGET_PATH,
+                  "gitmodules-blob": revision + ":.gitmodules"}[kind]
+    object_id = v2_git(repository, "rev-parse", expression).stdout.strip()
+    object_file = repository / ".git/objects" / object_id[:2] / object_id[2:]
+    assert object_file.is_file()  # no alternates and no mutation of workspace objects
+    object_file.unlink()
+    def missing_facts(*_):
+        if kind == "blob":
+            module.v2_history_revision(repository, revision)  # the commit and its trees still resolve
+            return module.v2_history_blob(repository, revision, V2_TARGET_PATH)
+        return module.v2_history_revision(repository, revision)
+    monkeypatch.setattr(module, "v2_history_facts", missing_facts)
+    code, document = v2_7_4_call(module, v2_7_4_historical_arguments(historical_fixture["repository"]))
+    assert code == document["exitCode"] == 1
+    assert document["result"] == "FAIL"
+    assert document["blockers"] == ["HISTORICAL_BLOB_UNRESOLVED"]
+    v2_7_3_acceptance_validator().validate(document)
+
+
+@pytest.mark.parametrize("failure", ["unavailable-git", "execution-error", "permission-error", "unexpected-probe-exit"])
+def test_v2_story_7_4_historical_git_environment_failures_remain_blocked(
+    tmp_path: Path, monkeypatch, failure: str
+) -> None:
+    fixture = build_v2_7_4_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    module = load_generator()
+    original = module.run_git
+    closure = module.V2_HISTORY_ANCHORS[0][2]
+    def failed_probe(repo, *args, **kwargs):
+        if args == ("cat-file", "-e", closure):
+            if failure == "unavailable-git":
+                raise module.GateError("GIT_UNAVAILABLE", "Git executable unavailable")
+            if failure == "execution-error":
+                raise module.GateError("GIT_COMMAND_FAILED", "Git timed out or could not execute")
+            return subprocess.CompletedProcess(args, 128, b"", b"fatal: permission denied\n"
+                                               if failure == "permission-error" else b"")
+        return original(repo, *args, **kwargs)
+    monkeypatch.setattr(module, "run_git", failed_probe)
+    before = v2_snapshot(repository)
+    code, document = v2_7_4_call(module, v2_7_4_historical_arguments(repository))
+    assert code == document["exitCode"] == 2 and document["result"] == "BLOCKED"
+    assert document["blockers"] == ["GIT_UNAVAILABLE" if failure == "unavailable-git" else "GIT_COMMAND_FAILED"]
+    v2_7_3_acceptance_validator().validate(document)
+    assert json.loads((repository / module.V2_HISTORY_OUTPUT_PATH).read_bytes()) == document
+    after = v2_snapshot(repository)
+    assert after[0] == before[0]
+    assert {path: entry for path, entry in after[1].items()
+            if path != module.V2_HISTORY_OUTPUT_PATH} == before[1]
+
+
+
+@pytest.mark.parametrize("surface", ["closed-records", "receipt"])
+def test_v2_story_7_4_review_rejects_parent_symlinks_into_root_gitlinks(
+    tmp_path: Path, monkeypatch, surface: str
+) -> None:
+    fixture = build_v2_7_4_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    module = load_generator()
+    gitlink = repository / ROOT_GITLINK_PATHS[0]
+    if surface == "closed-records":
+        parent = repository / "_bmad-output/implementation-artifacts"
+        archived = gitlink / "archived"
+        shutil.copytree(parent, archived)
+        parent.rename(repository / "saved-historical-records")
+        parent.symlink_to(archived, target_is_directory=True)
+    else:
+        parent = repository / "artifacts"
+        archived = gitlink / "evidence"
+        archived.mkdir()
+        target = archived / "v9/7.4/AC-7.4-01.json"
+        target.parent.mkdir(parents=True)
+        target.write_bytes(b"submodule receipt sentinel\n")
+        parent.rename(repository / "saved-artifacts")
+        parent.symlink_to(archived, target_is_directory=True)
+    preserved = {path.relative_to(gitlink).as_posix(): path.read_bytes()
+                 for path in gitlink.rglob("*") if path.is_file()}
+    original = module.read_file_snapshot
+    def root_only(path):
+        assert not path.resolve().is_relative_to(gitlink), "historical reader entered a root gitlink"
+        return original(path)
+    monkeypatch.setattr(module, "read_file_snapshot", root_only)
+    monkeypatch.setattr(module, "verify_historical", lambda *_: pytest.fail("unsafe legacy reopen"))
+    code, document = v2_7_4_call(module, v2_7_4_historical_arguments(repository))
+    assert code == 1 and document["result"] == "FAIL"
+    assert document["blockers"] == ["HISTORICAL_RECORD_DRIFT" if surface == "closed-records" else "OUTPUT_PATH_INVALID"]
+    assert {path.relative_to(gitlink).as_posix(): path.read_bytes()
+            for path in gitlink.rglob("*") if path.is_file()} == preserved
+
+
+def test_v2_story_7_4_review_rejects_changed_contract_output_alias_without_overwriting_closed_bytes(tmp_path: Path) -> None:
+    fixture = build_v2_7_4_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    module = load_generator()
+    closed = f"_bmad-output/implementation-artifacts/{V2_HISTORY_RECORDS[0]}"
+    original = (repository / closed).read_bytes()
+    path = repository / STORY_7_4_CONTRACT_PATH
+    contract = json.loads(path.read_bytes())
+    contract["scenarios"][0]["command"] = contract["scenarios"][0]["command"].replace(module.V2_HISTORY_OUTPUT_PATH, closed)
+    contract["scenarios"][0]["contract"] = contract["scenarios"][0]["contract"].replace(module.V2_HISTORY_OUTPUT_PATH, closed)
+    path.write_text(json.dumps(contract, indent=2) + "\n", encoding="utf-8")
+    v2_git(repository, "add", STORY_7_4_CONTRACT_PATH)
+    v2_git(repository, "commit", "-m", "test(story): reject aliased historical output")
+    arguments = v2_7_4_historical_arguments(repository)
+    arguments[-1] = closed
+    code, document = v2_7_4_call(module, arguments)
+    assert code == 1 and document["blockers"] == ["CALLER_AUTHORED_FACT"]
+    assert (repository / closed).read_bytes() == original
+    assert not (repository / module.V2_HISTORY_OUTPUT_PATH).exists()
+
+
+def test_v2_story_7_4_review_rejects_closed_record_reopen_race(tmp_path: Path, monkeypatch) -> None:
+    fixture = build_v2_7_4_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    module = load_generator()
+    original = module.verify_historical
+    changed = False
+    def mutate_before_reopen(repo, args):
+        nonlocal changed
+        if not changed:
+            path = repo / args.story
+            path.write_bytes(path.read_bytes() + b"\nchanged between verified bytes and legacy reopen\n")
+            changed = True
+        return original(repo, args)
+    monkeypatch.setattr(module, "verify_historical", mutate_before_reopen)
+    code, document = v2_7_4_call(module, v2_7_4_historical_arguments(repository))
+    assert changed and code == 1 and document["blockers"] == ["HISTORICAL_RECORD_DRIFT"]
+    v2_7_3_acceptance_validator().validate(document)
+
+
+def test_v2_story_7_4_review_timeout_replaces_previous_pass_with_blocked_acceptance_receipt(
+    tmp_path: Path, monkeypatch
+) -> None:
+    fixture = build_v2_7_4_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    module = load_generator()
+    arguments = v2_7_4_historical_arguments(repository)
+    assert v2_7_4_call(module, arguments)[0] == 0
+    receipt = repository / module.V2_HISTORY_OUTPUT_PATH
+    assert json.loads(receipt.read_bytes())["result"] == "PASS"
+    original = module.subprocess.run
+    closure = module.V2_HISTORY_ANCHORS[0][2]
+    def timed_out(command, **kwargs):
+        if command[-3:] == ["cat-file", "-e", closure]:
+            raise subprocess.TimeoutExpired(command, 0.01)
+        return original(command, **kwargs)
+    monkeypatch.setattr(module.subprocess, "run", timed_out)
+    code, document = v2_7_4_call(module, arguments)
+    assert code == document["exitCode"] == 2 and document["result"] == "BLOCKED"
+    assert document["blockers"] == ["GIT_COMMAND_FAILED"]
+    assert json.loads(receipt.read_bytes()) == document
+    v2_7_3_acceptance_validator().validate(document)
+
+
+@pytest.mark.parametrize("fault", ["gitmodules-permission", "closed-read-permission", "closed-missing"])
+def test_v2_story_7_4_review_distinguishes_environmental_read_errors_from_missing_records(
+    tmp_path: Path, monkeypatch, fault: str
+) -> None:
+    fixture = build_v2_7_4_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    module = load_generator()
+    closed = repository / f"_bmad-output/implementation-artifacts/{V2_HISTORY_RECORDS[0]}"
+    preserved = {path: (repository / path).read_bytes()
+                 for story in ("7.1", "7.2", "7.3")
+                 for path in (f"docs/release-evidence/story-{story}-final-record-v2.json",
+                              f"docs/release-evidence/story-{story}-final-record-v2.md")}
+    if fault == "gitmodules-permission":
+        original = module.run_git
+        closure = module.V2_HISTORY_ANCHORS[0][2]
+        def denied(repo, *args, **kwargs):
+            if args == ("cat-file", "-e", closure + ":.gitmodules"):
+                return subprocess.CompletedProcess(args, 128, b"", b"fatal: permission denied\n")
+            return original(repo, *args, **kwargs)
+        monkeypatch.setattr(module, "run_git", denied)
+    elif fault == "closed-read-permission":
+        original = module.read_file_snapshot
+        def denied(path):
+            if path == closed:
+                raise PermissionError("closed record read denied")
+            return original(path)
+        monkeypatch.setattr(module, "read_file_snapshot", denied)
+    else:
+        closed.unlink()
+    code, document = v2_7_4_call(module, v2_7_4_historical_arguments(repository))
+    assert code == (1 if fault == "closed-missing" else 2)
+    assert document["result"] == ("FAIL" if fault == "closed-missing" else "BLOCKED")
+    assert document["blockers"] == [{"gitmodules-permission": "GIT_COMMAND_FAILED",
+                                      "closed-read-permission": "SURFACE_UNREADABLE",
+                                      "closed-missing": "HISTORICAL_RECORD_DRIFT"}[fault]]
+    assert json.loads((repository / module.V2_HISTORY_OUTPUT_PATH).read_bytes()) == document
+    v2_7_3_acceptance_validator().validate(document)
+    assert all((repository / path).read_bytes() == content for path, content in preserved.items())
+
+
+def test_v2_story_7_4_review_schema_enforces_exact_coverage_order_and_limits(tmp_path: Path) -> None:
+    fixture = build_v2_7_4_repository(tmp_path)
+    module = load_generator()
+    code, record = v2_7_4_call(module, v2_7_4_arguments(fixture["repository"]))
+    assert code == 0
+    validator = v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA))
+    assert validator.is_valid(record)
+    mutations = []
+    duplicate_fault = deepcopy(record)
+    duplicate_fault["faultInjection"]["results"][-1] = dict(
+        duplicate_fault["faultInjection"]["results"][0], beforeSha256="b" * 64, afterSha256="b" * 64)
+    assert len({json.dumps(row, sort_keys=True) for row in duplicate_fault["faultInjection"]["results"]}) == 13
+    mutations.append(duplicate_fault)
+    for key in ("records", "predecessorRecords"):
+        duplicate = deepcopy(record)
+        duplicate["historicalVerification"][key][1]["storyId"] = duplicate["historicalVerification"][key][0]["storyId"]
+        mutations.append(duplicate)
+        reordered = deepcopy(record)
+        reordered["historicalVerification"][key].reverse()
+        mutations.append(reordered)
+    changed_limits = deepcopy(record)
+    changed_limits["historicalVerification"]["limits"] = [f"replacement limitation {ordinal}" for ordinal in range(5)]
+    mutations.append(changed_limits)
+    for field, value in (("observedExitCode", 0), ("observedBlockers", []), ("expectedBlocker", "TEST_FAILED")):
+        unobserved = deepcopy(record)
+        unobserved["faultInjection"]["results"][0][field] = value
+        mutations.append(unobserved)
+    for mutated in mutations:
+        assert not validator.is_valid(mutated)
+    for story in ("7.1", "7.2", "7.3"):
+        predecessor = json.loads((WORKSPACE / f"docs/release-evidence/story-{story}-final-record-v2.json").read_bytes())
+        assert validator.is_valid(predecessor)
+        predecessor["faultInjection"]["results"] = record["faultInjection"]["results"]
+        assert not validator.is_valid(predecessor)
+
+
+def test_v2_story_7_4_review_git_failure_inside_legacy_verifier_stays_blocked(tmp_path: Path, monkeypatch) -> None:
+    fixture = build_v2_7_4_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    module = load_generator()
+    original_verify, original_run = module.verify_historical, module.subprocess.run
+    legacy = False
+    def verify(repo, args):
+        nonlocal legacy
+        legacy = True
+        try:
+            return original_verify(repo, args)
+        finally:
+            legacy = False
+    def timed_out(command, **kwargs):
+        # try_resolve_commit swallows this timeout into a missing-baseline finding.
+        if legacy and "rev-parse" in command and "--verify" in command:
+            raise subprocess.TimeoutExpired(command, 0.01)
+        return original_run(command, **kwargs)
+    monkeypatch.setattr(module, "verify_historical", verify)
+    monkeypatch.setattr(module.subprocess, "run", timed_out)
+    code, document = v2_7_4_call(module, v2_7_4_historical_arguments(repository))
+    assert code == document["exitCode"] == 2 and document["result"] == "BLOCKED"
+    assert document["blockers"] == ["GIT_COMMAND_FAILED"]
+    assert json.loads((repository / module.V2_HISTORY_OUTPUT_PATH).read_bytes()) == document
+    v2_7_3_acceptance_validator().validate(document)
+    assert module.GIT_FAILURE_OBSERVERS == []
+
+
+@pytest.mark.parametrize("code", ["HISTORICAL_BLOB_UNRESOLVED", "HISTORICAL_RECORD_DRIFT", "GIT_COMMAND_FAILED"])
+def test_v2_story_7_4_propagates_historical_receipt_codes(tmp_path: Path, code: str) -> None:
+    fixture = build_v2_7_4_repository(tmp_path)
+    repository = fixture["repository"]
+    path = repository / "artifacts/v9/7.4/AC-7.4-01.json"
+    blocked = code == "GIT_COMMAND_FAILED"
+    receipt = dict(json.loads(path.read_bytes()), exitCode=2 if blocked else 1,
+                   result="BLOCKED" if blocked else "FAIL", blockers=[code], assertionLedger=[])
+    v2_7_3_acceptance_validator().validate(receipt)
+    path.write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
+    v2_assert_failure(v2_run(v2_7_4_arguments(repository)), {"TEST_RESULTS_FAILED", code},
+                      exit_code=2 if blocked else 1)
+    assert not (repository / STORY_7_4_OUTPUTS[0]).exists()
+
+
+@pytest.mark.parametrize("change", ["format-bundle", "output-markdown", "repeated-flag", "flag-value"])
+def test_v2_story_7_4_historical_mode_rejects_invalid_arguments(tmp_path: Path, change: str) -> None:
+    arguments = v2_7_4_historical_arguments(tmp_path)
+    if change == "format-bundle":
+        arguments[arguments.index("json")] = "bundle"
+    elif change == "output-markdown":
+        arguments += ["--output-markdown", "story.md"]
+    elif change == "repeated-flag":
+        arguments.append("--historical")
+    else:
+        arguments[arguments.index("--historical")] = "--historical=yes"
+    code, document = v2_7_4_call(load_generator(), arguments)
+    v2_failure_validator().validate(document)
+    assert code == document["exitCode"] == 1 and document["blockers"] == ["ARGUMENT_INVALID"]
+    if change in ("repeated-flag", "flag-value"):
+        assert any("--historical is a flag" in row["message"] for row in document["diagnostics"])
+    assert list(tmp_path.iterdir()) == []
+
+
+@pytest.mark.parametrize("defect, message", [("incomplete-undo", "FIXTURE_NOT_RESTORED"),
+                                             ("undetected", "FAULT_NOT_DETECTED")])
+def test_v2_story_7_4_fault_harness_reports_its_frozen_codes(tmp_path: Path, monkeypatch,
+                                                            defect: str, message: str) -> None:
+    if defect == "incomplete-undo":
+        original = v2_7_2_replace
+        def replace_without_restore(path: Path, content: bytes):
+            original(path, content)
+            return lambda: None
+        monkeypatch.setitem(globals(), "v2_7_2_replace", replace_without_restore)
+    else:
+        monkeypatch.setitem(globals(), "STORY_7_4_FAULTS", (("COUNT", "RECORD_CONTENT_DRIFT"),))
+    with pytest.raises(AssertionError, match=message):
+        v2_7_4_observe_fault(tmp_path, "COUNT")
+
+
+def test_v2_story_8_1_requires_exact_python_and_xunit_commands() -> None:
+    """The gate accepts only the six frozen commands, with no selector drift."""
+    import shlex
+
+    module = load_generator()
+    contract = json.loads((WORKSPACE / module.V2_8_1_CONTRACT_PATH).read_bytes())
+    for scenario in contract["scenarios"][:-1]:
+        tokens = shlex.split(scenario["command"])
+        recognized = module.v2_ux_command(tokens, scenario["id"])
+        assert recognized is not None
+        assert recognized["kind"] == ("bundle" if scenario["id"] == "AC-8.1-01" else "trx")
+        assert module.v2_ux_command(tokens + ["--unexpected"], scenario["id"]) is None
+    assert module.v2_ux_command(["dotnet"], "AC-8.1-07") is None
+
+
+def test_v2_story_8_1_bundle_requires_exact_command_execution(tmp_path: Path, monkeypatch) -> None:
+    """AC-01 cannot pass from committed outputs if its declared CLI fails."""
+    module = load_generator()
+    scenario = {"id": "AC-8.1-01", "command": "python3 exact-generator.py"}
+    command = {"kind": "bundle", "output": module.V2_8_1_DISPOSITION_PATHS[1]}
+    contents = (b"schema", b"json", b"markdown")
+    facts = {"outputs": {role: {"path": path, "sha256": module.v2_sha256(content)}
+                         for role, path, content in zip(("schema", "json", "markdown"),
+                                                        module.V2_8_1_DISPOSITION_PATHS, contents)}}
+    for path, content in zip(module.V2_8_1_DISPOSITION_PATHS, contents):
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs:
+                        subprocess.CompletedProcess([], 1, b"", b"failed"))
+    record, category, findings = module.v2_ux_scenario_from_results(tmp_path, scenario, command, 0, 0, facts)
+    assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
+    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs:
+                        subprocess.CompletedProcess([], 0, b"PASS", b""))
+    record, category, findings = module.v2_ux_scenario_from_results(tmp_path, scenario, command, 0, 0, facts)
+    assert category == "passed" and record["result"] == "PASS" and not findings
+    (tmp_path / module.V2_8_1_DISPOSITION_PATHS[2]).write_bytes(b"changed")
+    record, category, findings = module.v2_ux_scenario_from_results(tmp_path, scenario, command, 0, 0, facts)
+    assert category == "failed" and "UX_RENDER_DRIFT" in record["blockers"]
+
+
+def test_v2_story_8_1_full_bundle_parity_rejects_plausible_drift() -> None:
+    """Valid-looking schema, rows, authority, and Markdown still need canonical bytes."""
+    module = load_generator()
+    canonical = tuple((WORKSPACE / path).read_bytes() for path in module.V2_8_1_DISPOSITION_PATHS)
+    original = {role: content for role, content in zip(("schema", "json", "markdown"), canonical)}
+    assert module.v2_ux_parity_code(original, canonical) is None
+
+    def changed_document(edit):
+        document = json.loads(canonical[1])
+        edit(document)
+        return (json.dumps(document, indent=2, ensure_ascii=False) + "\n").encode()
+
+    fixtures = [
+        ({**original, "schema": canonical[0].replace(b'"minItems": 1', b'"minItems": 0', 1)}, "UX_SCHEMA_INVALID"),
+        ({**original, "json": changed_document(lambda doc: doc["decisions"][0].update(rationale="Plausible but false"))}, "UX_DECISION_INVENTORY_DRIFT"),
+        ({**original, "json": changed_document(lambda doc: doc["acceptanceCriteria"][0]["historicalMappings"][0].update(reference="Historical false mapping"))}, "UX_ACCEPTANCE_INVENTORY_DRIFT"),
+        ({**original, "json": changed_document(lambda doc: doc["authority"].update(bundleDigest="0" * 64))}, "AUTHORITY_BINDING_INVALID"),
+        ({**original, "markdown": canonical[2] + b"Altered row\n",
+          "json": changed_document(lambda doc: doc.update(renderedMarkdownSha256=module.v2_sha256(canonical[2] + b"Altered row\n")))}, "UX_RENDER_DRIFT"),
+    ]
+    for output, code in fixtures:
+        assert module.v2_ux_parity_code(output, canonical) == code
+
+
+def test_v2_story_8_1_trx_requires_current_nonempty_exact_method(tmp_path: Path, monkeypatch) -> None:
+    """A stale, skipped, or foreign xUnit result cannot close the scenario."""
+    module = load_generator()
+    result_path = tmp_path / "artifacts/v9/8.1/AC-8.1-02.trx"
+    result_path.parent.mkdir(parents=True)
+    binary_path = tmp_path / module.V2_8_1_TEST_ASSEMBLY
+    binary_path.parent.mkdir(parents=True)
+    binary_path.write_bytes(b"test assembly fixture")
+    method = ("Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest."
+              "SourcesShouldBindCanonicalPathsVersionsAndHashes")
+    template = ("<TestRun xmlns=\"http://microsoft.com/schemas/VisualStudio/TeamTest/2010\">"
+                "<Results><UnitTestResult testName=\"{method}\" outcome=\"{outcome}\" />"
+                "</Results><TestDefinitions><UnitTest><TestMethod "
+                f"codeBase=\"{module.V2_8_1_TEST_ASSEMBLY}\" />"
+                "</UnitTest></TestDefinitions><ResultSummary><Counters total=\"1\" executed=\"1\" "
+                "passed=\"{passed}\" failed=\"{failed}\" /></ResultSummary></TestRun>")
+    scenario = {"id": "AC-8.1-02", "command": "exact command"}
+    command = {"kind": "trx", "output": "artifacts/v9/8.1/AC-8.1-02.trx", "method": method}
+    command_exit = [0]
+    executions = []
+    def execute(*_args, **_kwargs):
+        executions.append(1)
+        return subprocess.CompletedProcess([], command_exit[0], b"", b"")
+    monkeypatch.setattr(module.subprocess, "run", execute)
+    result_path.write_text(template.format(method=method, outcome="Passed", passed=1, failed=0))
+    record, category, findings = module.v2_ux_scenario_from_results(
+        tmp_path, scenario, command, 0, 0, {})
+    assert category == "passed" and record["result"] == "PASS" and not findings and len(executions) == 1
+    pinned_digest = record["resultFile"]["sha256"]
+    pinned_record = {"candidate": {"commit": "a" * 40}, "scenarios": [
+        {"scenarioId": f"AC-8.1-0{number}",
+         "resultFile": {"path": f"artifacts/v9/8.1/AC-8.1-0{number}.trx", "sha256": pinned_digest}}
+        for number in range(2, 7)]}
+    monkeypatch.setattr(module, "v2_committed_blob", lambda *_: json.dumps(pinned_record).encode())
+    assert module.v2_ux_pinned_trx_digests(tmp_path, "a" * 40, "a" * 40, "record.json") is None
+    pinned = module.v2_ux_pinned_trx_digests(tmp_path, "b" * 40, "a" * 40, "record.json")
+    assert pinned is not None and pinned[scenario["id"]] == pinned_digest
+    record, category, findings = module.v2_ux_scenario_from_results(
+        tmp_path, scenario, command, 0, 0, {}, pinned[scenario["id"]])
+    assert category == "passed" and record["result"] == "PASS" and not findings and len(executions) == 1
+    result_path.write_bytes(result_path.read_bytes() + b"\n")
+    record, category, findings = module.v2_ux_scenario_from_results(
+        tmp_path, scenario, command, 0, 0, {}, pinned[scenario["id"]])
+    assert category == "failed" and "TEST_RESULTS_STALE" in record["blockers"] and len(executions) == 1
+    result_path.unlink()
+    record, category, findings = module.v2_ux_scenario_from_results(
+        tmp_path, scenario, command, 0, 0, {}, pinned[scenario["id"]])
+    assert category == "notRun" and "TEST_RESULTS_MISSING" in record["blockers"] and len(executions) == 1
+    result_path.write_text(template.format(method=method, outcome="Passed", passed=1, failed=0))
+    command_exit[0] = 1
+    record, category, findings = module.v2_ux_scenario_from_results(
+        tmp_path, scenario, command, 0, 0, {})
+    assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
+    command_exit[0] = 0
+    record, category, findings = module.v2_ux_scenario_from_results(
+        tmp_path, scenario, command, result_path.stat().st_mtime_ns + 1, 0, {})
+    assert category == "failed" and "TEST_RESULTS_STALE" in record["blockers"]
+    result_path.write_text(template.format(method="OtherMethod", outcome="Passed", passed=1, failed=0))
+    record, category, findings = module.v2_ux_scenario_from_results(
+        tmp_path, scenario, command, 0, 0, {})
+    assert category == "failed" and "TEST_FAILED" in record["blockers"]
+    result_path.write_text(template.format(method=method, outcome="Passed", passed=1, failed=0).replace('executed="1"', 'executed="0"'))
+    record, category, findings = module.v2_ux_scenario_from_results(
+        tmp_path, scenario, command, 0, 0, {})
+    assert category == "failed" and "TEST_FAILED" in record["blockers"]
+    result_path.write_text(template.format(method=method, outcome="Failed", passed=0, failed=1))
+    record, category, findings = module.v2_ux_scenario_from_results(
+        tmp_path, scenario, command, 0, 0, {})
+    assert category == "failed" and "TEST_FAILED" in record["blockers"]
+
+
+@pytest.mark.parametrize("production_path", [
+    "src/Hexalith.Conversations.Web/Story81InjectedGuard.cs",
+    ".github/workflows/story81-injected.yml",
+])
+def test_v2_story_8_1_rejects_committed_production_src_change(tmp_path: Path, production_path: str) -> None:
+    """A real candidate with a production path must hit the frozen UI blocker."""
+    module = load_generator()
+    repository = tmp_path / "candidate"
+    environment = fixture_git_environment()
+    subprocess.run(
+        ["git", "clone", "--shared", "--quiet", "--no-checkout", str(WORKSPACE), str(repository)],
+        check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    )
+    subprocess.run(
+        ["git", "-C", str(repository), "checkout", "--quiet", "--detach",
+         _story_8_1_published_candidate()],
+        check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    )
+    source_candidate = subprocess.check_output(
+        ["git", "-C", str(repository), "rev-parse", "HEAD"], env=environment, text=True,
+    ).strip()
+    contract = json.loads((repository / module.V2_8_1_CONTRACT_PATH).read_bytes())
+    _, validators = module.v2_load_schemas()
+    with pytest.raises(module.V2Stop) as control:
+        module.v2_ux_facts(repository, source_candidate, module.V2_8_1_CONTRACT_PATH,
+                           contract, validators["record"])
+    assert [finding["code"] for finding in control.value.findings] == ["TEST_RESULTS_MISSING"]
+    injected = repository / production_path
+    injected.parent.mkdir(parents=True, exist_ok=True)
+    injected.write_text("// Disposable production-path fault fixture.\n", encoding="utf-8")
+    subprocess.run(
+        ["git", "-C", str(repository), "add", "--", production_path],
+        check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    )
+    subprocess.run(
+        ["git", "-C", str(repository), "commit", "--quiet", "-m", "test: inject production src path"],
+        check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    )
+    candidate = subprocess.check_output(
+        ["git", "-C", str(repository), "rev-parse", "HEAD"], env=environment, text=True,
+    ).strip()
+    spec = (repository / module.V2_8_1_SPEC_PATH).read_text(encoding="utf-8")
+    baseline = re.search(r"(?m)^baseline_commit: '([0-9a-f]{40})'$", spec)
+    assert baseline is not None
+    assert production_path in module.committed_path_status(repository, baseline.group(1), candidate)
+    with pytest.raises(module.V2Stop) as error:
+        module.v2_ux_facts(repository, candidate, module.V2_8_1_CONTRACT_PATH,
+                           contract, validators["record"])
+    assert error.value.story_id == "8.1"
+    assert [finding["code"] for finding in error.value.findings] == [
+        "UX_PRODUCTION_CHANGE_FORBIDDEN"
+    ]
+
+
+def test_v2_successor_command_inventory_recognizes_epics_8_through_16() -> None:
+    """Every frozen successor command has a conservative evidence route."""
+    import shlex
+
+    module = load_generator()
+    contracts = sorted((WORKSPACE / "_bmad-output/planning-artifacts/v9/story-contracts").glob("*.json"))
+    unsupported = []
+    for path in contracts:
+        contract = json.loads(path.read_bytes())
+        if int(contract["storyId"].split(".")[0]) < 8:
+            continue
+        relative = path.relative_to(WORKSPACE).as_posix()
+        for scenario in contract["scenarios"]:
+            tokens = shlex.split(scenario["command"])
+            if module.v2_pytest_command(tokens) is not None or module.v2_generator_command(tokens) is not None:
+                continue
+            if module.v2_successor_command(tokens, relative) is None:
+                unsupported.append((contract["storyId"], scenario["id"]))
+    assert not unsupported
+
+
+def _successor_contract_command(story_id: str, scenario_id: str) -> tuple[list[str], str]:
+    """Return one frozen successor command's tokens and its contract path."""
+    import shlex
+
+    relative = f"_bmad-output/planning-artifacts/v9/story-contracts/{story_id}.json"
+    contract = json.loads((WORKSPACE / relative).read_bytes())
+    command = next(item["command"] for item in contract["scenarios"] if item["id"] == scenario_id)
+    return shlex.split(command), relative
+
+
+def test_v2_successor_command_returns_exact_routes_and_rejects_foreign_tokens() -> None:
+    """A classified route carries the exact selector, outputs, and options the gate checks."""
+    module = load_generator()
+    method, method_contract = _successor_contract_command("10.1", "AC-10.1-02")
+    assert module.v2_successor_command(method, method_contract) == {
+        "kind": "xunit",
+        "assembly": "tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/"
+                    "Hexalith.Conversations.TestSupport.Tests.dll",
+        "output": "artifacts/v9/10.1/AC-10.1-02.trx",
+        "selector": "Hexalith.Conversations.TestSupport.Tests.TestSupportSurfaceTests."
+                    "RequiredHelpersShouldExistExactlyOnce",
+        "selectorKind": "-method",
+    }
+    selected_class, class_contract = _successor_contract_command("12.3", "AC-12.3-03")
+    assert module.v2_successor_command(selected_class, class_contract) == {
+        "kind": "xunit",
+        "assembly": "tests/Hexalith.Conversations.IntegrationTests/bin/Release/net10.0/"
+                    "Hexalith.Conversations.IntegrationTests.dll",
+        "output": "artifacts/v9/12.3/integration.trx",
+        "selector": "Hexalith.Conversations.IntegrationTests.Projections.DerivedKeyLifecycleTests",
+        "selectorKind": "-class",
+    }
+    generator, generator_contract = _successor_contract_command("11.1", "AC-11.1-02")
+    assert module.v2_successor_command(generator, generator_contract) == {
+        "kind": "python",
+        "script": "_bmad/scripts/generate_thin_authoring_guidance.py",
+        "outputs": ["docs/release-evidence/thin-authoring-guidance-v2.json",
+                    "docs/release-evidence/thin-authoring-guidance-v2.md"],
+        "options": {
+            "--repository": ".",
+            "--contract": generator_contract,
+            "--schema": "docs/release-evidence/thin-authoring-guidance-v2.schema.json",
+            "--output-json": "docs/release-evidence/thin-authoring-guidance-v2.json",
+            "--output-markdown": "docs/release-evidence/thin-authoring-guidance-v2.md",
+        },
+    }
+    check, check_contract = _successor_contract_command("10.4", "AC-10.4-09")
+    assert module.v2_successor_command(check, check_contract) == {
+        "kind": "python_check",
+        "script": "_bmad/scripts/publish_v9_planning_authority.py",
+        "outputs": [],
+        "options": {"--repository": ".", "--check": "true"},
+    }
+    trx = method.index("-trx")
+    rejected = [
+        ([*method, "-class", "Hexalith.Conversations.TestSupport.Tests.Other"], method_contract),
+        (method[:trx], method_contract),
+        ([*method, "-trx", "artifacts/v9/10.1/second.trx"], method_contract),
+        ([*method[:trx + 1], "artifacts/v9/10.1/AC-10.1-02.xml"], method_contract),
+        ([*generator[:2], "--repository", "elsewhere", *generator[4:]], generator_contract),
+        (generator, check_contract),
+        (["python3", "_bmad/scripts/verify_story_candidate.py", "--repository", ".", "--check"],
+         check_contract),
+    ]
+    assert [module.v2_successor_command(tokens, contract) for tokens, contract in rejected] == [
+        None
+    ] * len(rejected)
+
+
+def test_v2_successor_xunit_facts_require_candidate_build_and_selector(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    candidate = "a" * 40
+    assembly = "tests/Example/bin/Release/net10.0/Example.dll"
+    result = "artifacts/v9/9.2/example.trx"
+    binary = tmp_path / assembly
+    binary.parent.mkdir(parents=True)
+    binary.write_bytes(b"1.0.0+" + candidate.encode())
+    output = tmp_path / result
+    output.parent.mkdir(parents=True)
+    method = "Example.Tests.Proof.ShouldPass"
+    def trx(name: str) -> bytes:
+        return ("<TestRun xmlns=\"http://microsoft.com/schemas/VisualStudio/TeamTest/2010\">"
+                f"<Results><UnitTestResult testName=\"{name}\" outcome=\"Passed\" /></Results>"
+                f"<TestDefinitions><UnitTest><TestMethod codeBase=\"{assembly}\" />"
+                "</UnitTest></TestDefinitions><ResultSummary><Counters total=\"1\" "
+                "executed=\"1\" passed=\"1\" failed=\"0\" /></ResultSummary></TestRun>").encode()
+    output.write_bytes(trx(method))
+
+    def pin_binary(offset_ns: int = 0) -> None:
+        """Make the assembly's age relative to the TRX explicit instead of write-order luck."""
+        result_ns = output.stat().st_mtime_ns
+        os.utime(binary, ns=(result_ns + offset_ns,) * 2)
+
+    pin_binary()
+    scenario = {"id": "AC-9.2-02", "command": "xunit fixture"}
+    command = {"kind": "xunit", "assembly": assembly, "output": result,
+               "selector": method, "selectorKind": "-method"}
+    monkeypatch.setattr(module, "v2_committed_blob", lambda *_: None)
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "passed" and not findings and record["result"] == "PASS"
+    assert {row["path"] for row in record["outputFiles"]} == {assembly, result}
+    output.write_bytes(trx("Example.Tests.Other.ShouldPass"))
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "failed" and "TEST_FAILED" in record["blockers"]
+    two_passed = (trx(method)
+                  .replace(b"</Results>",
+                           f'<UnitTestResult testName="{method}" outcome="Passed" /></Results>'.encode())
+                  .replace(b'total="1"', b'total="2"')
+                  .replace(b'passed="1"', b'passed="2"'))
+    assert any("executed 1 is not passed 2 plus failed 0" in item
+               for item in module.count_disagreements(module.parse_trx(two_passed)))
+    output.write_bytes(two_passed)
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "failed" and "TEST_FAILED" in record["blockers"]
+    output.write_bytes(trx(method))
+    binary.write_bytes(b"1.0.0+" + ("b" * 40).encode())
+    pin_binary()
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "failed" and "TEST_RESULTS_STALE" in record["blockers"]
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [], frozenset({"b" * 40}))
+    assert category == "passed" and not findings
+    pin_binary(1_000_000_000)
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [], frozenset({"b" * 40}))
+    assert category == "failed" and record["blockers"] == ["TEST_RESULTS_STALE"]
+    binary.write_bytes(b"1.0.0+" + candidate.encode())
+    output.write_bytes(trx(method).replace(b'executed="1"', b'executed="0"'))
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "failed" and "TEST_FAILED" in record["blockers"]
+
+
+def test_v2_successor_python_facts_bind_all_outputs_and_verdict(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    candidate = "a" * 40
+    script = "_bmad/scripts/generate_example.py"
+    script_file = tmp_path / script
+    script_file.parent.mkdir(parents=True)
+    script_file.write_bytes(b"script")
+    json_path = "docs/release-evidence/example.json"
+    markdown_path = "docs/release-evidence/example.md"
+    markdown = b"# Example\n"
+    document = {"result": "PASS", "exitCode": 0,
+                "renderedMarkdownSha256": module.v2_sha256(markdown), "candidate": candidate}
+    for path, content in ((json_path, (json.dumps(document) + "\n").encode()),
+                          (markdown_path, markdown)):
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+    monkeypatch.setattr(module, "v2_committed_blob",
+                        lambda _repo, _candidate, path: b"script" if path == script else None)
+    command_exit = [0]
+    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs:
+                        subprocess.CompletedProcess([], command_exit[0], b"", b""))
+    scenario = {"id": "AC-9.1-01", "command": "python fixture"}
+    command = {"kind": "python", "script": script, "outputs": [json_path, markdown_path],
+               "options": {"--repository": "."}}
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "passed" and not findings and len(record["outputFiles"]) == 2
+    command_exit[0] = 1
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
+    command_exit[0] = 0
+    document["candidate"] = "b" * 40
+    (tmp_path / json_path).write_text(json.dumps(document) + "\n")
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [], frozenset({"b" * 40}))
+    assert category == "passed" and not findings
+    for unsupported in ([], {}, {"revision": candidate}, None):
+        document["candidate"] = unsupported
+        (tmp_path / json_path).write_text(json.dumps(document) + "\n")
+        record, category, findings = module.v2_successor_scenario_from_results(
+            tmp_path, scenario, command, candidate, 0, [])
+        assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
+    document.pop("result")
+    document.pop("exitCode")
+    document["candidate"] = candidate
+    (tmp_path / json_path).write_text(json.dumps(document) + "\n")
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
+    document["result"] = "PASS"
+    document["exitCode"] = 0
+    document["summary"] = {"required": 2, "passed": 2, "failed": 0,
+                           "blocked": 0, "skipped": 1, "notRun": 0}
+    (tmp_path / json_path).write_text(json.dumps(document) + "\n")
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
+
+
+def test_v2_successor_python_schema_output_needs_no_verdict(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    candidate = "a" * 40
+    script = "_bmad/scripts/generate_example.py"
+    script_file = tmp_path / script
+    script_file.parent.mkdir(parents=True)
+    script_file.write_bytes(b"script")
+    schema = "docs/release-evidence/example.schema.json"
+    result_path = "docs/release-evidence/example.json"
+    for path, document in ((schema, {"$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object"}),
+                           (result_path, {"result": "PASS", "exitCode": 0})):
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(json.dumps(document) + "\n")
+    monkeypatch.setattr(module, "v2_committed_blob",
+                        lambda _repo, _candidate, path: b"script" if path == script else None)
+    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs:
+                        subprocess.CompletedProcess([], 0, b"", b""))
+    scenario = {"id": "AC-9.1-01", "command": "python3 _bmad/scripts/generate_example.py"}
+    command = {"kind": "python", "script": script, "outputs": [schema, result_path],
+               "options": {"--repository": ".", "--output-schema": schema}}
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "passed" and not findings and record["result"] == "PASS"
+
+
+def test_v2_successor_build_and_restore_bind_candidate_outputs(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    candidate = "a" * 40
+    project = "tests/Example/Example.csproj"
+    solution = "tests/Fixture/Fixture.slnx"
+    solution_project = "tests/Fixture/App/App.csproj"
+    blobs = {project: b"<Project />", solution_project: b"<Project />",
+             solution: b'<Solution><Project Path="App/App.csproj" /></Solution>'}
+    for path, content in blobs.items():
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+    monkeypatch.setattr(module, "v2_committed_blob",
+                        lambda _repo, _candidate, path: blobs.get(path))
+    class EvaluationError(Exception):
+        pass
+
+    class Evaluator:
+        VerificationError = EvaluationError
+
+        @staticmethod
+        def msbuild(repository, relative, configuration, *, resolved=False, solution=None,
+                    building_solution=False):
+            assert resolved is False
+            path = Path(relative)
+            output = repository / path.parent / "bin" / configuration / "net10.0" / f"{path.stem}.dll"
+            return {"Properties": {"TargetPath": str(output),
+                                   "ProjectAssetsFile": str(repository / path.parent / "obj/project.assets.json")}}
+
+    monkeypatch.setattr(module, "v2_9_2_verifier", lambda: Evaluator)
+    command_exit = [0]
+    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs:
+                        subprocess.CompletedProcess([], command_exit[0], b"", b""))
+    binary = tmp_path / "tests/Example/bin/Release/net10.0/Example.dll"
+    binary.parent.mkdir(parents=True)
+    binary.write_bytes(b"1.0.0+" + candidate.encode())
+    assets = tmp_path / "tests/Fixture/App/obj/project.assets.json"
+    assets.parent.mkdir(parents=True)
+    assets.write_text(json.dumps({
+        "version": 3, "targets": {"net10.0": {}}, "libraries": {},
+        "projectFileDependencyGroups": {"net10.0": []},
+        "project": {
+            "restore": {"projectPath": str(tmp_path / solution_project),
+                        "projectUniqueName": str(tmp_path / solution_project)},
+            "frameworks": {"net10.0": {}},
+        },
+    }))
+    solution_binary = tmp_path / "tests/Fixture/App/bin/Release/net10.0/App.dll"
+    solution_binary.parent.mkdir(parents=True)
+    solution_binary.write_bytes(b"1.0.0+" + candidate.encode())
+    routes = (("AC-9.2-01", {"kind": "build", "project": project}, f"dotnet build {project} -c Release"),
+              ("AC-11.2-02", {"kind": "restore", "project": solution}, f"dotnet restore {solution}"),
+              ("AC-11.2-03", {"kind": "build", "project": solution}, f"dotnet build {solution} --configuration Release"))
+    for scenario_id, command, exact in routes:
+        record, category, findings = module.v2_successor_scenario_from_results(
+            tmp_path, {"id": scenario_id, "command": exact}, command,
+            candidate, 0, [])
+        assert category == "passed" and not findings and record["assertionLedger"]
+    restore_scenario, restore_command, restore_exact = routes[1]
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, {"id": restore_scenario, "command": restore_exact}, restore_command,
+        candidate, assets.stat().st_mtime_ns + 1_000_000_000, [])
+    assert category == "passed" and not findings
+    command_exit[0] = 1
+    for scenario_id, command, exact in routes:
+        record, category, findings = module.v2_successor_scenario_from_results(
+            tmp_path, {"id": scenario_id, "command": exact}, command,
+            candidate, 0, [])
+        assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
+    command_exit[0] = 0
+    debug_binary = tmp_path / "tests/Example/bin/Debug/net10.0/Example.dll"
+    debug_binary.parent.mkdir(parents=True)
+    debug_binary.write_bytes(b"1.0.0+" + candidate.encode())
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, {"id": "AC-9.2-01", "command": f"dotnet build {project} -c Debug"},
+        {"kind": "build", "project": project}, candidate, 0, [])
+    assert category == "passed" and not findings
+    assert any(row["path"] == "tests/Example/bin/Debug/net10.0/Example.dll" for row in record["outputFiles"])
+    binary.write_bytes(b"1.0.0+" + ("b" * 40).encode())
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, {"id": "AC-9.2-01", "command": f"dotnet build {project} -c Release"},
+        {"kind": "build", "project": project}, candidate, 0, [])
+    assert category == "failed" and "TEST_RESULTS_STALE" in record["blockers"]
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, {"id": "AC-9.2-01", "command": f"dotnet build {project} -c Release"},
+        {"kind": "build", "project": project}, candidate, 0, [], frozenset({"b" * 40}))
+    assert category == "passed" and not findings
+
+
+def test_v2_successor_contract_schemas_and_bundle_rows_bind_committed_bytes(monkeypatch) -> None:
+    module = load_generator()
+    _, validators = module.v2_load_schemas()
+    head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=WORKSPACE, text=True).strip()
+    contracts = sorted((WORKSPACE / "_bmad-output/planning-artifacts/v9/story-contracts").glob("*.json"))
+    for path in contracts:
+        contract_path = path.relative_to(WORKSPACE).as_posix()
+        raw = module.v2_committed_blob(WORKSPACE, head, contract_path)
+        contract = json.loads(raw)
+        if int(contract["storyId"].split(".")[0]) < 8:
+            continue
+        validated = module.v2_validate_contract(raw, contract_path, validators["contract"],
+                                                validators["contract_v14"])
+        findings = []
+        assert module.v2_authority(WORKSPACE, head, contract_path, validated, validators["bundle"], findings)
+        assert not findings
+    story_path = "_bmad-output/planning-artifacts/v9/story-contracts/8.1.json"
+    contract = json.loads((WORKSPACE / story_path).read_bytes())
+    original = module.v2_committed_blob
+    monkeypatch.setattr(module, "v2_committed_blob",
+                        lambda repo, commit, path: b"changed" if path == story_path
+                        else original(repo, commit, path))
+    findings = []
+    assert module.v2_authority(WORKSPACE, head, story_path, contract, validators["bundle"], findings) is None
+    assert [item["code"] for item in findings] == ["AUTHORITY_BINDING_INVALID"]
+    findings = []
+    assert module.v2_authority(
+        WORKSPACE, head, "docs/other-contract.json", contract, validators["bundle"], findings
+    ) is None
+    assert [item["code"] for item in findings] == ["AUTHORITY_BINDING_INVALID"]
+
+
+def test_v2_retained_candidate_rejects_gitlink_only_followup(tmp_path: Path) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    _, json_bytes, markdown_bytes = v2_7_3_passing_pair(fixture)
+    moved = ROOT_GITLINK_PATHS[0]
+    v2_git(repository, "update-index", "--cacheinfo", f"160000,{'a' * 40},{moved}")
+    v2_git(repository, "commit", "-m", "move only a gitlink")
+    result = v2_run(v2_7_3_arguments(repository))
+    document = v2_assert_failure(result, {"CANDIDATE_NOT_FINAL", "GITLINK_DRIFT"})
+    assert document["blockers"] == ["CANDIDATE_NOT_FINAL", "GITLINK_DRIFT"]
+    assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
+
+
+STORY_8_1_PAIR_PATHS = ("docs/release-evidence/story-8.1-final-record-v2.json",
+                        "docs/release-evidence/story-8.1-final-record-v2.md")
+# The last published pair, used only while a review retracts the pair from HEAD.
+STORY_8_1_HISTORICAL_PAIR_REVISION = "35121cab6bfc963fb2a8d411a51800f6ef5a2a70"
+
+
+def _story_8_1_published_pair() -> tuple[bytes, bytes]:
+    """Read the Story 8.1 pair committed at HEAD, or the pinned pair while it is retracted."""
+    for revision in ("HEAD", STORY_8_1_HISTORICAL_PAIR_REVISION):
+        shown = [subprocess.run(["git", "show", f"{revision}:{path}"], cwd=WORKSPACE,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+                 for path in STORY_8_1_PAIR_PATHS]
+        if all(result.returncode == 0 for result in shown):
+            return shown[0].stdout, shown[1].stdout
+    raise AssertionError("no committed Story 8.1 final-record pair is available")
+
+
+def _story_8_1_published_candidate() -> str:
+    """Return the source candidate bound by the published Story 8.1 pair."""
+    return json.loads(_story_8_1_published_pair()[0])["candidate"]["commit"]
+
+
+def test_v2_story_8_1_published_pair_verifies_and_schema_requires_ux_disposition() -> None:
+    """The published Story 8.1 pair retains its self-ledger and exclusive UX shape."""
+    module = load_generator()
+    pair = _story_8_1_published_pair()
+    assert module.v2_verify_pair(*pair) == []
+    record = json.loads(pair[0])
+    validator = v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA))
+    validator.validate(record)
+    assert record["scenarios"][-1]["assertionLedger"] == module.v2_self_ledger("AC-8.1-07", "8.1")
+    assert not validator.is_valid({key: value for key, value in record.items() if key != "uxDisposition"})
+    successor = deepcopy(record)
+    successor["storyId"] = "8.2"
+    assert not validator.is_valid(successor)
+
+
+def test_v2_render_projects_scenario_output_files_in_a_schema_valid_record() -> None:
+    """Bound scenario outputs reach the Markdown projection of a schema-valid pair."""
+    module = load_generator()
+    record = json.loads(_story_8_1_published_pair()[0])
+    scenario = record["scenarios"][1]
+    bound = [scenario["resultFile"],
+             {"path": "tests/Example/bin/Release/net10.0/Example.dll", "sha256": "c" * 64}]
+    scenario["outputFiles"] = bound
+    final, json_bytes, markdown = module.v2_finalize(record)
+    v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA)).validate(final)
+    section = markdown.decode("utf-8").split(f"### `{scenario['scenarioId']}`", 1)[1].split("\n### ", 1)[0]
+    assert "| Bound output | SHA-256 |" in section
+    for row in bound:
+        assert f"| `{row['path']}` | `{row['sha256']}` |" in section
+    assert module.v2_verify_pair(json_bytes, markdown) == []
+
+
+def test_v2_successor_retention_config_resolves_exactly_one_spec(tmp_path: Path) -> None:
+    module = load_generator()
+    contract = "_bmad-output/planning-artifacts/v9/story-contracts/8.2.json"
+    folder = tmp_path / "_bmad-output/implementation-artifacts"
+    folder.mkdir(parents=True)
+    with pytest.raises(module.V2Stop) as absent:
+        module.v2_retention_config(tmp_path, contract)
+    assert absent.value.findings[0]["code"] == "BASELINE_NOT_TRUSTWORTHY"
+    first = folder / "spec-8-2-enforce-the-validator.md"
+    first.write_text("# Fixture\n")
+    (folder / "sprint-status.yaml").write_text(
+        "development_status:\n  8-2-enforce-the-validator: in-progress\n", encoding="utf-8")
+    assert module.v2_retention_config(tmp_path, contract) == (
+        "8.2", first.relative_to(tmp_path).as_posix(), "8-2-enforce-the-validator", True
+    )
+    (folder / "spec-8-2-second.md").write_text("# Fixture\n")
+    with pytest.raises(module.V2Stop) as ambiguous:
+        module.v2_retention_config(tmp_path, contract)
+    assert ambiguous.value.findings[0]["code"] == "BASELINE_NOT_TRUSTWORTHY"
+    assert module.v2_designated_successor_outputs("8.2") == (
+        "docs/release-evidence/story-8.2-final-record-v2.json",
+        "docs/release-evidence/story-8.2-final-record-v2.md",
+    )
+
+
+@pytest.mark.parametrize("story_id", ["8.2", "10.1", "10.2", "10.10"])
+def test_v2_successor_retention_config_uses_the_exact_tracked_story(tmp_path: Path, story_id: str) -> None:
+    module = load_generator()
+    epic, story = story_id.split(".")
+    folder = tmp_path / "_bmad-output/implementation-artifacts"
+    folder.mkdir(parents=True)
+    spec = folder / f"spec-{epic}-{story}-different-spec-title.md"
+    spec.write_text("# Fixture\n", encoding="utf-8")
+    key = f"{epic}-{story}-tracked-title"
+    (folder / "sprint-status.yaml").write_text(
+        f"# {key}-comment: done\ndevelopment_status:\n"
+        f"  # {key}-comment: done\n"
+        f"  {epic}-{int(story) + 10}-another-story: done\n"
+        f"  {int(epic) + 1}-{story}-another-epic: done\n"
+        f"  {key}: in-progress # current story\n"
+        f"retrospective_actions:\n  {key}-outside: done\n", encoding="utf-8")
+    assert module.v2_retention_config(
+        tmp_path, f"_bmad-output/planning-artifacts/v9/story-contracts/{story_id}.json"
+    ) == (story_id, spec.relative_to(tmp_path).as_posix(), key, True)
+
+
+@pytest.mark.parametrize("key", ["10-1-tracked-title", "10-1-révision"])
+@pytest.mark.parametrize("comment", ["", " # preserved status comment", "\t# preserved status comment"])
+def test_v2_successor_retention_config_and_lifecycle_preserve_utf8_keys_and_comments(
+    tmp_path: Path, monkeypatch, key: str, comment: str,
+) -> None:
+    module = load_generator()
+    folder = tmp_path / "_bmad-output/implementation-artifacts"
+    folder.mkdir(parents=True)
+    spec = folder / "spec-10-1-different-spec-title.md"
+    spec.write_text("# Fixture\n", encoding="utf-8")
+    before = ("last_updated: 2026-10-23\ndevelopment_status:\n"
+              f"  {key}: in-progress{comment}\n").encode("utf-8")
+    (folder / "sprint-status.yaml").write_bytes(before)
+    assert module.v2_retention_config(
+        tmp_path, "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json"
+    ) == ("10.1", spec.relative_to(tmp_path).as_posix(), key, True)
+    after = before.replace(b": in-progress", b": review")
+    blobs = {("candidate", module.V2_7_2_SPRINT_PATH): before,
+             ("lifecycle", module.V2_7_2_SPRINT_PATH): after}
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _root, revision, path: blobs.get((revision, path)))
+    assert module.v2_sprint_status_only_change(tmp_path, "candidate", "lifecycle", key)
+    changed_comment = (after.replace(b"preserved status comment", b"changed status comment") if comment
+                       else after.replace(b": review", b": review # added status comment"))
+    blobs[("lifecycle", module.V2_7_2_SPRINT_PATH)] = changed_comment
+    assert not module.v2_sprint_status_only_change(tmp_path, "candidate", "lifecycle", key)
+
+
+@pytest.mark.parametrize("tracker", [
+    None,
+    b"last_updated: 2026-10-23\n",
+    b"development_status:\n",
+    b"development_status:\n  10-10-another-story: done\n",
+    b"development_status:\n  epic-10: in-progress\nother:\n  10-1-outside: done\n",
+    b"development_status:\n  notes:\n    10-1-nested: done\n",
+    b"development_status:\n  10-1-first: done\n  10-1-second: done\n",
+    b"development_status:\n  10-1-duplicate: done\n  10-1-duplicate: done\n",
+    b"development_status:\n  10-1-first: done\ndevelopment_status:\n  10-1-second: done\n",
+    b"development_status:\n  '10-1-only': done\n",
+    b"development_status:\n  10-1-first: done\n  '10-1-second': done\n",
+    b'development_status:\n  10-1-first: done\n  "10-1-second": done\n',
+    b"development_status:\n  10-1-first: done\n  malformed row\n",
+    b"development_status:\n  10-1-first: done\n\t10-1-second: done\n",
+    b"development_status:\n  10-1-first:\n",
+    b"development_status:\n  10-1-first: {status: done}\n",
+    b"development_status:\n  10-1-first: [done]\n",
+    b"development_status:\n  10-1-first: 'in-progress'\n",
+    b'development_status:\n  10-1-first: "in-progress"\n',
+    b"development_status:\n  10-1-first: done\n  epic-10: done\n  epic-10: done\n",
+    b"development_status:\n  10-1-invalid-\xff: done\n",
+], ids=["missing", "missing-section", "empty", "different-story", "outside-section", "nested-row",
+        "ambiguous", "duplicate-key", "duplicate-section", "quoted-only", "quoted-duplicate",
+        "double-quoted-duplicate", "malformed-row", "tab-indentation", "empty-value", "mapping-value",
+        "list-value", "single-quoted-value", "double-quoted-value", "duplicate-other-key", "invalid-encoding"])
+def test_v2_successor_retention_config_rejects_missing_or_ambiguous_tracker(
+    tmp_path: Path, tracker: bytes | None,
+) -> None:
+    module = load_generator()
+    folder = tmp_path / "_bmad-output/implementation-artifacts"
+    folder.mkdir(parents=True)
+    (folder / "spec-10-1-fixture.md").write_text("# Fixture\n", encoding="utf-8")
+    if tracker is not None:
+        (folder / "sprint-status.yaml").write_bytes(tracker)
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_retention_config(tmp_path, "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json")
+    assert [row["code"] for row in failure.value.findings] == ["BASELINE_NOT_TRUSTWORTHY"]
+    assert failure.value.findings[0]["subject"] == module.V2_7_2_SPRINT_PATH
+
+
+def test_v2_successor_retention_config_preserves_historical_mappings_without_a_tracker(tmp_path: Path) -> None:
+    module = load_generator()
+    for contract, expected in module.V2_RETAINED_CANDIDATES.items():
+        assert module.v2_retention_config(tmp_path, contract) == expected
+
+
+def test_story101_lifecycle_uses_tracked_sprint_key_and_timestamp(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    folder = tmp_path / "_bmad-output/implementation-artifacts"
+    folder.mkdir(parents=True)
+    spec = folder / "spec-10-1-neutral-testsupport-and-safe-git-facts.md"
+    spec.write_text("# Fixture\n", encoding="utf-8")
+    key = "10-1-provide-neutral-testsupport-helpers-and-a-safe-git-facts-runner"
+    (folder / "sprint-status.yaml").write_text(
+        f"development_status:\n  {key}: in-progress\n", encoding="utf-8")
+    assert module.v2_retention_config(
+        tmp_path, "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json"
+    ) == ("10.1", spec.relative_to(tmp_path).as_posix(), key, True)
+    before = ("# last_updated: 2026-10-10\nlast_updated: 10-10-2026 20:42\n"
+              f"development_status:\n  {key}: in-progress\n").encode()
+    after = before.replace(b"10-10-2026 20:42", b"10-10-2026 22:25").replace(
+        b": in-progress", b": review"
+    )
+    blobs = {("candidate", module.V2_7_2_SPRINT_PATH): before,
+             ("lifecycle", module.V2_7_2_SPRINT_PATH): after}
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _root, revision, path: blobs.get((revision, path)))
+    assert module.v2_sprint_status_only_change(tmp_path, "candidate", "lifecycle", key)
+    blobs[("lifecycle", module.V2_7_2_SPRINT_PATH)] = after.replace(key.encode(), b"10-1-wrong-key")
+    assert not module.v2_sprint_status_only_change(tmp_path, "candidate", "lifecycle", key)
+
+
+def test_v2_story_8_1_lifecycle_masks_tasks_and_retro_status(monkeypatch) -> None:
+    module = load_generator()
+    spec_path = "spec.md"
+    original_spec = (b"---\nstatus: 'in-progress'\n---\n\n## Tasks & Acceptance\n"
+                     b"- [ ] first\n  - [X] nested\n\n## Implementation Notes\nkeep\n")
+    finished_spec = (original_spec.replace(b"in-progress", b"done")
+                     .replace(b"- [ ] first", b"- [x] first")
+                     .replace(b"  - [X] nested", b"  - [ ] nested"))
+    blobs = {("a", spec_path): original_spec, ("b", spec_path): finished_spec}
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repo, revision, path: blobs.get((revision, path)))
+    assert module.v2_spec_lifecycle_only_change(Path("."), "a", "b", spec_path, task_checkboxes=True)
+    blobs[("b", spec_path)] = finished_spec.replace(b"keep", b"changed")
+    assert not module.v2_spec_lifecycle_only_change(Path("."), "a", "b", spec_path, task_checkboxes=True)
+    retro = b"".join(
+        f'  - id: "epic-7-retro-item-{number}-fixture"\n    status: open\n'.encode()
+        for number in (30, 31, 32)
+    )
+    sprint = b"# last_updated: 2026-10-02\nlast_updated: 2026-10-02\ndevelopment_status:\n  8-1-story: in-progress\n" + retro
+    blobs[("a", module.V2_7_2_SPRINT_PATH)] = sprint
+    blobs[("b", module.V2_7_2_SPRINT_PATH)] = sprint.replace(b"in-progress", b"done").replace(b"status: open", b"status: done")
+    assert module.v2_sprint_status_only_change(Path("."), "a", "b", "8-1-story")
+    blobs[("a", module.V2_7_2_SPRINT_PATH)] = blobs[("b", module.V2_7_2_SPRINT_PATH)]
+    blobs[("b", module.V2_7_2_SPRINT_PATH)] = blobs[("b", module.V2_7_2_SPRINT_PATH)].replace(b"status: done", b"status: open", 1)
+    assert not module.v2_sprint_status_only_change(Path("."), "a", "b", "8-1-story")
+    blobs[("b", module.V2_7_2_SPRINT_PATH)] = blobs[("a", module.V2_7_2_SPRINT_PATH)].replace(
+        b"8-1-story: done", b"8-1-story: in-progress"
+    )
+    assert not module.v2_sprint_status_only_change(Path("."), "a", "b", "8-1-story")
+
+
+def _story_8_1_candidate_clone(tmp_path: Path) -> tuple[Path, str, dict, dict]:
+    """Check out the published Story 8.1 source candidate for committed faults."""
+    module = load_generator()
+    repository = tmp_path / "story-8-1-candidate"
+    environment = fixture_git_environment()
+    subprocess.run(["git", "clone", "--shared", "--quiet", "--no-checkout", str(WORKSPACE), str(repository)],
+                   check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    candidate = _story_8_1_published_candidate()
+    subprocess.run(["git", "-C", str(repository), "checkout", "--quiet", "--detach", candidate],
+                   check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    contract = json.loads((repository / module.V2_8_1_CONTRACT_PATH).read_bytes())
+    _, validators = module.v2_load_schemas()
+    return repository, candidate, contract, validators
+
+
+@pytest.mark.parametrize("fault,blocker", [
+    ("active-row", "UX_ACTIVATION_UNAUTHORIZED"),
+    ("missing-banner", "UX_ACTIVATION_UNAUTHORIZED"),
+    ("reworded-banner", "UX_ACTIVATION_UNAUTHORIZED"),
+    ("missing-decision", "UX_DECISION_INVENTORY_DRIFT"),
+    ("wrong-owner", "UX_CURRENT_STORY_INVALID"),
+    ("current-mapping", "UX_CURRENT_STORY_INVALID"),
+    ("current-mapping-classification", "UX_CURRENT_STORY_INVALID"),
+    ("current-provenance-owner", "UX_CURRENT_STORY_INVALID"),
+    ("source-version", "UX_SOURCE_DRIFT"),
+    ("source-edit", "UX_SOURCE_DRIFT"),
+    ("wrong-rationale", "UX_DECISION_INVENTORY_DRIFT"),
+])
+def test_v2_story_8_1_committed_disposition_faults_have_owning_blockers(
+    tmp_path: Path, fault: str, blocker: str,
+) -> None:
+    module = load_generator()
+    repository, _, contract, validators = _story_8_1_candidate_clone(tmp_path)
+    target = repository / module.V2_8_1_DISPOSITION_PATHS[1]
+    document = json.loads(target.read_bytes())
+    if fault == "active-row":
+        document["decisions"][0]["status"] = "activated"
+    elif fault == "missing-banner":
+        document.pop("preservationBanner")
+    elif fault == "reworded-banner":
+        document["preservationBanner"] = "Activated for UI delivery; formerly not activated."
+    elif fault == "missing-decision":
+        document["decisions"].pop()
+    elif fault == "wrong-owner":
+        document["decisions"][0]["owner"] = "Story 3.8 implementation"
+    elif fault == "current-mapping":
+        document["decisions"][0]["historicalMappings"][0]["current"] = True
+    elif fault == "current-mapping-classification":
+        document["decisions"][0]["historicalMappings"][0]["classification"] = "current-implementation"
+    elif fault == "current-provenance-owner":
+        document["historicalProvenance"]["currentImplementationOwner"] = True
+    elif fault == "source-version":
+        document["sources"][0]["version"] = "ux-preservation-planning-2099-01-01-v9"
+    elif fault == "source-edit":
+        target = repository / module.V2_8_1_SOURCES[-1]
+    else:
+        document["decisions"][0]["rationale"] = "Incorrect rationale"
+    if fault == "source-edit":
+        target.write_bytes(target.read_bytes() + b"\nInjected source drift.\n")
+    else:
+        target.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
+    environment = fixture_git_environment()
+    subprocess.run(["git", "-C", str(repository), "add", target.relative_to(repository).as_posix()],
+                   check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    subprocess.run(["git", "-C", str(repository), "commit", "--quiet", "-m", "test: mutate disposition"],
+                   check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    candidate = subprocess.check_output(["git", "-C", str(repository), "rev-parse", "HEAD"],
+                                        env=environment, text=True).strip()
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_ux_facts(repository, candidate, module.V2_8_1_CONTRACT_PATH,
+                           contract, validators["record"])
+    assert [finding["code"] for finding in failure.value.findings] == [blocker]
+
+
+def test_v2_story_8_1_assembly_must_match_candidate_and_be_current(tmp_path: Path) -> None:
+    module = load_generator()
+    repository, candidate, contract, validators = _story_8_1_candidate_clone(tmp_path)
+    assembly = repository / module.V2_8_1_TEST_ASSEMBLY
+    assembly.parent.mkdir(parents=True, exist_ok=True)
+    assembly.write_bytes(b"1.0.0+" + ("b" * 40).encode())
+    with pytest.raises(module.V2Stop) as wrong:
+        module.v2_ux_facts(repository, candidate, module.V2_8_1_CONTRACT_PATH,
+                           contract, validators["record"])
+    assert [finding["code"] for finding in wrong.value.findings] == ["TEST_RESULTS_STALE"]
+    assembly.write_bytes(b"1.0.0+" + candidate.encode())
+    candidate_time = int(subprocess.check_output(["git", "-C", str(repository), "show", "-s", "--format=%ct", candidate], text=True).strip())
+    os.utime(assembly, ns=((candidate_time - 1) * 1_000_000_000,) * 2)
+    with pytest.raises(module.V2Stop) as old:
+        module.v2_ux_facts(repository, candidate, module.V2_8_1_CONTRACT_PATH,
+                           contract, validators["record"])
+    assert [finding["code"] for finding in old.value.findings] == ["TEST_RESULTS_STALE"]
+
+
+def test_v2_successor_python_check_preconditions_and_exit(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    script = "_bmad/scripts/publish_v9_planning_authority.py"
+    target = tmp_path / script
+    target.parent.mkdir(parents=True)
+    target.write_bytes(b"committed script")
+    monkeypatch.setattr(module, "v2_committed_blob",
+                        lambda _repo, _candidate, path: b"committed script" if path == script else None)
+    exits = [0]
+    executions: list[int] = []
+    dirty_on_run = [False]
+    rogue = tmp_path / "runtime/rogue.json"
+    def execute(*_args, **_kwargs):
+        executions.append(1)
+        if dirty_on_run[0]:
+            rogue.parent.mkdir(parents=True, exist_ok=True)
+            rogue.write_text("changed")
+        return subprocess.CompletedProcess([], exits[0], b"", b"")
+    monkeypatch.setattr(module.subprocess, "run", execute)
+    scenario = {"id": "AC-9.1-02", "command": f"python3 {script} --repository . --check"}
+    command = {"kind": "python_check", "script": script, "outputs": [],
+               "options": {"--repository": ".", "--check": "true"}}
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, "a" * 40, 0, [])
+    assert category == "passed" and not findings and len(executions) == 1
+    exits[0] = 1
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, "a" * 40, 0, [])
+    assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"] and len(executions) == 2
+    target.write_bytes(b"working edit")
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, "a" * 40, 0, [])
+    assert category == "failed" and "SCENARIO_COMMAND_UNSUPPORTED" in record["blockers"]
+    assert len(executions) == 2
+    target.write_bytes(b"committed script")
+    exits[0] = 0
+    dirty_on_run[0] = True
+    monkeypatch.setattr(module, "worktree_path_status",
+                        lambda _repo: ["runtime/rogue.json"] if rogue.exists() else [])
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, "a" * 40, 0, [], allowed_dirt={"declared/output.json"})
+    assert category == "failed" and "WORKTREE_NOT_CLEAN" in record["blockers"]
+    assert len(executions) == 3
+
+
+def test_v2_successor_python_scenario_mismatch_does_not_execute(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    script = "_bmad/scripts/generate_example.py"
+    target = tmp_path / script
+    target.parent.mkdir(parents=True)
+    target.write_bytes(b"committed script")
+    monkeypatch.setattr(module, "v2_committed_blob",
+                        lambda _repo, _candidate, path: b"committed script" if path == script else None)
+    executions: list[int] = []
+    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs: executions.append(1))
+    scenario = {"id": "AC-9.1-01", "command": f"python3 {script} --scenario AC-9.1-02"}
+    command = {"kind": "python", "script": script, "outputs": [],
+               "options": {"--scenario": "AC-9.1-02"}}
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, "a" * 40, 0, [])
+    assert category == "failed" and "SCENARIO_RESULT_MISMATCH" in record["blockers"]
+    assert not executions
+
+
+def test_v2_successor_build_target_mismatch_does_not_execute(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    project = "tests/Example/Example.csproj"
+    target = tmp_path / project
+    target.parent.mkdir(parents=True)
+    target.write_bytes(b"working edit")
+    monkeypatch.setattr(module, "v2_committed_blob",
+                        lambda _repo, _candidate, path: b"<Project />" if path == project else None)
+    executions: list[int] = []
+    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs: executions.append(1))
+    scenario = {"id": "AC-9.2-01", "command": f"dotnet build {project} -c Release"}
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, {"kind": "build", "project": project}, "a" * 40, 0, [])
+    assert category == "failed" and "SCENARIO_COMMAND_UNSUPPORTED" in record["blockers"]
+    assert not executions
+
+
+def test_v2_early_generator_requires_immediately_following_python_check() -> None:
+    module = load_generator()
+    contract = "_bmad-output/planning-artifacts/v9/story-contracts/8.2.json"
+    check = "python3 _bmad/scripts/publish_v9_planning_authority.py --repository . --check"
+    scenarios = [{"command": "first"}, {"command": "generator"}, {"command": check}]
+    assert module.v2_early_generator_permitted("8.2", 1, scenarios, contract)
+    assert not module.v2_early_generator_permitted("8.2", 0, scenarios, contract)
+    assert not module.v2_early_generator_permitted("7.4", 1, scenarios, contract)
+    assert not module.v2_early_generator_permitted("8.2", 1, scenarios[:-1], contract)
+
+
+
+def _story_8_2_fault_results(tmp_path: Path, module, candidate: str) -> dict:
+    """Create complete measured-property JUnit lanes for parser fault tests."""
+    module.v2_committed_blob = lambda _repo, _candidate, path: (WORKSPACE / path).read_bytes()
+    fixture_digest = module.v2_8_2_fixture_digest(tmp_path, candidate)
+    scenarios = {}
+    for scenario_id, identifiers in module.V2_8_2_FAULT_LANES.items():
+        root = ElementTree.Element("testsuites")
+        suite = ElementTree.SubElement(root, "testsuite", tests=str(len(identifiers)), failures="0", errors="0", skipped="0")
+        for identifier in identifiers:
+            row = {"id": identifier, "candidateCommit": candidate,
+                   "expectedBlocker": module.V2_8_2_REQUIRED_FAULTS[identifier],
+                   "observedExitCode": 1, "observedBlockers": [module.V2_8_2_REQUIRED_FAULTS[identifier]],
+                   "beforeSha256": fixture_digest, "mutatedSha256": module.v2_sha256(identifier.encode()),
+                   "afterSha256": fixture_digest, "baselineExitCode": 0, "baselineBlockers": [],
+                   "restoredExitCode": 0, "restoredBlockers": []}
+            case = ElementTree.SubElement(suite, "testcase", classname="_bmad.scripts.tests.test_generate_ux_preservation_disposition", name=module.v2_8_2_case_name(scenario_id, identifier))
+            properties = ElementTree.SubElement(case, "properties")
+            ElementTree.SubElement(properties, "property", name=module.V2_8_2_FAULT_PROPERTY, value=json.dumps(row))
+        path = f"artifacts/v9/8.2/{scenario_id}.xml"
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        content = ElementTree.tostring(root)
+        target.write_bytes(content)
+        scenarios[scenario_id] = {"resultFile": {"path": path, "sha256": module.v2_sha256(content)}}
+    return scenarios
+
+
+def test_v2_story_8_2_observed_fault_matrix_is_exact_and_restored(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    _, validators = module.v2_load_schemas()
+    candidate = "a" * 40
+    monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess([], 0, b"0", b""))
+    scenarios = _story_8_2_fault_results(tmp_path, module, candidate)
+    rows = module.v2_8_2_faults(tmp_path, candidate, scenarios, validators["record"])
+    assert [row["id"] for row in rows] == list(module.V2_8_2_REQUIRED_FAULTS)
+    assert len({row["expectedBlocker"] for row in rows}) == 13
+
+
+def _story_8_2_published_pair() -> tuple[bytes, bytes]:
+    """Read the published pair, retaining its last accepted bytes during retraction."""
+    for revision in ("HEAD", "e7b524f71eff42fda5d29252192b482d734da90f"):
+        shown = [subprocess.run(["git", "show", f"{revision}:{path}"], cwd=WORKSPACE,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+                 for path in load_generator().v2_designated_successor_outputs("8.2")]
+        if all(result.returncode == 0 for result in shown):
+            return shown[0].stdout, shown[1].stdout
+    raise AssertionError("no committed Story 8.2 final-record pair is available")
+
+
+def test_v2_story_8_2_published_pair_requires_exclusive_binding_and_ordered_faults() -> None:
+    module = load_generator()
+    pair = _story_8_2_published_pair()
+    assert module.v2_verify_pair(*pair) == []
+    record = json.loads(pair[0])
+    validator = v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA))
+    validator.validate(record)
+    assert record["scenarios"][-1]["assertionLedger"] == module.v2_self_ledger("AC-8.2-11", "8.2")
+    assert not validator.is_valid({key: value for key, value in record.items() if key != "uxValidation"})
+    for rows in (record["faultInjection"]["results"][:-1], list(reversed(record["faultInjection"]["results"]))):
+        changed = deepcopy(record)
+        changed["faultInjection"]["results"] = rows
+        assert not validator.is_valid(changed)
+    predecessor = json.loads(_story_8_1_published_pair()[0])
+    predecessor["uxValidation"] = record["uxValidation"]
+    assert not validator.is_valid(predecessor)
+
+
+@pytest.mark.parametrize("field,value", [
+    ("baselineExitCode", 1), ("baselineBlockers", ["UX_DECISION_MISSING"]),
+    ("observedExitCode", 0), ("observedBlockers", []),
+    ("observedBlockers", ["UX_DECISION_MISSING", "UX_ACCEPTANCE_MISSING"]),
+    ("observedBlockers", ["UX_ACCEPTANCE_MISSING"]), ("expectedBlocker", "UX_ACCEPTANCE_MISSING"),
+    ("restoredExitCode", 1), ("restoredBlockers", ["UX_DECISION_MISSING"]),
+])
+def test_v2_story_8_2_schema_pins_measured_fault_outcomes(field: str, value: object) -> None:
+    record = json.loads(_story_8_2_published_pair()[0])
+    record["faultInjection"]["results"][0][field] = value
+    validator = v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA))
+    assert not validator.is_valid(record)
+
+
+@pytest.mark.parametrize("identifier", list(load_generator().V2_8_2_REQUIRED_FAULTS))
+def test_v2_story_8_2_schema_pins_each_faults_exact_blocker(identifier: str) -> None:
+    module = load_generator()
+    _, validators = module.v2_load_schemas()
+    validator = validators["record"].evolve(schema={"$defs": validators["record"].schema["$defs"],
+                                                   "$ref": "#/$defs/uxObservedFault"})
+    row = next(row for row in json.loads(_story_8_2_published_pair()[0])["faultInjection"]["results"]
+               if row["id"] == identifier)
+    validator.validate(row)
+    wrong_blocker = "UX_ACCEPTANCE_MISSING" if row["expectedBlocker"] != "UX_ACCEPTANCE_MISSING" else "UX_DECISION_MISSING"
+    assert not validator.is_valid(dict(row, expectedBlocker=wrong_blocker, observedBlockers=[wrong_blocker]))
+
+
+@pytest.mark.parametrize("mutation,blocker", [
+    ("property-missing", "FAULT_NOT_DETECTED"), ("property-duplicate", "FAULT_NOT_DETECTED"),
+    ("exit", "FAULT_NOT_DETECTED"), ("blocker", "FAULT_NOT_DETECTED"),
+    ("extra-blocker", "FAULT_NOT_DETECTED"), ("baseline", "FAULT_NOT_DETECTED"),
+    ("candidate", "TEST_RESULTS_STALE"), ("after-hash", "FIXTURE_NOT_RESTORED"),
+    ("unchanged-mutation", "FIXTURE_NOT_RESTORED"), ("restored-exit", "FIXTURE_NOT_RESTORED"),
+    ("rerun-drift", "FIXTURE_NOT_RESTORED"), ("identity", "FAULT_NOT_DETECTED"),
+    ("empty", "TEST_RESULTS_FAILED"), ("skip", "TEST_RESULTS_FAILED"),
+    ("failed", "TEST_RESULTS_FAILED"), ("stale", "TEST_RESULTS_STALE"),
+    ("unrelated-hashes", "FIXTURE_NOT_RESTORED"),
+    ("lane-missing", "FAULT_NOT_DETECTED"), ("lane-duplicate", "FAULT_NOT_DETECTED"),
+    ("lane-reordered", "FAULT_NOT_DETECTED"),
+    ("wrong-name", "FAULT_NOT_DETECTED"), ("wrong-parameter", "FAULT_NOT_DETECTED"),
+    ("wrong-classname", "FAULT_NOT_DETECTED"),
+])
+def test_v2_story_8_2_rejects_unmeasured_or_unrestored_faults(tmp_path: Path, monkeypatch, mutation: str, blocker: str) -> None:
+    module = load_generator()
+    _, validators = module.v2_load_schemas()
+    candidate = "a" * 40
+    monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess([], 0, b"0", b""))
+    scenarios = _story_8_2_fault_results(tmp_path, module, candidate)
+    scenario_id = "AC-8.2-10" if mutation == "rerun-drift" else "AC-8.2-05" if mutation.startswith("lane-") or mutation == "wrong-parameter" else "AC-8.2-02"
+    binding = scenarios[scenario_id]["resultFile"]
+    target = tmp_path / binding["path"]
+    root = ElementTree.fromstring(target.read_bytes())
+    suite = root.find("testsuite")
+    case = suite.find("testcase")
+    group = case.find("properties")
+    prop = group.find("property")
+    row = json.loads(prop.get("value"))
+    if mutation == "property-missing": group.remove(prop)
+    elif mutation == "property-duplicate": group.append(deepcopy(prop))
+    elif mutation == "empty": suite.remove(case); suite.set("tests", "0")
+    elif mutation == "skip": ElementTree.SubElement(case, "skipped"); suite.set("skipped", "1")
+    elif mutation == "failed": ElementTree.SubElement(case, "failure"); suite.set("failures", "1")
+    elif mutation == "exit": row["observedExitCode"] = 0
+    elif mutation == "blocker": row["observedBlockers"] = ["UX_ACCEPTANCE_MISSING"]
+    elif mutation == "extra-blocker": row["observedBlockers"].append("UX_ACCEPTANCE_MISSING")
+    elif mutation == "baseline": row["baselineExitCode"] = 1
+    elif mutation == "candidate": row["candidateCommit"] = "b" * 40
+    elif mutation == "after-hash": row["afterSha256"] = "0" * 64
+    elif mutation == "unrelated-hashes": row["beforeSha256"] = row["afterSha256"] = "b" * 64
+    elif mutation == "unchanged-mutation": row["mutatedSha256"] = row["beforeSha256"]
+    elif mutation == "restored-exit": row["restoredExitCode"] = 1
+    elif mutation == "rerun-drift": row["mutatedSha256"] = "b" * 64
+    elif mutation == "identity": row["id"] = "decision-duplicate"
+    elif mutation == "wrong-name": case.set("name", "test_unrelated")
+    elif mutation == "wrong-parameter": case.set("name", "test_acceptance_identity_faults[acceptance-duplicate]")
+    elif mutation == "wrong-classname": case.set("classname", "unrelated.tests")
+    elif mutation == "lane-missing":
+        suite.remove(suite.findall("testcase")[-1])
+        suite.set("tests", "2")
+    elif mutation == "lane-duplicate":
+        suite.remove(suite.findall("testcase")[-1])
+        suite.append(deepcopy(case))
+    elif mutation == "lane-reordered":
+        suite.remove(case)
+        suite.append(case)
+    prop.set("value", json.dumps(row))
+    if mutation.startswith("wrong-"):
+        observed_validator = validators["record"].evolve(
+            schema={"$defs": validators["record"].schema["$defs"], "$ref": "#/$defs/uxObservedFault"})
+        observed_validator.validate(row)
+    content = ElementTree.tostring(root)
+    target.write_bytes(content)
+    binding["sha256"] = module.v2_sha256(content)
+    if mutation == "stale":
+        monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess([], 0, b"9999999999", b""))
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_8_2_faults(tmp_path, candidate, scenarios, validators["record"])
+    assert [finding["code"] for finding in failure.value.findings] == [blocker]
+
+
+def _story_8_2_binding_fixture(tmp_path: Path, monkeypatch):
+    """Bind historical production scope to the accepted Story 8.2 candidate."""
+    module = load_generator()
+    repository = tmp_path / "story82"
+    subprocess.run(["git", "clone", "--shared", "--quiet", "--no-checkout", str(WORKSPACE), str(repository)],
+                   check=True, env=fixture_git_environment(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    candidate = json.loads(_story_8_2_published_pair()[0])["candidate"]["commit"]
+    subprocess.run(["git", "-C", str(repository), "checkout", "--quiet", "--detach", candidate],
+                   check=True, env=fixture_git_environment(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    paths = [module.V2_8_2_SPEC_PATH, "_bmad/scripts/generate_ux_preservation_disposition.py",
+             "_bmad/scripts/tests/test_generate_ux_preservation_disposition.py",
+             "tests/Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs"]
+    snapshots = {}
+    for path in paths:
+        content = (WORKSPACE / path).read_bytes()
+        target = repository / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+        snapshots[path] = content
+    original = module.v2_committed_blob
+    monkeypatch.setattr(module, "v2_committed_blob", lambda repo, revision, path:
+                        snapshots[path] if revision == candidate and path in snapshots else original(repo, revision, path))
+    monkeypatch.setattr(module, "committed_path_status", lambda *_: {path: "M" for path in snapshots})
+    assembly = repository / module.V2_8_1_TEST_ASSEMBLY
+    assembly.parent.mkdir(parents=True)
+    assembly.write_bytes(b"1.0.0+" + candidate.encode())
+    _, validators = module.v2_load_schemas()
+    contract = json.loads((repository / module.V2_8_2_CONTRACT_PATH).read_bytes())
+    return module, repository, candidate, contract, validators
+
+
+def test_v2_story_8_2_binds_the_accepted_predecessor_sources_outputs_and_inventory(tmp_path: Path, monkeypatch) -> None:
+    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
+    facts = module.v2_8_2_facts(repository, candidate, contract, validators["record"])
+    assert facts["sourceRevisionId"] == candidate
+    assert facts["predecessorRecord"]["sha256"] == module.v2_sha256(_story_8_1_published_pair()[0])
+    assert facts["outputs"]["json"]["sha256"] == module.v2_sha256((repository / module.V2_8_1_DISPOSITION_PATHS[1]).read_bytes())
+    assert facts["decisionCount"] == 52 and facts["acceptanceCount"] == 28
+    disposition = json.loads((repository / module.V2_8_1_DISPOSITION_PATHS[1]).read_bytes())
+    inventories = {"decisions": [row["id"] for row in disposition["decisions"]],
+                   "acceptanceCriteria": [row["id"] for row in disposition["acceptanceCriteria"]]}
+    assert facts["inventorySha256"] == module.v2_sha256(module.v2_render_json(inventories))
+    schema = validators["record"].schema
+    validators["record"].evolve(schema={"$defs": schema["$defs"], "$ref": "#/$defs/uxValidation"}).validate(facts)
+    for field in facts:
+        incomplete = deepcopy(facts); incomplete.pop(field)
+        assert not validators["record"].evolve(schema={"$defs": schema["$defs"], "$ref": "#/$defs/uxValidation"}).is_valid(incomplete)
+
+
+@pytest.mark.parametrize("fault,blocker", [
+    ("predecessor", "AUTHORITY_BINDING_INVALID"), ("source", "UX_SOURCE_DRIFT"),
+    ("output", "UX_RENDER_DRIFT"), ("wrong-build", "TEST_RESULTS_STALE"),
+    ("missing-build", "TEST_RESULTS_MISSING"), ("production", "UX_PRODUCTION_CHANGE_FORBIDDEN"),
+    ("stale-build", "TEST_RESULTS_STALE"),
+    ("predecessor-binding", "AUTHORITY_BINDING_INVALID"),
+    ("predecessor-disposition", "AUTHORITY_BINDING_INVALID"),
+    ("gitlink", "UX_PRODUCTION_CHANGE_FORBIDDEN"),
+])
+def test_v2_story_8_2_rejects_incompatible_bindings(tmp_path: Path, monkeypatch, fault: str, blocker: str) -> None:
+    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
+    if fault == "production": monkeypatch.setattr(module, "committed_path_status", lambda *_: {"src/Injected.cs": "M"})
+    elif fault == "gitlink":
+        original_gitlinks = module.v2_raw_gitlinks
+        calls = []
+        def changed_gitlinks(repo, revision):
+            rows = original_gitlinks(repo, revision)
+            calls.append(revision)
+            return rows + [("references/Injected", "b" * 40)] if len(calls) == 1 else rows
+        monkeypatch.setattr(module, "v2_raw_gitlinks", changed_gitlinks)
+    elif fault == "predecessor-binding": monkeypatch.setattr(module, "is_ancestor", lambda *_: False)
+    elif fault == "predecessor-disposition":
+        path = module.V2_8_1_DISPOSITION_PATHS[1]
+        target = repository / path
+        changed = target.read_bytes() + b"\n"
+        target.write_bytes(changed)
+        original = module.v2_committed_blob
+        monkeypatch.setattr(module, "v2_committed_blob", lambda repo, revision, relative:
+                            changed if revision == candidate and relative == path else original(repo, revision, relative))
+    elif fault == "wrong-build": (repository / module.V2_8_1_TEST_ASSEMBLY).write_bytes(b"1.0.0+" + ("b" * 40).encode())
+    elif fault == "stale-build":
+        assembly = repository / module.V2_8_1_TEST_ASSEMBLY
+        assert module.dotnet_source_revisions(assembly.read_bytes()) == [candidate]
+        stale_ns = int(v2_git(repository, "show", "-s", "--format=%ct", candidate).stdout.strip()) * 1_000_000_000 - 1
+        os.utime(assembly, ns=(stale_ns, stale_ns))
+    elif fault == "missing-build": (repository / module.V2_8_1_TEST_ASSEMBLY).unlink()
+    else:
+        path = {"predecessor": module.V2_8_2_PREDECESSOR[1], "source": module.V2_8_1_SOURCES[0],
+                "output": module.V2_8_1_DISPOSITION_PATHS[1]}[fault]
+        target = repository / path
+        target.write_bytes(target.read_bytes() + b"changed")
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_8_2_facts(repository, candidate, contract, validators["record"])
+    assert [finding["code"] for finding in failure.value.findings] == [blocker]
+    if fault == "predecessor-disposition":
+        assert failure.value.findings[0]["subject"] == "predecessor disposition"
+
+
+@pytest.mark.parametrize("path", [
+    load_generator().V2_8_1_SPEC_PATH, *load_generator().V2_8_1_DISPOSITION_PATHS,
+    *STORY_8_1_PAIR_PATHS, "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV8ValidationTest.cs",
+])
+def test_v2_story_8_2_scope_rejects_each_protected_story_8_1_path(tmp_path: Path, monkeypatch, path: str) -> None:
+    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
+    monkeypatch.setattr(module, "committed_path_status", lambda *_: {path: "M"})
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_8_2_facts(repository, candidate, contract, validators["record"])
+    assert [finding["code"] for finding in failure.value.findings] == ["UX_PRODUCTION_CHANGE_FORBIDDEN"]
+
+
+@pytest.mark.parametrize("path,allowed", [
+    (".github/workflows/ci.yml", True),
+    (".github/workflows/release.yml", False),
+    ("src/Injected.cs", False),
+])
+def test_v2_story_8_2_scope_allows_current_ci_without_allowing_other_workflows_or_product(
+    tmp_path: Path, monkeypatch, path: str, allowed: bool,
+) -> None:
+    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
+    monkeypatch.setattr(module, "committed_path_status", lambda *_: {path: "M"})
+    if allowed:
+        assert module.v2_8_2_facts(repository, candidate, contract, validators["record"])["sourceRevisionId"] == candidate
+    else:
+        with pytest.raises(module.V2Stop) as failure:
+            module.v2_8_2_facts(repository, candidate, contract, validators["record"])
+        assert [finding["code"] for finding in failure.value.findings] == ["UX_PRODUCTION_CHANGE_FORBIDDEN"]
+
+
+def test_v2_story_8_2_executes_the_committed_candidate_verifier(tmp_path: Path, monkeypatch) -> None:
+    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
+    path = "_bmad/scripts/generate_ux_preservation_disposition.py"
+    target = repository / path
+    content = target.read_bytes() + b'\ndef verify(_repository):\n    raise DispositionError("UX_SCHEMA_INVALID", "candidate verifier marker")\n'
+    target.write_bytes(content)
+    original = module.v2_committed_blob
+    monkeypatch.setattr(module, "v2_committed_blob", lambda repo, revision, relative:
+                        content if revision == candidate and relative == path else original(repo, revision, relative))
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_8_2_facts(repository, candidate, contract, validators["record"])
+    assert [finding["code"] for finding in failure.value.findings] == ["UX_SCHEMA_INVALID"]
+
+
+def test_v2_story_8_2_cannot_move_the_scope_start_past_the_spec_add_commit(tmp_path: Path, monkeypatch) -> None:
+    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
+    original = module.run_git
+    def no_unique_spec_add(repo, *arguments, **kwargs):
+        if arguments[:3] == ("log", "--no-renames", "--diff-filter=A"):
+            return subprocess.CompletedProcess([], 0, candidate.encode(), b"")
+        return original(repo, *arguments, **kwargs)
+    monkeypatch.setattr(module, "run_git", no_unique_spec_add)
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_8_2_facts(repository, candidate, contract, validators["record"])
+    assert [finding["code"] for finding in failure.value.findings] == ["BASELINE_NOT_TRUSTWORTHY"]
+
+
+@pytest.mark.parametrize("fault,blocker", [
+    (None, None), ("missing", "TEST_NOT_RUN"), ("duplicate", "TEST_NOT_RUN"), ("binding", "TEST_RESULTS_STALE"),
+])
+def test_v2_story_8_2_positive_requires_every_preservation_fact(tmp_path: Path, monkeypatch, fault: str | None,
+                                                                blocker: str | None) -> None:
+    module = load_generator()
+    candidate = "a" * 40
+    monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess([], 0, b"0", b""))
+    binary = tmp_path / module.V2_8_1_TEST_ASSEMBLY
+    binary.parent.mkdir(parents=True)
+    binary.write_bytes(b"1.0.0+" + candidate.encode())
+    methods = ["PreservedBundleShouldPassZeroGapVerification", "SourcesShouldBindCanonicalPathsVersionsAndHashes",
+               "DecisionsShouldProjectTheFrozenInventory", "AcceptanceCriteriaShouldProjectTheFrozenInventory",
+               "DispositionsShouldRemainPreservedAndHistorical", "CandidateShouldContainNoProductionUiChange"]
+    if fault == "missing": methods.pop()
+    elif fault == "duplicate": methods.append(methods[0])
+    prefix = "Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest."
+    results = "".join(f'<UnitTestResult testName="{prefix}{method}" outcome="Passed" />' for method in methods)
+    count = len(methods)
+    content = (f'<TestRun xmlns="{TRX_NAMESPACE}"><Results>{results}</Results>'
+               f'<TestDefinitions><UnitTest><TestMethod codeBase="{module.V2_8_1_TEST_ASSEMBLY}" />'
+               f'</UnitTest></TestDefinitions><ResultSummary><Counters total="{count}" executed="{count}" '
+               f'passed="{count}" failed="0" /></ResultSummary></TestRun>').encode()
+    path = "artifacts/v9/8.2/AC-8.2-01.trx"
+    target = tmp_path / path
+    target.parent.mkdir(parents=True)
+    target.write_bytes(content)
+    command = json.loads((WORKSPACE / module.V2_8_2_CONTRACT_PATH).read_bytes())["scenarios"][0]["command"]
+    digest = "b" * 64 if fault == "binding" else module.v2_sha256(content)
+    scenario = {"command": command, "resultFile": {"path": path, "sha256": digest}}
+    if blocker:
+        with pytest.raises(module.V2Stop) as failure:
+            module.v2_8_2_positive(tmp_path, candidate, scenario)
+        assert [finding["code"] for finding in failure.value.findings] == [blocker]
+    else:
+        module.v2_8_2_positive(tmp_path, candidate, scenario)
+
+
+
+@pytest.mark.parametrize("code", [
+    "UX_DECISION_MISSING", "UX_DECISION_DUPLICATE", "UX_DECISION_UNKNOWN",
+    "UX_ACCEPTANCE_MISSING", "UX_ACCEPTANCE_DUPLICATE", "UX_ACCEPTANCE_UNKNOWN",
+    "UX_OWNER_MISSING", "UX_HASH_MISSING", "UX_ORDER_DRIFT",
+])
+def test_v2_story_8_2_semantic_blockers_emit_fail_receipts(monkeypatch, code: str) -> None:
+    module = load_generator()
+    def reject(_options):
+        raise module.V2Stop([module.v2_finding(code, "fixture", "semantic rejection")], "8.2")
+    monkeypatch.setattr(module, "v2_generate", reject)
+    result, document = v2_7_4_call(module, ["--repository", ".", "--contract", module.V2_8_2_CONTRACT_PATH,
+                                            "--format", "bundle", "--output-json", "record.json",
+                                            "--output-markdown", "record.md"])
+    assert result == document["exitCode"] == 1 and document["result"] == "FAIL"
+    assert document["blockers"] == [code]
+    v2_failure_validator().validate(document)
+
+
+@pytest.mark.parametrize("fault,blocker", [
+    ("missing", "TEST_RESULTS_MISSING"), ("malformed", "INPUT_SCHEMA_INVALID"),
+    ("symlink", "INPUT_SCHEMA_INVALID"), ("outside", "INPUT_SCHEMA_INVALID"),
+    ("unreadable", "TEST_RESULTS_MISSING"),
+])
+def test_v2_story_8_2_receipt_guards_are_stable(tmp_path: Path, monkeypatch, fault: str, blocker: str) -> None:
+    module = load_generator()
+    _, validators = module.v2_load_schemas()
+    candidate = "a" * 40
+    monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess([], 0, b"0", b""))
+    scenarios = _story_8_2_fault_results(tmp_path, module, candidate)
+    binding = scenarios["AC-8.2-02"]["resultFile"]
+    target = tmp_path / binding["path"]
+    if fault == "unreadable":
+        def unreadable(_path): raise PermissionError("fixture receipt denied")
+        monkeypatch.setattr(module, "read_file_snapshot", unreadable)
+    elif fault == "missing": target.unlink()
+    elif fault == "malformed":
+        target.write_bytes(b"<invalid")
+        binding["sha256"] = module.v2_sha256(target.read_bytes())
+    else:
+        original = target.read_bytes()
+        target.unlink()
+        destination = tmp_path / "receipt.xml" if fault == "symlink" else tmp_path.parent / (tmp_path.name + "-receipt.xml")
+        destination.write_bytes(original)
+        target.symlink_to(destination)
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_8_2_faults(tmp_path, candidate, scenarios, validators["record"])
+    assert [row["code"] for row in failure.value.findings] == [blocker]
+
+
+@pytest.mark.parametrize("field", ["baseline_commit", "implementation_start_commit"])
+def test_v2_story_8_2_rejects_candidate_owned_scope_metadata(tmp_path: Path, monkeypatch, field: str) -> None:
+    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
+    original = module.v2_committed_blob
+    def changed_spec(repo, revision, path):
+        blob = original(repo, revision, path)
+        if revision == candidate and path == module.V2_8_2_SPEC_PATH:
+            return re.sub(rb"(?m)^" + field.encode() + rb":.*$", field.encode() + b": '" + candidate.encode() + b"'", blob)
+        return blob
+    monkeypatch.setattr(module, "v2_committed_blob", changed_spec)
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_8_2_facts(repository, candidate, contract, validators["record"])
+    assert [row["code"] for row in failure.value.findings] == ["BASELINE_NOT_TRUSTWORTHY"]
+
+
+def _story_8_2_cli_commit(repository: Path, paths: list[str], message: str) -> None:
+    """Commit only synthetic fixture paths with an already validated Conventional message."""
+    message_file = repository / ".git/fixture-message"
+    message_file.write_text(message + "\n")
+    v2_git(repository, "add", "--", *paths)
+    v2_git(repository, "commit", "--quiet", "-F", str(message_file))
+
+
+def test_v2_story_8_2_inserted_cli_rederives_receipts_and_all_record_bindings(tmp_path: Path) -> None:
+    """Exercise real Git and the executable CLI while preserving the shared checkout."""
+    module = load_generator()
+    repository = tmp_path / "cli-repository"
+    subprocess.run(["git", "clone", "--shared", "--quiet", str(WORKSPACE), str(repository)],
+                   check=True, env=fixture_git_environment(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    frontmatter = module.parse_frontmatter((WORKSPACE / module.V2_8_2_SPEC_PATH).read_text(encoding="utf-8"))
+    v2_git(repository, "checkout", "--quiet", "--detach", module.frontmatter_scalar(frontmatter, "implementation_start_commit"))
+    paths = ["_bmad/scripts/generate_story_record.py", "_bmad/scripts/generate_ux_preservation_disposition.py",
+             "_bmad/scripts/tests/test_generate_ux_preservation_disposition.py",
+             "_bmad/schemas/story-final-record-v2.schema.json",
+             "tests/Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs"]
+    for path in paths:
+        target = repository / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((WORKSPACE / path).read_bytes())
+    _story_8_2_cli_commit(repository, paths, "test: prepare Story 8.2 CLI fixture")
+    candidate = v2_git(repository, "rev-parse", "HEAD").stdout.strip()
+    binary = repository / module.V2_8_1_TEST_ASSEMBLY
+    binary.parent.mkdir(parents=True)
+    binary.write_bytes(b"1.0.0+" + candidate.encode())
+    methods = ["PreservedBundleShouldPassZeroGapVerification", "SourcesShouldBindCanonicalPathsVersionsAndHashes",
+               "DecisionsShouldProjectTheFrozenInventory", "AcceptanceCriteriaShouldProjectTheFrozenInventory",
+               "DispositionsShouldRemainPreservedAndHistorical", "CandidateShouldContainNoProductionUiChange"]
+    prefix = "Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest."
+    results = "".join(f'<UnitTestResult testName="{prefix}{method}" outcome="Passed" />' for method in methods)
+    trx_path = repository / "artifacts/v9/8.2/AC-8.2-01.trx"
+    trx_path.parent.mkdir(parents=True)
+    trx_path.write_text(f'<TestRun xmlns="{TRX_NAMESPACE}"><Results>{results}</Results>'
+                       f'<TestDefinitions><UnitTest><TestMethod codeBase="{module.V2_8_1_TEST_ASSEMBLY}" />'
+                       '</UnitTest></TestDefinitions><ResultSummary><Counters total="6" executed="6" '
+                       'passed="6" failed="0" /></ResultSummary></TestRun>')
+    contract = json.loads((repository / module.V2_8_2_CONTRACT_PATH).read_bytes())
+    for scenario in contract["scenarios"][1:10]:
+        result = subprocess.run(shlex.split(scenario["command"]), cwd=repository, env=fixture_git_environment(), capture_output=True)
+        assert result.returncode == 0, result.stdout.decode() + result.stderr.decode()
+    outputs = list(module.v2_designated_successor_outputs("8.2"))
+    arguments = ["--repository", str(repository), "--contract", module.V2_8_2_CONTRACT_PATH, "--format", "bundle",
+                 "--output-json", outputs[0], "--output-markdown", outputs[1]]
+    generated = v2_run(arguments)
+    assert generated.returncode == 0, generated.stdout.decode()
+    accepted = (repository / outputs[0]).read_bytes()
+    _story_8_2_cli_commit(repository, outputs, "test: record Story 8.2 CLI evidence")
+    spec_path = repository / module.V2_8_2_SPEC_PATH
+    original_spec = spec_path.read_bytes()
+    spec_path.write_bytes(original_spec + b"\n" + module.RECORD_BEGIN_MARKER.encode() + b"\n" + (repository / outputs[1]).read_bytes() + module.RECORD_END_MARKER.encode() + b"\n")
+    verify = ["--repository", str(repository), "--contract", module.V2_8_2_CONTRACT_PATH,
+              "--verify-inserted-record", module.V2_8_2_SPEC_PATH]
+    before = {path: (repository / path).read_bytes() for path in [*outputs, module.V2_8_2_SPEC_PATH]}
+    assert v2_run(verify).returncode == 0
+    assert before == {path: (repository / path).read_bytes() for path in before}
+    receipt = repository / "artifacts/v9/8.2/AC-8.2-02.xml"
+    receipt_bytes = receipt.read_bytes()
+    receipt.write_bytes(receipt_bytes + b"\n")
+    assert json.loads(v2_run(verify).stdout)["blockers"] == ["RECORD_CONTENT_DRIFT"]
+    receipt.unlink()
+    assert json.loads(v2_run(verify).stdout)["blockers"] == ["TEST_RESULTS_MISSING"]
+    receipt.write_bytes(b"<invalid")
+    assert json.loads(v2_run(verify).stdout)["blockers"] == ["INPUT_SCHEMA_INVALID"]
+    receipt.write_bytes(receipt_bytes)
+    for binding in ("inventory", "authority", "rollback", "predecessors", "summary", "scenario", "command", "gitlinks", "ux", "fault"):
+        record = json.loads(accepted)
+        if binding == "inventory": record["inventory"]["sha256"] = "b" * 64
+        elif binding == "authority": record["authority"]["bundleDigest"] = "b" * 64
+        elif binding == "rollback": record["rollback"]["boundary"] = "Altered rollback"
+        elif binding == "predecessors": record["predecessors"] = ["7.4"]
+        elif binding == "summary": record["summary"]["passed"] = 10
+        elif binding == "command": record["scenarios"][0]["command"] = "Unrelated command"
+        elif binding == "gitlinks": record["candidate"]["gitlinks"][0]["commit"] = "b" * 40
+        elif binding == "ux": record["uxValidation"]["inventorySha256"] = "b" * 64
+        elif binding == "fault": record["faultInjection"]["results"][0]["mutatedSha256"] = "b" * 64
+        else:
+            record["scenarios"][0]["assertionLedger"][0]["subject"] = "Altered claim"
+            record["scenarios"][0]["outputFiles"][0]["sha256"] = "b" * 64
+        _, json_bytes, markdown = module.v2_finalize(record)
+        (repository / outputs[0]).write_bytes(json_bytes)
+        (repository / outputs[1]).write_bytes(markdown)
+        spec_path.write_bytes(original_spec)
+        _story_8_2_cli_commit(repository, outputs, "test: alter Story 8.2 CLI evidence")
+        spec_path.write_bytes(original_spec + b"\n" + module.RECORD_BEGIN_MARKER.encode() + b"\n" + markdown + module.RECORD_END_MARKER.encode() + b"\n")
+        result = v2_run(verify)
+        assert result.returncode == 1 and json.loads(result.stdout)["blockers"] == ["RECORD_CONTENT_DRIFT"], result.stdout.decode()
+
+
+
+# --------------------------------------------------------------------------- Story 9.1
+
+STORY_9_1_CONTRACT = WORKSPACE / "_bmad-output/planning-artifacts/v9/story-contracts/9.1.json"
+
+
+def _story_9_1_blobs(path: str) -> bytes | None:
+    """Deterministic stand-in candidate blobs for the fault fixture paths; the widening probe is absent."""
+    return None if path.endswith("TieringFaultProbeWidening.cs") else f"blob:{path}".encode()
+
+
+def _story_9_1_fault_rows(module, candidate: str) -> list[dict]:
+    fixture = module.v2_9_1_fixture_digest(WORKSPACE, candidate)
+    return [{"id": identifier, "candidateCommit": candidate, "expectedBlocker": blocker,
+             "observedExitCode": 1, "observedBlockers": [blocker], "beforeSha256": fixture,
+             "mutatedSha256": module.v2_sha256(identifier.encode()), "afterSha256": fixture,
+             "baselineExitCode": 0, "baselineBlockers": [], "restoredExitCode": 0, "restoredBlockers": []}
+            for identifier, blocker in module.V2_9_1_REQUIRED_FAULTS.items()]
+
+
+def _story_9_1_write_faults(tmp_path: Path, module, rows: list[dict]) -> ElementTree.Element:
+    root = ElementTree.Element("testsuites")
+    suite = ElementTree.SubElement(root, "testsuite", tests=str(len(rows)), failures="0", errors="0", skipped="0")
+    for row in rows:
+        case = ElementTree.SubElement(suite, "testcase", classname=module.V2_9_1_FAULT_CLASSNAME,
+                                      name=f"test_tiering_faults[{row['id']}]")
+        properties = ElementTree.SubElement(case, "properties")
+        ElementTree.SubElement(properties, "property", name=module.V2_9_1_FAULT_PROPERTY, value=json.dumps(row))
+    target = tmp_path / module.V2_9_1_FAULT_RESULT_PATH
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(ElementTree.tostring(root))
+    return root
+
+
+def test_v2_story_9_1_classifies_its_exact_commands() -> None:
+    module = load_generator()
+    contract = json.loads(STORY_9_1_CONTRACT.read_bytes())
+    scenarios = contract["scenarios"]
+    first = shlex.split(scenarios[0]["command"])
+    assert module.v2_tiering_command(first, "AC-9.1-01") == {"kind": "tiering-bundle", "output": module.V2_9_1_OUTPUT_PATHS[1]}
+    assert module.v2_tiering_command(first, "AC-9.1-02") is None
+    assert module.v2_tiering_command([token for token in first if token != "--verify"] + ["--verify"], "AC-9.1-01") is None
+    assert module.v2_tiering_command(first[:-2], "AC-9.1-01") is None
+    for scenario in scenarios[1:8]:
+        route = module.v2_successor_command(shlex.split(scenario["command"]), str(STORY_9_1_CONTRACT.relative_to(WORKSPACE)))
+        assert route == {"kind": "xunit", "assembly": module.V2_8_1_TEST_ASSEMBLY,
+                         "output": f"artifacts/v9/9.1/{scenario['id']}.trx",
+                         "selector": "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest."
+                                     + route["selector"].rsplit(".", 1)[1], "selectorKind": "-method"}
+    assert module.v2_generator_command(shlex.split(scenarios[8]["command"])) is not None
+    assert module.v2_retention_config(WORKSPACE, str(STORY_9_1_CONTRACT.relative_to(WORKSPACE)))[:3] == (
+        "9.1", "_bmad-output/implementation-artifacts/"
+               "spec-9-1-freeze-the-conformance-assertion-inventory-tier-decisions-digest-and-approvals.md",
+        "9-1-freeze-the-conformance-assertion-inventory-tier-decisions-digest-and-approvals")
+
+
+def test_v2_story_9_1_fault_matrix_is_exact_and_restored(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    _, validators = module.v2_load_schemas()
+    candidate = "a" * 40
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repository, _revision, path: _story_9_1_blobs(path))
+    monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess([], 0, b"0", b""))
+    rows = _story_9_1_fault_rows(module, candidate)
+    _story_9_1_write_faults(tmp_path, module, rows)
+    assert module.v2_9_1_faults(tmp_path, candidate, validators["record"]) == rows
+
+
+@pytest.mark.parametrize("mutation,blocker", [
+    ("property-missing", "FAULT_NOT_DETECTED"), ("exit", "FAULT_NOT_DETECTED"), ("blocker", "FAULT_NOT_DETECTED"),
+    ("extra-blocker", "FAULT_NOT_DETECTED"), ("baseline", "FAULT_NOT_DETECTED"),
+    ("candidate", "TEST_RESULTS_STALE"), ("after-hash", "FIXTURE_NOT_RESTORED"),
+    ("unchanged-mutation", "FIXTURE_NOT_RESTORED"), ("restored-exit", "FIXTURE_NOT_RESTORED"),
+    ("wrong-name", "FAULT_NOT_DETECTED"), ("wrong-classname", "FAULT_NOT_DETECTED"),
+    ("missing-case", "FAULT_NOT_DETECTED"), ("reordered", "FAULT_NOT_DETECTED"),
+    ("failed", "TEST_RESULTS_FAILED"), ("stale", "TEST_RESULTS_STALE"), ("absent", "TEST_RESULTS_MISSING"),
+])
+def test_v2_story_9_1_rejects_unmeasured_or_unrestored_faults(tmp_path: Path, monkeypatch, mutation: str,
+                                                              blocker: str) -> None:
+    module = load_generator()
+    _, validators = module.v2_load_schemas()
+    candidate = "a" * 40
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repository, _revision, path: _story_9_1_blobs(path))
+    monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess(
+        [], 0, b"9999999999" if mutation == "stale" else b"0", b""))
+    rows = _story_9_1_fault_rows(module, candidate)
+    row = rows[0]
+    if mutation == "exit": row["observedExitCode"] = 0
+    elif mutation == "blocker": row["observedBlockers"] = ["TIER_UNASSIGNED"]
+    elif mutation == "extra-blocker": row["observedBlockers"].append("TIER_UNASSIGNED")
+    elif mutation == "baseline": row["baselineExitCode"] = 1
+    elif mutation == "candidate": row["candidateCommit"] = "b" * 40
+    elif mutation == "after-hash": row["afterSha256"] = "0" * 64
+    elif mutation == "unchanged-mutation": row["mutatedSha256"] = row["beforeSha256"]
+    elif mutation == "restored-exit": row["restoredExitCode"] = 1
+    elif mutation == "missing-case": rows.pop()
+    elif mutation == "reordered": rows[0], rows[1] = rows[1], rows[0]
+    root = _story_9_1_write_faults(tmp_path, module, rows)
+    suite = root.find("testsuite")
+    case = suite.find("testcase")
+    if mutation == "property-missing":
+        case.remove(case.find("properties"))
+    elif mutation == "wrong-name":
+        case.set("name", "test_unrelated")
+    elif mutation == "wrong-classname":
+        case.set("classname", "unrelated.tests")
+    elif mutation == "failed":
+        ElementTree.SubElement(case, "failure")
+        suite.set("failures", "1")
+    target = tmp_path / module.V2_9_1_FAULT_RESULT_PATH
+    target.write_bytes(ElementTree.tostring(root))
+    if mutation == "absent":
+        target.unlink()
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_9_1_faults(tmp_path, candidate, validators["record"])
+    assert [item["code"] for item in failure.value.findings] == [blocker]
+
+
+def _story_9_1_record(module) -> dict:
+    """Shape a schema-valid Story 9.1 record from the accepted Story 8.2 pair's generic parts."""
+    record = json.loads(_story_8_2_published_pair()[0])
+    contract = json.loads(STORY_9_1_CONTRACT.read_bytes())
+    candidate = record["candidate"]["commit"]
+    digest = "c" * 64
+    record.pop("uxValidation")
+    record["storyId"] = "9.1"
+    record["predecessors"] = ["7.4"]
+    record["inventory"] = dict(contract["inventory"])
+    record["rollback"] = dict(contract["rollback"])
+    record["scenarios"] = [{"scenarioId": scenario["id"], "command": scenario["command"], "exitCode": 0,
+                            "result": "PASS", "blockers": [],
+                            "assertionLedger": [{"id": f"{scenario['id']}#0001", "subject": "fixture", "state": "PASS"}]}
+                           for scenario in contract["scenarios"]]
+    record["summary"] = dict(contract["finalRecord"]["summary"])
+    record["outputs"] = {"json": {"path": contract["finalRecord"]["paths"][0], "sha256": digest},
+                         "markdown": {"path": contract["finalRecord"]["paths"][1], "sha256": digest}}
+    record["faultInjection"] = {"results": _story_9_1_fault_rows(module, candidate)}
+    binding = {"path": "docs/release-evidence/example.json", "sha256": digest}
+    record["conformanceTiering"] = {
+        "bindingRule": module.V2_9_1_BINDING_RULE, "contract": binding,
+        "predecessorRecord": {"storyId": "7.4", "path": "docs/release-evidence/story-7.4-final-record-v2.json",
+                              "sha256": digest},
+        "predecessorCandidate": candidate, "decision": binding,
+        "disposition": {"schema": binding, "json": binding, "markdown": binding},
+        "preSplitResult": {"path": "artifacts/v9/9.1/pre-split/conformance.trx", "sha256": digest,
+                           "receipt": binding, "sourceCommit": candidate, "discoveredMethods": 452,
+                           "executedTestCases": 415},
+        "assertionInventorySha256": digest, "strengthInventorySha256": digest, "assertionCount": 452,
+        "validationAdditionCount": 7, "tierCounts": {"portable": 382, "moduleInternal": 77},
+        "approvals": {"path": module.V2_9_1_APPROVALS_PATH, "sha256": digest, "approvalId": "APPROVAL-1",
+                      "approver": "Owner", "membershipSha256": digest},
+        "inventorySha256": contract["inventory"]["sha256"], "faultEvidence": binding, "testAssembly": binding,
+        "sourceRevisionId": candidate,
+    }
+    return record
+
+
+def test_v2_story_9_1_schema_requires_exclusive_tiering_binding_and_ordered_faults(monkeypatch) -> None:
+    module = load_generator()
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repository, _revision, path: _story_9_1_blobs(path))
+    validator = v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA))
+    record = _story_9_1_record(module)
+    final, json_bytes, markdown = module.v2_finalize(record)
+    validator.validate(final)
+    assert module.v2_verify_pair(json_bytes, markdown) == []
+    text = markdown.decode()
+    assert "## Story 9.1 conformance tiering" in text and "| `tier-unassigned` | `TIER_UNASSIGNED` | `1` |" in text
+    assert not validator.is_valid({key: value for key, value in final.items() if key != "conformanceTiering"})
+    for rows in (final["faultInjection"]["results"][:-1], list(reversed(final["faultInjection"]["results"]))):
+        changed = deepcopy(final)
+        changed["faultInjection"]["results"] = rows
+        assert not validator.is_valid(changed)
+    wrong = deepcopy(final)
+    wrong["faultInjection"]["results"][0]["expectedBlocker"] = "TIER_UNASSIGNED"
+    wrong["faultInjection"]["results"][0]["observedBlockers"] = ["TIER_UNASSIGNED"]
+    assert not validator.is_valid(wrong)
+    foreign = json.loads(_story_8_2_published_pair()[0])
+    foreign["conformanceTiering"] = final["conformanceTiering"]
+    assert not validator.is_valid(foreign)
+    validator.validate(json.loads(_story_8_2_published_pair()[0]))
+    validator.validate(json.loads(_story_8_1_published_pair()[0]))
+
+
+def test_v2_story_9_1_self_ledger_names_every_tiering_gate() -> None:
+    module = load_generator()
+    subjects = [row["subject"] for row in module.v2_self_ledger("AC-9.1-09", "9.1")]
+    assert subjects[:9] == [row["subject"] for row in module.v2_self_ledger("AC-9.1-09")]
+    assert "generator::all-ten-tiering-fault-categories-measured" in subjects
+    assert "generator::quality-owner-approval-digest-bound" in subjects
+    assert len(subjects) == 18
+
+
+def test_v2_story_9_1_fault_fixture_paths_match_the_measuring_suite() -> None:
+    module = load_generator()
+    suite = (WORKSPACE / "_bmad/scripts/tests/test_conformance_tiering.py").read_text(encoding="utf-8")
+    for path in module.V2_9_1_FAULT_FIXTURE_PATHS:
+        assert path in suite or path in module.V2_9_1_OUTPUT_PATHS or path == module.V2_9_1_APPROVALS_PATH
+    assert "story91ObservedFault" in suite and "def test_tiering_faults(" in suite
+    assert list(module.V2_9_1_REQUIRED_FAULTS.items()) == [
+        (key, value) for key, value in re.findall(r'^    "([a-z0-9-]+)": "([A-Z0-9_]+)",$',
+                                                   suite.split("FAULTS = {", 1)[1].split("}", 1)[0], re.M)]
+
+
+def test_v2_story_9_1_scenario_requires_exact_command_and_committed_bytes(tmp_path: Path, monkeypatch) -> None:
+    """AC-9.1-01 passes only when its exact command exits 0 and reproduces every committed output byte."""
+    module = load_generator()
+    candidate = "a" * 40
+    scenario = {"id": "AC-9.1-01", "command": "python3 exact-generator.py"}
+    contents = dict(zip(module.V2_9_1_OUTPUT_PATHS, (b"schema", b"json", b"markdown")))
+    for path, content in contents.items():
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repository, _revision, path: contents.get(path))
+    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs: subprocess.CompletedProcess(
+        [], 1, b"", b"FAIL: TIER_APPROVAL_MISSING: no owner decision\n"))
+    record, category, findings = module.v2_9_1_scenario_from_results(tmp_path, candidate, scenario)
+    assert category == "failed" and record["result"] == "FAIL" and record["exitCode"] == 1
+    assert record["blockers"] == ["TEST_RESULTS_FAILED", "TIER_APPROVAL_MISSING"]
+    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs: subprocess.CompletedProcess([], 0, b"PASS", b""))
+    record, category, findings = module.v2_9_1_scenario_from_results(tmp_path, candidate, scenario)
+    assert category == "passed" and record["result"] == "PASS" and record["exitCode"] == 0 and findings == []
+    assert record["resultFile"] == {"path": module.V2_9_1_OUTPUT_PATHS[1], "sha256": module.v2_sha256(b"json")}
+    assert [row["path"] for row in record["outputFiles"]] == list(module.V2_9_1_OUTPUT_PATHS)
+    assert len(record["assertionLedger"]) == 10
+    (tmp_path / module.V2_9_1_OUTPUT_PATHS[2]).write_bytes(b"changed")
+    record, category, findings = module.v2_9_1_scenario_from_results(tmp_path, candidate, scenario)
+    assert category == "failed" and record["blockers"] == ["TIERING_RENDER_DRIFT"]
+    assert "assertionLedger" not in record
+
+
+def _story_9_1_facts(tmp_path: Path, monkeypatch, fault: str | None = None) -> tuple:
+    """Run `v2_9_1_facts` over a patched candidate, tiering verifier, and retained receipts."""
+    module = load_generator()
+    _, validators = module.v2_load_schemas()
+    candidate, freeze = "a" * 40, "f" * 40
+    blobs: dict[str, bytes] = {}
+
+    def write(path: str, content: bytes, committed: bool = True) -> bytes:
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+        if committed:
+            blobs[path] = content
+        return content
+
+    for path in (module.V2_9_1_CONTRACT_PATH, module.V2_AUTHORITY_BUNDLE_PATH, module.V2_9_1_DECISION_PATH,
+                 module.V2_8_1_PREDECESSOR[2], module.V2_9_1_GENERATOR_PATH,
+                 "_bmad/scripts/tests/test_conformance_tiering.py",
+                 "tests/Hexalith.Conversations.Conformance.Tests/ConformanceOracleTieringValidationTest.cs",
+                 "tests/Hexalith.Conversations.Conformance.Tests/ConformanceTieringIlReferenceReader.cs",
+                 *module.V2_9_1_OUTPUT_PATHS):
+        write(path, f"content:{path}".encode())
+    write(module.V2_8_1_PREDECESSOR[1], json.dumps({
+        "candidate": {"commit": "b" * 40},
+        "summary": {"required": 6, "passed": 6, "failed": 0, "blocked": 0, "skipped": 0, "notRun": 0}}).encode())
+    membership = "d" * 64
+    approvals = write(module.V2_9_1_APPROVALS_PATH, json.dumps({"decision": {
+        "state": "approved", "approvedMembershipSha256": membership}}).encode())
+    receipt = write(module.V2_9_1_RECEIPT_PATH, b"receipt", committed=False)
+    write(module.V2_9_1_FAULT_RESULT_PATH, b"<faults/>", committed=False)
+    stamp = "c" * 40 if fault == "foreign-stamp" else candidate
+    write(module.V2_8_1_TEST_ASSEMBLY, f"assembly 1.0.0+{stamp}".encode(), committed=False)
+    rows = [{"id": "Suite.First", "tier": "portable", "strengthSha256": "1" * 64},
+            {"id": "Suite.Second", "tier": "module-internal", "strengthSha256": "2" * 64}]
+    additions = [{"id": "Validation.Third", "tier": "portable", "strengthSha256": "3" * 64}]
+    document = {
+        "preSplitResult": {"receipt": {"sha256": module.v2_sha256(receipt)},
+                           "sourceCommit": candidate if fault == "freeze-is-candidate" else freeze,
+                           "result": {"path": "artifacts/v9/9.1/pre-split/conformance.trx", "sha256": "e" * 64},
+                           "counts": {"discoveredMethods": 2, "executedTestCases": 2}},
+        "approvals": {"sha256": module.v2_sha256(approvals), "approvalId": "QO-TEST", "approver": "Owner",
+                      "membershipSha256": "9" * 64 if fault == "approval-mismatch" else membership},
+        "assertions": rows, "validationAdditions": additions,
+    }
+
+    class Tiering:
+        class MultiError(Exception):
+            items: list = []
+
+        class TieringError(Exception):
+            code = "TEST_RESULTS_FAILED"
+
+        @staticmethod
+        def verify(_repository: Path) -> dict:
+            return document
+
+        @staticmethod
+        def load_pre_split(_repository: Path):
+            return type("PreSplit", (), {"receipt_sha256": module.v2_sha256(receipt)})()
+
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repository, _revision, path: blobs.get(path))
+    monkeypatch.setattr(module, "v2_verified_predecessor", lambda *_args: "7" * 64)
+    monkeypatch.setattr(module, "try_resolve_commit", lambda _repository, value: value)
+    monkeypatch.setattr(module, "is_ancestor", lambda *_args: True)
+    monkeypatch.setattr(module, "v2_9_1_tiering_module", lambda: Tiering)
+    monkeypatch.setattr(module, "run_git", lambda *_args, **_kwargs: subprocess.CompletedProcess(
+        [], 0, b"9999999999" if fault == "stale-assembly" else b"0", b""))
+    contract = {"inventory": {"sha256": "8" * 64}}
+    return module, validators, contract, candidate, rows, additions
+
+
+def test_v2_story_9_1_facts_bind_tiers_and_inventories_over_all_rows(tmp_path: Path, monkeypatch) -> None:
+    module, validators, contract, candidate, rows, additions = _story_9_1_facts(tmp_path, monkeypatch)
+    facts = module.v2_9_1_facts(tmp_path, candidate, contract, validators["record"])
+    everything = [*rows, *additions]
+    assert facts["tierCounts"] == {"portable": 2, "moduleInternal": 1}
+    assert (facts["assertionCount"], facts["validationAdditionCount"]) == (2, 1)
+    assert facts["assertionInventorySha256"] == module.v2_sha256(module.v2_render_json([row["id"] for row in everything]))
+    assert facts["strengthInventorySha256"] == module.v2_sha256(module.v2_render_json(
+        [[row["id"], row["strengthSha256"]] for row in everything]))
+    assert facts["sourceRevisionId"] == candidate and facts["approvals"]["approvalId"] == "QO-TEST"
+    validators["record"].evolve(schema={"$defs": validators["record"].schema["$defs"],
+                                        "$ref": "#/$defs/conformanceTiering"}).validate(facts)
+
+
+@pytest.mark.parametrize("fault,blocker", [
+    ("freeze-is-candidate", "BASELINE_NOT_TRUSTWORTHY"),
+    ("stale-assembly", "TEST_RESULTS_STALE"),
+    ("foreign-stamp", "TEST_RESULTS_STALE"),
+    ("approval-mismatch", "TIER_APPROVAL_MISSING"),
+])
+def test_v2_story_9_1_facts_reject_unbound_inputs(tmp_path: Path, monkeypatch, fault: str, blocker: str) -> None:
+    module, validators, contract, candidate, _, _ = _story_9_1_facts(tmp_path, monkeypatch, fault)
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_9_1_facts(tmp_path, candidate, contract, validators["record"])
+    assert [item["code"] for item in failure.value.findings] == [blocker]
+
+# --------------------------------------------------------------------------- Story 9.2
+
+def _story_9_2_module():
+    module = load_generator()
+    verifier = module.v2_9_2_verifier()
+    return module, verifier
+
+
+def _story_9_2_fault_rows(module, verifier, candidate: str) -> list[dict]:
+    """Synthetic parser fixtures; these do not claim actual tier execution or Quality approval."""
+    return [{"id": identifier, "candidateCommit": candidate, "expectedBlocker": blocker,
+             "observedExitCode": 1, "observedBlockers": [blocker], "beforeSha256": "1" * 64,
+             "mutatedSha256": module.v2_sha256(identifier.encode()), "afterSha256": "1" * 64,
+             "baselineExitCode": 0, "baselineBlockers": [], "restoredExitCode": 0, "restoredBlockers": [],
+             "sourceInputsSha256": "2" * 64, "syntheticExecutionAndApprovalFixture": True}
+            for identifier, blocker in verifier.FAULTS.items()]
+
+
+def _story_9_2_write_faults(root: Path, module, verifier, rows: list[dict]):
+    document = ElementTree.Element("testsuites")
+    suite = ElementTree.SubElement(document, "testsuite", tests=str(len(rows)), failures="0", errors="0", skipped="0")
+    for row in rows:
+        case = ElementTree.SubElement(suite, "testcase", classname=module.V2_9_1_FAULT_CLASSNAME,
+                                      name=f"test_structural_and_execution_faults[{row['id']}]")
+        properties = ElementTree.SubElement(case, "properties")
+        ElementTree.SubElement(properties, "property", name=verifier.FAULT_PROPERTY, value=json.dumps(row))
+    target = root / module.V2_9_2_FAULT_RESULT_PATH
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(ElementTree.tostring(document))
+    return document
+
+
+def test_v2_story_9_2_uses_only_the_hash_bound_execution_amendment(tmp_path: Path, monkeypatch) -> None:
+    module, _ = _story_9_2_module()
+    candidate = "a" * 40
+    contract_bytes = (WORKSPACE / module.V2_9_2_CONTRACT_PATH).read_bytes()
+    amendment_bytes = (WORKSPACE / module.V2_9_2_AMENDMENT_PATH).read_bytes()
+    path = tmp_path / module.V2_9_2_AMENDMENT_PATH
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(amendment_bytes)
+    blobs = {module.V2_9_2_CONTRACT_PATH: contract_bytes, module.V2_9_2_AMENDMENT_PATH: amendment_bytes}
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repo, _rev, path: blobs.get(path))
+    contract = json.loads(contract_bytes)
+    effective = module.v2_9_2_amendment(tmp_path, candidate, contract)
+    assert contract == json.loads(contract_bytes)
+    assert [row["command"] for row in effective["scenarios"]] == [row["command"] for row in json.loads(amendment_bytes)["effectiveScenarios"]]
+    for scenario in effective["scenarios"][:8]:
+        route = module.v2_9_2_command(shlex.split(scenario["command"]))
+        assert route is not None
+    # Generic and historical command parsing remains unchanged.
+    tokens = shlex.split(effective["scenarios"][1]["command"])
+    assert module.v2_successor_command(tokens, module.V2_9_1_CONTRACT_PATH) is None
+    assert module.v2_9_2_command(tokens + ["-unknown", "value"]) is None
+    assert module.v2_9_2_command(["all" if token == "none" else token for token in tokens]) is None
+    changed = json.loads(amendment_bytes)
+    changed["effectiveScenarios"][5]["command"] += " -method- RequiredAssertion"
+    path.write_text(json.dumps(changed))
+    blobs[module.V2_9_2_AMENDMENT_PATH] = path.read_bytes()
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_9_2_amendment(tmp_path, candidate, contract)
+    assert failure.value.findings[0]["code"] == "AUTHORITY_BINDING_INVALID"
+
+
+@pytest.mark.parametrize("mutation,blocker", [
+    (None, None), ("source-digest", "TEST_RESULTS_STALE"), ("candidate", "TEST_RESULTS_STALE"),
+    ("property-missing", "FAULT_NOT_DETECTED"), ("extra-property", "FAULT_NOT_DETECTED"),
+    ("exit", "FAULT_NOT_DETECTED"), ("extra-blocker", "FAULT_NOT_DETECTED"),
+    ("after-hash", "FIXTURE_NOT_RESTORED"), ("unchanged-mutation", "FIXTURE_NOT_RESTORED"),
+    ("restored-exit", "FIXTURE_NOT_RESTORED"), ("missing-case", "FAULT_NOT_DETECTED"),
+    ("reordered", "FAULT_NOT_DETECTED"), ("wrong-name", "FAULT_NOT_DETECTED"),
+    ("skipped", "TEST_RESULTS_FAILED"), ("failed", "TEST_RESULTS_FAILED"),
+    ("stale", "TEST_RESULTS_STALE"), ("absent", "TEST_RESULTS_MISSING"),
+])
+def test_v2_story_9_2_requires_measured_candidate_bound_restored_faults(tmp_path: Path, monkeypatch, mutation, blocker) -> None:
+    module, verifier = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    candidate = "a" * 40
+    monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess([], 0, b"9999999999" if mutation == "stale" else b"0", b""))
+    monkeypatch.setattr(module, "v2_9_2_source_digest", lambda *_: "2" * 64)
+    rows = _story_9_2_fault_rows(module, verifier, candidate)
+    row = rows[0]
+    if mutation == "source-digest": row["sourceInputsSha256"] = "3" * 64
+    elif mutation == "candidate": row["candidateCommit"] = "b" * 40
+    elif mutation == "exit": row["observedExitCode"] = 0
+    elif mutation == "extra-blocker": row["observedBlockers"].append("TIER_UNASSIGNED")
+    elif mutation == "after-hash": row["afterSha256"] = "4" * 64
+    elif mutation == "unchanged-mutation": row["mutatedSha256"] = row["beforeSha256"]
+    elif mutation == "restored-exit": row["restoredExitCode"] = 1
+    elif mutation == "missing-case": rows.pop()
+    elif mutation == "reordered": rows[0], rows[1] = rows[1], rows[0]
+    document = _story_9_2_write_faults(tmp_path, module, verifier, rows)
+    suite = document.find("testsuite")
+    case = suite.find("testcase")
+    if mutation == "property-missing": case.remove(case.find("properties"))
+    elif mutation == "extra-property":
+        prop = case.find("properties/property")
+        ElementTree.SubElement(case.find("properties"), "property", name=prop.get("name"), value=prop.get("value"))
+    elif mutation == "wrong-name": case.set("name", "Unrelated")
+    elif mutation in ("skipped", "failed"):
+        ElementTree.SubElement(case, "skipped" if mutation == "skipped" else "failure")
+        suite.set("skipped" if mutation == "skipped" else "failures", "1")
+    path = tmp_path / module.V2_9_2_FAULT_RESULT_PATH
+    path.write_bytes(ElementTree.tostring(document))
+    if mutation == "absent": path.unlink()
+    if blocker:
+        with pytest.raises(module.V2Stop) as failure:
+            module.v2_9_2_faults(tmp_path, candidate, validators["record"], verifier)
+        assert failure.value.findings[0]["code"] == blocker
+    else:
+        assert module.v2_9_2_faults(tmp_path, candidate, validators["record"], verifier) == rows
+
+
+def _story_9_2_record(module, verifier) -> dict:
+    record = _story_9_1_record(module)
+    record.pop("conformanceTiering")
+    frozen = json.loads((WORKSPACE / module.V2_9_2_CONTRACT_PATH).read_bytes())
+    amendment = json.loads((WORKSPACE / module.V2_9_2_AMENDMENT_PATH).read_bytes())
+    candidate = record["candidate"]["commit"]
+    binding = {"path": "docs/release-evidence/fixture.json", "sha256": "c" * 64}
+    tier = {"project": binding, "assembly": binding, "result": binding,
+            "counts": {"total": 326, "executed": 326, "passed": 326, "failed": 0, "skipped": 0},
+            "activeFrozenMethods": 325, "activeFrozenCases": 325, "controlCases": 1,
+            "failedControlCases": [], "caseIdentitySha256": "c" * 64}
+    internal = deepcopy(tier)
+    internal.update(activeFrozenMethods=76, activeFrozenCases=90, controlCases=2,
+                    counts={"total": 92, "executed": 92, "passed": 92, "failed": 0, "skipped": 0})
+    facts = {"bindingRule": module.V2_9_2_BINDING_RULE, "sourceRevisionId": candidate,
+             "baselineCommit": module.V2_9_2_BASELINE, "contract": binding, "executionAmendment": binding,
+             "candidateEnvironment": _story_9_2_environment_binding(module),
+             "predecessorRecord": {"storyId": "9.1", **binding}, "predecessorCandidate": "a" * 40,
+             "beforeDisposition": binding, "preSplitResult": binding, "migration": binding,
+             "proposalSha256": "c" * 64, "approval": binding,
+             "inventories": {key: "c" * 64 for key in ("beforeIdentitySha256", "afterIdentitySha256",
+                 "beforeStrengthInventorySha256", "afterStrengthInventorySha256")}, "inventorySha256": frozen["inventory"]["sha256"],
+             "declarations": {"solution": binding, "workflow": binding, "completionInventorySha256": "c" * 64},
+             "portableSurfaceSha256": "c" * 64, "fr20MembershipSha256": "c" * 64, "denominatorSuitesSha256": "c" * 64,
+             "publicDriftSha256": "c" * 64, "changedAssertionRows": 14, "frozenDefinitions": 452,
+             "historicalExclusions": 51, "historicalValidationControls": 7,
+             "execution": {"tiers": {"portable": tier, "module-internal": internal}, "beforeExecutedCases": 415,
+                 "afterExecutedCases": 415, "activeFrozenMethods": 401, "controlsExecuted": 3,
+                 "beforeCaseIdentitySha256": "c" * 64, "afterCaseIdentitySha256": "c" * 64,
+                 "failed": 0, "skipped": 0, "notRun": 0, "completePassingExecution": True},
+             "protectedArtifacts": [binding], "faultEvidence": binding, "faultSourceInputsSha256": "2" * 64}
+    record.update(storyId="9.2", predecessors=["9.1"], inventory=frozen["inventory"], rollback=frozen["rollback"],
+                  conformanceExecution=facts, summary=frozen["finalRecord"]["summary"],
+                  faultInjection={"results": _story_9_2_fault_rows(module, verifier, candidate)})
+    record["scenarios"] = [{"scenarioId": row["id"], "command": row["command"], "exitCode": 0,
+                            "result": "PASS", "blockers": [], "assertionLedger": [{"id": row["id"] + "#0001", "subject": "fixture", "state": "PASS"}]}
+                           for row in amendment["effectiveScenarios"]]
+    record["outputs"] = {"json": {"path": frozen["finalRecord"]["paths"][0], "sha256": "c" * 64},
+                         "markdown": {"path": frozen["finalRecord"]["paths"][1], "sha256": "c" * 64}}
+    return record
+
+
+def _story_9_2_environment_binding(module) -> dict:
+    """Authorized environment material for parser fixtures, without an acceptance claim."""
+    proposal = json.loads((WORKSPACE / module.V2_9_2_ENVIRONMENT_PATH).read_bytes())["proposal"]
+    return {"amendment": {"path": module.V2_9_2_ENVIRONMENT_PATH, "sha256": module.V2_9_2_ENVIRONMENT_SHA256},
+            "proposalSha256": proposal["proposalSha256"], "measuredCandidateCommit": proposal["measuredCandidateCommit"],
+            "gitlinks": proposal["acceptedEnvironmentGitlinks"], "promotionCommits": proposal["promotionCommits"]}
+
+
+def _story_9_2_environment_git_fixture(root: Path, module):
+    """Read actual root history through shared objects; write only disposable Git objects.
+
+    The single commit message was validated with the owning pinned commitlint
+    CLI before introduction. No checkout or submodule operation is required.
+    """
+    root.mkdir(parents=True, exist_ok=True)
+    v2_git(root, "init", "-q")
+    objects = Path(v2_git(WORKSPACE, "rev-parse", "--git-path", "objects").stdout.strip())
+    if not objects.is_absolute():
+        objects = WORKSPACE / objects
+    info = root / ".git/objects/info"
+    info.mkdir(parents=True, exist_ok=True)
+    (info / "alternates").write_text(str(objects.resolve()) + "\n", encoding="utf-8")
+    v2_git(root, "read-tree", module.V2_9_2_ENVIRONMENT_CANDIDATE)
+    amendment = root / module.V2_9_2_ENVIRONMENT_PATH
+    amendment.parent.mkdir(parents=True, exist_ok=True)
+    amendment.write_bytes((WORKSPACE / module.V2_9_2_ENVIRONMENT_PATH).read_bytes())
+    _story_9_2_environment_stage(root, module.V2_9_2_ENVIRONMENT_PATH)
+    candidate = _story_9_2_environment_commit(root, module.V2_9_2_ENVIRONMENT_CANDIDATE)
+    return amendment, candidate
+
+
+def _story_9_2_environment_stage(root: Path, path: str):
+    blob = v2_git(root, "hash-object", "-w", path).stdout.strip()
+    v2_git(root, "update-index", "--add", "--cacheinfo", f"100644,{blob},{path}")
+
+
+def _story_9_2_environment_commit(root: Path, parent: str) -> str:
+    tree = v2_git(root, "write-tree").stdout.strip()
+    return v2_git(root, "commit-tree", tree, "-p", parent,
+                  "-m", "test: exercise story 9.2 environment bindings").stdout.strip()
+
+
+@pytest.mark.parametrize("mutation", [
+    None, "missing", "uncommitted", "malformed", "extra-field", "authorization", "story", "baseline", "candidate",
+    "proposal-digest", "missing-gitlink", "gitlink-before", "gitlink-after", "gitlink-mode", "gitlink-status",
+    "missing-promotion", "promotion-commit", "promotion-parent", "promotion-diff", "promotion-order",
+])
+def test_v2_story_9_2_environment_requires_exact_authorized_binding_and_restores_bytes(tmp_path: Path, mutation) -> None:
+    module, _ = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    amendment, candidate = _story_9_2_environment_git_fixture(tmp_path, module)
+    before = amendment.read_bytes()
+    index = tmp_path / ".git/index"
+    before_index = index.read_bytes()
+    expected = _story_9_2_environment_binding(module)
+    baseline, touched = module.v2_9_2_environment(tmp_path, candidate, validators["record"])
+    assert baseline == expected and module.V2_9_2_ENVIRONMENT_PATH in touched
+    changed = json.loads(before)
+    proposal = changed["proposal"]
+    if mutation == "extra-field": changed["callerAuthored"] = True
+    elif mutation == "authorization": changed["authorization"]["statement"] = "not approved"
+    elif mutation == "story": changed["storyId"] = "9.1"
+    elif mutation == "baseline": proposal["baselineCommit"] = "b" * 40
+    elif mutation == "candidate": proposal["measuredCandidateCommit"] = "b" * 40
+    elif mutation == "proposal-digest": proposal["proposalSha256"] = "b" * 64
+    elif mutation == "missing-gitlink": proposal["acceptedEnvironmentGitlinks"].pop()
+    elif mutation == "gitlink-before": proposal["acceptedEnvironmentGitlinks"][0]["beforeCommit"] = "b" * 40
+    elif mutation == "gitlink-after": proposal["acceptedEnvironmentGitlinks"][0]["afterCommit"] = "b" * 40
+    elif mutation == "gitlink-mode": proposal["acceptedEnvironmentGitlinks"][0]["afterMode"] = "100644"
+    elif mutation == "gitlink-status": proposal["acceptedEnvironmentGitlinks"][0]["status"] = "A"
+    elif mutation == "missing-promotion": proposal["promotionCommits"].pop()
+    elif mutation == "promotion-commit": proposal["promotionCommits"][0]["commit"] = "b" * 40
+    elif mutation == "promotion-parent": proposal["promotionCommits"][0]["parent"] = "b" * 40
+    elif mutation == "promotion-diff": proposal["promotionCommits"][0]["changedGitlinks"].pop()
+    elif mutation == "promotion-order": proposal["promotionCommits"].reverse()
+    try:
+        if mutation == "missing": amendment.unlink()
+        elif mutation == "uncommitted":
+            v2_git(tmp_path, "update-index", "--force-remove", module.V2_9_2_ENVIRONMENT_PATH)
+            candidate = _story_9_2_environment_commit(tmp_path, candidate)
+        elif mutation:
+            amendment.write_bytes(b"not-json" if mutation == "malformed" else json.dumps(changed).encode())
+            _story_9_2_environment_stage(tmp_path, module.V2_9_2_ENVIRONMENT_PATH)
+            candidate = _story_9_2_environment_commit(tmp_path, candidate)
+        if mutation:
+            with pytest.raises(module.V2Stop) as failure:
+                module.v2_9_2_environment(tmp_path, candidate, validators["record"])
+            assert [row["code"] for row in failure.value.findings] == ["AUTHORITY_BINDING_INVALID"]
+        else:
+            assert module.v2_9_2_environment(tmp_path, candidate, validators["record"])[0] == expected
+    finally:
+        amendment.write_bytes(before)
+        index.write_bytes(before_index)
+    assert amendment.read_bytes() == before and index.read_bytes() == before_index
+    restored_candidate = _story_9_2_environment_commit(tmp_path, module.V2_9_2_ENVIRONMENT_CANDIDATE)
+    assert module.v2_9_2_environment(tmp_path, restored_candidate, validators["record"])[0] == expected
+
+
+@pytest.mark.parametrize("mutation", [
+    "additional-promotion", "reverted-promotion", "undeclared-gitlink", "unapproved-root", "removed-gitlink", "blob-mode",
+])
+def test_v2_story_9_2_environment_rejects_actual_unapproved_git_history_and_restores_bytes(tmp_path: Path, mutation) -> None:
+    module, _ = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    amendment, candidate = _story_9_2_environment_git_fixture(tmp_path, module)
+    index = tmp_path / ".git/index"
+    before_index, before_amendment = index.read_bytes(), amendment.read_bytes()
+    baseline = module.v2_9_2_environment(tmp_path, candidate, validators["record"])[0]
+    path = "references/Hexalith.Builds"
+    if mutation == "undeclared-gitlink": path = "references/Hexalith.Unapproved"
+    elif mutation == "unapproved-root": path = "references/Hexalith.AI.Tools"
+    blob_fixture = tmp_path / "mode-fixture.txt"
+    try:
+        if mutation == "removed-gitlink": v2_git(tmp_path, "update-index", "--force-remove", path)
+        elif mutation == "blob-mode":
+            blob_fixture.write_bytes(b"SYNTHETIC-FIXTURE: not a gitlink\n")
+            blob = v2_git(tmp_path, "hash-object", "-w", str(blob_fixture)).stdout.strip()
+            v2_git(tmp_path, "update-index", "--cacheinfo", f"100644,{blob},{path}")
+        else:
+            v2_git(tmp_path, "update-index", "--add", "--cacheinfo", f"160000,{'b' * 40},{path}")
+        changed_candidate = _story_9_2_environment_commit(tmp_path, candidate)
+        if mutation == "reverted-promotion":
+            index.write_bytes(before_index)
+            changed_candidate = _story_9_2_environment_commit(tmp_path, changed_candidate)
+            assert module.changed_gitlinks(tmp_path, module.V2_9_2_BASELINE, changed_candidate) == sorted(row["path"] for row in baseline["gitlinks"])
+        with pytest.raises(module.V2Stop) as failure:
+            module.v2_9_2_environment(tmp_path, changed_candidate, validators["record"])
+        assert [row["code"] for row in failure.value.findings] == ["AUTHORITY_BINDING_INVALID"]
+    finally:
+        index.write_bytes(before_index)
+        if blob_fixture.exists(): blob_fixture.unlink()
+    assert amendment.read_bytes() == before_amendment and index.read_bytes() == before_index
+    assert module.v2_9_2_environment(tmp_path, candidate, validators["record"])[0] == baseline
+
+
+def test_v2_story_9_2_environment_requires_measured_candidate_ancestry(tmp_path: Path) -> None:
+    module, _ = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    amendment, candidate = _story_9_2_environment_git_fixture(tmp_path, module)
+    before, before_index = amendment.read_bytes(), (tmp_path / ".git/index").read_bytes()
+    sibling = _story_9_2_environment_commit(tmp_path, module.V2_9_2_BASELINE)
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_9_2_environment(tmp_path, sibling, validators["record"])
+    assert [row["code"] for row in failure.value.findings] == ["AUTHORITY_BINDING_INVALID"]
+    assert amendment.read_bytes() == before and (tmp_path / ".git/index").read_bytes() == before_index
+    assert module.v2_9_2_environment(tmp_path, candidate, validators["record"])[0] == _story_9_2_environment_binding(module)
+
+
+@pytest.mark.parametrize("path", ["src/ProductChange.cs", "Directory.Packages.props", "docs/release-evidence/story-9.1-final-record-v2.json"])
+def test_v2_story_9_2_environment_preserves_reverted_protected_path_history(tmp_path: Path, path: str) -> None:
+    module, _ = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    amendment, candidate = _story_9_2_environment_git_fixture(tmp_path, module)
+    index = tmp_path / ".git/index"
+    before_index, before_amendment = index.read_bytes(), amendment.read_bytes()
+    temporary = tmp_path / "mutation-fixture.txt"
+    try:
+        temporary.write_bytes(b"SYNTHETIC-FIXTURE: unauthorized protected-path mutation\n")
+        blob = v2_git(tmp_path, "hash-object", "-w", str(temporary)).stdout.strip()
+        v2_git(tmp_path, "update-index", "--add", "--cacheinfo", f"100644,{blob},{path}")
+        mutated = _story_9_2_environment_commit(tmp_path, candidate)
+        index.write_bytes(before_index)
+        reverted = _story_9_2_environment_commit(tmp_path, mutated)
+        assert module.committed_path_status(tmp_path, candidate, reverted) == {}
+        # Environment facts still match, but the owning scope gate receives the
+        # intermediate protected path and rejects it in the API tests below.
+        environment, touched = module.v2_9_2_environment(tmp_path, reverted, validators["record"])
+        assert environment == _story_9_2_environment_binding(module) and path in touched
+    finally:
+        index.write_bytes(before_index)
+        if temporary.exists(): temporary.unlink()
+    assert amendment.read_bytes() == before_amendment and index.read_bytes() == before_index
+    assert module.v2_9_2_environment(tmp_path, candidate, validators["record"])[0] == _story_9_2_environment_binding(module)
+
+
+def _story92_stage_record_pair(root: Path, module, candidate: str, *, invalid: bool = False, only_json: bool = False, refresh: bool = False):
+    record = _story_9_2_record(module, module.v2_9_2_verifier())
+    record["candidate"] = {"commit": candidate, "gitlinks": [{"path": path, "commit": commit, "mode": "160000"}
+                                                            for path, commit in module.v2_raw_gitlinks(root, candidate)]}
+    record["conformanceExecution"]["sourceRevisionId"] = candidate
+    for row in record["faultInjection"]["results"]: row["candidateCommit"] = candidate
+    if refresh:
+        record["scenarios"][0]["assertionLedger"][0]["subject"] = "refreshed disposable fixture evidence"
+    _, content, markdown = module.v2_finalize(record)
+    paths = ["docs/release-evidence/story-9.2-final-record-v2.json", "docs/release-evidence/story-9.2-final-record-v2.md"]
+    for path, data in zip(paths[:1] if only_json else paths, (content + b"\n" if invalid else content, markdown)):
+        target = root / path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(data)
+        _story_9_2_environment_stage(root, path)
+    return paths
+
+
+@pytest.mark.parametrize("mutation", [None, "mixed-publication", "single-publication", "invalid-pair", "mixed-retraction", "single-retraction", "source-before-retraction"])
+def test_v2_story_9_2_environment_validates_only_pair_publication_retraction_history(tmp_path: Path, mutation) -> None:
+    module, _ = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    amendment, candidate = _story_9_2_environment_git_fixture(tmp_path, module)
+    index = tmp_path / ".git/index"
+    before_index, before_amendment = index.read_bytes(), amendment.read_bytes()
+    extra = "_bmad/scripts/generate_story_record.py"
+    paths = []
+    try:
+        paths = _story92_stage_record_pair(tmp_path, module, candidate, invalid=mutation == "invalid-pair", only_json=mutation == "single-publication")
+        if mutation == "mixed-publication":
+            path = tmp_path / extra; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"SYNTHETIC: mixed source mutation")
+            _story_9_2_environment_stage(tmp_path, extra)
+        publication = _story_9_2_environment_commit(tmp_path, candidate)
+        if mutation in ("mixed-publication", "single-publication", "invalid-pair"):
+            with pytest.raises(module.V2Stop) as error: module.v2_9_2_environment(tmp_path, publication, validators["record"])
+            assert error.value.findings[0]["code"] == "AUTHORITY_BINDING_INVALID"
+        else:
+            facts, touched = module.v2_9_2_environment(tmp_path, publication, validators["record"])
+            assert facts == _story_9_2_environment_binding(module) and not set(paths).intersection(touched)
+            parent = publication
+            if mutation == "source-before-retraction":
+                path = tmp_path / extra; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"SYNTHETIC: source before retraction")
+                _story_9_2_environment_stage(tmp_path, extra)
+                parent = _story_9_2_environment_commit(tmp_path, parent)
+            for path in paths[:1] if mutation == "single-retraction" else paths:
+                v2_git(tmp_path, "update-index", "--force-remove", path)
+            if mutation == "mixed-retraction":
+                path = tmp_path / extra; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"SYNTHETIC: mixed retraction")
+                _story_9_2_environment_stage(tmp_path, extra)
+            retraction = _story_9_2_environment_commit(tmp_path, parent)
+            if mutation:
+                with pytest.raises(module.V2Stop) as error: module.v2_9_2_environment(tmp_path, retraction, validators["record"])
+                assert error.value.findings[0]["code"] == "AUTHORITY_BINDING_INVALID"
+            else:
+                assert module.v2_9_2_environment(tmp_path, retraction, validators["record"])[0] == facts
+                # A replacement source candidate is legal only after retraction.
+                path = tmp_path / extra; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"SYNTHETIC: replacement candidate")
+                _story_9_2_environment_stage(tmp_path, extra)
+                replacement = _story_9_2_environment_commit(tmp_path, retraction)
+                _story92_stage_record_pair(tmp_path, module, replacement)
+                replacement_publication = _story_9_2_environment_commit(tmp_path, replacement)
+                assert module.v2_9_2_environment(tmp_path, replacement_publication, validators["record"])[0] == facts
+    finally:
+        index.write_bytes(before_index)
+        for path in [*paths, extra]: (tmp_path / path).unlink(missing_ok=True)
+    assert amendment.read_bytes() == before_amendment and index.read_bytes() == before_index
+    assert module.v2_9_2_environment(tmp_path, candidate, validators["record"])[0] == _story_9_2_environment_binding(module)
+
+
+@pytest.mark.parametrize("replacement", [False, True], ids=["same-candidate-refresh", "replacement-without-retraction"])
+def test_v2_story_9_2_environment_pair_refresh_retains_parent_candidate(tmp_path: Path, replacement: bool) -> None:
+    module, _ = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    amendment, candidate = _story_9_2_environment_git_fixture(tmp_path, module)
+    index = tmp_path / ".git/index"
+    before_index, before_amendment = index.read_bytes(), amendment.read_bytes()
+    extra = "_bmad/scripts/generate_story_record.py"
+    paths = []
+    try:
+        paths = _story92_stage_record_pair(tmp_path, module, candidate)
+        publication = _story_9_2_environment_commit(tmp_path, candidate)
+        parent, recorded_candidate = publication, candidate
+        if replacement:
+            source = tmp_path / extra; source.parent.mkdir(parents=True, exist_ok=True)
+            source.write_bytes(b"SYNTHETIC: source change without pair retraction")
+            _story_9_2_environment_stage(tmp_path, extra)
+            parent = recorded_candidate = _story_9_2_environment_commit(tmp_path, publication)
+        _story92_stage_record_pair(tmp_path, module, recorded_candidate, refresh=True)
+        refresh = _story_9_2_environment_commit(tmp_path, parent)
+        assert module.committed_path_status(tmp_path, parent, refresh) == {path: "M" for path in paths}
+        if replacement:
+            with pytest.raises(module.V2Stop) as error:
+                module.v2_9_2_environment(tmp_path, refresh, validators["record"])
+            assert error.value.findings[0]["code"] == "AUTHORITY_BINDING_INVALID"
+        else:
+            facts, touched = module.v2_9_2_environment(tmp_path, refresh, validators["record"])
+            assert facts == _story_9_2_environment_binding(module) and not set(paths).intersection(touched)
+    finally:
+        index.write_bytes(before_index)
+        for path in [*paths, extra]: (tmp_path / path).unlink(missing_ok=True)
+    assert amendment.read_bytes() == before_amendment and index.read_bytes() == before_index
+    assert module.v2_9_2_environment(tmp_path, candidate, validators["record"])[0] == _story_9_2_environment_binding(module)
+
+
+def test_v2_story_9_2_environment_recognizes_archived_pair_only_retraction() -> None:
+    module, _ = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    revision = "9c6ff6d3f5c1a3c5d1754c258cb5832b514ac495"
+    facts, touched = module.v2_9_2_environment(WORKSPACE, revision, validators["record"])
+    assert facts == _story_9_2_environment_binding(module)
+    assert not {"docs/release-evidence/story-9.2-final-record-v2.json", "docs/release-evidence/story-9.2-final-record-v2.md"}.intersection(touched)
+
+
+def test_v2_story_9_2_closed_schema_determinism_and_preserved_historical_pairs() -> None:
+    module, verifier = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    record = _story_9_2_record(module, verifier)
+    final, content, markdown = module.v2_finalize(record)
+    validators["record"].validate(final)
+    assert module.v2_finalize(record)[1:] == (content, markdown)
+    assert module.v2_verify_pair(content, markdown) == []
+    assert "## Story 9.2 conformance execution" in markdown.decode()
+    assert "415 / 415" in markdown.decode() and "synthetic approval" in markdown.decode()
+    for mutation in ("binding-missing", "foreign-binding", "fault-missing", "fault-reordered", "execution-skipped", "execution-empty", "floor-regressed", "extra-field",
+                     "environment-missing", "environment-digest", "environment-proposal", "environment-candidate",
+                     "environment-gitlink-missing", "environment-promotion-missing", "environment-gitlink-mode", "environment-extra-field"):
+        changed = deepcopy(final)
+        if mutation == "binding-missing": changed.pop("conformanceExecution")
+        elif mutation == "foreign-binding": changed["conformanceTiering"] = {}
+        elif mutation == "fault-missing": changed["faultInjection"]["results"].pop()
+        elif mutation == "fault-reordered": changed["faultInjection"]["results"].reverse()
+        elif mutation == "execution-skipped": changed["conformanceExecution"]["execution"]["skipped"] = 1
+        elif mutation == "execution-empty": changed["conformanceExecution"]["execution"]["tiers"]["portable"]["counts"]["executed"] = 0
+        elif mutation == "floor-regressed": changed["conformanceExecution"]["execution"]["afterExecutedCases"] = 414
+        elif mutation == "extra-field": changed["conformanceExecution"]["callerAuthored"] = True
+        elif mutation == "environment-missing": changed["conformanceExecution"].pop("candidateEnvironment")
+        elif mutation == "environment-digest": changed["conformanceExecution"]["candidateEnvironment"]["amendment"]["sha256"] = "d" * 64
+        elif mutation == "environment-proposal": changed["conformanceExecution"]["candidateEnvironment"]["proposalSha256"] = "d" * 64
+        elif mutation == "environment-candidate": changed["conformanceExecution"]["candidateEnvironment"]["measuredCandidateCommit"] = "d" * 40
+        elif mutation == "environment-gitlink-missing": changed["conformanceExecution"]["candidateEnvironment"]["gitlinks"].pop()
+        elif mutation == "environment-promotion-missing": changed["conformanceExecution"]["candidateEnvironment"]["promotionCommits"].pop()
+        elif mutation == "environment-gitlink-mode": changed["conformanceExecution"]["candidateEnvironment"]["gitlinks"][0]["afterMode"] = "100644"
+        elif mutation == "environment-extra-field": changed["conformanceExecution"]["candidateEnvironment"]["callerAuthored"] = True
+        assert not validators["record"].is_valid(changed), mutation
+    for story in ("7.1", "7.2", "7.3", "7.4", "8.1", "8.2", "9.1"):
+        prior_bytes = (WORKSPACE / f"docs/release-evidence/story-{story}-final-record-v2.json").read_bytes()
+        prior_markdown = (WORKSPACE / f"docs/release-evidence/story-{story}-final-record-v2.md").read_bytes()
+        assert module.v2_verify_pair(prior_bytes, prior_markdown) == [], story
+        prior = json.loads(prior_bytes)
+        validators["record"].validate(prior)
+        prior["conformanceExecution"] = final["conformanceExecution"]
+        assert not validators["record"].is_valid(prior)
+
+
+def test_v2_story_9_2_fault_source_digest_checks_candidate_input_bytes(tmp_path: Path, monkeypatch) -> None:
+    module, verifier = _story_9_2_module()
+    candidate = "a" * 40
+    path = "input.cs"
+    (tmp_path / path).write_bytes(b"retained source")
+    monkeypatch.setattr(verifier, "fault_source_paths", lambda _: [path])
+    monkeypatch.setattr(module, "v2_committed_blob", lambda *_: b"retained source")
+    digest = module.v2_9_2_source_digest(tmp_path, candidate, verifier)
+    assert digest == module.v2_sha256(verifier.TIERING.canonical_json([{"path": path, "sha256": module.v2_sha256(b"retained source")}]))
+    (tmp_path / path).write_bytes(b"modified source")
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_9_2_source_digest(tmp_path, candidate, verifier)
+    assert failure.value.findings[0]["code"] == "TEST_RESULTS_STALE"
+
+
+def test_v2_story_9_2_retained_scenario_reading_executes_no_build_or_python(tmp_path: Path, monkeypatch) -> None:
+    module, _ = _story_9_2_module()
+    candidate = "a" * 40
+    script = module.V2_9_2_VERIFIER_PATH
+    output = module.V2_9_2_RESULT_PATH
+    for relative, content in ((script, b"verifier"), (output, b'{"result":"PASS","exitCode":0,"blockers":[]}')):
+        target = tmp_path / relative; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(content)
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repo, _rev, path: b"verifier" if path == script else None)
+    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs: pytest.fail("read-only verification executed a build or Python command"))
+    scenario = {"id": "AC-9.2-08", "command": "python3 " + script}
+    command = {"kind": "python", "script": script, "options": {}, "outputs": [output]}
+    result, category, findings = module.v2_successor_scenario_from_results(tmp_path, scenario, command, candidate, 0, [], execute_commands=False)
+    assert category == "passed" and findings == [] and result["resultFile"]["path"] == output
+
+
+@pytest.mark.parametrize("fault,blocker", [
+    (None, None), ("approval-pending", "TIER_APPROVAL_MISSING"), ("approval-mismatch", "TIER_APPROVAL_MISSING"),
+    ("synthetic-approval", "TIER_APPROVAL_MISSING"),
+    ("foreign-assembly", "TEST_RESULTS_STALE"), ("report-drift", "TEST_RESULTS_STALE"),
+    ("approval-uncommitted", "TIER_APPROVAL_MISSING"), ("baseline-moved", "BASELINE_NOT_TRUSTWORTHY"),
+    ("production-changed", "AUTHORITY_BINDING_INVALID"), ("gitlink-changed", "AUTHORITY_BINDING_INVALID"),
+    ("dependency-changed", "AUTHORITY_BINDING_INVALID"), ("protected-record-changed", "AUTHORITY_BINDING_INVALID"),
+    ("production-restored", "AUTHORITY_BINDING_INVALID"), ("dependency-restored", "AUTHORITY_BINDING_INVALID"),
+    ("protected-record-restored", "AUTHORITY_BINDING_INVALID"),
+    ("predecessor-incompatible", "AUTHORITY_BINDING_INVALID"),
+])
+def test_v2_story_9_2_facts_rederive_api_results_and_reject_unbound_acceptance(tmp_path: Path, monkeypatch, fault, blocker) -> None:
+    """Exercise the binding gate with explicitly synthetic API/binary fixtures in a disposable directory."""
+    module, verifier = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    candidate = "a" * 40
+    fixture_record = _story_9_2_record(module, verifier)
+    facts = fixture_record["conformanceExecution"]
+    blobs = {}
+    def write(path, content, committed=True):
+        target = tmp_path / path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(content)
+        if committed: blobs[path] = content
+    for path in (module.V2_9_2_CONTRACT_PATH, module.V2_9_2_AMENDMENT_PATH, module.V2_9_2_SPEC_PATH,
+                 module.V2_9_2_PREDECESSOR[1], module.V2_9_2_PREDECESSOR[2], verifier.MIGRATION, verifier.DISPOSITION):
+        write(path, (WORKSPACE / path).read_bytes())
+    if fault == "baseline-moved":
+        content = blobs[module.V2_9_2_SPEC_PATH].replace(module.V2_9_2_BASELINE.encode(), candidate.encode())
+        write(module.V2_9_2_SPEC_PATH, content)
+    # This is a parser/API fixture decision, never written into real release evidence.
+    write(verifier.APPROVAL, json.dumps({"approver": "SYNTHETIC-FIXTURE" if fault == "synthetic-approval" else "TEST-QUALITY-OWNER",
+                                      "approvalId": "DISPOSABLE-BINDING-TEST"}).encode(), committed=fault != "approval-uncommitted")
+    for project in verifier.PROJECTS.values():
+        path = str(Path(project).parent / "bin/Release/net10.0" / (Path(project).stem + ".dll"))
+        stamp = "b" * 40 if fault == "foreign-assembly" else candidate
+        write(path, f"SYNTHETIC-BINARY-FIXTURE 1.0.0+{stamp}".encode(), committed=False)
+    report = {"result": "PASS", "migration": verifier.bound(tmp_path, verifier.MIGRATION),
+              "proposalSha256": "c" * 64, "approval": verifier.bound(tmp_path, verifier.APPROVAL),
+              "inventories": facts["inventories"], "execution": facts["execution"],
+              "declarations": {"solution": facts["declarations"]["solution"], "workflow": facts["declarations"]["workflow"],
+                               "completionInventory": {"portable": verifier.PROJECTS["portable"], "internal": verifier.PROJECTS["module-internal"]}}}
+    write(module.V2_9_2_RESULT_PATH, json.dumps({**report, "proposalSha256": "d" * 64} if fault == "report-drift" else report).encode(), committed=False)
+    write(module.V2_9_2_FAULT_RESULT_PATH, b"faults", committed=False)
+    if fault in ("approval-pending", "approval-mismatch"):
+        report = {"result": "FAIL", "blockers": [{"code": "TIER_APPROVAL_MISSING", "message": "Quality decision absent or digest mismatched"}]}
+    frozen = json.loads((WORKSPACE / verifier.DISPOSITION).read_bytes())
+    amendment = json.loads((WORKSPACE / verifier.AMENDMENT).read_bytes())
+    retained = amendment["preSplitMachineResult"]["path"]
+    write(retained, (WORKSPACE / retained).read_bytes())
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repo, _rev, path: blobs.get(path))
+    monkeypatch.setattr(module, "v2_9_2_verifier", lambda: verifier)
+    monkeypatch.setattr(module, "v2_9_2_source_digest", lambda *_: "2" * 64)
+    monkeypatch.setattr(module, "is_ancestor", lambda *_: fault != "predecessor-incompatible")
+    forbidden_path = {"production-changed": "src/ProductChange.cs", "dependency-changed": "Directory.Packages.props",
+                      "protected-record-changed": "docs/release-evidence/story-9.1-final-record-v2.json"}.get(fault)
+    monkeypatch.setattr(module, "committed_path_status", lambda *_: {forbidden_path: "M"} if forbidden_path else {
+        "docs/release-evidence/conformance-oracle-tiering-migration-review-v3.md": "A"})
+    def environment(*_):
+        if fault == "gitlink-changed":
+            raise module.V2Stop([module.v2_finding("AUTHORITY_BINDING_INVALID", "fixture", "extra promotion")], "9.2")
+        restored_path = {"production-restored": "src/RestoredProduct.cs", "dependency-restored": "Directory.Packages.props",
+                         "protected-record-restored": "docs/release-evidence/story-9.1-final-record-v2.json"}.get(fault)
+        return _story_9_2_environment_binding(module), {restored_path} if restored_path else set()
+    monkeypatch.setattr(module, "v2_9_2_environment", environment)
+    monkeypatch.setattr(verifier, "verify", lambda *_args, **_kwargs: report)
+    monkeypatch.setattr(verifier, "inputs", lambda *_args, **_kwargs: (frozen, amendment))
+    contract = json.loads(blobs[module.V2_9_2_CONTRACT_PATH])
+    if blocker:
+        with pytest.raises(module.V2Stop) as failure:
+            module.v2_9_2_facts(tmp_path, candidate, contract, validators["record"])
+        assert failure.value.findings[0]["code"] == blocker
+    else:
+        measured = module.v2_9_2_facts(tmp_path, candidate, contract, validators["record"])
+        assert measured["execution"] == report["execution"]
+        assert measured["inventories"] == report["inventories"]
+        assert measured["faultSourceInputsSha256"] == "2" * 64
+        assert measured["candidateEnvironment"] == _story_9_2_environment_binding(module)
+        assert measured["predecessorRecord"]["sha256"] == module.v2_sha256(blobs[module.V2_9_2_PREDECESSOR[1]])
+        validators["record"].evolve(schema={"$defs": validators["record"].schema["$defs"], "$ref": "#/$defs/conformanceExecution"}).validate(measured)
+
+
+@pytest.mark.parametrize("drift", [False, True])
+def test_v2_story_9_2_inserted_verification_rederives_facts(tmp_path: Path, monkeypatch, drift: bool) -> None:
+    module, verifier = _story_9_2_module()
+    record = _story_9_2_record(module, verifier)
+    _, content, markdown = module.v2_finalize(record)
+    contract = (WORKSPACE / module.V2_9_2_CONTRACT_PATH).read_bytes()
+    blobs = {module.V2_9_2_CONTRACT_PATH: contract,
+             module.V2_7_2_SPRINT_PATH: b"development_status:\n  9-2-disposable-tracker: in-progress\n",
+             record["outputs"]["json"]["path"]: content, record["outputs"]["markdown"]["path"]: markdown}
+    spec = b"---\nstatus: in-progress\n---\n\n" + module.RECORD_BEGIN_MARKER.encode() + b"\n" + markdown + module.RECORD_END_MARKER.encode() + b"\n"
+    for path, data in {**blobs, module.V2_9_2_SPEC_PATH: spec}.items():
+        target = tmp_path / path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(data)
+    monkeypatch.setattr(module, "validate_repository", lambda *_: tmp_path)
+    monkeypatch.setattr(module, "resolve_commit", lambda *_: record["candidate"]["commit"])
+    monkeypatch.setattr(module, "v2_retained_candidate", lambda *_: record["candidate"]["commit"])
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repo, _rev, path: blobs.get(path))
+    monkeypatch.setattr(module, "worktree_path_status", lambda *_: {})
+    monkeypatch.setattr(module, "v2_working_spec_lifecycle_only_change", lambda *_args, **_kwargs: True)
+    calls = []
+    def rederive(options, *, verify_spec):
+        calls.append((options, verify_spec))
+        changed = deepcopy(record)
+        if drift: changed["conformanceExecution"]["inventories"]["afterStrengthInventorySha256"] = "d" * 64
+        return module.v2_finalize(changed)[1]
+    monkeypatch.setattr(module, "v2_generate", rederive)
+    options = {"--repository": str(tmp_path), "--contract": module.V2_9_2_CONTRACT_PATH,
+               module.V2_VERIFY_OPTION: module.V2_9_2_SPEC_PATH}
+    if drift:
+        with pytest.raises(module.V2Stop) as failure:
+            module.v2_verify_inserted(options)
+        assert failure.value.findings[0]["code"] == "RECORD_CONTENT_DRIFT"
+    else:
+        assert module.v2_verify_inserted(options) == content
+    assert len(calls) == 1 and calls[0][1] == module.V2_9_2_SPEC_PATH
+
+
+def test_v2_story_9_2_pipeline_routes_amended_commands_and_derives_ten_passing_scenarios(tmp_path: Path, monkeypatch) -> None:
+    """The orchestration fixture supplies synthetic measured adapters; no real acceptance is asserted."""
+    module, verifier = _story_9_2_module()
+    fixture = _story_9_2_record(module, verifier)
+    candidate = fixture["candidate"]["commit"]
+    amendment = tmp_path / module.V2_9_2_AMENDMENT_PATH
+    amendment.parent.mkdir(parents=True, exist_ok=True)
+    amendment.write_bytes((WORKSPACE / module.V2_9_2_AMENDMENT_PATH).read_bytes())
+    monkeypatch.setattr(module, "validate_repository", lambda *_: tmp_path)
+    monkeypatch.setattr(module, "resolve_commit", lambda *_: candidate)
+    monkeypatch.setattr(module, "v2_retention_config", lambda *_: None)
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repo, _rev, path: (WORKSPACE / path).read_bytes() if (WORKSPACE / path).is_file() else None)
+    monkeypatch.setattr(module, "v2_authority", lambda *_: fixture["authority"])
+    monkeypatch.setattr(module, "v2_gitlinks", lambda *_: fixture["candidate"]["gitlinks"])
+    monkeypatch.setattr(module, "worktree_path_status", lambda *_: {})
+    monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess([], 0, b"0", b""))
+    routed = []
+    def measured(_repo, scenario, command, *_args, **_kwargs):
+        routed.append((scenario["id"], command["kind"]))
+        row = next(deepcopy(row) for row in fixture["scenarios"] if row["scenarioId"] == scenario["id"])
+        row["resultFile"] = {"path": "artifacts/synthetic-result.json", "sha256": "c" * 64}
+        return row, "passed", []
+    monkeypatch.setattr(module, "v2_successor_scenario_from_results", measured)
+    monkeypatch.setattr(module, "v2_scenario_from_results", lambda _repo, scenario, *_args: measured(_repo, scenario, {"kind": "pytest"}))
+    monkeypatch.setattr(module, "v2_9_2_facts", lambda _repo, _candidate, contract, _validator: (
+        deepcopy(fixture["conformanceExecution"]) if contract["scenarios"][1]["command"].endswith("-trx artifacts/v9/9.2/AC-9.2-02.trx")
+        else pytest.fail("the fact adapter lost the frozen contract")))
+    monkeypatch.setattr(module, "v2_9_2_faults", lambda *_: deepcopy(fixture["faultInjection"]["results"]))
+    options = {"--repository": str(tmp_path), "--contract": module.V2_9_2_CONTRACT_PATH, "--format": "bundle",
+               "--output-json": fixture["outputs"]["json"]["path"], "--output-markdown": fixture["outputs"]["markdown"]["path"]}
+    first = module.v2_generate(options)
+    second = module.v2_generate(options)
+    assert first == second
+    result = json.loads(first)
+    assert result["summary"] == {"required": 10, "passed": 10, "failed": 0, "blocked": 0, "skipped": 0, "notRun": 0}
+    assert [kind for scenario, kind in routed[:9]] == ["pytest", "build", "xunit", "build", "xunit", "xunit", "xunit", "xunit", "python"]
+    assert result["scenarios"][1]["command"].endswith("-parallelMode none")
+    assert "generator::genuine-quality-approval-binds-every-successor-and-public-drift" in [row["subject"] for row in result["scenarios"][-1]["assertionLedger"]]
+
+
+# Hermetic current verifier regressions belong in this collected Python lane.
+story92 = _story_9_2_module()[1]
+
+
+def _story92_write_json(path: Path, value) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def _story92_accepted_bytes(path: str) -> bytes:
+    """Read a file at the accepted Story 9.2 candidate rather than the evolving tree."""
+    record = json.loads((WORKSPACE / "docs/release-evidence/story-9.2-final-record-v2.json").read_bytes())
+    return subprocess.run(["git", "show", f"{record['candidate']['commit']}:{path}"], cwd=WORKSPACE,
+                          capture_output=True, check=True).stdout
+
+
+def _story92_managed_binary_fixture(assembly: str, methods: set[str]) -> bytes:
+    """Synthetic CLI identity tables for hermetic parser tests, never real execution evidence."""
+    strings = bytearray(b"\0")
+    def string(value: str) -> int:
+        index = len(strings)
+        strings.extend(value.encode() + b"\0")
+        return index
+    module_name = string("SYNTHETIC-PARSER-FIXTURE-NOT-ACCEPTANCE.dll")
+    assembly_name = string(assembly)
+    groups = {}
+    for identity in sorted(methods):
+        owner, name = identity.rsplit(".", 1)
+        groups.setdefault(owner, []).append(name)
+    type_rows = [struct.pack("<IHHHHH", 0, string("<Module>"), 0, 0, 1, 1)]
+    method_rows = []
+    for owner, names in groups.items():
+        namespace, _, name = owner.rpartition(".")
+        type_rows.append(struct.pack("<IHHHHH", 1, string(name), string(namespace), 0, 1, len(method_rows) + 1))
+        for name in names:
+            method_rows.append(struct.pack("<IHHHHH", 0, 0, 6, string(name), 0, 1))
+    assert len(strings) < 65536
+    valid = sum(1 << index for index in (0, 2, 6, 32))
+    tables = (struct.pack("<IBBBBQQ", 0, 2, 0, 0, 1, valid, 0)
+              + struct.pack("<IIII", 1, len(type_rows), len(method_rows), 1)
+              + struct.pack("<HHHHH", 0, module_name, 1, 0, 0)
+              + b"".join(type_rows) + b"".join(method_rows)
+              + struct.pack("<IHHHHIHHH", 0, 1, 0, 0, 0, 0, 0, assembly_name, 0))
+    stream_data = [(b"#~", tables), (b"#Strings", bytes(strings)), (b"#GUID", b"\0" * 16), (b"#Blob", b"\0")]
+    version = b"v4.0.30319\0\0"
+    version += b"\0" * (-len(version) % 4)
+    prefix = b"BSJB" + struct.pack("<HHII", 1, 1, 0, len(version)) + version + struct.pack("<HH", 0, len(stream_data))
+    names = [name + b"\0" * (4 - len(name) % 4) for name, _ in stream_data]
+    cursor = len(prefix) + sum(8 + len(name) for name in names)
+    headers, payloads = [], []
+    for name, (_, payload) in zip(names, stream_data, strict=True):
+        headers.append(struct.pack("<II", cursor, len(payload)) + name)
+        padded = payload + b"\0" * (-len(payload) % 4)
+        payloads.append(padded)
+        cursor += len(padded)
+    metadata = prefix + b"".join(headers) + b"".join(payloads)
+    content = bytearray(((0x280 + len(metadata) + 511) // 512) * 512)
+    content[:2] = b"MZ"
+    struct.pack_into("<I", content, 0x3C, 0x80)
+    content[0x80:0x84] = b"PE\0\0"
+    struct.pack_into("<H", content, 0x86, 1)
+    struct.pack_into("<H", content, 0x94, 0xE0)
+    struct.pack_into("<H", content, 0x98, 0x10B)
+    struct.pack_into("<I", content, 0x98 + 92, 16)
+    struct.pack_into("<II", content, 0x98 + 96 + 14 * 8, 0x2000, 72)
+    struct.pack_into("<IIII", content, 0x178 + 8, len(content) - 0x200, 0x2000, len(content) - 0x200, 0x200)
+    struct.pack_into("<I", content, 0x200, 72)
+    struct.pack_into("<II", content, 0x208, 0x2080, len(metadata))
+    content[0x280:0x280 + len(metadata)] = metadata
+    return bytes(content)
+
+
+def _story92_synthetic_result(root: Path, tier: str, destination: Path) -> None:
+    """Structurally valid, deterministic TRX in a disposable parser fixture."""
+    frozen = json.loads((root / story92.DISPOSITION).read_bytes())
+    identities = {item["testName"]: row["id"] for row in frozen["assertions"]
+                  if row["tier"] == tier and row["preSplitResultIdentity"]["lane"] == "executed"
+                  for item in row["preSplitResultIdentity"]["results"]}
+    identities.update({name: name for name in story92.CONTROL_IDS[tier]})
+    name = Path(story92.PROJECTS[tier]).stem
+    binary = root / Path(story92.PROJECTS[tier]).parent / "bin/Release/net10.0" / (name + ".dll")
+    binary.parent.mkdir(parents=True, exist_ok=True)
+    binary_methods = {row["id"] for row in frozen["assertions"] if row["tier"] == tier} | set(story92.CONTROL_IDS[tier])
+    binary.write_bytes(_story92_managed_binary_fixture(name, binary_methods))
+    document = ElementTree.Element("TestRun", xmlns=TRX_NAMESPACE)
+    results = ElementTree.SubElement(document, "Results")
+    definitions = ElementTree.SubElement(document, "TestDefinitions")
+    for index, (name, identity) in enumerate(sorted(identities.items())):
+        identifier = f"fixture-{index:04}"
+        ElementTree.SubElement(results, "UnitTestResult", testId=identifier, testName=name, outcome="Passed")
+        definition = ElementTree.SubElement(definitions, "UnitTest", id=identifier, name=name)
+        owner, method = identity.rsplit(".", 1)
+        ElementTree.SubElement(definition, "TestMethod", codeBase=str(binary), className=owner, name=method)
+    summary = ElementTree.SubElement(document, "ResultSummary", outcome="Completed")
+    ElementTree.SubElement(summary, "Counters", total=str(len(identities)), executed=str(len(identities)),
+                           passed=str(len(identities)), failed="0", notExecuted="0")
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_bytes(ElementTree.tostring(document))
+
+
+def _story92_portable_model(root: Path):
+    """Python-only evaluated-model fixture with the approved normal surface unchanged."""
+    approved = json.loads((WORKSPACE / story92.MIGRATION).read_bytes())["proposal"]["portableSurface"]
+    graphs = {}
+    rows = approved["evaluatedProjects"]
+    packages = sorted({row["library"].partition("/")[0] for row in approved["transitiveCompileAssets"]
+                       if row["library"].partition("/")[0] not in {item["assembly"] for item in rows}})
+    for row in rows:
+        project = root / row["project"]
+        project.parent.mkdir(parents=True, exist_ok=True); project.write_text("<Project />")
+        output = root / "refs" / (row["assembly"] + ".dll")
+        graphs[row["project"]] = {"Properties": {"AssemblyName": row["assembly"], "IsPackable": "true", "TargetPath": str(output)},
+                                  "Items": {"ProjectReference": [], "PackageReference": [{"Identity": name} for name in packages]}}
+    project = root / story92.PROJECTS["portable"]
+    project.parent.mkdir(parents=True, exist_ok=True); project.write_text("<Project />")
+    refs = [{"FullPath": str(root / row["project"]), "DefiningProjectFullPath": str(project)} for row in rows
+            if row["assembly"] in ("Hexalith.Conversations.Client", "Hexalith.Conversations.Contracts", "Hexalith.Conversations.Testing")]
+    domain = next(row for row in rows if row["assembly"] == "Hexalith.Conversations")
+    graphs["src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj"]["Items"]["ProjectReference"] = [{"FullPath": str(root / domain["project"])}]
+    # ResolveReferences adds the restored transitive domain project from an SDK target.
+    refs.append({"FullPath": str(root / domain["project"]),
+                 "DefiningProjectFullPath": str(root / "sdk/Microsoft.PackageDependencyResolution.targets")})
+    references = []
+    framework_pack = root / "framework/Microsoft.NETCore.App.Ref/10.0.0"
+    for name in approved["referencePathAssemblies"]:
+        path = root / "refs" / (name + ".dll")
+        path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"compile-model fixture")
+        references.append({"FullPath": str(path), "FusionName": name + ", Version=1.0.0.0, Culture=neutral"})
+    assets = {"targets": {}, "libraries": {}, "packageFolders": {str(root / "packages"): {}}}
+    for row in approved["transitiveCompileAssets"]:
+        metadata = assets["targets"].setdefault(row["target"], {}).setdefault(row["library"],
+                   {"type": "project" if row["library"].partition("/")[0] in {item["assembly"] for item in rows} else "package", "compile": {}})
+        metadata["compile"][row["asset"]] = {}
+        if metadata["type"] == "package":
+            assets["libraries"][row["library"]] = {"path": row["library"].lower()}
+    project_names = {row["assembly"] for row in rows}
+    for reference in references:
+        name = reference["FusionName"].partition(",")[0]
+        candidates = [root / "packages" / library.lower() / asset for libraries in assets["targets"].values()
+                      for library, metadata in libraries.items() if metadata["type"] == "package"
+                      for asset in metadata["compile"] if Path(asset).stem == name]
+        if candidates:
+            path = candidates[0]
+            path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"package compile-model fixture")
+            reference["FullPath"] = str(path)
+        elif name not in project_names:
+            path = framework_pack / "ref/net10.0" / (name + ".dll")
+            path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"framework compile-model fixture")
+            reference.update(FullPath=str(path), FrameworkReferenceName="Microsoft.NETCore.App", NuGetPackageId="Microsoft.NETCore.App.Ref")
+    assets_path = root / "project.assets.json"
+    _story92_write_json(assets_path, assets)
+    evaluated = {"portable": {"Properties": {"ProjectAssetsFile": str(assets_path)},
+                             "Items": {"ProjectReference": refs, "ReferencePath": references,
+                                       "FrameworkReference": [{"Identity": "Microsoft.NETCore.App"}],
+                                       "ResolvedFrameworkReference": [{"Identity": "Microsoft.NETCore.App", "TargetingPackName": "Microsoft.NETCore.App.Ref", "TargetingPackPath": str(framework_pack)}],
+                                       "PackageReference": [{"Identity": name} for name in packages]}}}
+    return approved, evaluated, graphs, assets_path, assets
+
+
+_STORY92_SURFACE_BLOCKERS = {
+    "extra-declared-reference": "Portable declared references must be the three approved shipped surfaces.",
+    "imported-extra-reference": "neither declared nor reachable from the approved surfaces",
+    "unprefixed-nonpackable": "Evaluated non-packable module reference: RenamedInternal",
+    "foreign-binary": "Nonportable resolved ReferencePath: Hexalith.Foreign.Server",
+    "foreign-asset": "Nonportable transitive compile asset: Hexalith.Foreign.Server",
+    "mismatched-package-asset": "Nonportable transitive compile asset: Hexalith.Foreign.Server",
+    **{mutation: "Resolved reference is outside evaluated packable projects" for mutation in (
+        "unprefixed-binary", "project-path", "package-path", "unreached-package",
+        "framework-path", "framework-package", "undeclared-framework")},
+}
+
+
+@pytest.mark.parametrize("mutation", [None, *_STORY92_SURFACE_BLOCKERS])
+def test_story92_portable_surface_guards_python_only(tmp_path: Path, monkeypatch, mutation) -> None:
+    approved, evaluated, graphs, assets_path, assets = _story92_portable_model(tmp_path)
+    if mutation in ("extra-declared-reference", "imported-extra-reference"):
+        path = "src/Hexalith.Extra/Hexalith.Extra.csproj"
+        project = tmp_path / path; project.parent.mkdir(parents=True); project.write_text("<Project />")
+        graphs[path] = {"Properties": {"AssemblyName": "Hexalith.Extra", "IsPackable": "true"}, "Items": {"ProjectReference": []}}
+        defining = (tmp_path / story92.PROJECTS["portable"] if mutation == "extra-declared-reference"
+                    else tmp_path / "Directory.Build.props")
+        evaluated["portable"]["Items"]["ProjectReference"].append({"FullPath": str(project), "DefiningProjectFullPath": str(defining)})
+    elif mutation == "unprefixed-nonpackable":
+        path = "src/RenamedInternal/RenamedInternal.csproj"
+        project = tmp_path / path; project.parent.mkdir(parents=True); project.write_text("<Project />")
+        graphs[path] = {"Properties": {"AssemblyName": "RenamedInternal", "IsPackable": "false"}, "Items": {"ProjectReference": []}}
+        graphs["src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj"]["Items"]["ProjectReference"].append({"FullPath": str(project)})
+    elif mutation == "foreign-binary":
+        reference = tmp_path / "refs/foreign.dll"; reference.write_bytes(b"fixture")
+        evaluated["portable"]["Items"]["ReferencePath"].append({"FullPath": str(reference), "FusionName": "Hexalith.Foreign.Server, Version=1.0.0.0"})
+    elif mutation == "foreign-asset":
+        assets["targets"]["net10.0"]["Hexalith.Foreign.Server/1.0.0"] = {"type": "package", "compile": {"lib/net10.0/Hexalith.Foreign.Server.dll": {}}}
+        _story92_write_json(assets_path, assets)
+    elif mutation == "mismatched-package-asset":
+        assets["targets"]["net10.0"]["Hexalith.EventStore.Contracts/3.115.0"]["compile"]["lib/net10.0/Hexalith.Foreign.Server.dll"] = {}
+        _story92_write_json(assets_path, assets)
+    elif mutation in ("unprefixed-binary", "unreached-package"):
+        reference = tmp_path / "refs/Outside.Module.dll"; reference.write_bytes(b"fixture")
+        evaluated["portable"]["Items"]["ReferencePath"].append({"FullPath": str(reference), "FusionName": "Outside.Module, Version=1.0.0.0"})
+        if mutation == "unreached-package":
+            assets["targets"]["net10.0"]["Outside.Module/1.0.0"] = {"type": "package", "compile": {"lib/net10.0/Outside.Module.dll": {}}}
+            assets["libraries"]["Outside.Module/1.0.0"] = {"path": "outside.module/1.0.0"}
+            _story92_write_json(assets_path, assets)
+    elif mutation in ("project-path", "package-path", "framework-path", "framework-package"):
+        references = evaluated["portable"]["Items"]["ReferencePath"]
+        if mutation == "project-path":
+            reference = next(row for row in references if row["FusionName"].startswith("Hexalith.Conversations.Contracts,"))
+        elif mutation == "package-path":
+            reference = next(row for row in references if "/packages/" in row["FullPath"])
+        else:
+            reference = next(row for row in references if row.get("FrameworkReferenceName"))
+        if mutation == "framework-package":
+            reference["NuGetPackageId"] = "Invented.Ref"
+        else:
+            path = tmp_path / "foreign" / Path(reference["FullPath"]).name
+            path.parent.mkdir(); path.write_bytes(b"fixture")
+            reference["FullPath"] = str(path)
+    elif mutation == "undeclared-framework":
+        evaluated["portable"]["Items"]["FrameworkReference"] = []
+    monkeypatch.setattr(story92, "msbuild", lambda _root, project, *_args, **_kwargs: graphs[project])
+    if mutation:
+        with pytest.raises(story92.VerificationError) as error:
+            story92.portable_surface(tmp_path, evaluated)
+        assert error.value.code == "PORTABLE_TIER_NONPORTABLE_REFERENCE"
+        assert _STORY92_SURFACE_BLOCKERS[mutation] in str(error.value)
+    else:
+        assert story92.portable_surface(tmp_path, evaluated) == approved
+
+
+def test_story92_portable_surface_accepts_source_reference_closure(tmp_path: Path, monkeypatch) -> None:
+    """A Debug source-reference restore adds packable submodule projects reached through the approved surfaces."""
+    approved, evaluated, graphs, _, _ = _story92_portable_model(tmp_path)
+    path = "references/Hexalith.Commons/src/libraries/Hexalith.Commons.Serialization/Hexalith.Commons.Serialization.csproj"
+    project = tmp_path / path; project.parent.mkdir(parents=True); project.write_text("<Project />")
+    serialization = next(row for row in evaluated["portable"]["Items"]["ReferencePath"]
+                         if row["FusionName"].startswith("Hexalith.Commons.Serialization,"))
+    graphs[path] = {"Properties": {"AssemblyName": "Hexalith.Commons.Serialization", "IsPackable": "true",
+                                   "TargetPath": serialization["FullPath"]},
+                    "Items": {"ProjectReference": []}}
+    graphs["src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj"]["Items"]["ProjectReference"].append(
+        {"FullPath": str(project)})
+    evaluated["portable"]["Items"]["ProjectReference"].append(
+        {"FullPath": str(project), "DefiningProjectFullPath": str(tmp_path / "sdk/Microsoft.PackageDependencyResolution.targets")})
+    monkeypatch.setattr(story92, "msbuild", lambda _root, name, *_args, **_kwargs: graphs[name])
+    surface = story92.portable_surface(tmp_path, evaluated)
+    assert {"project": path, "assembly": "Hexalith.Commons.Serialization", "packable": True} in surface["evaluatedProjects"]
+    assert surface["referencePathAssemblies"] == approved["referencePathAssemblies"]
+
+
+def test_story92_verifier_output_rejects_unrelated_tracked_file(tmp_path: Path) -> None:
+    protected = tmp_path / ".github/workflows/release.yml"
+    protected.parent.mkdir(parents=True)
+    protected.write_bytes(b"protected workflow\n")
+    with pytest.raises(story92.VerificationError) as failure:
+        story92.write_json(tmp_path, ".github/workflows/release.yml", {"result": "PASS"})
+    assert failure.value.code == "OUTPUT_PATH_INVALID"
+    assert protected.read_bytes() == b"protected workflow\n"
+    story92.write_json(tmp_path, "TestResults/conformance/tiering.json", {"result": "PASS"})
+    assert json.loads((tmp_path / "TestResults/conformance/tiering.json").read_bytes()) == {"result": "PASS"}
+
+
+@pytest.mark.parametrize("mutation", [None, "echo", "comment", "assignment", "assignment-comment", "build-echo",
+                                      "verifier-echo", "verifier-comment", "verifier-missing", "verifier-input",
+                                      "fault-echo", "fault-comment", "fault-missing", "python-shell", "missing-shell",
+                                      "job-false", "job-if-space", "job-quoted-if", "job-needs", "job-merge", "jobs-merge",
+                                      "manual-only", "no-pull-request", "wrong-branch", "duplicate-job", "duplicate-step",
+                                      "step-if-space", "step-quoted-if", "step-merge",
+                                      "duplicate-trigger-key", "duplicate-steps-key", "duplicate-run-key", "early-exit",
+                                      "duplicate-conformance-key", "duplicate-shell-key", "duplicate-runner-key",
+                                      "job-continue-on-error", "step-continue-on-error", "workflow-default-shell",
+                                      "step-false-portable", "step-false-internal", "step-false-execution", "step-false-verifier", "step-false-fault"])
+def test_story92_declarations_require_executable_ci_tiers(tmp_path: Path, mutation) -> None:
+    # Routine CI no longer runs the frozen tier checks, so the accepted candidate supplies the declared shape.
+    paths = ["Hexalith.Conversations.slnx", story92.AMENDMENT, story92.TIERING.CI_WORKFLOW_PATH, *story92.PROJECTS.values()]
+    for path in paths:
+        target = tmp_path / path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(_story92_accepted_bytes(path))
+    for project in story92.RECORD.ElementTree.fromstring(_story92_accepted_bytes("Hexalith.Conversations.slnx")).findall('.//Project'):
+        path = project.get("Path", "")
+        if path.startswith("tests/"):
+            target = tmp_path / path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(_story92_accepted_bytes(path))
+    workflow = tmp_path / story92.TIERING.CI_WORKFLOW_PATH
+    before = workflow.read_bytes()
+    text = before.decode()
+    line = '          uv run --frozen --no-sync dotnet "$internal" -failSkips'
+    if mutation == "echo": text = text.replace(line, '          echo "$internal" -failSkips')
+    elif mutation == "comment": text = text.replace(line, "          # " + line.strip())
+    elif mutation == "assignment": text = text.replace('internal="tests/', 'internal="wrong/tests/')
+    elif mutation == "assignment-comment": text = text.replace('          internal="', '          # internal="')
+    elif mutation == "build-echo": text = text.replace("          dotnet build", "          echo dotnet build")
+    elif mutation and mutation.startswith("verifier-"):
+        command = "          uv run --frozen --no-sync python3 _bmad/scripts/verify_conformance_tiering.py"
+        replacement = {"verifier-echo": "          echo " + command.strip(),
+                       "verifier-comment": "          # " + command.strip(),
+                       "verifier-missing": "          true"}.get(mutation, command)
+        text = text.replace(command, replacement)
+        if mutation == "verifier-input":
+            text = text.replace("--internal-result TestResults/conformance/internal.trx", "--internal-result missing.trx")
+    elif mutation and mutation.startswith("fault-"):
+        command = "          uv run --frozen --no-sync python3 -m pytest -q\n"
+        replacement = {"fault-echo": "          echo " + command.strip() + "\n",
+                       "fault-comment": "          # " + command.strip() + "\n",
+                       "fault-missing": "          true\n"}[mutation]
+        text = text.replace(command, replacement)
+    elif mutation == "python-shell":
+        text = text.replace("      - name: Run current conformance checks\n        shell: bash\n",
+                            "      - name: Run current conformance checks\n        shell: python\n")
+    elif mutation == "missing-shell":
+        text = text.replace("      - name: Run current conformance checks\n        shell: bash\n",
+                            "      - name: Run current conformance checks\n")
+    elif mutation in ("job-false", "job-if-space", "job-quoted-if", "job-needs", "job-merge"):
+        condition = {"job-false": "if: false", "job-if-space": "if : false", "job-quoted-if": '"if": false',
+                     "job-needs": "needs : disabled", "job-merge": "<<: {if: false}"}[mutation]
+        text = text.replace("  conformance:\n", "  conformance:\n    " + condition + "\n")
+    elif mutation == "jobs-merge":
+        text = text.replace("jobs:\n", "jobs:\n  <<: {conformance: {if: false}}\n")
+    elif mutation == "manual-only":
+        text = text.replace("on:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]", "on:\n  workflow_dispatch:")
+    elif mutation == "no-pull-request":
+        text = text.replace("  pull_request:\n    branches: [main]\n", "")
+    elif mutation == "wrong-branch":
+        text = text.replace("branches: [main]", "branches: [unrelated]")
+    elif mutation == "duplicate-job":
+        start = text.index("  conformance:\n")
+        text += text[start:]
+    elif mutation == "duplicate-step":
+        start = text.index("      - name: Verify complete monotonic tier execution\n")
+        end = text.index("      - name: Prove structural and execution faults\n", start)
+        text = text[:end] + text[start:end] + text[end:]
+    elif mutation == "duplicate-trigger-key":
+        text = text.replace("jobs:\n", "on :\n  workflow_dispatch:\n\njobs:\n")
+    elif mutation == "duplicate-steps-key":
+        text = text.replace("  tooling:\n", "    steps : []\n\n  tooling:\n")
+    elif mutation == "duplicate-run-key":
+        text = text.replace("      - name: Prove structural and execution faults\n",
+                            "        run : exit 0\n\n      - name: Prove structural and execution faults\n")
+    elif mutation == "early-exit":
+        text = text.replace("          mkdir -p TestResults/conformance", "          exit 0\n          mkdir -p TestResults/conformance")
+    elif mutation == "duplicate-conformance-key":
+        text = text.replace("  tooling:\n", "  conformance : {if: false}\n\n  tooling:\n")
+    elif mutation == "duplicate-shell-key":
+        text = text.replace("      - name: Run current conformance checks\n        shell: bash\n",
+                            "      - name: Run current conformance checks\n        shell: bash\n        shell : python\n")
+    elif mutation == "duplicate-runner-key":
+        text = text.replace("  conformance:\n", "  conformance:\n    runs-on : windows-latest\n")
+    elif mutation == "job-continue-on-error":
+        text = text.replace("  conformance:\n", "  conformance:\n    continue-on-error: true\n")
+    elif mutation == "step-continue-on-error":
+        text = text.replace("      - name: Verify complete monotonic tier execution\n",
+                            "      - name: Verify complete monotonic tier execution\n        continue-on-error : true\n")
+    elif mutation == "workflow-default-shell":
+        text = text.replace("jobs:\n", "defaults:\n  run:\n    shell: echo {0}\n\njobs:\n")
+    elif mutation in ("step-if-space", "step-quoted-if", "step-merge"):
+        condition = {"step-if-space": "if : false", "step-quoted-if": '"if": false', "step-merge": "<<: {if: false}"}[mutation]
+        text = text.replace("      - name: Verify complete monotonic tier execution\n",
+                            "      - name: Verify complete monotonic tier execution\n        " + condition + "\n")
+    elif mutation and mutation.startswith("step-false-"):
+        step = {"portable": "Build portable conformance project", "internal": "Build conformance project",
+                "execution": "Run current conformance checks", "verifier": "Verify complete monotonic tier execution",
+                "fault": "Prove structural and execution faults"}[mutation.removeprefix("step-false-")]
+        text = text.replace("      - name: " + step + "\n", "      - name: " + step + "\n        if: false\n")
+    assert mutation is None or text != before.decode(), mutation
+    try:
+        workflow.write_text(text)
+        if mutation:
+            with pytest.raises(story92.VerificationError) as error:
+                story92.declarations(tmp_path)
+            assert error.value.code == "TIER_NOT_DECLARED"
+        else:
+            assert story92.declarations(tmp_path)["workflow"]["sha256"] == story92.TIERING.sha256_bytes(before)
+    finally:
+        workflow.write_bytes(before)
+    assert workflow.read_bytes() == before
+    assert story92.declarations(tmp_path)["workflow"]["sha256"] == story92.TIERING.sha256_bytes(before)
+
+
+@pytest.mark.parametrize("path", [story92.DISPOSITION, story92.MIGRATION, story92.APPROVAL, story92.SNAPSHOT,
+                                 "artifacts/v9/9.2/portable.trx", "custom-input.trx", "tests/example.cs", "test/obj/project.assets.json",
+                                 *sorted(story92.ROOT_CONFIGURATION_PATHS)])
+def test_story92_outputs_cannot_overwrite_inputs(tmp_path: Path, path: str) -> None:
+    target = tmp_path / path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(b"protected bytes")
+    with pytest.raises(story92.VerificationError) as error:
+        story92.write_json(tmp_path, path, {"result": "PASS"}, result_inputs=("custom-input.trx",))
+    assert error.value.code == "OUTPUT_PATH_INVALID" and target.read_bytes() == b"protected bytes"
+
+
+@pytest.mark.parametrize("protected_path", [story92.APPROVAL, "AGENTS.md", "pyproject.toml"])
+def test_story92_output_aliases_and_explicit_migration_writer(tmp_path: Path, protected_path: str) -> None:
+    approval = tmp_path / protected_path; approval.parent.mkdir(parents=True, exist_ok=True); approval.write_bytes(b"approval")
+    alias = tmp_path / "alias.json"; alias.hardlink_to(approval)
+    with pytest.raises(story92.VerificationError): story92.write_json(tmp_path, "alias.json", {})
+    alias.unlink(); alias.symlink_to(approval)
+    with pytest.raises(story92.VerificationError): story92.write_json(tmp_path, "alias.json", {})
+    assert approval.read_bytes() == b"approval"
+    (tmp_path / story92.APPROVAL).parent.mkdir(parents=True, exist_ok=True)
+    (tmp_path / story92.APPROVAL).write_bytes(b"approval")
+    _story92_write_json(tmp_path / story92.MIGRATION, {"proposal": "unchanged"})
+    before = (tmp_path / story92.MIGRATION).read_bytes()
+    modified = (tmp_path / story92.MIGRATION).stat().st_mtime_ns
+    story92._write_migration_proposal(tmp_path, {"proposal": "unchanged"})
+    assert (tmp_path / story92.MIGRATION).read_bytes() == before and (tmp_path / story92.MIGRATION).stat().st_mtime_ns == modified
+    with pytest.raises(story92.VerificationError): story92._write_migration_proposal(tmp_path, {"proposal": "changed"})
+    story92.write_json(tmp_path, "artifacts/report.json", {"result": "PASS"})
+    assert json.loads((tmp_path / "artifacts/report.json").read_bytes()) == {"result": "PASS"}
+
+
+@pytest.mark.parametrize("field", ["approver", "approvalId"])
+def test_story92_ordinary_approval_rejects_synthetic_identities(tmp_path: Path, field: str) -> None:
+    derived = json.loads((WORKSPACE / story92.MIGRATION).read_bytes())
+    _story92_write_json(tmp_path / story92.MIGRATION, derived)
+    approval = json.loads((WORKSPACE / story92.APPROVAL).read_bytes())
+    approval[field] = "SYNTHETIC-FIXTURE" if field == "approver" else "SYNTHETIC-FIXTURE-NOT-AN-APPROVAL"
+    _story92_write_json(tmp_path / story92.APPROVAL, approval)
+    with pytest.raises(story92.VerificationError) as error: story92.approved_migration(tmp_path, derived)
+    assert error.value.code == "TIER_APPROVAL_MISSING"
+
+
+def _story92_execution_fixture(root: Path):
+    for path in [story92.DISPOSITION, *story92.PROJECTS.values()]:
+        target = root / path; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes((WORKSPACE / path).read_bytes())
+    for tier, result in (("portable", "portable"), ("module-internal", "internal")):
+        _story92_synthetic_result(root, tier, root / f"artifacts/v9/9.2/{result}.trx")
+    return json.loads((root / story92.DISPOSITION).read_bytes())
+
+
+@pytest.mark.parametrize("missing_internal", [False, True])
+def test_v2_story_9_2_facts_call_actual_verifier_with_both_tier_results(tmp_path: Path, monkeypatch, missing_internal: bool) -> None:
+    """Exercise the real caller/verifier/execution join without .NET or submodules."""
+    module, verifier = _story_9_2_module()
+    _, validators = module.v2_load_schemas()
+    candidate = "a" * 40
+    frozen = _story92_execution_fixture(tmp_path)
+    record = _story_9_2_record(module, verifier)
+    blobs = {}
+    paths = [module.V2_9_2_CONTRACT_PATH, module.V2_9_2_AMENDMENT_PATH, module.V2_9_2_SPEC_PATH,
+             module.V2_9_2_PREDECESSOR[1], module.V2_9_2_PREDECESSOR[2], verifier.MIGRATION, verifier.APPROVAL, verifier.DISPOSITION]
+    amendment = json.loads((WORKSPACE / verifier.AMENDMENT).read_bytes())
+    paths.append(amendment["preSplitMachineResult"]["path"])
+    for path in paths:
+        target = tmp_path / path; target.parent.mkdir(parents=True, exist_ok=True)
+        blobs[path] = (WORKSPACE / path).read_bytes(); target.write_bytes(blobs[path])
+    for tier, result in (("portable", "portable"), ("module-internal", "internal")):
+        assembly = tmp_path / Path(verifier.PROJECTS[tier]).parent / "bin/Release/net10.0" / (Path(verifier.PROJECTS[tier]).stem + ".dll")
+        assembly.write_bytes(f"SYNTHETIC-FIXTURE 1.0.0+{candidate}".encode())
+        _story92_synthetic_result(tmp_path, tier, tmp_path / f"artifacts/v9/9.2/{result}.trx")
+        # The deterministic TRX builder writes its marker binary first. Stamp
+        # the disposable fixture before rewriting the same TRX bytes for freshness.
+        assembly.write_bytes(f"SYNTHETIC-FIXTURE 1.0.0+{candidate}".encode())
+        target = tmp_path / f"artifacts/v9/9.2/{result}.trx"; target.write_bytes(target.read_bytes())
+    declarations = {"solution": record["conformanceExecution"]["declarations"]["solution"],
+                    "workflow": record["conformanceExecution"]["declarations"]["workflow"],
+                    "completionInventory": {Path(path).stem: path for path in verifier.PROJECTS.values()}}
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _root, _revision, path: blobs.get(path))
+    monkeypatch.setattr(module, "v2_9_2_verifier", lambda: verifier)
+    monkeypatch.setattr(module, "v2_9_2_source_digest", lambda *_: "2" * 64)
+    monkeypatch.setattr(module, "is_ancestor", lambda *_: True)
+    monkeypatch.setattr(module, "committed_path_status", lambda *_: {})
+    monkeypatch.setattr(module, "v2_9_2_environment", lambda *_: (_story_9_2_environment_binding(module), set()))
+    monkeypatch.setattr(verifier, "inputs", lambda *_args, **_kwargs: (frozen, amendment))
+    monkeypatch.setattr(verifier, "declarations", lambda *_args, **_kwargs: declarations)
+    monkeypatch.setattr(verifier, "derive_migration", lambda *_args, **_kwargs: json.loads(blobs[verifier.MIGRATION]))
+    monkeypatch.setattr(verifier, "_execution_binary_is_managed", lambda _: True)
+    # This caller/source-revision fixture intentionally uses marker bytes. The separate
+    # execution regressions below use real unmocked CLI identity parsing.
+    monkeypatch.setattr(verifier, "_require_execution_binary_identity", lambda *_: None)
+    report = verifier.verify(tmp_path, portable_result="artifacts/v9/9.2/portable.trx", internal_result="artifacts/v9/9.2/internal.trx")
+    assert report["result"] == "PASS", report
+    output = tmp_path / module.V2_9_2_RESULT_PATH; output.write_text(json.dumps(report))
+    fault = tmp_path / module.V2_9_2_FAULT_RESULT_PATH; fault.write_bytes(b"unrelated fixture fault receipt")
+    if missing_internal:
+        (tmp_path / "artifacts/v9/9.2/internal.trx").unlink()
+        with pytest.raises(module.V2Stop) as error:
+            module.v2_9_2_facts(tmp_path, candidate, json.loads(blobs[module.V2_9_2_CONTRACT_PATH]), validators["record"])
+        assert "artifacts/v9/9.2/internal.trx" in error.value.findings[0]["message"]
+    else:
+        facts = module.v2_9_2_facts(tmp_path, candidate, json.loads(blobs[module.V2_9_2_CONTRACT_PATH]), validators["record"])
+        assert facts["execution"]["tiers"]["module-internal"]["result"]["path"] == "artifacts/v9/9.2/internal.trx"
+        assert facts["execution"]["completePassingExecution"] and facts["execution"]["afterExecutedCases"] == 415
+
+
+def _story92_pe_without_cli() -> bytes:
+    """A contained native PE header with no CLI directory; it cannot prove managed execution."""
+    content = bytearray(512)
+    content[:2] = b"MZ"
+    struct.pack_into("<I", content, 0x3C, 0x80)
+    content[0x80:0x84] = b"PE\0\0"
+    struct.pack_into("<H", content, 0x86, 1)
+    struct.pack_into("<H", content, 0x94, 0xE0)
+    struct.pack_into("<H", content, 0x98, 0x10B)
+    struct.pack_into("<I", content, 0x98 + 92, 16)
+    return bytes(content)
+
+
+@pytest.mark.parametrize("binary_bytes", [b"SYNTHETIC-MARKER-NOT-A-MANAGED-ASSEMBLY", b"MZ", b"MZ" + b"\0" * 126,
+                                           _story92_pe_without_cli()],
+                         ids=["marker-only", "truncated-mz", "invalid-mz", "pe-without-cli"])
+def test_story92_ordinary_execution_rejects_invalid_managed_binaries(tmp_path: Path, binary_bytes: bytes) -> None:
+    """Keep the metadata validator unmocked through the execution caller for malformed PE cases."""
+    frozen = _story92_execution_fixture(tmp_path)
+    binary = tmp_path / Path(story92.PROJECTS["portable"]).parent / "bin/Release/net10.0" / (Path(story92.PROJECTS["portable"]).stem + ".dll")
+    binary.write_bytes(binary_bytes)
+    result = tmp_path / "artifacts/v9/9.2/portable.trx"
+    result.write_bytes(result.read_bytes())
+    assert not story92._execution_binary_is_managed(binary_bytes)
+    with pytest.raises(story92.VerificationError) as error:
+        story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx")
+    assert error.value.code == "TIER_EXECUTION_INCOMPLETE" and "not a managed assembly" in str(error.value)
+
+
+@pytest.mark.parametrize("mutation", ["unrelated-assembly", "swapped-tier", "missing-frozen-method", "missing-historical-method", "missing-control", "malformed-table", "appended-identity"])
+def test_story92_execution_requires_managed_tier_and_method_identity(tmp_path: Path, mutation: str) -> None:
+    """Exercise real CLI tables through execution; claimed TRX paths and names stay valid."""
+    frozen = _story92_execution_fixture(tmp_path)
+    project = Path(story92.PROJECTS["portable"])
+    binary = tmp_path / project.parent / "bin/Release/net10.0" / (project.stem + ".dll")
+    result = tmp_path / "artifacts/v9/9.2/portable.trx"
+    before_binary, before_result = binary.read_bytes(), result.read_bytes()
+    methods = {row["id"] for row in frozen["assertions"] if row["tier"] == "portable"}
+    methods.update(story92.CONTROL_IDS["portable"])
+    if mutation in ("unrelated-assembly", "appended-identity"):
+        content = _story92_managed_binary_fixture("Hexalith.Conversations.Contracts", methods)
+        if mutation == "appended-identity":
+            content += (project.stem + "\n" + "\n".join(sorted(methods)) + "\n1.0.0+" + "a" * 40).encode()
+    elif mutation == "swapped-tier":
+        internal = Path(story92.PROJECTS["module-internal"])
+        content = (tmp_path / internal.parent / "bin/Release/net10.0" / (internal.stem + ".dll")).read_bytes()
+    elif mutation in ("missing-frozen-method", "missing-historical-method", "missing-control"):
+        if mutation == "missing-control":
+            missing = story92.CONTROL_IDS["portable"][0]
+        else:
+            missing = next(row["id"] for row in frozen["assertions"]
+                           if row["tier"] == "portable" and (row["preSplitResultIdentity"]["lane"] == "executed")
+                           == (mutation == "missing-frozen-method"))
+        content = _story92_managed_binary_fixture(project.stem, methods - {missing})
+    else:
+        content = bytearray(before_binary)
+        table_offset = story92._execution_metadata_streams(before_binary)[b"#~"][0]
+        struct.pack_into("<I", content, table_offset + 32, 65535)
+        content = bytes(content)
+    assert story92._execution_binary_is_managed(content)
+    try:
+        binary.write_bytes(content); result.write_bytes(before_result)
+        for allow_control_failure in (False, True):
+            with pytest.raises(story92.VerificationError) as error:
+                story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx",
+                                  allow_control_failure=allow_control_failure)
+            assert error.value.code == "TIER_EXECUTION_INCOMPLETE"
+    finally:
+        binary.write_bytes(before_binary); result.write_bytes(before_result)
+    assert binary.read_bytes() == before_binary and result.read_bytes() == before_result
+    assert story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx")["completePassingExecution"]
+
+
+@pytest.mark.parametrize("tier", ["portable", "module-internal"])
+def test_story92_execution_rejects_assembly_newer_than_result(tmp_path: Path, tier: str) -> None:
+    frozen = _story92_execution_fixture(tmp_path)
+    project = Path(story92.PROJECTS[tier])
+    binary = tmp_path / project.parent / "bin/Release/net10.0" / (project.stem + ".dll")
+    result = tmp_path / f"artifacts/v9/9.2/{'portable' if tier == 'portable' else 'internal'}.trx"
+    before = binary.stat()
+    rebuilt = result.stat().st_mtime_ns + 1_000_000_000
+    os.utime(binary, ns=(rebuilt, rebuilt))
+    try:
+        with pytest.raises(story92.VerificationError) as error:
+            story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx")
+        assert error.value.code == "TEST_RESULTS_STALE"
+    finally:
+        os.utime(binary, ns=(before.st_atime_ns, before.st_mtime_ns))
+    assert story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx")["completePassingExecution"]
+
+
+@pytest.mark.parametrize("mutation", ["failed", "unknown", "missing-outcome", "missing-summary", "duplicate-summary", "duplicate-counters",
+                                      "nested-failed", "nested-passed", "nested-skipped", "empty-inner-results", "orphan-nested-result"])
+def test_story92_execution_rejects_invalid_summary_and_nested_results(tmp_path: Path, mutation: str) -> None:
+    frozen = _story92_execution_fixture(tmp_path)
+    path = tmp_path / "artifacts/v9/9.2/portable.trx"
+    before = path.read_bytes()
+    tree = ElementTree.fromstring(before)
+    summary = tree.find("./{*}ResultSummary")
+    if mutation in ("failed", "unknown"):
+        summary.set("outcome", "Failed" if mutation == "failed" else "Unrecognized")
+    elif mutation == "missing-outcome":
+        del summary.attrib["outcome"]
+    elif mutation == "missing-summary":
+        tree.remove(summary)
+    elif mutation == "duplicate-summary":
+        tree.append(deepcopy(summary))
+    elif mutation == "duplicate-counters":
+        summary.append(deepcopy(summary.find("./{*}Counters")))
+    else:
+        parent = tree.find("./{*}Results/{*}UnitTestResult")
+        inner = ElementTree.SubElement(parent, "InnerResults" if mutation != "orphan-nested-result" else "UnexpectedWrapper")
+        if mutation != "empty-inner-results":
+            outcome = {"nested-failed": "Failed", "nested-passed": "Passed", "nested-skipped": "NotExecuted", "orphan-nested-result": "Passed"}[mutation]
+            ElementTree.SubElement(inner, "UnitTestResult", testName="nested-case", outcome=outcome)
+    try:
+        path.write_bytes(ElementTree.tostring(tree))
+        for allow_control_failure in (False, True):
+            with pytest.raises(story92.VerificationError) as error:
+                story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx",
+                                  allow_control_failure=allow_control_failure)
+            assert error.value.code == "TIER_EXECUTION_INCOMPLETE"
+    finally:
+        path.write_bytes(before)
+    assert path.read_bytes() == before
+    assert story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx")["completePassingExecution"]
+
+
+@pytest.mark.parametrize("summary_outcome", ["Completed", "Failed", "Unrecognized", None])
+def test_story92_execution_observation_preserves_named_control_failure(tmp_path: Path, summary_outcome) -> None:
+    frozen = _story92_execution_fixture(tmp_path)
+    path = tmp_path / "artifacts/v9/9.2/portable.trx"
+    before = path.read_bytes()
+    tree = ElementTree.fromstring(before)
+    control = next(row for row in tree.findall("./{*}Results/{*}UnitTestResult") if row.get("testName") == story92.CONTROL_IDS["portable"][0])
+    control.set("outcome", "Failed")
+    summary = tree.find("./{*}ResultSummary")
+    if summary_outcome is None:
+        del summary.attrib["outcome"]
+    else:
+        summary.set("outcome", summary_outcome)
+    counters = summary.find("./{*}Counters")
+    counters.set("failed", "1"); counters.set("passed", str(int(counters.get("passed")) - 1))
+    try:
+        path.write_bytes(ElementTree.tostring(tree))
+        with pytest.raises(story92.VerificationError) as error:
+            story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx")
+        assert error.value.code == "TIER_EXECUTION_FAILED"
+        if summary_outcome in ("Completed", "Failed"):
+            observed = story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx", allow_control_failure=True)
+            assert not observed["completePassingExecution"] and observed["afterExecutedCases"] == 415
+            assert observed["tiers"]["portable"]["counts"]["failed"] == 1
+            assert observed["tiers"]["portable"]["failedControlCases"] == story92.CONTROL_IDS["portable"]
+        else:
+            with pytest.raises(story92.VerificationError) as error:
+                story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx", allow_control_failure=True)
+            assert error.value.code == "TIER_EXECUTION_INCOMPLETE"
+    finally:
+        path.write_bytes(before)
+    assert path.read_bytes() == before
+
+
+@pytest.mark.parametrize("mode", ["compelte", "", "COMPLETE", "execution"])
+def test_story92_unknown_api_mode_fails_before_dispatch(tmp_path: Path, monkeypatch, mode: str) -> None:
+    def unexpected_dispatch(*_args, **_kwargs):
+        pytest.fail("An unsupported API mode reached a verification adapter")
+    for name in ("inputs", "declarations", "evaluated_projects", "msbuild", "derive_migration", "execution"):
+        monkeypatch.setattr(story92, name, unexpected_dispatch)
+    report = story92.verify(tmp_path, mode=mode)
+    assert report["result"] == "FAIL" and report["exitCode"] == 1
+    assert report["blockers"] == [{"code": "TIERING_INPUT_INVALID", "message": f"Unsupported verification mode: {mode!r}"}]
+    assert not set(report).intersection(("declarations", "portableSurface", "inventories", "observedExecution", "execution"))
+
+
+@pytest.mark.parametrize("mutation", [None, "orphan", "duplicate-definition", "wrong-method", "wrong-class", "wrong-binary", "no-definition", "wrong-claimed-name"])
+def test_story92_execution_joins_tier_method_definitions(tmp_path: Path, monkeypatch, mutation) -> None:
+    frozen = _story92_execution_fixture(tmp_path)
+    path = tmp_path / "artifacts/v9/9.2/portable.trx"
+    before = path.read_bytes()
+    tree = story92.RECORD.ElementTree.fromstring(before)
+    result = tree.find('./{*}Results/{*}UnitTestResult')
+    definitions = tree.find('./{*}TestDefinitions')
+    definition = definitions[0]
+    method = definition.find('./{*}TestMethod')
+    if mutation == "orphan": result.set("testId", "orphan")
+    elif mutation == "duplicate-definition": definitions.append(deepcopy(definition))
+    elif mutation == "wrong-method": method.set("name", "InventedAssertion")
+    elif mutation == "wrong-class": method.set("className", "InventedClass")
+    elif mutation == "wrong-binary": method.set("codeBase", str(tmp_path / "wrong.dll"))
+    elif mutation == "no-definition": definitions.remove(definition)
+    elif mutation == "wrong-claimed-name": result.set("testName", "InventedClaim")
+    try:
+        path.write_bytes(story92.RECORD.ElementTree.tostring(tree))
+        if mutation:
+            with pytest.raises(story92.VerificationError) as error:
+                story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx")
+            assert error.value.code == "TIER_EXECUTION_INCOMPLETE"
+        else:
+            assert story92.execution(tmp_path, frozen, "artifacts/v9/9.2/portable.trx", "artifacts/v9/9.2/internal.trx")["completePassingExecution"]
+    finally:
+        path.write_bytes(before)
+    assert path.read_bytes() == before
+
+
+@pytest.mark.parametrize("location", ["bin/Release/net10.0", "obj/Release/net10.0"])
+def test_story92_unrecognized_generated_compile_input_is_not_dropped(tmp_path: Path, monkeypatch, location: str) -> None:
+    path = tmp_path / Path(story92.PROJECTS["portable"]).parent / location / "HiddenAssertion.cs"
+    path.parent.mkdir(parents=True); path.write_text("// <auto-generated/>\npublic class Hidden { [Fact] public void Test() {} }")
+    monkeypatch.setattr(story92.TIERING, "module_assemblies", lambda _: [])
+    monkeypatch.setattr(story92.TIERING, "WorkTree", lambda _: None)
+    evaluated = {"portable": {"Items": {"Compile": [{"FullPath": str(path)}]}}}
+    with pytest.raises(story92.VerificationError) as error:
+        story92.source_inventory(tmp_path, evaluated, {"assertions": [], "validationAdditions": []})
+    assert error.value.code == "ASSERTION_INVENTORY_DRIFT"
+
+
+def test_story92_only_known_generated_metadata_is_exempt(tmp_path: Path) -> None:
+    project = story92.PROJECTS["portable"]
+    path = tmp_path / Path(project).parent / "obj/Release/net10.0" / (Path(project).stem + ".AssemblyInfo.cs")
+    path.parent.mkdir(parents=True); path.write_text('// <auto-generated/>\n[assembly: System.Reflection.AssemblyCompany("Fixture")]')
+    assert story92._known_generated_metadata(tmp_path, project, path)
+    path.write_text('// <auto-generated/>\npublic class Hidden {}')
+    assert not story92._known_generated_metadata(tmp_path, project, path)
+    path.write_text('// <auto-generated/>\npublic class Hidden { [Fact] public void Test() { Assert.True(true); } }')
+    assert not story92._known_generated_metadata(tmp_path, project, path)
+
+
+def test_story101_bindings_are_derived_and_fail_on_missing_result(tmp_path: Path, monkeypatch) -> None:
+    generator = load_generator()
+    candidate = "a" * 40
+    contract_path = "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json"
+    helper = "Hexalith.Conversations.TestSupport"
+    tests = helper + ".Tests"
+    blobs = {
+        contract_path: b"contract",
+        f"tests/{helper}/{helper}.csproj": (
+            b'<Project><PropertyGroup><IsPackable>false</IsPackable>'
+            b'<IsPublishable>false</IsPublishable></PropertyGroup></Project>'
+        ),
+        f"tests/{tests}/{tests}.csproj": (
+            b'<Project><PropertyGroup><IsPackable>false</IsPackable>'
+            b'<IsPublishable>false</IsPublishable></PropertyGroup><ItemGroup>'
+            b'<ProjectReference Include="..\\Hexalith.Conversations.TestSupport\\'
+            b'Hexalith.Conversations.TestSupport.csproj" /></ItemGroup></Project>'
+        ),
+    }
+    for name in (helper, tests):
+        project_file = tmp_path / f"tests/{name}/{name}.csproj"
+        project_file.parent.mkdir(parents=True, exist_ok=True)
+        project_file.write_bytes(blobs[f"tests/{name}/{name}.csproj"])
+        binary = tmp_path / f"tests/{name}/bin/Release/net10.0/{name}.dll"
+        binary.parent.mkdir(parents=True)
+        binary.write_bytes(b"candidate binary")
+    monkeypatch.setattr(generator, "v2_committed_blob", lambda _repo, _rev, path: blobs.get(path))
+    monkeypatch.setattr(generator, "v2_verified_predecessor", lambda _repo, _rev, story, *_: story * 32)
+    authority = {"epic": "epic-v10", "architecture": "architecture-v10", "planningCandidate": "c" * 40, "bundleDigest": "d" * 64}
+    previous = {
+        "summary": {"required": 1, "passed": 1, "failed": 0, "blocked": 0, "skipped": 0, "notRun": 0},
+            "scenarios": [{"result": "PASS", "exitCode": 0, "assertionLedger": [{"state": "PASS"}]}],
+        "candidate": {"commit": "b" * 40}, "authority": authority.copy(),
+    }
+    monkeypatch.setattr(generator, "v2_parse_json", lambda content: previous)
+    monkeypatch.setattr(generator, "try_resolve_commit", lambda _repo, revision: revision)
+    monkeypatch.setattr(generator, "v2_10_1_project_boundary", lambda *_: None)
+    monkeypatch.setattr(generator, "dotnet_source_revisions", lambda _bytes: [candidate])
+    scenario_records = {}
+    for number in range(2, 7):
+        path = f"artifacts/v9/10.1/AC-10.1-0{number}.trx"
+        result_file = tmp_path / path
+        result_file.parent.mkdir(parents=True, exist_ok=True)
+        result_file.write_bytes(b"passing result")
+        scenario_records[f"AC-10.1-0{number}"] = {"result": "PASS", "resultFile": {
+            "path": path, "sha256": generator.v2_sha256(b"passing result")}}
+    contract = {"inventory": {"id": "V9-10.1-ENTRY-v1", "sha256":
+                "74c4c5e9e70cb86648dc753c5edc97bdb8d598ad2a4aba55d3670794e990ca84"},
+                "predecessors": ["7.4", "9.2"], "authority": authority}
+    facts = generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
+    assert facts["sourceRevisionId"] == candidate
+    assert len(facts["predecessorRecords"]) == 2
+    assert len(facts["projects"]) == 2
+    assert len(facts["results"]) == 5
+    original_inventory = deepcopy(contract["inventory"])
+    contract["inventory"]["sha256"] = "0" * 64
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
+    assert "ASSERTION_INVENTORY_DRIFT" in {row["code"] for row in error.value.findings}
+    contract["inventory"] = original_inventory
+
+    contract["predecessors"] = ["9.2", "7.4"]
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
+    assert "ASSERTION_INVENTORY_DRIFT" in {row["code"] for row in error.value.findings}
+    contract["predecessors"] = ["7.4", "9.2"]
+
+    result = scenario_records["AC-10.1-06"]["resultFile"]
+    original_digest = result["sha256"]
+    result["sha256"] = "0" * 64
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
+    assert "TEST_RESULTS_MISSING" in {row["code"] for row in error.value.findings}
+    result["sha256"] = original_digest
+
+    missing_project_path = f"tests/{tests}/{tests}.csproj"
+    missing_project = blobs.pop(missing_project_path)
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
+    assert "TEST_RESULTS_MISSING" in {row["code"] for row in error.value.findings}
+    blobs[missing_project_path] = missing_project
+
+    scenario_records["AC-10.1-06"]["resultFile"]["path"] = "foreign.trx"
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
+    assert "TEST_RESULTS_MISSING" in {row["code"] for row in error.value.findings}
+
+    scenario_records["AC-10.1-06"]["resultFile"]["path"] = "artifacts/v9/10.1/AC-10.1-06.trx"
+    previous["authority"] = {**authority, "architecture": "foreign-architecture"}
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
+    assert "AUTHORITY_BINDING_INVALID" in {row["code"] for row in error.value.findings}
+    previous["authority"] = authority.copy()
+    previous["authority"]["bundleDigest"] = "e" * 64
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
+    assert "AUTHORITY_BINDING_INVALID" in {row["code"] for row in error.value.findings}
+    previous["authority"] = authority.copy()
+    previous["scenarios"][0]["assertionLedger"][0]["state"] = "FAIL"
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
+    assert "AUTHORITY_BINDING_INVALID" in {row["code"] for row in error.value.findings}
+    previous["scenarios"][0]["assertionLedger"][0]["state"] = "PASS"
+    (tmp_path / f"tests/{helper}/bin/Release/net10.0/{helper}.dll").write_bytes(b"stale binary")
+    monkeypatch.setattr(generator, "dotnet_source_revisions", lambda binary: [candidate] if binary == b"candidate binary" else [])
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
+    assert "TEST_SUPPORT_BOUNDARY_INVALID" in {row["code"] for row in error.value.findings}
+    (tmp_path / f"tests/{helper}/bin/Release/net10.0/{helper}.dll").write_bytes(b"candidate binary")
+    helper_project = tmp_path / f"tests/{helper}/{helper}.csproj"
+    helper_project.write_bytes(blobs[f"tests/{helper}/{helper}.csproj"] + b"\n<!-- worktree drift -->\n")
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
+    assert "TEST_SUPPORT_BOUNDARY_INVALID" in {row["code"] for row in error.value.findings}
+    helper_project.write_bytes(blobs[f"tests/{helper}/{helper}.csproj"])
+    previous["authority"] = authority.copy()
+    monkeypatch.setattr(generator, "try_resolve_commit", lambda *_: None)
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_10_1_facts(tmp_path, candidate, contract_path, contract, authority, scenario_records, None)
+    assert "AUTHORITY_BINDING_INVALID" in {row["code"] for row in error.value.findings}
+
+
+def test_story101_evaluated_project_boundary_rejects_overrides_and_references(tmp_path: Path) -> None:
+    generator = load_generator()
+    path = "helper.csproj"
+    project = tmp_path / path
+    project.write_text("""<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup>
+    <IsPackable>false</IsPackable><IsPublishable>false</IsPublishable>
+    </PropertyGroup></Project>""", encoding="utf-8")
+    generator.v2_10_1_project_boundary(tmp_path, path, True)
+    project.write_text("""<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup>
+    <IsPackable>false</IsPackable><IsPublishable>false</IsPublishable>
+    </PropertyGroup><PropertyGroup><IsPackable>true</IsPackable></PropertyGroup></Project>""", encoding="utf-8")
+    with pytest.raises(ValueError, match="packable"):
+        generator.v2_10_1_project_boundary(tmp_path, path, True)
+    project.write_text("""<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup>
+    <IsPackable>false</IsPackable><IsPublishable>false</IsPublishable>
+    </PropertyGroup><PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <IsPublishable>true</IsPublishable></PropertyGroup></Project>""", encoding="utf-8")
+    with pytest.raises(ValueError, match="publishable"):
+        generator.v2_10_1_project_boundary(tmp_path, path, True)
+    project.write_text("""<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup>
+    <IsPackable>false</IsPackable><IsPublishable>false</IsPublishable>
+    </PropertyGroup><ItemGroup><Reference Include="Hexalith.Conversations.Contracts" /></ItemGroup></Project>""",
+                       encoding="utf-8")
+    with pytest.raises(ValueError, match="assembly reference"):
+        generator.v2_10_1_project_boundary(tmp_path, path, True)
+    project.write_text("""<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup>
+    <IsPackable>false</IsPackable><IsPublishable>false</IsPublishable>
+    </PropertyGroup><ItemGroup><FrameworkReference Include="Microsoft.AspNetCore.App" /></ItemGroup></Project>""",
+                       encoding="utf-8")
+    with pytest.raises(ValueError, match="framework dependency"):
+        generator.v2_10_1_project_boundary(tmp_path, path, True)
+    for dependency in (
+        '<PackageReference Include="Hexalith.Conversations.Contracts" Version="1.0.0" />',
+        '<ProjectReference Include="../Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj" />',
+    ):
+        project.write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup>'
+                           '<IsPackable>false</IsPackable><IsPublishable>false</IsPublishable>'
+                           f'</PropertyGroup><ItemGroup>{dependency}</ItemGroup></Project>', encoding="utf-8")
+        with pytest.raises(ValueError, match="package or project dependency"):
+            generator.v2_10_1_project_boundary(tmp_path, path, True)
+
+
+def test_story101_test_project_boundary_requires_exact_dependencies(tmp_path: Path) -> None:
+    generator = load_generator()
+    path = "tests.csproj"
+    project = tmp_path / path
+    expected_packages = ("Microsoft.NET.Test.Sdk", "Shouldly", "xunit.v3",
+                         "xunit.runner.visualstudio", "coverlet.collector")
+    expected_project = "../Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj"
+
+    def write_project(packages: tuple[str, ...], projects: tuple[str, ...]) -> None:
+        items = "".join(f'<PackageReference Include="{name}" />' for name in packages)
+        items += "".join(f'<ProjectReference Include="{name}" />' for name in projects)
+        project.write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup>'
+                           '<IsPackable>false</IsPackable><IsPublishable>false</IsPublishable>'
+                           f'</PropertyGroup><ItemGroup>{items}</ItemGroup></Project>', encoding="utf-8")
+
+    write_project(expected_packages, (expected_project,))
+    generator.v2_10_1_project_boundary(tmp_path, path, False)
+    for packages, projects in (
+        (expected_packages, (expected_project, "../Hexalith.Conversations.Contracts/Contracts.csproj")),
+        (expected_packages + ("Hexalith.Conversations.Contracts",), (expected_project,)),
+        (expected_packages[:-1], (expected_project,)),
+    ):
+        write_project(packages, projects)
+        with pytest.raises(ValueError, match="declared dependencies changed"):
+            generator.v2_10_1_project_boundary(tmp_path, path, False)
+
+
+def test_story101_committed_pair_still_verifies() -> None:
+    generator = load_generator()
+    _, validators = generator.v2_load_schemas()
+    json_bytes = (WORKSPACE / "docs/release-evidence/story-10.1-final-record-v2.json").read_bytes()
+    markdown_bytes = (WORKSPACE / "docs/release-evidence/story-10.1-final-record-v2.md").read_bytes()
+    record = generator.v2_parse_json(json_bytes)
+    assert not generator.v2_schema_errors(validators["record"], record)
+    assert generator.v2_verify_pair(json_bytes, markdown_bytes) == []
+
+
+def test_story101_schema_requires_exclusive_closed_support_binding() -> None:
+    generator = load_generator()
+    _, validators = generator.v2_load_schemas()
+    story101 = generator.v2_parse_json(
+        (WORKSPACE / "docs/release-evidence/story-10.1-final-record-v2.json").read_bytes())
+    story92 = generator.v2_parse_json(
+        (WORKSPACE / "docs/release-evidence/story-9.2-final-record-v2.json").read_bytes())
+    assert not generator.v2_schema_errors(validators["record"], story101)
+    assert not generator.v2_schema_errors(validators["record"], story92)
+    without_block = deepcopy(story101)
+    without_block.pop("testSupportExecution")
+    assert generator.v2_schema_errors(validators["record"], without_block)
+    copied_block = deepcopy(story92)
+    copied_block["testSupportExecution"] = deepcopy(story101["testSupportExecution"])
+    assert generator.v2_schema_errors(validators["record"], copied_block)
+    extra_field = deepcopy(story101)
+    extra_field["testSupportExecution"]["unexpected"] = "value"
+    assert generator.v2_schema_errors(validators["record"], extra_field)
+    foreign_contract = deepcopy(story101)
+    foreign_contract["testSupportExecution"]["contract"]["path"] = "foreign-contract.json"
+    assert generator.v2_schema_errors(validators["record"], foreign_contract)
+    foreign_predecessor = deepcopy(story101)
+    foreign_predecessor["testSupportExecution"]["predecessorRecords"][0]["path"] = "foreign-record.json"
+    assert generator.v2_schema_errors(validators["record"], foreign_predecessor)
+    foreign_second_predecessor = deepcopy(story101)
+    foreign_second_predecessor["testSupportExecution"]["predecessorRecords"][1]["path"] = "foreign-record.json"
+    assert generator.v2_schema_errors(validators["record"], foreign_second_predecessor)
+
+
+def test_story101_committed_predecessor_requires_valid_pair(tmp_path: Path) -> None:
+    generator = load_generator()
+    _, validators = generator.v2_load_schemas()
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    json_path = "docs/release-evidence/story-7.4-final-record-v2.json"
+    markdown_path = "docs/release-evidence/story-7.4-final-record-v2.md"
+    for path in (json_path, markdown_path):
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((WORKSPACE / path).read_bytes())
+    subprocess.run(["git", "-C", str(tmp_path), "add", "--", json_path, markdown_path], check=True)
+    subprocess.run(["git", "-C", str(tmp_path), "-c", "user.name=Fixture", "-c",
+                    "user.email=fixture@example.invalid", "commit", "-qm", "test: add predecessor fixture"], check=True)
+    candidate = subprocess.check_output(["git", "-C", str(tmp_path), "rev-parse", "HEAD"], text=True).strip()
+    assert generator.v2_verified_predecessor(tmp_path, candidate, "7.4", json_path,
+                                             markdown_path, validators["record"]) is not None
+    target = tmp_path / markdown_path
+    target.write_bytes(target.read_bytes() + b"corruption\n")
+    subprocess.run(["git", "-C", str(tmp_path), "add", "--", markdown_path], check=True)
+    subprocess.run(["git", "-C", str(tmp_path), "-c", "user.name=Fixture", "-c",
+                    "user.email=fixture@example.invalid", "commit", "-qm", "test: corrupt predecessor fixture"], check=True)
+    candidate = subprocess.check_output(["git", "-C", str(tmp_path), "rev-parse", "HEAD"], text=True).strip()
+    assert generator.v2_verified_predecessor(tmp_path, candidate, "7.4", json_path,
+                                             markdown_path, validators["record"]) is None
+
+
+@pytest.mark.parametrize("output", ("json", "markdown"))
+def test_story101_committed_predecessor_requires_exact_output_paths(tmp_path: Path, output: str) -> None:
+    generator = load_generator()
+    _, validators = generator.v2_load_schemas()
+    json_path = "docs/release-evidence/story-7.4-final-record-v2.json"
+    markdown_path = "docs/release-evidence/story-7.4-final-record-v2.md"
+    record = generator.v2_parse_json((WORKSPACE / json_path).read_bytes())
+    record["outputs"][output]["path"] = "docs/release-evidence/other-record-v2." + ("json" if output == "json" else "md")
+    _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+    assert generator.v2_verify_pair(json_bytes, markdown_bytes) == []
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    for path, content in ((json_path, json_bytes), (markdown_path, markdown_bytes)):
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+    subprocess.run(["git", "-C", str(tmp_path), "add", "--", json_path, markdown_path], check=True)
+    subprocess.run(["git", "-C", str(tmp_path), "-c", "user.name=Fixture", "-c",
+                    "user.email=fixture@example.invalid", "commit", "-qm", "test: add mismatched predecessor fixture"], check=True)
+    candidate = subprocess.check_output(["git", "-C", str(tmp_path), "rev-parse", "HEAD"], text=True).strip()
+    assert generator.v2_verified_predecessor(tmp_path, candidate, "7.4", json_path,
+                                             markdown_path, validators["record"]) is None
+
+
+def test_story101_artifact_linked_parent_is_rejected(tmp_path: Path) -> None:
+    generator = load_generator()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "result.trx").write_bytes(b"result")
+    (tmp_path / "linked").symlink_to(outside, target_is_directory=True)
+    with pytest.raises(ValueError, match="linked artifact path"):
+        generator.v2_10_1_artifact_bytes(tmp_path, "linked/result.trx")
+    tests_bin = tmp_path / "tests/Hexalith.Conversations.TestSupport.Tests/bin"
+    tests_bin.parent.mkdir(parents=True)
+    tests_bin.symlink_to(outside, target_is_directory=True)
+    with pytest.raises(ValueError, match="linked artifact path"):
+        generator.v2_10_1_artifact_bytes(
+            tmp_path,
+            "tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll",
+        )
+
+
+def test_story101_pair_rejects_revision_and_artifact_path_conflicts(monkeypatch) -> None:
+    generator = load_generator()
+    names = ("Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests")
+    support = {"projects": [{"project": {"path": f"tests/{name}/{name}.csproj"},
+                             "assembly": {"path": f"tests/{name}/bin/Release/net10.0/{name}.dll",
+                                          "sha256": chr(97 + index) * 64}}
+                            for index, name in enumerate(names)],
+               "results": [{"path": f"artifacts/v9/10.1/AC-10.1-0{number}.trx", "sha256": str(number) * 64}
+                           for number in range(2, 7)],
+               "contract": {"path": "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json"},
+               "inventorySha256": "c" * 64,
+               "predecessorRecords": [{"storyId": story, "path": f"docs/release-evidence/story-{story}-final-record-v2.json"}
+                                      for story in ("7.4", "9.2")]}
+    assert generator.v2_10_1_exact_paths(support)
+    support["sourceRevisionId"] = "a" * 40
+    record = {"storyId": "10.1", "candidate": {"commit": "a" * 40}, "testSupportExecution": support,
+              "predecessors": ["7.4", "9.2"],
+              "inventory": {"sha256": "c" * 64},
+              "scenarios": [{"scenarioId": "AC-10.1-01", "result": "PASS", "exitCode": 0,
+                             "resultFile": support["projects"][0]["assembly"],
+                             "outputFiles": [support["projects"][0]["assembly"]]}]
+                           + [{"scenarioId": f"AC-10.1-0{number}", "result": "PASS", "exitCode": 0,
+                               "resultFile": support["results"][number - 2],
+                               "outputFiles": [support["results"][number - 2], support["projects"][1]["assembly"]]}
+                              for number in range(2, 7)]
+                           + [{"scenarioId": "AC-10.1-07", "result": "PASS", "exitCode": 0,
+                               "resultFile": None, "outputFiles": []}],
+              "outputs": {"json": {"sha256": generator.V2_ZERO_DIGEST},
+                          "markdown": {"sha256": generator.V2_ZERO_DIGEST}},
+              "renderedMarkdownSha256": generator.V2_ZERO_DIGEST}
+    monkeypatch.setattr(generator, "v2_render_markdown", lambda *_: "record\n")
+    _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+    assert generator.v2_verify_pair(json_bytes, markdown_bytes) == []
+    record["testSupportExecution"]["sourceRevisionId"] = "b" * 40
+    _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+    assert any("source revision" in value for value in generator.v2_verify_pair(json_bytes, markdown_bytes))
+    support["sourceRevisionId"] = "a" * 40
+    support["results"][4]["path"] = support["results"][3]["path"]
+    assert not generator.v2_10_1_exact_paths(support)
+    _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+    assert any("artifact paths" in value for value in generator.v2_verify_pair(json_bytes, markdown_bytes))
+    support["results"][4]["path"] = "artifacts/v9/10.1/AC-10.1-06.trx"
+    for changed, value in ((support["contract"], "other.json"),
+                           (support["predecessorRecords"][0], "other.json")):
+        original = changed["path"]
+        changed["path"] = value
+        _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+        assert any("artifact paths" in issue for issue in generator.v2_verify_pair(json_bytes, markdown_bytes))
+        changed["path"] = original
+    record["predecessors"] = ["9.2", "7.4"]
+    _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+    assert any("predecessor list" in issue for issue in generator.v2_verify_pair(json_bytes, markdown_bytes))
+
+
+def test_story101_pair_rejects_inventory_outcome_and_result_conflicts(monkeypatch) -> None:
+    generator = load_generator()
+    paths = [f"artifacts/v9/10.1/AC-10.1-0{number}.trx" for number in range(2, 7)]
+    names = ("Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests")
+    original = {
+        "storyId": "10.1", "candidate": {"commit": "a" * 40},
+        "inventory": {"sha256": "c" * 64},
+        "predecessors": ["7.4", "9.2"],
+        "scenarios": [],
+        "testSupportExecution": {
+            "sourceRevisionId": "a" * 40,
+            "projects": [{"project": {"path": f"tests/{name}/{name}.csproj"},
+                          "assembly": {"path": f"tests/{name}/bin/Release/net10.0/{name}.dll",
+                                       "sha256": chr(97 + index) * 64}}
+                         for index, name in enumerate(names)],
+            "results": [{"path": path, "sha256": str(number) * 64}
+                        for number, path in zip(range(2, 7), paths, strict=True)],
+            "contract": {"path": "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json"},
+            "inventorySha256": "c" * 64,
+            "predecessorRecords": [{"storyId": story, "path": f"docs/release-evidence/story-{story}-final-record-v2.json"}
+                                   for story in ("7.4", "9.2")],
+        },
+        "outputs": {"json": {"sha256": generator.V2_ZERO_DIGEST},
+                    "markdown": {"sha256": generator.V2_ZERO_DIGEST}},
+        "renderedMarkdownSha256": generator.V2_ZERO_DIGEST,
+    }
+    support = original["testSupportExecution"]
+    original["scenarios"] = [
+        {"scenarioId": "AC-10.1-01", "result": "PASS", "exitCode": 0,
+         "resultFile": deepcopy(support["projects"][0]["assembly"]),
+         "outputFiles": [deepcopy(support["projects"][0]["assembly"])]},
+        *({"scenarioId": f"AC-10.1-0{number}", "result": "PASS", "exitCode": 0,
+           "resultFile": deepcopy(support["results"][number - 2]),
+           "outputFiles": [deepcopy(support["results"][number - 2]),
+                           deepcopy(support["projects"][1]["assembly"])]}
+          for number in range(2, 7)),
+        {"scenarioId": "AC-10.1-07", "result": "PASS", "exitCode": 0,
+         "resultFile": None, "outputFiles": []},
+    ]
+    monkeypatch.setattr(generator, "v2_render_markdown", lambda *_: "record\n")
+    _, json_bytes, markdown_bytes = generator.v2_finalize(original)
+    assert generator.v2_verify_pair(json_bytes, markdown_bytes) == []
+    for mutate, expected in (
+        (lambda row: row["inventory"].update(sha256="f" * 64), "inventory digest"),
+        (lambda row: row["scenarios"][1].update(exitCode=1), "nonzero exit"),
+        (lambda row: row["scenarios"][1]["resultFile"].update(path="other.trx"), "scenario result paths"),
+        (lambda row: row["testSupportExecution"]["projects"][0]["assembly"].update(sha256="f" * 64),
+         "scenario result or assembly digests"),
+        (lambda row: row["scenarios"].pop(), "scenario result or assembly digests"),
+        (lambda row: row["scenarios"][-1].update(scenarioId="AC-10.1-06"),
+         "scenario result or assembly digests"),
+    ):
+        record = deepcopy(original)
+        mutate(record)
+        _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+        assert any(expected in problem for problem in generator.v2_verify_pair(json_bytes, markdown_bytes))
+    for mutate in (
+        lambda row: row["testSupportExecution"]["results"][0].update(sha256="f" * 64),
+        lambda row: row["testSupportExecution"]["projects"][1]["assembly"].update(sha256="f" * 64),
+    ):
+        record = deepcopy(original)
+        mutate(record)
+        _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+        assert any("digests differ" in problem for problem in generator.v2_verify_pair(json_bytes, markdown_bytes))
+
+
+def test_story101_predecessor_requires_positive_consistent_summary() -> None:
+    generator = load_generator()
+    previous = json.loads((WORKSPACE / "docs/release-evidence/story-7.4-final-record-v2.json").read_text())
+    assert generator.v2_10_1_predecessor_passes(previous)
+    saved_ledger = previous["scenarios"][0]["assertionLedger"]
+    previous["scenarios"][0]["assertionLedger"] = []
+    assert not generator.v2_10_1_predecessor_passes(previous)
+    previous["scenarios"][0]["assertionLedger"] = saved_ledger
+    for field in ("failed", "blocked", "skipped", "notRun"):
+        previous["summary"][field] = 1
+        assert not generator.v2_10_1_predecessor_passes(previous)
+        previous["summary"][field] = 0
+    previous["summary"]["required"] = previous["summary"]["passed"] = 0
+    assert not generator.v2_10_1_predecessor_passes(previous)
+    previous["summary"]["required"] = previous["summary"]["passed"] = len(previous["scenarios"])
+    previous["scenarios"][0]["exitCode"] = 1
+    assert not generator.v2_10_1_predecessor_passes(previous)
+    previous["scenarios"][0]["exitCode"] = 0
+    previous["scenarios"][0]["blockers"] = ["unexpected blocker"]
+    assert not generator.v2_10_1_predecessor_passes(previous)
+    previous["scenarios"][0]["blockers"] = []
+    assert generator.v2_10_1_predecessor_passes(previous)
+    count = len(previous["scenarios"])
+    previous["summary"]["required"] = count + 1
+    assert not generator.v2_10_1_predecessor_passes(previous)
+    previous["summary"]["required"] = count
+    previous["scenarios"][0]["result"] = "FAIL"
+    assert not generator.v2_10_1_predecessor_passes(previous)
+    previous["scenarios"][0]["result"] = "PASS"
+    previous["scenarios"][0]["assertionLedger"][0]["state"] = "FAIL"
+    assert not generator.v2_10_1_predecessor_passes(previous)
+    previous["scenarios"][0]["assertionLedger"][0]["state"] = "PASS"
+    assert generator.v2_10_1_predecessor_passes(previous)
+    empty = deepcopy(previous)
+    empty["scenarios"] = []
+    empty["summary"]["required"] = empty["summary"]["passed"] = 0
+    assert not generator.v2_10_1_predecessor_passes(empty)
+
+
+def test_story101_inserted_verification_rederives_stale_artifact_binding(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    candidate = "a" * 40
+    contract_path = "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json"
+    spec_path = "_bmad-output/implementation-artifacts/spec-10-1-neutral-testsupport-and-safe-git-facts.md"
+    json_path = "docs/release-evidence/story-10.1-final-record-v2.json"
+    markdown_path = "docs/release-evidence/story-10.1-final-record-v2.md"
+    names = ("Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests")
+    artifact_path = f"tests/{names[0]}/bin/Release/net10.0/{names[0]}.dll"
+    support = {
+        "sourceRevisionId": candidate,
+        "projects": [{"project": {"path": f"tests/{name}/{name}.csproj"},
+                      "assembly": {"path": f"tests/{name}/bin/Release/net10.0/{name}.dll",
+                                   "sha256": module.v2_sha256(b"old")}}
+                     for name in names],
+        "results": [{"path": f"artifacts/v9/10.1/AC-10.1-0{number}.trx", "sha256": str(number) * 64}
+                    for number in range(2, 7)],
+        "inventorySha256": "c" * 64,
+        "contract": {"path": contract_path},
+        "predecessorRecords": [{"storyId": story, "path": f"docs/release-evidence/story-{story}-final-record-v2.json"}
+                               for story in ("7.4", "9.2")],
+    }
+    record = {
+        "storyId": "10.1", "candidate": {"commit": candidate},
+        "predecessors": ["7.4", "9.2"],
+        "inventory": {"sha256": "c" * 64},
+        "scenarios": [{"scenarioId": "AC-10.1-01", "result": "PASS", "exitCode": 0,
+                       "resultFile": deepcopy(support["projects"][0]["assembly"]),
+                       "outputFiles": [deepcopy(support["projects"][0]["assembly"])]}]
+                     + [{"scenarioId": f"AC-10.1-0{number}", "result": "PASS", "exitCode": 0,
+                         "resultFile": deepcopy(support["results"][number - 2]),
+                         "outputFiles": [deepcopy(support["results"][number - 2]),
+                                         deepcopy(support["projects"][1]["assembly"])]}
+                        for number in range(2, 7)]
+                     + [{"scenarioId": "AC-10.1-07", "result": "PASS", "exitCode": 0,
+                         "resultFile": None, "outputFiles": []}],
+        "testSupportExecution": support,
+        "outputs": {"json": {"path": json_path, "sha256": module.V2_ZERO_DIGEST},
+                    "markdown": {"path": markdown_path, "sha256": module.V2_ZERO_DIGEST}},
+        "renderedMarkdownSha256": module.V2_ZERO_DIGEST,
+    }
+    monkeypatch.setattr(module, "v2_render_markdown", lambda *_: "self-consistent record\n")
+    _, json_bytes, markdown_bytes = module.v2_finalize(record)
+    assert module.v2_verify_pair(json_bytes, markdown_bytes) == []
+    (tmp_path / artifact_path).parent.mkdir(parents=True)
+    (tmp_path / artifact_path).write_bytes(b"new")
+    contract = {"storyId": "10.1", "finalRecord": {"paths": [json_path, markdown_path]}}
+    blobs = {contract_path: b"contract", json_path: json_bytes, markdown_path: markdown_bytes}
+    spec = (b"---\nstatus: in-progress\n---\n\n" + module.RECORD_BEGIN_MARKER.encode()
+            + b"\n" + markdown_bytes + module.RECORD_END_MARKER.encode() + b"\n")
+    for path, data in {**blobs, spec_path: spec}.items():
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(data)
+    monkeypatch.setattr(module, "validate_repository", lambda *_: tmp_path)
+    monkeypatch.setattr(module, "v2_load_schemas", lambda: (None, {"contract": None, "contract_v14": None, "record": None}))
+    monkeypatch.setattr(module, "v2_validate_contract", lambda *_: contract)
+    monkeypatch.setattr(module, "v2_schema_errors", lambda *_: [])
+    monkeypatch.setattr(module, "resolve_commit", lambda *_: candidate)
+    monkeypatch.setattr(module, "v2_retention_config", lambda *_: ("10.1", spec_path, "10-1-provide-neutral-testsupport-helpers-and-a-safe-git-facts-runner", True))
+    monkeypatch.setattr(module, "v2_retained_candidate", lambda *_: candidate)
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repo, _rev, path: blobs.get(path))
+    monkeypatch.setattr(module, "worktree_path_status", lambda *_: {})
+    monkeypatch.setattr(module, "v2_working_spec_lifecycle_only_change", lambda *_args, **_kwargs: True)
+    calls = []
+    def rederive(options, *, verify_spec):
+        calls.append(verify_spec)
+        current = deepcopy(record)
+        current["testSupportExecution"]["projects"][0]["assembly"]["sha256"] = module.v2_sha256(
+            (tmp_path / artifact_path).read_bytes())
+        return module.v2_finalize(current)[1]
+    monkeypatch.setattr(module, "v2_generate", rederive)
+    with pytest.raises(module.V2Stop) as error:
+        module.v2_verify_inserted({"--repository": str(tmp_path), "--contract": contract_path,
+                                   module.V2_VERIFY_OPTION: spec_path})
+    assert error.value.findings[0]["code"] == "RECORD_CONTENT_DRIFT"
+    assert calls == [spec_path]
+
+
+def test_story101_inserted_verification_runs_real_generator_for_stale_artifact(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    candidate = "a" * 40
+    contract_path = "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json"
+    spec_path = "_bmad-output/implementation-artifacts/spec-10-1-neutral-testsupport-and-safe-git-facts.md"
+    json_path, markdown_path = module.v2_designated_successor_outputs("10.1")
+    contract_bytes = (WORKSPACE / contract_path).read_bytes()
+    contract = json.loads(contract_bytes)
+    names = ("Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests")
+    project_paths = [f"tests/{name}/{name}.csproj" for name in names]
+    assembly_paths = [f"tests/{name}/bin/Release/net10.0/{name}.dll" for name in names]
+    result_paths = [f"artifacts/v9/10.1/AC-10.1-0{number}.trx" for number in range(2, 7)]
+    blobs = {contract_path: contract_bytes}
+    artifacts = {path: (WORKSPACE / path).read_bytes() for path in project_paths}
+    artifacts.update({path: b"candidate binary" for path in assembly_paths})
+    artifacts.update({path: b"passing result" for path in result_paths})
+    blobs.update({path: artifacts[path] for path in project_paths})
+    for story in ("7.4", "9.2"):
+        for suffix in ("json", "md"):
+            path = f"docs/release-evidence/story-{story}-final-record-v2.{suffix}"
+            blobs[path] = (WORKSPACE / path).read_bytes()
+    authority = json.loads(blobs["docs/release-evidence/story-7.4-final-record-v2.json"])["authority"]
+    retention = ("10.1", spec_path,
+                 "10-1-provide-neutral-testsupport-helpers-and-a-safe-git-facts-runner", True)
+    measured_calls = []
+
+    def measured_scenario(_repository, scenario, _command, *_args, **kwargs):
+        measured_calls.append(kwargs.get("execute_commands"))
+        number = int(scenario["id"].rsplit("-", 1)[1])
+        outputs = ([{"path": assembly_paths[0], "sha256": module.v2_sha256(artifacts[assembly_paths[0]])}]
+                   if number == 1 else [
+                       {"path": result_paths[number - 2], "sha256": module.v2_sha256(artifacts[result_paths[number - 2]])},
+                       {"path": assembly_paths[1], "sha256": module.v2_sha256(artifacts[assembly_paths[1]])},
+                   ])
+        return ({"scenarioId": scenario["id"], "command": scenario["command"], "exitCode": 0,
+                 "result": "PASS", "blockers": [], "resultFile": outputs[0], "outputFiles": outputs,
+                 "assertionLedger": [{"id": scenario["id"] + "#0001", "subject": "fixture", "state": "PASS"}]},
+                "passed", [])
+
+    monkeypatch.setattr(module, "validate_repository", lambda *_: tmp_path)
+    monkeypatch.setattr(module, "v2_load_schemas", lambda: (None, {name: None for name in
+                          ("contract", "contract_v14", "record", "bundle")}))
+    monkeypatch.setattr(module, "v2_schema_errors", lambda *_: [])
+    monkeypatch.setattr(module, "resolve_commit", lambda *_: candidate)
+    monkeypatch.setattr(module, "try_resolve_commit", lambda _repo, revision: revision)
+    monkeypatch.setattr(module, "v2_retention_config", lambda *_: retention)
+    monkeypatch.setattr(module, "v2_retained_candidate", lambda *_: candidate)
+    monkeypatch.setattr(module, "v2_validate_contract", lambda *_: contract)
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repo, _rev, path: blobs.get(path))
+    monkeypatch.setattr(module, "v2_authority", lambda *_: authority)
+    monkeypatch.setattr(module, "v2_gitlinks", lambda *_: [{"path": "references/Hexalith.AI.Tools",
+                         "mode": "160000", "commit": "b" * 40}])
+    monkeypatch.setattr(module, "worktree_path_status", lambda *_: {})
+    monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess([], 0, stdout=b"1\n", stderr=b""))
+    monkeypatch.setattr(module, "v2_successor_scenario_from_results", measured_scenario)
+    monkeypatch.setattr(module, "v2_10_1_project_boundary", lambda *_: None)
+    monkeypatch.setattr(module, "v2_10_1_artifact_bytes", lambda _repo, path: artifacts[path])
+    monkeypatch.setattr(module, "dotnet_source_revisions", lambda _binary: [candidate])
+    monkeypatch.setattr(module, "v2_working_spec_lifecycle_only_change", lambda *_args, **_kwargs: True)
+    options = {"--repository": str(tmp_path), "--contract": contract_path, "--format": "bundle",
+               "--output-json": json_path, "--output-markdown": markdown_path}
+    json_bytes = module.v2_generate(options, verify_spec=spec_path)
+    record = module.v2_parse_json(json_bytes)
+    markdown_bytes = module.v2_render_markdown(module.v2_zero_digests(record),
+                                               module.v2_sha256(module.v2_render_json(module.v2_zero_digests(record)))).encode()
+    assert module.v2_verify_pair(json_bytes, markdown_bytes) == []
+    blobs[json_path], blobs[markdown_path] = json_bytes, markdown_bytes
+    spec = (b"---\nstatus: in-progress\n---\n\n" + module.RECORD_BEGIN_MARKER.encode()
+            + b"\n" + markdown_bytes + module.RECORD_END_MARKER.encode() + b"\n")
+    for path, data in {json_path: json_bytes, markdown_path: markdown_bytes, spec_path: spec}.items():
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(data)
+    artifacts[assembly_paths[0]] = b"changed candidate binary"
+    with pytest.raises(module.V2Stop) as error:
+        module.v2_verify_inserted({"--repository": str(tmp_path), "--contract": contract_path,
+                                   module.V2_VERIFY_OPTION: spec_path})
+    assert error.value.findings[0]["code"] == "RECORD_CONTENT_DRIFT"
+    assert measured_calls and all(execute is False for execute in measured_calls)
+
+
+if __name__ == "__main__":
+    sys.exit(pytest.main([__file__, "-q"]))
+
+
+def story102_fixture(tmp_path: Path, monkeypatch):
+    generator = load_generator()
+    generator._story102_real_verified_predecessor = generator.v2_verified_predecessor
+    generator._story102_real_project_boundary = generator.v2_10_1_project_boundary
+    candidate = "a" * 40
+    contract_path = "_bmad-output/planning-artifacts/v9/story-contracts/10.2.json"
+    contract = json.loads((WORKSPACE / contract_path).read_bytes())
+    previous = json.loads((WORKSPACE / "docs/release-evidence/story-10.1-final-record-v2.json").read_bytes())
+    predecessor = json.dumps(previous).encode()
+    digest = generator.v2_sha256(predecessor)
+    roots = {"sourcePath": generator.V2_10_2_ROOT_SOURCE,
+             "constants": {"Story101RecordSha256": digest, "Story101CandidateCommit": previous["candidate"]["commit"]},
+             "allowlist": []}
+    source = "\n".join(f'private const string {name} = "{value}";' for name, value in roots["constants"].items())
+    source += "\nprivate static readonly string[] SupersessionAllowlist = [];\n"
+    blobs = {contract_path: json.dumps(contract).encode(), generator.V2_10_2_ROOT_SOURCE: source.encode(),
+             "docs/release-evidence/story-10.1-final-record-v2.json": predecessor}
+    for name in ("Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests"):
+        path = f"tests/{name}/{name}.csproj"
+        blobs[path] = f"project fixture for {name}".encode()
+        for relative, content in ((path, blobs[path]), (f"tests/{name}/bin/Release/net10.0/{name}.dll", f"candidate binary for {name}".encode())):
+            file = tmp_path / relative
+            file.parent.mkdir(parents=True, exist_ok=True)
+            file.write_bytes(content)
+    runtime = tmp_path / "tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.dll"
+    runtime.write_bytes(b"candidate binary for Hexalith.Conversations.TestSupport")
+    monkeypatch.setattr(generator, "v2_committed_blob", lambda _repo, _candidate, path: blobs.get(path))
+    monkeypatch.setattr(generator, "v2_verified_predecessor", lambda *_: digest)
+    monkeypatch.setattr(generator, "try_resolve_commit", lambda _repo, revision: revision)
+    monkeypatch.setattr(generator, "v2_10_1_project_boundary", lambda *_: None)
+    monkeypatch.setattr(generator, "dotnet_source_revisions", lambda binary: [candidate] if binary in {b"candidate binary for Hexalith.Conversations.TestSupport",
+                                                                                         b"candidate binary for Hexalith.Conversations.TestSupport.Tests"} else [])
+    mutations = [{"id": identity, "expectedBlocker": code, "observedBlockers": [code],
+                  "beforeSha256": "b" * 64, "afterSha256": "b" * 64, "detected": True, "restored": True}
+                 for identity, code in generator.V2_10_2_MUTATIONS]
+    mutations[8]["observedBlockers"] = ["REVISION_INVALID", "UNAVAILABLE_HISTORY_PASSED"]
+    rows = {}
+    for number in range(1, 9):
+        identity = f"AC-10.2-0{number}"
+        path = f"artifacts/v9/10.2/{identity}.trx"
+        write_trx(tmp_path / path, passed=1, project="Hexalith.Conversations.TestSupport.Tests")
+        rows[identity] = {"result": "PASS", "resultFile": {"path": path}}
+    def marked(identity, output, *, stdout=False):
+        path = tmp_path / rows[identity]["resultFile"]["path"]
+        tree = ElementTree.parse(path)
+        result = tree.find("./{*}Results/{*}UnitTestResult")
+        for old in result.findall("./{*}Output"):
+            result.remove(old)
+        node = ElementTree.SubElement(result, f"{{{TRX_NAMESPACE}}}Output")
+        if stdout:
+            ElementTree.SubElement(node, f"{{{TRX_NAMESPACE}}}StdOut").text = output
+        else:
+            messages = ElementTree.SubElement(node, f"{{{TRX_NAMESPACE}}}TextMessages")
+            ElementTree.SubElement(messages, f"{{{TRX_NAMESPACE}}}Message").text = output
+        tree.write(path, encoding="utf-8")
+        rows[identity]["resultFile"]["sha256"] = generator.v2_sha256(path.read_bytes())
+    for identity in rows:
+        rows[identity]["resultFile"]["sha256"] = generator.v2_sha256((tmp_path / rows[identity]["resultFile"]["path"]).read_bytes())
+    marked("AC-10.2-07", "STORY102_ROOTS:" + json.dumps(roots))
+    marked("AC-10.2-08", "STORY102_MUTATIONS:" + json.dumps(mutations))
+    def facts():
+        return generator.v2_10_2_facts(tmp_path, candidate, contract_path, contract, previous["authority"], rows, None)
+    return generator, facts, marked, roots, mutations, blobs, rows, candidate, contract
+
+
+def test_story102_bindings_recompute_roots_results_and_mutations(tmp_path: Path, monkeypatch):
+    generator, facts, marked, roots, mutations, blobs, rows, candidate, contract = story102_fixture(tmp_path, monkeypatch)
+    support = facts()
+    assert support["sourceRevisionId"] == candidate
+    assert support["inventorySha256"] == generator.V2_10_2_INVENTORY
+    assert len(support["projects"]) == 2 and len(support["results"]) == 8
+    for row in support["projects"]:
+        for kind in ("project", "assembly"):
+            assert row[kind]["sha256"] == generator.v2_sha256((tmp_path / row[kind]["path"]).read_bytes())
+    assert support["projects"][0]["project"]["sha256"] != support["projects"][1]["project"]["sha256"]
+    assert support["projects"][0]["assembly"]["sha256"] != support["projects"][1]["assembly"]["sha256"]
+    assert support["rootConstants"] == roots
+    assert support["mutationLedger"] == mutations
+    assert support["predecessorRecords"][0]["sha256"] == roots["constants"]["Story101RecordSha256"]
+    marked("AC-10.2-07", "STORY102_ROOTS:" + json.dumps(roots), stdout=True)
+    assert facts()["rootConstants"] == roots  # Also accept the alternate StdOut transport.
+
+
+@pytest.mark.parametrize("fault,expected", [
+    ("missing-marker", "TEST_RESULTS_MISSING"), ("duplicate-marker", "TEST_RESULTS_MISSING"),
+    ("undetected", "FAULT_NOT_DETECTED"), ("unrestored", "FIXTURE_NOT_RESTORED"),
+    ("before-drift", "FIXTURE_NOT_RESTORED"), ("wrong-id", "FAULT_NOT_DETECTED"),
+    ("missing-row", "FAULT_NOT_DETECTED"), ("missing-code", "FAULT_NOT_DETECTED"),
+    ("wrong-root", "ROOT_OF_TRUST_NOT_PINNED"), ("comment-root", "ROOT_OF_TRUST_NOT_PINNED"),
+    ("raw-string-root", "ROOT_OF_TRUST_NOT_PINNED"), ("inactive-root", "ROOT_OF_TRUST_NOT_PINNED"),
+    ("nested-string-root", "ROOT_OF_TRUST_NOT_PINNED"),
+    ("allowlist", "SIGNED_EVIDENCE_ALLOWLISTED"), ("inventory", "ASSERTION_INVENTORY_DRIFT"),
+    ("stale-binary", "TEST_SUPPORT_BOUNDARY_INVALID"), ("receipt-drift", "TEST_RESULTS_MISSING"),
+    ("runtime-missing", "TEST_SUPPORT_BOUNDARY_INVALID"), ("runtime-divergent", "TEST_SUPPORT_BOUNDARY_INVALID"),
+    ("predecessor-fail", "AUTHORITY_BINDING_INVALID"), ("predecessor-authority", "AUTHORITY_BINDING_INVALID"),
+    ("source-allowlist-missing", "SIGNED_EVIDENCE_ALLOWLISTED"),
+    ("source-allowlist-nonempty", "SIGNED_EVIDENCE_ALLOWLISTED"),
+    ("bom-inactive-root", "ROOT_OF_TRUST_NOT_PINNED"),
+])
+def test_story102_faults_cannot_publish_pass(tmp_path: Path, monkeypatch, fault, expected):
+    generator, facts, marked, roots, mutations, blobs, rows, candidate, contract = story102_fixture(tmp_path, monkeypatch)
+    if fault == "missing-marker":
+        marked("AC-10.2-07", "unmarked output")
+    elif fault == "duplicate-marker":
+        marked("AC-10.2-07", ("STORY102_ROOTS:" + json.dumps(roots) + "\n") * 2)
+    elif fault in {"undetected", "unrestored", "before-drift", "wrong-id", "missing-row", "missing-code"}:
+        if fault == "undetected": mutations[0]["detected"] = False
+        elif fault == "unrestored": mutations[0]["restored"] = False
+        elif fault == "before-drift": mutations[0]["afterSha256"] = "c" * 64
+        elif fault == "wrong-id": mutations[0]["id"] = "unknown"
+        elif fault == "missing-row": mutations.pop()
+        else: mutations[0]["observedBlockers"] = ["OTHER_CODE"]
+        marked("AC-10.2-08", "STORY102_MUTATIONS:" + json.dumps(mutations))
+    elif fault == "wrong-root":
+        roots["constants"]["Story101RecordSha256"] = "0" * 64
+        marked("AC-10.2-07", "STORY102_ROOTS:" + json.dumps(roots))
+    elif fault == "comment-root":
+        blobs[generator.V2_10_2_ROOT_SOURCE] = b"/*" + blobs[generator.V2_10_2_ROOT_SOURCE] + b"*/"
+    elif fault == "raw-string-root":
+        blobs[generator.V2_10_2_ROOT_SOURCE] = b'var text = """\n' + blobs[generator.V2_10_2_ROOT_SOURCE] + b'\n""";'
+    elif fault == "nested-string-root":
+        blobs[generator.V2_10_2_ROOT_SOURCE] = b'var text = $"{"""\n' + blobs[generator.V2_10_2_ROOT_SOURCE] + b'\n"""}";'
+    elif fault == "inactive-root":
+        blobs[generator.V2_10_2_ROOT_SOURCE] = b"#if false\n" + blobs[generator.V2_10_2_ROOT_SOURCE] + b"\n#endif\n"
+    elif fault in {"source-allowlist-missing", "source-allowlist-nonempty"}:
+        old = b"SupersessionAllowlist = []"
+        new = b"UnrelatedAllowlist = []" if fault.endswith("missing") else b'SupersessionAllowlist = ["other"]'
+        blobs[generator.V2_10_2_ROOT_SOURCE] = blobs[generator.V2_10_2_ROOT_SOURCE].replace(old, new)
+    elif fault == "bom-inactive-root":
+        blobs[generator.V2_10_2_ROOT_SOURCE] = b"\xef\xbb\xbf#if false\n" + blobs[generator.V2_10_2_ROOT_SOURCE] + b"\n#endif\n"
+    elif fault == "allowlist":
+        roots["allowlist"] = ["DOCS\\Release-Evidence\\proof.json"]
+        marked("AC-10.2-07", "STORY102_ROOTS:" + json.dumps(roots))
+    elif fault == "inventory":
+        contract["inventory"]["sha256"] = "0" * 64
+    elif fault == "stale-binary":
+        (tmp_path / "tests/Hexalith.Conversations.TestSupport/bin/Release/net10.0/Hexalith.Conversations.TestSupport.dll").write_bytes(b"stale")
+    elif fault.startswith("runtime-"):
+        runtime = tmp_path / "tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.dll"
+        if fault == "runtime-missing": runtime.unlink()
+        else: runtime.write_bytes(b"divergent")
+    elif fault == "receipt-drift":
+        rows["AC-10.2-01"]["resultFile"]["sha256"] = "0" * 64
+    else:
+        path = "docs/release-evidence/story-10.1-final-record-v2.json"
+        previous = json.loads(blobs[path])
+        if fault == "predecessor-authority":
+            previous["authority"]["bundleDigest"] = "f" * 64
+        else:
+            previous["scenarios"][0]["exitCode"] = 1
+        blobs[path] = json.dumps(previous).encode()
+    with pytest.raises(generator.V2Stop) as error:
+        facts()
+    assert expected in {row["code"] for row in error.value.findings}
+
+
+def story102_record(support, contract, candidate):
+    record = json.loads((WORKSPACE / "docs/release-evidence/story-10.1-final-record-v2.json").read_bytes())
+    record.pop("testSupportExecution")
+    record.update(storyId="10.2", predecessors=["10.1"], inventory=contract["inventory"],
+                  evidenceBoundaryExecution=support, faultInjection={"results": deepcopy(support["mutationLedger"])},
+                  summary={"required": 9, "passed": 9, "failed": 0, "blocked": 0, "skipped": 0, "notRun": 0})
+    record["candidate"]["commit"] = candidate
+    record["scenarios"] = []
+    for index, scenario in enumerate(contract["scenarios"]):
+        row = {"scenarioId": scenario["id"], "command": scenario["command"], "exitCode": 0, "result": "PASS", "blockers": [],
+               "assertionLedger": [{"id": scenario["id"] + "#0001", "subject": "fixture", "state": "PASS"}]}
+        if index < 8:
+            row["resultFile"] = deepcopy(support["results"][index])
+            row["outputFiles"] = [deepcopy(support["results"][index]), deepcopy(support["projects"][1]["assembly"])]
+        record["scenarios"].append(row)
+    for suffix in ("json", "markdown"):
+        record["outputs"][suffix]["path"] = f"docs/release-evidence/story-10.2-final-record-v2.{suffix if suffix == 'json' else 'md'}"
+    return record
+
+
+def test_story102_schema_render_and_pair_cross_bindings(tmp_path: Path, monkeypatch):
+    generator, facts, _, _, _, _, _, candidate, contract = story102_fixture(tmp_path, monkeypatch)
+    record = story102_record(facts(), contract, candidate)
+    final, json_bytes, markdown = generator.v2_finalize(record)
+    jsonschema.Draft202012Validator(json.loads(FINAL_RECORD_SCHEMA.read_bytes())).validate(final)
+    assert generator.v2_verify_pair(json_bytes, markdown) == []
+    assert b"334858" not in markdown  # Root values are fixture measurements, not generator literals.
+    assert b"## Story 10.2 TestSupport execution" in markdown
+    assert b"Literal root" in markdown and b"Detected | Restored" in markdown
+    for mutate in (
+        lambda row: row["evidenceBoundaryExecution"].update(sourceRevisionId="f" * 40),
+        lambda row: row["evidenceBoundaryExecution"]["results"][0].update(sha256="f" * 64),
+        lambda row: row["evidenceBoundaryExecution"]["rootConstants"]["constants"].update(Story101RecordSha256="f" * 64),
+        lambda row: row["faultInjection"]["results"][0].update(restored=False),
+        lambda row: row["scenarios"][0].update(exitCode=1),
+        lambda row: row["inventory"].update(sha256="f" * 64),
+        lambda row: row.update(predecessors=["9.2"]),
+    ):
+        altered = deepcopy(record)
+        mutate(altered)
+        _, output, rendered = generator.v2_finalize(altered)
+        assert generator.v2_verify_pair(output, rendered)
+    # Scenario rows and the execution binding must name the same test assembly.
+    for mutate in (
+        lambda row: row["evidenceBoundaryExecution"]["projects"][1]["assembly"].update(sha256="f" * 64),
+        lambda row: row["scenarios"][0]["outputFiles"][1].update(sha256="f" * 64),
+    ):
+        altered = deepcopy(record)
+        mutate(altered)
+        _, output, rendered = generator.v2_finalize(altered)
+        assert ("Story 10.2 scenarios or receipt/assembly digests differ from the execution binding"
+                in generator.v2_verify_pair(output, rendered))
+    for mutate in (
+        lambda row: row.pop("evidenceBoundaryExecution"),
+        lambda row: row["evidenceBoundaryExecution"].update(extra=True),
+        lambda row: row["evidenceBoundaryExecution"]["mutationLedger"].pop(),
+        lambda row: row["faultInjection"]["results"][0].update(detected=False),
+    ):
+        altered = deepcopy(final)
+        mutate(altered)
+        with pytest.raises(jsonschema.ValidationError):
+            jsonschema.Draft202012Validator(json.loads(FINAL_RECORD_SCHEMA.read_bytes())).validate(altered)
+
+
+def test_story102_inserted_verification_rederives_candidate_bound_receipts(tmp_path: Path, monkeypatch):
+    generator, facts, _, _, _, blobs, _, candidate, contract = story102_fixture(tmp_path, monkeypatch)
+    record = story102_record(facts(), contract, candidate)
+    _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+    spec_path = "_bmad-output/implementation-artifacts/spec-10-2-implement-manifest-hash-ledger-exact-diff-and-gitlink-invariants.md"
+    contract_path = record["evidenceBoundaryExecution"]["contract"]["path"]
+    json_path, markdown_path = contract["finalRecord"]["paths"]
+    spec = (b"---\nstatus: in-progress\n---\n\n" + generator.RECORD_BEGIN_MARKER.encode()
+            + b"\n" + markdown_bytes + generator.RECORD_END_MARKER.encode() + b"\n")
+    blobs.update({json_path: json_bytes, markdown_path: markdown_bytes, spec_path: spec})
+    for path in (json_path, markdown_path, spec_path, contract_path):
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(blobs[path])
+    _, validators = generator.v2_load_schemas()
+    monkeypatch.setattr(generator, "validate_repository", lambda *_: tmp_path)
+    monkeypatch.setattr(generator, "v2_load_schemas", lambda: (None, validators))
+    monkeypatch.setattr(generator, "v2_validate_contract", lambda *_: contract)
+    monkeypatch.setattr(generator, "resolve_commit", lambda *_: candidate)
+    monkeypatch.setattr(generator, "v2_retention_config", lambda *_: ("10.2", spec_path, "10-2-implement-manifest-hash-ledger-exact-diff-and-gitlink-invariants", True))
+    monkeypatch.setattr(generator, "v2_retained_candidate", lambda *_: candidate)
+    monkeypatch.setattr(generator, "worktree_path_status", lambda *_: {})
+    monkeypatch.setattr(generator, "v2_working_spec_lifecycle_only_change", lambda *_args, **_kwargs: True)
+    calls = []
+    def rederive(options, *, verify_spec):
+        calls.append(verify_spec)
+        current = deepcopy(record)
+        current["evidenceBoundaryExecution"]["results"][0]["sha256"] = "f" * 64
+        return generator.v2_finalize(current)[1]
+    monkeypatch.setattr(generator, "v2_generate", rederive)
+    with pytest.raises(generator.V2Stop) as error:
+        generator.v2_verify_inserted({"--repository": str(tmp_path), "--contract": contract_path,
+                                     generator.V2_VERIFY_OPTION: spec_path})
+    assert error.value.findings[0]["code"] == "RECORD_CONTENT_DRIFT"
+    assert calls == [spec_path]
+
+
+@pytest.mark.parametrize("fault", [None, "root-candidate", "command", "contract-hash", "raw-source", "inactive-source",
+                                  "helper-project-hash", "test-project-hash", "first-gitlink", "last-gitlink", "authority",
+                                  "predecessor-fail", "predecessor-history"])
+def test_story102_repository_consumption_reverifies_predecessor_and_commands(tmp_path: Path, monkeypatch, fault):
+    generator, facts, marked, roots, _, blobs, _, candidate, contract = story102_fixture(tmp_path, monkeypatch)
+    predecessor_path = "docs/release-evidence/story-10.1-final-record-v2.json"
+    predecessor = (WORKSPACE / predecessor_path).read_bytes()
+    digest = generator.v2_sha256(predecessor)
+    roots["constants"]["Story101RecordSha256"] = digest
+    blobs[predecessor_path] = predecessor
+    blobs[predecessor_path.replace(".json", ".md")] = (WORKSPACE / predecessor_path.replace(".json", ".md")).read_bytes()
+    blobs[generator.V2_10_2_ROOT_SOURCE] = ("\n".join(
+        f'private const string {name} = "{value}";' for name, value in roots["constants"].items())
+        + "\nprivate static readonly string[] SupersessionAllowlist = [];\n").encode()
+    marked("AC-10.2-07", "STORY102_ROOTS:" + json.dumps(roots))
+    monkeypatch.setattr(generator, "v2_verified_predecessor", generator._story102_real_verified_predecessor)
+    _, validators = generator.v2_load_schemas()
+    record = story102_record(generator.v2_10_2_facts(tmp_path, candidate,
+        "_bmad-output/planning-artifacts/v9/story-contracts/10.2.json", contract,
+        json.loads(predecessor)["authority"], {f"AC-10.2-0{number}": {
+            "result": "PASS", "resultFile": {"path": f"artifacts/v9/10.2/AC-10.2-0{number}.trx",
+                "sha256": generator.v2_sha256((tmp_path / f"artifacts/v9/10.2/AC-10.2-0{number}.trx").read_bytes())}}
+        for number in range(1, 9)}, validators["record"]), contract, candidate)
+    raw_gitlinks = deepcopy(record["candidate"]["gitlinks"])
+    def raw_tree(_repository, *arguments, **_kwargs):
+        assert arguments == ("ls-tree", "-r", "-z", "--full-tree", candidate)
+        output = b"".join(f"160000 commit {row['commit']}\t{row['path']}\0".encode() for row in raw_gitlinks)
+        return subprocess.CompletedProcess([], 0, stdout=output, stderr=b"")
+    monkeypatch.setattr(generator, "run_git", raw_tree)
+    if fault == "root-candidate":
+        record["evidenceBoundaryExecution"]["rootConstants"]["constants"]["Story101CandidateCommit"] = "f" * 40
+    elif fault == "command":
+        record["scenarios"][0]["command"] = "dotnet substituted.dll"
+    elif fault == "contract-hash":
+        record["evidenceBoundaryExecution"]["contract"]["sha256"] = "f" * 64
+    elif fault == "raw-source":
+        blobs[generator.V2_10_2_ROOT_SOURCE] = b'var text = """\n' + blobs[generator.V2_10_2_ROOT_SOURCE] + b'\n""";'
+    elif fault == "inactive-source":
+        blobs[generator.V2_10_2_ROOT_SOURCE] = b"#if false\n" + blobs[generator.V2_10_2_ROOT_SOURCE] + b"\n#endif\n"
+    elif fault in {"helper-project-hash", "test-project-hash"}:
+        index = 0 if fault == "helper-project-hash" else 1
+        record["evidenceBoundaryExecution"]["projects"][index]["project"]["sha256"] = "f" * 64
+    elif fault in {"first-gitlink", "last-gitlink"}:
+        record["candidate"]["gitlinks"][0 if fault == "first-gitlink" else -1]["commit"] = "f" * 40
+    elif fault == "authority":
+        record["authority"]["bundleDigest"] = "f" * 64
+    elif fault == "predecessor-fail":
+        # The committed 10.1 pair still verifies; only its passing summary is withdrawn.
+        monkeypatch.setattr(generator, "v2_10_1_predecessor_passes", lambda row: row["storyId"] != "10.1")
+    elif fault == "predecessor-history":
+        missing = json.loads(predecessor)["candidate"]["commit"]
+        monkeypatch.setattr(generator, "try_resolve_commit", lambda _repo, revision: None if revision == missing else revision)
+    _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+    # Repository-free checking remains structural: it cannot inspect predecessor history or source.
+    assert generator.v2_verify_pair(json_bytes, markdown_bytes) == []
+    json_path, markdown_path = contract["finalRecord"]["paths"]
+    blobs.update({json_path: json_bytes, markdown_path: markdown_bytes})
+    consumed = generator.v2_verified_predecessor(tmp_path, candidate, "10.2", json_path, markdown_path, validators["record"])
+    assert consumed == (generator.v2_sha256(json_bytes) if fault is None else None)
+
+
+@pytest.mark.parametrize("newline", ["\r\n", "\r", "\n", "\u0085", "\u2028", "\u2029"])
+@pytest.mark.parametrize("whitespace", [" ", "\t", "\v", "\f", "\u00a0", "\u2003", "\u3000", "\ufeff", "\u001a"])
+@pytest.mark.parametrize("directive", ["if(false)", "if!true", "if{whitespace}false"])
+def test_story102_root_lexer_recognizes_conditional_syntax_and_line_boundaries(newline, whitespace, directive):
+    generator = load_generator()
+    declaration = 'const string Root = "abcdef";'
+    expected = ["const", "string", "Root", "=", '"abcdef"', ";"]
+    source = ("class C {" + newline + "// boundary" + newline + whitespace + "#" + whitespace
+              + directive.format(whitespace=whitespace) + newline + declaration + newline + "#endif" + newline + "}")
+    assert not generator.v2_csharp_has_sequence(generator.v2_csharp_unconditional_tokens(source), expected)
+    assert generator.v2_csharp_has_sequence(generator.v2_csharp_unconditional_tokens("// comment" + newline + declaration), expected)
+
+
+@pytest.mark.parametrize("newline", ["\r\n", "\r", "\n", "\u0085", "\u2028", "\u2029"])
+def test_story102_root_lexer_does_not_splice_conditional_initializer(newline):
+    generator = load_generator()
+    source = ('const string Root = "abcdef"' + newline + "#if(true)" + newline
+              + '+ "-changed"' + newline + "#endif" + newline + ";")
+    assert not generator.v2_csharp_has_sequence(generator.v2_csharp_unconditional_tokens(source),
+                                               ["const", "string", "Root", "=", '"abcdef"', ";"])
+
+
+@pytest.mark.parametrize("copy", ["bound", "runtime"])
+@pytest.mark.parametrize("receipt", range(1, 9))
+@pytest.mark.parametrize("delta", [-1, 0, 1])
+def test_story102_each_receipt_must_be_current_for_both_helper_copies(tmp_path: Path, monkeypatch, copy, receipt, delta):
+    generator, facts, _, _, _, _, rows, candidate, _ = story102_fixture(tmp_path, monkeypatch)
+    directories = ["Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests"]
+    paths = [tmp_path / f"tests/{name}/bin/Release/net10.0/Hexalith.Conversations.TestSupport.dll" for name in directories]
+    # A changed helper still carrying the source stamp must require new receipts for both copies.
+    for path in paths:
+        path.write_bytes(b"changed but candidate-stamped helper")
+        os.utime(path, ns=(1_000_000_000, 1_000_000_000))
+    monkeypatch.setattr(generator, "dotnet_source_revisions", lambda _binary: [candidate])
+    receipt_ns = 2_000_000_000
+    for identity, row in rows.items():
+        modified = receipt_ns if identity == f"AC-10.2-0{receipt}" else receipt_ns + 2_000_000_000
+        os.utime(tmp_path / row["resultFile"]["path"], ns=(modified, modified))
+    modified = receipt_ns + delta * 1_000_000_000
+    os.utime(paths[0 if copy == "bound" else 1], ns=(modified, modified))
+    if delta <= 0:
+        assert len(facts()["results"]) == 8
+    else:
+        with pytest.raises(generator.V2Stop) as error:
+            facts()
+        stale = [row for row in error.value.findings if row["code"] == "TEST_RESULTS_STALE"]
+        assert [row["subject"] for row in stale] == [f"AC-10.2-0{receipt}"]
+
+
+@pytest.mark.parametrize("fault", [None, "runtime", "bound"])
+def test_story102_inserted_verification_runs_real_generator(tmp_path: Path, monkeypatch, fault):
+    generator, _, _, _, _, blobs, rows, candidate, contract = story102_fixture(tmp_path, monkeypatch)
+    spec_path = "_bmad-output/implementation-artifacts/spec-10-2-implement-manifest-hash-ledger-exact-diff-and-gitlink-invariants.md"
+    contract_path = "_bmad-output/planning-artifacts/v9/story-contracts/10.2.json"
+    json_path, markdown_path = contract["finalRecord"]["paths"]
+    authority = json.loads(blobs["docs/release-evidence/story-10.1-final-record-v2.json"])["authority"]
+    _, validators = generator.v2_load_schemas()
+    monkeypatch.setattr(generator, "validate_repository", lambda *_: tmp_path)
+    monkeypatch.setattr(generator, "v2_load_schemas", lambda: (None, validators))
+    monkeypatch.setattr(generator, "resolve_commit", lambda *_: candidate)
+    monkeypatch.setattr(generator, "v2_retention_config", lambda *_: ("10.2", spec_path,
+                         "10-2-implement-manifest-hash-ledger-exact-diff-and-gitlink-invariants", True))
+    monkeypatch.setattr(generator, "v2_retained_candidate", lambda *_: candidate)
+    monkeypatch.setattr(generator, "v2_authority", lambda *_: authority)
+    monkeypatch.setattr(generator, "v2_gitlinks", lambda *_:
+        json.loads(blobs["docs/release-evidence/story-10.1-final-record-v2.json"])["candidate"]["gitlinks"])
+    monkeypatch.setattr(generator, "worktree_path_status", lambda *_: {})
+    monkeypatch.setattr(generator, "run_git", lambda *_: subprocess.CompletedProcess([], 0, stdout=b"1\n", stderr=b""))
+    monkeypatch.setattr(generator, "v2_working_spec_lifecycle_only_change", lambda *_args, **_kwargs: True)
+    measured_calls = []
+    def measured(_repository, scenario, _command, *_args, **kwargs):
+        measured_calls.append(kwargs.get("execute_commands"))
+        receipt = deepcopy(rows[scenario["id"]]["resultFile"])
+        assembly = {"path": "tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll",
+                    "sha256": generator.v2_sha256(b"candidate binary for Hexalith.Conversations.TestSupport.Tests")}
+        return ({"scenarioId": scenario["id"], "command": scenario["command"], "exitCode": 0,
+                 "result": "PASS", "blockers": [], "resultFile": receipt, "outputFiles": [receipt, assembly],
+                 "assertionLedger": [{"id": scenario["id"] + "#0001", "subject": "fixture", "state": "PASS"}]}, "passed", [])
+    monkeypatch.setattr(generator, "v2_successor_scenario_from_results", measured)
+    options = {"--repository": str(tmp_path), "--contract": contract_path, "--format": "bundle",
+               "--output-json": json_path, "--output-markdown": markdown_path}
+    try:
+        json_bytes = generator.v2_generate(options, verify_spec=spec_path)
+    except generator.V2Stop as error:
+        pytest.fail(str(error.findings))
+    record = generator.v2_parse_json(json_bytes)
+    markdown_bytes = generator.v2_finalize(record)[2]
+    assert generator.v2_verify_pair(json_bytes, markdown_bytes) == []
+    blobs.update({json_path: json_bytes, markdown_path: markdown_bytes})
+    spec = (b"---\nstatus: in-progress\n---\n\n" + generator.RECORD_BEGIN_MARKER.encode()
+            + b"\n" + markdown_bytes + generator.RECORD_END_MARKER.encode() + b"\n")
+    for path, data in {json_path: json_bytes, markdown_path: markdown_bytes, spec_path: spec,
+                       contract_path: blobs[contract_path]}.items():
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(data)
+    verify_options = {"--repository": str(tmp_path), "--contract": contract_path, generator.V2_VERIFY_OPTION: spec_path}
+    if fault is None:
+        assert generator.v2_parse_json(generator.v2_verify_inserted(verify_options))["storyId"] == "10.2"
+    else:
+        directory = "Hexalith.Conversations.TestSupport.Tests" if fault == "runtime" else "Hexalith.Conversations.TestSupport"
+        (tmp_path / f"tests/{directory}/bin/Release/net10.0/Hexalith.Conversations.TestSupport.dll").write_bytes(b"changed candidate binary")
+        with pytest.raises(generator.V2Stop) as error:
+            generator.v2_verify_inserted(verify_options)
+        assert "TEST_SUPPORT_BOUNDARY_INVALID" in {row["code"] for row in error.value.findings}
+    assert measured_calls and all(execute is False for execute in measured_calls)
+
+
+@pytest.mark.parametrize("definition,value", [("commit", "a" * 40), ("digest", "a" * 64), ("blocker", "CODE"), ("path", "proof.json")])
+def test_story102_record_syntax_rejects_trailing_newline(definition, value):
+    schema = json.loads(FINAL_RECORD_SCHEMA.read_bytes())
+    validator = jsonschema.Draft202012Validator(schema["$defs"][definition])
+    validator.validate(value)
+    with pytest.raises(jsonschema.ValidationError):
+        validator.validate(value + "\n")
+
+
+@pytest.mark.parametrize("case", json.loads((WORKSPACE / "tests/Hexalith.Conversations.TestSupport.Tests/Fixtures/story102-root-declarations.json").read_bytes()), ids=lambda row: row["id"])
+def test_story102_root_lexers_share_literal_and_directive_decoys(case):
+    generator = load_generator()
+    tokens = generator.v2_csharp_unconditional_tokens(case["source"])
+    assert generator.v2_csharp_has_sequence(tokens, ["const", "string", "Root", "=", '"abcdef"', ";"]) == case["pinned"]
+
+
+def test_story102_root_consumer_accepts_a_file_leading_bom(tmp_path: Path, monkeypatch):
+    generator, facts, _, _, _, blobs, _, _, _ = story102_fixture(tmp_path, monkeypatch)
+    blobs[generator.V2_10_2_ROOT_SOURCE] = b"\xef\xbb\xbf" + blobs[generator.V2_10_2_ROOT_SOURCE]
+    assert facts()["rootConstants"]["allowlist"] == []
+
+
+@pytest.mark.parametrize("fault", ["restored", "hash", "row-order", "code-order"])
+def test_story102_pair_checks_consistent_mutation_ledger_faults(tmp_path: Path, monkeypatch, fault):
+    generator, facts, _, _, _, _, _, candidate, contract = story102_fixture(tmp_path, monkeypatch)
+    record = story102_record(facts(), contract, candidate)
+    mutations = record["evidenceBoundaryExecution"]["mutationLedger"]
+    if fault == "restored":
+        mutations[0]["restored"] = False
+    elif fault == "hash":
+        mutations[0]["afterSha256"] = "f" * 64
+    elif fault == "row-order":
+        # These rows share a blocker, so only their contracted identities establish the order.
+        mutations[5], mutations[6] = mutations[6], mutations[5]
+    else:
+        mutations[0]["observedBlockers"] = ["Z_CODE", mutations[0]["expectedBlocker"]]
+    record["faultInjection"]["results"] = deepcopy(mutations)
+    _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+    assert generator.v2_verify_pair(json_bytes, markdown_bytes)
+
+
+def test_story102_committed_pair_still_verifies():
+    generator = load_generator()
+    _, validators = generator.v2_load_schemas()
+    json_bytes = (WORKSPACE / "docs/release-evidence/story-10.2-final-record-v2.json").read_bytes()
+    markdown_bytes = (WORKSPACE / "docs/release-evidence/story-10.2-final-record-v2.md").read_bytes()
+    record = generator.v2_parse_json(json_bytes)
+    assert not generator.v2_schema_errors(validators["record"], record)
+    assert generator.v2_verify_pair(json_bytes, markdown_bytes) == []
+
+
+@pytest.mark.parametrize("project", ["Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests"])
+def test_story102_facts_enforce_evaluated_project_boundary(tmp_path: Path, monkeypatch, project):
+    generator, facts, _, _, _, blobs, _, _, _ = story102_fixture(tmp_path, monkeypatch)
+    monkeypatch.setattr(generator, "v2_10_1_project_boundary", generator._story102_real_project_boundary)
+    packages = ("Microsoft.NET.Test.Sdk", "Shouldly", "xunit.v3", "xunit.runner.visualstudio", "coverlet.collector")
+    for name in ("Hexalith.Conversations.TestSupport", "Hexalith.Conversations.TestSupport.Tests"):
+        items = ""
+        if name.endswith(".Tests"):
+            items = '<ProjectReference Include="../Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj" />'
+            items += "".join(f'<PackageReference Include="{package}" />' for package in packages)
+        path = f"tests/{name}/{name}.csproj"
+        blobs[path] = ('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework>'
+                       '<IsPackable>false</IsPackable><IsPublishable>false</IsPublishable></PropertyGroup>'
+                       f'<ItemGroup>{items}</ItemGroup></Project>').encode()
+        (tmp_path / path).write_bytes(blobs[path])
+    assert len(facts()["projects"]) == 2
+    path = f"tests/{project}/{project}.csproj"
+    blobs[path] = blobs[path].replace(b"</ItemGroup>", b'<Reference Include="Hexalith.Conversations.Contracts" /></ItemGroup>')
+    (tmp_path / path).write_bytes(blobs[path])
+    with pytest.raises(generator.V2Stop) as error:
+        facts()
+    assert any(row["code"] == "TEST_SUPPORT_BOUNDARY_INVALID" and row["subject"] == path
+               and "assembly reference" in row["message"] for row in error.value.findings)
+
+
+def test_story102_real_git_consumption_verifies_pair_and_rejects_unavailable_candidate(tmp_path: Path):
+    generator = load_generator()
+    _, validators = generator.v2_load_schemas()
+    repository = tmp_path / "repository"
+    repository.mkdir()
+    run_git(repository, "init", "--quiet")
+    (repository / "seed.txt").write_text("predecessor candidate\n", encoding="utf-8")
+    run_git(repository, "add", "--all")
+    run_git(repository, "commit", "--quiet", "-m", "test: seed predecessor candidate")
+    predecessor_candidate = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    previous = json.loads((WORKSPACE / "docs/release-evidence/story-10.1-final-record-v2.json").read_bytes())
+    previous["candidate"]["commit"] = predecessor_candidate
+    previous["testSupportExecution"]["sourceRevisionId"] = predecessor_candidate
+    _, previous_json, previous_markdown = generator.v2_finalize(previous)
+    assert generator.v2_verify_pair(previous_json, previous_markdown) == []
+    predecessor_digest = generator.v2_sha256(previous_json)
+    record = json.loads((WORKSPACE / "docs/release-evidence/story-10.2-final-record-v2.json").read_bytes())
+    support = record["evidenceBoundaryExecution"]
+    for row in record["candidate"]["gitlinks"]:
+        row["commit"] = predecessor_candidate
+    constants = {"Story101RecordSha256": predecessor_digest, "Story101CandidateCommit": predecessor_candidate}
+    source = ("\n".join(f'private const string {name} = "{value}";' for name, value in constants.items())
+              + "\nprivate static readonly string[] SupersessionAllowlist = [];\n").encode()
+    files = {"docs/release-evidence/story-10.1-final-record-v2.json": previous_json,
+             "docs/release-evidence/story-10.1-final-record-v2.md": previous_markdown,
+             generator.V2_10_2_ROOT_SOURCE: source,
+             support["contract"]["path"]: (WORKSPACE / support["contract"]["path"]).read_bytes(),
+             ".gitmodules": "".join(f'[submodule "{row["path"]}"]\n\tpath = {row["path"]}\n'
+                                    '\turl = https://example.invalid/fixture.git\n'
+                                    for row in record["candidate"]["gitlinks"]).encode()}
+    for row in support["projects"]:
+        files[row["project"]["path"]] = (WORKSPACE / row["project"]["path"]).read_bytes()
+        row["project"]["sha256"] = generator.v2_sha256(files[row["project"]["path"]])
+    for path, content in files.items():
+        target = repository / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+    run_git(repository, "add", "--all")
+    for row in record["candidate"]["gitlinks"]:
+        run_git(repository, "update-index", "--add", "--cacheinfo", f"160000,{predecessor_candidate},{row['path']}")
+    run_git(repository, "commit", "--quiet", "-m", "test: commit story candidate facts")
+    candidate = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    record["candidate"]["commit"] = support["sourceRevisionId"] = candidate
+    support["contract"]["sha256"] = generator.v2_sha256(files[support["contract"]["path"]])
+    support["predecessorRecords"][0]["sha256"] = predecessor_digest
+    support["rootConstants"]["constants"] = constants
+    _, json_bytes, markdown_bytes = generator.v2_finalize(record)
+    assert not generator.v2_schema_errors(validators["record"], generator.v2_parse_json(json_bytes))
+    assert generator.v2_verify_pair(json_bytes, markdown_bytes) == []
+    json_path, markdown_path = record["outputs"]["json"]["path"], record["outputs"]["markdown"]["path"]
+    for path, content in ((json_path, json_bytes), (markdown_path, markdown_bytes)):
+        (repository / path).write_bytes(content)
+    run_git(repository, "add", "--", json_path, markdown_path)
+    run_git(repository, "commit", "--quiet", "-m", "test: publish candidate bound pair")
+    publication = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    assert generator.v2_verified_predecessor(repository, publication, "10.2", json_path, markdown_path,
+                                             validators["record"]) == generator.v2_sha256(json_bytes)
+    shallow = tmp_path / "shallow"
+    run_git(tmp_path, "clone", "--quiet", "--no-local", "--depth", "1", repository.as_uri(), str(shallow))
+    assert generator.try_resolve_commit(shallow, publication) == publication
+    assert generator.try_resolve_commit(shallow, candidate) is None
+    assert generator.v2_10_2_repository_pair_errors(shallow, record, validators["record"]) == [
+        "Story 10.2 candidate history is unavailable"]
+    # The 10.2 candidate resolves here, but the pinned Story 10.1 candidate does not.
+    partial = tmp_path / "partial"
+    run_git(tmp_path, "clone", "--quiet", "--no-local", "--depth", "2", repository.as_uri(), str(partial))
+    assert generator.try_resolve_commit(partial, candidate) == candidate
+    assert generator.try_resolve_commit(partial, predecessor_candidate) is None
+    assert generator.v2_10_2_repository_pair_errors(partial, record, validators["record"]) == [
+        "Story 10.2 committed predecessor is nonpassing, incompatible, or unresolvable"]
+    assert generator.v2_verified_predecessor(shallow, publication, "10.2", json_path, markdown_path,
+                                             validators["record"]) is None
+
+
+def story103_record_fixture(generator):
+    """A digest-valid Story 10.3 pair for independent cross-binding fault tests."""
+    binding = json.loads((WORKSPACE / generator.V2_10_3_BINDING).read_bytes())
+    contract = json.loads((WORKSPACE / generator.V2_10_3_CONTRACT).read_bytes())
+    record = deepcopy(json.loads((WORKSPACE / 'docs/release-evidence/story-10.2-final-record-v2.json').read_bytes()))
+    record.pop('evidenceBoundaryExecution')
+    record['storyId'] = '10.3'
+    record['candidate']['gitlinks'] = [dict(path=path,mode='160000',commit=commit)
+        for path,commit in generator.v2_raw_gitlinks(WORKSPACE,binding['baseline'])]
+    record['predecessors'] = ['10.2']
+    record['inventory'] = contract['inventory']
+    record['summary'] = contract['finalRecord']['summary']
+    record['faultInjection'] = {'results':[]}
+    receipts = [dict(path=f'artifacts/v9/10.3/AC-10.3-0{n}.'+('json' if n in (1,3) else 'xml'),sha256='a'*64) for n in range(1,8)]
+    record['scenarios'] = [dict(scenarioId=row['id'],command=row['command'],exitCode=0,result='PASS',blockers=[],
+        assertionLedger=[dict(id=row['id']+'#0001',subject='executed-fixture',state='PASS')],
+        **(dict(resultFile=receipts[n],outputFiles=[receipts[n]]) if n < 7 else {})) for n,row in enumerate(contract['scenarios'])]
+    record['outputs'] = {kind:dict(path=path,sha256=generator.V2_ZERO_DIGEST)
+        for kind,path in zip(('json','markdown'),contract['finalRecord']['paths'])}
+    record['rollback'] = contract['rollback']
+    record['evidenceWorkflowExecution'] = dict(
+        bindingRule='SC-10.3 is the committed candidate evaluated under the approved current binding',
+        sourceRevisionId=record['candidate']['commit'],baseline=binding['baseline'],
+        binding=dict(path=generator.V2_10_3_BINDING,sha256='a'*64),contract=dict(path=generator.V2_10_3_CONTRACT,sha256='b'*64),
+        predecessorPair=dict(json={k:binding['predecessor'][k] for k in ('path','sha256')},markdown=dict(path='docs/release-evidence/story-10.2-final-record-v2.md',sha256='c'*64)),
+        provenance=binding['provenance'],workflowInventory=binding['workflowInventory'],guidanceInventory=binding['guidanceInventory'],
+        resolvedCustomization=binding['resolvedCustomization'],retiredRoutes=binding['retiredRoutes'],exemptions=[],
+        routeFacts=[dict(path=row['path'],sha256=row['sha256'],gateStart=1,gateEnd=2) for row in binding['workflowInventory']['rows']],
+        receipts=receipts,mutationLedger=[dict(id=f'mutation-{n}',expectedBlocker='EVIDENCE_HASH_MISMATCH',observedBlockers=['EVIDENCE_HASH_MISMATCH'],beforeSha256='d'*64,afterSha256='d'*64,restored=True,result='PASS') for n in range(17)],
+        sourceFiles=[dict(path=path,sha256='b'*64) for path in binding['sourcePaths']])
+    return record
+
+
+def story103_unpublished_spec_fixture(generator):
+    """Start disposable lifecycle tests before publication regardless of live state."""
+    source=(WORKSPACE/generator.V2_10_3_SPEC).read_bytes()
+    begin=source.find(generator.RECORD_BEGIN_MARKER.encode())
+    if begin>=0:
+        assert generator.v2_record_region(source) is not None
+        end=source.index(generator.RECORD_END_MARKER.encode(),begin)+len(generator.RECORD_END_MARKER.encode())
+        source=source[:begin]+source[end:]
+    source=re.sub(rb"(?m)^status: '[^'\r\n]+'$",b"status: 'in-review'",source,count=1)
+    source=re.sub(rb'(?m)^- \[[xX]\] ',b'- [ ] ',source)
+    assert b"status: 'in-review'" in source
+    assert generator.RECORD_BEGIN_MARKER.encode() not in source
+    return source
+
+
+def test_story103_pair_and_closed_schema():
+    generator = load_generator()
+    _, validators = generator.v2_load_schemas()
+    record = story103_record_fixture(generator)
+    final,json_bytes,markdown_bytes = generator.v2_finalize(record)
+    assert generator.v2_schema_errors(validators['record'],final) == []
+    assert generator.v2_verify_pair(json_bytes,markdown_bytes) == []
+    final['evidenceWorkflowExecution']['callerVerdict'] = 'PASS'
+    assert generator.v2_schema_errors(validators['record'],final)
+
+
+@pytest.mark.parametrize('fault', ['candidate','receipt','inventory','restoration','scenario','exemptions'])
+def test_story103_digest_valid_pair_rejects_binding_faults(fault):
+    generator = load_generator()
+    record = story103_record_fixture(generator)
+    facts = record['evidenceWorkflowExecution']
+    if fault == 'candidate': facts['sourceRevisionId'] = 'f'*40
+    if fault == 'receipt': facts['receipts'][0] = dict(path='artifacts/foreign.json',sha256='a'*64)
+    if fault == 'inventory': facts['guidanceInventory']['rows'][0]['sha256'] = 'f'*64
+    if fault == 'restoration': facts['mutationLedger'][0]['afterSha256'] = 'f'*64
+    if fault == 'scenario': record['scenarios'][0]['assertionLedger'] = []
+    if fault == 'exemptions': facts['exemptions'] = ['docs/release-evidence/signed.json']
+    _,json_bytes,markdown_bytes = generator.v2_finalize(record)
+    assert generator.v2_verify_pair(json_bytes,markdown_bytes)
+
+
+def test_story103_effective_contract_preserves_original_provenance():
+    generator = load_generator()
+    original = json.loads((WORKSPACE / '_bmad-output/planning-artifacts/v9/story-contracts/10.3.json').read_bytes())
+    effective = json.loads((WORKSPACE / generator.V2_10_3_CONTRACT).read_bytes())
+    binding = json.loads((WORKSPACE / generator.V2_10_3_BINDING).read_bytes())
+    assert [row['id'] for row in effective['scenarios']] == [row['id'] for row in original['scenarios']]
+    assert binding['originalContract']['sha256'] == generator.v2_sha256((WORKSPACE/binding['originalContract']['path']).read_bytes())
+    assert effective['finalRecord'] == original['finalRecord']
+
+
+def test_story103_schema_keeps_accepted_story101_and_story102_consumption():
+    generator = load_generator()
+    _, validators = generator.v2_load_schemas()
+    for story in ('10.1','10.2'):
+        json_bytes = (WORKSPACE/f'docs/release-evidence/story-{story}-final-record-v2.json').read_bytes()
+        markdown_bytes = (WORKSPACE/f'docs/release-evidence/story-{story}-final-record-v2.md').read_bytes()
+        record = generator.v2_parse_json(json_bytes)
+        assert generator.v2_schema_errors(validators['record'],record) == []
+        assert generator.v2_verify_pair(json_bytes,markdown_bytes) == []
+
+
+@pytest.mark.parametrize('fault', ['none','source-drift','gitlink'])
+def test_story103_publication_scope_accepts_only_bound_outputs(tmp_path,fault):
+    generator = load_generator()
+    repository = tmp_path/'repository'
+    repository.mkdir()
+    run_git(repository,'init','--quiet')
+    spec = repository/generator.V2_10_3_SPEC
+    spec.parent.mkdir(parents=True)
+    spec.write_bytes((WORKSPACE/generator.V2_10_3_SPEC).read_bytes())
+    run_git(repository,'add','--all'); run_git(repository,'commit','--quiet','-m','test: source candidate')
+    source = run_git(repository,'rev-parse','HEAD').stdout.strip()
+    record = story103_record_fixture(generator)
+    record['candidate']['commit'] = record['evidenceWorkflowExecution']['sourceRevisionId'] = source
+    for number,row in enumerate(record['evidenceWorkflowExecution']['receipts']):
+        content = f'fixture-{number}\n'.encode()
+        target = repository/row['path'];target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
+        row['sha256'] = generator.v2_sha256(content)
+        record['scenarios'][number]['resultFile'] = row
+        record['scenarios'][number]['outputFiles'] = [row]
+    final,json_bytes,markdown_bytes = generator.v2_finalize(record)
+    for kind,content in (('json',json_bytes),('markdown',markdown_bytes)):
+        target=repository/final['outputs'][kind]['path'];target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
+    run_git(repository,'add','--all');run_git(repository,'commit','--quiet','-m','test: publish bound pair and receipts')
+    head=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    assert generator.v2_10_3_descendant_errors(repository,final,head) == []
+    if fault != 'none':
+        if fault == 'source-drift':
+            (repository/'unexpected.txt').write_text('unapproved change');run_git(repository,'add','unexpected.txt')
+        else:
+            run_git(repository,'update-index','--add','--cacheinfo',f'160000,{source},references/fault')
+        run_git(repository,'commit','--quiet','-m','test: inject post-publication drift')
+        head=run_git(repository,'rev-parse','HEAD').stdout.strip()
+        errors=generator.v2_10_3_descendant_errors(repository,final,head)
+        assert errors
+        if fault == 'gitlink': assert 'EVIDENCE_BOUNDARY_GITLINK' in errors[0]
+
+
+@pytest.mark.parametrize('change', ['none','checkbox','status','frozen','task-label','body'])
+def test_story103_inserted_verification_preserves_working_spec_intent(tmp_path,monkeypatch,change):
+    generator=load_generator()
+    repository=tmp_path/'repository';repository.mkdir()
+    run_git(repository,'init','--quiet')
+    spec=repository/generator.V2_10_3_SPEC;spec.parent.mkdir(parents=True)
+    original=story103_unpublished_spec_fixture(generator)
+    spec.write_bytes(original)
+    run_git(repository,'add','--all');run_git(repository,'commit','--quiet','-m','test: source spec')
+    record=story103_record_fixture(generator)
+    _,json_bytes,markdown_bytes=generator.v2_finalize(record)
+    for kind,content in (('json',json_bytes),('markdown',markdown_bytes)):
+        target=repository/record['outputs'][kind]['path'];target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
+    run_git(repository,'add','--all');run_git(repository,'commit','--quiet','-m','test: publish pair')
+    installed=original+b'\n'+generator.RECORD_BEGIN_MARKER.encode()+b'\n'+markdown_bytes+generator.RECORD_END_MARKER.encode()+b'\n'
+    if change=='checkbox':installed=installed.replace(b'- [ ] ',b'- [x] ',1)
+    if change=='status':
+        installed=installed.replace(b"status: 'in-review'",b"status: 'in-progress'",1)
+        assert installed != original+b'\n'+generator.RECORD_BEGIN_MARKER.encode()+b'\n'+markdown_bytes+generator.RECORD_END_MARKER.encode()+b'\n'
+    if change=='frozen':installed=installed.replace(b'**Problem:**',b'**Unapproved problem:**',1)
+    if change=='task-label':installed=installed.replace(b'record approved baseline',b'record a different baseline',1)
+    if change=='body':installed=installed.replace(b'## Implementation Notes\n',b'## Implementation Notes\n\nUnapproved implementation scope.\n',1)
+    spec.write_bytes(installed)
+    monkeypatch.setattr(generator,'v2_10_3_source_errors',lambda *_args:[])
+    monkeypatch.setattr(generator,'v2_10_3_descendant_errors',lambda *_args:[])
+    monkeypatch.setattr(generator,'v2_10_3_generate',lambda *_args,**_kwargs:json_bytes)
+    options={'--repository':str(repository),generator.V2_VERIFY_OPTION:generator.V2_10_3_SPEC}
+    if change in ('none','checkbox','status'):
+        assert generator.v2_10_3_verify_inserted(options)==json_bytes
+    else:
+        with pytest.raises(generator.V2Stop) as failure:
+            generator.v2_10_3_verify_inserted(options)
+        assert failure.value.findings[0]['code']=='RECORD_CONTENT_DRIFT'
+
+
+def test_story103_generation_rejects_working_spec_intent_drift(tmp_path,monkeypatch):
+    generator=load_generator()
+    repository=tmp_path/'checkout'
+    run_git(tmp_path,'clone','--quiet','--local','--no-hardlinks',str(WORKSPACE),str(repository))
+    binding=json.loads((WORKSPACE/generator.V2_10_3_BINDING).read_bytes())
+    for path in binding['sourcePaths']:
+        (repository/path).write_bytes((WORKSPACE/path).read_bytes())
+    run_git(repository,'add','--all')
+    if run_git(repository,'diff','--cached','--name-only').stdout.strip():
+        run_git(repository,'commit','--quiet','-m','test: commit reviewed source inventory')
+    spec=repository/generator.V2_10_3_SPEC
+    spec.write_bytes(spec.read_bytes().replace(b'**Problem:**',b'**Unapproved problem:**',1))
+    current=generator.v2_10_3_current_module()
+    monkeypatch.setattr(current,'verify',lambda *_args,**_kwargs:{'result':'PASS'})
+    with pytest.raises(generator.V2Stop) as failure:
+        generator.v2_10_3_generate({'--repository':str(repository),'--contract':generator.V2_10_3_CONTRACT,
+            '--output-json':'docs/release-evidence/story-10.3-final-record-v2.json',
+            '--output-markdown':'docs/release-evidence/story-10.3-final-record-v2.md'})
+    assert failure.value.findings[0]['code']=='WORKTREE_NOT_CLEAN'
+    assert failure.value.findings[0]['subject']==generator.V2_10_3_SPEC
+
+
+@pytest.fixture
+def story103_receipt_repository(tmp_path,monkeypatch):
+    generator=load_generator()
+    current=generator.v2_10_3_current_module()
+    repository=tmp_path/'repository';repository.mkdir()
+    binding=json.loads((WORKSPACE/generator.V2_10_3_BINDING).read_bytes())
+    contract=json.loads((WORKSPACE/generator.V2_10_3_CONTRACT).read_bytes())
+    for path in set(binding['sourcePaths'])|set(current.HISTORICAL_PROVENANCE)|{current.SCHEMA}:
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((WORKSPACE/path).read_bytes())
+    # Preserve the accepted story's provenance despite later bridge/guidance adoption.
+    # Its before-consumer hash and unrelated sprint rows must not follow the live tree.
+    for path, revision in ((current.CURRENT_PROVENANCE, current.BASELINE),
+            ('_bmad-output/implementation-artifacts/sprint-status.yaml', current.BASELINE)):
+        (repository/path).write_bytes(subprocess.run(['git','-C',str(WORKSPACE),'show',revision+':'+path],
+            check=True,capture_output=True,env=V2_GIT_ENV,timeout=30).stdout)
+    (repository/generator.V2_10_3_SPEC).write_bytes(story103_unpublished_spec_fixture(generator))
+    run_git(repository,'init','--quiet');run_git(repository,'add','--all')
+    for path,commit in generator.v2_raw_gitlinks(WORKSPACE,current.BASELINE):
+        run_git(repository,'update-index','--add','--cacheinfo','160000,'+commit+','+path)
+    run_git(repository,'commit','--quiet','-m','test: source receipt fixture')
+    candidate=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    measured=current.empty_result(candidate)
+    measured.update(result='PASS',assertionLedger=[dict(id='measured',subject='shared facts',state='PASS')])
+    monkeypatch.setattr(current,'verify',lambda *_args,**_kwargs:deepcopy(measured))
+    monkeypatch.setattr(current,'historical_provenance_result',lambda *_args:dict(result='PASS',blockers=[],assertionLedger=[]))
+    approved=json.loads(run_git(WORKSPACE,'show',current.SOURCE_INVENTORY_BASELINE+':'+current.BINDING).stdout)['expectedChangedPaths']
+    monkeypatch.setattr(current,'approved_source_paths',lambda *_args:approved)
+    monkeypatch.setattr(current,'approved_withdrawal',lambda *_args:binding['withdrawnPublication'])
+    neutral_bridge=current.bridge
+    monkeypatch.setattr(current,'bridge',lambda repository,request:dict(result='PASS',blockers=[],
+        diff=[dict(path=path,sourcePath=None,sourceMode='100644',destinationMode='000000') for path in current.PUBLICATION_PATHS])
+        if 'expectedPaths' in request else neutral_bridge(repository,request))
+    monkeypatch.setattr(generator,'v2_verified_predecessor',lambda *_args:binding['predecessor']['sha256'])
+    codes=['EVIDENCE_BOUNDARY_GITLINK','EVIDENCE_HASH_MISMATCH','EVIDENCE_PATH_ESCAPE','EVIDENCE_FILE_MISSING','EVIDENCE_OUTPUT_FORBIDDEN',
+        'SIGNABLE_PAYLOAD_MISMATCH','CHANGED_PATH_SET_MISMATCH','ROOT_OF_TRUST_NOT_PINNED','SIGNED_EVIDENCE_ALLOWLISTED',
+        'REVISION_INVALID','EVIDENCE_READER_NOT_SHARED','EVIDENCE_READER_STRENGTH_REDUCED','EVIDENCE_GATE_NOT_USED','EVIDENCE_GATE_DISPLACED',
+        'EVIDENCE_ALIAS_ROUTE_BROKEN','EVIDENCE_GUIDANCE_NOT_BOUND','EVIDENCE_HASH_MISMATCH','CHANGED_PATH_SET_MISMATCH']
+    for scenario in contract['scenarios'][:-1]:
+        tokens=shlex.split(scenario['command'])
+        if scenario['id'] in ('AC-10.3-01','AC-10.3-03'):
+            path=tokens[tokens.index('--output')+1];content=json.dumps(measured,indent=2).encode()+b'\n'
+        else:
+            command=generator.v2_pytest_command(tokens);path=command['junit']
+            root=ElementTree.Element('testsuites')
+            faults=codes if scenario['id']=='AC-10.3-02' else [None]
+            suite=ElementTree.SubElement(root,'testsuite',tests=str(len(faults)),failures='0',errors='0',skipped='0')
+            for number,code in enumerate(faults):
+                case=ElementTree.SubElement(suite,'testcase',classname=command['target'][:-3].replace('/','.'),name='test_'+command['selector']+'_'+str(number))
+                props=ElementTree.SubElement(case,'properties')
+                values={'story103_source_revision':candidate}
+                if code:values.update(story103_expected_code=code,story103_observed_blockers=json.dumps([code]),story103_before_sha256='a'*64,story103_after_sha256='a'*64)
+                for key,value in values.items():ElementTree.SubElement(props,'property',name=key,value=value)
+            content=ElementTree.tostring(root)
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
+    options={'--repository':str(repository),'--contract':generator.V2_10_3_CONTRACT,'--format':'bundle',
+        '--output-json':contract['finalRecord']['paths'][0],'--output-markdown':contract['finalRecord']['paths'][1]}
+    return generator,repository,candidate,options
+
+
+def test_story103_valid_generation_then_wrong_candidate_junit_stamp_fails(story103_receipt_repository):
+    generator,repository,candidate,options=story103_receipt_repository
+    generated=generator.v2_parse_json(generator.v2_10_3_generate(options))
+    assert generated['summary']==dict(required=8,passed=8,failed=0,blocked=0,skipped=0,notRun=0)
+    assert len(generated['evidenceWorkflowExecution']['mutationLedger'])==18
+    target=repository/'artifacts/v9/10.3/AC-10.3-02.xml'
+    target.write_bytes(target.read_bytes().replace(candidate.encode(),b'f'*40,1))
+    with pytest.raises(generator.V2Stop) as error:generator.v2_10_3_generate(options)
+    assert error.value.findings[0]['code']=='TEST_RESULTS_STALE'
+
+
+@pytest.mark.parametrize('forgery', ['scenario','mutation','coverage'])
+def test_story103_committed_receipts_reject_digest_valid_forged_ledgers(story103_receipt_repository,forgery):
+    generator,repository,candidate,options=story103_receipt_repository
+    record=generator.v2_parse_json(generator.v2_10_3_generate(options))
+    run_git(repository,'add','--all');run_git(repository,'commit','--quiet','-m','test: publish retained receipt fixture')
+    _,validators=generator.v2_load_schemas()
+    assert generator.v2_10_3_source_errors(repository,record,validators['record'])==[]
+    retained=deepcopy(record['evidenceWorkflowExecution']['receipts'])
+    if forgery=='scenario':record['scenarios'][0]['assertionLedger'][0]['subject']='fabricated assertion'
+    elif forgery=='mutation':record['evidenceWorkflowExecution']['mutationLedger'][0]['id']='fabricated mutation'
+    else:
+        target=repository/'artifacts/v9/10.3/AC-10.3-02.xml'
+        root=ElementTree.fromstring(target.read_bytes())
+        for prop in root.findall('.//property'):
+            if prop.get('name')=='story103_expected_code':prop.set('value','EVIDENCE_HASH_MISMATCH')
+            if prop.get('name')=='story103_observed_blockers':prop.set('value','["EVIDENCE_HASH_MISMATCH"]')
+        target.write_bytes(ElementTree.tostring(root))
+        with pytest.raises(generator.V2Stop) as error:generator.v2_10_3_generate(options,candidate=candidate)
+        assert error.value.findings[0]['code']=='RECORD_NOT_DERIVED'
+        return
+    forged,json_bytes,markdown_bytes=generator.v2_finalize(record)
+    assert generator.v2_verify_pair(json_bytes,markdown_bytes)==[]
+    assert forged['evidenceWorkflowExecution']['receipts']==retained
+    assert 'Story 10.3 scenario or mutation ledgers differ from committed receipt derivation' in generator.v2_10_3_source_errors(repository,forged,validators['record'])
+
+
+def test_story103_markdown_projects_bound_mutations_and_preserves_prior_stories():
+    generator=load_generator()
+    record=story103_record_fixture(generator)
+    _,_,markdown=generator.v2_finalize(record)
+    assert b'17 observed mutation results are bound to the retained receipts.' in markdown
+    assert b'No fault-injection result is bound' not in markdown
+    for story in ('10.1','10.2'):
+        stored=(WORKSPACE/f'docs/release-evidence/story-{story}-final-record-v2.json').read_bytes()
+        projected=generator.v2_finalize(generator.v2_parse_json(stored))[2]
+        assert projected==(WORKSPACE/f'docs/release-evidence/story-{story}-final-record-v2.md').read_bytes()
+
+
+def test_story103_completion_instructions_publish_withdraw_and_verify_before_reporting():
+    for tree in COMPLETION_VERIFIER.SKILL_TREES:
+        for route in COMPLETION_VERIFIER.ROUTES:
+            text=(WORKSPACE/tree/route.path).read_text()
+            assert 'commit exactly those nine files together as a record-only commit' in text
+            assert 'all nine files for Story 10.3' in text
+            rerun=text.index(DONE_COMMIT_RERUN_CLAUSE)
+            terminal={'bmad-build/step-05-present.md':'### Display Summary',
+                'bmad-build/step-oneshot.md':'### Present','bmad-build-auto/step-04-review.md':'HALT with status `done`.',
+                'bmad-code-review/steps/step-04-present.md':'#### Completion summary'}[route.path]
+            assert rerun<text.index(terminal)
+            if route.path.startswith('bmad-code-review'):
+                assert 'Only when the spec requires a final record under the gate above' in text
+
+
+@pytest.mark.parametrize('story', ['10.1','10.2'])
+def test_story103_twelve_root_shape_cannot_expand_historical_candidates(story):
+    generator=load_generator()
+    _,validators=generator.v2_load_schemas()
+    record=generator.v2_parse_json((WORKSPACE/f'docs/release-evidence/story-{story}-final-record-v2.json').read_bytes())
+    assert generator.v2_schema_errors(validators['record'],record)==[]
+    roots=story103_record_fixture(generator)['candidate']['gitlinks']
+    record['candidate']['gitlinks']=sorted([*record['candidate']['gitlinks'],
+        *(row for row in roots if row['path'] in ('references/Hexalith.McpCli','references/Hexalith.Platform'))],key=lambda row:row['path'])
+    assert len(record['candidate']['gitlinks'])==12
+    assert generator.v2_schema_errors(validators['record'],record)
+
+
+@pytest.mark.parametrize('fault', [None,'missing-root','extra-root','root-reorder','root-mode','root-field','candidate-field'])
+def test_story103_twelve_root_candidate_is_exact_and_closed(fault):
+    generator=load_generator()
+    _,validators=generator.v2_load_schemas()
+    record=story103_record_fixture(generator)
+    candidate=record['candidate'];roots=candidate['gitlinks']
+    assert len(roots)==12
+    if fault=='missing-root':roots.pop()
+    if fault=='extra-root':roots.append(dict(path='references/Unapproved',mode='160000',commit='a'*40))
+    if fault=='root-reorder':roots[0],roots[1]=roots[1],roots[0]
+    if fault=='root-mode':roots[0]['mode']='100644'
+    if fault=='root-field':roots[0]['callerVerdict']='PASS'
+    if fault=='candidate-field':candidate['callerVerdict']='PASS'
+    assert bool(generator.v2_schema_errors(validators['record'],record)) is (fault is not None)
+
+
+def test_story103_generation_retains_full_source_inventory_beyond_diff(story103_receipt_repository):
+    generator,repository,candidate,options=story103_receipt_repository
+    record=generator.v2_parse_json(generator.v2_10_3_generate(options))
+    binding=generator.v2_parse_json((repository/generator.V2_10_3_BINDING).read_bytes())
+    files=record['evidenceWorkflowExecution']['sourceFiles']
+    assert [row['path'] for row in files]==binding['sourcePaths']
+    assert len(files)==34 and len(binding['expectedChangedPaths'])<34
+    unchanged='tests/Hexalith.Conversations.TestSupport.Runner/Hexalith.Conversations.TestSupport.Runner.csproj'
+    assert unchanged not in binding['expectedChangedPaths']
+    assert next(row['sha256'] for row in files if row['path']==unchanged)==generator.v2_sha256((repository/unchanged).read_bytes())
+    (repository/unchanged).write_bytes((repository/unchanged).read_bytes()+b'<!-- uncommitted change -->\n')
+    with pytest.raises(generator.V2Stop) as error:generator.v2_10_3_generate(options)
+    assert error.value.findings[0]['code']=='WORKTREE_NOT_CLEAN'
+    assert error.value.findings[0]['subject']==unchanged
+
+
+@pytest.mark.parametrize('fault', ['omitted-source','unreviewed-diff'])
+def test_story103_generation_and_source_rederivation_reject_invalid_binding_scope(story103_receipt_repository,fault):
+    generator,repository,candidate,options=story103_receipt_repository
+    record=generator.v2_parse_json(generator.v2_10_3_generate(options))
+    binding_path=repository/generator.V2_10_3_BINDING
+    binding=generator.v2_parse_json(binding_path.read_bytes())
+    if fault=='omitted-source':binding['sourcePaths'].remove('tests/Hexalith.Conversations.TestSupport.Runner/Program.cs')
+    if fault=='unreviewed-diff':binding['expectedChangedPaths']=sorted([*binding['expectedChangedPaths'],'unreviewed.txt'])
+    binding_path.write_text(json.dumps(binding,indent=2)+'\n')
+    run_git(repository,'add','--all')
+    run_git(repository,'commit','--quiet','-m','test: commit invalid source binding')
+    with pytest.raises(generator.V2Stop) as error:generator.v2_10_3_generate(options)
+    assert error.value.findings[0]['code']=='AUTHORITY_BINDING_INVALID'
+    # Keep the pair internally consistent with the newly committed binding so
+    # consumption reaches the independent approved-entry inventory check.
+    candidate=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    record['candidate']['commit']=candidate
+    facts=record['evidenceWorkflowExecution']
+    facts['sourceRevisionId']=candidate
+    for row in [facts['binding'],*facts['sourceFiles']]:
+        if row['path']==generator.V2_10_3_BINDING:row['sha256']=generator.v2_sha256(binding_path.read_bytes())
+    assert generator.v2_10_3_pair_errors(record)==[]
+    _,validators=generator.v2_load_schemas()
+    problems=generator.v2_10_3_source_errors(repository,record,validators['record'])
+    assert 'Story 10.3 source inventory or post-entry scope differs from the approved entry' in problems
+
+
+@pytest.mark.parametrize('fault', ['edit','partial','rename','gitlink'])
+def test_story103_source_rederivation_rejects_invalid_withdrawal(story103_receipt_repository,monkeypatch,fault):
+    generator,repository,candidate,options=story103_receipt_repository
+    record=generator.v2_parse_json(generator.v2_10_3_generate(options))
+    run_git(repository,'add','--all');run_git(repository,'commit','--quiet','-m','test: publish retained receipt fixture')
+    current=generator.v2_10_3_current_module()
+    neutral=current.bridge
+    def bridge(repository,request):
+        facts=neutral(repository,request)
+        if 'expectedPaths' in request:
+            if fault=='edit':facts['diff'][0]['destinationMode']='100644'
+            if fault=='partial':facts['diff'].pop()
+            if fault=='rename':facts['diff'][0]['sourcePath']=facts['diff'][0]['path'];facts['diff'][0]['path']='renamed.json'
+            if fault=='gitlink':facts['diff'][0]['sourceMode']='160000'
+        return facts
+    monkeypatch.setattr(current,'bridge',bridge)
+    _,validators=generator.v2_load_schemas()
+    assert generator.v2_10_3_source_errors(repository,record,validators['record'])==[
+        'Story 10.3 prior publication withdrawal is not nine exact deletions']
+
+
+@pytest.mark.parametrize('fault', ['none','unrelated-row','uncommitted-sprint'])
+def test_story103_inserted_rederivation_accepts_only_committed_owned_sprint_completion(story103_receipt_repository,monkeypatch,fault):
+    generator,repository,candidate,options=story103_receipt_repository
+    json_bytes=generator.v2_10_3_generate(options)
+    record=generator.v2_parse_json(json_bytes)
+    markdown=(repository/record['outputs']['markdown']['path']).read_bytes()
+    publication={record['outputs'][kind]['path'] for kind in ('json','markdown')}
+    publication.update(row['path'] for row in record['evidenceWorkflowExecution']['receipts'])
+    run_git(repository,'add','--all','--',*sorted(publication))
+    assert set(run_git(repository,'diff','--cached','--name-only').stdout.splitlines())==publication
+    run_git(repository,'commit','--quiet','-m','test: publish retained receipt fixture')
+    spec=repository/generator.V2_10_3_SPEC
+    original=spec.read_bytes()
+    completed=original.replace(b"status: 'in-review'",b"status: 'done'",1).replace(b'- [ ] ',b'- [x] ')
+    assert completed != original
+    spec.write_bytes(completed+b'\n'+generator.RECORD_BEGIN_MARKER.encode()+b'\n'+markdown+generator.RECORD_END_MARKER.encode()+b'\n')
+    sprint_path='_bmad-output/implementation-artifacts/sprint-status.yaml'
+    sprint=repository/sprint_path
+    story_key='10-3-provide-the-evidence-boundary-verifier-and-integrate-every-workflow-surface'
+    initial_sprint=sprint.read_bytes()
+    completed_sprint=initial_sprint.replace((story_key+': in-progress').encode(),(story_key+': done').encode(),1)
+    completed_sprint=re.sub(rb'(?m)^last_updated: .+$',b'last_updated: 2026-10-15',completed_sprint)
+    completed_sprint=re.sub(rb'(?m)^# last_updated: .+$',b'# last_updated: 2026-10-15',completed_sprint)
+    assert completed_sprint != initial_sprint
+    sprint.write_bytes(completed_sprint)
+    run_git(repository,'add','--',generator.V2_10_3_SPEC,sprint_path)
+    run_git(repository,'commit','--quiet','-m','test: complete story 10.3 fixture lifecycle')
+    head=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    assert generator.v2_sprint_status_only_change(repository,candidate,head,story_key)
+    assert generator.v2_10_3_descendant_errors(repository,record,head)==[]
+    verify_options={'--repository':str(repository),generator.V2_VERIFY_OPTION:generator.V2_10_3_SPEC}
+    consumer_reads=[];resolutions=[]
+    generate=generator.v2_10_3_generate;source_errors=generator.v2_10_3_source_errors;resolve=generator.resolve_commit
+    def captured_generate(*args,**kwargs):
+        consumer_reads.append(('sprint',kwargs.get('consumer_candidate')))
+        return generate(*args,**kwargs)
+    def captured_source_errors(*args,**kwargs):
+        consumer_reads.append(('receipts',args[3] if len(args)>3 else kwargs.get('consumer_candidate')))
+        return source_errors(*args,**kwargs)
+    def captured_resolve(*args,**kwargs):
+        resolutions.append(args[1])
+        return resolve(*args,**kwargs)
+    with monkeypatch.context() as capture:
+        capture.setattr(generator,'v2_10_3_generate',captured_generate)
+        capture.setattr(generator,'v2_10_3_source_errors',captured_source_errors)
+        capture.setattr(generator,'resolve_commit',captured_resolve)
+        assert generator.v2_10_3_verify_inserted(verify_options)==json_bytes
+    assert consumer_reads==[('receipts',head),('sprint',head)]
+    assert resolutions.count('HEAD')==1
+    # The committed completion exception applies only to inserted rederivation.
+    with pytest.raises(generator.V2Stop) as strict:
+        generator.v2_10_3_generate(options,candidate=candidate)
+    assert strict.value.findings[0]['code']=='WORKTREE_NOT_CLEAN'
+    assert strict.value.findings[0]['subject']==sprint_path
+    if fault=='none':return
+    if fault=='unrelated-row':
+        other='10-4-migrate-frozen-readers-repair-gate-spans-publish-the-runbook-and-prove-fault-injection'
+        changed=sprint.read_bytes().replace((other+': backlog').encode(),(other+': done').encode(),1)
+        assert changed != sprint.read_bytes()
+        sprint.write_bytes(changed)
+        run_git(repository,'add','--',sprint_path)
+        run_git(repository,'commit','--quiet','-m','test: inject post-publication drift')
+        head=run_git(repository,'rev-parse','HEAD').stdout.strip()
+        assert not generator.v2_sprint_status_only_change(repository,candidate,head,story_key)
+        assert generator.v2_10_3_descendant_errors(repository,record,head)
+    else:
+        dirty=sprint.read_bytes().replace(b'last_updated: 2026-10-15',b'last_updated: 2026-10-16',1)
+        assert dirty != sprint.read_bytes()
+        sprint.write_bytes(dirty)
+        assert generator.v2_sprint_status_only_change(repository,candidate,head,story_key)
+        assert sprint.read_bytes()!=generator.v2_committed_blob(repository,head,sprint_path)
+    with pytest.raises(generator.V2Stop) as rederived:
+        generator.v2_10_3_generate(options,candidate=candidate,verify_spec=generator.V2_10_3_SPEC)
+    assert rederived.value.findings[0]['code']=='WORKTREE_NOT_CLEAN'
+    assert rederived.value.findings[0]['subject']==sprint_path
+    with pytest.raises(generator.V2Stop) as inserted:
+        generator.v2_10_3_verify_inserted(verify_options)
+    assert inserted.value.findings[0]['code']==('RECORD_CONTENT_DRIFT' if fault=='unrelated-row' else 'WORKTREE_NOT_CLEAN')
+
+
+def story104_closed_fixture(generator):
+    """A complete schema fixture; repository/source verification remains a separate gate."""
+    adoption = generator.v2_10_4_module()
+    binding=json.loads((WORKSPACE/adoption.BINDING).read_bytes())
+    contract=json.loads((WORKSPACE/adoption.CONTRACT).read_bytes())
+    record=json.loads((WORKSPACE/'docs/release-evidence/story-10.3-final-record-v2.json').read_bytes())
+    facts={key:deepcopy(binding[key]) for key in ('baseline','provenance','workflowInventory','guidanceInventory',
+        'resolvedCustomization','retiredRoutes','exemptions','readerInventory','rootGitlinks','entrySnapshot','approvedAssertionCorrections','approvedGitlinkAmendment')}
+    paths=contract['finalRecord']['paths'];candidate='a'*40
+    receipts=[dict(path=f'artifacts/v9/10.4/AC-10.4-0{n}.'+('trx' if n<6 else 'json' if n==9 else 'xml'),sha256='b'*64)
+        for n in (1,2,3,4,5,6,7,9)]
+    scenarios=[]
+    for scenario in contract['scenarios']:
+        row=dict(scenarioId=scenario['id'],command=scenario['command'],exitCode=0,result='PASS',blockers=[],
+            assertionLedger=[dict(id=scenario['id']+'#0001',subject='measured fixture',state='PASS')])
+        if scenario['id']!='AC-10.4-08':
+            receipt=receipts[len(scenarios)] if len(scenarios)<7 else receipts[-1]
+            row.update(resultFile=receipt,outputFiles=[receipt])
+        scenarios.append(row)
+    facts.update(bindingRule='SC-10.4 is the committed candidate evaluated under the approved current binding',sourceRevisionId=candidate,
+        binding=dict(path=adoption.BINDING,sha256='b'*64),contract=dict(path=adoption.CONTRACT,sha256='b'*64),
+        predecessorPair=dict(json=dict(path=adoption.PROVENANCE[5],sha256=adoption.PREDECESSOR_SHA256),
+            markdown=dict(path=adoption.PROVENANCE[6],sha256='b'*64)),
+        readerBeforeAfter=generator.v2_10_4_reader_facts(adoption.snapshot(WORKSPACE)),
+        routeFacts=deepcopy(record['evidenceWorkflowExecution']['routeFacts']),receipts=receipts,
+        sourceFiles=[dict(path=adoption.BINDING,sha256='b'*64)],
+        mutationLedger=[dict(id=fault,expectedBlocker=expected['code'],observedBlockers=expected['blockers'],
+            beforeSha256='b'*64,afterSha256='b'*64,restored=True,result='PASS') for fault,expected in adoption.FAULT_EXPECTATIONS.items()])
+    record.pop('evidenceWorkflowExecution');record.update(storyId='10.4',candidate=dict(commit=candidate,gitlinks=adoption.candidate_gitlinks(facts['rootGitlinks'])),
+        predecessors=['10.3'],inventory=contract['inventory'],scenarios=scenarios,evidenceAdoptionExecution=facts,
+        summary=dict(required=9,passed=9,failed=0,blocked=0,skipped=0,notRun=0),
+        outputs=dict(json=dict(path=paths[0],sha256='0'*64),markdown=dict(path=paths[1],sha256='0'*64)),
+        rollback=contract['rollback'])
+    return record
+
+
+def test_story104_closed_schema_and_deterministic_pair():
+    generator=load_generator();record=story104_closed_fixture(generator);_,validators=generator.v2_load_schemas()
+    final,j,m=generator.v2_finalize(record)
+    assert not generator.v2_schema_errors(validators['record'],final)
+    assert not generator.v2_verify_pair(j,m)
+    assert generator.v2_finalize(record)==(final,j,m)
+    assert len(final['evidenceAdoptionExecution']['readerBeforeAfter'])==27
+    assert len(final['evidenceAdoptionExecution']['receipts'])==8
+    assert b'AC-10.4-09' in m
+    assert b'9cbc71b63be3fa1ce4d89d98ef1771c54c6603f5' in m
+    assert len(final['evidenceAdoptionExecution']['approvedGitlinkAmendment']['transitions'])==9
+    assert final['candidate']['gitlinks']!=final['evidenceAdoptionExecution']['rootGitlinks']
+
+
+@pytest.mark.parametrize('fault',['unknown-fact','eleven-roots','seven-receipts','reader-omission','missing-AC09','empty-ledger','unrestored','unapproved-correction'])
+def test_story104_pair_rejects_missing_or_drifted_facts(fault):
+    generator=load_generator();record=story104_closed_fixture(generator);facts=record['evidenceAdoptionExecution']
+    if fault=='unknown-fact':facts['uncheckedAuthority']=True
+    if fault=='eleven-roots':record['candidate']['gitlinks'].pop()
+    if fault=='seven-receipts':facts['receipts'].pop()
+    if fault=='reader-omission':facts['readerBeforeAfter'].pop()
+    if fault=='missing-AC09':record['scenarios'].pop()
+    if fault=='empty-ledger':record['scenarios'][0]['assertionLedger']=[]
+    if fault=='unrestored':facts['mutationLedger'][0]['afterSha256']='c'*64
+    if fault=='unapproved-correction':facts['approvedAssertionCorrections'][0]['after']='submodulePaths.Length.ShouldBe(13);'
+    _,validators=generator.v2_load_schemas()
+    assert generator.v2_schema_errors(validators['record'],record) or generator.v2_10_4_pair_errors(record)
+
+
+def test_story104_receipt_parser_rejects_unstamped_and_empty_results():
+    generator=load_generator()
+    command='python3 -m pytest -q tests/tooling/test_evidence_boundary_adoption.py -k complete_fault_matrix --junitxml=artifacts/v9/10.4/AC-10.4-06.xml'
+    contract={'scenarios':[dict(id='AC-10.4-06',command=command)]}
+    for xml in (b'<testsuites><testsuite tests="0" failures="0" errors="0" skipped="0" /></testsuites>',
+        b'<testsuites><testsuite tests="1" failures="0" errors="0" skipped="0"><testcase name="unstamped" /></testsuite></testsuites>'):
+        with pytest.raises(ValueError):generator.v2_10_4_receipt_facts(WORKSPACE,contract,'a'*40,lambda _:xml)
+
+
+@pytest.mark.parametrize('fault',['missing','extra','before','after','source-mode','destination-mode','approval','baseline','candidate','unchanged-root'])
+def test_story104_pair_rejects_unapproved_gitlink_amendment(fault):
+    generator=load_generator();record=story104_closed_fixture(generator);facts=record['evidenceAdoptionExecution']
+    amendment=facts['approvedGitlinkAmendment']
+    if fault=='missing':amendment['transitions'].pop()
+    if fault=='extra':amendment['transitions'].append(dict(amendment['transitions'][-1],path='references/Hexalith.Projects'))
+    if fault=='before':amendment['transitions'][0]['sourceObject']='a'*40
+    if fault=='after':amendment['transitions'][0]['destinationObject']='a'*40
+    if fault=='source-mode':amendment['transitions'][0]['sourceMode']='100644'
+    if fault=='destination-mode':amendment['transitions'][0]['destinationMode']='100644'
+    if fault=='approval':amendment['approvalCommit']='a'*40
+    if fault=='baseline':facts['rootGitlinks'][0]['commit']='a'*40
+    if fault=='candidate':record['candidate']['gitlinks'][1]['commit']='a'*40
+    if fault=='unchanged-root':record['candidate']['gitlinks'][0]['commit']='a'*40
+    _,validators=generator.v2_load_schemas()
+    assert generator.v2_schema_errors(validators['record'],record) or generator.v2_10_4_pair_errors(record)
+
+
+@pytest.fixture(scope='module')
+def story104_receipt_repository(tmp_path_factory):
+    """Real source/history verification with synthetic, candidate-stamped parser receipts."""
+    generator=load_generator();adoption=generator.v2_10_4_module()
+    tmp_path=tmp_path_factory.mktemp('story104-lifecycle')
+    repository=tmp_path/'repository'
+    published=WORKSPACE/'docs/release-evidence/story-10.4-final-record-v2.json'
+    source=generator.v2_parse_json(published.read_bytes())['candidate']['commit'] if published.is_file() else run_git(WORKSPACE,'rev-parse','HEAD').stdout.strip()
+    run_git(tmp_path,'clone','--quiet','--shared','--no-checkout',str(WORKSPACE),str(repository))
+    run_git(repository,'checkout','--detach',source)
+    for path in adoption.APPROVED_SOURCE_PATHS:
+        # Frozen C# reader files stay at the Story 10.4 candidate bytes; later stories may extend them.
+        if path.endswith('.cs'):continue
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((WORKSPACE/path).read_bytes())
+    # A completed live story must not turn the next fixture's original source into
+    # a lifecycle descendant or include its already published record region.
+    spec=repository/generator.V2_10_4_SPEC;content=spec.read_bytes()
+    marker=content.find(generator.RECORD_BEGIN_MARKER.encode())
+    if marker>=0:
+        content=content[:marker].rstrip(b'\n')+b'\n'
+    spec.write_bytes(re.sub(rb"(?m)^status: '[^'\r\n]+'$",b"status: 'in-progress'",content,count=1))
+    sprint=repository/generator.V2_7_2_SPRINT_PATH
+    sprint.write_bytes(re.sub(rb'(?m)^([ \t]*'+generator.V2_10_4_SPRINT_KEY.encode()+rb': )[a-z-]+$',rb'\g<1>in-progress',sprint.read_bytes()))
+    run_git(repository,'add','--force','--',*adoption.APPROVED_SOURCE_PATHS)
+    run_git(repository,'commit','--quiet','--allow-empty','-m','test: freeze the story 10.4 lifecycle fixture')
+    candidate=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    measured=adoption.verify(repository,adoption.BASELINE,candidate,authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+    assert measured['result']=='PASS',measured['blockers']
+    contract=json.loads((repository/adoption.CONTRACT).read_bytes())
+    for scenario in contract['scenarios']:
+        identity=scenario['id'];tokens=shlex.split(scenario['command'])
+        if identity=='AC-10.4-08':continue
+        if identity=='AC-10.4-09':
+            path=tokens[tokens.index('--output')+1];content=adoption.current.canonical(measured)
+        elif '-trx' in tokens:
+            path=tokens[tokens.index('-trx')+1]
+            root=ElementTree.Element('TestRun',xmlns=TRX_NAMESPACE)
+            case=ElementTree.SubElement(ElementTree.SubElement(root,'Results'),'UnitTestResult',
+                testName=tokens[tokens.index('-method')+1],outcome='Passed')
+            ElementTree.SubElement(ElementTree.SubElement(case,'Output'),'StdOut').text=(
+                'story104_source_revision='+candidate+'\n'+adoption.current.canonical(measured).decode())
+            ElementTree.SubElement(ElementTree.SubElement(root,'ResultSummary'),'Counters',total='1',executed='1',passed='1',failed='0',notExecuted='0')
+            method=tokens[tokens.index('-method')+1];test_id=identity+'-test';execution_id=identity+'-execution'
+            native=root.find('./{*}Results/{*}UnitTestResult');native.set('testId',test_id);native.set('executionId',execution_id)
+            definition=ElementTree.SubElement(ElementTree.SubElement(root,'TestDefinitions'),'UnitTest',id=test_id,name=method,storage=tokens[1])
+            ElementTree.SubElement(definition,'Execution',id=execution_id)
+            ElementTree.SubElement(definition,'TestMethod',codeBase=tokens[1],className=method.rsplit('.',1)[0],name=method.rsplit('.',1)[1])
+            content=ElementTree.tostring(root)
+        else:
+            command=generator.v2_pytest_command(tokens);path=command['junit']
+            root=ElementTree.Element('testsuites');identities=generator.V2_10_4_PYTEST_CASES[identity]
+            suite=ElementTree.SubElement(root,'testsuite',tests=str(len(identities)),failures='0',errors='0',skipped='0')
+            for name,fault in identities.items():
+                case=ElementTree.SubElement(suite,'testcase',classname=command['target'][:-3].replace('/','.'),name=name)
+                props=ElementTree.SubElement(case,'properties');values={'story104_source_revision':candidate}
+                if fault:values.update(story104_fault_id=fault,story104_expected_code=generator.V2_10_4_FAULT_CODES[fault],
+                    story104_observed_blockers=json.dumps(adoption.FAULT_EXPECTATIONS[fault]['blockers']),story104_before_sha256='b'*64,
+                    story104_after_sha256='b'*64,story104_assertion_ledger='[{"id":"fixture","subject":"parser fixture","state":"FAIL"}]')
+                if fault and identity=='AC-10.4-06':
+                    blocked=fault in ('GIT_UNAVAILABLE','HISTORY_UNAVAILABLE')
+                    values.update(story104_observed_result='BLOCKED' if blocked else 'FAIL',story104_observed_exit='2' if blocked else '1')
+                    if blocked:values['story104_assertion_ledger']=json.dumps([dict(id='fixture',subject='parser fixture',state='PASS'),
+                        dict(id='history',subject='unavailable history',state='SKIPPED')])
+                if fault is None:values.update(story104_before_sha256='b'*64,story104_after_sha256='b'*64,story104_assertion_ledger='[{"id":"promotion-span","subject":"exact completion gate span","state":"PASS"}]')
+                for key,value in values.items():ElementTree.SubElement(props,'property',name=key,value=value)
+            content=ElementTree.tostring(root)
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
+    options={'--repository':str(repository),'--contract':generator.V2_10_4_CONTRACT,'--format':'bundle',
+        '--output-json':contract['finalRecord']['paths'][0],'--output-markdown':contract['finalRecord']['paths'][1]}
+    json_bytes=generator.v2_10_4_generate(options);record=generator.v2_parse_json(json_bytes)
+    publication=generator.v2_10_4_publication_paths(record)
+    run_git(repository,'add','--force','--',*publication)
+    assert set(run_git(repository,'diff','--cached','--name-only').stdout.splitlines())==set(publication)
+    run_git(repository,'commit','--quiet','-m','test: publish the story 10.4 lifecycle fixture')
+    return generator,repository,candidate,options,json_bytes
+
+
+@pytest.fixture(scope='module')
+def story104_completed_repository(story104_receipt_repository):
+    generator,repository,candidate,options,json_bytes=story104_receipt_repository
+    adoption=generator.v2_10_4_module();record=generator.v2_parse_json(json_bytes)
+    spec=repository/generator.V2_10_4_SPEC;sprint=repository/generator.V2_7_2_SPRINT_PATH
+    original_spec=spec.read_bytes();original_sprint=sprint.read_bytes()
+    sprint_fact=next(row for row in record['evidenceAdoptionExecution']['sourceFiles'] if row['path']==generator.V2_7_2_SPRINT_PATH)
+    assert sprint_fact['sha256']==generator.v2_sha256(original_sprint)
+    markdown=(repository/record['outputs']['markdown']['path']).read_bytes()
+    verify_options={'--repository':str(repository),generator.V2_VERIFY_OPTION:generator.V2_10_4_SPEC}
+    inserted=original_spec+b'\n'+generator.RECORD_BEGIN_MARKER.encode()+b'\n'+markdown+generator.RECORD_END_MARKER.encode()+b'\n'
+    for spec_state,state,date,message in [('in-review','review','2026-10-18','test: review the story 10.4 lifecycle fixture'),
+            ('done','done','2026-10-19','test: complete the story 10.4 lifecycle fixture')]:
+        spec.write_bytes(inserted.replace(b"status: 'in-progress'",("status: '"+spec_state+"'").encode(),1))
+        updated=re.sub(rb'(?m)^([ \t]*'+generator.V2_10_4_SPRINT_KEY.encode()+rb': )[a-z-]+$',
+            lambda match:match[1]+state.encode(),original_sprint)
+        updated=re.sub(rb'(?m)^last_updated: .+$',('last_updated: '+date).encode(),updated)
+        updated=re.sub(rb'(?m)^# last_updated: .+$',('# last_updated: '+date).encode(),updated)
+        sprint.write_bytes(updated)
+        assert generator.v2_10_4_verify_inserted(verify_options)==json_bytes
+        observed=adoption.verify(repository,adoption.BASELINE,'HEAD',authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+        assert observed['result']=='PASS',observed['blockers']
+        run_git(repository,'add','--',generator.V2_10_4_SPEC,generator.V2_7_2_SPRINT_PATH)
+        run_git(repository,'commit','--quiet','-m',message)
+        assert generator.v2_10_4_verify_inserted(verify_options)==json_bytes
+        assert generator.v2_parse_json(json_bytes)['evidenceAdoptionExecution']['sourceFiles']==record['evidenceAdoptionExecution']['sourceFiles']
+    with pytest.raises(ValueError,match='working source differs: '+generator.V2_7_2_SPRINT_PATH):
+        generator.v2_10_4_generate(options,candidate=candidate)
+    return generator,repository,candidate,options,json_bytes
+
+
+@pytest.mark.parametrize('fault',['none','unrelated-row','source-drift'])
+def test_story104_committed_publication_review_done_rederives_original_sources(story104_completed_repository,tmp_path,fault):
+    generator,completed,candidate,source_options,json_bytes=story104_completed_repository
+    repository=tmp_path/'repository'
+    run_git(tmp_path,'clone','--quiet','--shared',str(completed),str(repository))
+    adoption=generator.v2_10_4_module();record=generator.v2_parse_json(json_bytes)
+    options=dict(source_options,**{'--repository':str(repository)})
+    verify_options={'--repository':str(repository),generator.V2_VERIFY_OPTION:generator.V2_10_4_SPEC}
+    sprint=repository/generator.V2_7_2_SPRINT_PATH
+    if fault=='none':
+        # An uncommitted done regression or malformed/duplicate date cannot use
+        # the original in-progress source as permission to change the live state.
+        valid=sprint.read_bytes()
+        for dirty in (valid.replace((generator.V2_10_4_SPRINT_KEY+': done').encode(),(generator.V2_10_4_SPRINT_KEY+': review').encode()),
+                valid+b'last_updated: 2026-10-20\n',valid.replace(b'last_updated: 2026-10-19',b'last_updated: invalid')):
+            sprint.write_bytes(dirty)
+            with pytest.raises(generator.V2Stop):generator.v2_10_4_verify_inserted(verify_options)
+            observed=adoption.verify(repository,adoption.BASELINE,'HEAD',authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+            assert observed['result']=='FAIL' and 'EVIDENCE_HASH_MISMATCH' in observed['blockers']
+        sprint.write_bytes(valid)
+        assert generator.v2_10_4_verify_inserted(verify_options)==json_bytes
+        return
+    if fault=='unrelated-row':
+        content=sprint.read_bytes();changed=content.replace(b'  epic-10: in-progress',b'  epic-10: done',1)
+        assert changed!=content;sprint.write_bytes(changed)
+        path=generator.V2_7_2_SPRINT_PATH
+    else:
+        path='docs/runbooks/current-change-validation.md';target=repository/path;target.write_bytes(target.read_bytes()+b'\nUnapproved source change.\n')
+    # The same unrelated drift is rejected both before and after commitment.
+    with pytest.raises(generator.V2Stop):generator.v2_10_4_verify_inserted(verify_options)
+    observed=adoption.verify(repository,adoption.BASELINE,'HEAD',authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+    assert observed['result']=='FAIL'
+    run_git(repository,'add','--',path);run_git(repository,'commit','--quiet','-m','test: inject story 10.4 lifecycle drift')
+    head=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    assert generator.v2_10_4_descendant_errors(repository,record,head)
+    with pytest.raises(generator.V2Stop):generator.v2_10_4_verify_inserted(verify_options)
+    observed=adoption.verify(repository,adoption.BASELINE,'HEAD',authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+    assert observed['result']=='FAIL'
+
+
+@pytest.fixture
+def story104_parser_receipts(monkeypatch):
+    """Synthetic parser inputs stay independent of an installed publication or pending source overlays."""
+    generator=load_generator();candidate='a'*40
+    contract=json.loads((WORKSPACE/generator.V2_10_4_CONTRACT).read_bytes())
+    measured=generator.v2_10_4_module().current.empty_result(candidate)
+    measured.update(result='PASS',assertionLedger=[dict(id='measured',subject='shared facts',state='PASS')])
+    receipts={}
+    for scenario in contract['scenarios']:
+        identity=scenario['id'];tokens=shlex.split(scenario['command'])
+        if identity=='AC-10.4-08':continue
+        if identity=='AC-10.4-09':
+            path=tokens[tokens.index('--output')+1];content=json.dumps(measured,separators=(',',':')).encode()
+        elif '-trx' in tokens:
+            path=tokens[tokens.index('-trx')+1];root=ElementTree.Element('TestRun',xmlns=TRX_NAMESPACE)
+            case=ElementTree.SubElement(ElementTree.SubElement(root,'Results'),'UnitTestResult',testName=tokens[tokens.index('-method')+1],outcome='Passed')
+            ElementTree.SubElement(ElementTree.SubElement(case,'Output'),'StdOut').text='story104_source_revision=1.0.0+'+candidate+'\n'+json.dumps(measured,separators=(',',':'))
+            ElementTree.SubElement(ElementTree.SubElement(root,'ResultSummary'),'Counters',total='1',executed='1',passed='1',failed='0',notExecuted='0')
+            method=tokens[tokens.index('-method')+1];test_id=identity+'-test';execution_id=identity+'-execution'
+            native=root.find('./{*}Results/{*}UnitTestResult');native.set('testId',test_id);native.set('executionId',execution_id)
+            definition=ElementTree.SubElement(ElementTree.SubElement(root,'TestDefinitions'),'UnitTest',id=test_id,name=method,storage=tokens[1])
+            ElementTree.SubElement(definition,'Execution',id=execution_id)
+            ElementTree.SubElement(definition,'TestMethod',codeBase=tokens[1],className=method.rsplit('.',1)[0],name=method.rsplit('.',1)[1])
+            content=ElementTree.tostring(root)
+        else:
+            command=generator.v2_pytest_command(tokens);path=command['junit'];cases=generator.V2_10_4_PYTEST_CASES[identity]
+            root=ElementTree.Element('testsuites');suite=ElementTree.SubElement(root,'testsuite',tests=str(len(cases)),failures='0',errors='0',skipped='0')
+            for name,fault in cases.items():
+                case=ElementTree.SubElement(suite,'testcase',classname=command['target'][:-3].replace('/','.'),name=name)
+                props=ElementTree.SubElement(case,'properties');values=dict(story104_source_revision=candidate)
+                if fault:
+                    code=generator.V2_10_4_FAULT_CODES[fault]
+                    values.update(story104_fault_id=fault,story104_expected_code=code,story104_observed_blockers=json.dumps(generator.v2_10_4_module().FAULT_EXPECTATIONS[fault]['blockers']),
+                        story104_before_sha256='b'*64,story104_after_sha256='b'*64,
+                        story104_assertion_ledger='[{"id":"checked","subject":"actual fault","state":"FAIL"}]')
+                    if identity=='AC-10.4-06':
+                        blocked=fault in ('GIT_UNAVAILABLE','HISTORY_UNAVAILABLE')
+                        values.update(story104_observed_result='BLOCKED' if blocked else 'FAIL',story104_observed_exit='2' if blocked else '1')
+                        if blocked:values['story104_assertion_ledger']=json.dumps([dict(id='checked',subject='actual fault',state='PASS'),
+                            dict(id='history',subject='unavailable history',state='SKIPPED')])
+                if fault is None:values.update(story104_before_sha256='b'*64,story104_after_sha256='b'*64,story104_assertion_ledger='[{"id":"promotion-span","subject":"exact completion gate span","state":"PASS"}]')
+                for key,value in values.items():ElementTree.SubElement(props,'property',name=key,value=value)
+            content=ElementTree.tostring(root)
+        receipts[str(path)]=content
+    # Scope recomputation is covered separately; these cases isolate the TRX/JUnit parsers.
+    monkeypatch.setattr(generator,'v2_10_4_scope_receipt',lambda *_args:None)
+    return generator,contract,candidate,receipts
+
+
+def test_story104_receipt_parser_accepts_exact_contract_identities(story104_parser_receipts):
+    generator,contract,candidate,receipts=story104_parser_receipts
+    scenarios,_,faults=generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
+    assert len(scenarios)==9 and len(faults)==29
+    assert {row['id']:row['expectedBlocker'] for row in faults}==generator.V2_10_4_FAULT_CODES
+
+
+@pytest.mark.parametrize('fault,mutation',[(fault,mutation)
+    for fault in ('GIT_UNAVAILABLE','HISTORY_UNAVAILABLE','HASH')
+    for mutation in ('missing-result','missing-exit','pass','not-applicable','wrong-state',
+        'wrong-exit','zero-exit','noncanonical-exit','ledger-result')
+    if (fault,mutation)!=('HASH','ledger-result')])
+def test_story104_fault_receipt_requires_original_state_and_exit(story104_parser_receipts,fault,mutation):
+    generator,contract,candidate,receipts=story104_parser_receipts
+    path='artifacts/v9/10.4/AC-10.4-06.xml';root=ElementTree.fromstring(receipts[path])
+    case=next(case for case in root.findall('.//testcase') if '['+fault+'-' in case.get('name'))
+    properties=case.find('properties');props={row.get('name'):row for row in properties}
+    blocked=fault!='HASH'
+    if mutation.startswith('missing-'):properties.remove(props['story104_observed_'+mutation.removeprefix('missing-')])
+    elif mutation in ('pass','not-applicable','wrong-state'):
+        state,exit_code={'pass':('PASS','0'),'not-applicable':('not-applicable','0'),
+            'wrong-state':('FAIL','1') if blocked else ('BLOCKED','2')}[mutation]
+        props['story104_observed_result'].set('value',state);props['story104_observed_exit'].set('value',exit_code)
+    elif mutation=='ledger-result':
+        ledger=[dict(id='checked',subject='fault',state='FAIL' if blocked else 'PASS')]
+        props['story104_assertion_ledger'].set('value',json.dumps(ledger))
+    else:
+        props['story104_observed_exit'].set('value',{'wrong-exit':'1' if blocked else '2',
+            'zero-exit':'0','noncanonical-exit':'02' if blocked else '01'}[mutation])
+    receipts[path]=ElementTree.tostring(root)
+    with pytest.raises(ValueError,match='fault (result/exit|ledger/result) differs'):
+        generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
+
+
+@pytest.mark.parametrize('mutation',['none','changed-bytes','changed-candidate'])
+def test_story104_legacy_fault_receipt_is_exactly_candidate_and_byte_pinned(story104_parser_receipts,mutation):
+    generator,contract,candidate,receipts=story104_parser_receipts
+    accepted,path,digest=generator.V2_10_4_LEGACY_FAULT_RECEIPT
+    original=(WORKSPACE/path).read_bytes()
+    assert generator.v2_sha256(original)==digest
+    receipts={path:content.replace(candidate.encode(),accepted.encode()) for path,content in receipts.items()}
+    receipts[path]=original
+    if mutation=='changed-bytes':receipts[path]+=b'\n'
+    if mutation=='changed-candidate':
+        candidate='b'*40
+        receipts={path:content.replace(accepted.encode(),candidate.encode()) for path,content in receipts.items()}
+    else:candidate=accepted
+    if mutation=='none':
+        scenarios,_,faults=generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
+        assert len(scenarios)==9 and len(faults)==29
+    else:
+        with pytest.raises(ValueError,match='fault result/exit differs'):
+            generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
+
+
+@pytest.mark.parametrize('mutation',['none','changed-envelope','changed-candidate'])
+def test_story104_legacy_scope_envelope_preserves_only_exact_accepted_ids(tmp_path,mutation):
+    generator=load_generator();adoption=generator.v2_10_4_module()
+    observed=json.loads((WORKSPACE/'artifacts/v9/10.4/AC-10.4-09.json').read_bytes())
+    candidate,digest=generator.V2_10_4_LEGACY_SCOPE_ENVELOPE
+    # Historical receipts are evaluated with their immutable source files.
+    repository=tmp_path/'accepted-source'
+    run_git(tmp_path,'clone','--quiet','--shared','--no-checkout',str(WORKSPACE),str(repository))
+    run_git(repository,'checkout','--detach',candidate)
+    assert observed['candidate']==candidate and generator.v2_sha256(adoption.current.canonical(observed))==digest
+    if mutation=='changed-envelope':observed['changedPaths'].append('unaccepted.txt')
+    if mutation=='changed-candidate':candidate=observed['candidate']='b'*40
+    if mutation=='none':
+        assert generator.v2_10_4_helper_result(repository,observed,candidate)==observed['assertionLedger']
+        generator.v2_10_4_scope_receipt(repository,observed,candidate)
+    else:
+        with pytest.raises(ValueError,match='identities must be unique'):
+            generator.v2_10_4_helper_result(repository,observed,candidate)
+
+
+@pytest.mark.parametrize('mutation',['wrong-code','ledger-string','ledger-object','ledger-empty','ledger-row-type','ledger-fields','ledger-state','ledger-skipped','ledger-duplicate',
+    'ledger-duplicate-id','warning-blocker','class','unrelated-case','duplicate-case','missing-positive-span','missing-displaced-span','extra-case'])
+def test_story104_receipt_parser_rejects_forged_junit(story104_parser_receipts,mutation):
+    generator,contract,candidate,receipts=story104_parser_receipts
+    path='artifacts/v9/10.4/AC-10.4-0'+('7' if 'span' in mutation else '6')+'.xml';root=ElementTree.fromstring(receipts[path]);suite=root.find('testsuite');case=suite.find('testcase')
+    props={row.get('name'):row for row in case.findall('properties/property')}
+    if mutation=='wrong-code':
+        props['story104_expected_code'].set('value','EVIDENCE_PATH_ESCAPE');props['story104_observed_blockers'].set('value','["EVIDENCE_PATH_ESCAPE"]')
+    elif mutation=='warning-blocker':props['story104_observed_blockers'].set('value','["EVIDENCE_HASH_MISMATCH","EVIDENCE_SCOPE_NOT_APPLICABLE"]')
+    elif mutation.startswith('ledger-'):
+        value={'ledger-string':'truthy','ledger-object':{'checked':True},'ledger-empty':[], 'ledger-row-type':['checked'],
+            'ledger-fields':[{'state':'FAIL'}], 'ledger-state':[dict(id='i',subject='s',state='OTHER')],
+            'ledger-skipped':[dict(id='i',subject='s',state='SKIPPED')],
+            'ledger-duplicate':[dict(id='i',subject='s',state='FAIL')]*2,
+            'ledger-duplicate-id':[dict(id='i',subject=subject,state='FAIL') for subject in ('one','two')]}[mutation]
+        props['story104_assertion_ledger'].set('value',json.dumps(value))
+    elif mutation=='class':case.set('classname','unrelated.tests')
+    elif mutation=='unrelated-case':case.set('name','test_unrelated')
+    elif mutation=='duplicate-case':suite.append(deepcopy(case));suite.set('tests',str(len(suite)))
+    elif mutation=='extra-case':
+        extra=deepcopy(case);extra.set('name','test_extra');suite.append(extra);suite.set('tests',str(len(suite)))
+    else:
+        remove=next(row for row in suite if ('[exact-span]' if mutation=='missing-positive-span' else '[displaced-span]') in row.get('name'))
+        suite.remove(remove);suite.set('tests',str(len(suite)))
+    receipts[path]=ElementTree.tostring(root)
+    with pytest.raises(ValueError):generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
+
+
+@pytest.mark.parametrize('stamp',['a'*40,'1.2.3+'+'a'*40,'1.2.3-preview.1+'+'a'*40,'a'*40+'0','1.2.3+'+'a'*40+'0','wrong'+'a'*40,'wrong+'+'a'*40,'1.2.3+wrong+'+'a'*40])
+def test_story104_native_stamp_compares_the_complete_revision(story104_parser_receipts,stamp):
+    generator,contract,candidate,receipts=story104_parser_receipts;path='artifacts/v9/10.4/AC-10.4-01.trx'
+    receipts[path]=receipts[path].replace(('1.0.0+'+candidate).encode(),stamp.encode())
+    if stamp in (candidate,'1.2.3+'+candidate,'1.2.3-preview.1+'+candidate):
+        generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
+    else:
+        with pytest.raises(ValueError):generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
+
+
+@pytest.mark.parametrize('mutation',['blockers','schema','malformed-row','skipped-row','empty-ledger','duplicate-id'])
+def test_story104_native_helper_envelope_must_validate(story104_parser_receipts,mutation):
+    generator,contract,candidate,receipts=story104_parser_receipts;path='artifacts/v9/10.4/AC-10.4-01.trx';root=ElementTree.fromstring(receipts[path]);output=root.find('.//{*}StdOut')
+    stamp,raw=output.text.split('\n',1);result=json.loads(raw)
+    if mutation=='blockers':result['blockers']=['EVIDENCE_HASH_MISMATCH']
+    elif mutation=='schema':result['unexpected']=True
+    elif mutation=='malformed-row':result['assertionLedger']=[{'state':'PASS'}]
+    elif mutation=='skipped-row':result['assertionLedger'][0]['state']='SKIPPED'
+    elif mutation=='duplicate-id':result['assertionLedger'].append(dict(result['assertionLedger'][0],subject='different subject'))
+    else:result['assertionLedger']=[]
+    output.text=stamp+'\n'+json.dumps(result,separators=(',',':'));receipts[path]=ElementTree.tostring(root)
+    with pytest.raises(ValueError):generator.v2_10_4_receipt_facts(WORKSPACE,contract,candidate,receipts.__getitem__)
+
+
+@pytest.mark.parametrize('mutation',['none','empty-scope','unrelated-ledger','manifest','candidate','candidate-blob','boundary','workflow','guidance','output-facts'])
+def test_story104_scope_receipt_requires_independent_candidate_facts(monkeypatch,mutation):
+    generator=load_generator();adoption=generator.v2_10_4_module();current=adoption.current;candidate='a'*40
+    binding=json.loads((WORKSPACE/adoption.BINDING).read_bytes())
+    monkeypatch.setattr(generator,'v2_committed_blob',lambda _root,revision,path:current.canonical(binding)
+        if revision==candidate and path==adoption.BINDING else None)
+    manifest=binding['provenance']+binding['workflowInventory']['rows']+binding['guidanceInventory']['rows']+[dict(path=adoption.SNAPSHOT,sha256=adoption.SNAPSHOT_SHA256,role='entry-snapshot')]
+    boundary=[dict(id='changed-paths',subject='changed-paths',state='PASS'),dict(id='manifest:signable-payload',subject='manifest',state='PASS')]
+    def bridge(_root,request):
+        assert request['candidate']==candidate and request['baseline']==adoption.BASELINE
+        assert request['manifest']==manifest and 'outputPath' not in request
+        return dict(result='PASS',blockers=[],diff=[dict(path=path,sourcePath=None) for path in binding['expectedChangedPaths']],assertionLedger=deepcopy(boundary),
+            blobs=[dict(path=row['path'],code=None,sha256='f'*64 if mutation=='candidate-blob' and number==0 else row['sha256']) for number,row in enumerate(manifest)])
+    monkeypatch.setattr(current,'bridge',bridge)
+    flow=dict(id='workflow:span:route',subject='route',state='PASS');guide=dict(id='guidance:hash:runbook',subject='runbook',state='PASS')
+    monkeypatch.setattr(current,'workflow_checks',lambda _root,result,_binding:result['assertionLedger'].append(flow))
+    monkeypatch.setattr(adoption,'guidance_checks',lambda _root,result,_binding:result['assertionLedger'].append(guide))
+    observed=current.empty_result(candidate);observed.update(result='PASS',changedPaths=binding['expectedChangedPaths'],manifest=manifest,
+        assertionLedger=[dict(row,id='boundary:'+row['id']) for row in boundary]+[flow,guide]
+        +[dict(id='candidate:blob:'+path,subject=path,state='PASS') for path in binding['sourcePaths']]
+        +[dict(id='output:contained',subject='receipt',state='PASS')])
+    if mutation=='empty-scope':observed['changedPaths']=[];observed['manifest']=[]
+    elif mutation=='unrelated-ledger':observed['assertionLedger']=[dict(id='unrelated',subject='unrelated',state='PASS')]
+    elif mutation=='manifest':observed['manifest']=deepcopy(manifest);observed['manifest'][0]['sha256']='f'*64
+    elif mutation=='candidate':observed['candidate']='b'*40
+    elif mutation in ('boundary','workflow','guidance','output-facts'):
+        prefix={'boundary':'boundary:','workflow':'workflow:','guidance':'guidance:','output-facts':'output:'}[mutation]
+        observed['assertionLedger']=[row for row in observed['assertionLedger'] if not row['id'].startswith(prefix)]
+    if mutation in ('none','output-facts'):generator.v2_10_4_scope_receipt(WORKSPACE,observed,candidate)
+    else:
+        with pytest.raises(ValueError):generator.v2_10_4_scope_receipt(WORKSPACE,observed,candidate)
+
+
+@pytest.mark.parametrize('state',['allowed-output','allowed-lifecycle','tracked','untracked'])
+def test_story104_generation_rejects_unrelated_worktree_dirt(tmp_path,monkeypatch,state):
+    """Exercise the real Git dirt guard before stopping at predecessor evaluation."""
+    generator=load_generator();repository=tmp_path/'repository';repository.mkdir()
+    run_git(repository,'init','--quiet')
+    contract=json.loads((WORKSPACE/generator.V2_10_4_CONTRACT).read_bytes())
+    binding=json.loads((WORKSPACE/generator.V2_10_4_BINDING).read_bytes())
+    binding['sourcePaths']=['source.py',generator.V2_10_4_SPEC,generator.V2_7_2_SPRINT_PATH]
+    files={'source.py':b'reviewed source\n','other.txt':b'unchanged\n',
+        generator.V2_10_4_SPEC:b"---\nstatus: 'in-progress'\n---\n\n## Tasks & Acceptance\n- [ ] task\n\n## Implementation Notes\n",
+        generator.V2_7_2_SPRINT_PATH:('# last_updated: 2026-10-17\nlast_updated: 2026-10-17\n  '+generator.V2_10_4_SPRINT_KEY+': in-progress\n').encode(),
+        generator.V2_10_4_BINDING:json.dumps(binding).encode(),generator.V2_10_4_CONTRACT:json.dumps(contract).encode()}
+    for path,content in files.items():
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
+    run_git(repository,'add','--all');run_git(repository,'commit','--quiet','-m','test: freeze the story 10.4 lifecycle fixture')
+    output_paths=list(contract['finalRecord']['paths'])
+    for scenario in contract['scenarios']:
+        tokens=shlex.split(scenario['command'])
+        if '-trx' in tokens:output_paths.append(tokens[tokens.index('-trx')+1])
+        elif '--output' in tokens:output_paths.append(tokens[tokens.index('--output')+1])
+        elif scenario['id']!='AC-10.4-08':output_paths.append(generator.v2_pytest_command(tokens)['junit'])
+    for path in output_paths:
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(b'allowed output fixture')
+    if state=='allowed-lifecycle':
+        spec=repository/generator.V2_10_4_SPEC;spec.write_bytes(spec.read_bytes().replace(b"'in-progress'",b"'in-review'").replace(b'- [ ]',b'- [x]')
+            +b'\n'+generator.RECORD_BEGIN_MARKER.encode()+b'\nfixture\n'+generator.RECORD_END_MARKER.encode()+b'\n')
+        sprint=repository/generator.V2_7_2_SPRINT_PATH;sprint.write_bytes(sprint.read_bytes().replace(b': in-progress',b': review').replace(b'2026-10-17',b'2026-10-18'))
+    elif state=='tracked':(repository/'other.txt').write_bytes(b'unrelated tracked change')
+    elif state=='untracked':(repository/'unrelated.py').write_bytes(b'unrelated untracked source')
+    class ReachedPredecessor(Exception):pass
+    def stop(*_args):raise ReachedPredecessor
+    monkeypatch.setattr(generator,'v2_verified_predecessor',stop)
+    options={'--repository':str(repository),'--contract':generator.V2_10_4_CONTRACT,'--format':'bundle',
+        '--output-json':contract['finalRecord']['paths'][0],'--output-markdown':contract['finalRecord']['paths'][1]}
+    expected=ReachedPredecessor if state.startswith('allowed') else generator.V2Stop
+    with pytest.raises(expected) as caught:generator.v2_10_4_generate(options,verify_spec=generator.V2_10_4_SPEC)
+    if not state.startswith('allowed'):assert caught.value.findings[0]['code']=='WORKTREE_NOT_CLEAN'
+
+
+def story104_current_source_repository(tmp_path,generator):
+    """Create a fixture from reachable source plus current approved source bytes."""
+    adoption=generator.v2_10_4_module();repository=tmp_path/'repository'
+    run_git(WORKSPACE,'clone','--shared','--no-checkout',str(WORKSPACE),str(repository))
+    pair=WORKSPACE/'docs/release-evidence/story-10.4-final-record-v2.json'
+    source_revision=(json.loads(pair.read_bytes())['candidate']['commit'] if pair.is_file()
+        else run_git(WORKSPACE,'rev-parse','HEAD').stdout.strip())
+    run_git(repository,'checkout','--detach',source_revision)
+    binding=json.loads((WORKSPACE/adoption.BINDING).read_bytes())
+    for path in binding['sourcePaths']:
+        # Frozen C# reader files stay at the Story 10.4 candidate bytes; later stories may extend them.
+        if path.endswith('.cs'):continue
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True)
+        # Reuse reachable pre-publication lifecycle bytes when CI runs after publication.
+        content=(run_git(WORKSPACE,'show',source_revision+':'+path).stdout.encode()
+            if path in (generator.V2_10_4_SPEC,generator.V2_7_2_SPRINT_PATH) else (WORKSPACE/path).read_bytes())
+        target.write_bytes(content)
+    run_git(repository,'add','--all');run_git(repository,'commit','--quiet','--allow-empty','-m','test: establish insertion source')
+    candidate=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    return repository,candidate
+
+
+@pytest.mark.parametrize('change',['story','unrelated-row','dirty'])
+def test_story104_committed_lifecycle_sprint_rederives_only_the_owned_transition(tmp_path,monkeypatch,change):
+    """Exercise both real source consumers across committed and dirty lifecycle updates."""
+    generator=load_generator();adoption=generator.v2_10_4_module()
+    repository,candidate=story104_current_source_repository(tmp_path,generator)
+    sprint=repository/generator.V2_7_2_SPRINT_PATH;original=sprint.read_bytes()
+    owned=generator.V2_10_4_SPRINT_KEY.encode()+b': in-progress'
+    assert original.count(owned)==1
+    updated=original.replace(owned,owned.replace(b'in-progress',b'in-review'))
+    if change=='unrelated-row':
+        other=b'10-3-provide-the-evidence-boundary-verifier-and-integrate-every-workflow-surface: done'
+        assert updated.count(other)==1
+        updated=updated.replace(other,other.replace(b'done',b'in-review'))
+    sprint.write_bytes(updated)
+    run_git(repository,'add',generator.V2_7_2_SPRINT_PATH)
+    run_git(repository,'commit','--quiet','-m','test: record lifecycle transition')
+    consumer=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    if change=='dirty':sprint.write_bytes(re.sub(rb'(?m)^last_updated:.*$',b'last_updated: uncommitted-fixture-date',updated))
+    assert generator.v2_10_4_working_source_matches(repository,candidate,generator.V2_7_2_SPRINT_PATH,
+        sprint.read_bytes(),consumer)==(change=='story')
+    # A retained-source evaluation reads the consumer's committed lifecycle bytes.
+    # Full pair/receipt/publication verification is independently required by insertion.
+    pair=repository/'docs/release-evidence/story-10.4-final-record-v2.json'
+    pair.write_text(json.dumps(dict(candidate=dict(commit=candidate))))
+    observed=adoption.verify(repository,adoption.BASELINE,candidate,authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+    assert observed['result']==('PASS' if change=='story' else 'FAIL')
+    assert observed['blockers']==([] if change=='story' else ['EVIDENCE_HASH_MISMATCH'])
+    options={'--repository':str(repository),'--contract':generator.V2_10_4_CONTRACT,
+        '--output-json':'docs/release-evidence/story-10.4-final-record-v2.json',
+        '--output-markdown':'docs/release-evidence/story-10.4-final-record-v2.md'}
+    fixture=story104_closed_fixture(generator);facts=fixture['evidenceAdoptionExecution']
+    monkeypatch.setattr(generator,'v2_10_4_receipt_facts',lambda *args:(fixture['scenarios'],facts['receipts'],facts['mutationLedger']))
+    if change=='story':
+        derived=json.loads(generator.v2_10_4_generate(options,candidate=candidate,verify_spec=generator.V2_10_4_SPEC,consumer_candidate=consumer))
+        assert derived['candidate']['commit']==candidate
+        assert derived['summary']==dict(required=9,passed=9,failed=0,blocked=0,skipped=0,notRun=0)
+    else:
+        with pytest.raises(ValueError,match='working source differs: '+generator.V2_7_2_SPRINT_PATH):
+            generator.v2_10_4_generate(options,candidate=candidate,verify_spec=generator.V2_10_4_SPEC,consumer_candidate=consumer)
+
+
+def story104_complete_receipts(generator, candidate, repository):
+    """Construct complete native/JUnit/scoped envelopes through their real receipt formats."""
+    adoption=generator.v2_10_4_module()
+    contract=json.loads((WORKSPACE/adoption.CONTRACT).read_bytes());receipts={}
+    measured=adoption.verify(repository,adoption.BASELINE,candidate,authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+    assert measured['result']=='PASS',measured['blockers']
+    for scenario in contract['scenarios']:
+        identity=scenario['id'];tokens=shlex.split(scenario['command'])
+        if identity=='AC-10.4-08':continue
+        if identity=='AC-10.4-09':
+            guidance=measured
+            receipts[tokens[tokens.index('--output')+1]]=adoption.current.canonical(guidance)+b'\n';continue
+        if '-trx' in tokens:
+            root=ElementTree.Element('TestRun');summary=ElementTree.SubElement(root,'ResultSummary')
+            ElementTree.SubElement(summary,'Counters',total='1',executed='1',passed='1',failed='0',notExecuted='0')
+            method=tokens[tokens.index('-method')+1];test_id=identity+'-test';execution_id=identity+'-execution'
+            definition=ElementTree.SubElement(ElementTree.SubElement(root,'TestDefinitions'),'UnitTest',
+                id=test_id,name=method,storage=tokens[1])
+            ElementTree.SubElement(definition,'Execution',id=execution_id)
+            ElementTree.SubElement(definition,'TestMethod',codeBase=tokens[1],
+                className=method.rsplit('.',1)[0],name=method.rsplit('.',1)[1])
+            result=ElementTree.SubElement(ElementTree.SubElement(root,'Results'),'UnitTestResult',
+                testName=method,outcome='Passed',testId=test_id,executionId=execution_id)
+            ElementTree.SubElement(ElementTree.SubElement(result,'Output'),'StdOut').text=(
+                'story104_source_revision=1.0.0+'+candidate+'\n'+adoption.current.canonical(measured).decode())
+            receipts[tokens[tokens.index('-trx')+1]]=ElementTree.tostring(root);continue
+        command=generator.v2_pytest_command(tokens)
+        cases=adoption.FAULT_TESTCASES if identity=='AC-10.4-06' else adoption.PROMOTION_TESTCASES
+        root=ElementTree.Element('testsuites');suite=ElementTree.SubElement(root,'testsuite',tests=str(len(cases)),failures='0',errors='0',skipped='0')
+        for name,fault in cases.items():
+            case=ElementTree.SubElement(suite,'testcase',classname=command['target'][:-3].replace('/','.'),name=name)
+            props=ElementTree.SubElement(case,'properties')
+            values=dict(story104_source_revision=candidate,story104_before_sha256='b'*64,story104_after_sha256='b'*64,
+                story104_assertion_ledger=json.dumps([dict(id='real-helper-check',subject='fixture',state='FAIL' if fault else 'PASS')]))
+            if fault:
+                expected=adoption.FAULT_EXPECTATIONS[fault]
+                values.update(story104_fault_id=fault,story104_expected_code=expected['code'],story104_observed_blockers=json.dumps(expected['blockers']))
+                if identity=='AC-10.4-06':
+                    blocked=fault in ('GIT_UNAVAILABLE','HISTORY_UNAVAILABLE')
+                    values.update(story104_observed_result='BLOCKED' if blocked else 'FAIL',story104_observed_exit='2' if blocked else '1')
+                    if blocked:values['story104_assertion_ledger']=json.dumps([dict(id='checked',subject='fault',state='PASS'),dict(id='history',subject='unavailable',state='SKIPPED')])
+            for key,value in values.items():ElementTree.SubElement(props,'property',name=key,value=value)
+        receipts[str(command['junit'])]=ElementTree.tostring(root)
+    return contract,receipts
+
+
+@pytest.mark.parametrize('tamper',['none','hash-relabel','fault-extra-code','positive-span-missing','fault-case-rename',
+    'native-revision-suffix','native-schema','native-blocker','native-failed-row','native-skipped-row',
+    'native-assembly','native-storage','native-result-test-id','native-result-execution-id','native-definition-id',
+    'native-definition-execution-id','native-definition-name','native-class','native-method',
+    'native-missing-definition','native-duplicate-definition','native-second-envelope','native-second-escaped-envelope',
+    'stale-AC09','AC09-failed-row','AC09-unrelated','AC09-no-guidance','AC09-no-customization',
+    'AC09-no-runbook','AC09-no-workflow','AC09-subject-drift','malformed-trx','malformed-junit','restoration','empty-fault-ledger'])
+def test_story104_complete_receipts_reject_tampering_with_the_real_parser(story104_receipt_repository,tamper):
+    generator,repository,candidate,_,_=story104_receipt_repository
+    contract=json.loads((repository/generator.V2_10_4_CONTRACT).read_bytes())
+    receipts={path:(repository/path).read_bytes() for path in generator.v2_10_4_publication_paths(json.loads((repository/contract['finalRecord']['paths'][0]).read_bytes())) if path not in contract['finalRecord']['paths']}
+    if tamper in ('hash-relabel','fault-extra-code','fault-case-rename','restoration','empty-fault-ledger'):
+        path='artifacts/v9/10.4/AC-10.4-06.xml';root=ElementTree.fromstring(receipts[path]);case=root.find('testsuite/testcase')
+        props={prop.get('name'):prop for prop in case.findall('properties/property')}
+        if tamper=='hash-relabel':
+            props['story104_expected_code'].set('value','ROOT_OF_TRUST_NOT_PINNED')
+            props['story104_observed_blockers'].set('value',json.dumps(['ROOT_OF_TRUST_NOT_PINNED']))
+        if tamper=='fault-extra-code':props['story104_observed_blockers'].set('value',json.dumps(['EVIDENCE_HASH_MISMATCH','ROOT_OF_TRUST_NOT_PINNED']))
+        if tamper=='fault-case-rename':case.set('name','renamed-fault')
+        if tamper=='restoration':props['story104_after_sha256'].set('value','c'*64)
+        if tamper=='empty-fault-ledger':props['story104_assertion_ledger'].set('value','[]')
+        receipts[path]=ElementTree.tostring(root)
+    if tamper=='positive-span-missing':
+        path='artifacts/v9/10.4/AC-10.4-07.xml';root=ElementTree.fromstring(receipts[path]);suite=root.find('testsuite')
+        suite.remove(suite.find('testcase'));suite.set('tests','1');receipts[path]=ElementTree.tostring(root)
+    if tamper.startswith('native-'):
+        path='artifacts/v9/10.4/AC-10.4-01.trx';root=ElementTree.fromstring(receipts[path]);output=root.find('{*}Results/{*}UnitTestResult/{*}Output/{*}StdOut')
+        version,payload=output.text.split('\n',1);observed=json.loads(payload)
+        if tamper=='native-revision-suffix':version='story104_source_revision=1.0.0+'+'f'*40+' later='+candidate
+        if tamper=='native-schema':observed['uncheckedFact']=True
+        if tamper=='native-blocker':observed['blockers']=['EVIDENCE_HASH_MISMATCH']
+        if tamper=='native-failed-row':observed['assertionLedger'][0]['state']='FAIL'
+        if tamper=='native-skipped-row':observed['assertionLedger'][0]['state']='SKIPPED'
+        definition=root.find('{*}TestDefinitions/{*}UnitTest');method=definition.find('{*}TestMethod')
+        if tamper=='native-assembly':method.set('codeBase','other/Unrelated.dll')
+        if tamper=='native-storage':definition.set('storage','other/Unrelated.dll')
+        if tamper=='native-result-test-id':root.find('{*}Results/{*}UnitTestResult').set('testId','unlinked')
+        if tamper=='native-result-execution-id':root.find('{*}Results/{*}UnitTestResult').set('executionId','unlinked')
+        if tamper=='native-definition-id':definition.set('id','unlinked')
+        if tamper=='native-definition-execution-id':definition.find('{*}Execution').set('id','unlinked')
+        if tamper=='native-definition-name':definition.set('name','Other.Test')
+        if tamper=='native-class':method.set('className','Other.Class')
+        if tamper=='native-method':method.set('name','OtherMethod')
+        if tamper=='native-missing-definition':root.find('{*}TestDefinitions').remove(definition)
+        if tamper=='native-duplicate-definition':root.find('{*}TestDefinitions').append(deepcopy(definition))
+        output.text=version+'\n'+generator.v2_10_4_module().current.canonical(observed).decode()
+        if tamper in ('native-second-envelope','native-second-escaped-envelope'):
+            second=deepcopy(observed);second.update(result='FAIL',blockers=['EVIDENCE_HASH_MISMATCH'])
+            second['assertionLedger'][0]['state']='FAIL'
+            extra=json.dumps(second)
+            if tamper=='native-second-escaped-envelope':extra=extra.replace('"schemaVersion"','"schema\\u0056ersion"')
+            output.text+='\n'+extra
+        receipts[path]=ElementTree.tostring(root)
+    if tamper=='stale-AC09' or tamper.startswith('AC09-'):
+        path='artifacts/v9/10.4/AC-10.4-09.json';observed=json.loads(receipts[path])
+        if tamper=='stale-AC09':observed['candidate']='f'*40
+        if tamper=='AC09-failed-row':observed['assertionLedger'][0]['state']='FAIL'
+        if tamper=='AC09-unrelated':observed['assertionLedger']=[dict(id='unrelated',subject='unrelated',state='PASS')]
+        prefixes={'AC09-no-guidance':('guidance:content:',),'AC09-no-customization':('guidance:resolved:','guidance:render:'),
+            'AC09-no-runbook':('runbook:',),'AC09-no-workflow':('workflow:',)}
+        if tamper in prefixes:observed['assertionLedger']=[row for row in observed['assertionLedger'] if not row['id'].startswith(prefixes[tamper])]
+        if tamper=='AC09-subject-drift':next(row for row in observed['assertionLedger'] if row['id']=='runbook:sections')['subject']='unrelated'
+        receipts[path]=json.dumps(observed).encode()
+    if tamper in ('malformed-trx','malformed-junit'):
+        receipts['artifacts/v9/10.4/AC-10.4-'+('01.trx' if tamper=='malformed-trx' else '06.xml')]=b'<broken'
+    if tamper=='none':
+        scenarios,measured,mutations=generator.v2_10_4_receipt_facts(repository,contract,candidate,receipts.__getitem__)
+        assert len(scenarios)==9 and len(measured)==8 and len(mutations)==29
+    else:
+        with pytest.raises(ValueError):generator.v2_10_4_receipt_facts(repository,contract,candidate,receipts.__getitem__)
+
+
+@pytest.mark.parametrize('scenario',['06','07'])
+@pytest.mark.parametrize('tamper',['integer-id','missing-subject','unknown-field','duplicate-row','classname'])
+def test_story104_junit_receipts_require_closed_ledgers_and_exact_modules(story104_receipt_repository,scenario,tamper):
+    generator,repository,candidate,_,_=story104_receipt_repository
+    contract=json.loads((repository/generator.V2_10_4_CONTRACT).read_bytes())
+    receipts={path:(repository/path).read_bytes() for path in generator.v2_10_4_publication_paths(json.loads((repository/contract['finalRecord']['paths'][0]).read_bytes())) if path not in contract['finalRecord']['paths']}
+    path=f'artifacts/v9/10.4/AC-10.4-{scenario}.xml';root=ElementTree.fromstring(receipts[path])
+    case=root.find('testsuite/testcase');prop=next(row for row in case.findall('properties/property') if row.get('name')=='story104_assertion_ledger')
+    ledger=json.loads(prop.get('value'))
+    if tamper=='integer-id':ledger[0]['id']=1
+    if tamper=='missing-subject':ledger[0].pop('subject')
+    if tamper=='unknown-field':ledger[0]['unchecked']=True
+    if tamper=='duplicate-row':ledger.append(dict(ledger[0]))
+    if tamper=='classname':case.set('classname','unrelated.module')
+    prop.set('value',json.dumps(ledger));receipts[path]=ElementTree.tostring(root)
+    with pytest.raises(ValueError,match='closed schema' if tamper!='classname' else 'exact testcase identities'):
+        generator.v2_10_4_receipt_facts(repository,contract,candidate,receipts.__getitem__)
+
+
+def test_story104_real_git_insertion_rejects_one_changed_inserted_byte(tmp_path):
+    """Publish a real pair/receipt commit, pass real insertion, then reject one inserted byte."""
+    generator=load_generator();adoption=generator.v2_10_4_module();repository=tmp_path/'repository'
+    repository,candidate=story104_current_source_repository(tmp_path,generator)
+    contract,receipts=story104_complete_receipts(generator,candidate,repository)
+    for path,content in receipts.items():
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
+    paths=contract['finalRecord']['paths']
+    options={'--repository':str(repository),'--contract':generator.V2_10_4_CONTRACT,'--format':'bundle',
+        '--output-json':paths[0],'--output-markdown':paths[1]}
+    j=generator.v2_10_4_generate(options)
+    m=(repository/paths[1]).read_bytes()
+    run_git(repository,'add','--force','--',*receipts,*paths);run_git(repository,'commit','--quiet','-m','test: publish atomic insertion pair')
+    spec=repository/generator.V2_10_4_SPEC;original=spec.read_bytes()
+    inserted=original+b'\n'+generator.RECORD_BEGIN_MARKER.encode()+b'\n'+m+generator.RECORD_END_MARKER.encode()+b'\n'
+    spec.write_bytes(inserted)
+    verify={'--repository':str(repository),'--contract':generator.V2_10_4_CONTRACT,generator.V2_VERIFY_OPTION:generator.V2_10_4_SPEC}
+    assert generator.v2_10_4_verify_inserted(verify)==j
+    region=generator.v2_record_region(inserted);assert region is not None
+    changed=bytearray(inserted);changed[region[0]]^=1;spec.write_bytes(changed)
+    with pytest.raises(generator.V2Stop) as caught:generator.v2_10_4_verify_inserted(verify)
+    assert caught.value.findings[0]['code']=='RECORD_CONTENT_DRIFT'
+    assert caught.value.findings[0]['message']=='verbatim inserted region differs'
+
+
+def test_story104_real_git_publication_rejects_installed_receipt_snapshot_and_xml_drift(tmp_path,monkeypatch):
+    """Check installed bytes, independent declarations and typed XML failures through real source/publication routes."""
+    generator=load_generator();adoption=generator.v2_10_4_module()
+    repository,candidate=story104_current_source_repository(tmp_path,generator)
+    contract,receipts=story104_complete_receipts(generator,candidate,repository);paths=contract['finalRecord']['paths']
+    options={'--repository':str(repository),'--contract':generator.V2_10_4_CONTRACT,'--format':'bundle',
+        '--output-json':paths[0],'--output-markdown':paths[1]}
+    binding_path=repository/adoption.BINDING;original_binding=binding_path.read_bytes()
+    for metadata in (dict(path='artifacts/v9/10.4/other.json',sha256=adoption.SNAPSHOT_SHA256),
+            dict(path=adoption.SNAPSHOT,sha256='f'*64)):
+        binding=json.loads(original_binding);binding['entrySnapshot']=metadata;binding_path.write_bytes(json.dumps(binding).encode())
+        observed=adoption.verify(repository,adoption.BASELINE,candidate,authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+        assert observed['result']=='FAIL' and 'ROOT_OF_TRUST_NOT_PINNED' in observed['blockers']
+        assert dict(id='binding:entry-snapshot',subject=adoption.BINDING,state='FAIL') in observed['assertionLedger']
+    binding_path.write_bytes(original_binding)
+    for path,content in receipts.items():
+        target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
+    malformed_paths=('artifacts/v9/10.4/AC-10.4-01.trx','artifacts/v9/10.4/AC-10.4-06.xml')
+    for path in malformed_paths:
+        (repository/path).write_bytes(b'<broken')
+        with pytest.raises(generator.V2Stop) as caught:generator.v2_generate(options)
+        assert caught.value.findings[0]['code']=='RECORD_NOT_DERIVED'
+        assert 'malformed '+('TRX' if path.endswith('.trx') else 'JUnit')+' XML' in caught.value.findings[0]['message']
+        (repository/path).write_bytes(receipts[path])
+    j=generator.v2_10_4_generate(options);record=json.loads(j);m=(repository/paths[1]).read_bytes()
+    run_git(repository,'add','--force','--',*receipts,*paths)
+    run_git(repository,'commit','--quiet','-m','test: publish receipt drift fixture')
+    publication=run_git(repository,'rev-parse','HEAD').stdout.strip()
+    spec=repository/generator.V2_10_4_SPEC
+    spec.write_bytes(spec.read_bytes()+b'\n'+generator.RECORD_BEGIN_MARKER.encode()+b'\n'+m+generator.RECORD_END_MARKER.encode()+b'\n')
+    verify={'--repository':str(repository),'--contract':generator.V2_10_4_CONTRACT,generator.V2_VERIFY_OPTION:generator.V2_10_4_SPEC}
+    assert generator.v2_10_4_verify_inserted(verify)==j
+    for path in receipts:
+        (repository/path).write_bytes(receipts[path]+b'\n')
+        assert generator.v2_10_4_source_errors(repository,record,publication)==['installed receipt differs: '+path]
+        if path==malformed_paths[0]:
+            with pytest.raises(generator.V2Stop) as caught:generator.v2_10_4_verify_inserted(verify)
+            assert caught.value.findings[0]['code']=='RECORD_CONTENT_DRIFT'
+            assert 'installed receipt differs: '+path in caught.value.findings[0]['message']
+        (repository/path).write_bytes(receipts[path])
+    committed=generator.v2_committed_blob
+    for metadata in (dict(path='artifacts/v9/10.4/other.json',sha256=adoption.SNAPSHOT_SHA256),
+            dict(path=adoption.SNAPSHOT,sha256='f'*64)):
+        binding=json.loads(original_binding);binding['entrySnapshot']=metadata
+        copied=deepcopy(record);copied['evidenceAdoptionExecution']['entrySnapshot']=metadata
+        with monkeypatch.context() as patch:
+            patch.setattr(generator,'v2_committed_blob',lambda root,revision,path:
+                json.dumps(binding).encode() if (revision,path)==(candidate,adoption.BINDING) else committed(root,revision,path))
+            assert 'entry snapshot declaration differs from independent trust root' in generator.v2_10_4_source_errors(repository,copied,publication)
+    for path in malformed_paths:
+        for receipt,content in receipts.items():(repository/receipt).write_bytes(b'<broken' if receipt==path else content)
+        run_git(repository,'add','--force','--',*receipts)
+        run_git(repository,'commit','--quiet','-m','test: corrupt published XML fixture')
+        consumer=run_git(repository,'rev-parse','HEAD').stdout.strip()
+        # Keep installed bytes equal to the accepted hashes so this specifically exercises
+        # malformed committed XML, independently of the installed-byte guard above.
+        (repository/path).write_bytes(receipts[path])
+        import generate_story_record as scoped_generator
+        errors=[];source_errors=scoped_generator.v2_10_4_source_errors
+        def capture_source_errors(*args):
+            found=source_errors(*args);errors.extend(found);return found
+        with monkeypatch.context() as patch:
+            patch.setattr(scoped_generator,'v2_10_4_source_errors',capture_source_errors)
+            observed=adoption.verify(repository,adoption.BASELINE,consumer,authority_bundle=adoption.PROVENANCE[4],verify_workflows=True)
+        assert any('malformed '+('TRX' if path.endswith('.trx') else 'JUnit')+' XML' in error for error in errors)
+        assert observed['result']=='FAIL' and 'AUTHORITY_BINDING_INVALID' in observed['blockers']
+
+
+# ---------------------------------------------------------------------------
+# Story 11.1 closed route (Checkpoint A thin-module authoring guidance)
+# ---------------------------------------------------------------------------
+
+STORY_111_OVERLAY = (
+    "docs/domain-module-authoring-template.md",
+    "docs/release-evidence/thin-authoring-guidance-v2.schema.json",
+    "_bmad/schemas/story-final-record-v2.schema.json",
+    "_bmad/scripts/generate_story_record.py",
+    "_bmad/scripts/authoring_outputs.py",
+    "_bmad/scripts/generate_thin_authoring_guidance.py",
+    "_bmad/scripts/verify_thin_authoring_guidance.py",
+)
+
+
+def story111_trx(method: str) -> bytes:
+    return (
+        '<?xml version="1.0" encoding="utf-8"?>'
+        f'<TestRun xmlns="{TRX_NAMESPACE}"><Results>'
+        f'<UnitTestResult testName="Ns.DomainModuleAuthoringTemplateValidationTest.{method}" outcome="Passed"/>'
+        '</Results><ResultSummary outcome="Completed"><Counters total="1" executed="1" passed="1" failed="0"/>'
+        '</ResultSummary></TestRun>'
+    ).encode()
+
+
+@pytest.fixture(scope="module")
+def story111_fixture(tmp_path_factory):
+    generator = load_generator()
+    gen, verifier = generator.v2_11_1_module()
+    root = tmp_path_factory.mktemp("story111")
+    repository = root / "repository"
+    run_git(root, "clone", "--quiet", "--shared", "--no-checkout", str(WORKSPACE), str(repository))
+    run_git(repository, "checkout", "--detach", "HEAD")
+    for relative in STORY_111_OVERLAY:
+        target = repository / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((WORKSPACE / relative).read_bytes())
+    # This disposable fixture owns a fresh publication; accepted workspace bytes stay immutable.
+    run_git(repository, "rm", "--force", "--", "docs/release-evidence/thin-authoring-guidance-v2.json",
+            "docs/release-evidence/thin-authoring-guidance-v2.md")
+    approved = gen.main([
+        "--repository", str(repository), "--contract", generator.V2_11_1_CONTRACT,
+        "--schema", "docs/release-evidence/thin-authoring-guidance-v2.schema.json",
+        "--output-json", "docs/release-evidence/thin-authoring-guidance-v2.json",
+        "--output-markdown", "docs/release-evidence/thin-authoring-guidance-v2.md",
+        "--approve-reviewer", "Fixture Reviewer", "--decided-at-utc", "2026-10-18T10:00:00Z",
+    ])
+    assert approved == 0
+    run_git(repository, "add", "--force", "--", ".")
+    run_git(repository, "commit", "--quiet", "-m", "test: story 11.1 candidate fixture")
+    contract = generator.v2_parse_json((repository / generator.V2_11_1_CONTRACT).read_bytes())
+    receipts = {
+        "artifacts/v9/11.1/AC-11.1-03.trx": story111_trx("GuidanceShouldDefineOneNonShippingTestAppHost"),
+        "artifacts/v9/11.1/AC-11.1-04.trx": story111_trx("GuidanceShouldProhibitPlatformCapabilityOwnership"),
+        "artifacts/v9/11.1/AC-11.1-05.json": (json.dumps(
+            dict(schemaVersion=verifier.RESULT_SCHEMA, result="PASS", blockers=[]), indent=2) + "\n").encode(),
+        "artifacts/v9/11.1/AC-11.1-06.xml": (
+            "<testsuites><testsuite>"
+            + "".join(f'<testcase name="test_checkpoint_a_fault_matrix_x[{fault}]"/>' for fault in gen.FAULT_EXPECTATIONS)
+            + "</testsuite></testsuites>").encode(),
+    }
+    options = {
+        "--repository": str(repository), "--contract": generator.V2_11_1_CONTRACT, "--format": "bundle",
+        "--output-json": contract["finalRecord"]["paths"][0], "--output-markdown": contract["finalRecord"]["paths"][1],
+    }
+    return generator, gen, repository, options, receipts
+
+
+def test_story_111_route_derives_the_closed_pass_record(story111_fixture):
+    generator, gen, repository, options, receipts = story111_fixture
+    first = generator.v2_11_1_generate(options, read_receipt=receipts.get)
+    second = generator.v2_11_1_generate(options, read_receipt=receipts.get)
+    assert first == second
+    record = generator.v2_parse_json(first)
+    assert record["storyId"] == "11.1" and record["predecessors"] == ["10.4", "6.2", "7.4"]
+    assert record["summary"] == dict(required=7, passed=7, failed=0, blocked=0, skipped=0, notRun=0)
+    facts = record["thinGuidanceExecution"]
+    assert [row["id"] for row in facts["mutationLedger"]] == list(gen.FAULT_EXPECTATIONS)
+    assert facts["reviewDecision"]["reviewer"] == "Fixture Reviewer"
+    assert [row["storyId"] for row in facts["authoritySubstitution"]["predecessors"]] == ["6.2", "7.4", "10.4"]
+    _, validators = generator.v2_load_schemas()
+    assert generator.v2_schema_errors(validators["record"], record) == []
+    pair = (repository / options["--output-json"], repository / options["--output-markdown"])
+    assert generator.v2_verify_pair(pair[0].read_bytes(), pair[1].read_bytes()) == []
+    assert b"AC-11.1-01" in pair[1].read_bytes() and b"Thin-module authoring guidance" in pair[1].read_bytes()
+
+
+@pytest.mark.parametrize("missing", [
+    "artifacts/v9/11.1/AC-11.1-03.trx", "artifacts/v9/11.1/AC-11.1-05.json", "artifacts/v9/11.1/AC-11.1-06.xml"])
+def test_story_111_route_rejects_a_missing_receipt(story111_fixture, missing):
+    generator, _, repository, options, receipts = story111_fixture
+    remaining = {path: content for path, content in receipts.items() if path != missing}
+    with pytest.raises(ValueError):
+        generator.v2_11_1_generate(options, read_receipt=remaining.get)
+
+
+def test_story_111_route_rejects_incomplete_fault_matrix_and_failed_verifier(story111_fixture):
+    generator, gen, _, options, receipts = story111_fixture
+    path = "artifacts/v9/11.1/AC-11.1-06.xml"
+    shortened = dict(receipts)
+    shortened[path] = receipts[path].replace(b'<testcase name="test_checkpoint_a_fault_matrix_x[json-edited]"/>', b"")
+    with pytest.raises(ValueError):
+        generator.v2_11_1_generate(options, read_receipt=shortened.get)
+    failing = dict(receipts)
+    failing[path] = receipts[path].replace(b'[json-edited]"/>', b'[json-edited]"><failure/></testcase>')
+    with pytest.raises(ValueError):
+        generator.v2_11_1_generate(options, read_receipt=failing.get)
+    wrong = dict(receipts)
+    wrong["artifacts/v9/11.1/AC-11.1-05.json"] = b'{"result":"FAIL"}'
+    with pytest.raises(ValueError):
+        generator.v2_11_1_generate(options, read_receipt=wrong.get)
+
+
+def test_story_111_route_rejects_a_bundle_without_an_approved_review(story111_fixture, tmp_path):
+    generator, gen, repository, options, receipts = story111_fixture
+    clone = tmp_path / "unapproved"
+    run_git(tmp_path, "clone", "--quiet", "--shared", str(repository), str(clone))
+    assert gen.main([
+        "--repository", str(clone), "--contract", generator.V2_11_1_CONTRACT,
+        "--schema", "docs/release-evidence/thin-authoring-guidance-v2.schema.json",
+        "--output-json", "docs/release-evidence/thin-authoring-guidance-v2.json",
+        "--output-markdown", "docs/release-evidence/thin-authoring-guidance-v2.md"]) == 0
+    json_path = clone / "docs/release-evidence/thin-authoring-guidance-v2.json"
+    # Same source, review removed: regeneration preserves a bound review, so strip it explicitly.
+    bundle = json.loads(json_path.read_text(encoding="utf-8"))
+    json_text, markdown = gen.finalize(gen.signable_of(bundle), None)
+    json_path.write_text(json_text, encoding="utf-8", newline="\n")
+    (clone / "docs/release-evidence/thin-authoring-guidance-v2.md").write_text(markdown, encoding="utf-8", newline="\n")
+    run_git(clone, "add", "--", "docs/release-evidence")
+    run_git(clone, "commit", "--quiet", "-m", "test: remove the review decision")
+    with pytest.raises(ValueError, match="REVIEW_DECISION_MISSING"):
+        generator.v2_11_1_generate({**options, "--repository": str(clone)}, read_receipt=receipts.get)
+
+
+def test_story_111_pair_errors_reject_open_summary_and_unbound_review(story111_fixture):
+    generator, _, _, options, receipts = story111_fixture
+    record = generator.v2_parse_json(generator.v2_11_1_generate(options, read_receipt=receipts.get))
+    assert generator.v2_11_1_pair_errors(record) == []
+    for mutate in (
+        lambda r: r["summary"].update(passed=6, notRun=1),
+        lambda r: r["thinGuidanceExecution"]["reviewDecision"].update(boundSignablePayloadSha256="1" * 64),
+        lambda r: r["thinGuidanceExecution"]["mutationLedger"].pop(),
+        lambda r: r["thinGuidanceExecution"]["mutationLedger"][0].update(restored=False),
+        lambda r: r["thinGuidanceExecution"]["authoritySubstitution"]["predecessors"].reverse(),
+    ):
+        mutated = deepcopy(record)
+        mutate(mutated)
+        assert generator.v2_11_1_pair_errors(mutated)
+    _, validators = generator.v2_load_schemas()
+    without = deepcopy(record)
+    without.pop("thinGuidanceExecution")
+    assert generator.v2_schema_errors(validators["record"], without)
+    other = deepcopy(record)
+    other["storyId"] = "10.2"
+    assert generator.v2_schema_errors(validators["record"], other)
+
+
+def story111_write_receipts(repository, receipts):
+    for relative, content in receipts.items():
+        target = repository / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+
+
+def story111_cleanup(repository, options, receipts):
+    for relative in (*receipts, options["--output-json"], options["--output-markdown"]):
+        target = repository / relative
+        if target.is_symlink() or target.exists():
+            target.unlink()
+
+
+def test_story_111_disk_receipts_must_be_fresh_regular_files(story111_fixture):
+    generator, _, repository, options, receipts = story111_fixture
+    try:
+        story111_write_receipts(repository, receipts)
+        assert generator.v2_parse_json(generator.v2_11_1_generate(options))["storyId"] == "11.1"
+        stale = repository / "artifacts/v9/11.1/AC-11.1-05.json"
+        os.utime(stale, (1, 1))
+        with pytest.raises(ValueError, match="older than the candidate"):
+            generator.v2_11_1_generate(options)
+        # The public entry point maps the same failure to the stable blocker.
+        with pytest.raises(generator.V2Stop) as stop:
+            generator.v2_generate(options)
+        assert [item["code"] for item in stop.value.findings] == ["RECORD_NOT_DERIVED"]
+        stale.unlink()
+        stale.symlink_to(repository / "artifacts/v9/11.1/AC-11.1-03.trx")
+        with pytest.raises(ValueError, match="receipt missing"):
+            generator.v2_11_1_generate(options)
+    finally:
+        story111_cleanup(repository, options, receipts)
+
+
+def test_story_111_v2_generate_dispatches_and_derives(story111_fixture):
+    generator, _, repository, options, receipts = story111_fixture
+    try:
+        story111_write_receipts(repository, receipts)
+        derived = generator.v2_generate(options)
+        assert generator.v2_parse_json(derived)["storyId"] == "11.1"
+        assert (repository / options["--output-json"]).read_bytes() == derived
+    finally:
+        story111_cleanup(repository, options, receipts)
+
+
+@pytest.mark.parametrize("variant", ["wrong-method", "failed", "skipped", "two-results", "zero-results", "broken-xml"])
+def test_story_111_trx_receipt_must_be_one_passing_target_test(story111_fixture, variant):
+    generator, _, _, options, receipts = story111_fixture
+    path = "artifacts/v9/11.1/AC-11.1-03.trx"
+    good = receipts[path].decode()
+    result = good[good.index("<UnitTestResult"):good.index("</Results>")]
+    bad = {
+        "wrong-method": good.replace("GuidanceShouldDefineOneNonShippingTestAppHost", "SomeOtherTest"),
+        "failed": good.replace('outcome="Passed"', 'outcome="Failed"').replace('passed="1" failed="0"', 'passed="0" failed="1"'),
+        "skipped": good.replace('outcome="Passed"', 'outcome="NotExecuted"').replace('passed="1" failed="0"', 'passed="0" failed="0" notExecuted="1"'),
+        "two-results": good.replace(result, result + result).replace('total="1" executed="1" passed="1"', 'total="2" executed="2" passed="2"'),
+        "zero-results": good.replace(result, "").replace('total="1" executed="1" passed="1"', 'total="0" executed="0" passed="0"'),
+        "broken-xml": "<TestRun",
+    }[variant]
+    assert bad != good
+    mutated = {**receipts, path: bad.encode()}
+    with pytest.raises(ValueError):
+        generator.v2_11_1_generate(options, read_receipt=mutated.get)
+
+
+def test_story_111_junit_receipt_must_parse(story111_fixture):
+    generator, _, _, options, receipts = story111_fixture
+    mutated = {**receipts, "artifacts/v9/11.1/AC-11.1-06.xml": b"<testsuites"}
+    with pytest.raises(ValueError, match="not parseable"):
+        generator.v2_11_1_generate(options, read_receipt=mutated.get)
+
+
+@pytest.mark.parametrize("path", [
+    "docs/release-evidence/story-10.4-final-record-v2.md",
+    "docs/release-evidence/story-7.4-final-record-v2.md",
+    "docs/release-evidence/story-10.4-final-record-v2.json",
+    "docs/release-evidence/consume-promote-keep-story-6-2-disposition-v1.json",
+])
+def test_story_111_predecessor_alteration_is_rejected(story111_fixture, tmp_path, path):
+    generator, _, repository, options, receipts = story111_fixture
+    clone = tmp_path / "altered"
+    run_git(tmp_path, "clone", "--quiet", "--shared", str(repository), str(clone))
+    with (clone / path).open("ab") as handle:
+        handle.write(b"\n")
+    run_git(clone, "add", "--", path)
+    run_git(clone, "commit", "--quiet", "-m", "test: alter a committed predecessor")
+    with pytest.raises(ValueError):
+        generator.v2_11_1_generate({**options, "--repository": str(clone)}, read_receipt=receipts.get)
+
+
+def test_story_111_bundle_recorded_predecessor_digest_must_match(story111_fixture, tmp_path):
+    generator, gen, repository, options, receipts = story111_fixture
+    clone = tmp_path / "digest"
+    run_git(tmp_path, "clone", "--quiet", "--shared", str(repository), str(clone))
+    json_path = clone / "docs/release-evidence/thin-authoring-guidance-v2.json"
+    bundle = json.loads(json_path.read_text(encoding="utf-8"))
+    bundle["validation"]["authoritySubstitution"]["predecessors"][1]["sha256"] = "2" * 64
+    json_path.write_text(gen.serialize_json(bundle), encoding="utf-8", newline="\n")
+    run_git(clone, "add", "--", "docs/release-evidence")
+    run_git(clone, "commit", "--quiet", "-m", "test: forge a recorded predecessor digest")
+    with pytest.raises(ValueError):
+        generator.v2_11_1_generate({**options, "--repository": str(clone)}, read_receipt=receipts.get)
+
+
+def story111_published(story111_fixture, tmp_path):
+    """Clone the candidate fixture, publish the pair and receipts as one commit, return the clone."""
+    generator, _, repository, options, receipts = story111_fixture
+    clone = tmp_path / "published"
+    run_git(tmp_path, "clone", "--quiet", "--shared", str(repository), str(clone))
+    published = (*receipts, options["--output-json"], options["--output-markdown"])
+    # A previously published pair would hide the publication diff: start from a withdrawn tree.
+    run_git(clone, "rm", "--quiet", "--ignore-unmatch", "--", *published)
+    if run_git(clone, "diff", "--cached", "--name-only").stdout.strip():
+        run_git(clone, "commit", "--quiet", "-m", "test: withdraw the published story 11.1 record")
+    story111_write_receipts(clone, receipts)
+    local = {**options, "--repository": str(clone)}
+    derived = generator.v2_11_1_generate(local)
+    run_git(clone, "add", "--force", "--", options["--output-json"], options["--output-markdown"], *receipts)
+    run_git(clone, "commit", "--quiet", "-m", "test: story 11.1 record-only publication")
+    markdown = (clone / options["--output-markdown"]).read_bytes()
+    return generator, clone, {**local, generator.V2_VERIFY_OPTION: generator.V2_11_1_SPEC}, derived, markdown
+
+
+def story111_insert_region(generator, clone, markdown):
+    spec = clone / generator.V2_11_1_SPEC
+    content = spec.read_bytes()
+    region = generator.v2_record_region(content)
+    if region is None:
+        content += b"\n" + generator.RECORD_BEGIN_MARKER.encode("ascii") + b"\n" + markdown + generator.RECORD_END_MARKER.encode("ascii") + b"\n"
+    else:
+        content = content[:region[0]] + markdown + content[region[1]:]
+    spec.write_bytes(content)
+    return spec
+
+
+def test_story_111_verify_inserted_accepts_one_publication_with_a_verbatim_region(story111_fixture, tmp_path):
+    generator, clone, options, derived, markdown = story111_published(story111_fixture, tmp_path)
+    story111_insert_region(generator, clone, markdown)
+    try:
+        result = generator.v2_11_1_verify_inserted(options)
+    except generator.V2Stop as stop:
+        pytest.fail(str(stop.findings))
+    assert result == derived
+
+
+@pytest.mark.parametrize("variant", ["later-source-commit", "second-publication", "region-drift"])
+def test_story_111_verify_inserted_rejects_boundary_and_region_violations(story111_fixture, tmp_path, variant):
+    generator, clone, options, _, markdown = story111_published(story111_fixture, tmp_path)
+    if variant == "later-source-commit":
+        (clone / "stray.txt").write_text("source change after publication\n", encoding="utf-8")
+        run_git(clone, "add", "--", "stray.txt")
+        run_git(clone, "commit", "--quiet", "-m", "test: source change after publication")
+    elif variant == "second-publication":
+        receipt = clone / "artifacts/v9/11.1/AC-11.1-05.json"
+        receipt.write_bytes(receipt.read_bytes() + b"\n")
+        run_git(clone, "add", "--force", "--", "artifacts/v9/11.1/AC-11.1-05.json")
+        run_git(clone, "commit", "--quiet", "-m", "test: second publication")
+    spec = story111_insert_region(generator, clone, markdown + b"drift\n" if variant == "region-drift" else markdown)
+    if variant == "region-drift":
+        # The inserted region no longer equals the committed Markdown byte for byte.
+        assert spec.read_bytes().count(b"drift\n") == 1
+    with pytest.raises(generator.V2Stop) as stop:
+        generator.v2_11_1_verify_inserted(options)
+    assert [item["code"] for item in stop.value.findings] == ["RECORD_CONTENT_DRIFT"]
+    expected = {"later-source-commit": "publication boundary", "second-publication": "publication boundary",
+                "region-drift": "verbatim inserted region differs"}[variant]
+    assert expected in stop.value.findings[0]["message"]
+
+
+# ---------------------------------------------------------------------------
+# Story 11.2 closed route (Checkpoint B minimal-module fixture)
+# ---------------------------------------------------------------------------
+
+STORY_112_FIXTURE_ROOT = "tests/fixtures/Hexalith.Conversations.MinimalModule"
+STORY_112_OVERLAY = (
+    "_bmad/scripts/authoring_outputs.py",
+    "docs/release-evidence/thin-module-fixture-proof-v1.schema.json",
+    "_bmad/schemas/story-final-record-v2.schema.json",
+    "_bmad/scripts/generate_story_record.py",
+    "_bmad/scripts/verify_minimal_module_fixture.py",
+    "_bmad/scripts/generate_minimal_module_fixture_proof.py",
+    "_bmad-output/implementation-artifacts/spec-11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis.md",
+)
+STORY_112_TESTS = (
+    "Registration_ExposesTheModuleHandlersThroughThePlatformHost",
+    "CommandHandling_ProducesTheCreatedEventAndIsIdempotentAfterReplay",
+    "SubscriptionAndPublication_AreServedByPlatformOwnedEndpointsOnly",
+    "PublishedEvent_IsConsumedThroughThePlatformProcessor",
+    "Projection_IsDispatchedByThePlatformDispatcher",
+    "Query_IsDispatchedByThePlatformDispatcher",
+)
+
+
+def story112_trx(names=STORY_112_TESTS, method_class="Hexalith.Conversations.MinimalModule.Tests.MinimalModuleFixtureTests") -> bytes:
+    rows = "".join(f'<UnitTestResult testName="{method_class}.{name}" outcome="Passed"/>' for name in names)
+    return (
+        '<?xml version="1.0" encoding="utf-8"?>'
+        f'<TestRun xmlns="{TRX_NAMESPACE}"><Results>{rows}</Results>'
+        f'<ResultSummary outcome="Completed"><Counters total="{len(names)}" executed="{len(names)}" '
+        f'passed="{len(names)}" failed="0"/></ResultSummary></TestRun>'
+    ).encode()
+
+
+def story112_apphost_trx() -> bytes:
+    return story112_trx(
+        ("MinimalFixtureShouldContainOneNonShippingAppHostAndNoReusableAspireLibrary",),
+        "Ns.DomainModuleAuthoringTemplateValidationTest")
+
+
+@pytest.fixture(scope="module")
+def story112_fixture(tmp_path_factory):
+    generator = load_generator()
+    verifier, proof = generator.v2_11_2_module()
+    root = tmp_path_factory.mktemp("story112")
+    repository = root / "repository"
+    run_git(root, "clone", "--quiet", "--shared", "--no-checkout", str(WORKSPACE), str(repository))
+    run_git(repository, "checkout", "--detach", "HEAD")
+    fixture_paths = [f"{STORY_112_FIXTURE_ROOT}/{item}" for item in verifier.fixture_files(WORKSPACE / STORY_112_FIXTURE_ROOT)]
+    for relative in (*STORY_112_OVERLAY, *fixture_paths):
+        target = repository / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((WORKSPACE / relative).read_bytes())
+    from test_minimal_module_fixture import (  # noqa: PLC0415
+        write_measured_command_inputs, write_platform_assemblies, write_platform_stubs)
+
+    write_platform_stubs(repository)
+    # Withdraw only the copied proof before measuring this disposable source candidate.
+    run_git(repository, "rm", "--force", "--", verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH)
+    run_git(repository, "add", "--force", "--", ".")
+    run_git(repository, "commit", "--quiet", "--allow-empty", "-m", "test: story 11.2 candidate fixture")
+    # Generated, untracked inputs: build outputs and the measured result.
+    write_platform_assemblies(repository)
+    for relative in verifier.EXPECTED_PROJECTS:
+        directory = repository / STORY_112_FIXTURE_ROOT / Path(relative).parent / proof.OUTPUT_DIRECTORY
+        directory.mkdir(parents=True, exist_ok=True)
+        (directory / f"{Path(relative).stem}.dll").write_bytes(f"fixture assembly {relative}".encode())
+    trx = story112_trx()
+    (repository / verifier.TEST_RESULT_PATH).parent.mkdir(parents=True, exist_ok=True)
+    (repository / verifier.TEST_RESULT_PATH).write_bytes(trx)
+    command_receipts = write_measured_command_inputs(repository)
+    assert proof.main([
+        "--repository", str(repository), "--contract", verifier.CONTRACT_PATH, "--fixture", verifier.FIXTURE_ROOT,
+        "--test-result", verifier.TEST_RESULT_PATH, "--output-json", verifier.PROOF_JSON_PATH,
+        "--output-markdown", verifier.PROOF_MARKDOWN_PATH]) == 0
+    contract = generator.v2_parse_json((repository / generator.V2_11_2_CONTRACT).read_bytes())
+    receipts = {
+        **command_receipts,
+        "artifacts/v9/11.2/AC-11.2-01.json": (json.dumps(
+            dict(schemaVersion=verifier.RESULT_SCHEMA, result="PASS", blockers=[],
+                 inventorySha256=verifier.INVENTORY_SHA256, fixtureFileCount=13), indent=2) + "\n").encode(),
+        verifier.TEST_RESULT_PATH: trx,
+        "artifacts/v9/11.2/AC-11.2-05.trx": story112_apphost_trx(),
+        "artifacts/v9/11.2/AC-11.2-07.xml": (
+            "<testsuites><testsuite>"
+            + "".join(f'<testcase name="test_checkpoint_b_fault_matrix[{fault}]"/>' for fault in verifier.FAULT_EXPECTATIONS)
+            + "</testsuite></testsuites>").encode(),
+    }
+    options = {
+        "--repository": str(repository), "--contract": generator.V2_11_2_CONTRACT, "--format": "bundle",
+        "--output-json": contract["finalRecord"]["paths"][0], "--output-markdown": contract["finalRecord"]["paths"][1],
+    }
+    return generator, verifier, repository, options, receipts
+
+
+def test_story_112_route_derives_the_closed_pass_record(story112_fixture):
+    generator, verifier, repository, options, receipts = story112_fixture
+    first = generator.v2_11_2_generate(options, read_receipt=receipts.get)
+    second = generator.v2_11_2_generate(options, read_receipt=receipts.get)
+    assert first == second
+    record = generator.v2_parse_json(first)
+    assert record["storyId"] == "11.2" and record["predecessors"] == ["11.1"]
+    assert record["summary"] == dict(required=8, passed=8, failed=0, blocked=0, skipped=0, notRun=0)
+    assert [row["scenarioId"] for row in record["scenarios"]] == list(generator.V2_11_2_SCENARIOS)
+    facts = record["fixtureProofExecution"]
+    assert [row["id"] for row in facts["mutationLedger"]] == list(verifier.FAULT_EXPECTATIONS)
+    assert facts["fixture"]["inventorySha256"] == verifier.INVENTORY_SHA256 and facts["fixture"]["fileCount"] == 13
+    assert facts["predecessor"]["storyId"] == "11.1"
+    _, validators = generator.v2_load_schemas()
+    assert generator.v2_schema_errors(validators["record"], record) == []
+    pair = (repository / options["--output-json"], repository / options["--output-markdown"])
+    assert generator.v2_verify_pair(pair[0].read_bytes(), pair[1].read_bytes()) == []
+    assert b"AC-11.2-01" in pair[1].read_bytes() and b"Minimal-module fixture proof" in pair[1].read_bytes()
+
+
+@pytest.mark.parametrize("missing", [
+    "artifacts/v9/11.2/AC-11.2-01.json", "artifacts/v9/11.2/minimal-module.trx",
+    "artifacts/v9/11.2/AC-11.2-02.log", "artifacts/v9/11.2/AC-11.2-03.log",
+    "artifacts/v9/11.2/AC-11.2-05.trx", "artifacts/v9/11.2/AC-11.2-07.xml"])
+def test_story_112_route_rejects_a_missing_receipt(story112_fixture, missing):
+    generator, _, _, options, receipts = story112_fixture
+    remaining = {path: content for path, content in receipts.items() if path != missing}
+    with pytest.raises(ValueError):
+        generator.v2_11_2_generate(options, read_receipt=remaining.get)
+
+
+def test_story_112_route_rejects_an_open_fault_matrix_and_a_failed_inventory_receipt(story112_fixture):
+    generator, _, _, options, receipts = story112_fixture
+    path = "artifacts/v9/11.2/AC-11.2-07.xml"
+    shortened = dict(receipts)
+    shortened[path] = receipts[path].replace(b'<testcase name="test_checkpoint_b_fault_matrix[proof-json-edited]"/>', b"")
+    with pytest.raises(ValueError):
+        generator.v2_11_2_generate(options, read_receipt=shortened.get)
+    failing = dict(receipts)
+    failing[path] = receipts[path].replace(b'[proof-json-edited]"/>', b'[proof-json-edited]"><failure/></testcase>')
+    with pytest.raises(ValueError):
+        generator.v2_11_2_generate(options, read_receipt=failing.get)
+    wrong = dict(receipts)
+    wrong["artifacts/v9/11.2/AC-11.2-01.json"] = b'{"result":"FAIL"}'
+    with pytest.raises(ValueError):
+        generator.v2_11_2_generate(options, read_receipt=wrong.get)
+
+
+@pytest.mark.parametrize("variant", ["zero-tests", "skipped", "failed", "missing-capability", "broken-xml"])
+def test_story_112_test_receipt_must_be_non_vacuous(story112_fixture, variant):
+    generator, _, _, options, receipts = story112_fixture
+    path = "artifacts/v9/11.2/minimal-module.trx"
+    good = receipts[path].decode()
+    bad = {
+        "zero-tests": story112_trx(()).decode(),
+        "skipped": good.replace('outcome="Passed"', 'outcome="NotExecuted"', 1),
+        "failed": good.replace('outcome="Passed"', 'outcome="Failed"', 1),
+        "missing-capability": story112_trx(STORY_112_TESTS[:-1]).decode(),
+        "broken-xml": "<TestRun",
+    }[variant]
+    assert bad != good
+    with pytest.raises(ValueError):
+        generator.v2_11_2_generate(options, read_receipt={**receipts, path: bad.encode()}.get)
+
+
+@pytest.mark.parametrize("variant", ["wrong-method", "failed", "two-results", "broken-xml"])
+def test_story_112_apphost_receipt_must_be_one_passing_target_test(story112_fixture, variant):
+    generator, _, _, options, receipts = story112_fixture
+    path = "artifacts/v9/11.2/AC-11.2-05.trx"
+    good = receipts[path].decode()
+    result = good[good.index("<UnitTestResult"):good.index("</Results>")]
+    bad = {
+        "wrong-method": good.replace("MinimalFixtureShouldContainOneNonShippingAppHostAndNoReusableAspireLibrary", "SomeOtherTest"),
+        "failed": good.replace('outcome="Passed"', 'outcome="Failed"').replace('passed="1" failed="0"', 'passed="0" failed="1"'),
+        "two-results": good.replace(result, result + result).replace('total="1" executed="1" passed="1"', 'total="2" executed="2" passed="2"'),
+        "broken-xml": "<TestRun",
+    }[variant]
+    assert bad != good
+    with pytest.raises(ValueError):
+        generator.v2_11_2_generate(options, read_receipt={**receipts, path: bad.encode()}.get)
+
+
+def test_story_112_proof_drift_in_the_worktree_is_rejected(story112_fixture):
+    generator, verifier, repository, options, receipts = story112_fixture
+    target = repository / verifier.PROOF_MARKDOWN_PATH
+    original = target.read_bytes()
+    try:
+        target.write_bytes(original.replace(b"# Thin-Module", b"# Edited Thin-Module"))
+        with pytest.raises(ValueError, match="fixture proof does not verify"):
+            generator.v2_11_2_generate(options, read_receipt=receipts.get)
+    finally:
+        target.write_bytes(original)
+    stale = {**receipts, verifier.TEST_RESULT_PATH: receipts[verifier.TEST_RESULT_PATH] + b"<!-- changed -->\n"}
+    (repository / verifier.TEST_RESULT_PATH).write_bytes(stale[verifier.TEST_RESULT_PATH])
+    try:
+        with pytest.raises(ValueError):
+            generator.v2_11_2_generate(options, read_receipt=stale.get)
+    finally:
+        (repository / verifier.TEST_RESULT_PATH).write_bytes(receipts[verifier.TEST_RESULT_PATH])
+
+
+@pytest.mark.parametrize("variant", ["different-head", "dirty-source"])
+def test_story_112_route_rejects_platform_checkout_drift(story112_fixture, tmp_path, variant):
+    generator, verifier, repository, options, receipts = story112_fixture
+    from test_minimal_module_fixture import write_platform_stubs  # noqa: PLC0415
+
+    clone = tmp_path / "platform-drift"
+    run_git(tmp_path, "clone", "--quiet", "--shared", str(repository), str(clone))
+    write_platform_stubs(clone)
+    story112_write_receipts(clone, receipts)
+    for relative in (verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH):
+        (clone / relative).write_bytes((repository / relative).read_bytes())
+    platform = clone / "references/Hexalith.EventStore"
+    if variant == "different-head":
+        run_git(platform, "commit", "--quiet", "--allow-empty", "-m", "test: advance the platform checkout")
+    else:
+        (platform / "src/PlatformFixture.cs").write_text("// Changed platform source.\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="fixture does not verify: FIXTURE_PROOF_DRIFT"):
+        generator.v2_11_2_generate({**options, "--repository": str(clone)}, read_receipt=receipts.get)
+
+
+@pytest.mark.parametrize("relative", ["README.md", "src/Hexalith.Conversations.MinimalModule.Server/packages.lock.json"])
+def test_story_112_committed_fixture_change_after_proof_is_rejected(story112_fixture, tmp_path, relative):
+    generator, verifier, repository, options, receipts = story112_fixture
+    _, proof = generator.v2_11_2_module()
+    from test_minimal_module_fixture import write_platform_stubs  # noqa: PLC0415
+
+    clone = tmp_path / "changed-fixture"
+    run_git(tmp_path, "clone", "--quiet", "--shared", str(repository), str(clone))
+    write_platform_stubs(clone)
+    story112_write_receipts(clone, receipts)
+    target = clone / verifier.FIXTURE_ROOT / relative
+    target.write_bytes(target.read_bytes() + b"\n")
+    run_git(clone, "add", "--", str(target.relative_to(clone)))
+    run_git(clone, "commit", "--quiet", "-m", "test: change the fixture after proof generation")
+    bundle = json.loads((repository / verifier.PROOF_JSON_PATH).read_bytes())
+    # Re-sign with the new candidate so the content check, rather than candidate identity, rejects it.
+    bundle["candidate"]["commit"] = run_git(clone, "rev-parse", "HEAD").stdout.strip()
+    json_text, markdown = proof.finalize(proof.signable_of(bundle))
+    (clone / verifier.PROOF_JSON_PATH).write_text(json_text, encoding="utf-8", newline="\n")
+    (clone / verifier.PROOF_MARKDOWN_PATH).write_text(markdown, encoding="utf-8", newline="\n")
+    with pytest.raises(ValueError, match="current fixture"):
+        generator.v2_11_2_generate({**options, "--repository": str(clone)}, read_receipt=receipts.get)
+
+
+@pytest.mark.parametrize("scenario", ["AC-11.2-02", "AC-11.2-03"])
+@pytest.mark.parametrize("variant", ["failed", "wrong-command", "disabled-policy"])
+def test_story_112_restore_and_build_require_successful_measured_receipts(story112_fixture, scenario, variant):
+    generator, verifier, _, options, receipts = story112_fixture
+    path = verifier.COMMAND_RECEIPTS[scenario]
+    receipt = json.loads(receipts[path])
+    if variant == "failed":
+        receipt["exitCode"] = 1
+    elif variant == "wrong-command":
+        receipt["command"] += " --force"
+    else:
+        receipt["lockedMode" if scenario == "AC-11.2-02" else "warningsAsErrors"] = False
+    changed = {**receipts, path: json.dumps(receipt).encode()}
+    with pytest.raises(ValueError, match="measured receipt is invalid"):
+        generator.v2_11_2_generate(options, read_receipt=changed.get)
+
+
+@pytest.mark.parametrize("scenario", ["AC-11.2-02", "AC-11.2-03"])
+def test_story_112_route_rejects_a_valid_receipt_the_proof_does_not_bind(story112_fixture, scenario):
+    generator, verifier, _, options, receipts = story112_fixture
+    path = verifier.COMMAND_RECEIPTS[scenario]
+    receipt = json.loads(receipts[path])
+    receipt["consoleLog"] = "Measured again after the proof\n"
+    changed = {**receipts, path: (json.dumps(receipt, indent=2) + "\n").encode()}
+    section = "restore" if scenario == "AC-11.2-02" else "build"
+    with pytest.raises(ValueError, match=f"the proof does not bind the measured {section} result"):
+        generator.v2_11_2_generate(options, read_receipt=changed.get)
+
+
+def test_story_112_pair_errors_reject_open_summary_unbound_proof_and_open_ledger(story112_fixture):
+    generator, _, _, options, receipts = story112_fixture
+    record = generator.v2_parse_json(generator.v2_11_2_generate(options, read_receipt=receipts.get))
+    assert generator.v2_11_2_pair_errors(record) == []
+    for mutate in (
+        lambda r: r["summary"].update(passed=7, notRun=1),
+        lambda r: r["fixtureProofExecution"]["mutationLedger"].pop(),
+        lambda r: r["fixtureProofExecution"]["mutationLedger"][0].update(restored=False),
+        lambda r: r["fixtureProofExecution"]["receipts"].pop(),
+        lambda r: r["fixtureProofExecution"]["proof"].update(jsonSha256="1" * 64),
+        lambda r: r["fixtureProofExecution"].update(sourceRevisionId="2" * 40),
+        lambda r: r["fixtureProofExecution"]["fixture"].update(inventorySha256="3" * 64),
+        lambda r: r["fixtureProofExecution"]["receipts"][0].update(sha256="4" * 64),
+        lambda r: r.update(predecessors=[]),
+    ):
+        mutated = deepcopy(record)
+        mutate(mutated)
+        assert generator.v2_11_2_pair_errors(mutated)
+    _, validators = generator.v2_load_schemas()
+    without = deepcopy(record)
+    without.pop("fixtureProofExecution")
+    assert generator.v2_schema_errors(validators["record"], without)
+    other = deepcopy(record)
+    other["storyId"] = "11.1"
+    other.pop("fixtureProofExecution")
+    exclusion = deepcopy(other)
+    exclusion["fixtureProofExecution"] = record["fixtureProofExecution"]
+    # Isolate the else-clause's forbidden fixture facts from the independent 11.1 requirements.
+    from jsonschema import Draft202012Validator  # noqa: PLC0415
+
+    schema = validators["record"].schema
+    clause = next(row for row in schema["allOf"]
+                  if row.get("if", {}).get("properties", {}).get("storyId", {}).get("const") == "11.2")
+    assert list(Draft202012Validator(clause).iter_errors(other)) == []
+    errors = list(Draft202012Validator(clause).iter_errors(exclusion))
+    assert len(errors) == 1 and errors[0].validator == "not"
+
+
+def story112_write_receipts(repository, receipts):
+    for relative, content in receipts.items():
+        target = repository / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+
+
+def story112_cleanup(repository, options, receipts, keep=()):
+    for relative in (*(path for path in receipts if path not in keep), options["--output-json"], options["--output-markdown"]):
+        target = repository / relative
+        if target.is_symlink() or target.exists():
+            target.unlink()
+
+
+def test_story_112_disk_receipts_must_be_fresh_regular_files(story112_fixture):
+    generator, verifier, repository, options, receipts = story112_fixture
+    try:
+        story112_write_receipts(repository, receipts)
+        assert generator.v2_parse_json(generator.v2_11_2_generate(options))["storyId"] == "11.2"
+        stale = repository / "artifacts/v9/11.2/AC-11.2-01.json"
+        os.utime(stale, (1, 1))
+        with pytest.raises(ValueError, match="older than the candidate"):
+            generator.v2_11_2_generate(options)
+        with pytest.raises(generator.V2Stop) as stop:
+            generator.v2_generate(options)
+        assert [item["code"] for item in stop.value.findings] == ["RECORD_NOT_DERIVED"]
+        stale.unlink()
+        stale.symlink_to(repository / "artifacts/v9/11.2/AC-11.2-05.trx")
+        with pytest.raises(ValueError, match="receipt missing"):
+            generator.v2_11_2_generate(options)
+    finally:
+        story112_cleanup(repository, options, receipts, keep=(verifier.TEST_RESULT_PATH, *verifier.COMMAND_RECEIPTS.values()))
+        (repository / verifier.TEST_RESULT_PATH).write_bytes(receipts[verifier.TEST_RESULT_PATH])
+
+
+def test_story_112_v2_generate_dispatches_and_derives(story112_fixture):
+    generator, verifier, repository, options, receipts = story112_fixture
+    try:
+        story112_write_receipts(repository, receipts)
+        derived = generator.v2_generate(options)
+        assert generator.v2_parse_json(derived)["storyId"] == "11.2"
+        assert (repository / options["--output-json"]).read_bytes() == derived
+    finally:
+        story112_cleanup(repository, options, receipts, keep=(verifier.TEST_RESULT_PATH, *verifier.COMMAND_RECEIPTS.values()))
+
+
+@pytest.mark.parametrize("path", [
+    "docs/release-evidence/story-11.1-final-record-v2.json",
+    "docs/release-evidence/story-11.1-final-record-v2.md",
+    "docs/release-evidence/thin-authoring-guidance-v2.json",
+])
+def test_story_112_predecessor_alteration_is_rejected(story112_fixture, tmp_path, path):
+    generator, verifier, repository, options, receipts = story112_fixture
+    clone = tmp_path / "altered"
+    run_git(tmp_path, "clone", "--quiet", "--shared", str(repository), str(clone))
+    for relative in (verifier.TEST_RESULT_PATH, verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH):
+        (clone / relative).parent.mkdir(parents=True, exist_ok=True)
+        (clone / relative).write_bytes((repository / relative).read_bytes())
+    with (clone / path).open("ab") as handle:
+        handle.write(b"\n")
+    run_git(clone, "add", "--", path)
+    run_git(clone, "commit", "--quiet", "-m", "test: alter a committed predecessor")
+    with pytest.raises((ValueError, verifier.Blocked)):
+        generator.v2_11_2_generate({**options, "--repository": str(clone)}, read_receipt=receipts.get)
+
+
+def story112_published(story112_fixture, tmp_path):
+    """Clone the candidate, publish proof pair, receipts and record pair as one commit, return the clone."""
+    generator, verifier, repository, options, receipts = story112_fixture
+    clone = tmp_path / "published"
+    run_git(tmp_path, "clone", "--quiet", "--shared", str(repository), str(clone))
+    published = (*receipts, options["--output-json"], options["--output-markdown"], verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH)
+    # A previously published set would hide the publication diff: start from a withdrawn tree.
+    run_git(clone, "rm", "--quiet", "--ignore-unmatch", "--", *published)
+    if run_git(clone, "diff", "--cached", "--name-only").stdout.strip():
+        run_git(clone, "commit", "--quiet", "-m", "test: withdraw the published story 11.2 record")
+    story112_write_receipts(clone, receipts)
+    from test_minimal_module_fixture import write_measured_command_inputs, write_platform_stubs  # noqa: PLC0415
+
+    write_platform_stubs(clone)
+    write_measured_command_inputs(clone)  # the measured restore state the proof's package sources come from
+    for relative in (verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH):
+        (clone / relative).write_bytes((repository / relative).read_bytes())
+    _, proof = generator.v2_11_2_module()
+    bundle = json.loads((clone / verifier.PROOF_JSON_PATH).read_bytes())
+    bundle["candidate"]["commit"] = run_git(clone, "rev-parse", "HEAD").stdout.strip()
+    json_text, proof_markdown = proof.finalize(proof.signable_of(bundle))
+    (clone / verifier.PROOF_JSON_PATH).write_text(json_text, encoding="utf-8", newline="\n")
+    (clone / verifier.PROOF_MARKDOWN_PATH).write_text(proof_markdown, encoding="utf-8", newline="\n")
+    local = {**options, "--repository": str(clone)}
+    derived = generator.v2_11_2_generate(local)
+    run_git(clone, "add", "--force", "--", *published)
+    run_git(clone, "commit", "--quiet", "-m", "test: story 11.2 record publication")
+    markdown = (clone / options["--output-markdown"]).read_bytes()
+    return generator, clone, {**local, generator.V2_VERIFY_OPTION: generator.V2_11_2_SPEC}, derived, markdown
+
+
+def story112_insert_region(generator, clone, markdown):
+    spec = clone / generator.V2_11_2_SPEC
+    content = spec.read_bytes()
+    region = generator.v2_record_region(content)
+    if region is None:
+        content += b"\n" + generator.RECORD_BEGIN_MARKER.encode("ascii") + b"\n" + markdown + generator.RECORD_END_MARKER.encode("ascii") + b"\n"
+    else:
+        content = content[:region[0]] + markdown + content[region[1]:]
+    spec.write_bytes(content)
+    return spec
+
+
+def test_story_112_verify_inserted_accepts_one_publication_with_a_verbatim_region(story112_fixture, tmp_path):
+    generator, clone, options, derived, markdown = story112_published(story112_fixture, tmp_path)
+    story112_insert_region(generator, clone, markdown)
+    try:
+        result = generator.v2_11_2_verify_inserted(options)
+    except generator.V2Stop as stop:
+        pytest.fail(str(stop.findings))
+    assert result == derived
+
+
+@pytest.mark.parametrize("variant", ["later-source-commit", "second-publication", "region-drift", "published-proof-drift"])
+def test_story_112_verify_inserted_rejects_boundary_and_region_violations(story112_fixture, tmp_path, variant):
+    generator, clone, options, _, markdown = story112_published(story112_fixture, tmp_path)
+    if variant == "later-source-commit":
+        (clone / "stray.txt").write_text("source change after publication\n", encoding="utf-8")
+        run_git(clone, "add", "--", "stray.txt")
+        run_git(clone, "commit", "--quiet", "-m", "test: source change after publication")
+    elif variant == "second-publication":
+        receipt = clone / "artifacts/v9/11.2/AC-11.2-01.json"
+        receipt.write_bytes(receipt.read_bytes() + b"\n")
+        run_git(clone, "add", "--force", "--", "artifacts/v9/11.2/AC-11.2-01.json")
+        run_git(clone, "commit", "--quiet", "-m", "test: second publication")
+    elif variant == "published-proof-drift":
+        # Change the proof in the one publication, preserving the permitted boundary paths.
+        _, verifier, _, _, _ = story112_fixture
+        target = clone / verifier.PROOF_MARKDOWN_PATH
+        target.write_bytes(target.read_bytes() + b"published proof drift\n")
+        run_git(clone, "add", "--force", "--", verifier.PROOF_MARKDOWN_PATH)
+        run_git(clone, "commit", "--quiet", "--amend", "--no-edit")
+    spec = story112_insert_region(generator, clone, markdown + b"drift\n" if variant == "region-drift" else markdown)
+    if variant == "region-drift":
+        assert spec.read_bytes().count(b"drift\n") == 1
+    with pytest.raises(generator.V2Stop) as stop:
+        generator.v2_11_2_verify_inserted(options)
+    assert [item["code"] for item in stop.value.findings] == ["RECORD_CONTENT_DRIFT"]
+    expected = {"later-source-commit": "publication boundary", "second-publication": "publication boundary",
+                "region-drift": "verbatim inserted region differs", "published-proof-drift": "published proof differs"}[variant]
+    assert expected in stop.value.findings[0]["message"]
+
+# Story 11.3 receipt consumers are strict about native identities, revision bindings,
+# closed fault coverage and actual restoration observations.
+def story113_trx(method, candidate='1' * 40, evidence='2' * 64):
+    output = ('story113_source_revision=1.0.0+' + candidate + '\n'
+              + 'story113_candidate=' + candidate + '\n'
+              + 'story113_evidence_sha256=' + evidence + '\n'
+              + 'story113_measured_totals=13/451/396\n')
+    root = ElementTree.Element('TestRun')
+    results = ElementTree.SubElement(root, 'Results')
+    result = ElementTree.SubElement(results, 'UnitTestResult', testName=method, outcome='Passed', testId='test-1', executionId='execution-1')
+    ElementTree.SubElement(ElementTree.SubElement(result, 'Output'), 'StdOut').text = output
+    definitions = ElementTree.SubElement(root, 'TestDefinitions')
+    definition = ElementTree.SubElement(definitions, 'UnitTest', id='test-1', name=method, storage='Hexalith.Conversations.Contracts.Tests.dll')
+    ElementTree.SubElement(definition, 'Execution', id='execution-1')
+    ElementTree.SubElement(definition, 'TestMethod', className=method.rsplit('.', 1)[0], name=method.rsplit('.', 1)[1], codeBase='Hexalith.Conversations.Contracts.Tests.dll')
+    summary = ElementTree.SubElement(root, 'ResultSummary')
+    ElementTree.SubElement(summary, 'Counters', total='1', executed='1', passed='1', failed='0', notExecuted='0')
+    return ElementTree.tostring(root)
+
+
+def story113_fault_receipt(generator, repository, candidate, evidence):
+    """A consumer control with real input snapshots; the measured matrix exercises main()."""
+    _, verifier, _ = generator.v2_11_3_modules()
+    from test_sm2_evidence import mutate
+    baseline = verifier.verify(repository, candidate=candidate)
+    assert baseline['result'] == 'PASS'
+    before = {path: (repository/path).read_bytes() for path in verifier.measurement_input_paths(repository)
+              if (repository/path).is_file()}
+    before_hash = verifier.measurement_input_sha256(repository)
+    root = ElementTree.Element('testsuites')
+    suite = ElementTree.SubElement(root, 'testsuite', tests=str(len(verifier.FAULT_EXPECTATIONS)), failures='0', errors='0', skipped='0')
+    for fault, code in verifier.FAULT_EXPECTATIONS.items():
+        blocked = fault == 'history-unavailable'
+        mutate(repository, json.loads(before[verifier.generator.JSON_PATH]), fault)
+        mutated_hash = verifier.measurement_input_sha256(repository)
+        for path in verifier.measurement_input_paths(repository):
+            if path not in before and (repository/path).is_file(): (repository/path).unlink()
+        for path, content in before.items(): (repository/path).write_bytes(content)
+        assert mutated_hash != before_hash
+        ledger = [dict(id='check', subject='mutated input', state='SKIPPED' if blocked else 'FAIL')]
+        observed = dict(baseline, result='BLOCKED' if blocked else 'FAIL', blockers=[code], assertionLedger=ledger)
+        case = ElementTree.SubElement(suite, 'testcase', classname='_bmad.scripts.tests.test_sm2_evidence', name=f'test_checkpoint_c_fault_matrix[{fault}]')
+        props = ElementTree.SubElement(case, 'properties')
+        values = dict(story113_source_revision=candidate, story113_evidence_sha256=evidence,
+                      story113_fault_id=fault, story113_expected_code=code, story113_observed_blockers=json.dumps([code]),
+                      story113_observed_result='BLOCKED' if blocked else 'FAIL', story113_observed_exit='2' if blocked else '1',
+                      story113_before_sha256=before_hash, story113_after_sha256=before_hash,
+                      story113_mutated_sha256=mutated_hash,
+                      story113_baseline_exit='0', story113_restored_exit='0',
+                      story113_baseline_report=json.dumps(baseline), story113_restored_report=json.dumps(baseline),
+                      story113_observed_report=json.dumps(observed), story113_assertion_ledger=json.dumps(ledger))
+        for name, value in values.items():
+            ElementTree.SubElement(props, 'property', name=name, value=value)
+    return ElementTree.tostring(root)
+
+
+@pytest.mark.parametrize('method', ['SmTwoV2ShouldCountEveryHandAuthoredFixtureFileIncludingAppHost', 'HistoricalBaselinesShouldRemainByteIdentical'])
+def test_story_113_native_receipt_binds_its_named_test_and_source(method):
+    generator = load_generator()
+    name = 'Hexalith.Conversations.Contracts.Tests.Documentation.MinimalModuleAuthoringCostBaselineValidationTest.' + method
+    metrics = dict(fileCount=13, physicalLoc=451, nonblankLoc=396)
+    content = story113_trx(name)
+    assert generator.v2_11_3_trx(content, name, '1'*40, '2'*64, metrics) == name
+    missing_native = ElementTree.fromstring(content)
+    missing_native.find('Results').remove(missing_native.find('Results/UnitTestResult'))
+    for mutated in (ElementTree.tostring(missing_native), content.replace(b'executed="1"', b'executed="0"'),
+                    content.replace(b'outcome="Passed"', b'outcome="NotExecuted"'),
+                    content.replace(b'1.0.0+' + b'1'*40, b'1.0.0+' + b'4'*40),
+                    content.replace(b'story113_evidence_sha256=' + b'2'*64, b'story113_evidence_sha256=' + b'4'*64),
+                    content.replace(b'executionId="execution-1"', b'executionId="unlinked"'),
+                    content.replace(b'Contracts.Tests.dll', b'Other.Tests.dll')):
+        with pytest.raises(ValueError):
+            generator.v2_11_3_trx(mutated, name, '1'*40, '2'*64, metrics)
+    if method == 'SmTwoV2ShouldCountEveryHandAuthoredFixtureFileIncludingAppHost':
+        for mutated in (content.replace(b'story113_measured_totals=13/451/396', b'story113_measured_totals=13/452/396'),
+                        content.replace(b'story113_measured_totals=13/451/396\n', b'')):
+            with pytest.raises(ValueError, match='independently measured totals differ'):
+                generator.v2_11_3_trx(mutated, name, '1'*40, '2'*64, metrics)
+
+
+def test_story_113_fault_receipt_requires_the_exact_observed_restored_matrix(sm2_repository):
+    generator = load_generator()
+    gen, _, chain = generator.v2_11_3_modules()
+    candidate = chain.fixture.git_head(WORKSPACE)
+    evidence = generator.v2_sha256((sm2_repository/gen.JSON_PATH).read_bytes())
+    content = story113_fault_receipt(generator, sm2_repository, candidate, evidence)
+    rows = generator.v2_11_3_mutations(content, candidate, evidence, repository=sm2_repository)
+    assert len(rows) == 28 and all(row['detected'] and row['restored'] for row in rows)
+    for mutation in ('missing-fault', 'stale-revision', 'false-expected-code', 'vacuous-ledger', 'undetected', 'not-restored', 'skipped', 'duplicate-property',
+                     'zero-snapshots', 'zero-mutation', 'unchanged-mutation', 'baseline-exit', 'restored-exit', 'baseline-report', 'restored-report', 'observed-report', 'observed-exit'):
+        draft = ElementTree.fromstring(content)
+        suite = draft.find('testsuite')
+        case = suite.find('testcase')
+        props = case.find('properties')
+        values = {prop.get('name'): prop for prop in props}
+        if mutation == 'missing-fault': suite.remove(case)
+        elif mutation == 'stale-revision': values['story113_source_revision'].set('value', '4'*40)
+        elif mutation == 'false-expected-code': values['story113_expected_code'].set('value', 'NOT_A_BLOCKER')
+        elif mutation == 'vacuous-ledger': values['story113_assertion_ledger'].set('value', '[]')
+        elif mutation == 'undetected': values['story113_observed_blockers'].set('value', '[]')
+        elif mutation == 'not-restored': values['story113_after_sha256'].set('value', '4'*64)
+        elif mutation == 'skipped': ElementTree.SubElement(case, 'skipped')
+        elif mutation == 'duplicate-property': props.append(deepcopy(props[0]))
+        elif mutation == 'zero-snapshots':
+            for name in ('story113_before_sha256', 'story113_after_sha256'): values[name].set('value', '0'*64)
+        elif mutation == 'zero-mutation': values['story113_mutated_sha256'].set('value', '0'*64)
+        elif mutation == 'unchanged-mutation': values['story113_mutated_sha256'].set('value', values['story113_before_sha256'].get('value'))
+        elif mutation in ('baseline-exit', 'restored-exit', 'observed-exit'):
+            values['story113_' + mutation.replace('-', '_')].set('value', '0' if mutation == 'observed-exit' else '1')
+        elif mutation in ('baseline-report', 'restored-report', 'observed-report'):
+            name = 'story113_' + mutation.replace('-', '_')
+            report = json.loads(values[name].get('value'))
+            report['result'] = 'PASS' if mutation == 'observed-report' else 'FAIL'
+            values[name].set('value', json.dumps(report))
+        with pytest.raises(ValueError):
+            generator.v2_11_3_mutations(ElementTree.tostring(draft), candidate, evidence, repository=sm2_repository)
+
+
+def test_story_113_schema_requires_its_closed_execution_and_summary():
+    generator = load_generator()
+    _, validators = generator.v2_load_schemas()
+    schema = validators['record']
+    record = json.loads((WORKSPACE / 'docs/release-evidence/story-11.2-final-record-v2.json').read_bytes())
+    record['storyId'] = '11.3'
+    record.pop('fixtureProofExecution')
+    assert generator.v2_schema_errors(schema, record)
+    assert generator.v2_11_3_pair_errors(record) == ['Story 11.3 execution facts are malformed']
+    published = json.loads((WORKSPACE / 'docs/release-evidence/story-11.3-final-record-v2.json').read_bytes())
+    assert not generator.v2_schema_errors(schema, published)
+    clause = next(row for row in schema.schema['allOf']
+                  if row.get('if', {}).get('properties', {}).get('storyId', {}).get('const') == '11.3')
+    isolated = jsonschema.Draft202012Validator(clause)
+    assert list(isolated.iter_errors(dict(storyId='11.3', sm2Execution={}))) == []
+    errors = list(isolated.iter_errors(dict(storyId='11.3')))
+    assert len(errors) == 1 and errors[0].validator == 'required' and 'sm2Execution' in errors[0].message
+    assert list(isolated.iter_errors(dict(storyId='11.2'))) == []
+    errors = list(isolated.iter_errors(dict(storyId='11.2', sm2Execution={})))
+    assert len(errors) == 1 and errors[0].validator == 'not'
+
+
+def test_story_113_closed_route_dispatches_generation(monkeypatch):
+    generator = load_generator()
+    calls = []
+    def generate(options):
+        calls.append(('generate', options))
+        return b'generated\n'
+    monkeypatch.setattr(generator, 'v2_11_3_generate', generate)
+    options = {'--contract': generator.V2_11_3_CONTRACT}
+    assert generator.v2_generate(options) == b'generated\n'
+    assert calls == [('generate', options)]
+
+
+from test_sm2_evidence import committed_facts, sm2_repository  # noqa: E402,F401 - shared read-only fixture
+
+
+@pytest.fixture
+def story113_fixture(sm2_repository, monkeypatch):
+    generator = load_generator()
+    gen, verifier, chain = generator.v2_11_3_modules()
+    repository = sm2_repository
+    candidate = chain.fixture.git_head(WORKSPACE)
+    for path in generator.V2_11_3_SOURCES:
+        target = repository / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((WORKSPACE / path).read_bytes())
+    original_blob = generator.v2_committed_blob
+    source_bytes = {path: (repository/path).read_bytes() for path in generator.V2_11_3_SOURCES}
+    monkeypatch.setattr(generator, 'v2_committed_blob', lambda root, revision, path:
+                        source_bytes[path] if path in source_bytes and revision == candidate else original_blob(root, revision, path))
+    monkeypatch.setattr(generator, 'worktree_path_status', lambda root: {})
+    contract = json.loads((repository / generator.V2_11_3_CONTRACT).read_bytes())
+    evidence_hash = generator.v2_sha256((repository / gen.JSON_PATH).read_bytes())
+    paths = contract['finalRecord']['paths']
+    options = {'--repository': str(repository), '--contract': generator.V2_11_3_CONTRACT,
+               '--output-json': paths[0], '--output-markdown': paths[1], '--format': 'bundle'}
+    methods = [shlex.split(contract['scenarios'][i]['command'])[shlex.split(contract['scenarios'][i]['command']).index('-method')+1] for i in (1, 2)]
+    receipts = dict(zip(generator.V2_11_3_RECEIPTS, [
+        story113_trx(methods[0], candidate, evidence_hash), story113_trx(methods[1], candidate, evidence_hash),
+        gen.serialize(verifier.verify(repository)), gen.serialize(chain.verify(repository)),
+        story113_fault_receipt(generator, repository, candidate, evidence_hash)]))
+    return generator, repository, options, receipts
+
+
+def test_story_113_route_derives_current_metrics_receipts_and_closed_record(story113_fixture):
+    generator, repository, options, receipts = story113_fixture
+    first = generator.v2_11_3_generate(options, read_receipt=receipts.get)
+    assert first == generator.v2_11_3_generate(options, read_receipt=receipts.get)
+    record = json.loads(first)
+    assert record['summary'] == dict(required=7, passed=7, failed=0, blocked=0, skipped=0, notRun=0)
+    assert record['sm2Execution']['metrics'] == dict(fileCount=13, physicalLoc=451, nonblankLoc=396,
+        fileReductionPercentage='77.59', locReductionPercentage='69.11', measurementConfidence='high',
+        comparisonConfidence='low', oq2Decision='accepted')
+    assert len(record['sm2Execution']['receipts']) == 5
+    assert len(record['sm2Execution']['mutationLedger']) == 28
+    markdown = (repository / options['--output-markdown']).read_bytes()
+    assert not generator.v2_verify_pair(first, markdown)
+    assert b'## Measured SM-2 and OQ-2\n' in markdown
+    assert b'- Measured: 13 files; 451 physical LOC; 396 nonblank LOC.\n' in markdown
+    for receipt in record['sm2Execution']['receipts']:
+        row = '| ' + ' | '.join('`' + receipt[key] + '`' for key in ('scenarioId', 'path', 'sha256')) + ' |\n'
+        assert row.encode() in markdown
+    assert b'28 measured faults detected with byte-identical restoration.\n' in markdown
+    assert b'| Fault | Expected blocker | Observed blockers | Before SHA-256 | After SHA-256 | Restored |\n' in markdown
+    for mutate in ('metrics', 'receipt', 'fault', 'summary'):
+        draft = deepcopy(record)
+        if mutate == 'metrics': draft['sm2Execution']['metrics']['comparisonConfidence'] = 'high'
+        elif mutate == 'receipt': draft['sm2Execution']['receipts'][0]['sha256'] = 'f'*64
+        elif mutate == 'fault': draft['sm2Execution']['mutationLedger'][0]['afterSha256'] = 'f'*64
+        elif mutate == 'summary': draft['summary']['required'] = 6
+        assert generator.v2_11_3_pair_errors(draft)
+
+
+def test_story_113_disk_receipts_reject_linked_parent(story113_fixture):
+    generator, repository, options, receipts = story113_fixture
+    story111_write_receipts(repository, receipts)
+    regular = generator.v2_11_3_generate(options)
+    assert json.loads(regular)['summary'] == dict(required=7, passed=7, failed=0, blocked=0, skipped=0, notRun=0)
+    parent = repository / 'artifacts/v9/11.3'
+    outside = repository.parent / 'external-story113-receipts'
+    parent.rename(outside)
+    parent.symlink_to(outside, target_is_directory=True)
+    try:
+        receipt = repository / generator.V2_11_3_RECEIPTS[0]
+        assert receipt.is_file() and not receipt.is_symlink()
+        assert not receipt.resolve().is_relative_to(repository)
+        with pytest.raises(ValueError, match='linked artifact path: artifacts/v9/11.3/AC-11.3-02.trx'):
+            generator.v2_11_3_generate(options)
+    finally:
+        parent.unlink()
+        outside.rename(parent)
+
+
+@pytest.mark.parametrize('state', ['FAIL', 'SKIPPED'])
+def test_story_113_resigned_pair_rejects_nonpassing_assertions(story113_fixture, state):
+    generator, _, options, receipts = story113_fixture
+    record = json.loads(generator.v2_11_3_generate(options, read_receipt=receipts.get))
+    record['scenarios'][0]['assertionLedger'][0]['state'] = state
+    _, j, m = generator.v2_finalize(record)
+    assert 'Story 11.3 requires the compatible closed 7/7/0/0/0/0 PASS set' in generator.v2_verify_pair(j, m)
+
+
+@pytest.mark.parametrize('insertion', [False, True])
+def test_story_113_upstream_failure_retains_fail_exit_and_exact_diagnostics(story113_fixture, monkeypatch, insertion):
+    generator, repository, options, receipts = story113_fixture
+    gen, verifier, _ = generator.v2_11_3_modules()
+    if insertion:
+        generator.v2_11_3_generate(options, read_receipt=receipts.get)
+        original_blob = generator.v2_committed_blob
+        path = options['--output-json']
+        monkeypatch.setattr(generator, 'v2_committed_blob', lambda root, revision, name:
+                            (repository/path).read_bytes() if name == path else original_blob(root, revision, name))
+        options = dict(options, **{generator.V2_VERIFY_OPTION: generator.V2_11_3_SPEC})
+    codes = ['SM2_MEASUREMENT_INVALID', 'OQ2_DECISION_INVALID']
+    monkeypatch.setattr(verifier, 'verify', lambda *args, **kwargs: dict(result='FAIL', blockers=codes))
+    monkeypatch.setattr(generator, 'v2_parse_arguments', lambda argv: options)
+    output = io.StringIO()
+    with redirect_stdout(output):
+        status = generator.v2_main([])
+    failure = json.loads(output.getvalue())
+    assert status == 1 and failure['exitCode'] == 1 and failure['result'] == 'FAIL'
+    assert failure['blockers'] == ['RECORD_NOT_DERIVED']
+    assert [row['message'] for row in failure['diagnostics']] == ['upstream verifier FAIL: ' + code for code in codes]
+    assert not generator.v2_schema_errors(generator.v2_load_schemas()[1]['failure'], failure)
+
+
+def test_story_113_byte_bound_sources_survive_autocrlf_checkout(tmp_path):
+    generator = load_generator()
+    repository = tmp_path/'checkout'
+    repository.mkdir()
+    run_git(repository, 'init', '--quiet')
+    (repository/'.gitattributes').write_bytes((WORKSPACE/'.gitattributes').read_bytes())
+    paths = [*generator.V2_11_3_SOURCES, 'artifacts/v9/11.3/AC-11.3-04.json', 'artifacts/v9/11.3/AC-11.3-05.json']
+    originals = {}
+    for path in paths:
+        target = repository/path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        originals[path] = (WORKSPACE/path).read_bytes()
+        target.write_bytes(originals[path])
+    run_git(repository, 'add', '--force', '--', '.gitattributes', *paths)
+    run_git(repository, 'commit', '--quiet', '-m', 'test: preserve story source checkout bytes')
+    for path in paths: (repository/path).unlink()
+    run_git(repository, '-c', 'core.autocrlf=true', 'checkout', '--', *paths)
+    assert {path: (repository/path).read_bytes() for path in paths} == originals
+    assert all(b'\r\n' not in originals[path] for path in paths if path.endswith('.py'))
+    native = originals['tests/Hexalith.Conversations.Contracts.Tests/Documentation/MinimalModuleAuthoringCostBaselineValidationTest.cs']
+    assert native.count(b'\r\n') == native.count(b'\n')
+    assert all(b'\r\n' not in originals[path] for path in paths if path.endswith('.json'))
+
+
+def test_story_113_actual_insertion_wrapper_replays_provenance_and_detects_metric_drift(tmp_path, monkeypatch, committed_facts):
+    generator = load_generator()
+    gen, verifier, chain = generator.v2_11_3_modules()
+    repository = tmp_path/'publication'
+    run_git(tmp_path, 'clone', '--quiet', '--shared', '--no-checkout', str(WORKSPACE), str(repository))
+    run_git(repository, 'checkout', '--quiet', 'HEAD')
+    paths = ['docs/release-evidence/story-11.3-final-record-v2.' + extension for extension in ('json', 'md')]
+    publication = [*paths, gen.JSON_PATH, gen.MARKDOWN_PATH, *generator.V2_11_3_RECEIPTS]
+    run_git(repository, 'rm', '--quiet', '--ignore-unmatch', '--', *publication)
+    for path in (*generator.V2_11_3_SOURCES, '.gitattributes'):
+        (repository/path).write_bytes((WORKSPACE/path).read_bytes())
+    run_git(repository, 'add', '--', '.gitattributes', *generator.V2_11_3_SOURCES)
+    run_git(repository, 'commit', '--quiet', '-m', 'test: prepare story measurement candidate')
+    candidate = run_git(repository, 'rev-parse', 'HEAD').stdout.strip()
+    # Cache only immutable real Git facts from this clone, including its new C commit.
+    cache = {}
+    def real_facts(root, request):
+        key = (str(root), json.dumps(request, sort_keys=True))
+        if key not in cache: cache[key] = committed_facts.original(root, request)
+        return deepcopy(cache[key])
+    monkeypatch.setattr(chain.current, 'bridge', real_facts)
+    j, m = gen.finalize(gen.build_signable(repository, candidate=candidate))
+    (repository/gen.JSON_PATH).write_bytes(j)
+    (repository/gen.MARKDOWN_PATH).write_bytes(m)
+    contract = json.loads((repository/generator.V2_11_3_CONTRACT).read_bytes())
+    methods = [shlex.split(contract['scenarios'][i]['command'])[shlex.split(contract['scenarios'][i]['command']).index('-method')+1] for i in (1, 2)]
+    evidence = generator.v2_sha256(j)
+    receipt_bytes = [story113_trx(method, candidate, evidence) for method in methods]
+    receipt_bytes += [gen.serialize(verifier.verify(repository, candidate=candidate)), gen.serialize(chain.verify(repository, candidate)),
+                      story113_fault_receipt(generator, repository, candidate, evidence)]
+    for path, content in zip(generator.V2_11_3_RECEIPTS, receipt_bytes):
+        (repository/path).parent.mkdir(parents=True, exist_ok=True)
+        (repository/path).write_bytes(content)
+    options = {'--repository': str(repository), '--contract': generator.V2_11_3_CONTRACT,
+               '--output-json': paths[0], '--output-markdown': paths[1], '--format': 'bundle'}
+    derived = generator.v2_11_3_generate(options)
+    run_git(repository, 'add', '--force', '--', *publication)
+    run_git(repository, 'commit', '--quiet', '-m', 'test: publish measured story record')
+    spec = repository/generator.V2_11_3_SPEC
+    def insert(markdown):
+        content = spec.read_bytes()
+        region = generator.v2_record_region(content)
+        if region is None:
+            content += b'\n' + generator.RECORD_BEGIN_MARKER.encode() + b'\n' + markdown + generator.RECORD_END_MARKER.encode() + b'\n'
+        else: content = content[:region[0]] + markdown + content[region[1]:]
+        spec.write_bytes(content)
+    insert((repository/paths[1]).read_bytes())
+    verify_options = dict(options, **{generator.V2_VERIFY_OPTION: generator.V2_11_3_SPEC})
+    def unavailable(root):
+        raise subprocess.TimeoutExpired(['dotnet', '--version'], 60)
+    monkeypatch.setattr(gen, 'versions', unavailable)
+    try:
+        assert generator.v2_11_3_verify_inserted(verify_options) == derived
+    except generator.V2Stop as stop:
+        pytest.fail(str(stop.findings))
+    record = json.loads(derived)
+    record['sm2Execution']['metrics']['physicalLoc'] += 1
+    _, changed_j, changed_m = generator.v2_finalize(record)
+    assert not generator.v2_verify_pair(changed_j, changed_m)  # correctly re-signed, internally consistent pair
+    (repository/paths[0]).write_bytes(changed_j)
+    (repository/paths[1]).write_bytes(changed_m)
+    run_git(repository, 'add', '--', *paths)
+    run_git(repository, 'commit', '--quiet', '-m', 'test: change measured record LOC')
+    insert(changed_m)
+    with pytest.raises(generator.V2Stop) as caught:
+        generator.v2_11_3_verify_inserted(verify_options)
+    assert [row['code'] for row in caught.value.findings] == ['RECORD_CONTENT_DRIFT']
+    assert caught.value.findings[0]['message'] == 'record differs from independently recomputed source candidate and current receipts'
+
+
+@pytest.mark.parametrize('fault', ['missing-receipt', 'stale-trx', 'stale-json', 'empty-matrix', 'source-drift', 'regeneration-drift', 'upstream-blocked'])
+def test_story_113_route_rejects_stale_vacuous_or_uncommitted_evidence(story113_fixture, monkeypatch, fault):
+    generator, repository, options, receipts = story113_fixture
+    receipts = dict(receipts)
+    if fault == 'missing-receipt': receipts.pop(generator.V2_11_3_RECEIPTS[0])
+    elif fault == 'stale-trx': receipts[generator.V2_11_3_RECEIPTS[0]] = receipts[generator.V2_11_3_RECEIPTS[0]].replace(b'story113_candidate=', b'stale_candidate=')
+    elif fault == 'stale-json':
+        report = json.loads(receipts[generator.V2_11_3_RECEIPTS[2]])
+        report['candidate'] = 'f'*40
+        receipts[generator.V2_11_3_RECEIPTS[2]] = json.dumps(report).encode()
+    elif fault == 'empty-matrix': receipts[generator.V2_11_3_RECEIPTS[-1]] = b'<testsuites><testsuite tests="0" failures="0" errors="0" skipped="0" /></testsuites>'
+    elif fault == 'source-drift': (repository / generator.V2_11_3_SOURCES[0]).write_bytes(b'changed source\n')
+    elif fault == 'regeneration-drift':
+        gen, verifier, chain = generator.v2_11_3_modules()
+        evidence = json.loads((repository / gen.JSON_PATH).read_bytes())
+        evidence['measurement']['paths'][0]['reason'] = 'A changed but nonempty authored-source reason.'
+        j, m = gen.finalize({key: value for key, value in evidence.items() if key != 'digests'})
+        (repository / gen.JSON_PATH).write_bytes(j)
+        (repository / gen.MARKDOWN_PATH).write_bytes(m)
+        candidate = evidence['candidate']['commit']
+        evidence_hash = generator.v2_sha256(j)
+        # Rebuild each native and verifier receipt against the re-signed evidence.
+        contract = json.loads((repository / generator.V2_11_3_CONTRACT).read_bytes())
+        for index, path in enumerate(generator.V2_11_3_RECEIPTS[:2], 1):
+            tokens = shlex.split(contract['scenarios'][index]['command'])
+            receipts[path] = story113_trx(tokens[tokens.index('-method') + 1], candidate, evidence_hash)
+        receipts[generator.V2_11_3_RECEIPTS[2]] = gen.serialize(verifier.verify(repository))
+        receipts[generator.V2_11_3_RECEIPTS[3]] = gen.serialize(chain.verify(repository))
+        receipts[generator.V2_11_3_RECEIPTS[4]] = story113_fault_receipt(generator, repository, candidate, evidence_hash)
+        assert json.loads(receipts[generator.V2_11_3_RECEIPTS[2]])['result'] == 'PASS'
+    elif fault == 'upstream-blocked':
+        _, verifier, _ = generator.v2_11_3_modules()
+        monkeypatch.setattr(verifier, 'verify', lambda *args, **kwargs: dict(result='BLOCKED', blockers=['HISTORY_UNAVAILABLE']))
+        with pytest.raises(generator.V2Stop) as caught:
+            generator.v2_11_3_generate(options, read_receipt=receipts.get)
+        assert generator.v2_failure_document(caught.value.findings, '11.3')['result'] == 'BLOCKED'
+        return
+    with pytest.raises(ValueError, match='deterministic regeneration' if fault == 'regeneration-drift' else None):
+        generator.v2_11_3_generate(options, read_receipt=receipts.get)
+
+
+@pytest.mark.parametrize('insertion', [False, True])
+def test_story_113_dirty_worktree_reports_its_stable_blocker(story113_fixture, monkeypatch, insertion):
+    generator, repository, options, receipts = story113_fixture
+    if insertion:
+        generator.v2_11_3_generate(options, read_receipt=receipts.get)
+        original_blob = generator.v2_committed_blob
+        path = options['--output-json']
+        monkeypatch.setattr(generator, 'v2_committed_blob', lambda root, revision, name:
+                            (repository / path).read_bytes() if name == path else original_blob(root, revision, name))
+        options = dict(options, **{generator.V2_VERIFY_OPTION: generator.V2_11_3_SPEC})
+    monkeypatch.setattr(generator, 'worktree_path_status', lambda root: {'src/unrelated.cs': 'modified'})
+    monkeypatch.setattr(generator, 'v2_parse_arguments', lambda argv: options)
+    output = io.StringIO()
+    with redirect_stdout(output):
+        status = generator.v2_main([])
+    failure = json.loads(output.getvalue())
+    assert status == 1 and failure['result'] == 'FAIL' and failure['blockers'] == ['WORKTREE_NOT_CLEAN']
+    assert 'src/unrelated.cs' in failure['diagnostics'][0]['message']
+    assert not generator.v2_schema_errors(generator.v2_load_schemas()[1]['failure'], failure)

@@ -1,0 +1,1 @@
+namespace Synthetic; public class Surface { public int AbstractProperty() => 2; public int Existing() => 1; }

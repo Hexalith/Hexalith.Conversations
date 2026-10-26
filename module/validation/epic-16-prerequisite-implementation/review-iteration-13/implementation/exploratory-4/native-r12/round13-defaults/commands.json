@@ -1,0 +1,341 @@
+[
+  {
+    "argv": [
+      "dotnet",
+      "build",
+      "Evidence.csproj",
+      "-c",
+      "Debug",
+      "--nologo",
+      "-m:1",
+      "-p:NuGetAudit=false"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default0.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default1.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default2.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default3.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default4.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default5.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default6.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default7.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 1
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default8.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default9.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default10.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default11.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default12.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default13.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default14.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default15.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default16.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default17.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default18.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default19.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default20.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default21.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default22.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default23.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-exploratory-4/round13-defaults0/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.Default24.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-exploratory-4/round13-defaults0",
+    "exitCode": 0
+  }
+]

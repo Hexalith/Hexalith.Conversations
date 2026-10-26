@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_native_helper/Program.cs
++++ _bmad/scripts/epic16_native_helper/Program.cs
+@@ -247,7 +247,7 @@
+         BlobReader signature = reader.GetBlobReader(method.Signature);
+         SignatureHeader header = signature.ReadSignatureHeader();
+         if (header.Kind != SignatureKind.Method || !header.IsInstance || header.IsGeneric
+-            || header.CallingConvention != SignatureCallingConvention.Default || signature.ReadCompressedInteger() != 0)
++            || signature.ReadCompressedInteger() != 0)
+         {
+             return false;
+         }

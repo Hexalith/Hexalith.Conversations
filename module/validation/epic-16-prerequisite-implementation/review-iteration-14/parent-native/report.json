@@ -1,0 +1,149 @@
+{
+  "results": [
+    {
+      "case": "vararg",
+      "binarySha256": "278b22db63aee45cf00077f4e8c2c8504b94745849273591ab7dd2efa96d945e",
+      "inspection": {
+        "argv": [
+          "dotnet",
+          "/tmp/epic16-native-oracle-q3b81dvj/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+        ],
+        "cwd": "/tmp/epic16-native-oracle-q3b81dvj",
+        "exitCode": 0,
+        "stdoutSha256": "22eb02060be53878ef353704c4bd2d7a074a1755fab5daedaa2d59dca7a85264",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "runner": {
+        "argv": [
+          "dotnet",
+          "/tmp/epic16-blind-vararg-6rskk2b5/bin/Debug/net10.0/Evidence.dll",
+          "-automated",
+          "sync",
+          "-failSkips",
+          "-method",
+          "Synthetic.TestClass.Scenario01",
+          "-trx",
+          "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-native/vararg/actual.trx"
+        ],
+        "cwd": "/tmp/epic16-blind-vararg-6rskk2b5",
+        "exitCode": 1,
+        "stdoutSha256": "f613c68000505e06fe2400af500696b3e3be4201e91c9703d68167f66180168e",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "accepted": true
+    },
+    {
+      "case": "optional",
+      "binarySha256": "93b5acf3cd676e9d6baeecd40e59f03487903e3dba74609140bac96882a0c757",
+      "inspection": {
+        "argv": [
+          "dotnet",
+          "/tmp/epic16-native-oracle-q3b81dvj/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+        ],
+        "cwd": "/tmp/epic16-native-oracle-q3b81dvj",
+        "exitCode": 0,
+        "stdoutSha256": "22eb02060be53878ef353704c4bd2d7a074a1755fab5daedaa2d59dca7a85264",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "runner": {
+        "argv": [
+          "dotnet",
+          "/tmp/review14-refstruct-h7_v5woq/optional/bin/Debug/net10.0/Evidence.dll",
+          "-automated",
+          "sync",
+          "-failSkips",
+          "-method",
+          "Synthetic.TestClass.Scenario01",
+          "-trx",
+          "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-native/optional/actual.trx"
+        ],
+        "cwd": "/tmp/review14-refstruct-h7_v5woq/optional",
+        "exitCode": 1,
+        "stdoutSha256": "4c41f7c0e051b3101bc6390f5127635b910b8dc474732c8c47cfd8ea4a90a31f",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "accepted": true
+    },
+    {
+      "case": "null",
+      "binarySha256": "1fae7af95af6097e620b03d51f657645a90be9b05fb4973684a6de92d7f2f47e",
+      "inspection": {
+        "argv": [
+          "dotnet",
+          "/tmp/epic16-native-oracle-q3b81dvj/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+        ],
+        "cwd": "/tmp/epic16-native-oracle-q3b81dvj",
+        "exitCode": 0,
+        "stdoutSha256": "22eb02060be53878ef353704c4bd2d7a074a1755fab5daedaa2d59dca7a85264",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "runner": {
+        "argv": [
+          "dotnet",
+          "/tmp/review14-refstruct-h7_v5woq/null/bin/Debug/net10.0/Evidence.dll",
+          "-automated",
+          "sync",
+          "-failSkips",
+          "-method",
+          "Synthetic.TestClass.Scenario01",
+          "-trx",
+          "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-native/null/actual.trx"
+        ],
+        "cwd": "/tmp/review14-refstruct-h7_v5woq/null",
+        "exitCode": 1,
+        "stdoutSha256": "d6c9875307cc4cb26d05bdd2b66e9cccdda98d908c11ca46f55d305e252368ea",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "accepted": true
+    },
+    {
+      "case": "cycle-original",
+      "binarySha256": "5aa2004d6c6c109255b9b911e37f2c3957a8e90a134d32d621f074fccc843452",
+      "command": {
+        "argv": [
+          "dotnet",
+          "/tmp/epic16-native-oracle-q3b81dvj/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+        ],
+        "cwd": "/tmp/epic16-native-oracle-q3b81dvj",
+        "exitCode": 0,
+        "stdoutSha256": "22eb02060be53878ef353704c4bd2d7a074a1755fab5daedaa2d59dca7a85264",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "byteChanges": [
+        2208
+      ]
+    },
+    {
+      "case": "cycle-mutant",
+      "binarySha256": "afef162d51903044a8d11f03a6b701528a47b0077d70a50139349fac54f6b712",
+      "command": {
+        "argv": [
+          "dotnet",
+          "/tmp/epic16-native-oracle-q3b81dvj/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+        ],
+        "cwd": "/tmp/epic16-native-oracle-q3b81dvj",
+        "exitCode": -6,
+        "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderrSha256": "a5e2a9ae8bf000f4cc20dcffe6533ba1dca2d0b0bdf8814a6507cbc11660756a"
+      },
+      "byteChanges": [
+        2208
+      ]
+    },
+    {
+      "case": "cycle-python-classification",
+      "exception": "HelperUnavailable",
+      "detail": "fixed helper host failed: exit=-6; stdout=''; stderr='Stack overflow.\\nRepeated 37350 times:\\n--------------------------------\\n   at Hexalith.Conversations.Tooling.SignatureNames.DefinitionName(System.Reflection.Metadata.MetadataReader, System.Reflection.Metadata.TypeDefinitionHandle)\\n--------------------------------\\n   at Hexalith.Conversations.Tooling.SignatureNames.Name(System.Reflection.Metadata.MetadataReader, System.Reflection.Metadata.EntityHandle)\\n   at Hexalith.Conversations.Tooling.TestConstruction+<>c__DisplayClass1_0.<Validate>b__0(System.Reflection.Metadata.TypeDefinitionHandle)\\n   at System.Linq.Enumerable.ToDictionary[[System.Reflection.Metadata.TypeDefinitionHandle, System.Reflection.Metadata, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a],[System.__Canon, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Reflection.Metadata.TypeDefinitionHandle, System.Reflection.Metadata, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a]](System.Collections.Generic.IEnumerable`1<System.Reflection.Metadata.TypeDefinitionHandle>, System.Func`2<System.Reflection.Metadata.TypeDefinitionHandle,System.__Canon>, System.Func`2<System.Reflection.Metadata.TypeDefinitionHandle,System.Reflection.Metadata.TypeDefinitionHandle>, System.Collections.Generic.IEqualityComparer`1<System.__Canon>)\\n   at Hexalith.Conversations.Tooling.TestConstruction.Validate(System.Reflection.Metadata.MetadataReader, System.Reflection.Metadata.TypeDefinitionHandle)\\n   at Hexalith.Conversations.Tooling.Program.Inspect(System.Text.Json.JsonElement)\\n   at Hexalith.Conversations.Tooling.Program.Main()\\n'"
+    }
+  ],
+  "helperSources": {
+    "_bmad/scripts/epic16_native_helper/Epic16.NativeHelper.csproj": "f3057cab73b03ec077940f41c8b23a30032c563c1989dc680ac7b60764d4fcb5",
+    "_bmad/scripts/epic16_native_helper/Program.cs": "32973a86860a8a46a3892b89ca71235f753704b3653ae41877053b95167efc4d",
+    "_bmad/scripts/epic16_native_helper/TestConstruction.cs": "fe4e695373ea16df32c097b98ba221d9b43f1fb7f442ad887700bb81145b547f",
+    "_bmad/scripts/epic16_native_helper/ProductMetadata.cs": "ef75fbd3b889b78c2e2678db4d99cdb7448f231f29b3d22cb300dff0bb5e3902",
+    "_bmad/scripts/epic16_native_helper/SignatureNames.cs": "c7598398a621cab9d559e4b384c548867ccc5529265f15665935275cb9f6c856",
+    "_bmad/scripts/epic16_native_helper/ReadModelBatchCanonicalJson.cs": "1f9430e33cefaa51757c36f27d57ed509a31d08aa5f35b05a4159b7d806362f9",
+    "_bmad/scripts/epic16_native_helper/README.md": "e65d5be2a5597753bc167e6ebcebd4ce48a71e100d87e3e329601246d55138ac",
+    "_bmad/scripts/epic16_native_helper/EventStore-LICENSE": "6af66baf053023d456706de321e3cea6a6edbb288ffec10f673186b1befe7ac2"
+  }
+}

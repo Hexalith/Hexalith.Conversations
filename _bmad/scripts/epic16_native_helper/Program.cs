@@ -247,10 +247,12 @@ internal static class Program
         BlobReader signature = reader.GetBlobReader(method.Signature);
         SignatureHeader header = signature.ReadSignatureHeader();
         if (header.Kind != SignatureKind.Method || !header.IsInstance || header.IsGeneric
-            || signature.ReadCompressedInteger() != 0)
+            || header.CallingConvention != SignatureCallingConvention.Default || signature.ReadCompressedInteger() != 0)
         {
             return false;
         }
+        byte encodedKind = signature.ReadByte();
+        signature.Offset--;
         SignatureTypeCode returnType = signature.ReadSignatureTypeCode();
         if (returnType == SignatureTypeCode.Void)
         {
@@ -270,7 +272,9 @@ internal static class Program
         {
             return false;
         }
-        return ProductMetadata.IsFrameworkType(reader, (TypeReferenceHandle)handle);
+        return ProductMetadata.IsFrameworkType(reader, (TypeReferenceHandle)handle)
+            && encodedKind == (TypeName(reader, handle) == "System.Threading.Tasks.Task"
+                ? (byte)SignatureTypeKind.Class : (byte)SignatureTypeKind.ValueType);
     }
 
     private static void Inspect(JsonElement root)

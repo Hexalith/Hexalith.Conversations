@@ -149,3 +149,13 @@ _bmad/scripts/epic16_native_helper/SignatureNames.cs -text diff
 
 # Fixed metadata-only constructor admission helper retains its authored CRLF bytes.
 _bmad/scripts/epic16_native_helper/TestConstruction.cs -text diff
+
+# Retained native debug symbols, signing keys, opaque build caches and apphosts.
+# Keep source, schema, command streams and untouched raw TRX readable as text.
+module/validation/epic-16-prerequisite-implementation/**/*.pdb -text -diff
+module/validation/epic-16-prerequisite-implementation/**/*.snk -text -diff
+module/validation/epic-16-prerequisite-implementation/**/*.cache -text -diff
+module/validation/epic-16-prerequisite-implementation/**/apphost -text -diff
+module/validation/epic-16-prerequisite-implementation/**/Epic16.NativeHelper -text -diff
+module/validation/epic-16-prerequisite-implementation/**/Evidence -text -diff
+module/validation/epic-16-prerequisite-implementation/**/Goldens -text -diff

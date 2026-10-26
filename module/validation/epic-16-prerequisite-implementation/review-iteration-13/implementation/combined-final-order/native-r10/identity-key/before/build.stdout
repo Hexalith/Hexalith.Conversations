@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-r13-combined-final-order/test_round10_external_signatur0/before/external/External.csproj (in 59 ms).
+  Restored /tmp/epic16-r13-combined-final-order/test_round10_external_signatur0/before/api/Api.csproj (in 60 ms).
+  External -> /tmp/epic16-r13-combined-final-order/test_round10_external_signatur0/before/external/bin/Debug/net10.0/External.dll
+  Api -> /tmp/epic16-r13-combined-final-order/test_round10_external_signatur0/before/api/bin/Debug/net10.0/Probe.Api.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.06

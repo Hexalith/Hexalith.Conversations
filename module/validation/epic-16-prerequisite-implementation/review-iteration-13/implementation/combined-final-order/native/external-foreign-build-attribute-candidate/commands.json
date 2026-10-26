@@ -1,0 +1,14 @@
+{
+  "build": [
+    "dotnet",
+    "build",
+    "Api.csproj",
+    "-c",
+    "Debug",
+    "--nologo",
+    "-m:1",
+    "-p:NuGetAudit=false"
+  ],
+  "cwd": "/tmp/epic16-r13-combined-final-order/test_round11_framework_ownersh1/candidate",
+  "buildExit": 0
+}

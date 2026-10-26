@@ -1,0 +1,71 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+        "_bmad/scripts/epic16_domain.py",
+        "_bmad/scripts/epic16_measurements.py",
+        "_bmad/scripts/epic16_native_helper/Program.cs",
+        "_bmad/scripts/epic16_native_helper/SignatureNames.cs",
+        "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+        "_bmad/scripts/epic16_tooling.py",
+        "_bmad/scripts/tests/test_epic16_tooling.py"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--quiet"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 0
+    }
+  ],
+  "changedPaths": [
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+    "_bmad/scripts/epic16_domain.py",
+    "_bmad/scripts/epic16_measurements.py",
+    "_bmad/scripts/epic16_native_helper/Program.cs",
+    "_bmad/scripts/epic16_native_helper/SignatureNames.cs",
+    "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+    "_bmad/scripts/epic16_tooling.py",
+    "_bmad/scripts/tests/test_epic16_tooling.py"
+  ],
+  "changedBindings": [
+    "_bmad/scripts/epic16_domain.py",
+    "_bmad/scripts/epic16_measurements.py",
+    "_bmad/scripts/epic16_native_helper/Program.cs",
+    "_bmad/scripts/epic16_native_helper/SignatureNames.cs",
+    "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+    "_bmad/scripts/epic16_tooling.py"
+  ],
+  "sourceCount": 86,
+  "sourceUnchanged": true,
+  "boundSourceCount": 71,
+  "entry": null,
+  "priorEvidence": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-14/prior-evidence-inventory.json",
+    "sha256": "a3d687ba1bba13496b59597f4e888a314f0646f620a0c024cda5b61329c38db7",
+    "count": 24390,
+    "unchanged": true
+  }
+}

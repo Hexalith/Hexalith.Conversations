@@ -1,0 +1,12 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-r13-combined-final-order/test_round13_decimal_default_s0/decimal-sign/Evidence.csproj (in 98 ms).
+/tmp/epic16-r13-combined-final-order/test_round13_decimal_default_s0/decimal-sign/Tests.cs(1,117): warning xUnit1041: Fixture argument 'value' does not have a fixture source (if it comes from a collection definition, ensure the definition is in the same assembly as the test) (https://xunit.net/xunit.analyzers/rules/xUnit1041) [/tmp/epic16-r13-combined-final-order/test_round13_decimal_default_s0/decimal-sign/Evidence.csproj]
+  Evidence -> /tmp/epic16-r13-combined-final-order/test_round13_decimal_default_s0/decimal-sign/bin/Debug/net10.0/Evidence.dll
+
+Build succeeded.
+
+/tmp/epic16-r13-combined-final-order/test_round13_decimal_default_s0/decimal-sign/Tests.cs(1,117): warning xUnit1041: Fixture argument 'value' does not have a fixture source (if it comes from a collection definition, ensure the definition is in the same assembly as the test) (https://xunit.net/xunit.analyzers/rules/xUnit1041) [/tmp/epic16-r13-combined-final-order/test_round13_decimal_default_s0/decimal-sign/Evidence.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.39

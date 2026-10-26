@@ -1,0 +1,11 @@
+{
+  "scope": "Final mutation/control audit",
+  "guards": 23,
+  "assertionFailures": 53,
+  "setupErrors": 0,
+  "skips": 0,
+  "allFinalTargetsMatch": true,
+  "allSelectedCasesPassInFinalCombined": true,
+  "control": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/combined-final-order/result.xml"
+}
+Missing from focused control: 0

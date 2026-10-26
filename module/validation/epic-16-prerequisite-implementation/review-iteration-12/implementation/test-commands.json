@@ -1,0 +1,37 @@
+[
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "_bmad/scripts/tests/test_epic16_tooling.py",
+      "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py",
+      "--basetemp=/tmp/epic16-r12-final-lc84tfns/combined",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/combined/result.xml"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {
+      "EPIC16_BASETEMP": "/tmp/epic16-r12-final-lc84tfns/combined",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "EPIC16_COMMITLINT_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/combined/commitlint.json",
+      "EPIC16_R12_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/combined/native-r12",
+      "EPIC16_R11_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/combined/native",
+      "EPIC16_R10_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/combined/native-r10"
+    },
+    "exitCode": 0,
+    "durationSeconds": 2579.7261016368866,
+    "sourceUnchanged": false,
+    "files": {
+      "commitlint.json": "38b754eff56ae11bde4bb0b7bdf322ab4f2d460fd87e4510f7cf9730052979cd",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "f44e8c9b2a9173b9b7b2bf72bc51e696c9039db03957b2c5e0e50af47d81c7c7",
+      "source-hashes.json": "6fa95ceb6790af23cb749f758bd004aa84ff73d65357cfc5d5c5e98f7f5d7290",
+      "result.xml": "84dfa31c90222b442aec39ce91fb5e94d8b3332fad407063d79010ca1cc339ff"
+    }
+  }
+]

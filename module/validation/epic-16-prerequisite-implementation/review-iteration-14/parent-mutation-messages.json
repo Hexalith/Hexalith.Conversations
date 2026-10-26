@@ -1,0 +1,57 @@
+[
+  {
+    "mutation": "default-calling-convention",
+    "test": "test_round14_test_calling_convention_and_direct_defaults_match_runner[varargs]",
+    "message": "Failed: DID NOT RAISE ValueError"
+  },
+  {
+    "mutation": "direct-byreflike-default",
+    "test": "test_round14_test_calling_convention_and_direct_defaults_match_runner[optional-ref]",
+    "message": "Failed: DID NOT RAISE ValueError"
+  },
+  {
+    "mutation": "direct-byreflike-default",
+    "test": "test_round14_test_calling_convention_and_direct_defaults_match_runner[default-ref]",
+    "message": "Failed: DID NOT RAISE ValueError"
+  },
+  {
+    "mutation": "nested-cycle",
+    "test": "test_round14_nested_definition_cycle_is_invalid_evidence",
+    "message": "epic16_native.HelperUnavailable: fixed helper host failed: exit=-6; stdout=''; stderr='dataReader, System.Reflection.Metadata.TypeDefinitionHandle, System.Collections.Generic.HashSet`1<System.Reflection.Metadata.TypeDefinitionHandle>)\\n   at Hexalith.Conversations.Tooling.SignatureNames.DefinitionName(System.Reflection.Metadata.MetadataReader, System.Reflection.Metadata.TypeDefinitionHandle, System.Collections.Generic.HashSet`1<System.Reflection.Metadata.TypeDefinitionHandle>)\\n   at Hexalith.Conversations.Tooling.SignatureNames.DefinitionName(System.Reflection.Metadata.MetadataReader, System.Reflection.Metadata.TypeDefinitionHandle, System.Collections.Generic.HashSet`1<System.Reflection.Metadata.TypeDefinitionHandle>)\\n   at Hexalith.Conversations.Tooling.SignatureNames.Name(System.Reflection.Metadata.MetadataReader, System.Reflection.Metadata.EntityHandle)\\n   at Hexalith.Conversations.Tooling.TestConstruction+<>c__DisplayClass1_0.<Validate>b__0(System.Reflection.Metadata.TypeDefinitionHandle)\\n   at System.Linq.Enumerable.ToDictionary[[System.Reflection.Metadata.TypeDefinitionHandle, System.Reflection.Metadata, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a],[System.__Canon, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Reflection.Metadata.TypeDefinitionHandle, System.Reflection.Metadata, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a]](System.Collections.Generic.IEnumerable`1<System.Reflection.Metadata.TypeDefinitionHandle>, System.Func`2<System.Reflection.Metadata.TypeDefinitionHandle,System.__Canon>, System.Func`2<System.Reflection.Metadata.TypeDefinitionHandle,System.Reflection.Metadata.TypeDefinitionHandle>, System.Collections.Generic.IEqualityComparer`1<System.__Canon>)\\n   at Hexalith.Conversations.Tooling.TestConstruction.Validate(System.Reflection.Metadata.MetadataReader, System.Reflection.Metadata.TypeDefinitionHandle)\\n   at Hexalith.Conversations.Tooling.Program.Inspect(System.Text.Json.JsonElement)\\n   at Hexalith.Conversations.Tooling.Program.Main()\\n'"
+  },
+  {
+    "mutation": "domain-predicate-explanation",
+    "test": "test_round14_real_evaluator_retains_controlled_predicate_explanation[domain]",
+    "message": "AssertionError: assert {'id': 'MEASU...tate': 'FAIL'} == {'id': 'MEASU...tate': 'FAIL'}\n  \n  Omitting 2 identical items, use -vv to show\n  Differing items:\n  {'subject': 'AC-16.1-01'} != {'subject': 'authorization summaries derive from actual read and access inputs'}\n  Use -v to get more diff"
+  },
+  {
+    "mutation": "measurement-predicate-explanation",
+    "test": "test_round14_real_evaluator_retains_controlled_predicate_explanation[measurements]",
+    "message": "AssertionError: assert {'id': 'MEASU...tate': 'FAIL'} == {'id': 'MEASU...tate': 'FAIL'}\n  \n  Omitting 2 identical items, use -vv to show\n  Differing items:\n  {'subject': 'AC-16.1-01'} != {'subject': 'sequence transition state'}\n  Use -v to get more diff"
+  },
+  {
+    "mutation": "controlled-explanation-caller",
+    "test": "test_round14_real_evaluator_retains_controlled_predicate_explanation[domain]",
+    "message": "AssertionError: assert {'id': 'MEASU...tate': 'FAIL'} == {'id': 'MEASU...tate': 'FAIL'}\n  \n  Omitting 2 identical items, use -vv to show\n  Differing items:\n  {'subject': 'AC-16.1-01'} != {'subject': 'authorization summaries derive from actual read and access inputs'}\n  Use -v to get more diff"
+  },
+  {
+    "mutation": "controlled-explanation-caller",
+    "test": "test_round14_real_evaluator_retains_controlled_predicate_explanation[measurements]",
+    "message": "AssertionError: assert {'id': 'MEASU...tate': 'FAIL'} == {'id': 'MEASU...tate': 'FAIL'}\n  \n  Omitting 2 identical items, use -vv to show\n  Differing items:\n  {'subject': 'AC-16.1-01'} != {'subject': 'sequence transition state'}\n  Use -v to get more diff"
+  },
+  {
+    "mutation": "untrusted-explanation-nondisclosure",
+    "test": "test_round14_untrusted_exception_details_remain_generic[unrelated]",
+    "message": "AssertionError: assert {'id': 'MEASU...tate': 'FAIL'} == {'id': 'MEASU...tate': 'FAIL'}\n  \n  Omitting 2 identical items, use -vv to show\n  Differing items:\n  {'subject': 'UNTRUSTED-SECRET-R14'} != {'subject': 'AC-16.1-01'}\n  Use -v to get more diff"
+  },
+  {
+    "mutation": "untrusted-explanation-nondisclosure",
+    "test": "test_round14_untrusted_exception_details_remain_generic[parser]",
+    "message": "assert {'id': 'MEASU...tate': 'FAIL'} == {'id': 'MEASU...tate': 'FAIL'}\n  \n  Omitting 2 identical items, use -vv to show\n  Differing items:\n  {'subject': \"invalid literal for int() with base 10: 'UNTRUSTED-SECRET-R14'\"} != {'subject': 'AC-16.1-01'}\n  Use -v to get more diff"
+  },
+  {
+    "mutation": "omitted-cli-pair",
+    "test": "test_round14_real_generator_cli_default_and_explicit_output_pair[omitted]",
+    "message": "AssertionError: (b'{\n    \"assertionLedger\": [\n      {\n        \"id\": \"OUTPUT_FORBIDDEN\",\n        \"state\": \"FAIL\",\n        \"subject\": \"exact ...ith.conversations.epic16-measured-result.v1\",\n    \"storyId\": \"16.1\",\n    \"validationScope\": \"tooling-fixture\"\n  }\n  ', b'')\nassert (1 == 0)\n +  where 1 = CompletedProcess(args=['/home/administrator/projects/hexalith/conversations/.venv/bin/python3', '/tmp/epic16-r14-mutan...versations.epic16-measured-result.v1\",\\n  \"storyId\": \"16.1\",\\n  \"validationScope\": \"tooling-fixture\"\\n}\\n', stderr=b'').returncode"
+  }
+]

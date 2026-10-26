@@ -1,0 +1,1 @@
+namespace Hexalith.Conversations.IntegrationTests.Epic16; public class Fixture {} [Xunit.CollectionDefinition("R13Collection")] public class Group : Xunit.ICollectionFixture<Fixture> {} [Xunit.Collection("R13Collection")] public class Story16_2EvidenceTests(Fixture value) { [Xunit.Fact] public void Scenario02() {} }

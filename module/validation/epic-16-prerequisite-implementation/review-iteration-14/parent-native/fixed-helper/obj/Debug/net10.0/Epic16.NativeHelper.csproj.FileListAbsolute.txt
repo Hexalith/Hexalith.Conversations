@@ -1,0 +1,14 @@
+/tmp/epic16-native-oracle-q3b81dvj/bin/Debug/net10.0/Epic16.NativeHelper
+/tmp/epic16-native-oracle-q3b81dvj/bin/Debug/net10.0/Epic16.NativeHelper.deps.json
+/tmp/epic16-native-oracle-q3b81dvj/bin/Debug/net10.0/Epic16.NativeHelper.runtimeconfig.json
+/tmp/epic16-native-oracle-q3b81dvj/bin/Debug/net10.0/Epic16.NativeHelper.dll
+/tmp/epic16-native-oracle-q3b81dvj/bin/Debug/net10.0/Epic16.NativeHelper.pdb
+/tmp/epic16-native-oracle-q3b81dvj/obj/Debug/net10.0/Epic16.NativeHelper.GeneratedMSBuildEditorConfig.editorconfig
+/tmp/epic16-native-oracle-q3b81dvj/obj/Debug/net10.0/Epic16.NativeHelper.AssemblyInfoInputs.cache
+/tmp/epic16-native-oracle-q3b81dvj/obj/Debug/net10.0/Epic16.NativeHelper.AssemblyInfo.cs
+/tmp/epic16-native-oracle-q3b81dvj/obj/Debug/net10.0/Epic16.NativeHelper.csproj.CoreCompileInputs.cache
+/tmp/epic16-native-oracle-q3b81dvj/obj/Debug/net10.0/Epic16.NativeHelper.dll
+/tmp/epic16-native-oracle-q3b81dvj/obj/Debug/net10.0/refint/Epic16.NativeHelper.dll
+/tmp/epic16-native-oracle-q3b81dvj/obj/Debug/net10.0/Epic16.NativeHelper.pdb
+/tmp/epic16-native-oracle-q3b81dvj/obj/Debug/net10.0/Epic16.NativeHelper.genruntimeconfig.cache
+/tmp/epic16-native-oracle-q3b81dvj/obj/Debug/net10.0/ref/Epic16.NativeHelper.dll

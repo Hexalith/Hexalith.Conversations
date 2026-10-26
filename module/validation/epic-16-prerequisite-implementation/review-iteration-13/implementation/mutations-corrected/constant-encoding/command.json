@@ -1,0 +1,29 @@
+{
+  "name": "constant-encoding",
+  "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+  "old": "if (bytes.Length != length || length < 0 || constant.TypeCode == ConstantTypeCode.Boolean && bytes[0] > 1)",
+  "new": "if (false)",
+  "selector": "round13_defaults_validate and (truncated-constant or invalid-bool)",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r13-mutant-constant-encoding-oe09jnix/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round13_defaults_validate and (truncated-constant or invalid-bool)",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-corrected/constant-encoding/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r13-mutant-constant-encoding-oe09jnix",
+  "exitCode": 1,
+  "elapsedSeconds": 9.031341452995548,
+  "originalSha256": "b1f4399f3215d3eb1eb3bd1f8639e131652a17a6d4f60cced73e68f6f39e3c8b",
+  "mutatedSha256": "90cc00b2eb7241e26f406d69022fd2469bf391a6874326dbf722033a6eec7271",
+  "testSha256": "ad6049e16ab218872880723fcdfa15da86f0858fa4802bb50ba7d1a02c82330d",
+  "tests": {
+    "tests": 2,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0
+  }
+}

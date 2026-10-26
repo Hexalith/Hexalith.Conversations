@@ -1,0 +1,16 @@
+{
+  "command": [
+    "dotnet",
+    "/tmp/epic16-r13-collection-njzpqbe8/bin/Debug/net10.0/Evidence.dll",
+    "-automated",
+    "sync",
+    "-failSkips",
+    "-method",
+    "Synthetic.TestClass.Scenario01"
+  ],
+  "cwd": "/tmp/epic16-r13-collection-njzpqbe8",
+  "timeoutSeconds": 120,
+  "returnCode": null,
+  "positiveControlExitCode": 0,
+  "disposition": "Mutated collection metadata passed inspection but the actual runner did not complete within120seconds. The initial wrapper did not retain TimeoutExpired output; repeat only this exact mutated runner with explicit bounded timeout-output retention."
+}

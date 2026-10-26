@@ -1,0 +1,1 @@
+namespace Synthetic; public class TestClass([System.Runtime.InteropServices.Optional] int? value) { [Xunit.Fact] public void Scenario01() { if (!(value is null)) throw new System.Exception("Unexpected native default"); } }

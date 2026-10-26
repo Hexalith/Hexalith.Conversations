@@ -1,0 +1,1 @@
+namespace Synthetic; public class TestClass { [Xunit.Fact] public System.Threading.Tasks.Task Scenario01() => System.Threading.Tasks.Task.CompletedTask; }

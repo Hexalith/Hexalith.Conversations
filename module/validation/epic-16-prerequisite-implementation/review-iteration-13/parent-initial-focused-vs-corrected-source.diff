@@ -1,0 +1,77 @@
+--- focused-corrected/_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json
++++ focused-final/_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json
+@@ -188,7 +188,7 @@
+     },
+     {
+       "path": "_bmad/scripts/epic16_native_helper/README.md",
+-      "sha256": "73df4be9ed9e528d5c3dc303a2fd27542ece12dd29c86bd532e3d035481082a1"
++      "sha256": "bac553c9cfd7bc0f60b689ffe8ac9e736e2a58bb3b2a8dd171cc1443b01ca1d3"
+     },
+     {
+       "path": "_bmad/scripts/epic16_native_helper/ReadModelBatchCanonicalJson.cs",
+@@ -200,7 +200,7 @@
+     },
+     {
+       "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+-      "sha256": "b1f4399f3215d3eb1eb3bd1f8639e131652a17a6d4f60cced73e68f6f39e3c8b"
++      "sha256": "1b37f691b714f3cec6f92d07ac379e4eb19bf19d8ee3f74255fd6dad55b62c33"
+     },
+     {
+       "path": "_bmad/scripts/epic16_products.py",
+--- focused-corrected/_bmad/scripts/epic16_native_helper/README.md
++++ focused-final/_bmad/scripts/epic16_native_helper/README.md
+@@ -171,5 +171,3 @@
+ stderr `Invalid native evidence.`. Other nonzero host exits (including missing
+ framework exit 150) are prerequisite failures with the real exit code and bounded
+ separate stream tails. They produce HelperUnavailable/BLOCKED, never evidence FAIL.
+-
+-Decimal defaults use the trusted native sign semantics: zero is positive and every nonzero byte is negative. Scale remains bounded by the native decimal constructor, and the complete attribute signature and blob are required.
+--- focused-corrected/_bmad/scripts/epic16_native_helper/TestConstruction.cs
++++ focused-final/_bmad/scripts/epic16_native_helper/TestConstruction.cs
+@@ -305,9 +305,8 @@
+             string target = NullableArgument(reader, type) ?? type;
+             if (decimalType && FrameworkSystemType(reader, target, "System.Decimal", "valuetype "))
+             {
+-                byte scale = blob.ReadByte();
+-                _ = blob.ReadByte(); // Native DecimalConstantAttribute treats every nonzero sign as negative.
+-                if (scale > 28) throw new InvalidDataException("Invalid decimal default.");
++                byte scale = blob.ReadByte(), sign = blob.ReadByte();
++                if (scale > 28 || sign is not (0 or 128)) throw new InvalidDataException("Invalid decimal default.");
+                 blob.ReadUInt32(); blob.ReadUInt32(); blob.ReadUInt32();
+             }
+             else if (dateType && FrameworkSystemType(reader, target, "System.DateTime", "valuetype "))
+--- focused-corrected/_bmad/scripts/tests/test_epic16_tooling.py
++++ focused-final/_bmad/scripts/tests/test_epic16_tooling.py
+@@ -4641,7 +4641,7 @@
+     round12_retain_native('round13-defaults',directory,commands)
+ 
+ 
+-@pytest.mark.parametrize('fault',['wrong-type','truncated-constant','invalid-bool','invalid-null','decimal-scale','decimal-named','decimal-trailing','date-range','date-named'])
++@pytest.mark.parametrize('fault',['wrong-type','truncated-constant','invalid-bool','invalid-null','decimal-scale','decimal-sign','decimal-named','decimal-trailing','date-range','date-named'])
+ def test_round13_defaults_validate_selected_kind_encoding_and_complete_blob(tmp_path,fault):
+     if fault.startswith('decimal'):
+         parameter='decimal value = 1.23456789m';source='namespace Synthetic; public class TestClass('+parameter+') { [Xunit.Fact] public void Scenario01() {} }'
+@@ -4659,6 +4659,7 @@
+     elif fault.startswith('decimal'):
+         before=bytes([18,1,0,8,0])+bytes(8)+(123456789).to_bytes(4,'little')+bytes(2);after=bytearray(before)
+         if fault=='decimal-scale':after[3]=29
++        elif fault=='decimal-sign':after[4]=127
+         elif fault=='decimal-named':after[-2]=1
+         else:after[0]=17
+         after=bytes(after)
+@@ -4888,15 +4889,3 @@
+     binary,commands=round13_build(directory,source,revision)
+     round12_retain_native('round13-build-'+digest((revision+'\n'+source).encode()),directory,commands)
+     return binary.read_bytes()
+-
+-
+-@pytest.mark.parametrize('sign',[0,1,127,128,255])
+-def test_round13_decimal_default_sign_matches_actual_trusted_constructor(tmp_path,sign):
+-    expected='1m' if sign==0 else '-1m'
+-    source='namespace Synthetic; public class TestClass([System.Runtime.CompilerServices.DecimalConstant(0,'+str(sign)+',0u,0u,1u)] decimal value) { [Xunit.Fact] public void Scenario01() { if (value != '+expected+') throw new System.Exception("Incorrect native decimal sign"); } }'
+-    directory=tmp_path/'decimal-sign';binary,commands=round13_build(directory,source)
+-    argv=['dotnet',str(binary),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01'];run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
+-    (directory/'run.stdout').write_bytes(run.stdout);(directory/'run.stderr').write_bytes(run.stderr);commands.append(dict(argv=argv,cwd=str(directory),exitCode=run.returncode))
+-    assert run.returncode==0,(run.stdout,run.stderr)
+-    assert tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+-    round12_retain_native('round13-native-decimal-sign-'+str(sign),directory,commands)

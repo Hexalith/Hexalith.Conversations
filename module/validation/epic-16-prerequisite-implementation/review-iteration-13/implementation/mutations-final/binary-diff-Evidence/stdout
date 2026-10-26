@@ -1,0 +1,19 @@
+F........                                                                [100%]
+=================================== FAILURES ===================================
+____ test_round13_opaque_native_evidence_has_binary_normal_diffs[Evidence] _____
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-734/test_round13_opaque_native_evi0/fixture')
+name = 'Evidence'
+
+    @pytest.mark.parametrize('name',['Evidence','Goldens','Epic16.NativeHelper','apphost','sample.pdb','public.snk','Product.assets.cache','sample.dll','sample.dll.bytes'])
+    def test_round13_opaque_native_evidence_has_binary_normal_diffs(repository,name):
+        path='module/validation/epic-16-prerequisite-implementation/review-iteration-13/build/bin/Debug/'+name
+        raw=b'\x7fELF\0\x90\xff\r\nopaque-native\0';target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
+>       assert all(path+': '+key+': unset' in git(repository,'check-attr',key,'--',path) for key in ('text','diff','whitespace'))
+E       assert False
+E        +  where False = all(<generator object test_round13_opaque_native_evidence_has_binary_normal_diffs.<locals>.<genexpr> at 0x7afd66bff010>)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4785: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round13_opaque_native_evidence_has_binary_normal_diffs[Evidence]
+1 failed, 8 passed, 2844 deselected in 17.48s

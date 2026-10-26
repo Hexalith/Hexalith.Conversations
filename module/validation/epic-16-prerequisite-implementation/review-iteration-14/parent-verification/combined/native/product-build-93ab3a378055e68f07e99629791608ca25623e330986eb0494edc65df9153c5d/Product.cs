@@ -1,0 +1,1 @@
+namespace Synthetic; public abstract class Surface { public string Existing(string value) => value; }

@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_tooling.py
++++ _bmad/scripts/epic16_tooling.py
+@@ -678,7 +678,7 @@
+             result = verify_inserted(Path(args.repository), selected, args.verify_inserted_record, args.scope)
+         else:
+             result, _, _ = generate(Path(args.repository), selected, args.candidate, args.scope, write=True,
+-                paths=None if args.output_json is None and args.output_markdown is None else [args.output_json, args.output_markdown])
++                paths=[args.output_json, args.output_markdown])
+     else:
+         try:
+             if args.output:

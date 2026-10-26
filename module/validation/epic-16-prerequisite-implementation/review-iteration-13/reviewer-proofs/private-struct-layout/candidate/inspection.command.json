@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "/tmp/epic16-review13-blind-proofs/metadata_inspect.py",
+    "product",
+    "/tmp/epic16-review13-blind-proofs/private-struct-layout/candidate/Probe.dll.bytes",
+    "--revision",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  ],
+  "cwd": "/tmp/epic16-review13-blind-proofs/private-struct-layout/candidate",
+  "exitCode": 0
+}

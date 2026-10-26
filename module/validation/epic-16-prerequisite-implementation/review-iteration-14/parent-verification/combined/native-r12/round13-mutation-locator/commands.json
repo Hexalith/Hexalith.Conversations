@@ -1,0 +1,16 @@
+[
+  {
+    "argv": [
+      "dotnet",
+      "build",
+      "Probe.csproj",
+      "-c",
+      "Debug",
+      "--nologo",
+      "-m:1",
+      "-p:NuGetAudit=false"
+    ],
+    "cwd": "/tmp/epic16-metadata-locations-fuuwpr76",
+    "exitCode": 0
+  }
+]

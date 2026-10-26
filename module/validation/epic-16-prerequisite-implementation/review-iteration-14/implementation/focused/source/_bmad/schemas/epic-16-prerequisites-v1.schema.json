@@ -1,0 +1,554 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Epic 16 preparation only; definitions do not authorize execution",
+  "$defs": {
+    "package": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "status",
+        "baselineRevision",
+        "architectureDecisions",
+        "authority",
+        "pendingDecisions",
+        "sourceBindings",
+        "files",
+        "infrastructureDecision"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "hexalith.conversations.epic16-prerequisites-draft.v1"
+        },
+        "status": {
+          "const": "draft"
+        },
+        "baselineRevision": {
+          "const": "60f18214d7a4565d28096628af95d867ddd5e874"
+        },
+        "architectureDecisions": {
+          "const": [
+            "AD-5",
+            "AD-6",
+            "AD-7",
+            "AD-8"
+          ]
+        },
+        "authority": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "implementationHold",
+            "executionAllowed",
+            "ownerApprovalClaimed",
+            "releaseAuthorized",
+            "pushAuthorized"
+          ],
+          "properties": {
+            "implementationHold": {
+              "const": "ACTIVE"
+            },
+            "executionAllowed": {
+              "const": false
+            },
+            "ownerApprovalClaimed": {
+              "const": false
+            },
+            "releaseAuthorized": {
+              "const": false
+            },
+            "pushAuthorized": {
+              "const": false
+            }
+          }
+        },
+        "pendingDecisions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "owner",
+              "state",
+              "question"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "owner": {
+                "type": "string",
+                "minLength": 1
+              },
+              "state": {
+                "const": "pending"
+              },
+              "question": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "sourceBindings": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "_bmad-output/planning-artifacts/architecture.md",
+            "_bmad-output/planning-artifacts/epics.md",
+            "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md",
+            "_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-18.md",
+            "_bmad-output/planning-artifacts/v9-execution-graph-v1.json",
+            "_bmad-output/planning-artifacts/v9/story-contracts/16.1.json",
+            "_bmad-output/planning-artifacts/v9/story-contracts/16.2.json",
+            "_bmad-output/planning-artifacts/v9/story-contracts/16.3.json",
+            "_bmad-output/planning-artifacts/implementation-hold-v1.json",
+            "_bmad-output/implementation-artifacts/sprint-status.yaml",
+            "docs/runbooks/current-change-validation.md",
+            ".gitmodules",
+            "references/Hexalith.Platform/README.md",
+            "references/Hexalith.Platform/docs/domain-module-enrollment.md",
+            "references/Hexalith.Platform/hexalith-platform.json",
+            "references/Hexalith.Platform/.config/dotnet-tools.json",
+            "references/Hexalith.Platform/_bmad-output/specs/spec-platform/SPEC.md",
+            "references/Hexalith.Platform/_bmad-output/planning-artifacts/architecture/architecture-platform-2026-09-27/ARCHITECTURE-SPINE.md",
+            "references/Hexalith.Platform/src/Hexalith.Platform.Composition/PlatformDaprBindings.cs",
+            "references/Hexalith.Platform/src/Hexalith.Platform.Composition/PlatformAppModel.cs"
+          ],
+          "properties": {
+            "_bmad-output/planning-artifacts/architecture.md": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "_bmad-output/planning-artifacts/epics.md": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-18.md": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "_bmad-output/planning-artifacts/v9-execution-graph-v1.json": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "_bmad-output/planning-artifacts/v9/story-contracts/16.1.json": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "_bmad-output/planning-artifacts/v9/story-contracts/16.2.json": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "_bmad-output/planning-artifacts/v9/story-contracts/16.3.json": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "_bmad-output/planning-artifacts/implementation-hold-v1.json": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "_bmad-output/implementation-artifacts/sprint-status.yaml": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "docs/runbooks/current-change-validation.md": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            ".gitmodules": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "references/Hexalith.Platform/README.md": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "references/Hexalith.Platform/docs/domain-module-enrollment.md": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "references/Hexalith.Platform/hexalith-platform.json": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "references/Hexalith.Platform/.config/dotnet-tools.json": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "references/Hexalith.Platform/_bmad-output/specs/spec-platform/SPEC.md": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "references/Hexalith.Platform/_bmad-output/planning-artifacts/architecture/architecture-platform-2026-09-27/ARCHITECTURE-SPINE.md": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "references/Hexalith.Platform/src/Hexalith.Platform.Composition/PlatformDaprBindings.cs": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "references/Hexalith.Platform/src/Hexalith.Platform.Composition/PlatformAppModel.cs": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "sha256"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          },
+          "minItems": 8,
+          "maxItems": 8
+        },
+        "infrastructureDecision": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "owner",
+            "platformRevision",
+            "selectedBy",
+            "instruction",
+            "productionQualificationClaimed"
+          ],
+          "properties": {
+            "owner": {
+              "const": "Hexalith.Platform"
+            },
+            "platformRevision": {
+              "const": "10c50afc3cab41506fbb260e9fbc48a1804e0b61"
+            },
+            "selectedBy": {
+              "const": "user"
+            },
+            "instruction": {
+              "const": "stick to Hexalith.Platform"
+            },
+            "productionQualificationClaimed": {
+              "const": false
+            }
+          }
+        }
+      }
+    },
+    "story": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "status",
+        "storyId",
+        "predecessorContract",
+        "architectureDecisions",
+        "predecessors",
+        "outcome",
+        "rollback",
+        "scenarios",
+        "finalRecord",
+        "adoption"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "hexalith.conversations.epic16-successor-draft.v1"
+        },
+        "status": {
+          "const": "draft"
+        },
+        "storyId": {
+          "enum": [
+            "16.1",
+            "16.2",
+            "16.3"
+          ]
+        },
+        "predecessorContract": {
+          "type": "string",
+          "minLength": 1
+        },
+        "architectureDecisions": {
+          "const": [
+            "AD-5",
+            "AD-6",
+            "AD-7",
+            "AD-8"
+          ]
+        },
+        "predecessors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "outcome": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "title",
+            "bounded"
+          ],
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1
+            },
+            "bounded": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "rollback": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "boundary"
+          ],
+          "properties": {
+            "boundary": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "scenarios": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "legacyCommand",
+              "given",
+              "when",
+              "then",
+              "requirementIds"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^AC-16\\.[123]-0[1-6]$"
+              },
+              "legacyCommand": {
+                "type": "string",
+                "minLength": 1
+              },
+              "given": {
+                "type": "string",
+                "minLength": 1
+              },
+              "when": {
+                "type": "string",
+                "minLength": 1
+              },
+              "then": {
+                "type": "string",
+                "minLength": 1
+              },
+              "requirementIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            }
+          },
+          "minItems": 6,
+          "maxItems": 6
+        },
+        "finalRecord": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "paths",
+            "summary"
+          ],
+          "properties": {
+            "paths": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 2,
+              "maxItems": 2,
+              "uniqueItems": true
+            },
+            "summary": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "required",
+                "passed",
+                "failed",
+                "blocked",
+                "skipped",
+                "notRun"
+              ],
+              "properties": {
+                "required": {
+                  "const": 6
+                },
+                "passed": {
+                  "const": 6
+                },
+                "failed": {
+                  "const": 0
+                },
+                "blocked": {
+                  "const": 0
+                },
+                "skipped": {
+                  "const": 0
+                },
+                "notRun": {
+                  "const": 0
+                }
+              }
+            }
+          }
+        },
+        "adoption": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "generatorCompatible",
+            "scenarioVerifiersAvailable",
+            "requiresOwnerDecision"
+          ],
+          "properties": {
+            "generatorCompatible": {
+              "const": false
+            },
+            "scenarioVerifiersAvailable": {
+              "const": false
+            },
+            "requiresOwnerDecision": {
+              "const": true
+            }
+          }
+        }
+      }
+    },
+    "inventory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "legacyInventories",
+        "requirements",
+        "topologicalOrder"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "hexalith.conversations.epic16-draft-inventories.v1"
+        },
+        "legacyInventories": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "16.1",
+            "16.2",
+            "16.3"
+          ],
+          "properties": {
+            "16.1": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "16.2": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "16.3": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          }
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "scenarioIds"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "scenarioIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            }
+          },
+          "minItems": 32,
+          "maxItems": 32
+        },
+        "topologicalOrder": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 38,
+          "maxItems": 38,
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

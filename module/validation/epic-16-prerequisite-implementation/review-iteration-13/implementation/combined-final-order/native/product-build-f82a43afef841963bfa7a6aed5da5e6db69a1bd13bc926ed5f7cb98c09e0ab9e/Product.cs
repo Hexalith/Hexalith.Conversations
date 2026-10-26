@@ -1,0 +1,1 @@
+namespace Synthetic; public class Surface { public string Existing(object value) => value.ToString()!; public string Value { get; set; } = ""; public T Generic<T>(T value) where T : class => value; }

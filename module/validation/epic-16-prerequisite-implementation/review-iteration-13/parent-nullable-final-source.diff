@@ -1,0 +1,26 @@
+--- nullable-focused/_bmad/scripts/tests/test_epic16_tooling.py
++++ focused-final-constraint/_bmad/scripts/tests/test_epic16_tooling.py
+@@ -4924,7 +4924,7 @@
+ def test_round13_nullable_constraint_excludes_invalid_value_shapes(tmp_path,argument):
+     support='public struct Wrapper {}'
+     parameter='Wrapper? value = null'
+-    if argument=='nested':support='public struct Wrapper<T> {}';parameter='Wrapper<int>? value = null'
++    if argument=='nested':support=' '.join('public struct Padding'+str(i)+' {}' for i in range(33))+' public struct Wrapper<T> {}';parameter='Wrapper<int>? value = null'
+     if argument=='byref-like':support+=' public ref struct Blocked {}'
+     source='namespace Synthetic; '+support+' public class TestClass('+parameter+') { [Xunit.Fact] public void Scenario01() { if (value is not null) throw new System.Exception("Unexpected native default"); } }'
+     directory=tmp_path/'native';binary_path,commands=round13_build(directory,source);binary=binary_path.read_bytes();locations=round13_locations(binary)
+@@ -4934,10 +4934,12 @@
+         with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')
+     else:assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+     location=next(r for r in locations['methods'] if r['type']=='Synthetic.TestClass' and r['name']=='.ctor');signature=bytearray.fromhex(location['signature']);assert len(signature)<128
+-    wrapper=next(r['coded'] for r in locations['types'] if r['name']=='Synthetic.Wrapper'+('`1' if argument=='nested' else ''));assert wrapper<128
++    wrapper=next(r['coded'] for r in locations['types'] if r['name']=='Synthetic.Wrapper'+('`1' if argument=='nested' else ''))
+     if argument=='array':assert signature[-2:]==bytes([0x11,wrapper]);signature[-2:]=bytes([0x1d,0x08])
+     elif argument=='nested':
+-        nullable=next(r['coded'] for r in locations['types'] if r['name'].endswith(']System.Nullable`1'));assert nullable<128 and signature[-5:]==bytes([0x15,0x11,wrapper,1,8]);signature[-3]=nullable
++        nullable=next(r['coded'] for r in locations['types'] if r['name'].endswith(']System.Nullable`1'));assert 128<=wrapper<16384 and 128<=nullable<16384
++        encoded_wrapper=bytes([0x80 | (wrapper>>8),wrapper&255]);encoded_nullable=bytes([0x80 | (nullable>>8),nullable&255])
++        assert signature[-6:]==bytes([0x15,0x11])+encoded_wrapper+bytes([1,8]);signature[-4:-2]=encoded_nullable
+     else:
+         blocked=next(r['coded'] for r in locations['types'] if r['name']=='Synthetic.Blocked');assert blocked<128 and signature[-2:]==bytes([0x11,wrapper]);signature[-1]=blocked
+     offset=location['signatureOffset']+1;mutant=binary[:offset]+bytes(signature)+binary[offset+len(signature):]

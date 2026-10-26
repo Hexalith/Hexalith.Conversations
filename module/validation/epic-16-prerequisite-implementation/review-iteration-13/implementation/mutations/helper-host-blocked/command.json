@@ -1,0 +1,29 @@
+{
+  "name": "helper-host-blocked",
+  "path": "_bmad/scripts/epic16_native.py",
+  "old": "raise HelperUnavailable(_process_failure('fixed helper host failed', result))",
+  "new": "raise ValueError('invalid native evidence')",
+  "selector": "round13_host_failures and 150",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r13-mutant-helper-host-blocked-eab3zvzh/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round13_host_failures and 150",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations/helper-host-blocked/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r13-mutant-helper-host-blocked-eab3zvzh",
+  "exitCode": 1,
+  "elapsedSeconds": 24.828787403996103,
+  "originalSha256": "a092c95518aa2b7e1bfb26cbbe15ef196aa5bf5c951616625f5c12b94b9c6155",
+  "mutatedSha256": "4a744c54b1b3c836d7d67c7eda5c21fa4d39b5acefd61b20050a7ab15b267bac",
+  "testSha256": "89b772a2f03573dc5cb7982dc3f04283923350aa6c50f7886d808a9101faa834",
+  "tests": {
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  }
+}

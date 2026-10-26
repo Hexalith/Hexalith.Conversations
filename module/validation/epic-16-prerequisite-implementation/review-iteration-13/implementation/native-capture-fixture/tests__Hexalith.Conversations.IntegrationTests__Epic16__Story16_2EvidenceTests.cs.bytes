@@ -1,0 +1,24 @@
+namespace Hexalith.Conversations.IntegrationTests.Epic16;
+public sealed class Story16_2EvidenceTests(Xunit.ITestOutputHelper output)
+{
+    private void Emit(string scenario)
+    {
+        var payload = System.Text.Json.Nodes.JsonNode.Parse(System.IO.File.ReadAllText(System.IO.Path.Combine(System.Environment.GetEnvironmentVariable("EPIC16_FIXTURE_PAYLOADS")!, scenario+".json")))!;
+        System.Reflection.Assembly[] assemblies = [typeof(Hexalith.Conversations.Server.Projections.ConversationProjectionReadModelWriter).Assembly, typeof(Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1).Assembly, typeof(Hexalith.Tenants.Client.Projections.ITenantProjectionStore).Assembly, typeof(Hexalith.Tenants.Contracts.Events.TenantDisabled).Assembly, typeof(Hexalith.EventStore.Client.Projections.IReadModelStore).Assembly, typeof(Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest).Assembly, typeof(Hexalith.EventStore.DomainService.DomainProjectionDispatcher).Assembly, typeof(Hexalith.EventStore.Server.Projections.ProjectionDeliveryReconciler).Assembly, typeof(Hexalith.Commons.TenantAccess.TenantAccessEvaluator).Assembly];
+        string[] owners = [".",".","references/Hexalith.Tenants","references/Hexalith.Tenants","references/Hexalith.EventStore","references/Hexalith.EventStore","references/Hexalith.EventStore","references/Hexalith.EventStore","references/Hexalith.Commons"];
+        var loaded = new System.Text.Json.Nodes.JsonArray();
+        for (int i=0;i<assemblies.Length;i++)
+        {
+            var assembly=assemblies[i];
+            string version=System.Reflection.CustomAttributeExtensions.GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>(assembly)!.InformationalVersion;
+            loaded.Add(new System.Text.Json.Nodes.JsonObject { ["assemblyName"]=assembly.GetName().Name, ["owner"]=owners[i], ["sourceRevision"]=version[(version.LastIndexOf('+')+1)..], ["mvid"]=assembly.ManifestModule.ModuleVersionId.ToString(), ["sha256"]=System.Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.IO.File.ReadAllBytes(assembly.Location))).ToLowerInvariant(), ["codeBase"]=assembly.Location });
+        }
+        payload["loadedProducts"]=loaded;
+        output.WriteLine(payload.ToJsonString());
+    }
+[Xunit.Fact] public void Scenario01() => Emit("AC-16.2-01");
+[Xunit.Fact] public void Scenario02() => Emit("AC-16.2-02");
+[Xunit.Fact] public void Scenario03() => Emit("AC-16.2-03");
+[Xunit.Fact] public void Scenario04() => Emit("AC-16.2-04");
+[Xunit.Fact] public void Scenario05() => Emit("AC-16.2-05");
+}

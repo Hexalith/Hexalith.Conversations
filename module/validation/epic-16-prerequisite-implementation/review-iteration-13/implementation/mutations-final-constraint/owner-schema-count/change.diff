@@ -1,0 +1,11 @@
+--- _bmad/schemas/epic-16-tooling-v1.schema.json
++++ _bmad/schemas/epic-16-tooling-v1.schema.json
+@@ -35963,7 +35963,7 @@
+         },
+         "products": {
+           "type": "array",
+-          "minItems": 9,
++          "minItems": 7,
+           "maxItems": 9,
+           "items": {
+             "type": "object",

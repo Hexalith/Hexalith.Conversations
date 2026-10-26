@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_domain.py
++++ _bmad/scripts/epic16_domain.py
+@@ -21,7 +21,7 @@
+ 
+ 
+ def require(condition, detail):
+-    if not condition: raise PredicateError(detail)
++    if not condition: raise ValueError(detail)
+ 
+ 
+ def shape(value, keys):

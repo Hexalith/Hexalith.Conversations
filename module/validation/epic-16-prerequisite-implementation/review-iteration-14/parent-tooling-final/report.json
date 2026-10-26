@@ -1,0 +1,95 @@
+{
+  "workspace": "/tmp/epic16-r14-parent-tooling-wpra4jfv/fixture",
+  "semanticExplanation": "authorization summaries derive from actual read and access inputs",
+  "semanticReported": [
+    {
+      "id": "preservation",
+      "subject": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "state": "PASS"
+    },
+    {
+      "id": "MEASUREMENT_INVALID",
+      "subject": "authorization summaries derive from actual read and access inputs",
+      "state": "FAIL"
+    }
+  ],
+  "cli": [
+    {
+      "label": "omitted",
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "/home/administrator/projects/hexalith/conversations/_bmad/scripts/generate_story_record.py",
+        "--repository",
+        "/tmp/epic16-r14-parent-tooling-wpra4jfv/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+        "--scope",
+        "tooling-fixture",
+        "--format",
+        "bundle"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": []
+    },
+    {
+      "label": "explicit",
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "/home/administrator/projects/hexalith/conversations/_bmad/scripts/generate_story_record.py",
+        "--repository",
+        "/tmp/epic16-r14-parent-tooling-wpra4jfv/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+        "--scope",
+        "tooling-fixture",
+        "--format",
+        "bundle",
+        "--output-json",
+        "artifacts/epic16-tooling-fixture/16.1/final-record.json",
+        "--output-markdown",
+        "artifacts/epic16-tooling-fixture/16.1/final-record.md"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": []
+    },
+    {
+      "label": "partial",
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-sync",
+        "python3",
+        "/home/administrator/projects/hexalith/conversations/_bmad/scripts/generate_story_record.py",
+        "--repository",
+        "/tmp/epic16-r14-parent-tooling-wpra4jfv/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+        "--scope",
+        "tooling-fixture",
+        "--format",
+        "bundle",
+        "--output-json",
+        "artifacts/epic16-tooling-fixture/16.1/final-record.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "exitCode": 1,
+      "result": "FAIL",
+      "blockers": [
+        "OUTPUT_FORBIDDEN"
+      ]
+    }
+  ]
+}

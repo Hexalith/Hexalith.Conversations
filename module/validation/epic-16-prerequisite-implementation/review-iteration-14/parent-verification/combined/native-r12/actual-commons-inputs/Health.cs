@@ -1,0 +1,2 @@
+using Hexalith.Commons.TenantAccess;
+sealed class Health:ITenantAccessProjectionHealthProvider { public int ReadsHealth; public ValueTask<TenantAccessProjectionHealth?> GetProjectionHealthAsync(string id,CancellationToken ct=default) { ReadsHealth++; return ValueTask.FromResult<TenantAccessProjectionHealth?>(new(10,"10",false,false,false,false)); } }

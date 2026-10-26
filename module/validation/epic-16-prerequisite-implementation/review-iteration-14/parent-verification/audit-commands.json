@@ -1,0 +1,24 @@
+[
+  {
+    "argv": [
+      "python3",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-verification/audit-final.py"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "scriptSha256": "7ddfb8a4aa83424c3678150ffbd6ec73228b7ac6f875a01dbe0b868dfe5a5b88",
+    "stdoutSha256": "db31d47506433cbaf155a0446e273fedc16e70da2f54c9adc1a859d339e0af7f",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "argv": [
+      "python3",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-verification/audit-native.py"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "scriptSha256": "6a46bc9bc8d9394e7378120c912f63f232da6980d02f722d40987b5c1c56c8f3",
+    "stdoutSha256": "25ce3f841b6597c7b730c0f912118db3d477733a8b8280b82884af0e23778c80",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

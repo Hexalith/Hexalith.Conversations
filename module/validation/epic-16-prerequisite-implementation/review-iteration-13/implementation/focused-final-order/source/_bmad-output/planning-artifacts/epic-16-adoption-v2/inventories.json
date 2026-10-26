@@ -1,0 +1,311 @@
+{
+  "schemaVersion": "hexalith.conversations.epic16-draft-inventories.v1",
+  "legacyInventories": {
+    "16.1": [
+      "E6-A4-DURABLE-TENANT-ACCESS",
+      "E6-A4-FRESHNESS-GAP-DETECTION",
+      "E6-A4-RESTART-CONVERGENCE",
+      "E6-A4-MULTI-REPLICA-CONVERGENCE",
+      "E6-A4-SINGLE-REPLICA-WARNING-REMOVAL-GATE"
+    ],
+    "16.2": [
+      "E6-A5-EVENT-DERIVED-TIMESTAMPS",
+      "E6-A5-EXACT-REPLAY",
+      "E6-A5-MISSING-INDEX-SEMANTICS",
+      "E6-A5-DERIVED-STATE-DELETION"
+    ],
+    "16.3": [
+      "E6-A6-ENDPOINT-READINESS-DIAGNOSTIC",
+      "E6-A6-DAPR-PORT-COLLISION-DIAGNOSTIC",
+      "E6-A6-LIVE-TERMINAL-RECONCILIATION",
+      "E6-A6-DURABLE-RETRY-CLEARANCE"
+    ]
+  },
+  "requirements": [
+    {
+      "id": "AD5-DEPENDENCIES-HEALTH-TELEMETRY",
+      "scenarioIds": [
+        "AC-16.1-01",
+        "AC-16.3-01",
+        "AC-16.3-05"
+      ]
+    },
+    {
+      "id": "AD5-ENVELOPE-OWNERSHIP",
+      "scenarioIds": [
+        "AC-16.1-01",
+        "AC-16.1-06",
+        "AC-16.3-06"
+      ]
+    },
+    {
+      "id": "AD5-ENVIRONMENT-PROVIDER-PARITY",
+      "scenarioIds": [
+        "AC-16.1-01",
+        "AC-16.1-05",
+        "AC-16.3-01",
+        "AC-16.3-02"
+      ]
+    },
+    {
+      "id": "AD5-RECOVERY-RUNBOOKS-SCALING-WAIVERS",
+      "scenarioIds": [
+        "AC-16.1-01",
+        "AC-16.1-05",
+        "AC-16.3-02",
+        "AC-16.3-05"
+      ]
+    },
+    {
+      "id": "AD6-ACKNOWLEDGEMENT-RETRY",
+      "scenarioIds": [
+        "AC-16.1-03",
+        "AC-16.1-04",
+        "AC-16.3-03"
+      ]
+    },
+    {
+      "id": "AD6-ATOMIC-SEQUENCE-FINGERPRINT",
+      "scenarioIds": [
+        "AC-16.1-01",
+        "AC-16.1-03",
+        "AC-16.1-04"
+      ]
+    },
+    {
+      "id": "AD6-CONCURRENCY-FAULT-MATRIX",
+      "scenarioIds": [
+        "AC-16.1-03",
+        "AC-16.1-04",
+        "AC-16.3-05"
+      ]
+    },
+    {
+      "id": "AD6-DURABLE-GAP-HORIZON",
+      "scenarioIds": [
+        "AC-16.1-02",
+        "AC-16.1-03",
+        "AC-16.1-04"
+      ]
+    },
+    {
+      "id": "AD6-FENCED-REPLAY-RECOVERY",
+      "scenarioIds": [
+        "AC-16.1-02",
+        "AC-16.1-03",
+        "AC-16.1-04",
+        "AC-16.3-04"
+      ]
+    },
+    {
+      "id": "AD6-PLATFORM-TENANT-OWNERSHIP",
+      "scenarioIds": [
+        "AC-16.1-01",
+        "AC-16.1-05",
+        "AC-16.3-03"
+      ]
+    },
+    {
+      "id": "AD7-AUTHORITATIVE-REBUILD-CATCHUP",
+      "scenarioIds": [
+        "AC-16.2-04"
+      ]
+    },
+    {
+      "id": "AD7-LIFECYCLE-GENERATION-ERASE",
+      "scenarioIds": [
+        "AC-16.2-03",
+        "AC-16.2-04",
+        "AC-16.3-04",
+        "AC-16.3-05"
+      ]
+    },
+    {
+      "id": "AD7-SAFE-QUERY-MAPPINGS",
+      "scenarioIds": [
+        "AC-16.2-03",
+        "AC-16.2-05",
+        "AC-16.3-03",
+        "AC-16.3-04"
+      ]
+    },
+    {
+      "id": "AD7-SOLE-CONTROL-INDEX-CAS",
+      "scenarioIds": [
+        "AC-16.2-03",
+        "AC-16.2-04"
+      ]
+    },
+    {
+      "id": "AD8-CANONICAL-REPLAY-BYTES",
+      "scenarioIds": [
+        "AC-16.2-02",
+        "AC-16.2-05"
+      ]
+    },
+    {
+      "id": "AD8-DUPLICATE-FULL-BINDING",
+      "scenarioIds": [
+        "AC-16.2-01",
+        "AC-16.2-05",
+        "AC-16.3-04",
+        "AC-16.3-05"
+      ]
+    },
+    {
+      "id": "AD8-IDENTITY-PAYLOAD-TIME",
+      "scenarioIds": [
+        "AC-16.2-01",
+        "AC-16.3-04"
+      ]
+    },
+    {
+      "id": "AD8-REPLAY-OBSERVATION-SEPARATION",
+      "scenarioIds": [
+        "AC-16.2-02",
+        "AC-16.2-05",
+        "AC-16.2-06"
+      ]
+    },
+    {
+      "id": "ARCH-APPHOST-OWNERSHIP-DECISION",
+      "scenarioIds": [
+        "AC-16.3-01",
+        "AC-16.3-06"
+      ]
+    },
+    {
+      "id": "E6-A4-DURABLE-TENANT-ACCESS",
+      "scenarioIds": [
+        "AC-16.1-01",
+        "AC-16.1-05"
+      ]
+    },
+    {
+      "id": "E6-A4-FRESHNESS-GAP-DETECTION",
+      "scenarioIds": [
+        "AC-16.1-01",
+        "AC-16.1-04"
+      ]
+    },
+    {
+      "id": "E6-A4-MULTI-REPLICA-CONVERGENCE",
+      "scenarioIds": [
+        "AC-16.1-03"
+      ]
+    },
+    {
+      "id": "E6-A4-RESTART-CONVERGENCE",
+      "scenarioIds": [
+        "AC-16.1-02"
+      ]
+    },
+    {
+      "id": "E6-A4-SINGLE-REPLICA-WARNING-REMOVAL-GATE",
+      "scenarioIds": [
+        "AC-16.1-05",
+        "AC-16.1-06"
+      ]
+    },
+    {
+      "id": "E6-A5-DERIVED-STATE-DELETION",
+      "scenarioIds": [
+        "AC-16.2-03",
+        "AC-16.2-04",
+        "AC-16.2-06"
+      ]
+    },
+    {
+      "id": "E6-A5-EVENT-DERIVED-TIMESTAMPS",
+      "scenarioIds": [
+        "AC-16.2-01",
+        "AC-16.2-05"
+      ]
+    },
+    {
+      "id": "E6-A5-EXACT-REPLAY",
+      "scenarioIds": [
+        "AC-16.2-02",
+        "AC-16.2-05",
+        "AC-16.2-06"
+      ]
+    },
+    {
+      "id": "E6-A5-MISSING-INDEX-SEMANTICS",
+      "scenarioIds": [
+        "AC-16.2-03",
+        "AC-16.2-05"
+      ]
+    },
+    {
+      "id": "E6-A6-DAPR-PORT-COLLISION-DIAGNOSTIC",
+      "scenarioIds": [
+        "AC-16.3-02",
+        "AC-16.3-05"
+      ]
+    },
+    {
+      "id": "E6-A6-DURABLE-RETRY-CLEARANCE",
+      "scenarioIds": [
+        "AC-16.3-04",
+        "AC-16.3-05",
+        "AC-16.3-06"
+      ]
+    },
+    {
+      "id": "E6-A6-ENDPOINT-READINESS-DIAGNOSTIC",
+      "scenarioIds": [
+        "AC-16.3-01",
+        "AC-16.3-05"
+      ]
+    },
+    {
+      "id": "E6-A6-LIVE-TERMINAL-RECONCILIATION",
+      "scenarioIds": [
+        "AC-16.3-03",
+        "AC-16.3-05",
+        "AC-16.3-06"
+      ]
+    }
+  ],
+  "topologicalOrder": [
+    "6.2",
+    "PC-PUBLICATION",
+    "E6-REMEDIATION",
+    "E6-CURRENT-PROOF",
+    "IR-0",
+    "7.1-SCHEMAS",
+    "E6-CURRENT-CANDIDATE",
+    "7.1",
+    "7.2",
+    "7.3",
+    "7.4",
+    "16.1",
+    "8.1",
+    "9.1",
+    "16.2",
+    "8.2",
+    "9.2",
+    "10.1",
+    "16.3",
+    "10.2",
+    "12.1",
+    "13.1",
+    "10.3",
+    "12.2",
+    "13.2",
+    "10.4",
+    "12.3",
+    "13.3",
+    "11.1",
+    "12.4",
+    "14.1",
+    "11.2",
+    "14.2",
+    "11.3",
+    "14.3",
+    "15.1",
+    "15.2",
+    "RG-15"
+  ]
+}

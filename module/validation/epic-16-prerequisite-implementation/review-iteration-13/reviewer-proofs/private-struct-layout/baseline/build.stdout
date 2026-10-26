@@ -1,0 +1,12 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-review13-blind-proofs/private-struct-layout/baseline/Product.csproj (in 34 ms).
+/tmp/epic16-review13-blind-proofs/private-struct-layout/baseline/Product.cs(1,33): warning CS0169: The field 'Api.value' is never used [/tmp/epic16-review13-blind-proofs/private-struct-layout/baseline/Product.csproj]
+  Product -> /tmp/epic16-review13-blind-proofs/private-struct-layout/baseline/bin/Debug/net10.0/Probe.dll
+
+Build succeeded.
+
+/tmp/epic16-review13-blind-proofs/private-struct-layout/baseline/Product.cs(1,33): warning CS0169: The field 'Api.value' is never used [/tmp/epic16-review13-blind-proofs/private-struct-layout/baseline/Product.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.24

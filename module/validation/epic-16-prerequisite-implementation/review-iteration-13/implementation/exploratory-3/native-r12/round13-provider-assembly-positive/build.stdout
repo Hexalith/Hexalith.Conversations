@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored /tmp/pytest-of-administrator/pytest-693/test_round13_provider_attribut0/native/Evidence.csproj (in 107 ms).
+  Evidence -> /tmp/pytest-of-administrator/pytest-693/test_round13_provider_attribut0/native/bin/Debug/net10.0/Evidence.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.58

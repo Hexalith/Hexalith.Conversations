@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round13 or round6_genuine_native_capture or (round10_generator_rejects_different and (7 or 8))",
+    "--maxfail=5",
+    "--basetemp=/tmp/epic16-r13-focused-corrected",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/focused-corrected/result.xml"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "environment": {
+    "EPIC16_COMMITLINT_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/focused-corrected/commitlint.json",
+    "EPIC16_R11_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/focused-corrected/native",
+    "EPIC16_R10_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/focused-corrected/native-r10",
+    "EPIC16_R12_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/focused-corrected/native-r12"
+  },
+  "started": 1793000885.965151,
+  "sourceSha256": "960d5b34aae6e121de9c5b6484259c4dfaaa230b92e56d8014629f7653d5b915",
+  "exitCode": 0,
+  "elapsedSeconds": 257.32081747055054,
+  "sourceUnchanged": true,
+  "stdoutSha256": "53ad78fd53369c4fcbad25266fbd79ef92bbb3bfe8dbd3689853e23a2c422564",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

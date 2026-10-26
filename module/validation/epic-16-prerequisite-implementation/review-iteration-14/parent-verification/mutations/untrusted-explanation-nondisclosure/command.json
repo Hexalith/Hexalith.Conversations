@@ -1,0 +1,29 @@
+{
+  "name": "untrusted-explanation-nondisclosure",
+  "path": "_bmad/scripts/epic16_tooling.py",
+  "old": "except (ValueError, TypeError, KeyError, IndexError, AttributeError, OverflowError, RecursionError):\n        return failed(result, Stop('MEASUREMENT_INVALID', scenario))",
+  "new": "except (ValueError, TypeError, KeyError, IndexError, AttributeError, OverflowError, RecursionError) as error:\n        return failed(result, Stop('MEASUREMENT_INVALID', str(error)))",
+  "selector": "round14_untrusted_exception",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r14-mutant-untrusted-explanation-nondisclosure-0gh5aswf/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round14_untrusted_exception",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-verification/mutations/untrusted-explanation-nondisclosure/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r14-mutant-untrusted-explanation-nondisclosure-0gh5aswf",
+  "exitCode": 1,
+  "elapsedSeconds": 16.4070259060245,
+  "originalSha256": "1d47daf61c51b5f4553e14f36b5c3fbd2dcec4d17c977b892e4cf20aa903fcc7",
+  "mutatedSha256": "6616ebd47b6e7685fc1375188719c20e753464ce5a1ac8f38b52459cae8afe28",
+  "testSha256": "041019802d8f68321ae6354d48f4c8ecb78312b39a6df709b7cb30d9bc2a38a7",
+  "tests": {
+    "tests": 2,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0
+  }
+}

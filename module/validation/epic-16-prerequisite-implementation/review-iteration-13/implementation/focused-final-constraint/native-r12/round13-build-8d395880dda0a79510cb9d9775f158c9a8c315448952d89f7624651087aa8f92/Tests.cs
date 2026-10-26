@@ -1,0 +1,1 @@
+namespace Synthetic; public class TestClass([System.Runtime.CompilerServices.DateTimeConstant(123456789)] System.DateTime value) { [Xunit.Fact] public void Scenario01() {} }

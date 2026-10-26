@@ -1,0 +1,1 @@
+public struct Api { private int value; public void Existing() {} }

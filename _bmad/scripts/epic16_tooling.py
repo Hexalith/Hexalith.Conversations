@@ -503,6 +503,8 @@ def evaluate(repository: Path, story: str, scenario: str, candidate='HEAD', scop
         return failed(result, Stop(error.code, 'repository', blocked=error.unavailable))
     except records.GateError:
         return failed(result, Stop('HISTORY_UNAVAILABLE', 'Git', blocked=True))
+    except measurements.domain.PredicateError as error:
+        return failed(result, Stop('MEASUREMENT_INVALID', str(error)))
     except (ValueError, TypeError, KeyError, IndexError, AttributeError, OverflowError, RecursionError):
         return failed(result, Stop('MEASUREMENT_INVALID', scenario))
 
@@ -676,7 +678,7 @@ def main(arguments=None, *, story=None, generator=False):
             result = verify_inserted(Path(args.repository), selected, args.verify_inserted_record, args.scope)
         else:
             result, _, _ = generate(Path(args.repository), selected, args.candidate, args.scope, write=True,
-                paths=[args.output_json, args.output_markdown])
+                paths=None if args.output_json is None and args.output_markdown is None else [args.output_json, args.output_markdown])
     else:
         try:
             if args.output:

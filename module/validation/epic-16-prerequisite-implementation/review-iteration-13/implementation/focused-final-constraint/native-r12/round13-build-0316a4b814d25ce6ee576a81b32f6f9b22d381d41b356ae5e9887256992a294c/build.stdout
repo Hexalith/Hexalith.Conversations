@@ -1,0 +1,12 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-r13-focused-final-constraint/test_round13_runtime_caller_re0/default/Evidence.csproj (in 104 ms).
+/tmp/epic16-r13-focused-final-constraint/test_round13_runtime_caller_re0/default/Tests.cs(1,99): warning CS9113: Parameter 'value' is unread. [/tmp/epic16-r13-focused-final-constraint/test_round13_runtime_caller_re0/default/Evidence.csproj]
+  Evidence -> /tmp/epic16-r13-focused-final-constraint/test_round13_runtime_caller_re0/default/bin/Debug/net10.0/Evidence.dll
+
+Build succeeded.
+
+/tmp/epic16-r13-focused-final-constraint/test_round13_runtime_caller_re0/default/Tests.cs(1,99): warning CS9113: Parameter 'value' is unread. [/tmp/epic16-r13-focused-final-constraint/test_round13_runtime_caller_re0/default/Evidence.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.48

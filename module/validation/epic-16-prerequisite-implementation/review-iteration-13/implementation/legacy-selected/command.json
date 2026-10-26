@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "_bmad/scripts/tests/test_generate_story_record.py",
+    "_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "story_111 or story_112 or standalone_generator",
+    "--basetemp=/tmp/epic16-r13-legacy-selected",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/legacy-selected/result.xml"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "environment": {
+    "EPIC16_COMMITLINT_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/legacy-selected/commitlint.json",
+    "EPIC16_R11_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/legacy-selected/native",
+    "EPIC16_R10_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/legacy-selected/native-r10",
+    "EPIC16_R12_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/legacy-selected/native-r12"
+  },
+  "started": 1793001279.3317573,
+  "sourceSha256": "960d5b34aae6e121de9c5b6484259c4dfaaa230b92e56d8014629f7653d5b915",
+  "exitCode": 0,
+  "elapsedSeconds": 113.14693450927734,
+  "sourceUnchanged": true,
+  "stdoutSha256": "91baced2b4178b6642b5d270c89267ad36343f0100abd3067108eebb152717d1",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

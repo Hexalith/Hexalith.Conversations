@@ -1,0 +1,106 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_________ test_round13_new_owner_requires_actual_behavior_surface[7-0] _________
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-703/test_round13_new_owner_require0/runtime')
+product_index = 7, surface_index = 0
+
+    @pytest.mark.parametrize('product_index,surface_index',[(7,0),(7,1),(8,0)])
+    def test_round13_new_owner_requires_actual_behavior_surface(qualified_runtime,product_index,surface_index):
+        repo=qualified_runtime;scenario='AC-16.2-02';product=tooling.products.PRODUCTS[product_index]
+        path=tooling.capture.capture_path('16.2',scenario);capture=json.loads((repo/path).read_bytes());row=capture['products'][product_index]
+        missing=product['surfaces'][surface_index].rsplit('.',1)[1]
+        source=round9_product_source(product).replace('class '+missing+' ', 'class UnrelatedBehaviorOwner ')
+        binary=round9_compile_product(product,row['sourceRevision'],source);metadata=tooling.native_helper.inspect_product(binary,row['sourceRevision'])
+        artifact=tooling.capture.binary_path('16.2',digest(binary));(repo/artifact).write_bytes(binary)
+        assert metadata['assemblyName']==product['assemblyName'] and product['surfaces'][surface_index] not in metadata['declaredTypes']
+        round10_rewrite_runtime(repo,scenario,lambda p:p['loadedProducts'][product_index].update(sha256=digest(binary),mvid=metadata['mvid']))
+        capture=json.loads((repo/path).read_bytes());capture['products'][product_index].update(path=artifact,sha256=digest(binary),mvid=metadata['mvid']);dump(repo,path,capture)
+>       rejected(runtime_evaluate(repo),'PRODUCT_METADATA_DRIFT')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4885: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+code = 'PRODUCT_METADATA_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:118: AssertionError
+_________ test_round13_new_owner_requires_actual_behavior_surface[7-1] _________
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-703/test_round13_new_owner_require1/runtime')
+product_index = 7, surface_index = 1
+
+    @pytest.mark.parametrize('product_index,surface_index',[(7,0),(7,1),(8,0)])
+    def test_round13_new_owner_requires_actual_behavior_surface(qualified_runtime,product_index,surface_index):
+        repo=qualified_runtime;scenario='AC-16.2-02';product=tooling.products.PRODUCTS[product_index]
+        path=tooling.capture.capture_path('16.2',scenario);capture=json.loads((repo/path).read_bytes());row=capture['products'][product_index]
+        missing=product['surfaces'][surface_index].rsplit('.',1)[1]
+        source=round9_product_source(product).replace('class '+missing+' ', 'class UnrelatedBehaviorOwner ')
+        binary=round9_compile_product(product,row['sourceRevision'],source);metadata=tooling.native_helper.inspect_product(binary,row['sourceRevision'])
+        artifact=tooling.capture.binary_path('16.2',digest(binary));(repo/artifact).write_bytes(binary)
+        assert metadata['assemblyName']==product['assemblyName'] and product['surfaces'][surface_index] not in metadata['declaredTypes']
+        round10_rewrite_runtime(repo,scenario,lambda p:p['loadedProducts'][product_index].update(sha256=digest(binary),mvid=metadata['mvid']))
+        capture=json.loads((repo/path).read_bytes());capture['products'][product_index].update(path=artifact,sha256=digest(binary),mvid=metadata['mvid']);dump(repo,path,capture)
+>       rejected(runtime_evaluate(repo),'PRODUCT_METADATA_DRIFT')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4885: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+code = 'PRODUCT_METADATA_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:118: AssertionError
+_________ test_round13_new_owner_requires_actual_behavior_surface[8-0] _________
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-703/test_round13_new_owner_require2/runtime')
+product_index = 8, surface_index = 0
+
+    @pytest.mark.parametrize('product_index,surface_index',[(7,0),(7,1),(8,0)])
+    def test_round13_new_owner_requires_actual_behavior_surface(qualified_runtime,product_index,surface_index):
+        repo=qualified_runtime;scenario='AC-16.2-02';product=tooling.products.PRODUCTS[product_index]
+        path=tooling.capture.capture_path('16.2',scenario);capture=json.loads((repo/path).read_bytes());row=capture['products'][product_index]
+        missing=product['surfaces'][surface_index].rsplit('.',1)[1]
+        source=round9_product_source(product).replace('class '+missing+' ', 'class UnrelatedBehaviorOwner ')
+        binary=round9_compile_product(product,row['sourceRevision'],source);metadata=tooling.native_helper.inspect_product(binary,row['sourceRevision'])
+        artifact=tooling.capture.binary_path('16.2',digest(binary));(repo/artifact).write_bytes(binary)
+        assert metadata['assemblyName']==product['assemblyName'] and product['surfaces'][surface_index] not in metadata['declaredTypes']
+        round10_rewrite_runtime(repo,scenario,lambda p:p['loadedProducts'][product_index].update(sha256=digest(binary),mvid=metadata['mvid']))
+        capture=json.loads((repo/path).read_bytes());capture['products'][product_index].update(path=artifact,sha256=digest(binary),mvid=metadata['mvid']);dump(repo,path,capture)
+>       rejected(runtime_evaluate(repo),'PRODUCT_METADATA_DRIFT')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4885: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+code = 'PRODUCT_METADATA_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:118: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round13_new_owner_requires_actual_behavior_surface[7-0]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round13_new_owner_requires_actual_behavior_surface[7-1]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round13_new_owner_requires_actual_behavior_surface[8-0]
+3 failed, 2850 deselected in 31.44s

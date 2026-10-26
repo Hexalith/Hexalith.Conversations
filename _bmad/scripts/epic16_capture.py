@@ -119,6 +119,12 @@ def inventory(reader, story, rows, need):
     """Derive the exact retained transaction from five independently admitted tests."""
     artifacts = {}
     for row in rows:
+        # Raw native files are separate publication paths, not retained-binary
+        # entries. Recheck them here without duplicating that exact inventory.
+        native = row['bindings']['native']
+        need(native['path'] == f'artifacts/epic16-runtime/{story}/{row["scenarioId"]}.trx', 'NATIVE_CAPTURE_DRIFT', row['scenarioId'])
+        need(digest(reader.read(native['path'])) == native['sha256'], 'NATIVE_CAPTURE_DRIFT', native['path'])
+        no_alias(reader, native['path'], need)
         binary = row['bindings']['testBinary']
         need(isinstance(binary,dict) and binary.get('capture'), 'NATIVE_CAPTURE_INVALID', row['scenarioId'])
         entries=[{key:binary[key] for key in ('path','sha256')},binary['capture'],*binary['products']]

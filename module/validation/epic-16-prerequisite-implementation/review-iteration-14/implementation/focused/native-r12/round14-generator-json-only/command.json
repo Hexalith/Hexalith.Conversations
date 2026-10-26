@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "/home/administrator/projects/hexalith/conversations/_bmad/scripts/generate_story_record.py",
+    "--repository",
+    "/tmp/epic16-r14-focused/test_round14_real_generator_cl2/fixture",
+    "--contract",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+    "--scope",
+    "tooling-fixture",
+    "--format",
+    "bundle",
+    "--output-json",
+    "artifacts/epic16-tooling-fixture/16.1/final-record.json"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "exitCode": 1
+}

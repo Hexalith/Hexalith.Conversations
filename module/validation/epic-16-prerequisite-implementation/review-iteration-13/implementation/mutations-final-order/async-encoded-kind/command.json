@@ -1,0 +1,29 @@
+{
+  "name": "async-encoded-kind",
+  "path": "_bmad/scripts/epic16_native_helper/Program.cs",
+  "old": "&& encodedKind == (TypeName(reader, handle) == \"System.Threading.Tasks.Task\"\n                ? (byte)SignatureTypeKind.Class : (byte)SignatureTypeKind.ValueType)",
+  "new": "&& true",
+  "selector": "round13_async_return_kind",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r13-mutant-async-encoded-kind-7wfrlyz4/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round13_async_return_kind",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final-order/async-encoded-kind/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r13-mutant-async-encoded-kind-7wfrlyz4",
+  "exitCode": 1,
+  "elapsedSeconds": 6.834931710996898,
+  "originalSha256": "32973a86860a8a46a3892b89ca71235f753704b3653ae41877053b95167efc4d",
+  "mutatedSha256": "31faee1300abf249be5bfcc70ac48d21b9107eb2d0452b17a7613af533a8516d",
+  "testSha256": "590cc9e8f0164194e243536d06962f89baf006c324d3cd48077f44c7a17d89b0",
+  "tests": {
+    "tests": 2,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0
+  }
+}

@@ -1,0 +1,4070 @@
+{
+  "requireMessages": 676,
+  "allLiteral": true,
+  "requireCalls": [
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 28,
+      "literal": true,
+      "detail": "'exact required executed replay negative controls'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 29,
+      "literal": true,
+      "detail": "'distinct rejected operations'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 57,
+      "literal": true,
+      "detail": "'negative summaries derive from executed outcomes'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 63,
+      "literal": true,
+      "detail": "'fixed existing wire contract and versioned capture vocabulary'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 67,
+      "literal": true,
+      "detail": "'complete observed production wire request response schedule'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 75,
+      "literal": true,
+      "detail": "'wire request binds same durable scheduled pending work'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 76,
+      "literal": true,
+      "detail": "'request uses measured durable dispatch identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 77,
+      "literal": true,
+      "detail": "'wire authorization succeeds before dispatch'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 78,
+      "literal": true,
+      "detail": "'hosted coordinator dispatch without handler bypass'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 79,
+      "literal": true,
+      "detail": "'wire success requires actual durable clearance'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 80,
+      "literal": true,
+      "detail": "'wire durable outcome binds exact measured transaction and complete persisted state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 81,
+      "literal": true,
+      "detail": "'response corresponds to committed clearance'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 83,
+      "literal": true,
+      "detail": "'actual response outcomes prove Completed or AlreadyCompleted for each pending projection'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 84,
+      "literal": true,
+      "detail": "'observed request body metadata binds actual aggregate scope'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 85,
+      "literal": true,
+      "detail": "'wire summaries derive from actual observations'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 31,
+      "literal": true,
+      "detail": "'negative writer operation executed and completed'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 32,
+      "literal": true,
+      "detail": "'negative operation binds actual tenant resource and writer'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 34,
+      "literal": true,
+      "detail": "'rejection preserves complete relevant persisted state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 35,
+      "literal": true,
+      "detail": "'rejected persisted snapshot bytes'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 37,
+      "literal": true,
+      "detail": "'negative input uses same native replay shape and anchor'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 52,
+      "literal": true,
+      "detail": "'negative generation is actually earlier than replay anchor'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 53,
+      "literal": true,
+      "detail": "'contradictory generation is never clamped'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 54,
+      "literal": true,
+      "detail": "'invalid operation rejected before any persistence'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 56,
+      "literal": true,
+      "detail": "'negative freshness retains existing fail-closed mapping'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 70,
+      "literal": true,
+      "detail": "'authorization precedes hosted dispatch commit and response'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 71,
+      "literal": true,
+      "detail": "'same executed request response pending runtime and route scope'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 72,
+      "literal": true,
+      "detail": "'actual request method and canonical route'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 44,
+      "literal": true,
+      "detail": "'actual native identity cannot supply stable collection key'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 47,
+      "literal": true,
+      "detail": "'actual ordinal collection order is invalid'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "line": 49,
+      "literal": true,
+      "detail": "'freshness control retains valid deterministic input'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 14,
+      "literal": true,
+      "detail": "'exact effective endpoint inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 19,
+      "literal": true,
+      "detail": "'unique effective bindings'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 24,
+      "literal": true,
+      "detail": "'retry advice belongs to measured terminal bounded control'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 33,
+      "literal": true,
+      "detail": "'retained structured diagnostics inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 46,
+      "literal": true,
+      "detail": "'pinned readiness test controls'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 48,
+      "literal": true,
+      "detail": "'readiness endpoint belongs to inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 49,
+      "literal": true,
+      "detail": "'bounded measured readiness'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 50,
+      "literal": true,
+      "detail": "'readiness reached retry or timeout terminal condition'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 56,
+      "literal": true,
+      "detail": "'collision names affected owned binding'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 57,
+      "literal": true,
+      "detail": "'complete effective control-plane bindings'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 58,
+      "literal": true,
+      "detail": "'unrelated port is outside endpoint inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 61,
+      "literal": true,
+      "detail": "'restore every affected port and unrelated owner'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 63,
+      "literal": true,
+      "detail": "'measured occupied owned port during injection'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 64,
+      "literal": true,
+      "detail": "'occupancy arrays derive from measured owners'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 67,
+      "literal": true,
+      "detail": "'separate executed unrelated-only preflight'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 68,
+      "literal": true,
+      "detail": "'unrelated-only preflight uses same inventory with every owned binding free'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 69,
+      "literal": true,
+      "detail": "'measured unrelated-only result contains no collision classification'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 166,
+      "literal": true,
+      "detail": "'exact typed fault inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 188,
+      "literal": true,
+      "detail": "'versioned controlled cancellation schedule'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 190,
+      "literal": true,
+      "detail": "'retained preexisting and operation-owned resource inventories'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 191,
+      "literal": true,
+      "detail": "'distinct measured cleanup resources'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 197,
+      "literal": true,
+      "detail": "'cleanup ownership is correlated with cancelled operation'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 199,
+      "literal": true,
+      "detail": "'captured cancellation resources have unique occupied ports'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 201,
+      "literal": true,
+      "detail": "'executed start cancellation request observation cleanup and terminal completion'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 212,
+      "literal": true,
+      "detail": "'outer restored ports derive from preexisting captured resources'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 214,
+      "literal": true,
+      "detail": "'cancellation bound measured from request through terminal cleanup completion'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 17,
+      "literal": true,
+      "detail": "'safe bound endpoint identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 18,
+      "literal": true,
+      "detail": "'representable endpoint port'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 38,
+      "literal": true,
+      "detail": "'safe emitted diagnostic contents and bounded retry advice'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 103,
+      "literal": true,
+      "detail": "'distinct ordered versions'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 170,
+      "literal": true,
+      "detail": "'fault target identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 174,
+      "literal": true,
+      "detail": "'target-bound byte restoration'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 179,
+      "literal": true,
+      "detail": "'typed injected condition and measured outcome'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 182,
+      "literal": true,
+      "detail": "'derived validated fault assertion count'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 183,
+      "literal": true,
+      "detail": "'exact derived stable fault code'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 204,
+      "literal": true,
+      "detail": "'same executed operation and monotonic measurement clock'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 206,
+      "literal": true,
+      "detail": "'cancellation operations ordered despite equal coarse clock ticks'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 208,
+      "literal": true,
+      "detail": "'every cancellation boundary retains actual owned and preexisting resource state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 209,
+      "literal": true,
+      "detail": "'request and observed cancellation are distinct executed boundaries'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 210,
+      "literal": true,
+      "detail": "'terminal completion occurs only after observed cancellation and cleanup'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 211,
+      "literal": true,
+      "detail": "'cleanup releases exactly this operation resources'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 139,
+      "literal": true,
+      "detail": "'replica decision from full measured domain state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 173,
+      "literal": true,
+      "detail": "'restoration bytes identify actual fault target'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 176,
+      "literal": true,
+      "detail": "'recovery restoration target tenant'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 177,
+      "literal": true,
+      "detail": "'replica restoration target tenant'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 195,
+      "literal": true,
+      "detail": "'cancellation port belongs to measured effective endpoint'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 196,
+      "literal": true,
+      "detail": "'controlled non-port resource identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 83,
+      "literal": true,
+      "detail": "'typed fault boolean'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 84,
+      "literal": true,
+      "detail": "'typed fault integer'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 85,
+      "literal": true,
+      "detail": "'typed retry attempt records'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 86,
+      "literal": true,
+      "detail": "'typed raw save order'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "line": 88,
+      "literal": true,
+      "detail": "'typed fault sequence list'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 34,
+      "literal": true,
+      "detail": "'two distinct measured tenants'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 36,
+      "literal": true,
+      "detail": "'actual base64url tenant/resource key derivation'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 37,
+      "literal": true,
+      "detail": "'distinct initial tenant contents'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 38,
+      "literal": true,
+      "detail": "'controlled persisted contents'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 40,
+      "literal": true,
+      "detail": "'write in each tenant'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 47,
+      "literal": true,
+      "detail": "'distinct final persisted tenant values'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 48,
+      "literal": true,
+      "detail": "'both tenants read own and foreign resource'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 119,
+      "literal": true,
+      "detail": "'only transport clock differs'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 122,
+      "literal": true,
+      "detail": "'valid winning contract time remains idempotent'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 141,
+      "literal": true,
+      "detail": "'exact unique captured stored-object inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 142,
+      "literal": true,
+      "detail": "'capture and deletion inventories agree'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 158,
+      "literal": true,
+      "detail": "'exact captured/deleted target inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 214,
+      "literal": true,
+      "detail": "'distinct synthetic tenant personal canaries'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 215,
+      "literal": true,
+      "detail": "'controlled tenant input inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 218,
+      "literal": true,
+      "detail": "'canaries occur in authoritative tenant fields'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 219,
+      "literal": true,
+      "detail": "'retained emitted Conversations event inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 226,
+      "literal": true,
+      "detail": "'actual controlled tenant diagnostic invocation'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 228,
+      "literal": true,
+      "detail": "'actual allowed structured warning fields and values'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 239,
+      "literal": true,
+      "detail": "'pre-redaction persisted source-derived content'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 241,
+      "literal": true,
+      "detail": "'redaction introduces a new authoritative event identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 242,
+      "literal": true,
+      "detail": "'same conversation append-only redaction'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 243,
+      "literal": true,
+      "detail": "'append-only governance preserves original authoritative source events'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 245,
+      "literal": true,
+      "detail": "'exact targeted and unaffected control messages'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 247,
+      "literal": true,
+      "detail": "'redaction target and control exist in history'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 254,
+      "literal": true,
+      "detail": "'source-derived masking, safe attribution and trust preserved in persisted/production-query state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 275,
+      "literal": true,
+      "detail": "'unique named route inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 276,
+      "literal": true,
+      "detail": "'unique ordinary subset'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 286,
+      "literal": true,
+      "detail": "'actual catalog protocol identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 287,
+      "literal": true,
+      "detail": "'independently pinned controlled runtime identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 289,
+      "literal": true,
+      "detail": "'exact controlled domain catalog inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 300,
+      "literal": true,
+      "detail": "'exact pinned route and ordinary-delivery inventories'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 302,
+      "literal": true,
+      "detail": "'actual framed catalog fingerprint and raw byte digest'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 303,
+      "literal": true,
+      "detail": "'measured runtime matches catalog app and version'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 304,
+      "literal": true,
+      "detail": "'unique complete controlled project/reconcile transport inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 306,
+      "literal": true,
+      "detail": "'selected authenticated reconcile endpoint belongs to measured inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 308,
+      "literal": true,
+      "detail": "'same pending item scoped to actual runtime/catalog/route'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 43,
+      "literal": true,
+      "detail": "'write scoped to measured tenant/resource'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 44,
+      "literal": true,
+      "detail": "'measured before/write value'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 46,
+      "literal": true,
+      "detail": "'one write leaves other tenant unchanged'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 52,
+      "literal": true,
+      "detail": "'controlled cross-tenant request identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 53,
+      "literal": true,
+      "detail": "'authorization before foreign storage read'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 54,
+      "literal": true,
+      "detail": "'correctly scoped query contents'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 65,
+      "literal": true,
+      "detail": "'conflict contains distinct original/reused inputs'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 112,
+      "literal": true,
+      "detail": "'derived conflict fails closed without application'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 145,
+      "literal": true,
+      "detail": "'immutable captured stored metadata bytes'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 147,
+      "literal": true,
+      "detail": "'versioned controlled v2 stored capture'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 149,
+      "literal": true,
+      "detail": "'source-derived retiring tenant'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 152,
+      "literal": true,
+      "detail": "'captured retiring lifecycle generation'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 153,
+      "literal": true,
+      "detail": "'source position is covered by erase barrier'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 155,
+      "literal": true,
+      "detail": "'captured summary/detail identity and generation location'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 156,
+      "literal": true,
+      "detail": "'captured retiring dispatch identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 157,
+      "literal": true,
+      "detail": "'stored-object key derives from actual tenant/resource metadata'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 171,
+      "literal": true,
+      "detail": "'controlled transition starts from Healthy composite state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 172,
+      "literal": true,
+      "detail": "'composite checkpoint binds measured transition'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 174,
+      "literal": true,
+      "detail": "'opaque CAS expectation identifies pre-state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 176,
+      "literal": true,
+      "detail": "'last-accepted fingerprint retained at the composite checkpoint'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 203,
+      "literal": true,
+      "detail": "'complete composite persisted end-state without split write or old reapplication'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 204,
+      "literal": true,
+      "detail": "'transition result derives from source/history'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 222,
+      "literal": true,
+      "detail": "'experiment tenant binds legitimate Conversations data'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 224,
+      "literal": true,
+      "detail": "'emitted public event equals the controlled authoritative event'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 233,
+      "literal": true,
+      "detail": "'controlled tenant canaries absent from emitted bytes including nested values'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 292,
+      "literal": true,
+      "detail": "'typed native catalog metadata'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 295,
+      "literal": true,
+      "detail": "'unique native capability subsets belong to named catalog'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 296,
+      "literal": true,
+      "detail": "'actual full-replay and single-event subset relationships'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 297,
+      "literal": true,
+      "detail": "'existing controlled handler has only full-replay capability'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 62,
+      "literal": true,
+      "detail": "'exact malformed counterpart inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 71,
+      "literal": true,
+      "detail": "'only named authoritative binding input changes'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 78,
+      "literal": true,
+      "detail": "'known malformed input case'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 83,
+      "literal": true,
+      "detail": "'malformed input preserves identity selection mode'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 94,
+      "literal": true,
+      "detail": "'malformed case changes only selected authoritative input'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 108,
+      "literal": true,
+      "detail": "'contract malformed counterpart inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 110,
+      "literal": true,
+      "detail": "'malformed counterpart uses contract identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 170,
+      "literal": true,
+      "detail": "'same-tenant composite state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 179,
+      "literal": true,
+      "detail": "'exact-next source event'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 182,
+      "literal": true,
+      "detail": "'single successful composite projection-checkpoint CAS'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 200,
+      "literal": true,
+      "detail": "'identical verified input causes no write'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 202,
+      "literal": true,
+      "detail": "'single successful durable composite CAS including fail-closed health'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 73,
+      "literal": true,
+      "detail": "'unsupported changed codec fails closed'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 76,
+      "literal": true,
+      "detail": "'derive the exact differing duplicate binding field'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 89,
+      "literal": true,
+      "detail": "'only selected contract identity/time is malformed'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 97,
+      "literal": true,
+      "detail": "'actually missing selected identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 185,
+      "literal": true,
+      "detail": "'accepted sequence identity comparison'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 186,
+      "literal": true,
+      "detail": "'identical accepted duplicate versus conflicting input'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 188,
+      "literal": true,
+      "detail": "'strictly older delivered sequence'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 190,
+      "literal": true,
+      "detail": "'unavailable authoritative history'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 191,
+      "literal": true,
+      "detail": "'missing authoritative history'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 193,
+      "literal": true,
+      "detail": "'available authoritative history record'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "line": 195,
+      "literal": true,
+      "detail": "'actual older authoritative identity match/conflict'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 18,
+      "literal": true,
+      "detail": "'versioned acknowledgement operation schedule'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 23,
+      "literal": true,
+      "detail": "'ack requires successful durable commit'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 24,
+      "literal": true,
+      "detail": "'operation observations bind actual persisted identity and state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 25,
+      "literal": true,
+      "detail": "'commit precedes ack by operation order even when clock ticks coincide'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 26,
+      "literal": true,
+      "detail": "'summary timestamps derive from correlated operations'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 78,
+      "literal": true,
+      "detail": "'unique lifecycle resource inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 113,
+      "literal": true,
+      "detail": "'distinct lifecycle entry work and completion capture inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 114,
+      "literal": true,
+      "detail": "'one lifecycle generation advance for the complete operation'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 142,
+      "literal": true,
+      "detail": "'stale writer actually attempts its earlier captured entry plan'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 143,
+      "literal": true,
+      "detail": "'stale plan is attempted after newer persisted lifecycle state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 144,
+      "literal": true,
+      "detail": "'stale attempt preserves every newer component index generation and watermark'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 145,
+      "literal": true,
+      "detail": "'newer fence rejects stale lifecycle plan without partial writes'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 146,
+      "literal": true,
+      "detail": "'outer lifecycle summaries derive from complete executed stage observations'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 151,
+      "literal": true,
+      "detail": "'queue authoritative location binds exact envelope identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 166,
+      "literal": true,
+      "detail": "'versioned durable catch-up schedule'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 169,
+      "literal": true,
+      "detail": "'executed rebuild delivery inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 215,
+      "literal": true,
+      "detail": "'drain work CAS starts from last durable enqueue snapshot'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 218,
+      "literal": true,
+      "detail": "'executed durable drain shares captured rebuild work transaction'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 219,
+      "literal": true,
+      "detail": "'drain verifies exactly through C and retains every later reference'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 220,
+      "literal": true,
+      "detail": "'post-C summary derives from exact unique surviving references'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 235,
+      "literal": true,
+      "detail": "'known query provider state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 236,
+      "literal": true,
+      "detail": "'known stored query lifecycle'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 242,
+      "literal": true,
+      "detail": "'complete internal control-record generation fields'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 249,
+      "literal": true,
+      "detail": "'current query requires explicit v2 Ready'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 251,
+      "literal": true,
+      "detail": "'current content exactly matches surviving index summaries'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 258,
+      "literal": true,
+      "detail": "'query control key binds tenant'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 260,
+      "literal": true,
+      "detail": "'unique physical query component keys'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 261,
+      "literal": true,
+      "detail": "'unique logical query components'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 272,
+      "literal": true,
+      "detail": "'actual dispatch references match control index'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 276,
+      "literal": true,
+      "detail": "'query actually executed and completed at lifecycle boundary'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 277,
+      "literal": true,
+      "detail": "'query executes between exact committed lifecycle boundaries'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 278,
+      "literal": true,
+      "detail": "'query binds precise committed index and component snapshot'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 279,
+      "literal": true,
+      "detail": "'typed query access and source inputs'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 280,
+      "literal": true,
+      "detail": "'known query provider observation'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 284,
+      "literal": true,
+      "detail": "'executed query returns only snapshot-derived public state reason and content'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 285,
+      "literal": true,
+      "detail": "'query captures exact reads with no repair recovery or mutation'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 290,
+      "literal": true,
+      "detail": "'query execution at every entry deletion quarantine and cutover boundary'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 291,
+      "literal": true,
+      "detail": "'distinct executed lifecycle queries'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 300,
+      "literal": true,
+      "detail": "'versioned cross-key query experiment'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 303,
+      "literal": true,
+      "detail": "'cross-key query baseline binds authoritative tenant and resource'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 305,
+      "literal": true,
+      "detail": "'cross-key experiment requires one detail and one dispatch observation'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 306,
+      "literal": true,
+      "detail": "'cross-key source-derived complete detail state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 307,
+      "literal": true,
+      "detail": "'matching and each distinct generation consistency context'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 308,
+      "literal": true,
+      "detail": "'cross-key control starts with internally valid Ready data'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 309,
+      "literal": true,
+      "detail": "'distinct cross-key query requests'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 21,
+      "literal": true,
+      "detail": "'executed operations correlate delivery and durable record'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 22,
+      "literal": true,
+      "detail": "'ack observes the successful durable transaction'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 47,
+      "literal": true,
+      "detail": "'authoritative stream observations are nonempty'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 62,
+      "literal": true,
+      "detail": "'B and C sequence cutoffs derive from authoritative global positions'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 126,
+      "literal": true,
+      "detail": "'next lifecycle plan observes preceding durable state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 127,
+      "literal": true,
+      "detail": "'each executed lifecycle CAS advances version and opaque etag'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 129,
+      "literal": true,
+      "detail": "'writer plan binds complete expected fence and resulting components'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 130,
+      "literal": true,
+      "detail": "'actual EventStore CAS attempt accepts current lifecycle plan'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 131,
+      "literal": true,
+      "detail": "'lifecycle commits execute in captured order'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 132,
+      "literal": true,
+      "detail": "'distinct entry work and completion durable commits'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 133,
+      "literal": true,
+      "detail": "'one transaction atomically commits each planned index and component boundary'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 179,
+      "literal": true,
+      "detail": "'distinct transport delivery observations'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 181,
+      "literal": true,
+      "detail": "'queued authoritative delivery binds independent tenant stream identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 186,
+      "literal": true,
+      "detail": "'canonical durable reference and deduplication identity derive from immutable event location'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 189,
+      "literal": true,
+      "detail": "'enqueue executes after Rebuilding entry before completed catch-up'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 190,
+      "literal": true,
+      "detail": "'enqueue observes exact preceding durable reference inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 193,
+      "literal": true,
+      "detail": "'enqueue retains exact immutable union without arrival-order constraints'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 194,
+      "literal": true,
+      "detail": "'enqueue uses current tenant lifecycle generation'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 195,
+      "literal": true,
+      "detail": "'enqueue CAS observes actual preceding complete persisted control and queue state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 213,
+      "literal": true,
+      "detail": "'enqueue complete after-state preserves every non-queue field'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 223,
+      "literal": true,
+      "detail": "'Ready cutover preserves durable generation-scoped queue component'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 264,
+      "literal": true,
+      "detail": "'every query component belongs to control tenant'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 265,
+      "literal": true,
+      "detail": "'query component resource belongs to controlled detail inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 293,
+      "literal": true,
+      "detail": "'lifecycle boundary control executes an authorized provider read'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 320,
+      "literal": true,
+      "detail": "'internal contradiction and cross-key mismatch retain distinct non-disclosing mappings'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 38,
+      "literal": true,
+      "detail": "'immutable authoritative reference has one forward and reverse identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 53,
+      "literal": true,
+      "detail": "'authoritative position belongs to exact tenant stream and conversation'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 54,
+      "literal": true,
+      "detail": "'position binds complete exact-next authoritative event identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 55,
+      "literal": true,
+      "detail": "'authoritative positions increase sparsely through captured C'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 56,
+      "literal": true,
+      "detail": "'unique global positions and selected event identities'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 125,
+      "literal": true,
+      "detail": "'source-derived complete lifecycle state and component presence at each AD-7 boundary'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 138,
+      "literal": true,
+      "detail": "'quarantine commit is the measured generation-scoped lifecycle write'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 139,
+      "literal": true,
+      "detail": "'Erasing and Erased deliveries durably retain reference-only quarantine'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 175,
+      "literal": true,
+      "detail": "'queue immutable identity cannot conflict at reused authoritative location'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 182,
+      "literal": true,
+      "detail": "'queued existing stream retains discovered conversation identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 183,
+      "literal": true,
+      "detail": "'new streams outside captured B manifest remain queued after C'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 185,
+      "literal": true,
+      "detail": "'through-C queue delivery matches retained authoritative replay'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 201,
+      "literal": true,
+      "detail": "'queue commit advances opaque etag and record version'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 202,
+      "literal": true,
+      "detail": "'each enqueue outcome has its own measured durable transaction'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 203,
+      "literal": true,
+      "detail": "'one enqueue transaction commits complete captured index and component state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 204,
+      "literal": true,
+      "detail": "'post-B delivery requires durable queue outcome before ack'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 207,
+      "literal": true,
+      "detail": "'queue ack binds actual enqueue commit before drain'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 210,
+      "literal": true,
+      "detail": "'before-B delivery causes no component commit'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 211,
+      "literal": true,
+      "detail": "'at-or-before-B observation requires no new catch-up queue acknowledgement'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 267,
+      "literal": true,
+      "detail": "'query detail key binds resource'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 140,
+      "literal": true,
+      "detail": "'Erasing acknowledgement occurs before terminal tombstone'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "line": 269,
+      "literal": true,
+      "detail": "'query detail value binds resource'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 24,
+      "literal": true,
+      "detail": "'closed controlled domain value'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 38,
+      "literal": true,
+      "detail": "'nonempty domain identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 47,
+      "literal": true,
+      "detail": "'actual typed identifier wire prefix'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 52,
+      "literal": true,
+      "detail": "'representable UTC ticks'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 65,
+      "literal": true,
+      "detail": "'representable native Int64 sequence'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 73,
+      "literal": true,
+      "detail": "'DateTimeOffset JSON timestamp'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 84,
+      "literal": true,
+      "detail": "'representable DateTimeOffset UTC ticks'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 105,
+      "literal": true,
+      "detail": "'known controlled serialization format'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 107,
+      "literal": true,
+      "detail": "'supported actual Conversations event type'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 165,
+      "literal": true,
+      "detail": "'unique domain collection identities'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 170,
+      "literal": true,
+      "detail": "'retained authoritative conversation history'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 174,
+      "literal": true,
+      "detail": "'retained preceding state identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 216,
+      "literal": true,
+      "detail": "'nonempty configuration key'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 224,
+      "literal": true,
+      "detail": "'typed tenant description'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 225,
+      "literal": true,
+      "detail": "'known controlled tenant status'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 226,
+      "literal": true,
+      "detail": "'typed tenant collections'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 237,
+      "literal": true,
+      "detail": "'complete contiguous authoritative tenant replay'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 44,
+      "literal": true,
+      "detail": "'actual PartyId wire prefix'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 75,
+      "literal": true,
+      "detail": "'Conversations plausible DateTimeOffset timestamp'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 79,
+      "literal": true,
+      "detail": "'valid .NET DateTimeOffset offset'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 114,
+      "literal": true,
+      "detail": "'payload metadata matches authoritative envelope'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 117,
+      "literal": true,
+      "detail": "'optional causation identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 119,
+      "literal": true,
+      "detail": "'actual computed deduplication key'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 122,
+      "literal": true,
+      "detail": "'governance requires contract metadata'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 124,
+      "literal": true,
+      "detail": "'controlled actual message redaction target'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 126,
+      "literal": true,
+      "detail": "'actual redaction category'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 128,
+      "literal": true,
+      "detail": "'controlled safe governance policy and rationale'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 130,
+      "literal": true,
+      "detail": "'actual safe audit evidence identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 132,
+      "literal": true,
+      "detail": "'actual governance audit timestamp uses UTC and audited business range'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 178,
+      "literal": true,
+      "detail": "'contiguous same-conversation authoritative replay'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 179,
+      "literal": true,
+      "detail": "'unique authoritative event identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 228,
+      "literal": true,
+      "detail": "'typed member role'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 230,
+      "literal": true,
+      "detail": "'typed configuration value'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 241,
+      "literal": true,
+      "detail": "'unique contiguous replay identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 242,
+      "literal": true,
+      "detail": "'authoritative tenant raw payload'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 243,
+      "literal": true,
+      "detail": "'actual Tenants event type'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 245,
+      "literal": true,
+      "detail": "'same-tenant authoritative replay'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 120,
+      "literal": true,
+      "detail": "'actual computed creation time'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 136,
+      "literal": true,
+      "detail": "'actual metadata attributes'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 182,
+      "literal": true,
+      "detail": "'creation begins controlled history'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 186,
+      "literal": true,
+      "detail": "'controlled history has creation'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 247,
+      "literal": true,
+      "detail": "'typed tenant updated description'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 194,
+      "literal": true,
+      "detail": "'duplicate entity poisons materialized projection'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 252,
+      "literal": true,
+      "detail": "'actual tenant role'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 142,
+      "literal": true,
+      "detail": "'required typed identifier'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 143,
+      "literal": true,
+      "detail": "'actual participant type'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 253,
+      "literal": true,
+      "detail": "'typed previous tenant role'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 144,
+      "literal": true,
+      "detail": "'actual participant role'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 257,
+      "literal": true,
+      "detail": "'typed configuration value'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 145,
+      "literal": true,
+      "detail": "'controlled experiment excludes provider wrapper'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "line": 147,
+      "literal": true,
+      "detail": "'optional domain value'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 63,
+      "literal": true,
+      "detail": "'observation inventory cardinality'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 64,
+      "literal": true,
+      "detail": "'observation row shape'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 65,
+      "literal": true,
+      "detail": "'ordered observation inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 99,
+      "literal": true,
+      "detail": "'distinct acknowledgement deliveries'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 121,
+      "literal": true,
+      "detail": "'distinct durable outcome records'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 125,
+      "literal": true,
+      "detail": "'nonempty fingerprint observations'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 126,
+      "literal": true,
+      "detail": "'unique pending sequence'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 138,
+      "literal": true,
+      "detail": "'public contract shape'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 139,
+      "literal": true,
+      "detail": "'tenant data must stay absent'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 140,
+      "literal": true,
+      "detail": "'platform ownership and read purity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 186,
+      "literal": true,
+      "detail": "'separate authorization experiments have identical non-disclosing results'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 209,
+      "literal": true,
+      "detail": "'generation summary derives from named fields inside the same control record'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 215,
+      "literal": true,
+      "detail": "'proven current-empty control index'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 220,
+      "literal": true,
+      "detail": "'known query provider state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 221,
+      "literal": true,
+      "detail": "'known query lifecycle'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 247,
+      "literal": true,
+      "detail": "'captured erase barrier'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 249,
+      "literal": true,
+      "detail": "'unique deletion targets'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 250,
+      "literal": true,
+      "detail": "'tenant retiring-generation deletion targets'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 251,
+      "literal": true,
+      "detail": "'exact captured deletion manifest'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 254,
+      "literal": true,
+      "detail": "'deliveries during both erased phases'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 255,
+      "literal": true,
+      "detail": "'durable reference inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 256,
+      "literal": true,
+      "detail": "'unique delivery identities'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 271,
+      "literal": true,
+      "detail": "'exact unique authoritative stream manifest'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 272,
+      "literal": true,
+      "detail": "'authoritative discovery at captured B'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 273,
+      "literal": true,
+      "detail": "'same-generation progress merge'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 287,
+      "literal": true,
+      "detail": "'pending full binding and sequence'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 288,
+      "literal": true,
+      "detail": "'same tenant conversation pending recovery'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 289,
+      "literal": true,
+      "detail": "'retained preceding domain state derives from history'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 295,
+      "literal": true,
+      "detail": "'unknown scenario or observations'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 82,
+      "literal": true,
+      "detail": "'healthy restart without redelivery'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 84,
+      "literal": true,
+      "detail": "'healthy persisted snapshot survives restart'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 85,
+      "literal": true,
+      "detail": "'healthy persisted sequence'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 87,
+      "literal": true,
+      "detail": "'representable restart freshness'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 88,
+      "literal": true,
+      "detail": "'persisted freshness consistency'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 90,
+      "literal": true,
+      "detail": "'healthy persisted access decision'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 104,
+      "literal": true,
+      "detail": "'ack only durable terminal outcome'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 105,
+      "literal": true,
+      "detail": "'three total attempts'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 111,
+      "literal": true,
+      "detail": "'durable outcomes carry no failed processing capture'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 112,
+      "literal": true,
+      "detail": "'measured durable commit and acknowledgement'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 115,
+      "literal": true,
+      "detail": "'commit and acknowledgement identify same delivery outcome'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 116,
+      "literal": true,
+      "detail": "'committed outcome identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 117,
+      "literal": true,
+      "detail": "'durable commit before acknowledgement'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 128,
+      "literal": true,
+      "detail": "'pending sequence is future to exact next'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 129,
+      "literal": true,
+      "detail": "'immutable event identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 130,
+      "literal": true,
+      "detail": "'exact persisted payload fingerprint'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 150,
+      "literal": true,
+      "detail": "'reverse-save stale write rejected'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 152,
+      "literal": true,
+      "detail": "'reverse-save sequence observations'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 158,
+      "literal": true,
+      "detail": "'measured interleaved replica states'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 159,
+      "literal": true,
+      "detail": "'both replicas converge without regression'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 169,
+      "literal": true,
+      "detail": "'authorization capture version'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 173,
+      "literal": true,
+      "detail": "'executed public query and response'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 174,
+      "literal": true,
+      "detail": "'same tenant and query response'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 176,
+      "literal": true,
+      "detail": "'request precedes response'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 177,
+      "literal": true,
+      "detail": "'authorization input correlation'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 178,
+      "literal": true,
+      "detail": "'authorization rejects before index access without repair'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 179,
+      "literal": true,
+      "detail": "'supported query version'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 180,
+      "literal": true,
+      "detail": "'controlled native default list request'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 184,
+      "literal": true,
+      "detail": "'actual public response is non-disclosing Hidden result'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 240,
+      "literal": true,
+      "detail": "'preserved lifecycle cause and state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 241,
+      "literal": true,
+      "detail": "'explicit owner authorization to leave Erased'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 242,
+      "literal": true,
+      "detail": "'only TenantCreated plus Absent initializes empty'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 243,
+      "literal": true,
+      "detail": "'rebuild completes only with manifest'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 260,
+      "literal": true,
+      "detail": "'persist exact authoritative non-payload reference'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 261,
+      "literal": true,
+      "detail": "'authoritative delivery location'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 262,
+      "literal": true,
+      "detail": "'generation-bound delivery identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 263,
+      "literal": true,
+      "detail": "'durable reference precedes acknowledgement'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 265,
+      "literal": true,
+      "detail": "'erase deliveries cannot recreate content'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 276,
+      "literal": true,
+      "detail": "'full authoritative replay includes creation prefix without a checkpoint snapshot'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 277,
+      "literal": true,
+      "detail": "'tenant-scoped authoritative B/C boundaries'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 278,
+      "literal": true,
+      "detail": "'per-stream sequence boundary at B'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 280,
+      "literal": true,
+      "detail": "'exact-next aggregate stream'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 281,
+      "literal": true,
+      "detail": "'complete replay through B then captured C'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 93,
+      "literal": true,
+      "detail": "'consumer decision from restarted process'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 94,
+      "literal": true,
+      "detail": "'consumer sees persisted sequence and freshness'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 108,
+      "literal": true,
+      "detail": "'provider failure and exhausted retries cannot acknowledge'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 154,
+      "literal": true,
+      "detail": "'recovered schedule state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 156,
+      "literal": true,
+      "detail": "'schedule changes its measured access input'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 157,
+      "literal": true,
+      "detail": "'decision derived from measured access inputs'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 310,
+      "literal": true,
+      "detail": "'seam ownership'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 306,
+      "literal": true,
+      "detail": "'sequence transition state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 307,
+      "literal": true,
+      "detail": "'no old event reapplication'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 308,
+      "literal": true,
+      "detail": "'atomic projection/checkpoint CAS'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 309,
+      "literal": true,
+      "detail": "'duplicate suppression follows verification'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 315,
+      "literal": true,
+      "detail": "'durable restart snapshot equality'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 321,
+      "literal": true,
+      "detail": "'pending restart denies access'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 324,
+      "literal": true,
+      "detail": "'restart without redelivery'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 325,
+      "literal": true,
+      "detail": "'durable gap horizon'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 397,
+      "literal": true,
+      "detail": "'no clock substitution or envelope corruption'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 470,
+      "literal": true,
+      "detail": "'healthy resource unavailable endpoint'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 471,
+      "literal": true,
+      "detail": "'stable endpoint diagnostic'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 472,
+      "literal": true,
+      "detail": "'bounded readiness'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 473,
+      "literal": true,
+      "detail": "'preflight precedes safe live lane'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 318,
+      "literal": true,
+      "detail": "'restart snapshot belongs to measured tenant'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 329,
+      "literal": true,
+      "detail": "'three future deliveries'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 330,
+      "literal": true,
+      "detail": "'three distinct interleaved future deliveries'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 333,
+      "literal": true,
+      "detail": "'gap begins at exact next sequence'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 346,
+      "literal": true,
+      "detail": "'replica convergence'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 347,
+      "literal": true,
+      "detail": "'recover complete enlarged horizon'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 349,
+      "literal": true,
+      "detail": "'measured recovery lease/version'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 350,
+      "literal": true,
+      "detail": "'measured recovered checkpoint and enlarged horizon'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 352,
+      "literal": true,
+      "detail": "'fenced completion CAS'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 357,
+      "literal": true,
+      "detail": "'recovered tenant domain values'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 359,
+      "literal": true,
+      "detail": "'access derived from authoritative tenant events'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 365,
+      "literal": true,
+      "detail": "'disable schedule binds recovered replica'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 366,
+      "literal": true,
+      "detail": "'complete fence tuple'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 367,
+      "literal": true,
+      "detail": "'single consumer-group delivery'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 385,
+      "literal": true,
+      "detail": "'full binding matches independent authoritative envelope'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 386,
+      "literal": true,
+      "detail": "'contract versus position-only metadata'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 387,
+      "literal": true,
+      "detail": "'authoritative transport identity/time'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 389,
+      "literal": true,
+      "detail": "'full duplicate binding'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 390,
+      "literal": true,
+      "detail": "'raw payload bytes'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 391,
+      "literal": true,
+      "detail": "'selected authoritative time'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 392,
+      "literal": true,
+      "detail": "'selected authoritative identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 393,
+      "literal": true,
+      "detail": "'validate before deduplication'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 400,
+      "literal": true,
+      "detail": "'two rebuilds'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 401,
+      "literal": true,
+      "detail": "'different rebuild clocks'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 404,
+      "literal": true,
+      "detail": "'contributing times derive from authoritative events'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 405,
+      "literal": true,
+      "detail": "'keys derive from complete domain values'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 422,
+      "literal": true,
+      "detail": "'ordinal unique collection keys'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 423,
+      "literal": true,
+      "detail": "'deterministic replay'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 477,
+      "literal": true,
+      "detail": "'valid endpoint port domain'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 478,
+      "literal": true,
+      "detail": "'effective binding inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 479,
+      "literal": true,
+      "detail": "'specific collision classification'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 480,
+      "literal": true,
+      "detail": "'port restoration before lane'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 337,
+      "literal": true,
+      "detail": "'immutable gap origin'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 339,
+      "literal": true,
+      "detail": "'monotonic max horizon'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 342,
+      "literal": true,
+      "detail": "'every pending sequence fits recovery horizon'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 343,
+      "literal": true,
+      "detail": "'retain every pending fingerprint'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 344,
+      "literal": true,
+      "detail": "'persist each future delivery'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 364,
+      "literal": true,
+      "detail": "'reverse-save decisions derive from actual event semantics'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 373,
+      "literal": true,
+      "detail": "'queries and consumer cannot recover'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 377,
+      "literal": true,
+      "detail": "'warning gated by both proofs'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 378,
+      "literal": true,
+      "detail": "'single replica warning removal'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 388,
+      "literal": true,
+      "detail": "'actual contract identity/time'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 408,
+      "literal": true,
+      "detail": "'closed version 2 replay state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 409,
+      "literal": true,
+      "detail": "'serialized domain values match authoritative replay'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 410,
+      "literal": true,
+      "detail": "'hashed replay anchor matches measured state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 411,
+      "literal": true,
+      "detail": "'representable authoritative replay time'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 412,
+      "literal": true,
+      "detail": "'actual EventStore canonical bytes'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 414,
+      "literal": true,
+      "detail": "'bound EventStore canonicalizer'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 415,
+      "literal": true,
+      "detail": "'EventStore Unicode/HTML/ordinal/number golden vector'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 416,
+      "literal": true,
+      "detail": "'canonical replay hash'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 417,
+      "literal": true,
+      "detail": "'canonical round trip'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 418,
+      "literal": true,
+      "detail": "'maximum validated replay anchor'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 419,
+      "literal": true,
+      "detail": "'observation-time freshness'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 420,
+      "literal": true,
+      "detail": "'actual completion instant'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 421,
+      "literal": true,
+      "detail": "'operational metadata excluded'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 438,
+      "literal": true,
+      "detail": "'proven current empty'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 439,
+      "literal": true,
+      "detail": "'sole control index'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 487,
+      "literal": true,
+      "detail": "'production hosted delivery'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 488,
+      "literal": true,
+      "detail": "'durable first failure'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 489,
+      "literal": true,
+      "detail": "'durable ack and fail closed tenant'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 490,
+      "literal": true,
+      "detail": "'runtime route catalog binding'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 491,
+      "literal": true,
+      "detail": "'no bypass of lifecycle'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 356,
+      "literal": true,
+      "detail": "'pending fingerprints match authoritative replay'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 430,
+      "literal": true,
+      "detail": "'safe measured query mapping'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 431,
+      "literal": true,
+      "detail": "'case identity reflects measured control index'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 432,
+      "literal": true,
+      "detail": "'no repair on read and measured index access'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 433,
+      "literal": true,
+      "detail": "'measured rebuild state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 449,
+      "literal": true,
+      "detail": "'delete only retired generation'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 450,
+      "literal": true,
+      "detail": "'durable non-payload quarantine'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 453,
+      "literal": true,
+      "detail": "'captured B/C cutover'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 454,
+      "literal": true,
+      "detail": "'complete rebuild manifest'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 455,
+      "literal": true,
+      "detail": "'retain later progress'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 459,
+      "literal": true,
+      "detail": "'no read repair or unauthorized rebuild'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 465,
+      "literal": true,
+      "detail": "'replay/query conformance dependencies'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 496,
+      "literal": true,
+      "detail": "'preceding state checkpoint'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 498,
+      "literal": true,
+      "detail": "'recovery begins with correlated pending event'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 499,
+      "literal": true,
+      "detail": "'corrected domain values from authoritative recovery'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 500,
+      "literal": true,
+      "detail": "'authenticated production wire request'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 501,
+      "literal": true,
+      "detail": "'durable idempotent clearance'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 502,
+      "literal": true,
+      "detail": "'persisted end state visible through query'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 503,
+      "literal": true,
+      "detail": "'corrected projection covers recovered checkpoint and pending item'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 504,
+      "literal": true,
+      "detail": "'no newer-progress regression'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 505,
+      "literal": true,
+      "detail": "'hosted fenced recovery'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 506,
+      "literal": true,
+      "detail": "'clearance measured identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 507,
+      "literal": true,
+      "detail": "'first failure dependency'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 515,
+      "literal": true,
+      "detail": "'pinned cancellation control'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 521,
+      "literal": true,
+      "detail": "'fault collision uses effective endpoint port'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 522,
+      "literal": true,
+      "detail": "'cleanup inventory names measured affected port'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 523,
+      "literal": true,
+      "detail": "'environment/product distinction'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 524,
+      "literal": true,
+      "detail": "'valid restored port domain'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 525,
+      "literal": true,
+      "detail": "'bounded safe cleanup'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 526,
+      "literal": true,
+      "detail": "'fences and authorization'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 434,
+      "literal": true,
+      "detail": "'non-disclosing tenant authorization'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 444,
+      "literal": true,
+      "detail": "'generation increment'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 446,
+      "literal": true,
+      "detail": "'single writer/CAS executor'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "line": 447,
+      "literal": true,
+      "detail": "'one CAS boundary and stale rejection'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 17,
+      "literal": true,
+      "detail": "'exact future repeat/conflict schedules'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 52,
+      "literal": true,
+      "detail": "'healthy capture binds exact tenant logical key'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 53,
+      "literal": true,
+      "detail": "'healthy restart source state belongs to tenant'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 56,
+      "literal": true,
+      "detail": "'healthy persisted full domain state derives from retained events'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 57,
+      "literal": true,
+      "detail": "'healthy decision derives from membership role configuration and status'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 65,
+      "literal": true,
+      "detail": "'restart retains exact persisted snapshot bytes'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 76,
+      "literal": true,
+      "detail": "'versioned recovery execution identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 77,
+      "literal": true,
+      "detail": "'execution belongs to exact recovery branch and scope'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 79,
+      "literal": true,
+      "detail": "'complete recovery execution schedule'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 90,
+      "literal": true,
+      "detail": "'execution request binds exact expected and proposed state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 91,
+      "literal": true,
+      "detail": "'attempt observes exact scoped stored state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 92,
+      "literal": true,
+      "detail": "'executed attempt records actual CAS or no-write outcome'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 93,
+      "literal": true,
+      "detail": "'completion binds exact preserved state and actual outcome'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 94,
+      "literal": true,
+      "detail": "'duplicate execution follows the same current wire clearance'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 101,
+      "literal": true,
+      "detail": "'versioned tenant durable outcome capture'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 105,
+      "literal": true,
+      "detail": "'source state belongs to durable tenant'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 109,
+      "literal": true,
+      "detail": "'complete durable starting state derives from source event'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 125,
+      "literal": true,
+      "detail": "'outcome proves current CAS or previously committed duplicate without reapplication'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 129,
+      "literal": true,
+      "detail": "'persisted tenant outcome is the exact source-derived state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 130,
+      "literal": true,
+      "detail": "'actual outcome transaction is the acknowledged durable transaction'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 143,
+      "literal": true,
+      "detail": "'versioned controlled reconciliation schedule'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 145,
+      "literal": true,
+      "detail": "'concurrent recovery exact pending runtime catalog and tenant scope'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 148,
+      "literal": true,
+      "detail": "'complete authoritative global-position observations'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 161,
+      "literal": true,
+      "detail": "'old worker captures actual preceding checkpoint watermark and pending state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 162,
+      "literal": true,
+      "detail": "'old worker complete measured expectation'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 163,
+      "literal": true,
+      "detail": "'intervening newer progress from authoritative events and global positions'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 164,
+      "literal": true,
+      "detail": "'measured concurrent newer progress and worker fence'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 170,
+      "literal": true,
+      "detail": "'complete stale worker schedule inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 187,
+      "literal": true,
+      "detail": "'current worker expectation matches surviving newer state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 189,
+      "literal": true,
+      "detail": "'current recovery lease remains live'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 191,
+      "literal": true,
+      "detail": "'current clearance preserves complete newer domain progress'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 192,
+      "literal": true,
+      "detail": "'one durable current-worker composite clearance'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 195,
+      "literal": true,
+      "detail": "'duplicate retry observes durable clearance and preserves newer state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 196,
+      "literal": true,
+      "detail": "'clearance and stale-write counts derive from measured schedule'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 197,
+      "literal": true,
+      "detail": "'query observes final current-worker state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 205,
+      "literal": true,
+      "detail": "'observed gap CAS attempt binds complete worker expectation'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 217,
+      "literal": true,
+      "detail": "'controlled gap starts without preloaded future evidence'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 236,
+      "literal": true,
+      "detail": "'observed horizon grows again while recovery is already in progress'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 237,
+      "literal": true,
+      "detail": "'repeat and conflict branches start at enlarged persisted gap'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 239,
+      "literal": true,
+      "detail": "'earlier worker captured before the observed extension'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 244,
+      "literal": true,
+      "detail": "'old worker attempts only its earlier replay horizon against enlarged persisted gap'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 249,
+      "literal": true,
+      "detail": "'complete authoritative enlarged replay durably advances composite checkpoint and values'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 252,
+      "literal": true,
+      "detail": "'current completion observes fully replayed enlarged snapshot'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 253,
+      "literal": true,
+      "detail": "'AD-6 completion CAS observes no remaining pending fingerprint'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 255,
+      "literal": true,
+      "detail": "'current completion proves consumed evidence and establishes derived access state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 258,
+      "literal": true,
+      "detail": "'completion summaries derive from actual recovered composite fence'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 259,
+      "literal": true,
+      "detail": "'completion summaries derive from observed attempts'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 273,
+      "literal": true,
+      "detail": "'versioned executed restart schedule'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 283,
+      "literal": true,
+      "detail": "'restart summary derives from complete persisted gap'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 284,
+      "literal": true,
+      "detail": "'replacement recovery worker and restarted process identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 286,
+      "literal": true,
+      "detail": "'executed lease acquisition observes complete old snapshot and fence'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 288,
+      "literal": true,
+      "detail": "'lease acquisition atomically advances fencing token and record version preserving all pending state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 289,
+      "literal": true,
+      "detail": "'one durable replacement-lease record transaction'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 291,
+      "literal": true,
+      "detail": "'replacement lease is live when acquired'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 294,
+      "literal": true,
+      "detail": "'restarted recovery actually resumes after acquisition'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 295,
+      "literal": true,
+      "detail": "'resumption uses acquired worker and tenant store identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 296,
+      "literal": true,
+      "detail": "'resumption reads acquired durable snapshot without clearing pending work'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 297,
+      "literal": true,
+      "detail": "'persisted gap resumes exact recovery interval without new delivery'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 298,
+      "literal": true,
+      "detail": "'resuming recovery keeps pending denial until verified Healthy'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 300,
+      "literal": true,
+      "detail": "'complete independent restart fence controls'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 317,
+      "literal": true,
+      "detail": "'restart fence summaries derive from acquisition and attempted writes'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 321,
+      "literal": true,
+      "detail": "'current restarted worker actually attempts the same admissible renewal'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 322,
+      "literal": true,
+      "detail": "'current renewal uses complete acquired scope and fences'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 324,
+      "literal": true,
+      "detail": "'independent current renewal branch has live acquired lease'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 325,
+      "literal": true,
+      "detail": "'current fences admit durable composite renewal'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 327,
+      "literal": true,
+      "detail": "'admissible current renewal preserves complete Gapped pending state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 337,
+      "literal": true,
+      "detail": "'tenant operation actually executed and completed'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 338,
+      "literal": true,
+      "detail": "'tenant operation exact request tenant store record process scope'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 340,
+      "literal": true,
+      "detail": "'ordered tenant operation and completion'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 346,
+      "literal": true,
+      "detail": "'versioned reverse-save execution'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 350,
+      "literal": true,
+      "detail": "'reverse saves use exact tenant logical record'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 352,
+      "literal": true,
+      "detail": "'executed newer then older save inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 355,
+      "literal": true,
+      "detail": "'reverse-save durable baseline derives from starting state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 378,
+      "literal": true,
+      "detail": "'both saving replicas execute final consumer reads'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 397,
+      "literal": true,
+      "detail": "'pinned tenant freshness observation control'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 398,
+      "literal": true,
+      "detail": "'authorization same tenant logical store record'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 400,
+      "literal": true,
+      "detail": "'controlled native access tenant and principal are validated before the store read'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 405,
+      "literal": true,
+      "detail": "'distinct authorization request read response operations'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 406,
+      "literal": true,
+      "detail": "'actual tenant access and store seam'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 407,
+      "literal": true,
+      "detail": "'native access requirement'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 408,
+      "literal": true,
+      "detail": "'authorization read cannot repair or recover'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 410,
+      "literal": true,
+      "detail": "'actual tenant read outcome'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 449,
+      "literal": true,
+      "detail": "'authorization summaries derive from actual read and access inputs'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 451,
+      "literal": true,
+      "detail": "'executed native access response binds actual read result and safe metadata'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 456,
+      "literal": true,
+      "detail": "'versioned bounded failed-delivery capture'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 457,
+      "literal": true,
+      "detail": "'failure delivery tenant store record identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 460,
+      "literal": true,
+      "detail": "'failure references its exact existing injected fault'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 462,
+      "literal": true,
+      "detail": "'failed delivery binds exact injected and restored fault evidence'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 467,
+      "literal": true,
+      "detail": "'failed processing retains native exact-next event and complete preceding durable state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 469,
+      "literal": true,
+      "detail": "'observed complete durable state before provider fault'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 471,
+      "literal": true,
+      "detail": "'executed processing receives same immutable native delivery'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 472,
+      "literal": true,
+      "detail": "'bounded count derives from actual failed attempt inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 479,
+      "literal": true,
+      "detail": "'completed retryable processing records exact failed attempts and zero commits'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 481,
+      "literal": true,
+      "detail": "'completed failed delivery has observed empty acknowledgement inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 483,
+      "literal": true,
+      "detail": "'provider restored according to same fault experiment'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 485,
+      "literal": true,
+      "detail": "'actual read after restoration proves complete durable state unchanged'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 486,
+      "literal": true,
+      "detail": "'distinct executed failure operation inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 24,
+      "literal": true,
+      "detail": "'same composite gap for both controlled future schedules'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 28,
+      "literal": true,
+      "detail": "'future schedule exact checkpoint and horizon'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 29,
+      "literal": true,
+      "detail": "'future schedule binds complete gap inventory and projection'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 31,
+      "literal": true,
+      "detail": "'repeated delivery remains future in measured gap'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 33,
+      "literal": true,
+      "detail": "'future schedule addresses an existing pending sequence'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 36,
+      "literal": true,
+      "detail": "'actual identical or conflicting native pending fingerprint'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 37,
+      "literal": true,
+      "detail": "'future CAS binds expected opaque etag and version'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 45,
+      "literal": true,
+      "detail": "'future delivery preserves pending evidence and projection/checkpoint atomically'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 46,
+      "literal": true,
+      "detail": "'future outcome derives from persisted health'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 60,
+      "literal": true,
+      "detail": "'raw immutable healthy snapshot capture'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 62,
+      "literal": true,
+      "detail": "'same-tenant projection-store lookup and returned snapshot'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 64,
+      "literal": true,
+      "detail": "'same-tenant consumer request identity'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 83,
+      "literal": true,
+      "detail": "'recovery request attempt completion occur in order'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 85,
+      "literal": true,
+      "detail": "'same recovery operation actually executed and completed'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 113,
+      "literal": true,
+      "detail": "'acknowledged accepted event is exact next'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 127,
+      "literal": true,
+      "detail": "'durable outcome mutation advances opaque etag'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 152,
+      "literal": true,
+      "detail": "'global position bound to exact authoritative envelope'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 157,
+      "literal": true,
+      "detail": "'complete persisted recovery scope'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 179,
+      "literal": true,
+      "detail": "'stale CAS uses measured worker expectation and recovery-derived proposal'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 182,
+      "literal": true,
+      "detail": "'expired versus live measured worker lease'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 184,
+      "literal": true,
+      "detail": "'stale or expired CAS cannot write or clear'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 185,
+      "literal": true,
+      "detail": "'stale attempt preserves complete newer stored state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 207,
+      "literal": true,
+      "detail": "'current gap CAS matches stored lease version checkpoint horizon and etag'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 208,
+      "literal": true,
+      "detail": "'one durable composite gap CAS'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 210,
+      "literal": true,
+      "detail": "'stale gap completion preserves complete enlarged persisted state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 221,
+      "literal": true,
+      "detail": "'future deliveries observe preceding complete persisted state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 222,
+      "literal": true,
+      "detail": "'future merge remains in measured tenant recovery gap'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 229,
+      "literal": true,
+      "detail": "'new distinct future delivery extends existing pending inventory'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 232,
+      "literal": true,
+      "detail": "'exact durable pending union and monotonic horizon from delivered native fingerprint'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 233,
+      "literal": true,
+      "detail": "'future merge summaries derive from persisted before and after'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 275,
+      "literal": true,
+      "detail": "'restart complete stored tenant and exact logical lookup'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 277,
+      "literal": true,
+      "detail": "'restart persisted projection remains fail closed'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 281,
+      "literal": true,
+      "detail": "'restart stored freshness round trip without business-event clock inference'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 306,
+      "literal": true,
+      "detail": "'isolated restart CAS expectation changes only its named precondition'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 307,
+      "literal": true,
+      "detail": "'actual stale worker CAS targets same durable tenant'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 308,
+      "literal": true,
+      "detail": "'old worker attempts against acquired replacement record'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 310,
+      "literal": true,
+      "detail": "'restart fence isolation keeps lease live and operation after resumption'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 313,
+      "literal": true,
+      "detail": "'isolated restart proposal is otherwise admissible pending-preserving lease renewal'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 315,
+      "literal": true,
+      "detail": "'each isolated restart precondition rejects stale clearance'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 316,
+      "literal": true,
+      "detail": "'stale restart attempt preserves every newer persisted field and fingerprint'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 359,
+      "literal": true,
+      "detail": "'distinct reverse-save replicas and processes'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 363,
+      "literal": true,
+      "detail": "'distinct reverse-save operations and requests'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 364,
+      "literal": true,
+      "detail": "'executed compare-exchange inside save operation'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 365,
+      "literal": true,
+      "detail": "'reverse save observes preceding durable commit'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 366,
+      "literal": true,
+      "detail": "'both reverse saves retain their original CAS expectation'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 368,
+      "literal": true,
+      "detail": "'proposed durable write advances opaque etag'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 370,
+      "literal": true,
+      "detail": "'reverse-save complete proposed projection and checkpoint derive from authoritative replay'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 372,
+      "literal": true,
+      "detail": "'newer CAS succeeds and stale older CAS fails against that durable state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 376,
+      "literal": true,
+      "detail": "'save after-state preserves exact committed full snapshot'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 377,
+      "literal": true,
+      "detail": "'save proposal binds prior decision summary'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 381,
+      "literal": true,
+      "detail": "'consumer executes on same distinct replica process'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 384,
+      "literal": true,
+      "detail": "'distinct final read identities'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 387,
+      "literal": true,
+      "detail": "'distinct executed store read and response identities'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 388,
+      "literal": true,
+      "detail": "'completed consumer encloses actual tenant store read and response'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 389,
+      "literal": true,
+      "detail": "'both replicas read the same actual final durable snapshot'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 390,
+      "literal": true,
+      "detail": "'consumer decision derives from exact observed native state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 391,
+      "literal": true,
+      "detail": "'replica summary derives from executed consumer response'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 392,
+      "literal": true,
+      "detail": "'reverse-save consumers cannot repair or recover'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 413,
+      "literal": true,
+      "detail": "'absent or unavailable read cannot manufacture persisted state or metadata'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 414,
+      "literal": true,
+      "detail": "'actual provider failure distinguishes unavailable from missing'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 418,
+      "literal": true,
+      "detail": "'available read returns actual snapshot'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 421,
+      "literal": true,
+      "detail": "'authorization native projection checkpoint and fingerprint derive from retained source'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 426,
+      "literal": true,
+      "detail": "'valid persisted freshness and observation clock'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 441,
+      "literal": true,
+      "detail": "'stored authorization health derives from actual cause'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 476,
+      "literal": true,
+      "detail": "'ordered attempt actually proposes source-derived exact-next composite write'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 477,
+      "literal": true,
+      "detail": "'actual provider failure cannot claim a successful write or unavailable snapshot'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 27,
+      "literal": true,
+      "detail": "'future schedule tenant binding'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 41,
+      "literal": true,
+      "detail": "'identical future delivery causes no commit'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 44,
+      "literal": true,
+      "detail": "'future conflict durably CAS-marks composite corrupt state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 117,
+      "literal": true,
+      "detail": "'acknowledged duplicate matches actual committed fingerprint'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 226,
+      "literal": true,
+      "detail": "'controlled composite gap capture version'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 375,
+      "literal": true,
+      "detail": "'rejected stale save has no durable transaction'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 429,
+      "literal": true,
+      "detail": "'actual pending future gap fingerprint and horizon'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 432,
+      "literal": true,
+      "detail": "'actual conflicting accepted fingerprint establishes corrupt state'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 119,
+      "literal": true,
+      "detail": "'acknowledged pending event is genuinely future'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 122,
+      "literal": true,
+      "detail": "'acknowledged corruption derives from conflicting native fingerprint'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 435,
+      "literal": true,
+      "detail": "'gap horizon derives from actual pending evidence'"
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "line": 438,
+      "literal": true,
+      "detail": "'no unexplained gap horizon'"
+    }
+  ],
+  "testFileLines": 4957,
+  "readmeContradictions": [
+    "Runtime evidence now requires one closed version-1 capture manifest per native",
+    "Current portable captures use closed version 2."
+  ],
+  "buildProvenanceFindingWithdrawn": true,
+  "schemaFindingCarried": "R13B9/R12B10",
+  "retentionRule": "!/module/validation/epic-16-prerequisite-implementation/**"
+}

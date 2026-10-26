@@ -1,0 +1,461 @@
+{
+  "scope": "Exact previously retained binary bytes in disposable Git index; no real index mutation",
+  "attributeSha256": "d743202ab8c0bdf3dcd000a4a101acde352b6e6cf305a49b708b23c6e7029d7d",
+  "workspace": "/tmp/epic16-r13-diffs-4ucqk35a",
+  "records": [
+    {
+      "shape": "Evidence",
+      "sourcePath": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/constructor-default/bin/Debug/net10.0/Evidence",
+      "sourceSha256": "3edbbd8fb9a7445817d34cdb576247a449e8ff4768b6587f35c3ecf9da5a4863",
+      "byteLength": 78192,
+      "normalDiff": "standard Binary files representation",
+      "sourceUnchanged": true
+    },
+    {
+      "shape": "Goldens",
+      "sourcePath": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/party-goldens/bin/Debug/net10.0/Goldens",
+      "sourceSha256": "ae4992d5a9c31f55ce72bbd6c5f89b8ecdd81710626d7cec9ac08babd25f5c3e",
+      "byteLength": 78192,
+      "normalDiff": "standard Binary files representation",
+      "sourceUnchanged": true
+    },
+    {
+      "shape": "Epic16.NativeHelper",
+      "sourcePath": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper",
+      "sourceSha256": "0b62e3b2fd6f2d82e6b271b9cf95c85a562cd4492dab0e71e94baef90e6330cd",
+      "byteLength": 78192,
+      "normalDiff": "standard Binary files representation",
+      "sourceUnchanged": true
+    },
+    {
+      "shape": "apphost",
+      "sourcePath": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/constructor-default/obj/Debug/net10.0/apphost",
+      "sourceSha256": "3edbbd8fb9a7445817d34cdb576247a449e8ff4768b6587f35c3ecf9da5a4863",
+      "byteLength": 78192,
+      "normalDiff": "standard Binary files representation",
+      "sourceUnchanged": true
+    },
+    {
+      "shape": ".pdb",
+      "sourcePath": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.pdb",
+      "sourceSha256": "99b2fd7ebf482b1a04601d4f45901cad4e3c57b98606743c601218fee225e4ec",
+      "byteLength": 21996,
+      "normalDiff": "standard Binary files representation",
+      "sourceUnchanged": true
+    },
+    {
+      "shape": ".snk",
+      "sourcePath": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/combined/native-r10/identity-culture/after/public.snk",
+      "sourceSha256": "0cd540a120eee6fa287a092631199b99ecd97074d4d2e12d146b29d7c1dc81fb",
+      "byteLength": 160,
+      "normalDiff": "standard Binary files representation",
+      "sourceUnchanged": true
+    },
+    {
+      "shape": ".cache",
+      "sourcePath": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/private-struct-layout/baseline/obj/Debug/net10.0/Product.assets.cache",
+      "sourceSha256": "0b54dadb6c3fc0ac3c577dd6b1960c5dabac2c9a736f3edc93a5845ab3c760a7",
+      "byteLength": 157,
+      "normalDiff": "standard Binary files representation",
+      "sourceUnchanged": true
+    },
+    {
+      "shape": ".dll",
+      "sourcePath": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.dll",
+      "sourceSha256": "7d2a7d95c4ac246c80b812f5c3eae0776864c3f6378fe4a1a5356b0c58296bf8",
+      "byteLength": 57344,
+      "normalDiff": "standard Binary files representation",
+      "sourceUnchanged": true
+    },
+    {
+      "shape": ".dll.bytes",
+      "sourcePath": "module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__8142b8e1530657ed2138cfdb1ceb3589c09bae823163c573e8a9a3c235337ffd.dll.bytes",
+      "sourceSha256": "8142b8e1530657ed2138cfdb1ceb3589c09bae823163c573e8a9a3c235337ffd",
+      "byteLength": 10752,
+      "normalDiff": "standard Binary files representation",
+      "sourceUnchanged": true
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "init",
+        "-q"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "check-attr",
+        "text",
+        "diff",
+        "whitespace",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/constructor-default/bin/Debug/net10.0/Evidence"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/constructor-default/bin/Debug/net10.0/Evidence: text: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/constructor-default/bin/Debug/net10.0/Evidence: diff: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/constructor-default/bin/Debug/net10.0/Evidence: whitespace: unset\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "add",
+        "-f",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/constructor-default/bin/Debug/net10.0/Evidence"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/constructor-default/bin/Debug/net10.0/Evidence"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "diff --git a/module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/constructor-default/bin/Debug/net10.0/Evidence b/module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/constructor-default/bin/Debug/net10.0/Evidence\nnew file mode 100644\nindex 0000000..429a6f7\nBinary files /dev/null and b/module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/constructor-default/bin/Debug/net10.0/Evidence differ\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "check-attr",
+        "text",
+        "diff",
+        "whitespace",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/party-goldens/bin/Debug/net10.0/Goldens"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/party-goldens/bin/Debug/net10.0/Goldens: text: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/party-goldens/bin/Debug/net10.0/Goldens: diff: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/party-goldens/bin/Debug/net10.0/Goldens: whitespace: unset\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "add",
+        "-f",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/party-goldens/bin/Debug/net10.0/Goldens"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/party-goldens/bin/Debug/net10.0/Goldens"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "diff --git a/module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/party-goldens/bin/Debug/net10.0/Goldens b/module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/party-goldens/bin/Debug/net10.0/Goldens\nnew file mode 100644\nindex 0000000..cdbbc90\nBinary files /dev/null and b/module/validation/epic-16-prerequisite-implementation/review-iteration-5/implementation/party-goldens/bin/Debug/net10.0/Goldens differ\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "check-attr",
+        "text",
+        "diff",
+        "whitespace",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper: text: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper: diff: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper: whitespace: unset\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "add",
+        "-f",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "diff --git a/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper b/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper\nnew file mode 100644\nindex 0000000..55a7b94\nBinary files /dev/null and b/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper differ\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "check-attr",
+        "text",
+        "diff",
+        "whitespace",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/constructor-default/obj/Debug/net10.0/apphost"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/constructor-default/obj/Debug/net10.0/apphost: text: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/constructor-default/obj/Debug/net10.0/apphost: diff: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/constructor-default/obj/Debug/net10.0/apphost: whitespace: unset\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "add",
+        "-f",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/constructor-default/obj/Debug/net10.0/apphost"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/constructor-default/obj/Debug/net10.0/apphost"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "diff --git a/module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/constructor-default/obj/Debug/net10.0/apphost b/module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/constructor-default/obj/Debug/net10.0/apphost\nnew file mode 100644\nindex 0000000..429a6f7\nBinary files /dev/null and b/module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/constructor-default/obj/Debug/net10.0/apphost differ\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "check-attr",
+        "text",
+        "diff",
+        "whitespace",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.pdb"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.pdb: text: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.pdb: diff: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.pdb: whitespace: unset\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "add",
+        "-f",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.pdb"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.pdb"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "diff --git a/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.pdb b/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.pdb\nnew file mode 100644\nindex 0000000..7ab3987\nBinary files /dev/null and b/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.pdb differ\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "check-attr",
+        "text",
+        "diff",
+        "whitespace",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/combined/native-r10/identity-culture/after/public.snk"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/combined/native-r10/identity-culture/after/public.snk: text: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/combined/native-r10/identity-culture/after/public.snk: diff: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/combined/native-r10/identity-culture/after/public.snk: whitespace: unset\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "add",
+        "-f",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/combined/native-r10/identity-culture/after/public.snk"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/combined/native-r10/identity-culture/after/public.snk"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "diff --git a/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/combined/native-r10/identity-culture/after/public.snk b/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/combined/native-r10/identity-culture/after/public.snk\nnew file mode 100644\nindex 0000000..7c4cf31\nBinary files /dev/null and b/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/combined/native-r10/identity-culture/after/public.snk differ\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "check-attr",
+        "text",
+        "diff",
+        "whitespace",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/private-struct-layout/baseline/obj/Debug/net10.0/Product.assets.cache"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/private-struct-layout/baseline/obj/Debug/net10.0/Product.assets.cache: text: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/private-struct-layout/baseline/obj/Debug/net10.0/Product.assets.cache: diff: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/private-struct-layout/baseline/obj/Debug/net10.0/Product.assets.cache: whitespace: unset\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "add",
+        "-f",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/private-struct-layout/baseline/obj/Debug/net10.0/Product.assets.cache"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/private-struct-layout/baseline/obj/Debug/net10.0/Product.assets.cache"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "diff --git a/module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/private-struct-layout/baseline/obj/Debug/net10.0/Product.assets.cache b/module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/private-struct-layout/baseline/obj/Debug/net10.0/Product.assets.cache\nnew file mode 100644\nindex 0000000..e638082\nBinary files /dev/null and b/module/validation/epic-16-prerequisite-implementation/review-iteration-13/reviewer-proofs/private-struct-layout/baseline/obj/Debug/net10.0/Product.assets.cache differ\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "check-attr",
+        "text",
+        "diff",
+        "whitespace",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.dll: text: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.dll: diff: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.dll: whitespace: unset\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "add",
+        "-f",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "diff --git a/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.dll b/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.dll\nnew file mode 100644\nindex 0000000..07cff42\nBinary files /dev/null and b/module/validation/epic-16-prerequisite-implementation/review-iteration-11/implementation/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper.dll differ\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "check-attr",
+        "text",
+        "diff",
+        "whitespace",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__8142b8e1530657ed2138cfdb1ceb3589c09bae823163c573e8a9a3c235337ffd.dll.bytes"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__8142b8e1530657ed2138cfdb1ceb3589c09bae823163c573e8a9a3c235337ffd.dll.bytes: text: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__8142b8e1530657ed2138cfdb1ceb3589c09bae823163c573e8a9a3c235337ffd.dll.bytes: diff: unset\nmodule/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__8142b8e1530657ed2138cfdb1ceb3589c09bae823163c573e8a9a3c235337ffd.dll.bytes: whitespace: unset\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "add",
+        "-f",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__8142b8e1530657ed2138cfdb1ceb3589c09bae823163c573e8a9a3c235337ffd.dll.bytes"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__8142b8e1530657ed2138cfdb1ceb3589c09bae823163c573e8a9a3c235337ffd.dll.bytes"
+      ],
+      "cwd": "/tmp/epic16-r13-diffs-4ucqk35a",
+      "exitCode": 0,
+      "stdout": "diff --git a/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__8142b8e1530657ed2138cfdb1ceb3589c09bae823163c573e8a9a3c235337ffd.dll.bytes b/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__8142b8e1530657ed2138cfdb1ceb3589c09bae823163c573e8a9a3c235337ffd.dll.bytes\nnew file mode 100644\nindex 0000000..5f6d8e4\nBinary files /dev/null and b/module/validation/epic-16-prerequisite-implementation/review-iteration-8/implementation/native-capture-fixture/artifacts__epic16-runtime__16.2__binaries__8142b8e1530657ed2138cfdb1ceb3589c09bae823163c573e8a9a3c235337ffd.dll.bytes differ\n",
+      "stderr": ""
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Reflection.Metadata;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Hexalith.Conversations.Tooling;
 
@@ -18,8 +19,12 @@ internal static class TestConstruction
             CustomAttribute a = reader.GetCustomAttribute(handle);
             string name = AttributeName(reader, a);
             string? argument = GenericArgument(reader, name, "Xunit.AssemblyFixtureAttribute`1");
-            if (argument is not null) assembly.Add(argument);
-            else if (Framework(reader, name, "Xunit.AssemblyFixtureAttribute")) assembly.Add(LocalSerialized(reader, a, local));
+            if (argument is not null)
+            {
+                ProviderAttribute(reader, a, "generic");
+                assembly.Add(argument);
+            }
+            else if (Framework(reader, name, "Xunit.AssemblyFixtureAttribute")) assembly.Add(LocalSerialized(ProviderAttribute(reader, a, "type"), local));
         }
         var collection = new HashSet<string>(StringComparer.Ordinal);
         var classes = new HashSet<string>(StringComparer.Ordinal);
@@ -36,6 +41,7 @@ internal static class TestConstruction
                 string? generic = GenericArgument(reader, name, "Xunit.CollectionAttribute`1");
                 if (generic is not null)
                 {
+                    ProviderAttribute(reader, a, "generic");
                     declarations++;
                     if (!inheritedDeclarations.Add(name)) continue;
                     if (++collectionTypes > 1) throw new InvalidDataException("Ambiguous inherited collection declarations.");
@@ -43,25 +49,24 @@ internal static class TestConstruction
                 }
                 else if (Framework(reader, name, "Xunit.CollectionAttribute"))
                 {
+                    string? value = ProviderAttribute(reader, a, "collection");
                     declarations++;
                     if (!inheritedDeclarations.Add(name)) continue;
                     if (++collectionTypes > 1) throw new InvalidDataException("Ambiguous inherited collection declarations.");
-                    string? value = FirstString(reader, a);
                     MethodSignature<string> signature = reader.GetMemberReference((MemberReferenceHandle)a.Constructor).DecodeMethodSignature(Names, (object?)null);
-                    if (signature.ParameterTypes.Length != 1) throw new InvalidDataException("Collection constructor unsupported.");
                     if (signature.ParameterTypes[0] == "String")
                     {
                         TypeDefinitionHandle[] matches = reader.TypeDefinitions.Where(h => reader.GetTypeDefinition(h).GetCustomAttributes().Any(ah =>
                         {
                             CustomAttribute ca = reader.GetCustomAttribute(ah);
-                            return Framework(reader, AttributeName(reader, ca), "Xunit.CollectionDefinitionAttribute") && FirstString(reader, ca) == value;
+                            return Framework(reader, AttributeName(reader, ca), "Xunit.CollectionDefinitionAttribute") && ProviderAttribute(reader, ca, "definition") == value;
                         })).ToArray();
                         if (matches.Length != 1) throw new InvalidDataException("Named collection provider absent or ambiguous.");
                         definition = matches[0];
                     }
                     else
                     {
-                        string key = LocalSerialized(reader, a, local);
+                        string key = LocalSerialized(value, local);
                         definition = local[key];
                     }
                 }
@@ -71,6 +76,12 @@ internal static class TestConstruction
         }
         if (!definition.IsNil)
         {
+            foreach (CustomAttributeHandle handle in reader.GetTypeDefinition(definition).GetCustomAttributes())
+            {
+                CustomAttribute attribute = reader.GetCustomAttribute(handle);
+                if (Framework(reader, AttributeName(reader, attribute), "Xunit.CollectionDefinitionAttribute"))
+                    ProviderAttribute(reader, attribute, "definition");
+            }
             Interfaces(reader, definition, "Xunit.ICollectionFixture`1", collection);
             Interfaces(reader, definition, "Xunit.IClassFixture`1", classes);
         }
@@ -110,10 +121,15 @@ internal static class TestConstruction
             bool supplied = fixtures.Contains(kind) || Framework(reader, kind, "Xunit.ITestContextAccessor")
                 || test && Framework(reader, kind, "Xunit.ITestOutputHelper")
                 || !test && Framework(reader, kind, "Xunit.Sdk.IMessageSink", "xunit.v3.common");
-            if (test && parameters.TryGetValue(i + 1, out Parameter parameter))
+            // xUnit first asks the fixture/framework providers. Defaults are only
+            // inspected when they would actually supply this test argument.
+            if (!supplied && test && parameters.TryGetValue(i + 1, out Parameter parameter))
             {
-                supplied |= !parameter.GetDefaultValue().IsNil || (parameter.Attributes & ParameterAttributes.Optional) != 0
-                    || kind.EndsWith("[]", StringComparison.Ordinal) && parameter.GetCustomAttributes().Any(h => IsParamArray(reader, reader.GetCustomAttribute(h)));
+                supplied = DefaultArgument(reader, parameter, signature.ParameterTypes[i]);
+                if (!supplied && (parameter.Attributes & ParameterAttributes.Optional) != 0)
+                    supplied = SupportedDefaultType(reader, signature.ParameterTypes[i]);
+                if (!supplied && kind.EndsWith("[]", StringComparison.Ordinal))
+                    supplied = parameter.GetCustomAttributes().Any(h => IsParamArray(reader, reader.GetCustomAttribute(h)));
             }
             if (!supplied) throw new InvalidDataException("Required constructor parameter has no supported provider.");
         }
@@ -181,19 +197,193 @@ internal static class TestConstruction
     private static string AttributeName(MetadataReader reader, CustomAttribute attribute) => attribute.Constructor.Kind == HandleKind.MemberReference
         ? Names.Name(reader, reader.GetMemberReference((MemberReferenceHandle)attribute.Constructor).Parent) : "";
 
-    private static string? FirstString(MetadataReader reader, CustomAttribute attribute)
+    // Exact pinned xUnit provider constructors. Only CollectionDefinition has
+    // a writable supported named option; all blobs are consumed completely.
+    private static string? ProviderAttribute(MetadataReader reader, CustomAttribute attribute, string mode)
     {
-        BlobReader value = reader.GetBlobReader(attribute.Value);
-        if (value.ReadUInt16() != 1) throw new BadImageFormatException();
-        MethodSignature<string> signature = reader.GetMemberReference((MemberReferenceHandle)attribute.Constructor).DecodeMethodSignature(Names, (object?)null);
-        return signature.ParameterTypes.Length == 0 ? null : value.ReadSerializedString();
+        MemberReference constructor = reader.GetMemberReference((MemberReferenceHandle)attribute.Constructor);
+        BlobReader signatureBlob = reader.GetBlobReader(constructor.Signature);
+        var decoder = new SignatureDecoder<string, object?>(Names, reader, null);
+        MethodSignature<string> signature = decoder.DecodeMethodSignature(ref signatureBlob);
+        if (signatureBlob.RemainingBytes != 0 || reader.GetString(constructor.Name) != ".ctor" || signature.Header.RawValue != 0x20
+            || signature.GenericParameterCount != 0 || signature.ReturnType != "Void"
+            || signature.RequiredParameterCount != signature.ParameterTypes.Length)
+            throw new InvalidDataException("Unsupported fixture attribute constructor.");
+        int count = signature.ParameterTypes.Length;
+        bool text = count == 1 && signature.ParameterTypes[0] == "String";
+        bool type = count == 1 && FrameworkSystemType(reader, signature.ParameterTypes[0], "System.Type", "class ");
+        if (!(mode == "generic" && count == 0 || mode == "type" && type
+            || mode == "collection" && (text || type) || mode == "definition" && (count == 0 || text)))
+            throw new InvalidDataException("Unsupported fixture attribute parameter.");
+        BlobReader blob = reader.GetBlobReader(attribute.Value);
+        if (blob.ReadUInt16() != 1) throw new BadImageFormatException();
+        string? value = count == 1 ? blob.ReadSerializedString() : null;
+        if (count == 1 && value is null) throw new InvalidDataException("Null fixture provider.");
+        int named = blob.ReadUInt16();
+        if (named > (mode == "definition" ? 1 : 0)) throw new InvalidDataException("Unsupported fixture named arguments.");
+        if (named == 1 && (blob.ReadByte() != 0x54 || blob.ReadByte() != 0x02
+            || blob.ReadSerializedString() != "DisableParallelization" || blob.ReadByte() > 1))
+            throw new InvalidDataException("Invalid fixture named option.");
+        if (blob.RemainingBytes != 0) throw new InvalidDataException("Trailing fixture attribute data.");
+        return value;
     }
 
-    private static string LocalSerialized(MetadataReader reader, CustomAttribute attribute, Dictionary<string, TypeDefinitionHandle> local)
+    private static bool FrameworkSystemType(MetadataReader reader, string name, string expected, string prefix)
+        => name.StartsWith(prefix, StringComparison.Ordinal) && reader.TypeReferences.Any(handle =>
+            Names.Name(reader, handle) == name[prefix.Length..]
+            && reader.GetString(reader.GetTypeReference(handle).Namespace) + "." + reader.GetString(reader.GetTypeReference(handle).Name) == expected
+            && ProductMetadata.IsFrameworkType(reader, handle));
+
+    private static string? NullableArgument(MetadataReader reader, string type)
     {
-        string value = FirstString(reader, attribute) ?? throw new InvalidDataException("Missing fixture type.");
-        // Compiler-produced local System.Type custom-attribute arguments are unqualified.
-        // External assembly-qualified or constructed generic providers need separate metadata.
+        foreach (TypeReferenceHandle handle in reader.TypeReferences)
+        {
+            TypeReference reference = reader.GetTypeReference(handle);
+            string prefix = "valuetype " + Names.Name(reader, handle) + "<";
+            if (reader.GetString(reference.Namespace) == "System" && reader.GetString(reference.Name) == "Nullable`1"
+                && ProductMetadata.IsFrameworkType(reader, handle) && type.StartsWith(prefix, StringComparison.Ordinal) && type.EndsWith('>'))
+            {
+                string argument = type[prefix.Length..^1];
+                if (!NonNullableValueType(reader, argument))
+                    throw new InvalidDataException("Nullable default violates the supported non-nullable value-type constraint.");
+                return argument;
+            }
+        }
+        return null;
+    }
+
+    private static bool NonNullableValueType(MetadataReader reader, string type)
+    {
+        if (type is "Boolean" or "Char" or "SByte" or "Byte" or "Int16" or "UInt16" or "Int32" or "UInt32"
+            or "Int64" or "UInt64" or "Single" or "Double") return true;
+        if (FrameworkSystemType(reader, type, "System.Decimal", "valuetype ")
+            || FrameworkSystemType(reader, type, "System.DateTime", "valuetype ")) return true;
+        // Arrays, reference types, nested Nullable and constructed generic types
+        // cannot fall through to primitive/default/optional admission.
+        if (!type.StartsWith("valuetype ", StringComparison.Ordinal)) return false;
+        foreach (TypeDefinitionHandle handle in reader.TypeDefinitions)
+        {
+            TypeDefinition definition = reader.GetTypeDefinition(handle);
+            if (Names.Name(reader, handle) != Plain(type) || definition.GetGenericParameters().Count != 0) continue;
+            if (definition.GetCustomAttributes().Any(h => ProductMetadata.IsFrameworkAttribute(reader,
+                reader.GetCustomAttribute(h), "System.Runtime.CompilerServices.IsByRefLikeAttribute", [0x20, 0, 1]))) return false;
+            if (definition.BaseType.Kind != HandleKind.TypeReference) return false;
+            if (FrameworkSystemType(reader, "class " + Names.Name(reader, definition.BaseType), "System.Enum", "class "))
+                return EnumPrimitive(reader, type) is not null;
+            return FrameworkSystemType(reader, "class " + Names.Name(reader, definition.BaseType), "System.ValueType", "class ");
+        }
+        return false;
+    }
+
+    private static string? EnumPrimitive(MetadataReader reader, string type)
+    {
+        if (!type.StartsWith("valuetype ", StringComparison.Ordinal)) return null;
+        foreach (TypeDefinitionHandle handle in reader.TypeDefinitions)
+        {
+            if (Names.Name(reader, handle) != Plain(type)) continue;
+            TypeDefinition definition = reader.GetTypeDefinition(handle);
+            if (definition.BaseType.Kind != HandleKind.TypeReference
+                || !FrameworkSystemType(reader, "class " + Names.Name(reader, definition.BaseType), "System.Enum", "class ")) return null;
+            FieldDefinition[] fields = definition.GetFields().Select(reader.GetFieldDefinition)
+                .Where(field => (field.Attributes & FieldAttributes.Static) == 0).ToArray();
+            if (fields.Length != 1 || reader.GetString(fields[0].Name) != "value__") throw new InvalidDataException("Unsupported enum storage.");
+            string primitive = fields[0].DecodeSignature(Names, (object?)null);
+            if (primitive is not ("SByte" or "Byte" or "Int16" or "UInt16" or "Int32" or "UInt32" or "Int64" or "UInt64"))
+                throw new InvalidDataException("Invalid enum storage.");
+            return primitive;
+        }
+        return null;
+    }
+
+    private static bool SupportedDefaultType(MetadataReader reader, string type)
+    {
+        if (type is "Boolean" or "Char" or "SByte" or "Byte" or "Int16" or "UInt16" or "Int32" or "UInt32" or "Int64" or "UInt64"
+            or "Single" or "Double" or "String" or "Object") return true;
+        string? nullable = NullableArgument(reader, type);
+        if (nullable is not null) return SupportedDefaultType(reader, nullable);
+        if (type.EndsWith("[]", StringComparison.Ordinal)) return SupportedDefaultType(reader, type[..^2]);
+        if (FrameworkSystemType(reader, type, "System.Decimal", "valuetype ") || FrameworkSystemType(reader, type, "System.DateTime", "valuetype ")) return true;
+        foreach (TypeDefinitionHandle handle in reader.TypeDefinitions)
+        {
+            if (Names.Name(reader, handle) != Plain(type) || reader.GetTypeDefinition(handle).GetGenericParameters().Count != 0) continue;
+            TypeDefinition definition = reader.GetTypeDefinition(handle);
+            bool value = definition.BaseType.Kind == HandleKind.TypeReference
+                && (FrameworkSystemType(reader, "class " + Names.Name(reader, definition.BaseType), "System.ValueType", "class ")
+                    || FrameworkSystemType(reader, "class " + Names.Name(reader, definition.BaseType), "System.Enum", "class "));
+            return value ? NonNullableValueType(reader, type) : type.StartsWith("class ", StringComparison.Ordinal);
+        }
+        return false;
+    }
+
+    private static bool DefaultArgument(MetadataReader reader, Parameter parameter, string type)
+    {
+        ConstantHandle handle = parameter.GetDefaultValue();
+        CustomAttribute[] special = parameter.GetCustomAttributes().Select(reader.GetCustomAttribute).Where(attribute =>
+            AttributeName(reader, attribute).EndsWith("]System.Runtime.CompilerServices.DecimalConstantAttribute", StringComparison.Ordinal)
+            || AttributeName(reader, attribute).EndsWith("]System.Runtime.CompilerServices.DateTimeConstantAttribute", StringComparison.Ordinal)).ToArray();
+        if (special.Length > 1 || !handle.IsNil && special.Length != 0) throw new InvalidDataException("Ambiguous constructor default.");
+        if (special.Length == 1)
+        {
+            CustomAttribute attribute = special[0];
+            bool decimalType = ProductMetadata.IsFrameworkAttribute(reader, attribute, "System.Runtime.CompilerServices.DecimalConstantAttribute", [0x20, 5, 1, 5, 5, 9, 9, 9])
+                || ProductMetadata.IsFrameworkAttribute(reader, attribute, "System.Runtime.CompilerServices.DecimalConstantAttribute", [0x20, 5, 1, 5, 5, 8, 8, 8]);
+            bool dateType = ProductMetadata.IsFrameworkAttribute(reader, attribute, "System.Runtime.CompilerServices.DateTimeConstantAttribute", [0x20, 1, 1, 0x0a]);
+            BlobReader blob = reader.GetBlobReader(attribute.Value);
+            if (blob.ReadUInt16() != 1) throw new BadImageFormatException();
+            string target = NullableArgument(reader, type) ?? type;
+            if (decimalType && FrameworkSystemType(reader, target, "System.Decimal", "valuetype "))
+            {
+                byte scale = blob.ReadByte();
+                _ = blob.ReadByte(); // Native DecimalConstantAttribute treats every nonzero sign as negative.
+                if (scale > 28) throw new InvalidDataException("Invalid decimal default.");
+                blob.ReadUInt32(); blob.ReadUInt32(); blob.ReadUInt32();
+            }
+            else if (dateType && FrameworkSystemType(reader, target, "System.DateTime", "valuetype "))
+            {
+                long ticks = blob.ReadInt64();
+                if (ticks < 0 || ticks > DateTime.MaxValue.Ticks) throw new InvalidDataException("Invalid date default.");
+            }
+            else throw new InvalidDataException("Unsupported typed default attribute.");
+            if (blob.ReadUInt16() != 0 || blob.RemainingBytes != 0) throw new InvalidDataException("Invalid default attribute blob.");
+            return true;
+        }
+        if (handle.IsNil) return false;
+        Constant constant = reader.GetConstant(handle);
+        byte[] bytes = reader.GetBlobBytes(constant.Value);
+        string kind = constant.TypeCode.ToString();
+        int length = constant.TypeCode switch
+        {
+            ConstantTypeCode.Boolean or ConstantTypeCode.SByte or ConstantTypeCode.Byte => 1,
+            ConstantTypeCode.Char or ConstantTypeCode.Int16 or ConstantTypeCode.UInt16 => 2,
+            ConstantTypeCode.Int32 or ConstantTypeCode.UInt32 or ConstantTypeCode.Single or ConstantTypeCode.NullReference => 4,
+            ConstantTypeCode.Int64 or ConstantTypeCode.UInt64 or ConstantTypeCode.Double => 8,
+            ConstantTypeCode.String => bytes.Length % 2 == 0 ? bytes.Length : -1,
+            _ => -1,
+        };
+        if (bytes.Length != length || length < 0 || constant.TypeCode == ConstantTypeCode.Boolean && bytes[0] > 1)
+            throw new InvalidDataException("Malformed constructor constant.");
+        if (constant.TypeCode == ConstantTypeCode.NullReference)
+        {
+            if (bytes.Any(value => value != 0) || !SupportedDefaultType(reader, type)) throw new InvalidDataException("Invalid null constructor default.");
+            return true;
+        }
+        string? underlying = NullableArgument(reader, type);
+        // Reflection can box Nullable<T>'s primitive value, but an enum constant
+        // stays the underlying integer; xUnit cannot supply Nullable<Enum> with it.
+        string targetType = underlying ?? type;
+        if (underlying is not null && EnumPrimitive(reader, underlying) is not null)
+            throw new InvalidDataException("Nullable enum default is not a supplied enum instance.");
+        string targetPrimitive = EnumPrimitive(reader, targetType) ?? targetType;
+        if (!(targetPrimitive == kind || targetPrimitive == "Object"))
+            throw new InvalidDataException("Constructor constant is incompatible with its parameter.");
+        return true;
+    }
+
+    private static string LocalSerialized(string? value, Dictionary<string, TypeDefinitionHandle> local)
+    {
+        if (value is null) throw new InvalidDataException("Missing fixture type.");
+        // Compiler-produced local System.Type arguments are unqualified. External
+        // or constructed generic providers require separately supported metadata.
         if (!local.ContainsKey(value) && local.ContainsKey("." + value)) value = "." + value;
         if (!local.ContainsKey(value)) throw new InvalidDataException("Fixture type is not local supported metadata.");
         return value;

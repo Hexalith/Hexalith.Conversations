@@ -1,0 +1,12 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-r13-focused-corrected/test_round13_defaults_validate2/invalid-bool/Evidence.csproj (in 124 ms).
+/tmp/epic16-r13-focused-corrected/test_round13_defaults_validate2/invalid-bool/Tests.cs(1,50): warning CS9113: Parameter 'value' is unread. [/tmp/epic16-r13-focused-corrected/test_round13_defaults_validate2/invalid-bool/Evidence.csproj]
+  Evidence -> /tmp/epic16-r13-focused-corrected/test_round13_defaults_validate2/invalid-bool/bin/Debug/net10.0/Evidence.dll
+
+Build succeeded.
+
+/tmp/epic16-r13-focused-corrected/test_round13_defaults_validate2/invalid-bool/Tests.cs(1,50): warning CS9113: Parameter 'value' is unread. [/tmp/epic16-r13-focused-corrected/test_round13_defaults_validate2/invalid-bool/Evidence.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.63

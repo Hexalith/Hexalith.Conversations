@@ -148,3 +148,30 @@ a claimed access read is admitted. Genuine Unicode tenants remain supported.
 Default tests compile the locally retained actual Commons evaluator and compare
 its allowed/denied result and zero-read behavior with this helper. These stricter
 access-request rules do not change unrelated opaque identifier admission.
+
+Iteration 13 validates the default actually selected after fixture/framework
+provider lookup: exact supported constant type and byte length, Boolean/null/string
+encoding, local enum underlying type, nullable primitive assignment, and genuine
+DecimalConstant/DateTimeConstant constructor/blob. Null/default value types and
+Optional fallback are admitted only for supported local/framework shapes. Nonnull
+Nullable<Enum> constants reject, matching the actual pinned runner's conversion
+failure. Unused defaults do not invalidate a supplied genuine provider. Unsupported
+conversions fail explicitly rather than being assumed runnable.
+
+AssemblyFixture, Collection and CollectionDefinition attributes require approved
+xUnit ownership, exact supported constructor parameter types, prolog and complete
+blob consumption. String, local Type, generic and inherited forms remain supported;
+CollectionDefinition allows its actual DisableParallelization Boolean property.
+All other named options, malformed counts/values and trailing data fail closed.
+Task is encoded as class and ValueTask as valuetype; correct names alone do not
+replace that signature check. These remain static metadata checks, not proof of
+constructor bodies or arbitrary reflection behavior.
+
+The helper's fixed invalid-evidence response is exit 1, empty stdout, and exact
+stderr `Invalid native evidence.`. Other nonzero host exits (including missing
+framework exit 150) are prerequisite failures with the real exit code and bounded
+separate stream tails. They produce HelperUnavailable/BLOCKED, never evidence FAIL.
+
+Decimal defaults use the trusted native sign semantics: zero is positive and every nonzero byte is negative. Scale remains bounded by the native decimal constructor, and the complete attribute signature and blob are required.
+
+Nullable default and optional arguments require a supported non-nullable value type before further admission. Reference types, arrays, nested nullable types, constructed generic types and byref-like local structs are outside that constraint; genuine supported primitives, non-generic local values/enums, Decimal and DateTime remain supported. Recognized invalid Nullable signatures reject directly.

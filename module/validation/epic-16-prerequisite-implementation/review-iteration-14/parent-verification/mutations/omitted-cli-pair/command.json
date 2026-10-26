@@ -1,0 +1,29 @@
+{
+  "name": "omitted-cli-pair",
+  "path": "_bmad/scripts/epic16_tooling.py",
+  "old": "paths=None if args.output_json is None and args.output_markdown is None else [args.output_json, args.output_markdown])",
+  "new": "paths=[args.output_json, args.output_markdown])",
+  "selector": "round14_real_generator_cli and omitted",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r14-mutant-omitted-cli-pair-w4f4rdah/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round14_real_generator_cli and omitted",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-verification/mutations/omitted-cli-pair/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r14-mutant-omitted-cli-pair-w4f4rdah",
+  "exitCode": 1,
+  "elapsedSeconds": 17.428434333996847,
+  "originalSha256": "1d47daf61c51b5f4553e14f36b5c3fbd2dcec4d17c977b892e4cf20aa903fcc7",
+  "mutatedSha256": "0ec2b18621bc7a6bb533b60a4203643c6f489eac3e2f0536ac032b4ea6bc00a3",
+  "testSha256": "041019802d8f68321ae6354d48f4c8ecb78312b39a6df709b7cb30d9bc2a38a7",
+  "tests": {
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "scope": "Additive observed worker results; parent acceptance remains outstanding",
+  "documents": [
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-epic-16-prerequisite-implementation.md",
+      "beforeSha256": "37042a3d71c75d68a341d3bc7219c7f0f53a81b3b1bd1049b097b751162e8de9",
+      "afterSha256": "84e9869888a7b05d330fe6f24c24a5c7215641a41d72953c7fac8ca1d08e5dee"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/epic-16-prerequisite-implementation-handoff-2026-10-25.md",
+      "beforeSha256": "ab189a17e5733ea5bca5c19318e2892f883c1bc4e8a30f05cd50e12c2708ea01",
+      "afterSha256": "dbbf7ccf8a24309955fde2ade55f390abca6f2dacd28e98dcde9530a0c97f991"
+    }
+  ],
+  "combined": 3032,
+  "legacy": 72,
+  "focused": 131,
+  "mutationGuards": 23,
+  "targetedFailures": 53
+}

@@ -1,0 +1,53 @@
+F.                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_round13_provider_attributes_require_complete_supported_metadata[constructor-assembly] _
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-763/test_round13_provider_attribut0')
+shape = 'assembly', fault = 'constructor'
+
+    @pytest.mark.parametrize('shape',['assembly','assembly-generic','collection-string','collection-type','collection-generic','definition-string','definition-type','definition-named'])
+    @pytest.mark.parametrize('fault',['positive','named-count','trailing','constructor','signature-trailing'])
+    def test_round13_provider_attributes_require_complete_supported_metadata(tmp_path,shape,fault):
+        generic=shape in ('assembly-generic','collection-generic')
+        assembly='[assembly:Xunit.AssemblyFixture'+('<Synthetic.Fixture>]' if generic else '(typeof(Synthetic.Fixture))]') if shape.startswith('assembly') else ''
+        definition='[Xunit.CollectionDefinition("UniqueCollectionR13"'+(', DisableParallelization=true' if shape=='definition-named' else '')+')]'
+        if shape=='definition-type':definition='[Xunit.CollectionDefinition(DisableParallelization=true)]'
+        collection='[Xunit.Collection("UniqueCollectionR13")]'
+        if shape in ('collection-type','definition-type'):collection='[Xunit.Collection(typeof(Group))]'
+        elif shape=='collection-generic':collection='[Xunit.Collection<Group>]'
+        support='public class Fixture {} '+definition+' public class Group : Xunit.ICollectionFixture<Fixture> {}'
+        source='using Synthetic; '+assembly+' namespace Synthetic { '+support+' '+('' if assembly else collection)+' public class TestClass(Fixture value) { [Xunit.Fact] public void Scenario01() { System.ArgumentNullException.ThrowIfNull(value); } } }'
+        directory=tmp_path/'native';binary_path,commands=round13_build(directory,source);binary=binary_path.read_bytes()
+        assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        if fault=='positive':
+            argv=['dotnet',str(binary_path),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01'];run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
+            (directory/'run.stdout').write_bytes(run.stdout);(directory/'run.stderr').write_bytes(run.stderr);commands.append(dict(argv=argv,cwd=str(directory),exitCode=run.returncode))
+            assert run.returncode==0,(run.stdout,run.stderr)
+        else:
+            locations=round13_locations(binary)
+            expected='Xunit.AssemblyFixtureAttribute' if assembly else 'Xunit.CollectionDefinitionAttribute' if shape.startswith('definition') else 'Xunit.CollectionAttribute'
+            if generic:expected+='`1'
+            attribute=next(row for row in locations['attributes'] if row['type'].split(']')[-1].split('<')[0]==expected)
+            target=attribute['signatureOffset'] if fault in ('constructor','signature-trailing') else attribute['valueOffset']
+            original=bytes.fromhex(attribute['signature'] if fault in ('constructor','signature-trailing') else attribute['value'])
+            assert len(original)<128
+            before=bytes([len(original)])+original;after=bytearray(before)
+            if fault=='constructor':
+                # Keep all other member-reference identity intact; the ctor's return
+                # type must be Void, including generic parameterless constructors.
+                after[3]=0x08
+            elif fault=='signature-trailing':after[0]+=1
+            elif fault=='trailing':after[0]+=1
+            else:
+                if shape in ('definition-type','definition-named'):after[-1]=2
+                else:after[-2]=1
+            assert binary[target:target+len(before)]==before
+            mutant=binary[:target]+bytes(after)+binary[target+len(before):]
+            (directory/'invalid.dll.bytes').write_bytes(mutant)
+>           with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(mutant,'a'*40,'Synthetic.TestClass','Scenario01')
+E           Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:4739: Failed
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round13_provider_attributes_require_complete_supported_metadata[constructor-assembly]
+1 failed, 1 passed, 2868 deselected in 8.34s

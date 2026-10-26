@@ -1,0 +1,31 @@
+[
+  {
+    "argv": [
+      "dotnet",
+      "build",
+      "Evidence.csproj",
+      "-c",
+      "Debug",
+      "--nologo",
+      "-m:1",
+      "-p:NuGetAudit=false"
+    ],
+    "cwd": "/tmp/epic16-r13-combined-final-order/test_round12_native_framework_7/native/probe",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-combined-final-order/test_round12_native_framework_7/native/probe/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.TestClass.Scenario01",
+      "-trx",
+      "/tmp/epic16-r13-combined-final-order/test_round12_native_framework_7/native/result.trx"
+    ],
+    "cwd": "/tmp/epic16-r13-combined-final-order/test_round12_native_framework_7/native/probe",
+    "exitCode": 0
+  }
+]

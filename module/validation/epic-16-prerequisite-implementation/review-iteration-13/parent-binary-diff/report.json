@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "git",
+    "diff",
+    "--binary",
+    "8039d2abcf41bcd2c01fa3dbe618cbec2f4f6da3",
+    "--",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper"
+  ],
+  "exitCode": 0,
+  "utf8DecodePassed": true,
+  "standardGitBinaryPatch": true,
+  "exactNativeBytesPreserved": true,
+  "rawBinary": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper",
+  "rawBinarySha256": "0b62e3b2fd6f2d82e6b271b9cf95c85a562cd4492dab0e71e94baef90e6330cd",
+  "stdoutSha256": "74aff7c7cc9d70f78774f12ca8c4b90f02adde70031d9e76278ffb41c167205c",
+  "attributeSha256": "d743202ab8c0bdf3dcd000a4a101acde352b6e6cf305a49b708b23c6e7029d7d"
+}

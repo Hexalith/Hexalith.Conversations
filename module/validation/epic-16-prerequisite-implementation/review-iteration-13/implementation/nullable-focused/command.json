@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round13 and (nullable or selected_typed_defaults)",
+    "--maxfail=5",
+    "--basetemp=/tmp/epic16-r13-nullable-focused",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/nullable-focused/result.xml"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "environment": {
+    "EPIC16_COMMITLINT_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/nullable-focused/commitlint.json",
+    "EPIC16_R11_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/nullable-focused/native",
+    "EPIC16_R10_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/nullable-focused/native-r10",
+    "EPIC16_R12_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/nullable-focused/native-r12"
+  },
+  "started": 1793002173.3608952,
+  "sourceSha256": "3945a23d922d7e3a033a419d43068fd343f1e7a6c451d6b3f0d6537bb38d44b0",
+  "exitCode": 1,
+  "elapsedSeconds": 61.63673782348633,
+  "sourceUnchanged": true,
+  "stdoutSha256": "70c59ac71cbab24192ee336d2af745a53d908f1e16593598c7f5de5f6bf583d4",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

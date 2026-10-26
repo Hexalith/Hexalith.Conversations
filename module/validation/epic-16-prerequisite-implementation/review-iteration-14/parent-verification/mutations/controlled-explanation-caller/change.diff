@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_tooling.py
++++ _bmad/scripts/epic16_tooling.py
+@@ -504,7 +504,7 @@
+     except records.GateError:
+         return failed(result, Stop('HISTORY_UNAVAILABLE', 'Git', blocked=True))
+     except measurements.domain.PredicateError as error:
+-        return failed(result, Stop('MEASUREMENT_INVALID', str(error)))
++        return failed(result, Stop('MEASUREMENT_INVALID', scenario))
+     except (ValueError, TypeError, KeyError, IndexError, AttributeError, OverflowError, RecursionError):
+         return failed(result, Stop('MEASUREMENT_INVALID', scenario))
+ 

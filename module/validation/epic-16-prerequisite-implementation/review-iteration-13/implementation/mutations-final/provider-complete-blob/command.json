@@ -1,0 +1,29 @@
+{
+  "name": "provider-complete-blob",
+  "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+  "old": "        int named = blob.ReadUInt16();\n        if (named > (mode == \"definition\" ? 1 : 0)) throw new InvalidDataException(\"Unsupported fixture named arguments.\");\n        if (named == 1 && (blob.ReadByte() != 0x54 || blob.ReadByte() != 0x02\n            || blob.ReadSerializedString() != \"DisableParallelization\" || blob.ReadByte() > 1))\n            throw new InvalidDataException(\"Invalid fixture named option.\");\n        if (blob.RemainingBytes != 0) throw new InvalidDataException(\"Trailing fixture attribute data.\");\n",
+  "new": "",
+  "selector": "round13_provider and (named-count or trailing) and not signature-trailing",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r13-mutant-provider-complete-blob-tuym68ym/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round13_provider and (named-count or trailing) and not signature-trailing",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/provider-complete-blob/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r13-mutant-provider-complete-blob-tuym68ym",
+  "exitCode": 1,
+  "elapsedSeconds": 39.4162061259849,
+  "originalSha256": "1b37f691b714f3cec6f92d07ac379e4eb19bf19d8ee3f74255fd6dad55b62c33",
+  "mutatedSha256": "bab2ffb07b89144e71632b861257da6b55c32fe360cdcf040ce3f9e487d641a5",
+  "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+  "tests": {
+    "tests": 16,
+    "failures": 16,
+    "errors": 0,
+    "skipped": 0
+  }
+}

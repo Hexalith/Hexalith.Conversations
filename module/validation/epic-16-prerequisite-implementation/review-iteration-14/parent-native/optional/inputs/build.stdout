@@ -1,0 +1,12 @@
+  Determining projects to restore...
+  Restored /tmp/review14-refstruct-h7_v5woq/optional/Evidence.csproj (in 98 ms).
+/tmp/review14-refstruct-h7_v5woq/optional/Tests.cs(1,130): warning CS9113: Parameter 'value' is unread. [/tmp/review14-refstruct-h7_v5woq/optional/Evidence.csproj]
+  Evidence -> /tmp/review14-refstruct-h7_v5woq/optional/bin/Debug/net10.0/Evidence.dll
+
+Build succeeded.
+
+/tmp/review14-refstruct-h7_v5woq/optional/Tests.cs(1,130): warning CS9113: Parameter 'value' is unread. [/tmp/review14-refstruct-h7_v5woq/optional/Evidence.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.41

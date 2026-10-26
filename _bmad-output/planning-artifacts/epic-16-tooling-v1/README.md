@@ -364,8 +364,10 @@ No required owner, operational or runtime qualification is supplied by this tool
 
 ## Iteration 6 capture and schedule protocol
 
-Runtime evidence now requires one closed version-1 capture manifest per native
-result: `artifacts/epic16-runtime/<story>/<scenario>.capture.json`. It binds the
+Runtime evidence requires one closed version-2 capture manifest per native
+result (see the [current version-2 requirements](#iteration-9-complete-native-execution-and-negative-controls)).
+The original version-1 and 18-file fixture observations in this iteration are
+historical, not producer instructions for current evidence. The current path is `artifacts/epic16-runtime/<story>/<scenario>.capture.json`. It binds the
 scenario, immutable candidate, exact native path/hash, original codeBase,
 original repository root and lexical relative relationship, and retained assembly
 path/hash. Retained binaries use the dedicated content-addressed path
@@ -564,7 +566,7 @@ provide owner approval, publish runtime evidence or lift Story 16.1's hold.
 Current portable captures use closed version 2. The historical version-1 and
 18-file fixture observations above remain historical. The independently pinned
 product policy requires Conversations Server/Contracts, Tenants Client/Contracts,
-and EventStore Client/Contracts/DomainService, including their actual owning
+EventStore Client/Contracts/DomainService/Server and Commons.TenantAccess, including their actual owning
 surfaces. Native output from the selected test carries its loaded inventory;
 capture manifests bind each original lexical codeBase, retained content-addressed
 PE bytes, MVID, managed identity and source revision. Root products bind the one
@@ -573,7 +575,7 @@ No observation chooses its own expected owner or required assembly. Generation
 rereads every retained capture/binary and checks aliases against admitted digests;
 publication inventory is derived, including upstream API baseline artifacts.
 
-The genuine disposable test loads seven explicitly synthetic source-stamped product
+The genuine disposable test loads nine explicitly synthetic source-stamped product
 stand-ins and emits their actual metadata and hashes in untouched xUnit TRX. Its
 fresh-checkout generation/insertion loses the original runner, product/build and
 payload directories. This proves interoperability and retention, never real product
@@ -622,7 +624,7 @@ requirements, graph and rollback boundaries are unchanged.
 
 Candidate upstream API declarations in AC-16.1-05 must come from the same owned
 SHA-256, MVID and source revision as the product DLL captured by that native test.
-All five scenarios must use one consistent seven-product implementation inventory.
+All five scenarios must use one consistent nine-product implementation inventory.
 Test run identities and timestamps may differ. Final generation rereads and retains
 all required native test/product and baseline API binaries, deduplicating only
 identical content-addressed paths. Fixture authors deliberately reuse the admitted
@@ -657,7 +659,7 @@ Iteration 11 completes executed outcome observations. The runtime native JSON ha
 exactly six fields: `scenarioId`, `candidate`, `sources`, `contractSha256`,
 `observations`, and `loadedProducts`. Only the synthetic `tooling-fixture` shape
 may omit `loadedProducts` and contain five fields. Runtime capture version 2
-retains the selected test binary and all seven required owned product binaries,
+retains the selected test binary and all nine required owned product binaries,
 correlated with raw TRX; baseline/current compiled API artifacts also join the
 exact deduplicated publication inventory. Synthetic fixture success grants no
 runtime entry, owner qualification or product execution claim.
@@ -721,3 +723,31 @@ the existing drain/work transaction remains shared. Native source stamps, suppor
 Task/ValueTask returns and ParamArray constructor supply require actual approved
 framework ownership. SDK selection/build failures retain the actual exit and
 separate 2,000-character stdout/stderr tails while returning structured BLOCKED.
+
+## Iteration 13 construction, owner and publication boundaries
+
+The independently pinned implementation inventory additionally includes
+Hexalith.EventStore.Server (ProjectionDeliveryReconciler and
+ProjectionDeliveryRetryWorker) and Hexalith.Commons.TenantAccess
+(TenantAccessEvaluator). All five scenarios bind the same nine exact loaded
+implementations, their source revisions/owning root gitlinks, MVIDs and retained
+bytes. The public-additivity promise remains the five named upstream assemblies
+in upstreamApiAssemblies; these two added implementation owners do not expand it.
+
+Final generation rereads every raw TRX against its admitted digest and rejects
+symlinks/hardlinks, alongside the existing capture/binary rereads. Raw native files
+remain their existing separate publication paths. Counts derive from the exact
+inventory. This boundary does not claim protection against an arbitrary concurrent
+filesystem adversary. Fixed helper rejection is distinguished from unavailable
+host/runtime startup; the latter yields bounded diagnostic BLOCKED results.
+
+Test construction validates the selected typed default and complete supported
+xUnit provider attribute constructor/blob. Valid Optional, params, primitive,
+nullable primitive, null, local enum/value type, decimal and DateTime defaults
+retain the documented metadata subset. A real fixture/framework provider takes
+precedence over an unused default. Nonnull Nullable<Enum> constants are unsupported
+because the pinned runner receives an underlying integer, not an enum instance.
+CollectionDefinition's DisableParallelization Boolean is a supported named option.
+Malformed named counts, signatures, values and trailing data reject; generic forms
+are equally checked. Task/ValueTask also retain their encoded class/value kind.
+No supplied evidence assembly, constructor or attribute executes in inspection.

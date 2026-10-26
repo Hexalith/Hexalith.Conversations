@@ -1,0 +1,73 @@
+{
+  "scope": "Recheck actual newly attributed native source bytes after concurrent user gitlink commit; prior checkpoint observations retained",
+  "concurrentHead": "46ca7bf39b25318418b7145b7ce75bb306471cd0",
+  "attributedSourcesVerified": 13,
+  "sourceBytesUnchanged": true,
+  "rows": [
+    {
+      "repository": ".",
+      "path": "src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessService.cs",
+      "sha256": "d4827d183085398b4c6a8d503813b4d1a9b40d9a662f8a7dfc3aeaeccbb4ead5"
+    },
+    {
+      "repository": ".",
+      "path": "src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessDecision.cs",
+      "sha256": "d165ee8ac5fcc566bd337bb93819a99a7d7377a7f36a5247f1d3929b2cf124ff"
+    },
+    {
+      "repository": ".",
+      "path": "src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantProjectionHealth.cs",
+      "sha256": "4bbbcbc8f6cc82b1abc3d1693386bf125ac00707311bd2a0c93c6218a84d8ba6"
+    },
+    {
+      "repository": "references/Hexalith.Commons",
+      "path": "src/libraries/Hexalith.Commons.TenantAccess/TenantAccessEvaluator.cs",
+      "sha256": "0ce89e385db66952b366900f8cbd787c42eee03e81597236029fa94e2c6cc16b"
+    },
+    {
+      "repository": "references/Hexalith.Tenants",
+      "path": "src/Hexalith.Tenants.Contracts/Enums/TenantRole.cs",
+      "sha256": "78dbc4d45629e0dca93c01de9ac9ca0960371fa3a50a6fa4facb12829876291f"
+    },
+    {
+      "repository": "references/Hexalith.Commons",
+      "path": "src/libraries/Hexalith.Commons.TenantAccess/ITenantAccessStateStore.cs",
+      "sha256": "b1277a7a11c41765e784ee2a07248c4f56cb84ec93ba6e341d02f67196d6acd9"
+    },
+    {
+      "repository": "references/Hexalith.Commons",
+      "path": "src/libraries/Hexalith.Commons.TenantAccess/ITenantAccessProjectionHealthProvider.cs",
+      "sha256": "395265907f3c6e4e5b114000d196b29decef5970b64905972cc3ff5174c7cedf"
+    },
+    {
+      "repository": "references/Hexalith.Commons",
+      "path": "src/libraries/Hexalith.Commons.TenantAccess/TenantAccessState.cs",
+      "sha256": "5dd919be4c65a633cd49253a8258be292bd9f082caaaa70baf052d41a76f65b4"
+    },
+    {
+      "repository": "references/Hexalith.Commons",
+      "path": "src/libraries/Hexalith.Commons.TenantAccess/TenantAccessProjectionHealth.cs",
+      "sha256": "c185f193a380c13508f2e72b0ea3ddc78c6d1f2cb5bb8cfdb3699a90cb6b82d9"
+    },
+    {
+      "repository": "references/Hexalith.Commons",
+      "path": "src/libraries/Hexalith.Commons.TenantAccess/TenantAccessEvaluation.cs",
+      "sha256": "3e1dafd3ba7717cfd2dd66e96faa908a1b666dc5a7afde43ae77ae55465ec730"
+    },
+    {
+      "repository": "references/Hexalith.Commons",
+      "path": "src/libraries/Hexalith.Commons.TenantAccess/TenantAccessDenialKind.cs",
+      "sha256": "5e11afbb24d63758e1265dfb86214c72ea870dab5e19838bc571bddd7e456882"
+    },
+    {
+      "repository": "references/Hexalith.Tenants",
+      "path": "src/Hexalith.Tenants.Contracts/Enums/TenantStatus.cs",
+      "sha256": "576ca1f1a957a067708b7c2d32fd9287a60be89db54e056b1003eae713aa9b47"
+    },
+    {
+      "repository": "references/Hexalith.Tenants",
+      "path": "src/Hexalith.Tenants.Contracts/Serialization/TenantStatusJsonConverter.cs",
+      "sha256": "97688d479cfe4d0bba267fd2a97ba01b02df25a6b6d5682a64bb2547ee3e4b26"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_round13_generator_rereads_native_after_actual_evaluation_before_writing[hardlink] _
+
+round10_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-796/test_round13_generator_rereads0/fixture')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x76d79aa6be50>
+fault = 'hardlink'
+
+    @pytest.mark.parametrize('fault',['changed','hardlink','symlink'])
+    def test_round13_generator_rereads_native_after_actual_evaluation_before_writing(round10_runtime,monkeypatch,fault):
+        repo=round10_runtime;story='16.1'
+        for n in range(1,6):
+            row=tooling.evaluate(repo,story,f'AC-{story}-0{n}');assert row['result']=='PASS',row
+            dump(repo,tooling.receipt_path('runtime',row['scenarioId']),row)
+        original=tooling.capture.inventory
+        def mutate(reader,actual_story,rows,need):
+            path=repo/rows[0]['bindings']['native']['path'];raw=path.read_bytes()
+            if fault=='changed':path.write_bytes(raw+b'\n<!-- drift after admission -->')
+            else:
+                path.unlink();alias=repo/'artifacts/native-alias';alias.write_bytes(raw)
+                if fault=='hardlink':os.link(alias,path)
+                else:path.symlink_to(alias)
+            return original(reader,actual_story,rows,need)
+        monkeypatch.setattr(tooling.capture,'inventory',mutate)
+        result,j,m=tooling.generate(repo,story,write=True)
+>       assert result['result']=='FAIL' and result['assertionLedger'],result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-final-record.v1', 'storyId': '16.1', 'result': 'PASS', 'validationScope': 'runtime', ...}
+E       assert ('PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4760: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round13_generator_rereads_native_after_actual_evaluation_before_writing[hardlink]
+1 failed, 2869 deselected in 31.17s

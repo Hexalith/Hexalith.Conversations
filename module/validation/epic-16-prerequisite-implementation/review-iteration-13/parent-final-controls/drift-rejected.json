@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "hexalith.conversations.epic16-measured-result.v1",
+  "storyId": "16.2",
+  "scenarioId": "AC-16.2-06",
+  "validationScope": "runtime",
+  "runtimeQualified": false,
+  "authority": {
+    "implementationHold": "ACTIVE",
+    "executionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  },
+  "result": "FAIL",
+  "exitCode": 1,
+  "candidate": null,
+  "bindings": {},
+  "counts": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0
+  },
+  "assertionLedger": [
+    {
+      "id": "NATIVE_CAPTURE_DRIFT",
+      "subject": "artifacts/epic16-runtime/16.2/AC-16.2-01.trx",
+      "state": "FAIL"
+    }
+  ],
+  "blockers": [
+    "NATIVE_CAPTURE_DRIFT"
+  ]
+}

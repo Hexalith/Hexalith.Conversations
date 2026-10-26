@@ -1,0 +1,1847 @@
+--- prior-reviewed-section/.gitattributes
++++ current-section/.gitattributes
+@@ -1,8 +1,8 @@
+ diff --git a/.gitattributes b/.gitattributes
+-index 24ae3c5a..ab5e2154 100644
++index 24ae3c5a..77318d60 100644
+ --- a/.gitattributes
+ +++ b/.gitattributes
+-@@ -105,3 +105,47 @@ src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj text eo
++@@ -105,3 +105,57 @@ src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj text eo
+  src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessServiceCollectionExtensions.cs text eol=lf
+  # The pinned server entry point is intentionally stored as CRLF.
+  src/Hexalith.Conversations.Server/Program.cs -text diff
+@@ -50,3 +50,13 @@
+ +
+ +# Fixed metadata-only constructor admission helper retains its authored CRLF bytes.
+ +_bmad/scripts/epic16_native_helper/TestConstruction.cs -text diff
+++
+++# Retained native debug symbols, signing keys, opaque build caches and apphosts.
+++# Keep source, schema, command streams and untouched raw TRX readable as text.
+++module/validation/epic-16-prerequisite-implementation/**/*.pdb -text -diff
+++module/validation/epic-16-prerequisite-implementation/**/*.snk -text -diff
+++module/validation/epic-16-prerequisite-implementation/**/*.cache -text -diff
+++module/validation/epic-16-prerequisite-implementation/**/apphost -text -diff
+++module/validation/epic-16-prerequisite-implementation/**/Epic16.NativeHelper -text -diff
+++module/validation/epic-16-prerequisite-implementation/**/Evidence -text -diff
+++module/validation/epic-16-prerequisite-implementation/**/Goldens -text -diff
+--- prior-reviewed-section/_bmad-output/implementation-artifacts/epic-16-prerequisite-implementation-handoff-2026-10-25.md
++++ current-section/_bmad-output/implementation-artifacts/epic-16-prerequisite-implementation-handoff-2026-10-25.md
+@@ -1,9 +1,9 @@
+ diff --git a/_bmad-output/implementation-artifacts/epic-16-prerequisite-implementation-handoff-2026-10-25.md b/_bmad-output/implementation-artifacts/epic-16-prerequisite-implementation-handoff-2026-10-25.md
+ new file mode 100644
+-index 00000000..d2770593
++index 00000000..89f15af1
+ --- /dev/null
+ +++ b/_bmad-output/implementation-artifacts/epic-16-prerequisite-implementation-handoff-2026-10-25.md
+-@@ -0,0 +1,1042 @@
++@@ -0,0 +1,1128 @@
+ +# Epic 16 prerequisite implementation handoff — 2026-10-25
+ +
+ +**Current disposition: iteration-10 prerequisite implementation and verification
+@@ -1046,3 +1046,89 @@
+ +  qualification, seventeen adoption findings, provider/environment parity, recovery
+ +  drills, operator/deputy coverage, capacity/waiver decisions, human SM-2 and separate
+ +  owner entry remain outside this prerequisite implementation.
+++
+++
+++### Worker verification — iteration 13
+++
+++The iteration-13 implementation is complete for parent audit and acceptance.
+++Runtime entry and owner approval remain held. Evidence is indexed in
+++`module/validation/epic-16-prerequisite-implementation/review-iteration-13/verification.json`;
+++its run entries explicitly name each completed source epoch.
+++
+++- Restored the 42 owned files from the hash-verified preservation manifest before
+++  editing. All 12,245 pre-existing evidence files and all 3,746 indexed iteration-12
+++  artifacts remain unchanged. The concurrent user commit/gitlinks, five protected
+++  files and `-whitespace` rule are preserved; the real index remains empty.
+++- Constructor admission validates selected constant kinds/encodings, genuine
+++  Decimal/DateTime defaults and complete fixture-provider constructor/value blobs.
+++  The 13 parent constructor positives remain valid; the nonnull nullable-enum
+++  default rejects as actual xUnit requires. Parent R13P2 corrected an invented
+++  decimal sign restriction: every nonzero sign is negative. Parent R13P3 corrected
+++  invalid Nullable<String>/Object admission through one central supported
+++  non-nullable value-type constraint, including optional/nonnull paths and
+++  array/nested/byref-like exclusions. Actual-runner positives preserve supported
+++  primitive, enum, local value, Decimal and DateTime forms. The inspector remains
+++  a bounded metadata protocol and never executes supplied evidence.
+++- Task/ValueTask return signatures retain their required class/value encoding.
+++  All five scenarios now bind nine loaded implementation owners, including
+++  EventStore.Server's reconciler/retry worker and Commons.TenantAccess's evaluator.
+++  Byte digest, MVID, owner revision/gitlink, required declarations and shared
+++  five-scenario inventory are checked. The original five upstream API preservation
+++  seams remain separate from implementation ownership. All three contracts and
+++  producer instructions match the nine-product capture schema.
+++- Final generation rereads exact raw TRX bytes and rejects digest drift or aliases
+++  before writing output. Native paths remain separately required publication
+++  paths. The fixed helper's exact evidence-rejection response remains FAIL;
+++  host failures become HelperUnavailable/BLOCKED with bounded real streams/exit.
+++  Scoped binary Git attributes cover retained apphosts/PDB/key/cache bytes and
+++  earlier DLL shapes while source/schema/TRX remain readable. Nine actual archived
+++  binary shapes produce standard normal Git diffs with exact bytes preserved.
+++- Final frozen verification: **3,032 combined passes** in
+++  **2265.52s**, **72 legacy passes** in **102.61s**, and
+++  **131 focused passes**, all without failures/errors/skips. All 2,879 prior
+++  combined case identities, 72 legacy identities and 19 packaging controls are
+++  preserved. All 86 source/test/policy inputs remain unchanged, with 71 bound
+++  source paths. Final **23 guard removals** cause **53 assertion failures**
+++  with zero setup errors/skips; every failed case passes on final exact source.
+++- Genuine pinned xUnit publication retains 28 exact
+++  publication paths, 11 PE binaries, five captures,
+++  five untouched raw TRX files and 33 retained committed
+++  files in total. All captures bind the same nine synthetic product stand-ins.
+++  Fresh-checkout regeneration/insertion succeeds after original build/measurement
+++  paths disappear. Exact candidate/publication/lifecycle commit and tree bytes use
+++  reversible base64 JSON, with raw hashes/Git object IDs verified; retained blob
+++  files match their Git objects. Ordinary diffs remain readable. These synthetic
+++  fixtures confer no actual product/runtime authority. Helper provenance retains
+++  SDK 10.0.402 and runtime .NET 10.0.13.
+++- Exploratory and interrupted epochs are retained honestly. Early mutation setup
+++  used a wrong decimal blob length and ambiguous byte offsets; metadata offsets
+++  replaced those guesses. A schema-helper lookup error was corrected. The first
+++  trailing-signature mutation shared a source-stamp signature and survived; the
+++  corrected Type-constructor probe fails the intended assertion. Pre-R13P2/P3
+++  green selections retain their incomplete protocol interpretation. The initial
+++  combined run was stopped at the parent's request after 104 passes for R13P3;
+++  an accidentally overbroad historical-generator selection was stopped after
+++  199 passes, then the exact 72-case selector passed. The first nested-nullable
+++  mutation needed a two-byte coded handle; its final equal-width probe now yields
+++  the intended rejection assertion. None of these partial/pre-fix runs is
+++  presented as final verification. The next full run retained1127 passes and one
+++  obsolete expected-gitlink-order failure before interruption. The isolated case
+++  confirmed production evaluation passed; only the test tuple was corrected to
+++  Commons/EventStore/Tenants lexical order. Its prior130 focused/native/parent
+++  epochs remain unchanged, with the one-line source delta explicitly recorded.
+++  No prior artifact was rewritten.
+++- All eighteen actual held runtime/final-record commands still return
+++  **BLOCKED / exit 2 / ENTRY_QUALIFICATION_PENDING**; both completion guards and
+++  whitespace checks pass with operational bytes restored. The 54 runtime paths
+++  remain absent; 18 scenarios, 32 requirements, 38 nodes, 61 edges and rollback/
+++  predecessor obligations are unchanged. Entry is null, trust empty, accepted CLI
+++  4.35.2, Story16.1 draft/backlog and hold ACTIVE. Exact disposable commit messages
+++  passed pinned commitlint before use. No actual repository staging/commit/push,
+++  dependency update, runtime publication, child agent or workflow invocation ran.
+++  The initial accidental skill-manifest read remains documented in restoration.json.
+++
+++Parent acceptance/review/completion remains outstanding. The prohibited broad
+++repository lane was not rerun; REFRESH_UV_DRIFT and Story10.4 guidance binding remain
+++unresolved and unweakened. Actual Platform integration, the seventeen adoption
+++findings, provider/environment parity, recovery drills, operator/deputy coverage,
+++capacity/waiver decisions, human SM-2 and separate owner entry remain required.
+--- prior-reviewed-section/_bmad-output/implementation-artifacts/spec-epic-16-prerequisite-implementation.md
++++ current-section/_bmad-output/implementation-artifacts/spec-epic-16-prerequisite-implementation.md
+@@ -1,16 +1,16 @@
+ diff --git a/_bmad-output/implementation-artifacts/spec-epic-16-prerequisite-implementation.md b/_bmad-output/implementation-artifacts/spec-epic-16-prerequisite-implementation.md
+ new file mode 100644
+-index 00000000..b647652e
++index 00000000..a653c640
+ --- /dev/null
+ +++ b/_bmad-output/implementation-artifacts/spec-epic-16-prerequisite-implementation.md
+-@@ -0,0 +1,3228 @@
++@@ -0,0 +1,3550 @@
+ +---
+ +title: 'Qualify corrected Platform tooling and implement Epic 16 successor evidence consumption'
+ +type: 'feature'
+ +created: '2026-10-25'
+-+status: 'in-review'
+++status: 'in-progress'
+ +route: 'dispatch'
+-+review_loop_iteration: 12
+++review_loop_iteration: 13
+ +review_loop_limit_override: 'user approved continuing past the five-iteration limit'
+ +baseline_commit: '8039d2abcf41bcd2c01fa3dbe618cbec2f4f6da3'
+ +context:
+@@ -52,7 +52,7 @@
+ +The user answered **yes** to continuing beyond the five-iteration review limit.
+ +That approval overrides the limit for this continuing prerequisite build; do not
+ +request the same authorization again merely because the counter exceeds five.
+-+The earlier halt/disposition below is historical. Continue iteration 12 under the
+++The earlier halt/disposition below is historical. Continue iteration 13 under the
+ +latest amendment below, then verify and review normally. The frozen scope, runtime hold,
+ +no-push rules and independent evidence requirements are unchanged. This is a
+ +worker handoff from the parent's existing rendered workflow: do not invoke or
+@@ -1513,13 +1513,189 @@
+ +refactor the schema representation. Provide a coherent source checkpoint before
+ +final long verification so the parent can audit without changing frozen inputs.
+ +
+++### Review iteration 13 — complete construction metadata and behavior-owner bindings
+++
+++Restore exactly the 42 owned files from
+++`/tmp/epic16-review13-preservation-kbmw7del/manifest.json`, SHA-256
+++`30782df6678d58e0c19be4881f80cfe4bc78e0bfb12bf2b3f9f29c7c4c2bc0f0`,
+++verifying every saved hash first. This latest restoration instruction supersedes
+++all historical paths. The partition `tracked`/`new` describes original task-baseline
+++ownership: all 42 paths are now tracked by the concurrent user commit. The parent
+++restored four originally tracked files to the original baseline and removed 38
+++originally task-added files, without changing the real index or HEAD. The user's
+++exact evidence rule including `-whitespace` remains present during reversion.
+++All 12,202 existing evidence files and five protected files were verified unchanged.
+++Restore the saved .gitattributes completely before applying the narrow correction
+++below, preserving that user rule. Keep concurrent HEAD
+++`46ca7bf39b25318418b7145b7ce75bb306471cd0`, its dependency gitlinks, original
+++baseline, protected global.json and all user work. Do not invoke/render a skill,
+++spawn agents, perform parent completion orchestration, or re-request the existing
+++review-limit authorization.
+++
+++Apply the iteration-13 KEEP set and every prior change-log constraint. Raw reports,
+++343 hash-verified reviewer proof files, independent parent caller/native probes,
+++actual source-owner files and the binary-diff reproduction are retained under
+++`module/validation/epic-16-prerequisite-implementation/review-iteration-13/`.
+++Read the proof provenance: two product-shape examples are explicitly same-source
+++reproductions; missing original build streams were never invented. Parent's first
+++runtime probe lacked the fixture's test-only contract pin and stopped with
+++CONTRACT_DRIFT; its corrected real-caller proof is separate. The collection mutant
+++passes inspection but raises CustomAttributeFormatException in actual pinned
+++runner discovery and does not finish within 120 seconds. A bounded repeat on the
+++same bytes retains its diagnostic output. These are controlled defective examples,
+++not runtime qualification.
+++
+++1. **Define supported typed constructor defaults.** For the actual supported xUnit
+++   constructor-provider choice, establish that a selected default can supply the
+++   declared parameter type, rather than treating any nonempty Constant handle as
+++   a provider. Validate the relevant constant kind/value/encoding and supported
+++   parameter type together, using the actual pinned framework/native behavior.
+++   The retained Int32 constant on a string parameter must fail inspection; its
+++   genuine Int32/string controls must still run and pass. Preserve legitimate
+++   optional/default, null/reference, native enum/value-type and injected fixture/
+++   output/context cases already supported; do not introduce a blanket ban on
+++   optional constructors or demand an unused default when a genuine provider
+++   supplies the argument. Cover actual supported defaults with positive runner
+++   comparisons and malformed/incompatible metadata with negative caller controls.
+++   Where a shape cannot be established without executing supplied code, reject
+++   it as outside the supported metadata boundary; never execute evidence methods,
+++   constructors or attributes. A separate Optional flag must not mask the proven
+++   incompatible default when that default is the value the runner would use.
+++2. **Fully validate supported fixture-provider attributes.** Assembly fixture,
+++   collection and collection-definition recognition must establish the actual
+++   approved xUnit constructor and complete supported blob before using a provider.
+++   Preserve legitimate string/Type and generic forms, inherited collections,
+++   local providers and valid named options supported by pinned xUnit. Reject
+++   truncated/malformed named arguments, trailing data and incompatible constructor
+++   signatures instead of reading only the first serialized string. Generic
+++   fixture attributes also require their supported constructor/blob, not their
+++   type name alone. Use metadata only and fail unsupported shapes explicitly;
+++   do not add a general attribute-execution mechanism. Retain genuine positive
+++   collection/fixture runner tests and the demonstrated malformed-blob negative.
+++   Also correct R13B2 in IsTestSignature: preserve the encoded class/value-type
+++   marker before admitting genuine Task versus ValueTask. The retained Task
+++   value-type mutant must fail; genuine void/Task/ValueTask and existing ownership,
+++   source-stamp, async-void and fixture guards must remain intact.
+++3. **Bind every required behavior owner actually used by these experiments.**
+++   Extend the independently pinned loaded implementation inventory to include
+++   `Hexalith.EventStore.Server` (actual ProjectionDeliveryReconciler and
+++   ProjectionDeliveryRetryWorker) and `Hexalith.Commons.TenantAccess` (actual
+++   TenantAccessEvaluator), in addition to the existing seven products. Their
+++   ordinary source files and the Conversations call into the Commons evaluator
+++   are retained in the parent proof. Bind actual bytes, managed identity/MVID,
+++   source revision and root-declared owning gitlink to the same native execution
+++   and candidate; require one consistent inventory across all five scenarios.
+++   No name-only or unloaded substitute proves which implementation ran. Include
+++   all required owner artifacts in capture, retention, exact publication and fresh
+++   checkout checks, deriving counts rather than fixing the old seven/nine/26/31
+++   fixture counts. Update producer instructions and all three contract controls
+++   coherently. Extend disposable fixture dependencies and genuine synthetic native
+++   execution without reading initialized submodules in default tests. Validate
+++   every exact disposable commit message with pinned commitlint before use.
+++   Keep the existing public-additivity promise on the already specified upstream
+++   seams: adding an implementation owner must not silently create a new promise
+++   to preserve every API of Commons or EventStore.Server. Separate implementation
+++   ownership from compatibility scope where necessary. This is not a general
+++   transitive-dependency inventory, runtime implementation or owner approval.
+++4. **Recheck raw native results at final publication.** After real scenario
+++   evaluation, reread each bound TRX and verify its exact digest and allowed inode/
+++   path relationships at the final inventory boundary alongside captures and
+++   binaries. The parent's changed-after-evaluation TRX currently produces a PASS
+++   pair with its earlier hash; reject that transaction before writing final output.
+++   Preserve existing native publication-path semantics, raw TRX bytes, deterministic
+++   pairs, receipt equality, atomic writes and committed-history checks. Native files
+++   are already separate required publication paths; avoid duplicate inventories or
+++   accidental loss of a required path while deriving final counts. Exercise the
+++   real generator with digest drift and aliasing between admission and publication,
+++   plus a genuine unchanged positive.
+++5. **Classify helper-host failures honestly.** The fixed helper's documented
+++   evidence-rejection response remains invalid evidence. Host startup/runtime
+++   failures, including the retained exit150 missing-runtime diagnostic, must
+++   become HelperUnavailable and structured BLOCKED with bounded stdout/stderr and
+++   the real exit. Reuse the existing diagnostic boundary and preserve invalid
+++   evidence FAIL behavior, SDK selection, timeouts and toolchain provenance. Do not
+++   classify every nonzero host exit as an evidence-validation rejection.
+++6. **Keep retained native binaries safe in ordinary Git diffs.** Correct the
+++   demonstrated forced-text rendering for native apphosts, PDBs, key/cache bytes
+++   and opaque native build outputs under this prerequisite evidence subtree.
+++   Preserve exact file bytes and the user's `-whitespace` rule; do not normalize
+++   historical evidence or broadly hide actual source/schema/raw-TRX text. Verify
+++   normal Git diffs for the actual binary shapes are readable standard binary
+++   representations, including the previously covered DLLs. Retain the earlier
+++   review-copy workaround as an honest historical observation. Do not migrate or
+++   deduplicate historical evidence and do not refactor the schema representation.
+++
+++**Parent typed-default controls within iteration 13:**
+++`review-iteration-13/parent-default-controls/manifest.json` retains one actual
+++pinned xUnit run of fourteen compiled constructor shapes and inspection by the
+++hash-verified preserved iteration-12 helper. Thirteen pass: Int32, Int64, string,
+++null reference, nullable Int32 value/null, enum, decimal, default DateTime,
+++Optional string/Int32, params array and DefaultParameterValue attribute. A nonnull
+++nullable-enum default compiles but the actual runner fails Int32-to-Nullable<Choice>
+++conversion; the old inspector admits it. Preserve the thirteen genuine positives
+++and reject that incompatible default under the same R13B1 rule. Do not infer
+++runnability merely from successful C# compilation. The parent's initial all-fourteen
+++positive assumption was disproved; raw exit1 and exact test outcomes are retained.
+++
+++**Parent decimal-sign correction within iteration 13:** R13P2 compiles five
+++well-formed source-authored DecimalConstantAttribute defaults with sign bytes
+++0, 1, 127, 128 and 255. All five pass actual pinned xUnit, while the checkpoint
+++inspector rejects 1, 127 and 255. The trusted native constructor treats zero as
+++positive and every nonzero byte as negative. Remove the invented 0-or-128-only
+++restriction, retain native scale validation and complete blob/constructor checks,
+++and correct the new decimal-sign negative expectation against actual behavior.
+++Exact source, PE, build/runner streams and inspector results are retained at
+++`review-iteration-13/parent-decimal-sign/manifest.json`. This corrects the existing
+++actual-native-default requirement; it adds no new runtime or compatibility scope.
+++
+++**Parent nullable-constraint correction within iteration 13:** R13P3 changes only
+++the compiled Nullable<Int32> constructor generic argument to String or Object,
+++retaining the null default and all other bytes. The checkpoint inspector admits
+++both; the actual pinned xUnit runner exits1 with TypeLoadException, explicitly
+++reporting the Nullable<T> constraint violation and zero executed tests. The
+++unchanged positive executes one passing test. Enforce the supported non-nullable
+++value-type constraint centrally before any nullable default/optional admission,
+++including the nonnull-constant path. Reject reference/array/nested-nullable and
+++byref-like underlying types; retain genuine supported primitive, enum, local
+++value, Decimal and DateTime positives. This is the existing constructor-runnability
+++boundary, not a general CLR compatibility promise. Exact original/mutant PEs,
+++source, commands and streams are in
+++`review-iteration-13/parent-nullable-constraint/manifest.json`. The interrupted
+++104-pass combined run remains a partial pre-fix epoch; no completed combined
+++verification is claimed for it.
+++
+++R13B7/B8 add no binary-layout or private-dispatch compatibility promise; preserve
+++public-declaration-only comparison and separate measured behavior proofs. R13B9
+++and R13E1 carry prior decisions; do not re-verify or defer them again. R13B10 causes
+++no retention architecture change. Runtime entry remains null, trust empty,
+++accepted CLI4.35.2, Story16.1 draft/backlog and hold ACTIVE.
+++
+++Preserve all 2,879 prior combined case identities and 72 legacy cases, adjusting
+++only captures/counts made obsolete by the required owner inventory without
+++weakening original assertions. Preserve the 19 checkout/packaging controls and
+++all prior artifact/source epochs. Add schema-plus-consumer and real-caller controls
+++for every new boundary, including wrong/missing/duplicate/mixed owner artifacts,
+++constructor/attribute/signature malformed metadata, raw native drift/aliasing and
+++host failures. Demonstrate each new guard with focused mutations that cause
+++assertion failures without setup errors, and show those cases passing on stable
+++source. Provide a coherent source checkpoint for parent audit before the long
+++combined verification. Freeze source/test/policy inputs before the combined,
+++legacy, eighteen held commands, both completion guards and preservation checks;
+++keep the original/current iteration-12 epochs separate. Retain commands, separate
+++streams, JUnit, exact source/binary hashes and native publication Git objects under
+++`review-iteration-13/implementation/`. Preserve all 3,746 indexed iteration-12
+++artifacts and protected files, and verify the unchanged 18/32/38/61 obligations and
+++54 absent runtime paths. Never stage/commit/push the real repository, update
+++actual dependencies or repeat the prohibited broad lane. Update the handoff/spec
+++with observed results and return for parent audit/review/completion.
+++
+ +## Tasks & Acceptance
+ +
+ +1. [x] Qualify the corrected CLI in isolation; retain new exact commands, exits, versions, artifact hashes and separate stdout/stderr in `module/validation/epic-16-prerequisite-implementation/`. Review current Builds fixes against the release findings. Produce an explicit Platform acceptance disposition; align accepted manifests only when existing requirements are satisfied. Otherwise report named blockers without changing pins. Do not rerun historical writing commands.
+-+2. [x] Add a current successor contract/binding/schema under planning `epic-16-tooling-v1/` and `_bmad/schemas/`. Preserve all eighteen ordered scenarios, requirement mappings, graph edges and frozen runtime semantics; bind unchanged predecessors and current inputs. Preparation has no runtime authority. Bound entry evidence must be independently validated before runtime receipts/final records can pass.
+-+3. [x] Implement `_bmad/scripts/verify_story_16_1.py`, `verify_story_16_2.py`, `verify_story_16_3.py` and a shared evaluator for all fifteen non-generator scenarios. Implement real validation of bound measured native evidence and each scenario's required proof, not constant blockers or placeholder validators. No arbitrary artifact-supplied commands. Missing future runtime tests/measurements yield BLOCKED; positive disposable fixtures exercise the full measurement-validation path but earn no runtime qualification.
+-+4. [x] Add narrow successor dispatch to `_bmad/scripts/generate_story_record.py` and necessary schema support, including deterministic JSON/Markdown, exact candidate/source/schema/input/output/fault/gitlink/rollback binding and inserted-record guards. Compute the sixth scenario only after five measured passing scenarios; never create runtime records from this held checkout.
+-+5. [x] Add focused positive/fault tests covering the matrix, all fifteen routes, false-like authority, missing history, stale/dirty candidate, inventory equality, receipt/native count forgery and output aliasing. Preserve historical fixtures/checker behavior. Run affected current Python lanes and workflow completion guards; independently probe that each new blocker fails under mutation.
+++2. [ ] Add a current successor contract/binding/schema under planning `epic-16-tooling-v1/` and `_bmad/schemas/`. Preserve all eighteen ordered scenarios, requirement mappings, graph edges and frozen runtime semantics; bind unchanged predecessors and current inputs. Preparation has no runtime authority. Bound entry evidence must be independently validated before runtime receipts/final records can pass.
+++3. [ ] Implement `_bmad/scripts/verify_story_16_1.py`, `verify_story_16_2.py`, `verify_story_16_3.py` and a shared evaluator for all fifteen non-generator scenarios. Implement real validation of bound measured native evidence and each scenario's required proof, not constant blockers or placeholder validators. No arbitrary artifact-supplied commands. Missing future runtime tests/measurements yield BLOCKED; positive disposable fixtures exercise the full measurement-validation path but earn no runtime qualification.
+++4. [ ] Add narrow successor dispatch to `_bmad/scripts/generate_story_record.py` and necessary schema support, including deterministic JSON/Markdown, exact candidate/source/schema/input/output/fault/gitlink/rollback binding and inserted-record guards. Compute the sixth scenario only after five measured passing scenarios; never create runtime records from this held checkout.
+++5. [ ] Add focused positive/fault tests covering the matrix, all fifteen routes, false-like authority, missing history, stale/dirty candidate, inventory equality, receipt/native count forgery and output aliasing. Preserve historical fixtures/checker behavior. Run affected current Python lanes and workflow completion guards; independently probe that each new blocker fails under mutation.
+ +6. [x] Update this spec and an additive prerequisite handoff with observed results, remaining adoption findings and human-only parity/recovery/SM-2 requirements. Leave runtime spec draft, sprint backlog and old accepted evidence unchanged except the explicit authorization note already recorded in the runtime draft.
+ +
+ +**Acceptance Criteria:**
+@@ -1536,6 +1712,19 @@
+ +2026-10-25: User authorized this prerequisite scope. Runtime story 16.1 remains draft/backlog. Baseline tree contains only our prior runtime-draft update and entry investigation; preserve both. No separate approval of runtime, tooling acceptance or owner evidence is inferred.
+ +
+ +## Spec Change Log
+++
+++- Review iteration 13: R13B1/B3/B6 expose incomplete typed-default and fixture-
+++  attribute admission, and two missing actual behavior-owner assemblies. Amend
+++  only the non-frozen supported metadata/owner requirements; include return-kind,
+++  final TRX reread, helper-host classification and native binary-diff corrections
+++  from R13B2/B4/B5/P1. Avoid runnable-default/attribute claims from partial metadata,
+++  stale native hashes and unbound implementation owners. Preserve the iteration-13
+++  KEEP set, all 2,879/72 cases, 19 packaging controls, 39 guards and 3,746 indexed
+++  artifacts. Preserve concurrent user commit/gitlinks and -whitespace, five protected
+++  files, original baseline and runtime hold. R13B7/B8 add no private-layout/dispatch
+++  compatibility promise; R13B9/E1 carry prior decisions and R13B10 causes no evidence
+++  migration. Counter12 becomes13 under the existing user override; frozen intent
+++  remains unchanged.
+ +
+ +- Review iteration 12: R12B4/B5/B6 expose three missing executed protocols for
+ +  reverse saves, six-state tenant authorization and failed bounded delivery.
+@@ -2067,6 +2256,53 @@
+ +| --- | --- | --- | --- |
+ +| R12P1 | high | correction during re-derivation | Using the exact preserved helper source, parent compiled a product referencing an external aliased AssemblyInformationalVersionAttribute with no genuine framework stamp. Product metadata admission returns the requested revision. This distinct external fixture establishes the shared source-stamp ownership defect in the product path; the earlier local fixture remains a recorded rejection. Apply iteration-12 framework identity/constructor validation consistently and retain the exact compiled proof. |
+ +| R12P2 | high | correction during re-derivation | Parent renamed exact tenant values, native payloads and encoded keys to tenant/a and refreshed matching fingerprints. AC-16.1-01 schema and full evaluator accept allowed=true. The compiled actual Commons evaluator returns MalformedTenant with zero health/store reads. Enforce its native request tenant rules specifically in the new access capture, preserving unrelated opaque identifier semantics. |
+++
+++### Review iteration 13 triage
+++
+++All three context-free reviewers were launched before any result was handled and
+++all three final reports arrived before triage. Raw reports and exact probe evidence
+++are retained under `review-iteration-13/`. The verification-gap layer reported no
+++gaps. Each finding receives its own verdict below before grouping.
+++
+++| ID | Verdict | Route | Evidence |
+++| --- | --- | --- | --- |
+++| R13B1 | high | bad_spec | The parent re-inspected the exact constructor mutant and valid control: both pass. The pinned runner reports System.Int32 cannot be converted to System.String for the mutant and one failed test. A nonempty Constant handle does not establish that the supplied default is compatible with its parameter; supported constructor evidence needs a defined typed-default boundary. |
+++| R13B2 | high | patch (included in loopback) | The exact Task return-kind mutant passes parent inspection. The retained pinned runner reports TypeLoadException/value-type mismatch and executes zero tests. IsTestSignature collapses class and valuetype before checking the otherwise genuine Task owner. Preserve the encoded kind for the existing Task/ValueTask alternatives. |
+++| R13B3 | high | bad_spec | Parent inspection admits the exact malformed named-argument blob. A genuine pinned collection fixture runs one positive test; the same compiled assembly with only the malformed blob raises CustomAttributeFormatException in collection discovery and times out after 120 seconds. An eight-second repeat on identical bytes retains diagnostics. Fixture-provider recognition needs supported complete constructors/blobs, not a first-string extraction. |
+++| R13B4 | high | patch (included in loopback) | Parent used the retained genuine fresh-checkout fixture and real generator. Changing a TRX only between five successful evaluations and final inventory still writes a PASS pair containing the earlier native digest. Final inventory rechecks binary/capture bytes but omits the native binding. The initial CONTRACT_DRIFT setup error is retained separately; the corrected probe restores the same test-only contract pin as the original fixture. |
+++| R13B5 | medium | patch (included in loopback) | Parent injected host exit150 with a missing-runtime diagnostic at the actual helper process boundary. _run raises ValueError and the real runtime evaluator reports FAIL/NATIVE_BINARY_DRIFT. This unavailable prerequisite must retain bounded diagnostics and yield HelperUnavailable/BLOCKED; the helper's own documented evidence-rejection response remains invalid evidence. |
+++| R13B6 | high | bad_spec | The successful controlled generator inventory contains only seven products. Actual ConversationTenantAccessService calls Commons.TenantAccessEvaluator, while actual ProjectionDeliveryReconciler and ProjectionDeliveryRetryWorker live in EventStore.Server; neither assembly is in PRODUCTS. Their bytes can be omitted entirely from the implementation-consistency proof. Parent retained the actual caller/owner source bytes and current successful inventory. Define and bind these missing behavior owners without inventing a general transitive-dependency or new public-API promise. |
+++| R13B7 | false | reject | The retained int-to-long private-field example changes binary layout while preserving every supported public declaration. Current policy and both primary/helper READMEs explicitly disclaim general binary/behavioral compatibility; the public struct layout's declared packing/size remain equal. No changed public/protected declaration or incorrect admission within that supported promise was shown. Private layout preservation would add the distinct unclaimed property, not repair the declared comparison. |
+++| R13B8 | false | reject | The retained example removes a private explicit implementation while preserving the public interface/member declarations and changes dispatch behavior. The comparison explicitly covers public declarations, not implementation behavior; actual scenario behavior has separate measured proofs. No removed supported public declaration, changed signature, or invalid public call was shown. Equal declaration inventories do not claim equal private method bodies or dispatch targets. |
+++| R13B9 | false | reject (carried) | carried R12B10: same unchanged expanded schema representation and hypothetical partial-update claim. No new divergent definition or faulty caller admission is identified. Preserve the existing rejection without re-verification or representation refactor. |
+++| R13B10 | low | reject | The large retained evidence archive creates real one-time review volume, but the reports identify no missing/corrupt evidence or incorrect caller admission from duplication. Exact manifests, scoped source diffs and native-object audits permit review; a new content-addressed store/retention migration is more than a direct correction for this occasional bulk-review cost. Preserve immutable prior evidence. The separately demonstrated raw-binary diff defect is R13P1. |
+++| R13E1 | medium | defer (carried) | carried R12B7 and its R7B1/R7V2, R8B10/E1 and R9E3 predecessors: the unchanged concurrent Story5.4 tests depend on the same external evidence directory. Protected file hashes remain unchanged; do not re-verify, patch or defer again. |
+++| R13P1 | medium | patch (included in loopback) | Ordinary baseline Git diff emits 57 retained native apphost/PDB/key/cache files as raw text because the broad evidence diff attribute is set. The actual UTF-8 review writer fails on those bytes; a single-file reproduction and base64 raw output are retained. Mark demonstrated native build outputs/key bytes for binary diffs while preserving exact bytes and the concurrent user's -whitespace rule. |
+++| R13P2 | medium | patch within iteration13 | The parent compiled well-formed DecimalConstantAttribute defaults with sign bytes0/1/127/128/255. All five pass actual pinned xUnit; the new inspector rejects1/127/255 because of an invented canonical-sign restriction. Remove that restriction and correct the new negative test while preserving native scale, constructor and full-blob validation. Exact source/PE and streams are in parent-decimal-sign/. |
+++| R13P3 | high | patch within iteration13 | The inspector admits a null default on compiled Nullable<String>/Nullable<Object> constructor signatures; actual pinned xUnit exits1 with TypeLoadException and zero tests. Centralize the genuine non-nullable value-type constraint across nullable default/optional paths and retain valid positives. Exact one-byte mutation controls and runner evidence are in parent-nullable-constraint/. |
+++
+++Grouping and routing follow those individual verdicts: typed defaults (B1),
+++fixture-provider attribute decoding (B3), and missing behavior-owner inventory
+++(B6) are separate bad-spec roots. Return encoding (B2), native publication reread
+++(B4), helper-host classification (B5), and evidence diff attributes (P1) are four
+++separate narrow patches to carry into re-derivation. No new deferral is written.
+++
+++**Iteration-13 KEEP:** Preserve every earlier accepted correction; all 2,879
+++combined case identities and 72 legacy cases, the 19 packaging controls, 39 guards
+++with 42 exact mutation runs and 199 assertion failures, and all 3,746 indexed
+++iteration-12 artifacts. Preserve original/current packaging epochs honestly,
+++including the concurrent user's commit/gitlinks and -whitespace change, exact
+++86-file snapshots, 71 bound source paths, five protected files and empty real index.
+++Keep all eight acceptance-matrix rows, eighteen scenarios, thirty-two requirements,
+++thirty-eight nodes and sixty-one edges; null entry, empty trust, accepted CLI4.35.2,
+++Story16.1 draft/backlog and ACTIVE hold. Keep legitimate native constructors,
+++framework ownership, actual tenant evaluator parity, open native maps, nullable
+++values, equal clocks, all executed schedule/failure proofs, genuine fresh-checkout
+++publication, the existing seven products as part of the expanded required inventory,
+++public-declaration-only compatibility scope, and every historical artifact/source
+++attribution. Retain the new parent/reviewer counterexamples and honest setup/timeout
+++observations. Do not refactor the schema, migrate historical evidence, modify carried
+++CI/Story5.4 work, or repeat the prohibited broad lane.
+ +
+ +## Verification
+ +
+@@ -3232,3 +3468,89 @@
+ +- [Current native retention audit](../../module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-native-retention-packaging-audit.json).
+ +- [Staged diff acceptance](../../module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-diff-acceptance.json).
+ +- [Exact parent audit commands and retained early failure](../../module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit-commands.json).
+++
+++
+++### Worker verification — iteration 13
+++
+++The iteration-13 implementation is complete for parent audit and acceptance.
+++Runtime entry and owner approval remain held. Evidence is indexed in
+++`module/validation/epic-16-prerequisite-implementation/review-iteration-13/verification.json`;
+++its run entries explicitly name each completed source epoch.
+++
+++- Restored the 42 owned files from the hash-verified preservation manifest before
+++  editing. All 12,245 pre-existing evidence files and all 3,746 indexed iteration-12
+++  artifacts remain unchanged. The concurrent user commit/gitlinks, five protected
+++  files and `-whitespace` rule are preserved; the real index remains empty.
+++- Constructor admission validates selected constant kinds/encodings, genuine
+++  Decimal/DateTime defaults and complete fixture-provider constructor/value blobs.
+++  The 13 parent constructor positives remain valid; the nonnull nullable-enum
+++  default rejects as actual xUnit requires. Parent R13P2 corrected an invented
+++  decimal sign restriction: every nonzero sign is negative. Parent R13P3 corrected
+++  invalid Nullable<String>/Object admission through one central supported
+++  non-nullable value-type constraint, including optional/nonnull paths and
+++  array/nested/byref-like exclusions. Actual-runner positives preserve supported
+++  primitive, enum, local value, Decimal and DateTime forms. The inspector remains
+++  a bounded metadata protocol and never executes supplied evidence.
+++- Task/ValueTask return signatures retain their required class/value encoding.
+++  All five scenarios now bind nine loaded implementation owners, including
+++  EventStore.Server's reconciler/retry worker and Commons.TenantAccess's evaluator.
+++  Byte digest, MVID, owner revision/gitlink, required declarations and shared
+++  five-scenario inventory are checked. The original five upstream API preservation
+++  seams remain separate from implementation ownership. All three contracts and
+++  producer instructions match the nine-product capture schema.
+++- Final generation rereads exact raw TRX bytes and rejects digest drift or aliases
+++  before writing output. Native paths remain separately required publication
+++  paths. The fixed helper's exact evidence-rejection response remains FAIL;
+++  host failures become HelperUnavailable/BLOCKED with bounded real streams/exit.
+++  Scoped binary Git attributes cover retained apphosts/PDB/key/cache bytes and
+++  earlier DLL shapes while source/schema/TRX remain readable. Nine actual archived
+++  binary shapes produce standard normal Git diffs with exact bytes preserved.
+++- Final frozen verification: **3,032 combined passes** in
+++  **2265.52s**, **72 legacy passes** in **102.61s**, and
+++  **131 focused passes**, all without failures/errors/skips. All 2,879 prior
+++  combined case identities, 72 legacy identities and 19 packaging controls are
+++  preserved. All 86 source/test/policy inputs remain unchanged, with 71 bound
+++  source paths. Final **23 guard removals** cause **53 assertion failures**
+++  with zero setup errors/skips; every failed case passes on final exact source.
+++- Genuine pinned xUnit publication retains 28 exact
+++  publication paths, 11 PE binaries, five captures,
+++  five untouched raw TRX files and 33 retained committed
+++  files in total. All captures bind the same nine synthetic product stand-ins.
+++  Fresh-checkout regeneration/insertion succeeds after original build/measurement
+++  paths disappear. Exact candidate/publication/lifecycle commit and tree bytes use
+++  reversible base64 JSON, with raw hashes/Git object IDs verified; retained blob
+++  files match their Git objects. Ordinary diffs remain readable. These synthetic
+++  fixtures confer no actual product/runtime authority. Helper provenance retains
+++  SDK 10.0.402 and runtime .NET 10.0.13.
+++- Exploratory and interrupted epochs are retained honestly. Early mutation setup
+++  used a wrong decimal blob length and ambiguous byte offsets; metadata offsets
+++  replaced those guesses. A schema-helper lookup error was corrected. The first
+++  trailing-signature mutation shared a source-stamp signature and survived; the
+++  corrected Type-constructor probe fails the intended assertion. Pre-R13P2/P3
+++  green selections retain their incomplete protocol interpretation. The initial
+++  combined run was stopped at the parent's request after 104 passes for R13P3;
+++  an accidentally overbroad historical-generator selection was stopped after
+++  199 passes, then the exact 72-case selector passed. The first nested-nullable
+++  mutation needed a two-byte coded handle; its final equal-width probe now yields
+++  the intended rejection assertion. None of these partial/pre-fix runs is
+++  presented as final verification. The next full run retained1127 passes and one
+++  obsolete expected-gitlink-order failure before interruption. The isolated case
+++  confirmed production evaluation passed; only the test tuple was corrected to
+++  Commons/EventStore/Tenants lexical order. Its prior130 focused/native/parent
+++  epochs remain unchanged, with the one-line source delta explicitly recorded.
+++  No prior artifact was rewritten.
+++- All eighteen actual held runtime/final-record commands still return
+++  **BLOCKED / exit 2 / ENTRY_QUALIFICATION_PENDING**; both completion guards and
+++  whitespace checks pass with operational bytes restored. The 54 runtime paths
+++  remain absent; 18 scenarios, 32 requirements, 38 nodes, 61 edges and rollback/
+++  predecessor obligations are unchanged. Entry is null, trust empty, accepted CLI
+++  4.35.2, Story16.1 draft/backlog and hold ACTIVE. Exact disposable commit messages
+++  passed pinned commitlint before use. No actual repository staging/commit/push,
+++  dependency update, runtime publication, child agent or workflow invocation ran.
+++  The initial accidental skill-manifest read remains documented in restoration.json.
+++
+++Parent acceptance/review/completion remains outstanding. The prohibited broad
+++repository lane was not rerun; REFRESH_UV_DRIFT and Story10.4 guidance binding remain
+++unresolved and unweakened. Actual Platform integration, the seventeen adoption
+++findings, provider/environment parity, recovery drills, operator/deputy coverage,
+++capacity/waiver decisions, human SM-2 and separate owner entry remain required.
+--- prior-reviewed-section/_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md
++++ current-section/_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md
+@@ -1,9 +1,9 @@
+ diff --git a/_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md b/_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md
+ new file mode 100644
+-index 00000000..7dce2111
++index 00000000..77ada48d
+ --- /dev/null
+ +++ b/_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md
+-@@ -0,0 +1,723 @@
++@@ -0,0 +1,751 @@
+ +# Epic 16 prerequisite tooling v1
+ +
+ +This additive package preserves the eighteen ordered scenarios, thirty-two
+@@ -570,7 +570,7 @@
+ +Current portable captures use closed version 2. The historical version-1 and
+ +18-file fixture observations above remain historical. The independently pinned
+ +product policy requires Conversations Server/Contracts, Tenants Client/Contracts,
+-+and EventStore Client/Contracts/DomainService, including their actual owning
+++EventStore Client/Contracts/DomainService/Server and Commons.TenantAccess, including their actual owning
+ +surfaces. Native output from the selected test carries its loaded inventory;
+ +capture manifests bind each original lexical codeBase, retained content-addressed
+ +PE bytes, MVID, managed identity and source revision. Root products bind the one
+@@ -579,7 +579,7 @@
+ +rereads every retained capture/binary and checks aliases against admitted digests;
+ +publication inventory is derived, including upstream API baseline artifacts.
+ +
+-+The genuine disposable test loads seven explicitly synthetic source-stamped product
+++The genuine disposable test loads nine explicitly synthetic source-stamped product
+ +stand-ins and emits their actual metadata and hashes in untouched xUnit TRX. Its
+ +fresh-checkout generation/insertion loses the original runner, product/build and
+ +payload directories. This proves interoperability and retention, never real product
+@@ -628,7 +628,7 @@
+ +
+ +Candidate upstream API declarations in AC-16.1-05 must come from the same owned
+ +SHA-256, MVID and source revision as the product DLL captured by that native test.
+-+All five scenarios must use one consistent seven-product implementation inventory.
+++All five scenarios must use one consistent nine-product implementation inventory.
+ +Test run identities and timestamps may differ. Final generation rereads and retains
+ +all required native test/product and baseline API binaries, deduplicating only
+ +identical content-addressed paths. Fixture authors deliberately reuse the admitted
+@@ -663,7 +663,7 @@
+ +exactly six fields: `scenarioId`, `candidate`, `sources`, `contractSha256`,
+ +`observations`, and `loadedProducts`. Only the synthetic `tooling-fixture` shape
+ +may omit `loadedProducts` and contain five fields. Runtime capture version 2
+-+retains the selected test binary and all seven required owned product binaries,
+++retains the selected test binary and all nine required owned product binaries,
+ +correlated with raw TRX; baseline/current compiled API artifacts also join the
+ +exact deduplicated publication inventory. Synthetic fixture success grants no
+ +runtime entry, owner qualification or product execution claim.
+@@ -727,3 +727,31 @@
+ +Task/ValueTask returns and ParamArray constructor supply require actual approved
+ +framework ownership. SDK selection/build failures retain the actual exit and
+ +separate 2,000-character stdout/stderr tails while returning structured BLOCKED.
+++
+++## Iteration 13 construction, owner and publication boundaries
+++
+++The independently pinned implementation inventory additionally includes
+++Hexalith.EventStore.Server (ProjectionDeliveryReconciler and
+++ProjectionDeliveryRetryWorker) and Hexalith.Commons.TenantAccess
+++(TenantAccessEvaluator). All five scenarios bind the same nine exact loaded
+++implementations, their source revisions/owning root gitlinks, MVIDs and retained
+++bytes. The public-additivity promise remains the five named upstream assemblies
+++in upstreamApiAssemblies; these two added implementation owners do not expand it.
+++
+++Final generation rereads every raw TRX against its admitted digest and rejects
+++symlinks/hardlinks, alongside the existing capture/binary rereads. Raw native files
+++remain their existing separate publication paths. Counts derive from the exact
+++inventory. This boundary does not claim protection against an arbitrary concurrent
+++filesystem adversary. Fixed helper rejection is distinguished from unavailable
+++host/runtime startup; the latter yields bounded diagnostic BLOCKED results.
+++
+++Test construction validates the selected typed default and complete supported
+++xUnit provider attribute constructor/blob. Valid Optional, params, primitive,
+++nullable primitive, null, local enum/value type, decimal and DateTime defaults
+++retain the documented metadata subset. A real fixture/framework provider takes
+++precedence over an unused default. Nonnull Nullable<Enum> constants are unsupported
+++because the pinned runner receives an underlying integer, not an enum instance.
+++CollectionDefinition's DisableParallelization Boolean is a supported named option.
+++Malformed named counts, signatures, values and trailing data reject; generic forms
+++are equally checked. Task/ValueTask also retain their encoded class/value kind.
+++No supplied evidence assembly, constructor or attribute executes in inspection.
+--- prior-reviewed-section/_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json
++++ current-section/_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json
+@@ -1,6 +1,6 @@
+ diff --git a/_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json b/_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json
+ new file mode 100644
+-index 00000000..23131fed
++index 00000000..dd533cc1
+ --- /dev/null
+ +++ b/_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json
+ @@ -0,0 +1,298 @@
+@@ -22,7 +22,7 @@
+ +    },
+ +    {
+ +      "path": ".gitattributes",
+-+      "sha256": "90a6b437c3dc866e9f49a1fa3cc2e6d2aa550b9fd2194ad284cfe91166e35b5b"
+++      "sha256": "d743202ab8c0bdf3dcd000a4a101acde352b6e6cf305a49b708b23c6e7029d7d"
+ +    },
+ +    {
+ +      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/README.md",
+@@ -110,15 +110,15 @@
+ +    },
+ +    {
+ +      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+-+      "sha256": "fa99d67d7785fb4fb2e6560be326c858733253b3ce6ab05ec830233cbc2f6859"
+++      "sha256": "724a8446b505724700b50009df97387e9f7631d63d800a491e54f23095c9043b"
+ +    },
+ +    {
+ +      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+-+      "sha256": "f0e47c06a816e3f6c1db2e43b07f6a931597729e2652b7fd528dca894d0d2d79"
+++      "sha256": "7ee6c0a68b9e1a916cfa808d4891581cf6f62417bd2f4cf1adcedc847347277d"
+ +    },
+ +    {
+ +      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json",
+-+      "sha256": "c32de38f59d8b3ee39272ce8c957b5540c90cfb038e7d895ec6b8178a6c00075"
+++      "sha256": "c510f07c4aa2714f07df5c36e11f6b38a0639ddea56d293996752ebe068103f5"
+ +    },
+ +    {
+ +      "path": "_bmad/schemas/epic-16-adoption-v1.schema.json",
+@@ -134,7 +134,7 @@
+ +    },
+ +    {
+ +      "path": "_bmad/schemas/epic-16-tooling-v1.schema.json",
+-+      "sha256": "ebfb75d5e8df14b79226d23cb1fd776c555971d0325b5111fa71bdbf16e43148"
+++      "sha256": "f72a7435dac004cc80c88f444dd8cca135a67f29805ce9f95c68e2e596424ee3"
+ +    },
+ +    {
+ +      "path": "_bmad/scripts/authoring_outputs.py",
+@@ -150,7 +150,7 @@
+ +    },
+ +    {
+ +      "path": "_bmad/scripts/epic16_capture.py",
+-+      "sha256": "6c0f174f984adfa5694e32d47c8009554d0cde22feab876c3134cba628b93d89"
+++      "sha256": "a05acdd2300589e9c08c67ffa1c397c615f3fccfdd1b1e753d8e8e60c9947e99"
+ +    },
+ +    {
+ +      "path": "_bmad/scripts/epic16_domain.py",
+@@ -174,7 +174,7 @@
+ +    },
+ +    {
+ +      "path": "_bmad/scripts/epic16_native.py",
+-+      "sha256": "f4a254c51e1c3e139c2aab173dd3dc0e754370466af54e0627bc6624561368f0"
+++      "sha256": "a092c95518aa2b7e1bfb26cbbe15ef196aa5bf5c951616625f5c12b94b9c6155"
+ +    },
+ +    {
+ +      "path": "_bmad/scripts/epic16_native_helper/Epic16.NativeHelper.csproj",
+@@ -190,11 +190,11 @@
+ +    },
+ +    {
+ +      "path": "_bmad/scripts/epic16_native_helper/Program.cs",
+-+      "sha256": "950cdd62a13d75db36cc39c2d7e1f505ab5db4c99caf908bf08f415f10475b3e"
+++      "sha256": "32973a86860a8a46a3892b89ca71235f753704b3653ae41877053b95167efc4d"
+ +    },
+ +    {
+ +      "path": "_bmad/scripts/epic16_native_helper/README.md",
+-+      "sha256": "dd4853479673fe407a584bec33cef3ef53b6217cb55261065996318007840832"
+++      "sha256": "e65d5be2a5597753bc167e6ebcebd4ce48a71e100d87e3e329601246d55138ac"
+ +    },
+ +    {
+ +      "path": "_bmad/scripts/epic16_native_helper/ReadModelBatchCanonicalJson.cs",
+@@ -206,11 +206,11 @@
+ +    },
+ +    {
+ +      "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+-+      "sha256": "06c002bbe8eadf3b9203d22c122dcc74d0e835e383a91f45e67cab7209ef377d"
+++      "sha256": "fe4e695373ea16df32c097b98ba221d9b43f1fb7f442ad887700bb81145b547f"
+ +    },
+ +    {
+ +      "path": "_bmad/scripts/epic16_products.py",
+-+      "sha256": "e62f151bedd8ca160d4f80fa7e43d68513ed0fdb0a0f1ce1eeae66a9845429c8"
+++      "sha256": "3b4d2e085a42faf33e97ad8e782e604737c4b364ded157767ddbd845d2b3635e"
+ +    },
+ +    {
+ +      "path": "_bmad/scripts/epic16_relationships.py",
+@@ -226,7 +226,7 @@
+ +    },
+ +    {
+ +      "path": "_bmad/scripts/epic16_trust.py",
+-+      "sha256": "9468e3ac9a41f035e6c3a5dc62cc433b381673fa1cf003790600caaa52c60716"
+++      "sha256": "adde2059614ad92722a67580d1f745378c184e496ce3e0c5325564c334d3a6a1"
+ +    },
+ +    {
+ +      "path": "_bmad/scripts/evidence_boundary_current.py",
+--- prior-reviewed-section/_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json
++++ current-section/_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json
+@@ -1,9 +1,9 @@
+ diff --git a/_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json b/_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json
+ new file mode 100644
+-index 00000000..8b82efcd
++index 00000000..4d55263a
+ --- /dev/null
+ +++ b/_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json
+-@@ -0,0 +1,297 @@
++@@ -0,0 +1,319 @@
+ +{
+ +  "schemaVersion": "hexalith.conversations.epic16-tooling-contract.v1",
+ +  "storyId": "16.1",
+@@ -253,7 +253,29 @@
+ +          "surfaces": [
+ +            "Hexalith.EventStore.DomainService.DomainProjectionDispatcher"
+ +          ]
+++        },
+++        {
+++          "assemblyName": "Hexalith.EventStore.Server",
+++          "owner": "references/Hexalith.EventStore",
+++          "surfaces": [
+++            "Hexalith.EventStore.Server.Projections.ProjectionDeliveryReconciler",
+++            "Hexalith.EventStore.Server.Projections.ProjectionDeliveryRetryWorker"
+++          ]
+++        },
+++        {
+++          "assemblyName": "Hexalith.Commons.TenantAccess",
+++          "owner": "references/Hexalith.Commons",
+++          "surfaces": [
+++            "Hexalith.Commons.TenantAccess.TenantAccessEvaluator"
+++          ]
+ +        }
+++      ],
+++      "upstreamApiAssemblies": [
+++        "Hexalith.Tenants.Client",
+++        "Hexalith.Tenants.Contracts",
+++        "Hexalith.EventStore.Client",
+++        "Hexalith.EventStore.Contracts",
+++        "Hexalith.EventStore.DomainService"
+ +      ],
+ +      "publicApiComparison": "conservative-ecma335-public-declarations-v1",
+ +      "rootPublicApi": "unchanged-baseline-and-loaded-candidate-declarations",
+--- prior-reviewed-section/_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json
++++ current-section/_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json
+@@ -1,9 +1,9 @@
+ diff --git a/_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json b/_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json
+ new file mode 100644
+-index 00000000..cc209c93
++index 00000000..d7a48d05
+ --- /dev/null
+ +++ b/_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json
+-@@ -0,0 +1,291 @@
++@@ -0,0 +1,313 @@
+ +{
+ +  "schemaVersion": "hexalith.conversations.epic16-tooling-contract.v1",
+ +  "storyId": "16.2",
+@@ -247,7 +247,29 @@
+ +          "surfaces": [
+ +            "Hexalith.EventStore.DomainService.DomainProjectionDispatcher"
+ +          ]
+++        },
+++        {
+++          "assemblyName": "Hexalith.EventStore.Server",
+++          "owner": "references/Hexalith.EventStore",
+++          "surfaces": [
+++            "Hexalith.EventStore.Server.Projections.ProjectionDeliveryReconciler",
+++            "Hexalith.EventStore.Server.Projections.ProjectionDeliveryRetryWorker"
+++          ]
+++        },
+++        {
+++          "assemblyName": "Hexalith.Commons.TenantAccess",
+++          "owner": "references/Hexalith.Commons",
+++          "surfaces": [
+++            "Hexalith.Commons.TenantAccess.TenantAccessEvaluator"
+++          ]
+ +        }
+++      ],
+++      "upstreamApiAssemblies": [
+++        "Hexalith.Tenants.Client",
+++        "Hexalith.Tenants.Contracts",
+++        "Hexalith.EventStore.Client",
+++        "Hexalith.EventStore.Contracts",
+++        "Hexalith.EventStore.DomainService"
+ +      ],
+ +      "publicApiComparison": "conservative-ecma335-public-declarations-v1",
+ +      "rootPublicApi": "unchanged-baseline-and-loaded-candidate-declarations",
+--- prior-reviewed-section/_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json
++++ current-section/_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json
+@@ -1,9 +1,9 @@
+ diff --git a/_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json b/_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json
+ new file mode 100644
+-index 00000000..c4acea5b
++index 00000000..43e5620f
+ --- /dev/null
+ +++ b/_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json
+-@@ -0,0 +1,296 @@
++@@ -0,0 +1,318 @@
+ +{
+ +  "schemaVersion": "hexalith.conversations.epic16-tooling-contract.v1",
+ +  "storyId": "16.3",
+@@ -252,7 +252,29 @@
+ +          "surfaces": [
+ +            "Hexalith.EventStore.DomainService.DomainProjectionDispatcher"
+ +          ]
+++        },
+++        {
+++          "assemblyName": "Hexalith.EventStore.Server",
+++          "owner": "references/Hexalith.EventStore",
+++          "surfaces": [
+++            "Hexalith.EventStore.Server.Projections.ProjectionDeliveryReconciler",
+++            "Hexalith.EventStore.Server.Projections.ProjectionDeliveryRetryWorker"
+++          ]
+++        },
+++        {
+++          "assemblyName": "Hexalith.Commons.TenantAccess",
+++          "owner": "references/Hexalith.Commons",
+++          "surfaces": [
+++            "Hexalith.Commons.TenantAccess.TenantAccessEvaluator"
+++          ]
+ +        }
+++      ],
+++      "upstreamApiAssemblies": [
+++        "Hexalith.Tenants.Client",
+++        "Hexalith.Tenants.Contracts",
+++        "Hexalith.EventStore.Client",
+++        "Hexalith.EventStore.Contracts",
+++        "Hexalith.EventStore.DomainService"
+ +      ],
+ +      "publicApiComparison": "conservative-ecma335-public-declarations-v1",
+ +      "rootPublicApi": "unchanged-baseline-and-loaded-candidate-declarations",
+--- prior-reviewed-section/_bmad/schemas/epic-16-tooling-v1.schema.json
++++ current-section/_bmad/schemas/epic-16-tooling-v1.schema.json
+@@ -1,6 +1,6 @@
+ diff --git a/_bmad/schemas/epic-16-tooling-v1.schema.json b/_bmad/schemas/epic-16-tooling-v1.schema.json
+ new file mode 100644
+-index 00000000..55179eae
++index 00000000..2ed70e8a
+ --- /dev/null
+ +++ b/_bmad/schemas/epic-16-tooling-v1.schema.json
+ @@ -0,0 +1,36023 @@
+@@ -35969,8 +35969,8 @@
+ +        },
+ +        "products": {
+ +          "type": "array",
+-+          "minItems": 7,
+-+          "maxItems": 7,
+++          "minItems": 9,
+++          "maxItems": 9,
+ +          "items": {
+ +            "type": "object",
+ +            "required": [
+--- prior-reviewed-section/_bmad/scripts/epic16_capture.py
++++ current-section/_bmad/scripts/epic16_capture.py
+@@ -1,9 +1,9 @@
+ diff --git a/_bmad/scripts/epic16_capture.py b/_bmad/scripts/epic16_capture.py
+ new file mode 100644
+-index 00000000..e933a3aa
++index 00000000..11a79562
+ --- /dev/null
+ +++ b/_bmad/scripts/epic16_capture.py
+-@@ -0,0 +1,142 @@
++@@ -0,0 +1,148 @@
+ +"""Portable native capture bindings. Original paths are metadata, never read targets."""
+ +import os
+ +import re
+@@ -125,6 +125,12 @@
+ +    """Derive the exact retained transaction from five independently admitted tests."""
+ +    artifacts = {}
+ +    for row in rows:
+++        # Raw native files are separate publication paths, not retained-binary
+++        # entries. Recheck them here without duplicating that exact inventory.
+++        native = row['bindings']['native']
+++        need(native['path'] == f'artifacts/epic16-runtime/{story}/{row["scenarioId"]}.trx', 'NATIVE_CAPTURE_DRIFT', row['scenarioId'])
+++        need(digest(reader.read(native['path'])) == native['sha256'], 'NATIVE_CAPTURE_DRIFT', native['path'])
+++        no_alias(reader, native['path'], need)
+ +        binary = row['bindings']['testBinary']
+ +        need(isinstance(binary,dict) and binary.get('capture'), 'NATIVE_CAPTURE_INVALID', row['scenarioId'])
+ +        entries=[{key:binary[key] for key in ('path','sha256')},binary['capture'],*binary['products']]
+--- prior-reviewed-section/_bmad/scripts/epic16_native.py
++++ current-section/_bmad/scripts/epic16_native.py
+@@ -1,9 +1,9 @@
+ diff --git a/_bmad/scripts/epic16_native.py b/_bmad/scripts/epic16_native.py
+ new file mode 100644
+-index 00000000..c783a595
++index 00000000..1870b412
+ --- /dev/null
+ +++ b/_bmad/scripts/epic16_native.py
+-@@ -0,0 +1,176 @@
++@@ -0,0 +1,178 @@
+ +"""Fixed native oracle; evidence assemblies are inspected, never loaded/executed."""
+ +from __future__ import annotations
+ +
+@@ -150,7 +150,9 @@
+ +    except (OSError, subprocess.TimeoutExpired) as error:
+ +        raise HelperUnavailable('fixed helper execution unavailable') from error
+ +    if result.returncode:
+-+        raise ValueError('invalid native evidence')
+++        if result.returncode == 1 and result.stdout == b'' and result.stderr == b'Invalid native evidence.':
+++            raise ValueError('invalid native evidence')
+++        raise HelperUnavailable(_process_failure('fixed helper host failed', result))
+ +    return json.loads(result.stdout)
+ +
+ +
+--- prior-reviewed-section/_bmad/scripts/epic16_native_helper/Program.cs
++++ current-section/_bmad/scripts/epic16_native_helper/Program.cs
+@@ -1,9 +1,9 @@
+ diff --git a/_bmad/scripts/epic16_native_helper/Program.cs b/_bmad/scripts/epic16_native_helper/Program.cs
+ new file mode 100644
+-index 00000000..52957ccf
++index 00000000..2d2d8ec2
+ --- /dev/null
+ +++ b/_bmad/scripts/epic16_native_helper/Program.cs
+-@@ -0,0 +1,363 @@
++@@ -0,0 +1,367 @@
+ +using System.Globalization;
+ +using System.Reflection;
+ +using System.Reflection.Metadata;
+@@ -257,6 +257,8 @@
+ +        {
+ +            return false;
+ +        }
+++        byte encodedKind = signature.ReadByte();
+++        signature.Offset--;
+ +        SignatureTypeCode returnType = signature.ReadSignatureTypeCode();
+ +        if (returnType == SignatureTypeCode.Void)
+ +        {
+@@ -276,7 +278,9 @@
+ +        {
+ +            return false;
+ +        }
+-+        return ProductMetadata.IsFrameworkType(reader, (TypeReferenceHandle)handle);
+++        return ProductMetadata.IsFrameworkType(reader, (TypeReferenceHandle)handle)
+++            && encodedKind == (TypeName(reader, handle) == "System.Threading.Tasks.Task"
+++                ? (byte)SignatureTypeKind.Class : (byte)SignatureTypeKind.ValueType);
+ +    }
+ +
+ +    private static void Inspect(JsonElement root)
+--- prior-reviewed-section/_bmad/scripts/epic16_native_helper/README.md
++++ current-section/_bmad/scripts/epic16_native_helper/README.md
+@@ -1,9 +1,9 @@
+ diff --git a/_bmad/scripts/epic16_native_helper/README.md b/_bmad/scripts/epic16_native_helper/README.md
+ new file mode 100644
+-index 00000000..0e81d9dd
++index 00000000..826d0903
+ --- /dev/null
+ +++ b/_bmad/scripts/epic16_native_helper/README.md
+-@@ -0,0 +1,150 @@
++@@ -0,0 +1,177 @@
+ +The retained `ReadModelBatchCanonicalJson.cs` is an exact source fixture from
+ +Hexalith.EventStore, `src/Hexalith.EventStore.Client/Projections/ReadModelBatchCanonicalJson.cs`.
+ +Its SHA-256 is `1f9430e33cefaa51757c36f27d57ed509a31d08aa5f35b05a4159b7d806362f9`.
+@@ -154,3 +154,30 @@
+ +Default tests compile the locally retained actual Commons evaluator and compare
+ +its allowed/denied result and zero-read behavior with this helper. These stricter
+ +access-request rules do not change unrelated opaque identifier admission.
+++
+++Iteration 13 validates the default actually selected after fixture/framework
+++provider lookup: exact supported constant type and byte length, Boolean/null/string
+++encoding, local enum underlying type, nullable primitive assignment, and genuine
+++DecimalConstant/DateTimeConstant constructor/blob. Null/default value types and
+++Optional fallback are admitted only for supported local/framework shapes. Nonnull
+++Nullable<Enum> constants reject, matching the actual pinned runner's conversion
+++failure. Unused defaults do not invalidate a supplied genuine provider. Unsupported
+++conversions fail explicitly rather than being assumed runnable.
+++
+++AssemblyFixture, Collection and CollectionDefinition attributes require approved
+++xUnit ownership, exact supported constructor parameter types, prolog and complete
+++blob consumption. String, local Type, generic and inherited forms remain supported;
+++CollectionDefinition allows its actual DisableParallelization Boolean property.
+++All other named options, malformed counts/values and trailing data fail closed.
+++Task is encoded as class and ValueTask as valuetype; correct names alone do not
+++replace that signature check. These remain static metadata checks, not proof of
+++constructor bodies or arbitrary reflection behavior.
+++
+++The helper's fixed invalid-evidence response is exit 1, empty stdout, and exact
+++stderr `Invalid native evidence.`. Other nonzero host exits (including missing
+++framework exit 150) are prerequisite failures with the real exit code and bounded
+++separate stream tails. They produce HelperUnavailable/BLOCKED, never evidence FAIL.
+++
+++Decimal defaults use the trusted native sign semantics: zero is positive and every nonzero byte is negative. Scale remains bounded by the native decimal constructor, and the complete attribute signature and blob are required.
+++
+++Nullable default and optional arguments require a supported non-nullable value type before further admission. Reference types, arrays, nested nullable types, constructed generic types and byref-like local structs are outside that constraint; genuine supported primitives, non-generic local values/enums, Decimal and DateTime remain supported. Recognized invalid Nullable signatures reject directly.
+--- prior-reviewed-section/_bmad/scripts/epic16_native_helper/TestConstruction.cs
++++ current-section/_bmad/scripts/epic16_native_helper/TestConstruction.cs
+@@ -1,11 +1,12 @@
+ diff --git a/_bmad/scripts/epic16_native_helper/TestConstruction.cs b/_bmad/scripts/epic16_native_helper/TestConstruction.cs
+ new file mode 100644
+-index 00000000..6fd10020
++index 00000000..45497208
+ --- /dev/null
+ +++ b/_bmad/scripts/epic16_native_helper/TestConstruction.cs
+-@@ -0,0 +1,201 @@
++@@ -0,0 +1,391 @@
+ +using System.Reflection;
+ +using System.Reflection.Metadata;
+++using System.Reflection.Metadata.Ecma335;
+ +
+ +namespace Hexalith.Conversations.Tooling;
+ +
+@@ -24,8 +25,12 @@
+ +            CustomAttribute a = reader.GetCustomAttribute(handle);
+ +            string name = AttributeName(reader, a);
+ +            string? argument = GenericArgument(reader, name, "Xunit.AssemblyFixtureAttribute`1");
+-+            if (argument is not null) assembly.Add(argument);
+-+            else if (Framework(reader, name, "Xunit.AssemblyFixtureAttribute")) assembly.Add(LocalSerialized(reader, a, local));
+++            if (argument is not null)
+++            {
+++                ProviderAttribute(reader, a, "generic");
+++                assembly.Add(argument);
+++            }
+++            else if (Framework(reader, name, "Xunit.AssemblyFixtureAttribute")) assembly.Add(LocalSerialized(ProviderAttribute(reader, a, "type"), local));
+ +        }
+ +        var collection = new HashSet<string>(StringComparer.Ordinal);
+ +        var classes = new HashSet<string>(StringComparer.Ordinal);
+@@ -42,6 +47,7 @@
+ +                string? generic = GenericArgument(reader, name, "Xunit.CollectionAttribute`1");
+ +                if (generic is not null)
+ +                {
+++                    ProviderAttribute(reader, a, "generic");
+ +                    declarations++;
+ +                    if (!inheritedDeclarations.Add(name)) continue;
+ +                    if (++collectionTypes > 1) throw new InvalidDataException("Ambiguous inherited collection declarations.");
+@@ -49,25 +55,24 @@
+ +                }
+ +                else if (Framework(reader, name, "Xunit.CollectionAttribute"))
+ +                {
+++                    string? value = ProviderAttribute(reader, a, "collection");
+ +                    declarations++;
+ +                    if (!inheritedDeclarations.Add(name)) continue;
+ +                    if (++collectionTypes > 1) throw new InvalidDataException("Ambiguous inherited collection declarations.");
+-+                    string? value = FirstString(reader, a);
+ +                    MethodSignature<string> signature = reader.GetMemberReference((MemberReferenceHandle)a.Constructor).DecodeMethodSignature(Names, (object?)null);
+-+                    if (signature.ParameterTypes.Length != 1) throw new InvalidDataException("Collection constructor unsupported.");
+ +                    if (signature.ParameterTypes[0] == "String")
+ +                    {
+ +                        TypeDefinitionHandle[] matches = reader.TypeDefinitions.Where(h => reader.GetTypeDefinition(h).GetCustomAttributes().Any(ah =>
+ +                        {
+ +                            CustomAttribute ca = reader.GetCustomAttribute(ah);
+-+                            return Framework(reader, AttributeName(reader, ca), "Xunit.CollectionDefinitionAttribute") && FirstString(reader, ca) == value;
+++                            return Framework(reader, AttributeName(reader, ca), "Xunit.CollectionDefinitionAttribute") && ProviderAttribute(reader, ca, "definition") == value;
+ +                        })).ToArray();
+ +                        if (matches.Length != 1) throw new InvalidDataException("Named collection provider absent or ambiguous.");
+ +                        definition = matches[0];
+ +                    }
+ +                    else
+ +                    {
+-+                        string key = LocalSerialized(reader, a, local);
+++                        string key = LocalSerialized(value, local);
+ +                        definition = local[key];
+ +                    }
+ +                }
+@@ -77,6 +82,12 @@
+ +        }
+ +        if (!definition.IsNil)
+ +        {
+++            foreach (CustomAttributeHandle handle in reader.GetTypeDefinition(definition).GetCustomAttributes())
+++            {
+++                CustomAttribute attribute = reader.GetCustomAttribute(handle);
+++                if (Framework(reader, AttributeName(reader, attribute), "Xunit.CollectionDefinitionAttribute"))
+++                    ProviderAttribute(reader, attribute, "definition");
+++            }
+ +            Interfaces(reader, definition, "Xunit.ICollectionFixture`1", collection);
+ +            Interfaces(reader, definition, "Xunit.IClassFixture`1", classes);
+ +        }
+@@ -116,10 +127,15 @@
+ +            bool supplied = fixtures.Contains(kind) || Framework(reader, kind, "Xunit.ITestContextAccessor")
+ +                || test && Framework(reader, kind, "Xunit.ITestOutputHelper")
+ +                || !test && Framework(reader, kind, "Xunit.Sdk.IMessageSink", "xunit.v3.common");
+-+            if (test && parameters.TryGetValue(i + 1, out Parameter parameter))
+-+            {
+-+                supplied |= !parameter.GetDefaultValue().IsNil || (parameter.Attributes & ParameterAttributes.Optional) != 0
+-+                    || kind.EndsWith("[]", StringComparison.Ordinal) && parameter.GetCustomAttributes().Any(h => IsParamArray(reader, reader.GetCustomAttribute(h)));
+++            // xUnit first asks the fixture/framework providers. Defaults are only
+++            // inspected when they would actually supply this test argument.
+++            if (!supplied && test && parameters.TryGetValue(i + 1, out Parameter parameter))
+++            {
+++                supplied = DefaultArgument(reader, parameter, signature.ParameterTypes[i]);
+++                if (!supplied && (parameter.Attributes & ParameterAttributes.Optional) != 0)
+++                    supplied = SupportedDefaultType(reader, signature.ParameterTypes[i]);
+++                if (!supplied && kind.EndsWith("[]", StringComparison.Ordinal))
+++                    supplied = parameter.GetCustomAttributes().Any(h => IsParamArray(reader, reader.GetCustomAttribute(h)));
+ +            }
+ +            if (!supplied) throw new InvalidDataException("Required constructor parameter has no supported provider.");
+ +        }
+@@ -187,19 +203,193 @@
+ +    private static string AttributeName(MetadataReader reader, CustomAttribute attribute) => attribute.Constructor.Kind == HandleKind.MemberReference
+ +        ? Names.Name(reader, reader.GetMemberReference((MemberReferenceHandle)attribute.Constructor).Parent) : "";
+ +
+-+    private static string? FirstString(MetadataReader reader, CustomAttribute attribute)
+-+    {
+-+        BlobReader value = reader.GetBlobReader(attribute.Value);
+-+        if (value.ReadUInt16() != 1) throw new BadImageFormatException();
+-+        MethodSignature<string> signature = reader.GetMemberReference((MemberReferenceHandle)attribute.Constructor).DecodeMethodSignature(Names, (object?)null);
+-+        return signature.ParameterTypes.Length == 0 ? null : value.ReadSerializedString();
+-+    }
+-+
+-+    private static string LocalSerialized(MetadataReader reader, CustomAttribute attribute, Dictionary<string, TypeDefinitionHandle> local)
+-+    {
+-+        string value = FirstString(reader, attribute) ?? throw new InvalidDataException("Missing fixture type.");
+-+        // Compiler-produced local System.Type custom-attribute arguments are unqualified.
+-+        // External assembly-qualified or constructed generic providers need separate metadata.
+++    // Exact pinned xUnit provider constructors. Only CollectionDefinition has
+++    // a writable supported named option; all blobs are consumed completely.
+++    private static string? ProviderAttribute(MetadataReader reader, CustomAttribute attribute, string mode)
+++    {
+++        MemberReference constructor = reader.GetMemberReference((MemberReferenceHandle)attribute.Constructor);
+++        BlobReader signatureBlob = reader.GetBlobReader(constructor.Signature);
+++        var decoder = new SignatureDecoder<string, object?>(Names, reader, null);
+++        MethodSignature<string> signature = decoder.DecodeMethodSignature(ref signatureBlob);
+++        if (signatureBlob.RemainingBytes != 0 || reader.GetString(constructor.Name) != ".ctor" || signature.Header.RawValue != 0x20
+++            || signature.GenericParameterCount != 0 || signature.ReturnType != "Void"
+++            || signature.RequiredParameterCount != signature.ParameterTypes.Length)
+++            throw new InvalidDataException("Unsupported fixture attribute constructor.");
+++        int count = signature.ParameterTypes.Length;
+++        bool text = count == 1 && signature.ParameterTypes[0] == "String";
+++        bool type = count == 1 && FrameworkSystemType(reader, signature.ParameterTypes[0], "System.Type", "class ");
+++        if (!(mode == "generic" && count == 0 || mode == "type" && type
+++            || mode == "collection" && (text || type) || mode == "definition" && (count == 0 || text)))
+++            throw new InvalidDataException("Unsupported fixture attribute parameter.");
+++        BlobReader blob = reader.GetBlobReader(attribute.Value);
+++        if (blob.ReadUInt16() != 1) throw new BadImageFormatException();
+++        string? value = count == 1 ? blob.ReadSerializedString() : null;
+++        if (count == 1 && value is null) throw new InvalidDataException("Null fixture provider.");
+++        int named = blob.ReadUInt16();
+++        if (named > (mode == "definition" ? 1 : 0)) throw new InvalidDataException("Unsupported fixture named arguments.");
+++        if (named == 1 && (blob.ReadByte() != 0x54 || blob.ReadByte() != 0x02
+++            || blob.ReadSerializedString() != "DisableParallelization" || blob.ReadByte() > 1))
+++            throw new InvalidDataException("Invalid fixture named option.");
+++        if (blob.RemainingBytes != 0) throw new InvalidDataException("Trailing fixture attribute data.");
+++        return value;
+++    }
+++
+++    private static bool FrameworkSystemType(MetadataReader reader, string name, string expected, string prefix)
+++        => name.StartsWith(prefix, StringComparison.Ordinal) && reader.TypeReferences.Any(handle =>
+++            Names.Name(reader, handle) == name[prefix.Length..]
+++            && reader.GetString(reader.GetTypeReference(handle).Namespace) + "." + reader.GetString(reader.GetTypeReference(handle).Name) == expected
+++            && ProductMetadata.IsFrameworkType(reader, handle));
+++
+++    private static string? NullableArgument(MetadataReader reader, string type)
+++    {
+++        foreach (TypeReferenceHandle handle in reader.TypeReferences)
+++        {
+++            TypeReference reference = reader.GetTypeReference(handle);
+++            string prefix = "valuetype " + Names.Name(reader, handle) + "<";
+++            if (reader.GetString(reference.Namespace) == "System" && reader.GetString(reference.Name) == "Nullable`1"
+++                && ProductMetadata.IsFrameworkType(reader, handle) && type.StartsWith(prefix, StringComparison.Ordinal) && type.EndsWith('>'))
+++            {
+++                string argument = type[prefix.Length..^1];
+++                if (!NonNullableValueType(reader, argument))
+++                    throw new InvalidDataException("Nullable default violates the supported non-nullable value-type constraint.");
+++                return argument;
+++            }
+++        }
+++        return null;
+++    }
+++
+++    private static bool NonNullableValueType(MetadataReader reader, string type)
+++    {
+++        if (type is "Boolean" or "Char" or "SByte" or "Byte" or "Int16" or "UInt16" or "Int32" or "UInt32"
+++            or "Int64" or "UInt64" or "Single" or "Double") return true;
+++        if (FrameworkSystemType(reader, type, "System.Decimal", "valuetype ")
+++            || FrameworkSystemType(reader, type, "System.DateTime", "valuetype ")) return true;
+++        // Arrays, reference types, nested Nullable and constructed generic types
+++        // cannot fall through to primitive/default/optional admission.
+++        if (!type.StartsWith("valuetype ", StringComparison.Ordinal)) return false;
+++        foreach (TypeDefinitionHandle handle in reader.TypeDefinitions)
+++        {
+++            TypeDefinition definition = reader.GetTypeDefinition(handle);
+++            if (Names.Name(reader, handle) != Plain(type) || definition.GetGenericParameters().Count != 0) continue;
+++            if (definition.GetCustomAttributes().Any(h => ProductMetadata.IsFrameworkAttribute(reader,
+++                reader.GetCustomAttribute(h), "System.Runtime.CompilerServices.IsByRefLikeAttribute", [0x20, 0, 1]))) return false;
+++            if (definition.BaseType.Kind != HandleKind.TypeReference) return false;
+++            if (FrameworkSystemType(reader, "class " + Names.Name(reader, definition.BaseType), "System.Enum", "class "))
+++                return EnumPrimitive(reader, type) is not null;
+++            return FrameworkSystemType(reader, "class " + Names.Name(reader, definition.BaseType), "System.ValueType", "class ");
+++        }
+++        return false;
+++    }
+++
+++    private static string? EnumPrimitive(MetadataReader reader, string type)
+++    {
+++        if (!type.StartsWith("valuetype ", StringComparison.Ordinal)) return null;
+++        foreach (TypeDefinitionHandle handle in reader.TypeDefinitions)
+++        {
+++            if (Names.Name(reader, handle) != Plain(type)) continue;
+++            TypeDefinition definition = reader.GetTypeDefinition(handle);
+++            if (definition.BaseType.Kind != HandleKind.TypeReference
+++                || !FrameworkSystemType(reader, "class " + Names.Name(reader, definition.BaseType), "System.Enum", "class ")) return null;
+++            FieldDefinition[] fields = definition.GetFields().Select(reader.GetFieldDefinition)
+++                .Where(field => (field.Attributes & FieldAttributes.Static) == 0).ToArray();
+++            if (fields.Length != 1 || reader.GetString(fields[0].Name) != "value__") throw new InvalidDataException("Unsupported enum storage.");
+++            string primitive = fields[0].DecodeSignature(Names, (object?)null);
+++            if (primitive is not ("SByte" or "Byte" or "Int16" or "UInt16" or "Int32" or "UInt32" or "Int64" or "UInt64"))
+++                throw new InvalidDataException("Invalid enum storage.");
+++            return primitive;
+++        }
+++        return null;
+++    }
+++
+++    private static bool SupportedDefaultType(MetadataReader reader, string type)
+++    {
+++        if (type is "Boolean" or "Char" or "SByte" or "Byte" or "Int16" or "UInt16" or "Int32" or "UInt32" or "Int64" or "UInt64"
+++            or "Single" or "Double" or "String" or "Object") return true;
+++        string? nullable = NullableArgument(reader, type);
+++        if (nullable is not null) return SupportedDefaultType(reader, nullable);
+++        if (type.EndsWith("[]", StringComparison.Ordinal)) return SupportedDefaultType(reader, type[..^2]);
+++        if (FrameworkSystemType(reader, type, "System.Decimal", "valuetype ") || FrameworkSystemType(reader, type, "System.DateTime", "valuetype ")) return true;
+++        foreach (TypeDefinitionHandle handle in reader.TypeDefinitions)
+++        {
+++            if (Names.Name(reader, handle) != Plain(type) || reader.GetTypeDefinition(handle).GetGenericParameters().Count != 0) continue;
+++            TypeDefinition definition = reader.GetTypeDefinition(handle);
+++            bool value = definition.BaseType.Kind == HandleKind.TypeReference
+++                && (FrameworkSystemType(reader, "class " + Names.Name(reader, definition.BaseType), "System.ValueType", "class ")
+++                    || FrameworkSystemType(reader, "class " + Names.Name(reader, definition.BaseType), "System.Enum", "class "));
+++            return type.StartsWith(value ? "valuetype " : "class ", StringComparison.Ordinal);
+++        }
+++        return false;
+++    }
+++
+++    private static bool DefaultArgument(MetadataReader reader, Parameter parameter, string type)
+++    {
+++        ConstantHandle handle = parameter.GetDefaultValue();
+++        CustomAttribute[] special = parameter.GetCustomAttributes().Select(reader.GetCustomAttribute).Where(attribute =>
+++            AttributeName(reader, attribute).EndsWith("]System.Runtime.CompilerServices.DecimalConstantAttribute", StringComparison.Ordinal)
+++            || AttributeName(reader, attribute).EndsWith("]System.Runtime.CompilerServices.DateTimeConstantAttribute", StringComparison.Ordinal)).ToArray();
+++        if (special.Length > 1 || !handle.IsNil && special.Length != 0) throw new InvalidDataException("Ambiguous constructor default.");
+++        if (special.Length == 1)
+++        {
+++            CustomAttribute attribute = special[0];
+++            bool decimalType = ProductMetadata.IsFrameworkAttribute(reader, attribute, "System.Runtime.CompilerServices.DecimalConstantAttribute", [0x20, 5, 1, 5, 5, 9, 9, 9])
+++                || ProductMetadata.IsFrameworkAttribute(reader, attribute, "System.Runtime.CompilerServices.DecimalConstantAttribute", [0x20, 5, 1, 5, 5, 8, 8, 8]);
+++            bool dateType = ProductMetadata.IsFrameworkAttribute(reader, attribute, "System.Runtime.CompilerServices.DateTimeConstantAttribute", [0x20, 1, 1, 0x0a]);
+++            BlobReader blob = reader.GetBlobReader(attribute.Value);
+++            if (blob.ReadUInt16() != 1) throw new BadImageFormatException();
+++            string target = NullableArgument(reader, type) ?? type;
+++            if (decimalType && FrameworkSystemType(reader, target, "System.Decimal", "valuetype "))
+++            {
+++                byte scale = blob.ReadByte();
+++                _ = blob.ReadByte(); // Native DecimalConstantAttribute treats every nonzero sign as negative.
+++                if (scale > 28) throw new InvalidDataException("Invalid decimal default.");
+++                blob.ReadUInt32(); blob.ReadUInt32(); blob.ReadUInt32();
+++            }
+++            else if (dateType && FrameworkSystemType(reader, target, "System.DateTime", "valuetype "))
+++            {
+++                long ticks = blob.ReadInt64();
+++                if (ticks < 0 || ticks > DateTime.MaxValue.Ticks) throw new InvalidDataException("Invalid date default.");
+++            }
+++            else throw new InvalidDataException("Unsupported typed default attribute.");
+++            if (blob.ReadUInt16() != 0 || blob.RemainingBytes != 0) throw new InvalidDataException("Invalid default attribute blob.");
+++            return true;
+++        }
+++        if (handle.IsNil) return false;
+++        Constant constant = reader.GetConstant(handle);
+++        byte[] bytes = reader.GetBlobBytes(constant.Value);
+++        string kind = constant.TypeCode.ToString();
+++        int length = constant.TypeCode switch
+++        {
+++            ConstantTypeCode.Boolean or ConstantTypeCode.SByte or ConstantTypeCode.Byte => 1,
+++            ConstantTypeCode.Char or ConstantTypeCode.Int16 or ConstantTypeCode.UInt16 => 2,
+++            ConstantTypeCode.Int32 or ConstantTypeCode.UInt32 or ConstantTypeCode.Single or ConstantTypeCode.NullReference => 4,
+++            ConstantTypeCode.Int64 or ConstantTypeCode.UInt64 or ConstantTypeCode.Double => 8,
+++            ConstantTypeCode.String => bytes.Length % 2 == 0 ? bytes.Length : -1,
+++            _ => -1,
+++        };
+++        if (bytes.Length != length || length < 0 || constant.TypeCode == ConstantTypeCode.Boolean && bytes[0] > 1)
+++            throw new InvalidDataException("Malformed constructor constant.");
+++        if (constant.TypeCode == ConstantTypeCode.NullReference)
+++        {
+++            if (bytes.Any(value => value != 0) || !SupportedDefaultType(reader, type)) throw new InvalidDataException("Invalid null constructor default.");
+++            return true;
+++        }
+++        string? underlying = NullableArgument(reader, type);
+++        // Reflection can box Nullable<T>'s primitive value, but an enum constant
+++        // stays the underlying integer; xUnit cannot supply Nullable<Enum> with it.
+++        string targetType = underlying ?? type;
+++        if (underlying is not null && EnumPrimitive(reader, underlying) is not null)
+++            throw new InvalidDataException("Nullable enum default is not a supplied enum instance.");
+++        string targetPrimitive = EnumPrimitive(reader, targetType) ?? targetType;
+++        if (!(targetPrimitive == kind || targetPrimitive == "Object"))
+++            throw new InvalidDataException("Constructor constant is incompatible with its parameter.");
+++        return true;
+++    }
+++
+++    private static string LocalSerialized(string? value, Dictionary<string, TypeDefinitionHandle> local)
+++    {
+++        if (value is null) throw new InvalidDataException("Missing fixture type.");
+++        // Compiler-produced local System.Type arguments are unqualified. External
+++        // or constructed generic providers require separately supported metadata.
+ +        if (!local.ContainsKey(value) && local.ContainsKey("." + value)) value = "." + value;
+ +        if (!local.ContainsKey(value)) throw new InvalidDataException("Fixture type is not local supported metadata.");
+ +        return value;
+--- prior-reviewed-section/_bmad/scripts/epic16_products.py
++++ current-section/_bmad/scripts/epic16_products.py
+@@ -1,9 +1,9 @@
+ diff --git a/_bmad/scripts/epic16_products.py b/_bmad/scripts/epic16_products.py
+ new file mode 100644
+-index 00000000..d3feac64
++index 00000000..f5763aeb
+ --- /dev/null
+ +++ b/_bmad/scripts/epic16_products.py
+-@@ -0,0 +1,151 @@
++@@ -0,0 +1,160 @@
+ +"""Owned product PE bindings and conservative upstream public declaration additivity."""
+ +import re
+ +
+@@ -21,11 +21,20 @@
+ +    dict(assemblyName='Hexalith.EventStore.Client', owner='references/Hexalith.EventStore', surfaces=['Hexalith.EventStore.Client.Projections.IReadModelStore','Hexalith.EventStore.Client.Streams.IAuthoritativeEventStreamReader']),
+ +    dict(assemblyName='Hexalith.EventStore.Contracts', owner='references/Hexalith.EventStore', surfaces=['Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest']),
+ +    dict(assemblyName='Hexalith.EventStore.DomainService', owner='references/Hexalith.EventStore', surfaces=['Hexalith.EventStore.DomainService.DomainProjectionDispatcher']),
+++    dict(assemblyName='Hexalith.EventStore.Server', owner='references/Hexalith.EventStore', surfaces=['Hexalith.EventStore.Server.Projections.ProjectionDeliveryReconciler','Hexalith.EventStore.Server.Projections.ProjectionDeliveryRetryWorker']),
+++    dict(assemblyName='Hexalith.Commons.TenantAccess', owner='references/Hexalith.Commons', surfaces=['Hexalith.Commons.TenantAccess.TenantAccessEvaluator']),
+++)
+++# Implementation ownership does not expand the independently promised API seams.
+++UPSTREAM_API_NAMES = (
+++    'Hexalith.Tenants.Client', 'Hexalith.Tenants.Contracts',
+++    'Hexalith.EventStore.Client', 'Hexalith.EventStore.Contracts',
+++    'Hexalith.EventStore.DomainService',
+ +)
+ +
+ +
+ +def policy():
+ +    return dict(captureVersion=2, requiredProducts=list(PRODUCTS),
+++        upstreamApiAssemblies=list(UPSTREAM_API_NAMES),
+ +        publicApiComparison='conservative-ecma335-public-declarations-v1',
+ +        rootPublicApi='unchanged-baseline-and-loaded-candidate-declarations',
+ +        productCorrelation='same-owned-bytes-mvid-revision-in-api-and-all-five-scenarios',
+@@ -82,7 +91,7 @@
+ +
+ +
+ +def upstream(repository, reader, facts, baseline, data, need, loaded_products=None):
+-+    rows=data['upstreamSurfaces'];expected=[p for p in PRODUCTS if p['owner']!='.']
+++    rows=data['upstreamSurfaces'];expected=[p for p in PRODUCTS if p['assemblyName'] in UPSTREAM_API_NAMES]
+ +    need([row['assemblyName'] for row in rows]==[p['assemblyName'] for p in expected], 'UPSTREAM_API_INVENTORY', 'upstream APIs')
+ +    before_links=dict(records.v2_raw_gitlinks(repository,baseline));after_links=revisions(facts)
+ +    result=[]
+--- prior-reviewed-section/_bmad/scripts/epic16_trust.py
++++ current-section/_bmad/scripts/epic16_trust.py
+@@ -1,10 +1,10 @@
+ diff --git a/_bmad/scripts/epic16_trust.py b/_bmad/scripts/epic16_trust.py
+ new file mode 100644
+-index 00000000..ab692601
++index 00000000..195a7f06
+ --- /dev/null
+ +++ b/_bmad/scripts/epic16_trust.py
+ @@ -0,0 +1,4 @@
+ +"""Independent immutable contract/schema/predecessor pins for Epic 16 tooling."""
+-+CONTRACT_PINS = {'_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json': 'fa99d67d7785fb4fb2e6560be326c858733253b3ce6ab05ec830233cbc2f6859', '_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json': 'f0e47c06a816e3f6c1db2e43b07f6a931597729e2652b7fd528dca894d0d2d79', '_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json': 'c32de38f59d8b3ee39272ce8c957b5540c90cfb038e7d895ec6b8178a6c00075'}
+++CONTRACT_PINS = {'_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json': '724a8446b505724700b50009df97387e9f7631d63d800a491e54f23095c9043b', '_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json': '7ee6c0a68b9e1a916cfa808d4891581cf6f62417bd2f4cf1adcedc847347277d', '_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json': 'c510f07c4aa2714f07df5c36e11f6b38a0639ddea56d293996752ebe068103f5'}
+ +PREDECESSOR_PINS = {'_bmad-output/planning-artifacts/epic-16-adoption-v1/README.md': 'bc7d953ab6ea741b488ae8c96f5d4a7dde6d1fe2ef0ff33a3ff79b2cb82a6157', '_bmad-output/planning-artifacts/epic-16-adoption-v1/execution-graph.json': '989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747', '_bmad-output/planning-artifacts/epic-16-adoption-v1/inventories.json': '791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8', '_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json': '074189ef4eea79bddeef5935b27df01c637dc5bf832a17eb24933c52968364c0', '_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.1.json': 'da8c5462c77239f9f770a9b803b436824efb8e58f7f182fb66ec1343902beae7', '_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json': '542f1de5e4af3c58c9df7d654e04dd2ea99b9f63cd50bcf864ef5c2ba1257963', '_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.3.json': '226a0a060951139346282a8048338ff9af35014fe7154d79a8863da56507c9dc', '_bmad-output/planning-artifacts/epic-16-adoption-v2/README.md': 'e12ee39652b9d7e18052716c955962d716f7e48b6fea2cd1f43f6a22d783ecb0', '_bmad-output/planning-artifacts/epic-16-adoption-v2/execution-graph.json': '989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747', '_bmad-output/planning-artifacts/epic-16-adoption-v2/inventories.json': '791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8', '_bmad-output/planning-artifacts/epic-16-adoption-v2/package.json': '4c533a78c3f0f115f28d1113e5b2e71a4d71c93b5c08b4e3ebf8cfa23e47b9bd', '_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.1.json': '3088bcf463a6bd7643925195c0ecf3e34f26e72caf6706c08e2c62b3ddaae2f6', '_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.2.json': 'd9fd9f9fe66b178f2435396ab467886d9dd04024754ff5970345fa1802f53560', '_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.3.json': 'b353f763387047063f3c2c8d9a0373de8e61f054ea7a3df714c29f43db21b712', '_bmad-output/planning-artifacts/epic-16-prerequisites-v1/epic.md': 'b0b110461e81457a12b35bc8515ad691d26a926b206189495241f7f52a50097c', '_bmad-output/planning-artifacts/epic-16-prerequisites-v1/execution-graph.json': '989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747', '_bmad-output/planning-artifacts/epic-16-prerequisites-v1/inventories.json': '791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8', '_bmad-output/planning-artifacts/epic-16-prerequisites-v1/package.json': '16eaf5b30e379ca50172a20fa5b069ac6a3cd4c675c5ca322d9178a1929f5746', '_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.1.json': '3e44d0498d231633a12ee122d72535c178870a1601ab8c552c815566fe257e08', '_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.2.json': 'a21c8c817e5126343110a5e6730883b5cf32738610b3f552ef6cdbbfe605a965', '_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.3.json': '5eeccfb8427e4ebccc1955f965d00e3c5655834a3c3005443c970be2dd99509a', '_bmad/schemas/epic-16-adoption-v1.schema.json': '884d8efb4bf58571c99dca0b63ba0f97b10e50db0cb4bd238ed5a96f017f4f98', '_bmad/schemas/epic-16-adoption-v2.schema.json': '12278d301a8945ba929d28ecb7a8091663e40f23d821aa4cf3d2d3ec765d3a4f', '_bmad/schemas/epic-16-prerequisites-v1.schema.json': 'b7095d7191a96dcefb5a0c333958e5c7eccbd7fa1fae9cb8d62ea2ec8bcad497', '_bmad/scripts/verify_epic_16_adoption.py': 'b22b6d25ae86186d0575a19dfa09b810220c70d3fb9c0eadefc781a53ce68505', '_bmad/scripts/verify_epic_16_adoption_v2.py': 'f9ac03603a2b1635b7bb7e7f44262c2acb8f0272fbf55030ea1012932d93b568', '_bmad/scripts/verify_epic_16_prerequisites.py': 'b10e910aefdd7f9f19cb80bbb19936efd2340f641be45787c140cf45738bbfa6'}
+-+SCHEMA_PIN = 'ebfb75d5e8df14b79226d23cb1fd776c555971d0325b5111fa71bdbf16e43148'
+++SCHEMA_PIN = 'f72a7435dac004cc80c88f444dd8cca135a67f29805ce9f95c68e2e596424ee3'
+--- prior-reviewed-section/_bmad/scripts/tests/test_epic16_tooling.py
++++ current-section/_bmad/scripts/tests/test_epic16_tooling.py
+@@ -1,9 +1,9 @@
+ diff --git a/_bmad/scripts/tests/test_epic16_tooling.py b/_bmad/scripts/tests/test_epic16_tooling.py
+ new file mode 100644
+-index 00000000..2382092d
++index 00000000..eb9be2e3
+ --- /dev/null
+ +++ b/_bmad/scripts/tests/test_epic16_tooling.py
+-@@ -0,0 +1,4569 @@
++@@ -0,0 +1,4957 @@
+ +"""Disposable measured-input fixtures cannot qualify a runtime checkout."""
+ +from __future__ import annotations
+ +
+@@ -1082,7 +1082,7 @@
+ +    assert result['bindings']['testBinary']['sourceRevision'] == result['candidate']['commit']
+ +    assert result['bindings']['testBinary']['testFramework'] == 'xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c'
+ +    assert result['bindings']['canonicalizerSource'] == dict(path=tooling.CANONICALIZER_SOURCE,sha256=tooling.measurements.EVENTSTORE_CANONICALIZER_SHA256)
+-+    assert result['candidate']['gitlinks'] == [dict(path=owner,commit=git(qualified_runtime/owner,'rev-parse','HEAD')) for owner in ('references/Hexalith.EventStore','references/Hexalith.Tenants')]
+++    assert result['candidate']['gitlinks'] == [dict(path=owner,commit=git(qualified_runtime/owner,'rev-parse','HEAD')) for owner in ('references/Hexalith.Commons','references/Hexalith.EventStore','references/Hexalith.Tenants')]
+ +    assert not (qualified_runtime/tooling.receipt_path('runtime','AC-16.2-02')).exists()
+ +
+ +
+@@ -2400,8 +2400,8 @@
+ +    private void Emit(string scenario)
+ +    {
+ +        var payload = System.Text.Json.Nodes.JsonNode.Parse(System.IO.File.ReadAllText(System.IO.Path.Combine(System.Environment.GetEnvironmentVariable("EPIC16_FIXTURE_PAYLOADS")!, scenario+".json")))!;
+-+        System.Reflection.Assembly[] assemblies = [typeof(Hexalith.Conversations.Server.Projections.ConversationProjectionReadModelWriter).Assembly, typeof(Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1).Assembly, typeof(Hexalith.Tenants.Client.Projections.ITenantProjectionStore).Assembly, typeof(Hexalith.Tenants.Contracts.Events.TenantDisabled).Assembly, typeof(Hexalith.EventStore.Client.Projections.IReadModelStore).Assembly, typeof(Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest).Assembly, typeof(Hexalith.EventStore.DomainService.DomainProjectionDispatcher).Assembly];
+-+        string[] owners = [".",".","references/Hexalith.Tenants","references/Hexalith.Tenants","references/Hexalith.EventStore","references/Hexalith.EventStore","references/Hexalith.EventStore"];
+++        System.Reflection.Assembly[] assemblies = [typeof(Hexalith.Conversations.Server.Projections.ConversationProjectionReadModelWriter).Assembly, typeof(Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1).Assembly, typeof(Hexalith.Tenants.Client.Projections.ITenantProjectionStore).Assembly, typeof(Hexalith.Tenants.Contracts.Events.TenantDisabled).Assembly, typeof(Hexalith.EventStore.Client.Projections.IReadModelStore).Assembly, typeof(Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest).Assembly, typeof(Hexalith.EventStore.DomainService.DomainProjectionDispatcher).Assembly, typeof(Hexalith.EventStore.Server.Projections.ProjectionDeliveryReconciler).Assembly, typeof(Hexalith.Commons.TenantAccess.TenantAccessEvaluator).Assembly];
+++        string[] owners = [".",".","references/Hexalith.Tenants","references/Hexalith.Tenants","references/Hexalith.EventStore","references/Hexalith.EventStore","references/Hexalith.EventStore","references/Hexalith.EventStore","references/Hexalith.Commons"];
+ +        var loaded = new System.Text.Json.Nodes.JsonArray();
+ +        for (int i=0;i<assemblies.Length;i++)
+ +        {
+@@ -2465,7 +2465,7 @@
+ +    git(repo,'add',spec);git(repo,'commit','-qm','test: retain portable native fixture insertion')
+ +    relocated=tmp_path/'fresh-checkout'
+ +    subprocess.run(['git','clone','--no-hardlinks','-q',str(repo),str(relocated)],capture_output=True,check=True)
+-+    for dependency in ('references/Hexalith.EventStore','references/Hexalith.Tenants'):
+++    for dependency in ('references/Hexalith.EventStore','references/Hexalith.Tenants','references/Hexalith.Commons'):
+ +        subprocess.run(['git','clone','--no-hardlinks','-q',str(repo/dependency),str(relocated/dependency)],capture_output=True,check=True)
+ +    # A fresh clone has only committed capture binaries, with no measurement runner.
+ +    assert not (relocated/'artifacts/measurement-only-runner').exists()
+@@ -3173,7 +3173,7 @@
+ +    import tempfile
+ +    if _DEPENDENCY_TEMPLATES is None:
+ +        _DEPENDENCY_TEMPLATES=Path(tempfile.mkdtemp(prefix='epic16-dependency-source-fixtures-'))
+-+        for owner in ('references/Hexalith.EventStore','references/Hexalith.Tenants'):
+++        for owner in ('references/Hexalith.EventStore','references/Hexalith.Tenants','references/Hexalith.Commons'):
+ +            child=_DEPENDENCY_TEMPLATES/owner;child.mkdir(parents=True)
+ +            (child/'.gitignore').write_text('artifacts/\n')
+ +            for product in tooling.products.PRODUCTS:
+@@ -3183,7 +3183,7 @@
+ +                path=child/'src/Hexalith.EventStore.Client/Projections/ReadModelBatchCanonicalJson.cs';path.parent.mkdir(parents=True);path.write_bytes((ROOT/'_bmad/scripts/epic16_native_helper/ReadModelBatchCanonicalJson.cs').read_bytes())
+ +            git(child,'init','-q');git(child,'config','user.name','Disposable Fixture');git(child,'config','user.email','fixture@example.invalid');git(child,'add','.');git(child,'commit','-qm','test: retain synthetic product source fixtures')
+ +    declarations=[]
+-+    for owner in ('references/Hexalith.EventStore','references/Hexalith.Tenants'):
+++    for owner in ('references/Hexalith.EventStore','references/Hexalith.Tenants','references/Hexalith.Commons'):
+ +        child=repo/owner;child.parent.mkdir(parents=True,exist_ok=True);shutil.copytree(_DEPENDENCY_TEMPLATES/owner,child)
+ +        revision=git(child,'rev-parse','HEAD');git(repo,'update-index','--add','--cacheinfo','160000,'+revision+','+owner)
+ +        declarations.append('[submodule "'+owner+'"]\n\tpath = '+owner+'\n\turl = https://example.invalid/disposable\n')
+@@ -3197,7 +3197,7 @@
+ +    rows=[]
+ +    for product in tooling.products.PRODUCTS:
+ +        owner=product['owner']
+-+        if owner=='.':continue
+++        if product['assemblyName'] not in tooling.products.UPSTREAM_API_NAMES:continue
+ +        revision=git(repo/owner,'rev-parse','HEAD')
+ +        binary=round10_product_bytes(repo,product,revision)
+ +        path=f'artifacts/epic16-{scope}/16.1/binaries/{digest(binary)}.dll';target=repo/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(binary)
+@@ -3368,7 +3368,7 @@
+ +    assert result['blockers'] and result['assertionLedger']
+ +
+ +
+-+@pytest.mark.parametrize('product_index',range(7))
+++@pytest.mark.parametrize('product_index',range(len(tooling.products.PRODUCTS)))
+ +@pytest.mark.parametrize('fault',['bytes','managed-bytes','mvid','owner','revision','omitted','relabelled','reported-owner','capture-owner','reported-source','capture-source','substituted'])
+ +def test_round9_loaded_products_are_independently_owned_and_bound(qualified_runtime,product_index,fault):
+ +    repo=qualified_runtime;scenario='AC-16.2-02';path=repo/tooling.native_path('runtime',scenario);tree=ET.fromstring(path.read_bytes());output=tree.find('./{*}Results/{*}UnitTestResult/{*}Output/{*}StdOut');payload=json.loads(output.text)
+@@ -3381,7 +3381,7 @@
+ +    elif fault=='reported-source':row['sourceRevision']='f'*40
+ +    elif fault=='capture-source':artifact['sourceRevision']='f'*40
+ +    elif fault=='substituted':
+-+        other=capture['products'][(product_index+1)%7]
+++        other=capture['products'][(product_index+1)%len(tooling.products.PRODUCTS)]
+ +        for field in ('path','sha256','mvid'):artifact[field]=other[field]
+ +        for field in ('sha256','mvid'):row[field]=other[field]
+ +    elif fault=='mvid':row['mvid']=artifact['mvid']='00000000-0000-0000-0000-000000000000'
+@@ -3735,7 +3735,7 @@
+ +    rejected(tooling.evaluate(repo,'16.1',scenario),'PRODUCT_API_CORRELATION_DRIFT')
+ +
+ +
+-+@pytest.mark.parametrize('product_index',[0,2])
+++@pytest.mark.parametrize('product_index',[0,2,7,8])
+ +def test_round10_generator_rejects_different_owned_implementations_across_five_tests(round10_runtime,product_index):
+ +    repo=round10_runtime;scenario='AC-16.1-04';name=tooling.products.PRODUCTS[product_index]['assemblyName'];product=tooling.products.PRODUCTS[product_index]
+ +    path=repo/tooling.native_path('runtime',scenario);payload=json.loads(records.parse_trx(path.read_bytes())['results'][0]['output']);row=payload['loadedProducts'][product_index]
+@@ -4573,3 +4573,391 @@
+ +    consumer['processId']=consumer['scope']['processId']=process
+ +    consumer['storeRead']['scope']['processId']=consumer['response']['scope']['processId']=process
+ +    round8_submit(repository,'AC-16.1-03',data)
+++
+++
+++# Iteration 13: all native execution below is test-authored disposable code. The
+++# fixed inspector never executes the supplied assemblies or their attributes.
+++def round13_build(directory, source, revision='a'*40):
+++    directory.mkdir(parents=True, exist_ok=True)
+++    (directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+++    (directory/'Evidence.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType><GenerateAssemblyInfo>false</GenerateAssemblyInfo><EnableNETAnalyzers>false</EnableNETAnalyzers></PropertyGroup><ItemGroup><PackageReference Include="xunit.v3" Version="4.0.2" /></ItemGroup></Project>')
+++    (directory/'Stamp.cs').write_text('[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+revision+'")]')
+++    (directory/'Tests.cs').write_text(source)
+++    command=['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false']
+++    result=subprocess.run(command,cwd=directory,capture_output=True,timeout=120)
+++    (directory/'build.stdout').write_bytes(result.stdout);(directory/'build.stderr').write_bytes(result.stderr)
+++    commands=[dict(argv=command,cwd=str(directory),exitCode=result.returncode)]
+++    assert result.returncode==0,(result.stdout,result.stderr)
+++    return directory/'bin/Debug/net10.0/Evidence.dll', commands
+++
+++
+++ROUND13_DEFAULTS = [
+++ ('int','int value = 8675309','value == 8675309'),
+++ ('long','long value = 1','value == 1L'),
+++ ('string','string value = ""','value == ""'),
+++ ('null-reference','object value = null','value is null'),
+++ ('nullable-int','int? value = 7','value == 7'),
+++ ('nullable-null','int? value = null','value is null'),
+++ ('enum','Choice value = Choice.One','value == Choice.One'),
+++ ('nullable-enum','Choice? value = Choice.One','true'),
+++ ('decimal','decimal value = 1.5m','value == 1.5m'),
+++ ('datetime','System.DateTime value = default','value == default(System.DateTime)'),
+++ ('optional-string','[System.Runtime.InteropServices.Optional] string value','value is null'),
+++ ('optional-int','[System.Runtime.InteropServices.Optional] int value','value == 0'),
+++ ('params','params string[] value','value.Length == 0'),
+++ ('attribute-default','[System.Runtime.InteropServices.DefaultParameterValue(3)] int value','value == 3'),
+++ ('nullable-enum-null','Choice? value = null','value is null'),
+++ ('local-value','Value value = default','value.Number == 0'),
+++ ('nullable-decimal','decimal? value = 1.5m','value == 1.5m'),
+++ ('nullable-local-value','Value? value = null','value is null'),
+++ ('nullable-datetime','System.DateTime? value = null','value is null'),
+++ ('nullable-date-attribute','[System.Runtime.CompilerServices.DateTimeConstant(123)] System.DateTime? value','value.Value.Ticks == 123'),
+++ ('date-attribute','[System.Runtime.CompilerServices.DateTimeConstant(123)] System.DateTime value','value.Ticks == 123'),
+++ ('optional-enum','[System.Runtime.InteropServices.Optional] Choice value','value == Choice.Zero'),
+++ ('fixture-unused-default','Fixture value = null','value != null'),
+++ ('output-unused-default','Xunit.ITestOutputHelper value = null','value != null'),
+++ ('bool','bool value = true','value'),
+++ ('char','char value = \'é\'','value == \'é\''),
+++ ('byte','byte value = 2','value == 2'),
+++ ('double','double value = 1.25','value == 1.25'),
+++]
+++
+++
+++@pytest.fixture(scope='session')
+++def round13_defaults(tmp_path_factory):
+++    directory=tmp_path_factory.mktemp('round13-defaults')
+++    source='namespace Synthetic; public enum Choice { Zero, One } public struct Value { public int Number; } public class Fixture {}\n'
+++    for index,(name,parameter,condition) in enumerate(ROUND13_DEFAULTS):
+++        inheritance=' : Xunit.IClassFixture<Fixture>' if name=='fixture-unused-default' else ''
+++        source+=f'public class Default{index}({parameter}){inheritance} {{ [Xunit.Fact] public void Scenario01() {{ if (!({condition})) throw new System.Exception("Unexpected default"); }} }}\n'
+++    binary,commands=round13_build(directory,source)
+++    return directory,binary,commands
+++
+++
+++@pytest.mark.parametrize('index',range(len(ROUND13_DEFAULTS)),ids=[row[0] for row in ROUND13_DEFAULTS])
+++def test_round13_selected_typed_defaults_match_actual_pinned_runner(round13_defaults,index):
+++    directory,binary,commands=round13_defaults;shape=ROUND13_DEFAULTS[index][0];name=f'Synthetic.Default{index}'
+++    argv=['dotnet',str(binary),'-automated','sync','-failSkips','-method',name+'.Scenario01']
+++    result=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
+++    (directory/(shape+'.stdout')).write_bytes(result.stdout);(directory/(shape+'.stderr')).write_bytes(result.stderr)
+++    commands.append(dict(argv=argv,cwd=str(directory),exitCode=result.returncode))
+++    positive=shape!='nullable-enum'
+++    assert result.returncode==(0 if positive else 1),(shape,result.stdout,result.stderr)
+++    if positive:assert tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,name,'Scenario01')['method']=='Scenario01'
+++    else:
+++        assert b'cannot be converted' in result.stdout+result.stderr
+++        with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,name,'Scenario01')
+++    round12_retain_native('round13-defaults',directory,commands)
+++
+++
+++@pytest.mark.parametrize('fault',['wrong-type','truncated-constant','invalid-bool','invalid-null','decimal-scale','decimal-named','decimal-trailing','date-range','date-named'])
+++def test_round13_defaults_validate_selected_kind_encoding_and_complete_blob(tmp_path,fault):
+++    if fault.startswith('decimal'):
+++        parameter='decimal value = 1.23456789m';source='namespace Synthetic; public class TestClass('+parameter+') { [Xunit.Fact] public void Scenario01() {} }'
+++    elif fault.startswith('date'):
+++        source='namespace Synthetic; public class TestClass([System.Runtime.CompilerServices.DateTimeConstant(123456789)] System.DateTime value) { [Xunit.Fact] public void Scenario01() {} }'
+++    elif fault=='invalid-bool':source='namespace Synthetic; public class TestClass(bool value = true) { [Xunit.Fact] public void Scenario01() {} }'
+++    elif fault=='invalid-null':source='namespace Synthetic; public class TestClass(object value = null) { [Xunit.Fact] public void Scenario01() {} }'
+++    else:source='namespace Synthetic; public class TestClass(int value = 8675309, string other = "typed") { [Xunit.Fact] public void Scenario01() {} }'
+++    binary=round13_compile(tmp_path/fault,'a'*40,source)
+++    assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+++    if fault=='wrong-type':before=bytes.fromhex('05200201080e');after=bytes.fromhex('052002010e0e')
+++    elif fault=='truncated-constant':before=b'\x04'+(8675309).to_bytes(4,'little');after=b'\x03'+before[1:]
+++    elif fault=='invalid-bool':before=bytes([1,1]);after=bytes([1,2])
+++    elif fault=='invalid-null':before=bytes([4,0,0,0,0]);after=bytes([4,1,0,0,0])
+++    elif fault.startswith('decimal'):
+++        before=bytes([18,1,0,8,0])+bytes(8)+(123456789).to_bytes(4,'little')+bytes(2);after=bytearray(before)
+++        if fault=='decimal-scale':after[3]=29
+++        elif fault=='decimal-named':after[-2]=1
+++        else:after[0]=17
+++        after=bytes(after)
+++    else:
+++        before=bytes([12,1,0])+(123456789).to_bytes(8,'little')+bytes(2);after=bytearray(before)
+++        if fault=='date-range':after[3:11]=(2**63-1).to_bytes(8,'little')
+++        else:after[-2]=1
+++        after=bytes(after)
+++    locations=round13_locations(binary)
+++    if fault in ('wrong-type',):
+++        target=next(row for row in locations['methods'] if row['type']=='Synthetic.TestClass' and row['name']=='.ctor')['signatureOffset']
+++    elif fault in ('truncated-constant','invalid-bool','invalid-null'):
+++        target=next(row for row in locations['constants'] if row['type']=='Synthetic.TestClass' and row['parameter']=='value')['offset']
+++    else:
+++        target=next(row for row in locations['attributes'] if row['type'].endswith('DecimalConstantAttribute' if fault.startswith('decimal') else 'DateTimeConstantAttribute'))['valueOffset']
+++    assert binary[target:target+len(before)]==before,(fault,before.hex(),binary[target:target+len(before)].hex())
+++    mutant=binary[:target]+after+binary[target+len(before):]
+++    round11_retain('r13-default-'+fault,{'valid.dll.bytes':binary,'invalid.dll.bytes':mutant})
+++    with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(mutant,'a'*40,'Synthetic.TestClass','Scenario01')
+++
+++
+++@pytest.mark.parametrize('kind',['Task','ValueTask'])
+++def test_round13_async_return_kind_is_not_erased_by_signature_decoding(tmp_path,kind):
+++    source='namespace Synthetic; public class TestClass { [Xunit.Fact] public System.Threading.Tasks.'+kind+' Scenario01() => '+('System.Threading.Tasks.Task.CompletedTask' if kind=='Task' else 'default')+'; }'
+++    binary=round13_compile(tmp_path/kind,'a'*40,source)
+++    assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+++    encoded=0x12 if kind=='Task' else 0x11
+++    # Unique parameterless instance return signature; length includes the handle.
+++    offsets=[i for i in range(1,len(binary)-5) if binary[i:i+3]==bytes([0x20,0,encoded]) and binary[i-1] in (4,5)]
+++    assert len(offsets)==1,offsets
+++    mutant=bytearray(binary);mutant[offsets[0]+2]=0x11 if kind=='Task' else 0x12;mutant=bytes(mutant)
+++    round11_retain('r13-return-'+kind,{'valid.dll.bytes':binary,'invalid.dll.bytes':mutant})
+++    with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(mutant,'a'*40,'Synthetic.TestClass','Scenario01')
+++
+++
+++@pytest.mark.parametrize('shape',['assembly','assembly-generic','collection-string','collection-type','collection-generic','definition-string','definition-type','definition-named'])
+++@pytest.mark.parametrize('fault',['positive','named-count','trailing','constructor','signature-trailing'])
+++def test_round13_provider_attributes_require_complete_supported_metadata(tmp_path,shape,fault):
+++    generic=shape in ('assembly-generic','collection-generic')
+++    assembly='[assembly:Xunit.AssemblyFixture'+('<Synthetic.Fixture>]' if generic else '(typeof(Synthetic.Fixture))]') if shape.startswith('assembly') else ''
+++    definition='[Xunit.CollectionDefinition("UniqueCollectionR13"'+(', DisableParallelization=true' if shape=='definition-named' else '')+')]'
+++    if shape=='definition-type':definition='[Xunit.CollectionDefinition(DisableParallelization=true)]'
+++    collection='[Xunit.Collection("UniqueCollectionR13")]'
+++    if shape in ('collection-type','definition-type'):collection='[Xunit.Collection(typeof(Group))]'
+++    elif shape=='collection-generic':collection='[Xunit.Collection<Group>]'
+++    support='public class Fixture {} '+definition+' public class Group : Xunit.ICollectionFixture<Fixture> {}'
+++    source='using Synthetic; '+assembly+' namespace Synthetic { '+support+' '+('' if assembly else collection)+' public class TestClass(Fixture value) { [Xunit.Fact] public void Scenario01() { System.ArgumentNullException.ThrowIfNull(value); } } }'
+++    directory=tmp_path/'native';binary_path,commands=round13_build(directory,source);binary=binary_path.read_bytes()
+++    assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+++    if fault=='positive':
+++        argv=['dotnet',str(binary_path),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01'];run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
+++        (directory/'run.stdout').write_bytes(run.stdout);(directory/'run.stderr').write_bytes(run.stderr);commands.append(dict(argv=argv,cwd=str(directory),exitCode=run.returncode))
+++        assert run.returncode==0,(run.stdout,run.stderr)
+++    else:
+++        locations=round13_locations(binary)
+++        expected='Xunit.AssemblyFixtureAttribute' if assembly else 'Xunit.CollectionDefinitionAttribute' if shape.startswith('definition') else 'Xunit.CollectionAttribute'
+++        if generic:expected+='`1'
+++        attribute=next(row for row in locations['attributes'] if row['type'].split(']')[-1].split('<')[0]==expected)
+++        target=attribute['signatureOffset'] if fault in ('constructor','signature-trailing') else attribute['valueOffset']
+++        original=bytes.fromhex(attribute['signature'] if fault in ('constructor','signature-trailing') else attribute['value'])
+++        assert len(original)<128
+++        before=bytes([len(original)])+original;after=bytearray(before)
+++        if fault=='constructor':
+++            # Keep all other member-reference identity intact; the ctor's return
+++            # type must be Void, including generic parameterless constructors.
+++            after[3]=0x08
+++        elif fault=='signature-trailing':after[0]+=1
+++        elif fault=='trailing':after[0]+=1
+++        else:
+++            if shape in ('definition-type','definition-named'):after[-1]=2
+++            else:after[-2]=1
+++        assert binary[target:target+len(before)]==before
+++        mutant=binary[:target]+bytes(after)+binary[target+len(before):]
+++        (directory/'invalid.dll.bytes').write_bytes(mutant)
+++        with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(mutant,'a'*40,'Synthetic.TestClass','Scenario01')
+++    round12_retain_native('round13-provider-'+shape+'-'+fault,directory,commands)
+++
+++
+++@pytest.mark.parametrize('fault',['changed','hardlink','symlink'])
+++def test_round13_generator_rereads_native_after_actual_evaluation_before_writing(round10_runtime,monkeypatch,fault):
+++    repo=round10_runtime;story='16.1'
+++    for n in range(1,6):
+++        row=tooling.evaluate(repo,story,f'AC-{story}-0{n}');assert row['result']=='PASS',row
+++        dump(repo,tooling.receipt_path('runtime',row['scenarioId']),row)
+++    original=tooling.capture.inventory
+++    def mutate(reader,actual_story,rows,need):
+++        path=repo/rows[0]['bindings']['native']['path'];raw=path.read_bytes()
+++        if fault=='changed':path.write_bytes(raw+b'\n<!-- drift after admission -->')
+++        else:
+++            path.unlink();alias=repo/'artifacts/native-alias';alias.write_bytes(raw)
+++            if fault=='hardlink':os.link(alias,path)
+++            else:path.symlink_to(alias)
+++        return original(reader,actual_story,rows,need)
+++    monkeypatch.setattr(tooling.capture,'inventory',mutate)
+++    result,j,m=tooling.generate(repo,story,write=True)
+++    assert result['result']=='FAIL' and result['assertionLedger'],result
+++    assert result['blockers'] and j is None and m is None
+++    assert not any((repo/path).exists() for path in tooling.final_paths('runtime',story))
+++
+++
+++@pytest.mark.parametrize('exit_code',[1,150,137,-11])
+++def test_round13_host_failures_are_blocked_with_bounded_real_diagnostics(qualified_runtime,monkeypatch,exit_code):
+++    native=tooling.native_helper;workspace,assembly=native._helper();real=native.subprocess.run
+++    def run(argv,**kwargs):
+++        if argv==['dotnet',str(assembly)]:return subprocess.CompletedProcess(argv,exit_code,stdout=b'x'*5000+b'host-out',stderr=b'y'*5000+b'You must install or update .NET to run this application.')
+++        return real(argv,**kwargs)
+++    monkeypatch.setattr(native.subprocess,'run',run)
+++    with pytest.raises(native.HelperUnavailable) as error:native._run(dict(operation='provenance'))
+++    message=str(error.value);assert 'exit='+str(exit_code) in message and 'host-out' in message and 'install or update .NET' in message and len(message)<4200
+++    native.inspect_product.cache_clear();rejected(runtime_evaluate(qualified_runtime),'NATIVE_HELPER_UNAVAILABLE','BLOCKED')
+++
+++
+++def test_round13_documented_helper_rejection_remains_invalid_evidence(monkeypatch):
+++    native=tooling.native_helper;workspace,assembly=native._helper()
+++    monkeypatch.setattr(native.subprocess,'run',lambda *a,**k:subprocess.CompletedProcess(a[0],1,stdout=b'',stderr=b'Invalid native evidence.'))
+++    with pytest.raises(ValueError):native._run(dict(operation='metadata'))
+++
+++
+++@pytest.mark.parametrize('name',['Evidence','Goldens','Epic16.NativeHelper','apphost','sample.pdb','public.snk','Product.assets.cache','sample.dll','sample.dll.bytes'])
+++def test_round13_opaque_native_evidence_has_binary_normal_diffs(repository,name):
+++    path='module/validation/epic-16-prerequisite-implementation/review-iteration-13/build/bin/Debug/'+name
+++    raw=b'\x7fELF\0\x90\xff\r\nopaque-native\0';target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
+++    assert all(path+': '+key+': unset' in git(repository,'check-attr',key,'--',path) for key in ('text','diff','whitespace'))
+++    git(repository,'add','-f','--',path)
+++    diff=subprocess.run(['git','-C',str(repository),'diff','--cached','--',path],capture_output=True,check=True).stdout
+++    assert 'Binary files ' in diff.decode('utf-8') and raw not in diff and target.read_bytes()==raw
+++
+++
+++@pytest.mark.parametrize('name',['Tests.cs','capture.json','raw.trx','build.stdout','report.md'])
+++def test_round13_evidence_source_and_raw_text_stay_readable(repository,name):
+++    path='module/validation/epic-16-prerequisite-implementation/review-iteration-13/build/'+name
+++    attrs=git(repository,'check-attr','text','diff','whitespace','--',path)
+++    assert path+': text: unset' in attrs and path+': diff: set' in attrs and path+': whitespace: unset' in attrs
+++
+++
+++def test_round13_implementation_owners_do_not_expand_upstream_compatibility_scope(round10_runtime):
+++    result=tooling.evaluate(round10_runtime,'16.1','AC-16.1-05');assert result['result']=='PASS',result
+++    implementations={p['assemblyName'] for p in result['bindings']['testBinary']['products']}
+++    assert {'Hexalith.EventStore.Server','Hexalith.Commons.TenantAccess'}<=implementations
+++    assert [p['assemblyName'] for p in result['bindings']['upstreamApiPreservation']]==list(tooling.products.UPSTREAM_API_NAMES)
+++    assert not {'Hexalith.EventStore.Server','Hexalith.Commons.TenantAccess'} & set(tooling.products.UPSTREAM_API_NAMES)
+++
+++
+++_ROUND13_LOCATOR = None
+++
+++
+++def round13_locations(binary):
+++    """Locate exact metadata heap bytes for mutations without loading the PE."""
+++    global _ROUND13_LOCATOR
+++    import tempfile
+++    if _ROUND13_LOCATOR is None:
+++        directory=Path(tempfile.mkdtemp(prefix='epic16-metadata-locations-'))
+++        (directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+++        (directory/'Probe.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup></Project>')
+++        (directory/'SignatureNames.cs').write_bytes((ROOT/'_bmad/scripts/epic16_native_helper/SignatureNames.cs').read_bytes())
+++        (directory/'Program.cs').write_text('''using System.Reflection.Metadata;
+++using System.Reflection.Metadata.Ecma335;
+++using System.Reflection.PortableExecutable;
+++using System.Text.Json;
+++using Hexalith.Conversations.Tooling;
+++using var pe = new PEReader(File.OpenRead(args[0])); var reader=pe.GetMetadataReader(); var names=new SignatureNames();
+++int Offset(BlobHandle h) => pe.PEHeaders.MetadataStartOffset+reader.GetHeapMetadataOffset(HeapIndex.Blob)+MetadataTokens.GetHeapOffset(h);
+++var attributes=new List<object>(); var constants=new List<object>(); var methods=new List<object>();
+++foreach(var h in reader.CustomAttributes) { var a=reader.GetCustomAttribute(h); if(a.Constructor.Kind!=HandleKind.MemberReference) continue; var c=reader.GetMemberReference((MemberReferenceHandle)a.Constructor); attributes.Add(new{type=names.Name(reader,c.Parent),signature=Convert.ToHexString(reader.GetBlobBytes(c.Signature)),signatureOffset=Offset(c.Signature),value=Convert.ToHexString(reader.GetBlobBytes(a.Value)),valueOffset=Offset(a.Value)}); }
+++foreach(var h in reader.TypeDefinitions) { var t=reader.GetTypeDefinition(h); foreach(var mh in t.GetMethods()) { var m=reader.GetMethodDefinition(mh); methods.Add(new{type=names.Name(reader,h),name=reader.GetString(m.Name),signature=Convert.ToHexString(reader.GetBlobBytes(m.Signature)),signatureOffset=Offset(m.Signature)}); foreach(var ph in m.GetParameters()) { var p=reader.GetParameter(ph); var ch=p.GetDefaultValue(); if(ch.IsNil) continue; var c=reader.GetConstant(ch); constants.Add(new{type=names.Name(reader,h),parameter=reader.GetString(p.Name),kind=c.TypeCode.ToString(),offset=Offset(c.Value),value=Convert.ToHexString(reader.GetBlobBytes(c.Value))}); } } }
+++var types=reader.TypeDefinitions.Select(h=>new{name=names.Name(reader,h),coded=MetadataTokens.GetRowNumber(h)*4}).Concat(reader.TypeReferences.Select(h=>new{name=names.Name(reader,h),coded=MetadataTokens.GetRowNumber(h)*4+1})).ToArray();
+++Console.Write(JsonSerializer.Serialize(new{attributes,constants,methods,types}));''')
+++        argv=['dotnet','build','Probe.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=120)
+++        (directory/'build.stdout').write_bytes(run.stdout);(directory/'build.stderr').write_bytes(run.stderr)
+++        assert run.returncode==0,(run.stdout,run.stderr)
+++        round12_retain_native('round13-mutation-locator',directory,[dict(argv=argv,cwd=str(directory),exitCode=run.returncode)])
+++        _ROUND13_LOCATOR=directory
+++    target=_ROUND13_LOCATOR/'input.dll.bytes';target.write_bytes(binary)
+++    result=subprocess.run(['dotnet',str(_ROUND13_LOCATOR/'bin/Debug/net10.0/Probe.dll'),str(target)],capture_output=True,timeout=30)
+++    assert result.returncode==0,(result.stdout,result.stderr)
+++    return json.loads(result.stdout)
+++
+++
+++@pytest.mark.parametrize('fault',['default','provider','return-kind','nullable-constraint'])
+++def test_round13_runtime_caller_rejects_malformed_constructor_provider_or_return(qualified_runtime,tmp_path,fault):
+++    repo=qualified_runtime;candidate=git(repo,'rev-parse','HEAD');name='Hexalith.Conversations.IntegrationTests.Epic16.Story16_2EvidenceTests'
+++    prefix='namespace Hexalith.Conversations.IntegrationTests.Epic16; '
+++    if fault=='default':source=prefix+'public class Story16_2EvidenceTests(int value = 8675309) { [Xunit.Fact] public void Scenario02() {} }'
+++    elif fault=='nullable-constraint':source=prefix+'public class Story16_2EvidenceTests(int? value = null) { [Xunit.Fact] public void Scenario02() {} }'
+++    elif fault=='provider':source=prefix+'public class Fixture {} [Xunit.CollectionDefinition("R13Collection")] public class Group : Xunit.ICollectionFixture<Fixture> {} [Xunit.Collection("R13Collection")] public class Story16_2EvidenceTests(Fixture value) { [Xunit.Fact] public void Scenario02() {} }'
+++    else:source=prefix+'public class Story16_2EvidenceTests { [Xunit.Fact] public System.Threading.Tasks.Task Scenario02() => System.Threading.Tasks.Task.CompletedTask; }'
+++    binary=round13_compile(tmp_path/fault,candidate,source);metadata=tooling.native_helper.inspect_assembly(binary,candidate,name,'Scenario02');assert metadata['method']=='Scenario02'
+++    locations=round13_locations(binary);mutant=bytearray(binary)
+++    if fault=='provider':
+++        row=next(r for r in locations['attributes'] if r['type'].endswith(']Xunit.CollectionAttribute'));offset=row['valueOffset'];blob=bytes.fromhex(row['value']);assert len(blob)<128;mutant[offset+len(blob)-1]=1
+++    else:
+++        row=next(r for r in locations['methods'] if r['type']==name and r['name']==('.ctor' if fault in ('default','nullable-constraint') else 'Scenario02'));offset=row['signatureOffset'];blob=bytes.fromhex(row['signature']);assert len(blob)<128
+++        if fault in ('default','nullable-constraint'):assert blob[-1]==0x08;mutant[offset+len(blob)]=0x0e
+++        else:assert blob[2]==0x12;mutant[offset+3]=0x11
+++    root=json.loads((repo/tooling.capture.capture_path('16.2','AC-16.2-02')).read_bytes())['originalRepositoryRoot']
+++    retain_capture(repo,'AC-16.2-02',bytes(mutant),root=root)
+++    rejected(runtime_evaluate(repo),'NATIVE_BINARY_DRIFT')
+++    round11_retain('r13-runtime-caller-'+fault,{'valid.dll.bytes':binary,'invalid.dll.bytes':bytes(mutant)})
+++
+++
+++@pytest.mark.parametrize('product_index',[7,8])
+++@pytest.mark.parametrize('fault',['missing','duplicate'])
+++def test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer(qualified_runtime,product_index,fault):
+++    repo=qualified_runtime;scenario='AC-16.2-02';path=tooling.capture.capture_path('16.2',scenario);document=json.loads((repo/path).read_bytes())
+++    if fault=='missing':document['products'].pop(product_index)
+++    else:document['products'][product_index]=deepcopy(document['products'][0])
+++    validator=jsonschema.Draft202012Validator(json.loads((repo/tooling.SCHEMA).read_bytes())['$defs']['nativeCapture'])
+++    if fault=='missing':assert list(validator.iter_errors(document))
+++    else:assert not list(validator.iter_errors(document)) # ordered identity is a consumer obligation
+++    dump(repo,path,document);result=runtime_evaluate(repo)
+++    assert result['result']=='FAIL' and result['blockers'],result
+++
+++
+++@pytest.mark.parametrize('product_index,surface_index',[(7,0),(7,1),(8,0)])
+++def test_round13_new_owner_requires_actual_behavior_surface(qualified_runtime,product_index,surface_index):
+++    repo=qualified_runtime;scenario='AC-16.2-02';product=tooling.products.PRODUCTS[product_index]
+++    path=tooling.capture.capture_path('16.2',scenario);capture=json.loads((repo/path).read_bytes());row=capture['products'][product_index]
+++    missing=product['surfaces'][surface_index].rsplit('.',1)[1]
+++    source=round9_product_source(product).replace('class '+missing+' ', 'class UnrelatedBehaviorOwner ')
+++    binary=round9_compile_product(product,row['sourceRevision'],source);metadata=tooling.native_helper.inspect_product(binary,row['sourceRevision'])
+++    artifact=tooling.capture.binary_path('16.2',digest(binary));(repo/artifact).write_bytes(binary)
+++    assert metadata['assemblyName']==product['assemblyName'] and product['surfaces'][surface_index] not in metadata['declaredTypes']
+++    round10_rewrite_runtime(repo,scenario,lambda p:p['loadedProducts'][product_index].update(sha256=digest(binary),mvid=metadata['mvid']))
+++    capture=json.loads((repo/path).read_bytes());capture['products'][product_index].update(path=artifact,sha256=digest(binary),mvid=metadata['mvid']);dump(repo,path,capture)
+++    rejected(runtime_evaluate(repo),'PRODUCT_METADATA_DRIFT')
+++
+++
+++def round13_compile(directory,revision,source):
+++    binary,commands=round13_build(directory,source,revision)
+++    round12_retain_native('round13-build-'+digest((revision+'\n'+source).encode()),directory,commands)
+++    return binary.read_bytes()
+++
+++
+++@pytest.mark.parametrize('sign',[0,1,127,128,255])
+++def test_round13_decimal_default_sign_matches_actual_trusted_constructor(tmp_path,sign):
+++    expected='1m' if sign==0 else '-1m'
+++    source='namespace Synthetic; public class TestClass([System.Runtime.CompilerServices.DecimalConstant(0,'+str(sign)+',0u,0u,1u)] decimal value) { [Xunit.Fact] public void Scenario01() { if (value != '+expected+') throw new System.Exception("Incorrect native decimal sign"); } }'
+++    directory=tmp_path/'decimal-sign';binary,commands=round13_build(directory,source)
+++    argv=['dotnet',str(binary),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01'];run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
+++    (directory/'run.stdout').write_bytes(run.stdout);(directory/'run.stderr').write_bytes(run.stderr);commands.append(dict(argv=argv,cwd=str(directory),exitCode=run.returncode))
+++    assert run.returncode==0,(run.stdout,run.stderr)
+++    assert tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+++    round12_retain_native('round13-native-decimal-sign-'+str(sign),directory,commands)
+++
+++
+++@pytest.mark.parametrize('path',['null','optional','nonnull'])
+++@pytest.mark.parametrize('argument',['string','object'])
+++def test_round13_nullable_constraint_applies_before_all_default_paths(tmp_path,path,argument):
+++    parameter={'null':'int? value = null','optional':'[System.Runtime.InteropServices.Optional] int? value','nonnull':'int? value = 7'}[path]
+++    condition='value == 7' if path=='nonnull' else 'value is null'
+++    source='namespace Synthetic; public class TestClass('+parameter+') { [Xunit.Fact] public void Scenario01() { if (!('+condition+')) throw new System.Exception("Unexpected native default"); } }'
+++    directory=tmp_path/'native';binary_path,commands=round13_build(directory,source);binary=binary_path.read_bytes()
+++    assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+++    location=next(r for r in round13_locations(binary)['methods'] if r['type']=='Synthetic.TestClass' and r['name']=='.ctor');signature=bytes.fromhex(location['signature']);assert signature[-1]==0x08 and len(signature)<128
+++    mutant=bytearray(binary);mutant[location['signatureOffset']+len(signature)]=0x0e if argument=='string' else 0x1c
+++    round13_nullable_runner_control(directory,binary_path,binary,bytes(mutant),commands,'path-'+path+'-'+argument)
+++
+++
+++@pytest.mark.parametrize('argument',['array','nested','byref-like'])
+++def test_round13_nullable_constraint_excludes_invalid_value_shapes(tmp_path,argument):
+++    support='public struct Wrapper {}'
+++    parameter='Wrapper? value = null'
+++    if argument=='nested':support=' '.join('public struct Padding'+str(i)+' {}' for i in range(33))+' public struct Wrapper<T> {}';parameter='Wrapper<int>? value = null'
+++    if argument=='byref-like':support+=' public ref struct Blocked {}'
+++    source='namespace Synthetic; '+support+' public class TestClass('+parameter+') { [Xunit.Fact] public void Scenario01() { if (value is not null) throw new System.Exception("Unexpected native default"); } }'
+++    directory=tmp_path/'native';binary_path,commands=round13_build(directory,source);binary=binary_path.read_bytes();locations=round13_locations(binary)
+++    if argument=='nested':
+++        # The source-authored generic struct is runnable, but intentionally outside
+++        # this inspector's bounded local non-generic default subset.
+++        with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')
+++    else:assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+++    location=next(r for r in locations['methods'] if r['type']=='Synthetic.TestClass' and r['name']=='.ctor');signature=bytearray.fromhex(location['signature']);assert len(signature)<128
+++    wrapper=next(r['coded'] for r in locations['types'] if r['name']=='Synthetic.Wrapper'+('`1' if argument=='nested' else ''))
+++    if argument=='array':assert signature[-2:]==bytes([0x11,wrapper]);signature[-2:]=bytes([0x1d,0x08])
+++    elif argument=='nested':
+++        nullable=next(r['coded'] for r in locations['types'] if r['name'].endswith(']System.Nullable`1'));assert 128<=wrapper<16384 and 128<=nullable<16384
+++        encoded_wrapper=bytes([0x80 | (wrapper>>8),wrapper&255]);encoded_nullable=bytes([0x80 | (nullable>>8),nullable&255])
+++        assert signature[-6:]==bytes([0x15,0x11])+encoded_wrapper+bytes([1,8]);signature[-4:-2]=encoded_nullable
+++    else:
+++        blocked=next(r['coded'] for r in locations['types'] if r['name']=='Synthetic.Blocked');assert blocked<128 and signature[-2:]==bytes([0x11,wrapper]);signature[-1]=blocked
+++    offset=location['signatureOffset']+1;mutant=binary[:offset]+bytes(signature)+binary[offset+len(signature):]
+++    round13_nullable_runner_control(directory,binary_path,binary,mutant,commands,'shape-'+argument)
+++
+++
+++def round13_nullable_runner_control(directory,binary_path,valid,invalid,commands,label):
+++    for phase,content in [('valid',valid),('invalid',invalid)]:
+++        binary_path.write_bytes(content);(directory/(phase+'.dll.bytes')).write_bytes(content)
+++        argv=['dotnet',str(binary_path),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01'];run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
+++        (directory/(phase+'.stdout')).write_bytes(run.stdout);(directory/(phase+'.stderr')).write_bytes(run.stderr);commands.append(dict(argv=argv,cwd=str(directory),exitCode=run.returncode,phase=phase,binarySha256=digest(content)))
+++        assert run.returncode==(0 if phase=='valid' else 1),(phase,run.stdout,run.stderr)
+++        if phase=='invalid':assert b'TypeLoadException' in run.stdout+run.stderr
+++    with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(invalid,'a'*40,'Synthetic.TestClass','Scenario01')
+++    round12_retain_native('round13-nullable-constraint-'+label,directory,commands)

@@ -1,0 +1,1 @@
+namespace Synthetic; public interface Surface { int Added() => 1; string Existing(string value); }

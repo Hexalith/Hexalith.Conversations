@@ -1,0 +1,22 @@
+{
+  "case": "null",
+  "command": [
+    "dotnet",
+    "/tmp/review14-refstruct-h7_v5woq/null/bin/Debug/net10.0/Evidence.dll",
+    "-automated",
+    "sync",
+    "-failSkips",
+    "-method",
+    "Synthetic.TestClass.Scenario01",
+    "-trx",
+    "/tmp/review14-refstruct-h7_v5woq/null/result.trx"
+  ],
+  "exitCode": 1,
+  "inspection": {
+    "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "type": "Synthetic.TestClass",
+    "method": "Scenario01",
+    "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+  }
+}

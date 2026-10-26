@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "git",
+    "diff",
+    "--binary",
+    "8039d2abcf41bcd2c01fa3dbe618cbec2f4f6da3",
+    "--",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "exitCode": 0,
+  "stdoutEncoding": "base64 retained in P1-git-diff.stdout.base64",
+  "stdoutSha256": "2505a8b4fb7aaf5f5b5fa49fd2296b3321fe4855e7a1df3518cb93acb9c05e45",
+  "utf8DecodeFailure": "'utf-8' codec can't decode byte 0x90 in position 595: invalid start byte",
+  "rawBinaryFile": "module/validation/epic-16-prerequisite-implementation/review-iteration-10/implementation/before-R10P1/helper-toolchain/bin/Debug/net10.0/Epic16.NativeHelper",
+  "rawBinarySha256": "0b62e3b2fd6f2d82e6b271b9cf95c85a562cd4492dab0e71e94baef90e6330cd",
+  "affectedBinarySectionCount": 57,
+  "reviewArtifactWorkaround": "Standard Git binary patches rendered from identical bytes in an isolated temporary directory; repository attributes not modified"
+}

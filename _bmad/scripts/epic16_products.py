@@ -15,11 +15,20 @@ PRODUCTS = (
     dict(assemblyName='Hexalith.EventStore.Client', owner='references/Hexalith.EventStore', surfaces=['Hexalith.EventStore.Client.Projections.IReadModelStore','Hexalith.EventStore.Client.Streams.IAuthoritativeEventStreamReader']),
     dict(assemblyName='Hexalith.EventStore.Contracts', owner='references/Hexalith.EventStore', surfaces=['Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest']),
     dict(assemblyName='Hexalith.EventStore.DomainService', owner='references/Hexalith.EventStore', surfaces=['Hexalith.EventStore.DomainService.DomainProjectionDispatcher']),
+    dict(assemblyName='Hexalith.EventStore.Server', owner='references/Hexalith.EventStore', surfaces=['Hexalith.EventStore.Server.Projections.ProjectionDeliveryReconciler','Hexalith.EventStore.Server.Projections.ProjectionDeliveryRetryWorker']),
+    dict(assemblyName='Hexalith.Commons.TenantAccess', owner='references/Hexalith.Commons', surfaces=['Hexalith.Commons.TenantAccess.TenantAccessEvaluator']),
+)
+# Implementation ownership does not expand the independently promised API seams.
+UPSTREAM_API_NAMES = (
+    'Hexalith.Tenants.Client', 'Hexalith.Tenants.Contracts',
+    'Hexalith.EventStore.Client', 'Hexalith.EventStore.Contracts',
+    'Hexalith.EventStore.DomainService',
 )
 
 
 def policy():
     return dict(captureVersion=2, requiredProducts=list(PRODUCTS),
+        upstreamApiAssemblies=list(UPSTREAM_API_NAMES),
         publicApiComparison='conservative-ecma335-public-declarations-v1',
         rootPublicApi='unchanged-baseline-and-loaded-candidate-declarations',
         productCorrelation='same-owned-bytes-mvid-revision-in-api-and-all-five-scenarios',
@@ -76,7 +85,7 @@ def additive(before, after, need, subject):
 
 
 def upstream(repository, reader, facts, baseline, data, need, loaded_products=None):
-    rows=data['upstreamSurfaces'];expected=[p for p in PRODUCTS if p['owner']!='.']
+    rows=data['upstreamSurfaces'];expected=[p for p in PRODUCTS if p['assemblyName'] in UPSTREAM_API_NAMES]
     need([row['assemblyName'] for row in rows]==[p['assemblyName'] for p in expected], 'UPSTREAM_API_INVENTORY', 'upstream APIs')
     before_links=dict(records.v2_raw_gitlinks(repository,baseline));after_links=revisions(facts)
     result=[]

@@ -1,0 +1,25 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_qualified_runtime_evaluate_binds_binary_dependency_canonicalizer_and_ancestor _
+
+qualified_runtime = PosixPath('/tmp/epic16-r13-diagnostic-qualified-runtime/test_qualified_runtime_evaluat0/runtime')
+
+    def test_qualified_runtime_evaluate_binds_binary_dependency_canonicalizer_and_ancestor(qualified_runtime):
+        result = runtime_evaluate(qualified_runtime)
+        assert result['result'] == 'PASS', result
+        assert result['runtimeQualified'] is True
+        assert result['bindings']['entry']['authorizationRevision'] != result['candidate']['commit']
+        assert result['bindings']['testBinary']['sha256'] == digest(retained_binary(qualified_runtime).read_bytes())
+        assert result['bindings']['testBinary']['sourceRevision'] == result['candidate']['commit']
+        assert result['bindings']['testBinary']['testFramework'] == 'xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c'
+        assert result['bindings']['canonicalizerSource'] == dict(path=tooling.CANONICALIZER_SOURCE,sha256=tooling.measurements.EVENTSTORE_CANONICALIZER_SHA256)
+>       assert result['candidate']['gitlinks'] == [dict(path=owner,commit=git(qualified_runtime/owner,'rev-parse','HEAD')) for owner in ('references/Hexalith.EventStore','references/Hexalith.Tenants','references/Hexalith.Commons')]
+E       AssertionError: assert [{'path': 're...6c93fa47cdf'}] == [{'path': 're...e24a95b5a8d'}]
+E         
+E         At index 0 diff: {'path': 'references/Hexalith.Commons', 'commit': '81290936360e99c2a687e513879d4e24a95b5a8d'} != {'path': 'references/Hexalith.EventStore', 'commit': '728d7c898c4e70b12c8e650e66b95b9f8a28a42e'}
+E         Use -v to get more diff
+
+_bmad/scripts/tests/test_epic16_tooling.py:1079: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_qualified_runtime_evaluate_binds_binary_dependency_canonicalizer_and_ancestor
+1 failed in 24.30s

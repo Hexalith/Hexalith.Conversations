@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="24.584" timestamp="2026-10-26T08:43:12.571164+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer[missing-7]" time="23.645"><failure message="AssertionError: assert []&#10; +  where [] = list(&lt;generator object create.&lt;locals&gt;.Validator.iter_errors at 0x70ad1b977600&gt;)&#10; +    where &lt;generator object create.&lt;locals&gt;.Validator.iter_errors at 0x70ad1b977600&gt; = iter_errors({'binary': {'path': 'artifacts/epic16-runtime/16.2/binaries/d2fda4b0c0ab332b967ffd03a4daa33b71a112f6a85317964794587232...pic16-runtime/16.2/AC-16.2-02.trx', 'sha256': '26b5ba96eaf82737414c21d96c05740b0f4349be4edb962ceb72772505bd940c'}, ...})&#10; +      where iter_errors = Draft202012Validator(schema={'additionalProperties': False, 'properties': {'binary': {'additionalProperties': False, '...cenarioId', 'candidate', 'native', 'pathStyle', 'originalRepositoryRoot', ...], 'type': 'object'}, format_checker=None).iter_errors">qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-721/test_round13_new_owner_capture0/runtime')
+product_index = 7, fault = 'missing'
+
+    @pytest.mark.parametrize('product_index',[7,8])
+    @pytest.mark.parametrize('fault',['missing','duplicate'])
+    def test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer(qualified_runtime,product_index,fault):
+        repo=qualified_runtime;scenario='AC-16.2-02';path=tooling.capture.capture_path('16.2',scenario);document=json.loads((repo/path).read_bytes())
+        if fault=='missing':document['products'].pop(product_index)
+        else:document['products'][product_index]=deepcopy(document['products'][0])
+        validator=jsonschema.Draft202012Validator(json.loads((repo/tooling.SCHEMA).read_bytes())['$defs']['nativeCapture'])
+&gt;       if fault=='missing':assert list(validator.iter_errors(document))
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: assert []
+E        +  where [] = list(&lt;generator object create.&lt;locals&gt;.Validator.iter_errors at 0x70ad1b977600&gt;)
+E        +    where &lt;generator object create.&lt;locals&gt;.Validator.iter_errors at 0x70ad1b977600&gt; = iter_errors({'binary': {'path': 'artifacts/epic16-runtime/16.2/binaries/d2fda4b0c0ab332b967ffd03a4daa33b71a112f6a85317964794587232...pic16-runtime/16.2/AC-16.2-02.trx', 'sha256': '26b5ba96eaf82737414c21d96c05740b0f4349be4edb962ceb72772505bd940c'}, ...})
+E        +      where iter_errors = Draft202012Validator(schema={'additionalProperties': False, 'properties': {'binary': {'additionalProperties': False, '...cenarioId', 'candidate', 'native', 'pathStyle', 'originalRepositoryRoot', ...], 'type': 'object'}, format_checker=None).iter_errors
+
+_bmad/scripts/tests/test_epic16_tooling.py:4868: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer[missing-8]" time="0.050"><failure message="AssertionError: assert []&#10; +  where [] = list(&lt;generator object create.&lt;locals&gt;.Validator.iter_errors at 0x70ad1c285d00&gt;)&#10; +    where &lt;generator object create.&lt;locals&gt;.Validator.iter_errors at 0x70ad1c285d00&gt; = iter_errors({'binary': {'path': 'artifacts/epic16-runtime/16.2/binaries/d2fda4b0c0ab332b967ffd03a4daa33b71a112f6a85317964794587232...pic16-runtime/16.2/AC-16.2-02.trx', 'sha256': '26b5ba96eaf82737414c21d96c05740b0f4349be4edb962ceb72772505bd940c'}, ...})&#10; +      where iter_errors = Draft202012Validator(schema={'additionalProperties': False, 'properties': {'binary': {'additionalProperties': False, '...cenarioId', 'candidate', 'native', 'pathStyle', 'originalRepositoryRoot', ...], 'type': 'object'}, format_checker=None).iter_errors">qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-721/test_round13_new_owner_capture1/runtime')
+product_index = 8, fault = 'missing'
+
+    @pytest.mark.parametrize('product_index',[7,8])
+    @pytest.mark.parametrize('fault',['missing','duplicate'])
+    def test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer(qualified_runtime,product_index,fault):
+        repo=qualified_runtime;scenario='AC-16.2-02';path=tooling.capture.capture_path('16.2',scenario);document=json.loads((repo/path).read_bytes())
+        if fault=='missing':document['products'].pop(product_index)
+        else:document['products'][product_index]=deepcopy(document['products'][0])
+        validator=jsonschema.Draft202012Validator(json.loads((repo/tooling.SCHEMA).read_bytes())['$defs']['nativeCapture'])
+&gt;       if fault=='missing':assert list(validator.iter_errors(document))
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: assert []
+E        +  where [] = list(&lt;generator object create.&lt;locals&gt;.Validator.iter_errors at 0x70ad1c285d00&gt;)
+E        +    where &lt;generator object create.&lt;locals&gt;.Validator.iter_errors at 0x70ad1c285d00&gt; = iter_errors({'binary': {'path': 'artifacts/epic16-runtime/16.2/binaries/d2fda4b0c0ab332b967ffd03a4daa33b71a112f6a85317964794587232...pic16-runtime/16.2/AC-16.2-02.trx', 'sha256': '26b5ba96eaf82737414c21d96c05740b0f4349be4edb962ceb72772505bd940c'}, ...})
+E        +      where iter_errors = Draft202012Validator(schema={'additionalProperties': False, 'properties': {'binary': {'additionalProperties': False, '...cenarioId', 'candidate', 'native', 'pathStyle', 'originalRepositoryRoot', ...], 'type': 'object'}, format_checker=None).iter_errors
+
+_bmad/scripts/tests/test_epic16_tooling.py:4868: AssertionError</failure></testcase></testsuite></testsuites>

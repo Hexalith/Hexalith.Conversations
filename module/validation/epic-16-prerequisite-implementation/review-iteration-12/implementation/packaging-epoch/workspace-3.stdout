@@ -1,0 +1,12 @@
+ 3f194e17174994d308ec84af9ee2b5aa68674d0d references/Hexalith.AI.Tools (heads/main)
+-db897eac9f2819220b32d237109d7255218b46a9 references/Hexalith.Builds
+ 1663028fb6d9f46a0bf17919edeb21bb99be1587 references/Hexalith.Commons (v2.30.3-4-g1663028)
+ fd327dc553169128021ee447d2a2f247fe1c33e4 references/Hexalith.EventStore (v3.128.2-4-gfd327dc55)
+ b8c66d649ccfd0700392ca65840a24e4cacdeecc references/Hexalith.Folders (v1.3.1-47-gb8c66d64)
+ 4f5ce9e67d0c07cc2ed049a4e8c644c8a448bb8a references/Hexalith.FrontComposer (v4.7.0-107-g4f5ce9e6)
+ a61f7eda9419dc47ec1ef641b57e549e102279a7 references/Hexalith.McpCli (v1.0.0-77-ga61f7ed)
+ 092191bc67e0439f8d79ce60109c98e594b81734 references/Hexalith.Memories (v2.29.15-32-g092191bc)
+ 027a5005ebc6bae79cbeebaf27638abab26dbf96 references/Hexalith.Parties (v1.6.0-39-g027a5005)
+ b117945e2ba7911fd2c47843f866487341300398 references/Hexalith.Platform (heads/main)
+ 8590879176681cc5e69ecfed37c70cb2b57535fd references/Hexalith.Projects (v1.2.0-37-g8590879)
+ 665068ec0791fd2ea0e00e1c04b25d60ed0b9fbb references/Hexalith.Tenants (v5.10.1-59-g665068ec)

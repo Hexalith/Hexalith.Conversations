@@ -1,0 +1,29 @@
+{
+  "name": "direct-byreflike-default",
+  "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+  "old": "return value ? NonNullableValueType(reader, type) : type.StartsWith(\"class \", StringComparison.Ordinal);",
+  "new": "return type.StartsWith(value ? \"valuetype \" : \"class \", StringComparison.Ordinal);",
+  "selector": "round14_test_calling_convention and (optional-ref or default-ref)",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r14-mutant-direct-byreflike-default-19y98j8r/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round14_test_calling_convention and (optional-ref or default-ref)",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-verification/mutations/direct-byreflike-default/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r14-mutant-direct-byreflike-default-19y98j8r",
+  "exitCode": 1,
+  "elapsedSeconds": 7.290870234981412,
+  "originalSha256": "48b39a9048eadd8f6c094db9a267069bfdaf24af65e5a069e46337af7dbbe218",
+  "mutatedSha256": "fe4e695373ea16df32c097b98ba221d9b43f1fb7f442ad887700bb81145b547f",
+  "testSha256": "041019802d8f68321ae6354d48f4c8ecb78312b39a6df709b7cb30d9bc2a38a7",
+  "tests": {
+    "tests": 2,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0
+  }
+}

@@ -1,0 +1,1 @@
+[assembly:System.Reflection.AssemblyFileVersion("1.0.0.0")][assembly:System.Reflection.AssemblyMetadata("SourceRevisionId","aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")] namespace Probe { public class Api {} }

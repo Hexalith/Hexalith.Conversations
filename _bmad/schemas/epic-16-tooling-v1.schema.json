@@ -35963,8 +35963,8 @@
         },
         "products": {
           "type": "array",
-          "minItems": 7,
-          "maxItems": 7,
+          "minItems": 9,
+          "maxItems": 9,
           "items": {
             "type": "object",
             "required": [

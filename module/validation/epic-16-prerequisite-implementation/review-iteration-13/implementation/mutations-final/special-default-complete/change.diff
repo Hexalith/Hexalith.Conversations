@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_native_helper/TestConstruction.cs
++++ _bmad/scripts/epic16_native_helper/TestConstruction.cs
+@@ -315,7 +315,7 @@
+                 if (ticks < 0 || ticks > DateTime.MaxValue.Ticks) throw new InvalidDataException("Invalid date default.");
+             }
+             else throw new InvalidDataException("Unsupported typed default attribute.");
+-            if (blob.ReadUInt16() != 0 || blob.RemainingBytes != 0) throw new InvalidDataException("Invalid default attribute blob.");
++            _ = blob.ReadUInt16();
+             return true;
+         }
+         if (handle.IsNil) return false;

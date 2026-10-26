@@ -1,0 +1,611 @@
+[
+  {
+    "name": "nullable-enum-default",
+    "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+    "old": "if (underlying is not null && EnumPrimitive(reader, underlying) is not null)",
+    "new": "if (false)",
+    "selector": "round13_selected_typed_defaults and nullable-enum",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r13-mutant-nullable-enum-default-puahe3xz/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round13_selected_typed_defaults and nullable-enum",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/nullable-enum-default/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r13-mutant-nullable-enum-default-puahe3xz",
+    "exitCode": 1,
+    "elapsedSeconds": 5.6107637340028305,
+    "originalSha256": "1b37f691b714f3cec6f92d07ac379e4eb19bf19d8ee3f74255fd6dad55b62c33",
+    "mutatedSha256": "d3a9653b46877d6480c163d529138f9c257d33691a39fc932c0c7a0c6a88eaf3",
+    "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+    "tests": {
+      "tests": 2,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "typed-default-kind",
+    "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+    "old": "if (!(targetPrimitive == kind || targetPrimitive == \"Object\"))",
+    "new": "if (false)",
+    "selector": "round13_defaults_validate and wrong-type",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r13-mutant-typed-default-kind-eejzm9nn/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round13_defaults_validate and wrong-type",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/typed-default-kind/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r13-mutant-typed-default-kind-eejzm9nn",
+    "exitCode": 1,
+    "elapsedSeconds": 7.0075286280189175,
+    "originalSha256": "1b37f691b714f3cec6f92d07ac379e4eb19bf19d8ee3f74255fd6dad55b62c33",
+    "mutatedSha256": "9202f192dc0b26bb538a2d07e809f81a5d9ca1942f5349f59a393d2bb40cfbb8",
+    "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "constant-encoding",
+    "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+    "old": "if (bytes.Length != length || length < 0 || constant.TypeCode == ConstantTypeCode.Boolean && bytes[0] > 1)",
+    "new": "if (false)",
+    "selector": "round13_defaults_validate and (truncated-constant or invalid-bool)",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r13-mutant-constant-encoding-b3blwrx2/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round13_defaults_validate and (truncated-constant or invalid-bool)",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/constant-encoding/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r13-mutant-constant-encoding-b3blwrx2",
+    "exitCode": 1,
+    "elapsedSeconds": 9.182138069008943,
+    "originalSha256": "1b37f691b714f3cec6f92d07ac379e4eb19bf19d8ee3f74255fd6dad55b62c33",
+    "mutatedSha256": "431cf7379ad41491d0d28b4ac89636d7ca6c39ecf08381f38ad8bee35f890492",
+    "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "special-default-complete",
+    "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+    "old": "if (blob.ReadUInt16() != 0 || blob.RemainingBytes != 0) throw new InvalidDataException(\"Invalid default attribute blob.\");",
+    "new": "_ = blob.ReadUInt16();",
+    "selector": "round13_defaults_validate and (decimal-named or date-named)",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r13-mutant-special-default-complete-5mrwktz9/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round13_defaults_validate and (decimal-named or date-named)",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/special-default-complete/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r13-mutant-special-default-complete-5mrwktz9",
+    "exitCode": 1,
+    "elapsedSeconds": 9.008442051010206,
+    "originalSha256": "1b37f691b714f3cec6f92d07ac379e4eb19bf19d8ee3f74255fd6dad55b62c33",
+    "mutatedSha256": "782fd6193fa057c78b996d83dac7a7502a3d0f47ab063d56661aaa7dd16610e1",
+    "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "provider-constructor-trailing",
+    "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+    "old": "signatureBlob.RemainingBytes != 0 || reader.GetString(constructor.Name)",
+    "new": "reader.GetString(constructor.Name)",
+    "selector": "round13_provider and signature-trailing and collection-type",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r13-mutant-provider-constructor-trailing-9tytr8vc/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round13_provider and signature-trailing and collection-type",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/provider-constructor-trailing/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r13-mutant-provider-constructor-trailing-9tytr8vc",
+    "exitCode": 1,
+    "elapsedSeconds": 6.646977291005896,
+    "originalSha256": "1b37f691b714f3cec6f92d07ac379e4eb19bf19d8ee3f74255fd6dad55b62c33",
+    "mutatedSha256": "5c165855369365f9d30cdc456d3f291ab746f823ea41d3b1aff67af1683dda9f",
+    "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "provider-constructor",
+    "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+    "old": "|| signature.GenericParameterCount != 0 || signature.ReturnType != \"Void\"",
+    "new": "|| signature.GenericParameterCount != 0",
+    "selector": "round13_provider and constructor and (collection-string or assembly])",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r13-mutant-provider-constructor-6sq0gig0/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round13_provider and constructor and (collection-string or assembly])",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/provider-constructor/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r13-mutant-provider-constructor-6sq0gig0",
+    "exitCode": 1,
+    "elapsedSeconds": 8.793327760999091,
+    "originalSha256": "1b37f691b714f3cec6f92d07ac379e4eb19bf19d8ee3f74255fd6dad55b62c33",
+    "mutatedSha256": "7881f4adec3922854d53807d4b79282c73cbc9b7ae19fb5da7fc3701e1a38098",
+    "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+    "tests": {
+      "tests": 2,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "owner-schema-count",
+    "path": "_bmad/schemas/epic-16-tooling-v1.schema.json",
+    "old": "\"minItems\": 9,\n          \"maxItems\": 9",
+    "new": "\"minItems\": 7,\n          \"maxItems\": 9",
+    "selector": "round13_new_owner_capture and missing",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r13-mutant-owner-schema-count-o_cxg7mg/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round13_new_owner_capture and missing",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/owner-schema-count/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r13-mutant-owner-schema-count-o_cxg7mg",
+    "exitCode": 1,
+    "elapsedSeconds": 24.782736319990363,
+    "originalSha256": "f72a7435dac004cc80c88f444dd8cca135a67f29805ce9f95c68e2e596424ee3",
+    "mutatedSha256": "a9cfe87348e4c18221cb512ccde711821b84edb33e364c951283d979d84583e7",
+    "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "async-encoded-kind",
+    "path": "_bmad/scripts/epic16_native_helper/Program.cs",
+    "old": "&& encodedKind == (TypeName(reader, handle) == \"System.Threading.Tasks.Task\"\n                ? (byte)SignatureTypeKind.Class : (byte)SignatureTypeKind.ValueType)",
+    "new": "&& true",
+    "selector": "round13_async_return_kind",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r13-mutant-async-encoded-kind-9zfmlpw4/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round13_async_return_kind",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/async-encoded-kind/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r13-mutant-async-encoded-kind-9zfmlpw4",
+    "exitCode": 1,
+    "elapsedSeconds": 7.0893485129927285,
+    "originalSha256": "32973a86860a8a46a3892b89ca71235f753704b3653ae41877053b95167efc4d",
+    "mutatedSha256": "31faee1300abf249be5bfcc70ac48d21b9107eb2d0452b17a7613af533a8516d",
+    "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "provider-complete-blob",
+    "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+    "old": "        int named = blob.ReadUInt16();\n        if (named > (mode == \"definition\" ? 1 : 0)) throw new InvalidDataException(\"Unsupported fixture named arguments.\");\n        if (named == 1 && (blob.ReadByte() != 0x54 || blob.ReadByte() != 0x02\n            || blob.ReadSerializedString() != \"DisableParallelization\" || blob.ReadByte() > 1))\n            throw new InvalidDataException(\"Invalid fixture named option.\");\n        if (blob.RemainingBytes != 0) throw new InvalidDataException(\"Trailing fixture attribute data.\");\n",
+    "new": "",
+    "selector": "round13_provider and (named-count or trailing) and not signature-trailing",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r13-mutant-provider-complete-blob-tuym68ym/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round13_provider and (named-count or trailing) and not signature-trailing",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/provider-complete-blob/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r13-mutant-provider-complete-blob-tuym68ym",
+    "exitCode": 1,
+    "elapsedSeconds": 39.4162061259849,
+    "originalSha256": "1b37f691b714f3cec6f92d07ac379e4eb19bf19d8ee3f74255fd6dad55b62c33",
+    "mutatedSha256": "bab2ffb07b89144e71632b861257da6b55c32fe360cdcf040ce3f9e487d641a5",
+    "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+    "tests": {
+      "tests": 16,
+      "failures": 16,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "product-owner-surface",
+    "path": "_bmad/scripts/epic16_products.py",
+    "old": " and set(expected['surfaces'])<=set(metadata['declaredTypes'])",
+    "new": "",
+    "selector": "round13_new_owner_requires_actual_behavior_surface",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r13-mutant-product-owner-surface-1vqdm5pk/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round13_new_owner_requires_actual_behavior_surface",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/product-owner-surface/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r13-mutant-product-owner-surface-1vqdm5pk",
+    "exitCode": 1,
+    "elapsedSeconds": 31.49131744299666,
+    "originalSha256": "3b4d2e085a42faf33e97ad8e782e604737c4b364ded157767ddbd845d2b3635e",
+    "mutatedSha256": "c2a09b8ec7932689abf5c588a9bdc5f7478c6963a1e67902af0e24d486f11499",
+    "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+    "tests": {
+      "tests": 3,
+      "failures": 3,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "product-five-scenario-consistency",
+    "path": "_bmad/scripts/epic16_products.py",
+    "old": "need(all(inventory == inventories[0] for inventory in inventories[1:]), 'PRODUCT_IMPLEMENTATION_DRIFT', 'five measured scenarios')",
+    "new": "pass",
+    "selector": "round10_generator_rejects_different_owned and (7 or 8)",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r13-mutant-product-five-scenario-consistency-yktb239t/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round10_generator_rejects_different_owned and (7 or 8)",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/product-five-scenario-consistency/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r13-mutant-product-five-scenario-consistency-yktb239t",
+    "exitCode": 1,
+    "elapsedSeconds": 43.528041550016496,
+    "originalSha256": "3b4d2e085a42faf33e97ad8e782e604737c4b364ded157767ddbd845d2b3635e",
+    "mutatedSha256": "809e9a4e602080e72f067e434be010ba7cb32e6f1cf7484a65e046543c0fc1b0",
+    "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "raw-native-digest",
+    "path": "_bmad/scripts/epic16_capture.py",
+    "old": "need(digest(reader.read(native['path'])) == native['sha256'], 'NATIVE_CAPTURE_DRIFT', native['path'])",
+    "new": "reader.read(native['path'])",
+    "selector": "round13_generator_rereads_native and changed",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r13-mutant-raw-native-digest-hj4vu0tn/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round13_generator_rereads_native and changed",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/raw-native-digest/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r13-mutant-raw-native-digest-hj4vu0tn",
+    "exitCode": 1,
+    "elapsedSeconds": 32.07741440998507,
+    "originalSha256": "a05acdd2300589e9c08c67ffa1c397c615f3fccfdd1b1e753d8e8e60c9947e99",
+    "mutatedSha256": "4d4eef2c08708fe8533fdcfa977aec83d5704ac76787839042b0c1d180e04371",
+    "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "raw-native-alias",
+    "path": "_bmad/scripts/epic16_capture.py",
+    "old": "no_alias(reader, native['path'], need)",
+    "new": "pass",
+    "selector": "round13_generator_rereads_native and hardlink",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r13-mutant-raw-native-alias-bw0tll5r/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round13_generator_rereads_native and hardlink",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/raw-native-alias/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r13-mutant-raw-native-alias-bw0tll5r",
+    "exitCode": 1,
+    "elapsedSeconds": 31.72048114798963,
+    "originalSha256": "a05acdd2300589e9c08c67ffa1c397c615f3fccfdd1b1e753d8e8e60c9947e99",
+    "mutatedSha256": "fba73cd910c1d758bbd75da7f887308b360f5d8cbb7d0b619bd872f9539c86f3",
+    "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "helper-host-blocked",
+    "path": "_bmad/scripts/epic16_native.py",
+    "old": "raise HelperUnavailable(_process_failure('fixed helper host failed', result))",
+    "new": "raise ValueError('invalid native evidence')",
+    "selector": "round13_host_failures and 150",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r13-mutant-helper-host-blocked-5apic7l9/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round13_host_failures and 150",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/helper-host-blocked/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r13-mutant-helper-host-blocked-5apic7l9",
+    "exitCode": 1,
+    "elapsedSeconds": 24.097619809996104,
+    "originalSha256": "a092c95518aa2b7e1bfb26cbbe15ef196aa5bf5c951616625f5c12b94b9c6155",
+    "mutatedSha256": "4a744c54b1b3c836d7d67c7eda5c21fa4d39b5acefd61b20050a7ab15b267bac",
+    "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "binary-diff-wildcard-pdb",
+    "path": ".gitattributes",
+    "old": "module/validation/epic-16-prerequisite-implementation/**/*.pdb -text -diff",
+    "new": "module/validation/epic-16-prerequisite-implementation/**/*.pdb -text diff",
+    "selector": "round13_opaque_native and sample.pdb",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r13-mutant-binary-diff-wildcard-pdb-gkhgi0z6/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round13_opaque_native and sample.pdb",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/binary-diff-wildcard-pdb/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r13-mutant-binary-diff-wildcard-pdb-gkhgi0z6",
+    "exitCode": 1,
+    "elapsedSeconds": 13.181097897002473,
+    "originalSha256": "d743202ab8c0bdf3dcd000a4a101acde352b6e6cf305a49b708b23c6e7029d7d",
+    "mutatedSha256": "61ddd64fae214ae7da2fde39a188714e9ddcc29a5313515dcabd42fa1fd0ed55",
+    "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "binary-diff-wildcard-snk",
+    "path": ".gitattributes",
+    "old": "module/validation/epic-16-prerequisite-implementation/**/*.snk -text -diff",
+    "new": "module/validation/epic-16-prerequisite-implementation/**/*.snk -text diff",
+    "selector": "round13_opaque_native and public.snk",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r13-mutant-binary-diff-wildcard-snk-xqarhip1/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round13_opaque_native and public.snk",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/binary-diff-wildcard-snk/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r13-mutant-binary-diff-wildcard-snk-xqarhip1",
+    "exitCode": 1,
+    "elapsedSeconds": 13.109561360994121,
+    "originalSha256": "d743202ab8c0bdf3dcd000a4a101acde352b6e6cf305a49b708b23c6e7029d7d",
+    "mutatedSha256": "9d0963530367a1bc804df36e36b536e332c8da8fef3307631b49931a2c3561a5",
+    "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "binary-diff-wildcard-cache",
+    "path": ".gitattributes",
+    "old": "module/validation/epic-16-prerequisite-implementation/**/*.cache -text -diff",
+    "new": "module/validation/epic-16-prerequisite-implementation/**/*.cache -text diff",
+    "selector": "round13_opaque_native and Product.assets.cache",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r13-mutant-binary-diff-wildcard-cache-wk8bxb1c/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round13_opaque_native and Product.assets.cache",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/binary-diff-wildcard-cache/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r13-mutant-binary-diff-wildcard-cache-wk8bxb1c",
+    "exitCode": 1,
+    "elapsedSeconds": 13.871377119998215,
+    "originalSha256": "d743202ab8c0bdf3dcd000a4a101acde352b6e6cf305a49b708b23c6e7029d7d",
+    "mutatedSha256": "9c46ce1db506273eabfe12828730fa19e5db1f4540ac82886505d0bbb028c686",
+    "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "binary-diff-apphost",
+    "path": ".gitattributes",
+    "old": "module/validation/epic-16-prerequisite-implementation/**/apphost -text -diff",
+    "new": "module/validation/epic-16-prerequisite-implementation/**/apphost -text diff",
+    "selector": "round13_opaque_native and apphost",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r13-mutant-binary-diff-apphost-bc6x_yyu/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round13_opaque_native and apphost",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/binary-diff-apphost/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r13-mutant-binary-diff-apphost-bc6x_yyu",
+    "exitCode": 1,
+    "elapsedSeconds": 14.236572974012233,
+    "originalSha256": "d743202ab8c0bdf3dcd000a4a101acde352b6e6cf305a49b708b23c6e7029d7d",
+    "mutatedSha256": "b5975fe52d3d10af4c0eb25aa1431bba1f3e24f802905e39eb08956e6ee8c278",
+    "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "binary-diff-Epic16-NativeHelper",
+    "path": ".gitattributes",
+    "old": "module/validation/epic-16-prerequisite-implementation/**/Epic16.NativeHelper -text -diff",
+    "new": "module/validation/epic-16-prerequisite-implementation/**/Epic16.NativeHelper -text diff",
+    "selector": "round13_opaque_native and Epic16.NativeHelper",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r13-mutant-binary-diff-Epic16-NativeHelper-6znkbw0s/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round13_opaque_native and Epic16.NativeHelper",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/binary-diff-Epic16-NativeHelper/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r13-mutant-binary-diff-Epic16-NativeHelper-6znkbw0s",
+    "exitCode": 1,
+    "elapsedSeconds": 14.767766209988622,
+    "originalSha256": "d743202ab8c0bdf3dcd000a4a101acde352b6e6cf305a49b708b23c6e7029d7d",
+    "mutatedSha256": "1bee23f146dcdb3e011ea6654fb4bece12374f7f9de2e1aaba7c0066632612bd",
+    "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "binary-diff-Evidence",
+    "path": ".gitattributes",
+    "old": "module/validation/epic-16-prerequisite-implementation/**/Evidence -text -diff",
+    "new": "module/validation/epic-16-prerequisite-implementation/**/Evidence -text diff",
+    "selector": "round13_opaque_native and Evidence",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r13-mutant-binary-diff-Evidence-_nlr8537/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round13_opaque_native and Evidence",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/binary-diff-Evidence/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r13-mutant-binary-diff-Evidence-_nlr8537",
+    "exitCode": 1,
+    "elapsedSeconds": 17.689104571996722,
+    "originalSha256": "d743202ab8c0bdf3dcd000a4a101acde352b6e6cf305a49b708b23c6e7029d7d",
+    "mutatedSha256": "9efb58f353a369d1f73bc22f6b34a06d8447996b5fd37b7f4b1e7805a29f00e9",
+    "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+    "tests": {
+      "tests": 9,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "binary-diff-Goldens",
+    "path": ".gitattributes",
+    "old": "module/validation/epic-16-prerequisite-implementation/**/Goldens -text -diff",
+    "new": "module/validation/epic-16-prerequisite-implementation/**/Goldens -text diff",
+    "selector": "round13_opaque_native and Goldens",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r13-mutant-binary-diff-Goldens-ni6scuxl/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round13_opaque_native and Goldens",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/binary-diff-Goldens/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r13-mutant-binary-diff-Goldens-ni6scuxl",
+    "exitCode": 1,
+    "elapsedSeconds": 15.615727407013765,
+    "originalSha256": "d743202ab8c0bdf3dcd000a4a101acde352b6e6cf305a49b708b23c6e7029d7d",
+    "mutatedSha256": "d7f3aabec180fa172705d8a2192c1f2e83c60cdd7bc583900b094630adf7e467",
+    "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  }
+]

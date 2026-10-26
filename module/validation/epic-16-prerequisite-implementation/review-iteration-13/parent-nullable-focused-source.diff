@@ -1,0 +1,177 @@
+--- focused-corrected/_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json
++++ nullable-focused/_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json
+@@ -188,7 +188,7 @@
+     },
+     {
+       "path": "_bmad/scripts/epic16_native_helper/README.md",
+-      "sha256": "73df4be9ed9e528d5c3dc303a2fd27542ece12dd29c86bd532e3d035481082a1"
++      "sha256": "e65d5be2a5597753bc167e6ebcebd4ce48a71e100d87e3e329601246d55138ac"
+     },
+     {
+       "path": "_bmad/scripts/epic16_native_helper/ReadModelBatchCanonicalJson.cs",
+@@ -200,7 +200,7 @@
+     },
+     {
+       "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+-      "sha256": "b1f4399f3215d3eb1eb3bd1f8639e131652a17a6d4f60cced73e68f6f39e3c8b"
++      "sha256": "fe4e695373ea16df32c097b98ba221d9b43f1fb7f442ad887700bb81145b547f"
+     },
+     {
+       "path": "_bmad/scripts/epic16_products.py",
+--- focused-corrected/_bmad/scripts/epic16_native_helper/README.md
++++ nullable-focused/_bmad/scripts/epic16_native_helper/README.md
+@@ -173,3 +173,5 @@
+ separate stream tails. They produce HelperUnavailable/BLOCKED, never evidence FAIL.
+ 
+ Decimal defaults use the trusted native sign semantics: zero is positive and every nonzero byte is negative. Scale remains bounded by the native decimal constructor, and the complete attribute signature and blob are required.
++
++Nullable default and optional arguments require a supported non-nullable value type before further admission. Reference types, arrays, nested nullable types, constructed generic types and byref-like local structs are outside that constraint; genuine supported primitives, non-generic local values/enums, Decimal and DateTime remain supported. Recognized invalid Nullable signatures reject directly.
+--- focused-corrected/_bmad/scripts/epic16_native_helper/TestConstruction.cs
++++ nullable-focused/_bmad/scripts/epic16_native_helper/TestConstruction.cs
+@@ -242,9 +242,37 @@
+             string prefix = "valuetype " + Names.Name(reader, handle) + "<";
+             if (reader.GetString(reference.Namespace) == "System" && reader.GetString(reference.Name) == "Nullable`1"
+                 && ProductMetadata.IsFrameworkType(reader, handle) && type.StartsWith(prefix, StringComparison.Ordinal) && type.EndsWith('>'))
+-                return type[prefix.Length..^1];
++            {
++                string argument = type[prefix.Length..^1];
++                if (!NonNullableValueType(reader, argument))
++                    throw new InvalidDataException("Nullable default violates the supported non-nullable value-type constraint.");
++                return argument;
++            }
+         }
+         return null;
++    }
++
++    private static bool NonNullableValueType(MetadataReader reader, string type)
++    {
++        if (type is "Boolean" or "Char" or "SByte" or "Byte" or "Int16" or "UInt16" or "Int32" or "UInt32"
++            or "Int64" or "UInt64" or "Single" or "Double") return true;
++        if (FrameworkSystemType(reader, type, "System.Decimal", "valuetype ")
++            || FrameworkSystemType(reader, type, "System.DateTime", "valuetype ")) return true;
++        // Arrays, reference types, nested Nullable and constructed generic types
++        // cannot fall through to primitive/default/optional admission.
++        if (!type.StartsWith("valuetype ", StringComparison.Ordinal)) return false;
++        foreach (TypeDefinitionHandle handle in reader.TypeDefinitions)
++        {
++            TypeDefinition definition = reader.GetTypeDefinition(handle);
++            if (Names.Name(reader, handle) != Plain(type) || definition.GetGenericParameters().Count != 0) continue;
++            if (definition.GetCustomAttributes().Any(h => ProductMetadata.IsFrameworkAttribute(reader,
++                reader.GetCustomAttribute(h), "System.Runtime.CompilerServices.IsByRefLikeAttribute", [0x20, 0, 1]))) return false;
++            if (definition.BaseType.Kind != HandleKind.TypeReference) return false;
++            if (FrameworkSystemType(reader, "class " + Names.Name(reader, definition.BaseType), "System.Enum", "class "))
++                return EnumPrimitive(reader, type) is not null;
++            return FrameworkSystemType(reader, "class " + Names.Name(reader, definition.BaseType), "System.ValueType", "class ");
++        }
++        return false;
+     }
+ 
+     private static string? EnumPrimitive(MetadataReader reader, string type)
+@@ -272,7 +300,7 @@
+         if (type is "Boolean" or "Char" or "SByte" or "Byte" or "Int16" or "UInt16" or "Int32" or "UInt32" or "Int64" or "UInt64"
+             or "Single" or "Double" or "String" or "Object") return true;
+         string? nullable = NullableArgument(reader, type);
+-        if (nullable is not null) return SupportedDefaultType(reader, nullable) && !nullable.StartsWith("class ", StringComparison.Ordinal);
++        if (nullable is not null) return SupportedDefaultType(reader, nullable);
+         if (type.EndsWith("[]", StringComparison.Ordinal)) return SupportedDefaultType(reader, type[..^2]);
+         if (FrameworkSystemType(reader, type, "System.Decimal", "valuetype ") || FrameworkSystemType(reader, type, "System.DateTime", "valuetype ")) return true;
+         foreach (TypeDefinitionHandle handle in reader.TypeDefinitions)
+--- focused-corrected/_bmad/scripts/tests/test_epic16_tooling.py
++++ nullable-focused/_bmad/scripts/tests/test_epic16_tooling.py
+@@ -4603,6 +4603,9 @@
+  ('nullable-enum-null','Choice? value = null','value is null'),
+  ('local-value','Value value = default','value.Number == 0'),
+  ('nullable-decimal','decimal? value = 1.5m','value == 1.5m'),
++ ('nullable-local-value','Value? value = null','value is null'),
++ ('nullable-datetime','System.DateTime? value = null','value is null'),
++ ('nullable-date-attribute','[System.Runtime.CompilerServices.DateTimeConstant(123)] System.DateTime? value','value.Value.Ticks == 123'),
+  ('date-attribute','[System.Runtime.CompilerServices.DateTimeConstant(123)] System.DateTime value','value.Ticks == 123'),
+  ('optional-enum','[System.Runtime.InteropServices.Optional] Choice value','value == Choice.Zero'),
+  ('fixture-unused-default','Fixture value = null','value != null'),
+@@ -4824,7 +4827,8 @@
+ var attributes=new List<object>(); var constants=new List<object>(); var methods=new List<object>();
+ foreach(var h in reader.CustomAttributes) { var a=reader.GetCustomAttribute(h); if(a.Constructor.Kind!=HandleKind.MemberReference) continue; var c=reader.GetMemberReference((MemberReferenceHandle)a.Constructor); attributes.Add(new{type=names.Name(reader,c.Parent),signature=Convert.ToHexString(reader.GetBlobBytes(c.Signature)),signatureOffset=Offset(c.Signature),value=Convert.ToHexString(reader.GetBlobBytes(a.Value)),valueOffset=Offset(a.Value)}); }
+ foreach(var h in reader.TypeDefinitions) { var t=reader.GetTypeDefinition(h); foreach(var mh in t.GetMethods()) { var m=reader.GetMethodDefinition(mh); methods.Add(new{type=names.Name(reader,h),name=reader.GetString(m.Name),signature=Convert.ToHexString(reader.GetBlobBytes(m.Signature)),signatureOffset=Offset(m.Signature)}); foreach(var ph in m.GetParameters()) { var p=reader.GetParameter(ph); var ch=p.GetDefaultValue(); if(ch.IsNil) continue; var c=reader.GetConstant(ch); constants.Add(new{type=names.Name(reader,h),parameter=reader.GetString(p.Name),kind=c.TypeCode.ToString(),offset=Offset(c.Value),value=Convert.ToHexString(reader.GetBlobBytes(c.Value))}); } } }
+-Console.Write(JsonSerializer.Serialize(new{attributes,constants,methods}));''')
++var types=reader.TypeDefinitions.Select(h=>new{name=names.Name(reader,h),coded=MetadataTokens.GetRowNumber(h)*4}).Concat(reader.TypeReferences.Select(h=>new{name=names.Name(reader,h),coded=MetadataTokens.GetRowNumber(h)*4+1})).ToArray();
++Console.Write(JsonSerializer.Serialize(new{attributes,constants,methods,types}));''')
+         argv=['dotnet','build','Probe.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=120)
+         (directory/'build.stdout').write_bytes(run.stdout);(directory/'build.stderr').write_bytes(run.stderr)
+         assert run.returncode==0,(run.stdout,run.stderr)
+@@ -4836,11 +4840,12 @@
+     return json.loads(result.stdout)
+ 
+ 
+-@pytest.mark.parametrize('fault',['default','provider','return-kind'])
++@pytest.mark.parametrize('fault',['default','provider','return-kind','nullable-constraint'])
+ def test_round13_runtime_caller_rejects_malformed_constructor_provider_or_return(qualified_runtime,tmp_path,fault):
+     repo=qualified_runtime;candidate=git(repo,'rev-parse','HEAD');name='Hexalith.Conversations.IntegrationTests.Epic16.Story16_2EvidenceTests'
+     prefix='namespace Hexalith.Conversations.IntegrationTests.Epic16; '
+     if fault=='default':source=prefix+'public class Story16_2EvidenceTests(int value = 8675309) { [Xunit.Fact] public void Scenario02() {} }'
++    elif fault=='nullable-constraint':source=prefix+'public class Story16_2EvidenceTests(int? value = null) { [Xunit.Fact] public void Scenario02() {} }'
+     elif fault=='provider':source=prefix+'public class Fixture {} [Xunit.CollectionDefinition("R13Collection")] public class Group : Xunit.ICollectionFixture<Fixture> {} [Xunit.Collection("R13Collection")] public class Story16_2EvidenceTests(Fixture value) { [Xunit.Fact] public void Scenario02() {} }'
+     else:source=prefix+'public class Story16_2EvidenceTests { [Xunit.Fact] public System.Threading.Tasks.Task Scenario02() => System.Threading.Tasks.Task.CompletedTask; }'
+     binary=round13_compile(tmp_path/fault,candidate,source);metadata=tooling.native_helper.inspect_assembly(binary,candidate,name,'Scenario02');assert metadata['method']=='Scenario02'
+@@ -4848,8 +4853,8 @@
+     if fault=='provider':
+         row=next(r for r in locations['attributes'] if r['type'].endswith(']Xunit.CollectionAttribute'));offset=row['valueOffset'];blob=bytes.fromhex(row['value']);assert len(blob)<128;mutant[offset+len(blob)-1]=1
+     else:
+-        row=next(r for r in locations['methods'] if r['type']==name and r['name']==('.ctor' if fault=='default' else 'Scenario02'));offset=row['signatureOffset'];blob=bytes.fromhex(row['signature']);assert len(blob)<128
+-        if fault=='default':assert blob[-1]==0x08;mutant[offset+len(blob)]=0x0e
++        row=next(r for r in locations['methods'] if r['type']==name and r['name']==('.ctor' if fault in ('default','nullable-constraint') else 'Scenario02'));offset=row['signatureOffset'];blob=bytes.fromhex(row['signature']);assert len(blob)<128
++        if fault in ('default','nullable-constraint'):assert blob[-1]==0x08;mutant[offset+len(blob)]=0x0e
+         else:assert blob[2]==0x12;mutant[offset+3]=0x11
+     root=json.loads((repo/tooling.capture.capture_path('16.2','AC-16.2-02')).read_bytes())['originalRepositoryRoot']
+     retain_capture(repo,'AC-16.2-02',bytes(mutant),root=root)
+@@ -4900,3 +4905,51 @@
+     assert run.returncode==0,(run.stdout,run.stderr)
+     assert tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+     round12_retain_native('round13-native-decimal-sign-'+str(sign),directory,commands)
++
++
++@pytest.mark.parametrize('path',['null','optional','nonnull'])
++@pytest.mark.parametrize('argument',['string','object'])
++def test_round13_nullable_constraint_applies_before_all_default_paths(tmp_path,path,argument):
++    parameter={'null':'int? value = null','optional':'[System.Runtime.InteropServices.Optional] int? value','nonnull':'int? value = 7'}[path]
++    condition='value == 7' if path=='nonnull' else 'value is null'
++    source='namespace Synthetic; public class TestClass('+parameter+') { [Xunit.Fact] public void Scenario01() { if (!('+condition+')) throw new System.Exception("Unexpected native default"); } }'
++    directory=tmp_path/'native';binary_path,commands=round13_build(directory,source);binary=binary_path.read_bytes()
++    assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
++    location=next(r for r in round13_locations(binary)['methods'] if r['type']=='Synthetic.TestClass' and r['name']=='.ctor');signature=bytes.fromhex(location['signature']);assert signature[-1]==0x08 and len(signature)<128
++    mutant=bytearray(binary);mutant[location['signatureOffset']+len(signature)]=0x0e if argument=='string' else 0x1c
++    round13_nullable_runner_control(directory,binary_path,binary,bytes(mutant),commands,'path-'+path+'-'+argument)
++
++
++@pytest.mark.parametrize('argument',['array','nested','byref-like'])
++def test_round13_nullable_constraint_excludes_invalid_value_shapes(tmp_path,argument):
++    support='public struct Wrapper {}'
++    parameter='Wrapper? value = null'
++    if argument=='nested':support='public struct Wrapper<T> {}';parameter='Wrapper<int>? value = null'
++    if argument=='byref-like':support+=' public ref struct Blocked {}'
++    source='namespace Synthetic; '+support+' public class TestClass('+parameter+') { [Xunit.Fact] public void Scenario01() { if (value is not null) throw new System.Exception("Unexpected native default"); } }'
++    directory=tmp_path/'native';binary_path,commands=round13_build(directory,source);binary=binary_path.read_bytes();locations=round13_locations(binary)
++    if argument=='nested':
++        # The source-authored generic struct is runnable, but intentionally outside
++        # this inspector's bounded local non-generic default subset.
++        with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')
++    else:assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
++    location=next(r for r in locations['methods'] if r['type']=='Synthetic.TestClass' and r['name']=='.ctor');signature=bytearray.fromhex(location['signature']);assert len(signature)<128
++    wrapper=next(r['coded'] for r in locations['types'] if r['name']=='Synthetic.Wrapper'+('`1' if argument=='nested' else ''));assert wrapper<128
++    if argument=='array':assert signature[-2:]==bytes([0x11,wrapper]);signature[-2:]=bytes([0x1d,0x08])
++    elif argument=='nested':
++        nullable=next(r['coded'] for r in locations['types'] if r['name'].endswith(']System.Nullable`1'));assert nullable<128 and signature[-5:]==bytes([0x15,0x11,wrapper,1,8]);signature[-3]=nullable
++    else:
++        blocked=next(r['coded'] for r in locations['types'] if r['name']=='Synthetic.Blocked');assert blocked<128 and signature[-2:]==bytes([0x11,wrapper]);signature[-1]=blocked
++    offset=location['signatureOffset']+1;mutant=binary[:offset]+bytes(signature)+binary[offset+len(signature):]
++    round13_nullable_runner_control(directory,binary_path,binary,mutant,commands,'shape-'+argument)
++
++
++def round13_nullable_runner_control(directory,binary_path,valid,invalid,commands,label):
++    for phase,content in [('valid',valid),('invalid',invalid)]:
++        binary_path.write_bytes(content);(directory/(phase+'.dll.bytes')).write_bytes(content)
++        argv=['dotnet',str(binary_path),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01'];run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
++        (directory/(phase+'.stdout')).write_bytes(run.stdout);(directory/(phase+'.stderr')).write_bytes(run.stderr);commands.append(dict(argv=argv,cwd=str(directory),exitCode=run.returncode,phase=phase,binarySha256=digest(content)))
++        assert run.returncode==(0 if phase=='valid' else 1),(phase,run.stdout,run.stderr)
++        if phase=='invalid':assert b'TypeLoadException' in run.stdout+run.stderr
++    with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(invalid,'a'*40,'Synthetic.TestClass','Scenario01')
++    round12_retain_native('round13-nullable-constraint-'+label,directory,commands)

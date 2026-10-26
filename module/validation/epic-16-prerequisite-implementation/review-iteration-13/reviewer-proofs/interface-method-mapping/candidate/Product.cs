@@ -1,0 +1,1 @@
+public interface I { void Existing() {} } public class Api:I {}

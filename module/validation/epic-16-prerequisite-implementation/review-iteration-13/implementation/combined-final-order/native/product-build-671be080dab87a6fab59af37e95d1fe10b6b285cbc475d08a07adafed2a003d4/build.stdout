@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-product-fixture-b2_7zj1z/Product.csproj (in 36 ms).
+  Product -> /tmp/epic16-product-fixture-b2_7zj1z/bin/Debug/net10.0/Synthetic.Api.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.42

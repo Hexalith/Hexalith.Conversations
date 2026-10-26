@@ -1,0 +1,1 @@
+namespace Synthetic; public struct Wrapper {} public class TestClass(Wrapper? value = null) { [Xunit.Fact] public void Scenario01() { if (value is not null) throw new System.Exception("Unexpected native default"); } }

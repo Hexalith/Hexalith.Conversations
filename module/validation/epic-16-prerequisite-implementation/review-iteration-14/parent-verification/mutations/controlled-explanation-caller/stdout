@@ -1,0 +1,58 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_round14_real_evaluator_retains_controlled_predicate_explanation[domain] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-810/test_round14_real_evaluator_re0/fixture')
+helper = 'domain'
+
+    @pytest.mark.parametrize('helper',['domain','measurements'])
+    def test_round14_real_evaluator_retains_controlled_predicate_explanation(repository,helper):
+        scenario='AC-16.1-01';assert evaluate(repository,scenario)['result']=='PASS'
+        data=deepcopy(OBSERVATIONS[scenario])
+        if helper=='domain':
+            data['authorization'][1]['allowed']=True
+            expected='authorization summaries derive from actual read and access inputs'
+        else:
+            data['transitions'][0]['state']='Corrupt'
+            expected='sequence transition state'
+        native(repository,scenario,data)
+        result=evaluate(repository,scenario);rejected(result,'MEASUREMENT_INVALID')
+>       assert result['assertionLedger'][-1]==dict(id='MEASUREMENT_INVALID',subject=expected,state='FAIL')
+E       AssertionError: assert {'id': 'MEASU...tate': 'FAIL'} == {'id': 'MEASU...tate': 'FAIL'}
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Differing items:
+E         {'subject': 'AC-16.1-01'} != {'subject': 'authorization summaries derive from actual read and access inputs'}
+E         Use -v to get more diff
+
+_bmad/scripts/tests/test_epic16_tooling.py:5018: AssertionError
+_ test_round14_real_evaluator_retains_controlled_predicate_explanation[measurements] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-810/test_round14_real_evaluator_re1/fixture')
+helper = 'measurements'
+
+    @pytest.mark.parametrize('helper',['domain','measurements'])
+    def test_round14_real_evaluator_retains_controlled_predicate_explanation(repository,helper):
+        scenario='AC-16.1-01';assert evaluate(repository,scenario)['result']=='PASS'
+        data=deepcopy(OBSERVATIONS[scenario])
+        if helper=='domain':
+            data['authorization'][1]['allowed']=True
+            expected='authorization summaries derive from actual read and access inputs'
+        else:
+            data['transitions'][0]['state']='Corrupt'
+            expected='sequence transition state'
+        native(repository,scenario,data)
+        result=evaluate(repository,scenario);rejected(result,'MEASUREMENT_INVALID')
+>       assert result['assertionLedger'][-1]==dict(id='MEASUREMENT_INVALID',subject=expected,state='FAIL')
+E       AssertionError: assert {'id': 'MEASU...tate': 'FAIL'} == {'id': 'MEASU...tate': 'FAIL'}
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Differing items:
+E         {'subject': 'AC-16.1-01'} != {'subject': 'sequence transition state'}
+E         Use -v to get more diff
+
+_bmad/scripts/tests/test_epic16_tooling.py:5018: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round14_real_evaluator_retains_controlled_predicate_explanation[domain]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round14_real_evaluator_retains_controlled_predicate_explanation[measurements]
+2 failed, 2883 deselected in 16.29s

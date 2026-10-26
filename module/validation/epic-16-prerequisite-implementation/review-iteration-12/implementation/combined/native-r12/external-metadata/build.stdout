@@ -1,0 +1,16 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_4/native/external/External.csproj (in 67 ms).
+  Restored /tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_4/native/probe/Evidence.csproj (in 109 ms).
+/tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_4/native/external/Attribute.cs(1,76): warning CS9113: Parameter 'key' is unread. [/tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_4/native/external/External.csproj]
+/tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_4/native/external/Attribute.cs(1,87): warning CS9113: Parameter 'value' is unread. [/tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_4/native/external/External.csproj]
+  External -> /tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_4/native/external/bin/Debug/net10.0/External.dll
+  Evidence -> /tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_4/native/probe/bin/Debug/net10.0/Evidence.dll
+
+Build succeeded.
+
+/tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_4/native/external/Attribute.cs(1,76): warning CS9113: Parameter 'key' is unread. [/tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_4/native/external/External.csproj]
+/tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_4/native/external/Attribute.cs(1,87): warning CS9113: Parameter 'value' is unread. [/tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_4/native/external/External.csproj]
+    2 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.59

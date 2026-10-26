@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_6/native/external/External.csproj (in 70 ms).
+  Restored /tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_6/native/probe/Evidence.csproj (in 113 ms).
+  External -> /tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_6/native/external/bin/Debug/net10.0/External.dll
+  Evidence -> /tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_6/native/probe/bin/Debug/net10.0/Evidence.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.46

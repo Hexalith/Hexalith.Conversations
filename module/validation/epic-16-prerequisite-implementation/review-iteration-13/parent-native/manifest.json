@@ -1,0 +1,109 @@
+{
+  "metadataControls": [
+    {
+      "probe": "constructor-default",
+      "inspections": {
+        "valid": {
+          "sha256": "809bfb2d72ffda991b010385b15e5e913fdc40c3afcb8645ffae61b67efbb76f",
+          "metadata": {
+            "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "type": "Synthetic.TestClass",
+            "method": "Scenario01",
+            "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+          }
+        },
+        "mutated": {
+          "sha256": "6911add24d3b78160900ca3989d0b2d02a625c64d8fdf2290e8d05ca0e485987",
+          "metadata": {
+            "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "type": "Synthetic.TestClass",
+            "method": "Scenario01",
+            "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+          }
+        }
+      }
+    },
+    {
+      "probe": "return-kind",
+      "inspections": {
+        "valid": {
+          "sha256": "1ddf55489b4b085e1fe2930b1d487f04d13dc5264a70b8db97bf3961d32f74f8",
+          "metadata": {
+            "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "type": "Synthetic.TestClass",
+            "method": "Scenario01",
+            "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+          }
+        },
+        "mutated": {
+          "sha256": "0941edeffa96c6db992f522ca8164fb9a9ac293c37e37d7b13d915308d9242a1",
+          "metadata": {
+            "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "type": "Synthetic.TestClass",
+            "method": "Scenario01",
+            "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+          }
+        }
+      }
+    },
+    {
+      "probe": "collection-blob",
+      "inspections": {
+        "valid": {
+          "sha256": "040dd46dc442c5f9b26f9a2e7b6d3dcb61149c7abce53d7368f1775c7dbccd2e",
+          "metadata": {
+            "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "type": "Synthetic.TestClass",
+            "method": "Scenario01",
+            "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+          }
+        },
+        "mutated": {
+          "sha256": "53153e7a6a7188f654e08e2c011b673c248cc085830cf647f2a49c88865402c2",
+          "metadata": {
+            "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "type": "Synthetic.TestClass",
+            "method": "Scenario01",
+            "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+          }
+        }
+      }
+    }
+  ],
+  "collectionRunner": {
+    "workspace": "/tmp/epic16-r13-collection-njzpqbe8",
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-collection-njzpqbe8/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.TestClass.Scenario01"
+    ],
+    "positiveExit": 0,
+    "initialNegativeTimeoutSeconds": 120,
+    "repeatExit": null,
+    "repeatTimeoutSeconds": 8,
+    "repeatTimedOut": true,
+    "mutatedInspectorAccepted": true,
+    "metadata": {
+      "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "type": "Synthetic.TestClass",
+      "method": "Scenario01",
+      "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+    },
+    "mutation": {
+      "oldHex": "0100085a5a756e697175650000",
+      "newHex": "0100085a5a756e697175650100"
+    }
+  },
+  "scope": "Actual pinned xUnit runner; same exact mutated bytes reused for bounded diagnostic retention after the original120-second timeout"
+}

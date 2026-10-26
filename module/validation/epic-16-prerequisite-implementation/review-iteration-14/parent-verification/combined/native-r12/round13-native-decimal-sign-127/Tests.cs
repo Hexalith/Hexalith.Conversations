@@ -1,0 +1,1 @@
+namespace Synthetic; public class TestClass([System.Runtime.CompilerServices.DecimalConstant(0,127,0u,0u,1u)] decimal value) { [Xunit.Fact] public void Scenario01() { if (value != -1m) throw new System.Exception("Incorrect native decimal sign"); } }

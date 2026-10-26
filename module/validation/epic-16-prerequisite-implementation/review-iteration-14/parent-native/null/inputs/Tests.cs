@@ -1,0 +1,1 @@
+namespace Synthetic; public ref struct Restricted {} public class TestClass(Restricted value = default) { [Xunit.Fact] public void Scenario01() {} }

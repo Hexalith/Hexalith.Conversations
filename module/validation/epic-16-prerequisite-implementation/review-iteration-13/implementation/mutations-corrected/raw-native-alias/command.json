@@ -1,0 +1,29 @@
+{
+  "name": "raw-native-alias",
+  "path": "_bmad/scripts/epic16_capture.py",
+  "old": "no_alias(reader, native['path'], need)",
+  "new": "pass",
+  "selector": "round13_generator_rereads_native and hardlink",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r13-mutant-raw-native-alias-1mqz3hlu/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round13_generator_rereads_native and hardlink",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-corrected/raw-native-alias/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r13-mutant-raw-native-alias-1mqz3hlu",
+  "exitCode": 1,
+  "elapsedSeconds": 32.578649778995896,
+  "originalSha256": "a05acdd2300589e9c08c67ffa1c397c615f3fccfdd1b1e753d8e8e60c9947e99",
+  "mutatedSha256": "fba73cd910c1d758bbd75da7f887308b360f5d8cbb7d0b619bd872f9539c86f3",
+  "testSha256": "ad6049e16ab218872880723fcdfa15da86f0858fa4802bb50ba7d1a02c82330d",
+  "tests": {
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  }
+}

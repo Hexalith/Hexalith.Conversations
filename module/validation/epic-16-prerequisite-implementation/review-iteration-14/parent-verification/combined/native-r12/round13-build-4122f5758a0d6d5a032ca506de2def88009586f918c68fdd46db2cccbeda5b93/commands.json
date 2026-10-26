@@ -1,0 +1,16 @@
+[
+  {
+    "argv": [
+      "dotnet",
+      "build",
+      "Evidence.csproj",
+      "-c",
+      "Debug",
+      "--nologo",
+      "-m:1",
+      "-p:NuGetAudit=false"
+    ],
+    "cwd": "/tmp/epic16-r14-parent-combined/test_round13_defaults_validate1/truncated-constant",
+    "exitCode": 0
+  }
+]

@@ -1,0 +1,9 @@
+commit 46ca7bf39b25318418b7145b7ce75bb306471cd0
+Author:     Jerome Piquot <jpiquot@itaneo.com>
+AuthorDate: Mon Oct 26 06:58:50 2026 +0100
+Commit:     Jerome Piquot <jpiquot@itaneo.com>
+CommitDate: Mon Oct 26 06:58:50 2026 +0100
+
+    build: sync local changes via /pushall
+    
+    Co-authored-by: Cursor <cursoragent@cursor.com>

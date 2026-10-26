@@ -1,0 +1,46 @@
+[
+  {
+    "argv": [
+      "dotnet",
+      "build",
+      "Evidence.csproj",
+      "-c",
+      "Debug",
+      "--nologo",
+      "-m:1",
+      "-p:NuGetAudit=false"
+    ],
+    "cwd": "/tmp/epic16-r13-focused-final-constraint/test_round13_nullable_constrai6/native",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-focused-final-constraint/test_round13_nullable_constrai6/native/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.TestClass.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-focused-final-constraint/test_round13_nullable_constrai6/native",
+    "exitCode": 0,
+    "phase": "valid",
+    "binarySha256": "61302f3b64129d97c085940dfe653a77b1980f05203731de7adaec29efbed662"
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-focused-final-constraint/test_round13_nullable_constrai6/native/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.TestClass.Scenario01"
+    ],
+    "cwd": "/tmp/epic16-r13-focused-final-constraint/test_round13_nullable_constrai6/native",
+    "exitCode": 1,
+    "phase": "invalid",
+    "binarySha256": "c9ff97f63f7f4466fa14a0a51e1f8590632ef81108703a38a36a5a25ddd7f558"
+  }
+]

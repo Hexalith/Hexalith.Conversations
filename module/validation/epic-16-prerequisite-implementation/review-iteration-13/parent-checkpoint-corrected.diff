@@ -1,0 +1,124 @@
+--- exploratory-4/_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json
++++ focused-corrected/_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json
+@@ -188,7 +188,7 @@
+     },
+     {
+       "path": "_bmad/scripts/epic16_native_helper/README.md",
+-      "sha256": "bac553c9cfd7bc0f60b689ffe8ac9e736e2a58bb3b2a8dd171cc1443b01ca1d3"
++      "sha256": "73df4be9ed9e528d5c3dc303a2fd27542ece12dd29c86bd532e3d035481082a1"
+     },
+     {
+       "path": "_bmad/scripts/epic16_native_helper/ReadModelBatchCanonicalJson.cs",
+@@ -200,7 +200,7 @@
+     },
+     {
+       "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+-      "sha256": "1b37f691b714f3cec6f92d07ac379e4eb19bf19d8ee3f74255fd6dad55b62c33"
++      "sha256": "b1f4399f3215d3eb1eb3bd1f8639e131652a17a6d4f60cced73e68f6f39e3c8b"
+     },
+     {
+       "path": "_bmad/scripts/epic16_products.py",
+--- exploratory-4/_bmad/scripts/epic16_native_helper/README.md
++++ focused-corrected/_bmad/scripts/epic16_native_helper/README.md
+@@ -171,3 +171,5 @@
+ stderr `Invalid native evidence.`. Other nonzero host exits (including missing
+ framework exit 150) are prerequisite failures with the real exit code and bounded
+ separate stream tails. They produce HelperUnavailable/BLOCKED, never evidence FAIL.
++
++Decimal defaults use the trusted native sign semantics: zero is positive and every nonzero byte is negative. Scale remains bounded by the native decimal constructor, and the complete attribute signature and blob are required.
+--- exploratory-4/_bmad/scripts/epic16_native_helper/TestConstruction.cs
++++ focused-corrected/_bmad/scripts/epic16_native_helper/TestConstruction.cs
+@@ -305,8 +305,9 @@
+             string target = NullableArgument(reader, type) ?? type;
+             if (decimalType && FrameworkSystemType(reader, target, "System.Decimal", "valuetype "))
+             {
+-                byte scale = blob.ReadByte(), sign = blob.ReadByte();
+-                if (scale > 28 || sign is not (0 or 128)) throw new InvalidDataException("Invalid decimal default.");
++                byte scale = blob.ReadByte();
++                _ = blob.ReadByte(); // Native DecimalConstantAttribute treats every nonzero sign as negative.
++                if (scale > 28) throw new InvalidDataException("Invalid decimal default.");
+                 blob.ReadUInt32(); blob.ReadUInt32(); blob.ReadUInt32();
+             }
+             else if (dateType && FrameworkSystemType(reader, target, "System.DateTime", "valuetype "))
+--- exploratory-4/_bmad/scripts/tests/test_epic16_tooling.py
++++ focused-corrected/_bmad/scripts/tests/test_epic16_tooling.py
+@@ -4571,11 +4571,11 @@
+ 
+ # Iteration 13: all native execution below is test-authored disposable code. The
+ # fixed inspector never executes the supplied assemblies or their attributes.
+-def round13_build(directory, source):
++def round13_build(directory, source, revision='a'*40):
+     directory.mkdir(parents=True, exist_ok=True)
+     (directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+     (directory/'Evidence.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType><GenerateAssemblyInfo>false</GenerateAssemblyInfo><EnableNETAnalyzers>false</EnableNETAnalyzers></PropertyGroup><ItemGroup><PackageReference Include="xunit.v3" Version="4.0.2" /></ItemGroup></Project>')
+-    (directory/'Stamp.cs').write_text('[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+'a'*40+'")]')
++    (directory/'Stamp.cs').write_text('[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+revision+'")]')
+     (directory/'Tests.cs').write_text(source)
+     command=['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false']
+     result=subprocess.run(command,cwd=directory,capture_output=True,timeout=120)
+@@ -4641,7 +4641,7 @@
+     round12_retain_native('round13-defaults',directory,commands)
+ 
+ 
+-@pytest.mark.parametrize('fault',['wrong-type','truncated-constant','invalid-bool','invalid-null','decimal-scale','decimal-sign','decimal-named','decimal-trailing','date-range','date-named'])
++@pytest.mark.parametrize('fault',['wrong-type','truncated-constant','invalid-bool','invalid-null','decimal-scale','decimal-named','decimal-trailing','date-range','date-named'])
+ def test_round13_defaults_validate_selected_kind_encoding_and_complete_blob(tmp_path,fault):
+     if fault.startswith('decimal'):
+         parameter='decimal value = 1.23456789m';source='namespace Synthetic; public class TestClass('+parameter+') { [Xunit.Fact] public void Scenario01() {} }'
+@@ -4650,7 +4650,7 @@
+     elif fault=='invalid-bool':source='namespace Synthetic; public class TestClass(bool value = true) { [Xunit.Fact] public void Scenario01() {} }'
+     elif fault=='invalid-null':source='namespace Synthetic; public class TestClass(object value = null) { [Xunit.Fact] public void Scenario01() {} }'
+     else:source='namespace Synthetic; public class TestClass(int value = 8675309, string other = "typed") { [Xunit.Fact] public void Scenario01() {} }'
+-    binary=compile_evidence(tmp_path/fault,'a'*40,source)
++    binary=round13_compile(tmp_path/fault,'a'*40,source)
+     assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+     if fault=='wrong-type':before=bytes.fromhex('05200201080e');after=bytes.fromhex('052002010e0e')
+     elif fault=='truncated-constant':before=b'\x04'+(8675309).to_bytes(4,'little');after=b'\x03'+before[1:]
+@@ -4659,7 +4659,6 @@
+     elif fault.startswith('decimal'):
+         before=bytes([18,1,0,8,0])+bytes(8)+(123456789).to_bytes(4,'little')+bytes(2);after=bytearray(before)
+         if fault=='decimal-scale':after[3]=29
+-        elif fault=='decimal-sign':after[4]=127
+         elif fault=='decimal-named':after[-2]=1
+         else:after[0]=17
+         after=bytes(after)
+@@ -4684,7 +4683,7 @@
+ @pytest.mark.parametrize('kind',['Task','ValueTask'])
+ def test_round13_async_return_kind_is_not_erased_by_signature_decoding(tmp_path,kind):
+     source='namespace Synthetic; public class TestClass { [Xunit.Fact] public System.Threading.Tasks.'+kind+' Scenario01() => '+('System.Threading.Tasks.Task.CompletedTask' if kind=='Task' else 'default')+'; }'
+-    binary=compile_evidence(tmp_path/kind,'a'*40,source)
++    binary=round13_compile(tmp_path/kind,'a'*40,source)
+     assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+     encoded=0x12 if kind=='Task' else 0x11
+     # Unique parameterless instance return signature; length includes the handle.
+@@ -4844,7 +4843,7 @@
+     if fault=='default':source=prefix+'public class Story16_2EvidenceTests(int value = 8675309) { [Xunit.Fact] public void Scenario02() {} }'
+     elif fault=='provider':source=prefix+'public class Fixture {} [Xunit.CollectionDefinition("R13Collection")] public class Group : Xunit.ICollectionFixture<Fixture> {} [Xunit.Collection("R13Collection")] public class Story16_2EvidenceTests(Fixture value) { [Xunit.Fact] public void Scenario02() {} }'
+     else:source=prefix+'public class Story16_2EvidenceTests { [Xunit.Fact] public System.Threading.Tasks.Task Scenario02() => System.Threading.Tasks.Task.CompletedTask; }'
+-    binary=compile_evidence(tmp_path/fault,candidate,source);metadata=tooling.native_helper.inspect_assembly(binary,candidate,name,'Scenario02');assert metadata['method']=='Scenario02'
++    binary=round13_compile(tmp_path/fault,candidate,source);metadata=tooling.native_helper.inspect_assembly(binary,candidate,name,'Scenario02');assert metadata['method']=='Scenario02'
+     locations=round13_locations(binary);mutant=bytearray(binary)
+     if fault=='provider':
+         row=next(r for r in locations['attributes'] if r['type'].endswith(']Xunit.CollectionAttribute'));offset=row['valueOffset'];blob=bytes.fromhex(row['value']);assert len(blob)<128;mutant[offset+len(blob)-1]=1
+@@ -4883,3 +4882,21 @@
+     round10_rewrite_runtime(repo,scenario,lambda p:p['loadedProducts'][product_index].update(sha256=digest(binary),mvid=metadata['mvid']))
+     capture=json.loads((repo/path).read_bytes());capture['products'][product_index].update(path=artifact,sha256=digest(binary),mvid=metadata['mvid']);dump(repo,path,capture)
+     rejected(runtime_evaluate(repo),'PRODUCT_METADATA_DRIFT')
++
++
++def round13_compile(directory,revision,source):
++    binary,commands=round13_build(directory,source,revision)
++    round12_retain_native('round13-build-'+digest((revision+'\n'+source).encode()),directory,commands)
++    return binary.read_bytes()
++
++
++@pytest.mark.parametrize('sign',[0,1,127,128,255])
++def test_round13_decimal_default_sign_matches_actual_trusted_constructor(tmp_path,sign):
++    expected='1m' if sign==0 else '-1m'
++    source='namespace Synthetic; public class TestClass([System.Runtime.CompilerServices.DecimalConstant(0,'+str(sign)+',0u,0u,1u)] decimal value) { [Xunit.Fact] public void Scenario01() { if (value != '+expected+') throw new System.Exception("Incorrect native decimal sign"); } }'
++    directory=tmp_path/'decimal-sign';binary,commands=round13_build(directory,source)
++    argv=['dotnet',str(binary),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01'];run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
++    (directory/'run.stdout').write_bytes(run.stdout);(directory/'run.stderr').write_bytes(run.stderr);commands.append(dict(argv=argv,cwd=str(directory),exitCode=run.returncode))
++    assert run.returncode==0,(run.stdout,run.stderr)
++    assert tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
++    round12_retain_native('round13-native-decimal-sign-'+str(sign),directory,commands)

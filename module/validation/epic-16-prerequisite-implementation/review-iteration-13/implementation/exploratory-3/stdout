@@ -1,0 +1,72 @@
+...........................................FFFF                          [100%]
+=================================== FAILURES ===================================
+_ test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer[missing-7] _
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-693/test_round13_new_owner_capture0/runtime')
+product_index = 7, fault = 'missing'
+
+    @pytest.mark.parametrize('product_index',[7,8])
+    @pytest.mark.parametrize('fault',['missing','duplicate'])
+    def test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer(qualified_runtime,product_index,fault):
+        repo=qualified_runtime;scenario='AC-16.2-02';path=tooling.capture.capture_path('16.2',scenario);document=json.loads((repo/path).read_bytes())
+        if fault=='missing':document['products'].pop(product_index)
+        else:document['products'][product_index]=deepcopy(document['products'][0])
+>       validator=tooling.validator('nativeCapture')
+                  ^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'epic16_tooling' has no attribute 'validator'
+
+_bmad/scripts/tests/test_epic16_tooling.py:4867: AttributeError
+_ test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer[missing-8] _
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-693/test_round13_new_owner_capture1/runtime')
+product_index = 8, fault = 'missing'
+
+    @pytest.mark.parametrize('product_index',[7,8])
+    @pytest.mark.parametrize('fault',['missing','duplicate'])
+    def test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer(qualified_runtime,product_index,fault):
+        repo=qualified_runtime;scenario='AC-16.2-02';path=tooling.capture.capture_path('16.2',scenario);document=json.loads((repo/path).read_bytes())
+        if fault=='missing':document['products'].pop(product_index)
+        else:document['products'][product_index]=deepcopy(document['products'][0])
+>       validator=tooling.validator('nativeCapture')
+                  ^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'epic16_tooling' has no attribute 'validator'
+
+_bmad/scripts/tests/test_epic16_tooling.py:4867: AttributeError
+_ test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer[duplicate-7] _
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-693/test_round13_new_owner_capture2/runtime')
+product_index = 7, fault = 'duplicate'
+
+    @pytest.mark.parametrize('product_index',[7,8])
+    @pytest.mark.parametrize('fault',['missing','duplicate'])
+    def test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer(qualified_runtime,product_index,fault):
+        repo=qualified_runtime;scenario='AC-16.2-02';path=tooling.capture.capture_path('16.2',scenario);document=json.loads((repo/path).read_bytes())
+        if fault=='missing':document['products'].pop(product_index)
+        else:document['products'][product_index]=deepcopy(document['products'][0])
+>       validator=tooling.validator('nativeCapture')
+                  ^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'epic16_tooling' has no attribute 'validator'
+
+_bmad/scripts/tests/test_epic16_tooling.py:4867: AttributeError
+_ test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer[duplicate-8] _
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-693/test_round13_new_owner_capture3/runtime')
+product_index = 8, fault = 'duplicate'
+
+    @pytest.mark.parametrize('product_index',[7,8])
+    @pytest.mark.parametrize('fault',['missing','duplicate'])
+    def test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer(qualified_runtime,product_index,fault):
+        repo=qualified_runtime;scenario='AC-16.2-02';path=tooling.capture.capture_path('16.2',scenario);document=json.loads((repo/path).read_bytes())
+        if fault=='missing':document['products'].pop(product_index)
+        else:document['products'][product_index]=deepcopy(document['products'][0])
+>       validator=tooling.validator('nativeCapture')
+                  ^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'epic16_tooling' has no attribute 'validator'
+
+_bmad/scripts/tests/test_epic16_tooling.py:4867: AttributeError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer[missing-7]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer[missing-8]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer[duplicate-7]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer[duplicate-8]
+4 failed, 43 passed, 2803 deselected in 109.18s (0:01:49)

@@ -1,0 +1,9 @@
+{
+  "archivedSourceFiles": 86,
+  "allArchivedSourceBytesMatch": true,
+  "retainedNativeFiles": 31,
+  "retainedAssemblies": 9,
+  "publicationPaths": 26,
+  "sourceDriftRecord": "post-run-freeze-drift/record.json",
+  "scope": "Retained source/native bytes; not an assertion that current root source was unchanged during combined execution"
+}

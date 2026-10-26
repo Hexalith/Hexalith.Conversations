@@ -1,0 +1,18 @@
+  Determining projects to restore...
+/tmp/epic16-r14-parent-combined/test_round12_native_framework_5/native/probe/Evidence.csproj : warning NU1511: A ProjectReference cannot be pruned, System.Threading.Tasks.
+  Restored /tmp/epic16-r14-parent-combined/test_round12_native_framework_5/native/external/External.csproj (in 63 ms).
+  Restored /tmp/epic16-r14-parent-combined/test_round12_native_framework_5/native/probe/Evidence.csproj (in 105 ms).
+/tmp/epic16-r14-parent-combined/test_round12_native_framework_5/native/probe/Evidence.csproj : warning NU1511: A ProjectReference cannot be pruned, System.Threading.Tasks.
+  External -> /tmp/epic16-r14-parent-combined/test_round12_native_framework_5/native/external/bin/Debug/net10.0/System.Threading.Tasks.dll
+/home/administrator/.dotnet/sdk/10.0.402/Microsoft.Common.CurrentVersion.targets(2453,5): warning MSB3243: No way to resolve conflict between "System.Threading.Tasks, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" and "System.Threading.Tasks, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null". Choosing "System.Threading.Tasks, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" arbitrarily. [/tmp/epic16-r14-parent-combined/test_round12_native_framework_5/native/probe/Evidence.csproj]
+  Evidence -> /tmp/epic16-r14-parent-combined/test_round12_native_framework_5/native/probe/bin/Debug/net10.0/Evidence.dll
+
+Build succeeded.
+
+/tmp/epic16-r14-parent-combined/test_round12_native_framework_5/native/probe/Evidence.csproj : warning NU1511: A ProjectReference cannot be pruned, System.Threading.Tasks.
+/tmp/epic16-r14-parent-combined/test_round12_native_framework_5/native/probe/Evidence.csproj : warning NU1511: A ProjectReference cannot be pruned, System.Threading.Tasks.
+/home/administrator/.dotnet/sdk/10.0.402/Microsoft.Common.CurrentVersion.targets(2453,5): warning MSB3243: No way to resolve conflict between "System.Threading.Tasks, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" and "System.Threading.Tasks, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null". Choosing "System.Threading.Tasks, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" arbitrarily. [/tmp/epic16-r14-parent-combined/test_round12_native_framework_5/native/probe/Evidence.csproj]
+    3 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.27

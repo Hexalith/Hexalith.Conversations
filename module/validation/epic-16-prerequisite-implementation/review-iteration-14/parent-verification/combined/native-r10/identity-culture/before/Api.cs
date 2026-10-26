@@ -1,0 +1,1 @@
+[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")] namespace Probe { public class Surface { public External.Value Echo(External.Value value) => value;  } }

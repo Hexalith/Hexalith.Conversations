@@ -1,0 +1,6 @@
+namespace Synthetic;
+public sealed class Sign0([System.Runtime.CompilerServices.DecimalConstant(0,0,0u,0u,1u)] decimal value) { [Xunit.Fact] public void Scenario01() { if (value != 1m) throw new System.Exception("Unexpected trusted decimal default"); } }
+public sealed class Sign1([System.Runtime.CompilerServices.DecimalConstant(0,1,0u,0u,1u)] decimal value) { [Xunit.Fact] public void Scenario01() { if (value != -1m) throw new System.Exception("Unexpected trusted decimal default"); } }
+public sealed class Sign127([System.Runtime.CompilerServices.DecimalConstant(0,127,0u,0u,1u)] decimal value) { [Xunit.Fact] public void Scenario01() { if (value != -1m) throw new System.Exception("Unexpected trusted decimal default"); } }
+public sealed class Sign128([System.Runtime.CompilerServices.DecimalConstant(0,128,0u,0u,1u)] decimal value) { [Xunit.Fact] public void Scenario01() { if (value != -1m) throw new System.Exception("Unexpected trusted decimal default"); } }
+public sealed class Sign255([System.Runtime.CompilerServices.DecimalConstant(0,255,0u,0u,1u)] decimal value) { [Xunit.Fact] public void Scenario01() { if (value != -1m) throw new System.Exception("Unexpected trusted decimal default"); } }

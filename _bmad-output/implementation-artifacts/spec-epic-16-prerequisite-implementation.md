@@ -2,9 +2,9 @@
 title: 'Qualify corrected Platform tooling and implement Epic 16 successor evidence consumption'
 type: 'feature'
 created: '2026-10-25'
-status: 'in-progress'
+status: 'done'
 route: 'dispatch'
-review_loop_iteration: 12
+review_loop_iteration: 13
 review_loop_limit_override: 'user approved continuing past the five-iteration limit'
 baseline_commit: '8039d2abcf41bcd2c01fa3dbe618cbec2f4f6da3'
 context:
@@ -46,7 +46,7 @@ This authorization permits prerequisite code/tests/docs and isolated tool qualif
 The user answered **yes** to continuing beyond the five-iteration review limit.
 That approval overrides the limit for this continuing prerequisite build; do not
 request the same authorization again merely because the counter exceeds five.
-The earlier halt/disposition below is historical. Continue iteration 12 under the
+The earlier halt/disposition below is historical. Continue iteration 13 under the
 latest amendment below, then verify and review normally. The frozen scope, runtime hold,
 no-push rules and independent evidence requirements are unchanged. This is a
 worker handoff from the parent's existing rendered workflow: do not invoke or
@@ -1507,13 +1507,189 @@ Do not repeat the prohibited broad lane, patch carried CI/Story 5.4 work, or
 refactor the schema representation. Provide a coherent source checkpoint before
 final long verification so the parent can audit without changing frozen inputs.
 
+### Review iteration 13 — complete construction metadata and behavior-owner bindings
+
+Restore exactly the 42 owned files from
+`/tmp/epic16-review13-preservation-kbmw7del/manifest.json`, SHA-256
+`30782df6678d58e0c19be4881f80cfe4bc78e0bfb12bf2b3f9f29c7c4c2bc0f0`,
+verifying every saved hash first. This latest restoration instruction supersedes
+all historical paths. The partition `tracked`/`new` describes original task-baseline
+ownership: all 42 paths are now tracked by the concurrent user commit. The parent
+restored four originally tracked files to the original baseline and removed 38
+originally task-added files, without changing the real index or HEAD. The user's
+exact evidence rule including `-whitespace` remains present during reversion.
+All 12,202 existing evidence files and five protected files were verified unchanged.
+Restore the saved .gitattributes completely before applying the narrow correction
+below, preserving that user rule. Keep concurrent HEAD
+`46ca7bf39b25318418b7145b7ce75bb306471cd0`, its dependency gitlinks, original
+baseline, protected global.json and all user work. Do not invoke/render a skill,
+spawn agents, perform parent completion orchestration, or re-request the existing
+review-limit authorization.
+
+Apply the iteration-13 KEEP set and every prior change-log constraint. Raw reports,
+343 hash-verified reviewer proof files, independent parent caller/native probes,
+actual source-owner files and the binary-diff reproduction are retained under
+`module/validation/epic-16-prerequisite-implementation/review-iteration-13/`.
+Read the proof provenance: two product-shape examples are explicitly same-source
+reproductions; missing original build streams were never invented. Parent's first
+runtime probe lacked the fixture's test-only contract pin and stopped with
+CONTRACT_DRIFT; its corrected real-caller proof is separate. The collection mutant
+passes inspection but raises CustomAttributeFormatException in actual pinned
+runner discovery and does not finish within 120 seconds. A bounded repeat on the
+same bytes retains its diagnostic output. These are controlled defective examples,
+not runtime qualification.
+
+1. **Define supported typed constructor defaults.** For the actual supported xUnit
+   constructor-provider choice, establish that a selected default can supply the
+   declared parameter type, rather than treating any nonempty Constant handle as
+   a provider. Validate the relevant constant kind/value/encoding and supported
+   parameter type together, using the actual pinned framework/native behavior.
+   The retained Int32 constant on a string parameter must fail inspection; its
+   genuine Int32/string controls must still run and pass. Preserve legitimate
+   optional/default, null/reference, native enum/value-type and injected fixture/
+   output/context cases already supported; do not introduce a blanket ban on
+   optional constructors or demand an unused default when a genuine provider
+   supplies the argument. Cover actual supported defaults with positive runner
+   comparisons and malformed/incompatible metadata with negative caller controls.
+   Where a shape cannot be established without executing supplied code, reject
+   it as outside the supported metadata boundary; never execute evidence methods,
+   constructors or attributes. A separate Optional flag must not mask the proven
+   incompatible default when that default is the value the runner would use.
+2. **Fully validate supported fixture-provider attributes.** Assembly fixture,
+   collection and collection-definition recognition must establish the actual
+   approved xUnit constructor and complete supported blob before using a provider.
+   Preserve legitimate string/Type and generic forms, inherited collections,
+   local providers and valid named options supported by pinned xUnit. Reject
+   truncated/malformed named arguments, trailing data and incompatible constructor
+   signatures instead of reading only the first serialized string. Generic
+   fixture attributes also require their supported constructor/blob, not their
+   type name alone. Use metadata only and fail unsupported shapes explicitly;
+   do not add a general attribute-execution mechanism. Retain genuine positive
+   collection/fixture runner tests and the demonstrated malformed-blob negative.
+   Also correct R13B2 in IsTestSignature: preserve the encoded class/value-type
+   marker before admitting genuine Task versus ValueTask. The retained Task
+   value-type mutant must fail; genuine void/Task/ValueTask and existing ownership,
+   source-stamp, async-void and fixture guards must remain intact.
+3. **Bind every required behavior owner actually used by these experiments.**
+   Extend the independently pinned loaded implementation inventory to include
+   `Hexalith.EventStore.Server` (actual ProjectionDeliveryReconciler and
+   ProjectionDeliveryRetryWorker) and `Hexalith.Commons.TenantAccess` (actual
+   TenantAccessEvaluator), in addition to the existing seven products. Their
+   ordinary source files and the Conversations call into the Commons evaluator
+   are retained in the parent proof. Bind actual bytes, managed identity/MVID,
+   source revision and root-declared owning gitlink to the same native execution
+   and candidate; require one consistent inventory across all five scenarios.
+   No name-only or unloaded substitute proves which implementation ran. Include
+   all required owner artifacts in capture, retention, exact publication and fresh
+   checkout checks, deriving counts rather than fixing the old seven/nine/26/31
+   fixture counts. Update producer instructions and all three contract controls
+   coherently. Extend disposable fixture dependencies and genuine synthetic native
+   execution without reading initialized submodules in default tests. Validate
+   every exact disposable commit message with pinned commitlint before use.
+   Keep the existing public-additivity promise on the already specified upstream
+   seams: adding an implementation owner must not silently create a new promise
+   to preserve every API of Commons or EventStore.Server. Separate implementation
+   ownership from compatibility scope where necessary. This is not a general
+   transitive-dependency inventory, runtime implementation or owner approval.
+4. **Recheck raw native results at final publication.** After real scenario
+   evaluation, reread each bound TRX and verify its exact digest and allowed inode/
+   path relationships at the final inventory boundary alongside captures and
+   binaries. The parent's changed-after-evaluation TRX currently produces a PASS
+   pair with its earlier hash; reject that transaction before writing final output.
+   Preserve existing native publication-path semantics, raw TRX bytes, deterministic
+   pairs, receipt equality, atomic writes and committed-history checks. Native files
+   are already separate required publication paths; avoid duplicate inventories or
+   accidental loss of a required path while deriving final counts. Exercise the
+   real generator with digest drift and aliasing between admission and publication,
+   plus a genuine unchanged positive.
+5. **Classify helper-host failures honestly.** The fixed helper's documented
+   evidence-rejection response remains invalid evidence. Host startup/runtime
+   failures, including the retained exit150 missing-runtime diagnostic, must
+   become HelperUnavailable and structured BLOCKED with bounded stdout/stderr and
+   the real exit. Reuse the existing diagnostic boundary and preserve invalid
+   evidence FAIL behavior, SDK selection, timeouts and toolchain provenance. Do not
+   classify every nonzero host exit as an evidence-validation rejection.
+6. **Keep retained native binaries safe in ordinary Git diffs.** Correct the
+   demonstrated forced-text rendering for native apphosts, PDBs, key/cache bytes
+   and opaque native build outputs under this prerequisite evidence subtree.
+   Preserve exact file bytes and the user's `-whitespace` rule; do not normalize
+   historical evidence or broadly hide actual source/schema/raw-TRX text. Verify
+   normal Git diffs for the actual binary shapes are readable standard binary
+   representations, including the previously covered DLLs. Retain the earlier
+   review-copy workaround as an honest historical observation. Do not migrate or
+   deduplicate historical evidence and do not refactor the schema representation.
+
+**Parent typed-default controls within iteration 13:**
+`review-iteration-13/parent-default-controls/manifest.json` retains one actual
+pinned xUnit run of fourteen compiled constructor shapes and inspection by the
+hash-verified preserved iteration-12 helper. Thirteen pass: Int32, Int64, string,
+null reference, nullable Int32 value/null, enum, decimal, default DateTime,
+Optional string/Int32, params array and DefaultParameterValue attribute. A nonnull
+nullable-enum default compiles but the actual runner fails Int32-to-Nullable<Choice>
+conversion; the old inspector admits it. Preserve the thirteen genuine positives
+and reject that incompatible default under the same R13B1 rule. Do not infer
+runnability merely from successful C# compilation. The parent's initial all-fourteen
+positive assumption was disproved; raw exit1 and exact test outcomes are retained.
+
+**Parent decimal-sign correction within iteration 13:** R13P2 compiles five
+well-formed source-authored DecimalConstantAttribute defaults with sign bytes
+0, 1, 127, 128 and 255. All five pass actual pinned xUnit, while the checkpoint
+inspector rejects 1, 127 and 255. The trusted native constructor treats zero as
+positive and every nonzero byte as negative. Remove the invented 0-or-128-only
+restriction, retain native scale validation and complete blob/constructor checks,
+and correct the new decimal-sign negative expectation against actual behavior.
+Exact source, PE, build/runner streams and inspector results are retained at
+`review-iteration-13/parent-decimal-sign/manifest.json`. This corrects the existing
+actual-native-default requirement; it adds no new runtime or compatibility scope.
+
+**Parent nullable-constraint correction within iteration 13:** R13P3 changes only
+the compiled Nullable<Int32> constructor generic argument to String or Object,
+retaining the null default and all other bytes. The checkpoint inspector admits
+both; the actual pinned xUnit runner exits1 with TypeLoadException, explicitly
+reporting the Nullable<T> constraint violation and zero executed tests. The
+unchanged positive executes one passing test. Enforce the supported non-nullable
+value-type constraint centrally before any nullable default/optional admission,
+including the nonnull-constant path. Reject reference/array/nested-nullable and
+byref-like underlying types; retain genuine supported primitive, enum, local
+value, Decimal and DateTime positives. This is the existing constructor-runnability
+boundary, not a general CLR compatibility promise. Exact original/mutant PEs,
+source, commands and streams are in
+`review-iteration-13/parent-nullable-constraint/manifest.json`. The interrupted
+104-pass combined run remains a partial pre-fix epoch; no completed combined
+verification is claimed for it.
+
+R13B7/B8 add no binary-layout or private-dispatch compatibility promise; preserve
+public-declaration-only comparison and separate measured behavior proofs. R13B9
+and R13E1 carry prior decisions; do not re-verify or defer them again. R13B10 causes
+no retention architecture change. Runtime entry remains null, trust empty,
+accepted CLI4.35.2, Story16.1 draft/backlog and hold ACTIVE.
+
+Preserve all 2,879 prior combined case identities and 72 legacy cases, adjusting
+only captures/counts made obsolete by the required owner inventory without
+weakening original assertions. Preserve the 19 checkout/packaging controls and
+all prior artifact/source epochs. Add schema-plus-consumer and real-caller controls
+for every new boundary, including wrong/missing/duplicate/mixed owner artifacts,
+constructor/attribute/signature malformed metadata, raw native drift/aliasing and
+host failures. Demonstrate each new guard with focused mutations that cause
+assertion failures without setup errors, and show those cases passing on stable
+source. Provide a coherent source checkpoint for parent audit before the long
+combined verification. Freeze source/test/policy inputs before the combined,
+legacy, eighteen held commands, both completion guards and preservation checks;
+keep the original/current iteration-12 epochs separate. Retain commands, separate
+streams, JUnit, exact source/binary hashes and native publication Git objects under
+`review-iteration-13/implementation/`. Preserve all 3,746 indexed iteration-12
+artifacts and protected files, and verify the unchanged 18/32/38/61 obligations and
+54 absent runtime paths. Never stage/commit/push the real repository, update
+actual dependencies or repeat the prohibited broad lane. Update the handoff/spec
+with observed results and return for parent audit/review/completion.
+
 ## Tasks & Acceptance
 
 1. [x] Qualify the corrected CLI in isolation; retain new exact commands, exits, versions, artifact hashes and separate stdout/stderr in `module/validation/epic-16-prerequisite-implementation/`. Review current Builds fixes against the release findings. Produce an explicit Platform acceptance disposition; align accepted manifests only when existing requirements are satisfied. Otherwise report named blockers without changing pins. Do not rerun historical writing commands.
-2. [ ] Add a current successor contract/binding/schema under planning `epic-16-tooling-v1/` and `_bmad/schemas/`. Preserve all eighteen ordered scenarios, requirement mappings, graph edges and frozen runtime semantics; bind unchanged predecessors and current inputs. Preparation has no runtime authority. Bound entry evidence must be independently validated before runtime receipts/final records can pass.
-3. [ ] Implement `_bmad/scripts/verify_story_16_1.py`, `verify_story_16_2.py`, `verify_story_16_3.py` and a shared evaluator for all fifteen non-generator scenarios. Implement real validation of bound measured native evidence and each scenario's required proof, not constant blockers or placeholder validators. No arbitrary artifact-supplied commands. Missing future runtime tests/measurements yield BLOCKED; positive disposable fixtures exercise the full measurement-validation path but earn no runtime qualification.
-4. [ ] Add narrow successor dispatch to `_bmad/scripts/generate_story_record.py` and necessary schema support, including deterministic JSON/Markdown, exact candidate/source/schema/input/output/fault/gitlink/rollback binding and inserted-record guards. Compute the sixth scenario only after five measured passing scenarios; never create runtime records from this held checkout.
-5. [ ] Add focused positive/fault tests covering the matrix, all fifteen routes, false-like authority, missing history, stale/dirty candidate, inventory equality, receipt/native count forgery and output aliasing. Preserve historical fixtures/checker behavior. Run affected current Python lanes and workflow completion guards; independently probe that each new blocker fails under mutation.
+2. [x] Add a current successor contract/binding/schema under planning `epic-16-tooling-v1/` and `_bmad/schemas/`. Preserve all eighteen ordered scenarios, requirement mappings, graph edges and frozen runtime semantics; bind unchanged predecessors and current inputs. Preparation has no runtime authority. Bound entry evidence must be independently validated before runtime receipts/final records can pass.
+3. [x] Implement `_bmad/scripts/verify_story_16_1.py`, `verify_story_16_2.py`, `verify_story_16_3.py` and a shared evaluator for all fifteen non-generator scenarios. Implement real validation of bound measured native evidence and each scenario's required proof, not constant blockers or placeholder validators. No arbitrary artifact-supplied commands. Missing future runtime tests/measurements yield BLOCKED; positive disposable fixtures exercise the full measurement-validation path but earn no runtime qualification.
+4. [x] Add narrow successor dispatch to `_bmad/scripts/generate_story_record.py` and necessary schema support, including deterministic JSON/Markdown, exact candidate/source/schema/input/output/fault/gitlink/rollback binding and inserted-record guards. Compute the sixth scenario only after five measured passing scenarios; never create runtime records from this held checkout.
+5. [x] Add focused positive/fault tests covering the matrix, all fifteen routes, false-like authority, missing history, stale/dirty candidate, inventory equality, receipt/native count forgery and output aliasing. Preserve historical fixtures/checker behavior. Run affected current Python lanes and workflow completion guards; independently probe that each new blocker fails under mutation.
 6. [x] Update this spec and an additive prerequisite handoff with observed results, remaining adoption findings and human-only parity/recovery/SM-2 requirements. Leave runtime spec draft, sprint backlog and old accepted evidence unchanged except the explicit authorization note already recorded in the runtime draft.
 
 **Acceptance Criteria:**
@@ -1530,6 +1706,19 @@ This implementation is a step-03 worker handoff from the already-rendered bmad-b
 2026-10-25: User authorized this prerequisite scope. Runtime story 16.1 remains draft/backlog. Baseline tree contains only our prior runtime-draft update and entry investigation; preserve both. No separate approval of runtime, tooling acceptance or owner evidence is inferred.
 
 ## Spec Change Log
+
+- Review iteration 13: R13B1/B3/B6 expose incomplete typed-default and fixture-
+  attribute admission, and two missing actual behavior-owner assemblies. Amend
+  only the non-frozen supported metadata/owner requirements; include return-kind,
+  final TRX reread, helper-host classification and native binary-diff corrections
+  from R13B2/B4/B5/P1. Avoid runnable-default/attribute claims from partial metadata,
+  stale native hashes and unbound implementation owners. Preserve the iteration-13
+  KEEP set, all 2,879/72 cases, 19 packaging controls, 39 guards and 3,746 indexed
+  artifacts. Preserve concurrent user commit/gitlinks and -whitespace, five protected
+  files, original baseline and runtime hold. R13B7/B8 add no private-layout/dispatch
+  compatibility promise; R13B9/E1 carry prior decisions and R13B10 causes no evidence
+  migration. Counter12 becomes13 under the existing user override; frozen intent
+  remains unchanged.
 
 - Review iteration 12: R12B4/B5/B6 expose three missing executed protocols for
   reverse saves, six-state tenant authorization and failed bounded delivery.
@@ -2061,6 +2250,83 @@ authority lift, real Git staging/commit/push or schema representation refactor.
 | --- | --- | --- | --- |
 | R12P1 | high | correction during re-derivation | Using the exact preserved helper source, parent compiled a product referencing an external aliased AssemblyInformationalVersionAttribute with no genuine framework stamp. Product metadata admission returns the requested revision. This distinct external fixture establishes the shared source-stamp ownership defect in the product path; the earlier local fixture remains a recorded rejection. Apply iteration-12 framework identity/constructor validation consistently and retain the exact compiled proof. |
 | R12P2 | high | correction during re-derivation | Parent renamed exact tenant values, native payloads and encoded keys to tenant/a and refreshed matching fingerprints. AC-16.1-01 schema and full evaluator accept allowed=true. The compiled actual Commons evaluator returns MalformedTenant with zero health/store reads. Enforce its native request tenant rules specifically in the new access capture, preserving unrelated opaque identifier semantics. |
+
+### Review iteration 13 triage
+
+All three context-free reviewers were launched before any result was handled and
+all three final reports arrived before triage. Raw reports and exact probe evidence
+are retained under `review-iteration-13/`. The verification-gap layer reported no
+gaps. Each finding receives its own verdict below before grouping.
+
+| ID | Verdict | Route | Evidence |
+| --- | --- | --- | --- |
+| R13B1 | high | bad_spec | The parent re-inspected the exact constructor mutant and valid control: both pass. The pinned runner reports System.Int32 cannot be converted to System.String for the mutant and one failed test. A nonempty Constant handle does not establish that the supplied default is compatible with its parameter; supported constructor evidence needs a defined typed-default boundary. |
+| R13B2 | high | patch (included in loopback) | The exact Task return-kind mutant passes parent inspection. The retained pinned runner reports TypeLoadException/value-type mismatch and executes zero tests. IsTestSignature collapses class and valuetype before checking the otherwise genuine Task owner. Preserve the encoded kind for the existing Task/ValueTask alternatives. |
+| R13B3 | high | bad_spec | Parent inspection admits the exact malformed named-argument blob. A genuine pinned collection fixture runs one positive test; the same compiled assembly with only the malformed blob raises CustomAttributeFormatException in collection discovery and times out after 120 seconds. An eight-second repeat on identical bytes retains diagnostics. Fixture-provider recognition needs supported complete constructors/blobs, not a first-string extraction. |
+| R13B4 | high | patch (included in loopback) | Parent used the retained genuine fresh-checkout fixture and real generator. Changing a TRX only between five successful evaluations and final inventory still writes a PASS pair containing the earlier native digest. Final inventory rechecks binary/capture bytes but omits the native binding. The initial CONTRACT_DRIFT setup error is retained separately; the corrected probe restores the same test-only contract pin as the original fixture. |
+| R13B5 | medium | patch (included in loopback) | Parent injected host exit150 with a missing-runtime diagnostic at the actual helper process boundary. _run raises ValueError and the real runtime evaluator reports FAIL/NATIVE_BINARY_DRIFT. This unavailable prerequisite must retain bounded diagnostics and yield HelperUnavailable/BLOCKED; the helper's own documented evidence-rejection response remains invalid evidence. |
+| R13B6 | high | bad_spec | The successful controlled generator inventory contains only seven products. Actual ConversationTenantAccessService calls Commons.TenantAccessEvaluator, while actual ProjectionDeliveryReconciler and ProjectionDeliveryRetryWorker live in EventStore.Server; neither assembly is in PRODUCTS. Their bytes can be omitted entirely from the implementation-consistency proof. Parent retained the actual caller/owner source bytes and current successful inventory. Define and bind these missing behavior owners without inventing a general transitive-dependency or new public-API promise. |
+| R13B7 | false | reject | The retained int-to-long private-field example changes binary layout while preserving every supported public declaration. Current policy and both primary/helper READMEs explicitly disclaim general binary/behavioral compatibility; the public struct layout's declared packing/size remain equal. No changed public/protected declaration or incorrect admission within that supported promise was shown. Private layout preservation would add the distinct unclaimed property, not repair the declared comparison. |
+| R13B8 | false | reject | The retained example removes a private explicit implementation while preserving the public interface/member declarations and changes dispatch behavior. The comparison explicitly covers public declarations, not implementation behavior; actual scenario behavior has separate measured proofs. No removed supported public declaration, changed signature, or invalid public call was shown. Equal declaration inventories do not claim equal private method bodies or dispatch targets. |
+| R13B9 | false | reject (carried) | carried R12B10: same unchanged expanded schema representation and hypothetical partial-update claim. No new divergent definition or faulty caller admission is identified. Preserve the existing rejection without re-verification or representation refactor. |
+| R13B10 | low | reject | The large retained evidence archive creates real one-time review volume, but the reports identify no missing/corrupt evidence or incorrect caller admission from duplication. Exact manifests, scoped source diffs and native-object audits permit review; a new content-addressed store/retention migration is more than a direct correction for this occasional bulk-review cost. Preserve immutable prior evidence. The separately demonstrated raw-binary diff defect is R13P1. |
+| R13E1 | medium | defer (carried) | carried R12B7 and its R7B1/R7V2, R8B10/E1 and R9E3 predecessors: the unchanged concurrent Story5.4 tests depend on the same external evidence directory. Protected file hashes remain unchanged; do not re-verify, patch or defer again. |
+| R13P1 | medium | patch (included in loopback) | Ordinary baseline Git diff emits 57 retained native apphost/PDB/key/cache files as raw text because the broad evidence diff attribute is set. The actual UTF-8 review writer fails on those bytes; a single-file reproduction and base64 raw output are retained. Mark demonstrated native build outputs/key bytes for binary diffs while preserving exact bytes and the concurrent user's -whitespace rule. |
+| R13P2 | medium | patch within iteration13 | The parent compiled well-formed DecimalConstantAttribute defaults with sign bytes0/1/127/128/255. All five pass actual pinned xUnit; the new inspector rejects1/127/255 because of an invented canonical-sign restriction. Remove that restriction and correct the new negative test while preserving native scale, constructor and full-blob validation. Exact source/PE and streams are in parent-decimal-sign/. |
+| R13P3 | high | patch within iteration13 | The inspector admits a null default on compiled Nullable<String>/Nullable<Object> constructor signatures; actual pinned xUnit exits1 with TypeLoadException and zero tests. Centralize the genuine non-nullable value-type constraint across nullable default/optional paths and retain valid positives. Exact one-byte mutation controls and runner evidence are in parent-nullable-constraint/. |
+
+Grouping and routing follow those individual verdicts: typed defaults (B1),
+fixture-provider attribute decoding (B3), and missing behavior-owner inventory
+(B6) are separate bad-spec roots. Return encoding (B2), native publication reread
+(B4), helper-host classification (B5), and evidence diff attributes (P1) are four
+separate narrow patches to carry into re-derivation. No new deferral is written.
+
+**Iteration-13 KEEP:** Preserve every earlier accepted correction; all 2,879
+combined case identities and 72 legacy cases, the 19 packaging controls, 39 guards
+with 42 exact mutation runs and 199 assertion failures, and all 3,746 indexed
+iteration-12 artifacts. Preserve original/current packaging epochs honestly,
+including the concurrent user's commit/gitlinks and -whitespace change, exact
+86-file snapshots, 71 bound source paths, five protected files and empty real index.
+Keep all eight acceptance-matrix rows, eighteen scenarios, thirty-two requirements,
+thirty-eight nodes and sixty-one edges; null entry, empty trust, accepted CLI4.35.2,
+Story16.1 draft/backlog and ACTIVE hold. Keep legitimate native constructors,
+framework ownership, actual tenant evaluator parity, open native maps, nullable
+values, equal clocks, all executed schedule/failure proofs, genuine fresh-checkout
+publication, the existing seven products as part of the expanded required inventory,
+public-declaration-only compatibility scope, and every historical artifact/source
+attribution. Retain the new parent/reviewer counterexamples and honest setup/timeout
+observations. Do not refactor the schema, migrate historical evidence, modify carried
+CI/Story5.4 work, or repeat the prohibited broad lane.
+
+### Review iteration 14 triage — patches to iteration 13
+
+All three final reports were received before individual classification. Raw reports
+and independent parent reproductions are retained under
+`module/validation/epic-16-prerequisite-implementation/review-iteration-14/`.
+The verification reviewer filed an Other finding, so it was independently verified.
+
+| Finding | Verdict | Route | Evidence |
+| --- | --- | --- | --- |
+| R14B1 | high | patch | Parent inspected the exact compiled varargs Fact successfully, then ran the same bytes with pinned xUnit: exit 1 with NotSupportedException. IsTestSignature omits the default calling-convention check; one comparison rejects this demonstrated shape without changing supported ordinary methods. |
+| R14B2 | high | patch | Parent inspection accepts the source-authored optional ref-struct constructor, while the pinned runner exits 1 because it cannot box a byref-like value. Reuse NonNullableValueType in the existing direct value-type default path. |
+| R14B3 | medium | patch | A one-byte NestedClass parent mutation makes a valid nested type its own parent. Parent's current fixed helper accepts the original but aborts with stack overflow on the mutant; Python classifies that exact malformed evidence as HelperUnavailable. Track visited definition handles in the existing recursive name walk and reject the demonstrated cycle as invalid evidence. |
+| R14B4 | false | reject | On clarification the reviewer explicitly withdrew this correctness claim: no mismatched binary was demonstrated through the qualified runtime path and no independent-build-authentication promise was identified. products.loaded correlates retained native bytes, MVIDs, owners and revision metadata; deliberately synthetic test stand-ins do not demonstrate a breach of that contract. Independent build authentication is a separate optional enhancement, not a reproduced admission defect. |
+| R14B5 | medium | patch | Parent changes a valid authorization observation: the direct predicate explains that authorization summaries must derive from actual read/access inputs, but the full evaluator returns only MEASUREMENT_INVALID and the scenario. All 676 require-call explanations are source literals. Preserve those controlled predicate explanations through a dedicated internal ValueError subtype; leave unrelated/parser exceptions generic so untrusted values are not exposed. |
+| R14B6 | medium | patch | On the same passing disposable fixture, the real generator CLI succeeds with the exact explicit pair but returns OUTPUT_FORBIDDEN with both optional flags omitted. Pass None when both are absent so generate uses its existing exact destinations; retain the existing rejection of a partial pair. |
+| R14B7 | low | reject | The scoped exception does expose build/cache paths under this evidence-only directory, but current archives deliberately retain those exact native compilation bytes and their complete inventories were audited. No unrelated staged file or incorrect admission is demonstrated. Future accidental files in this dedicated tree are an occasional hygiene risk; an allowlist/archive migration adds maintenance beyond a direct correction and would disturb immutable evidence retention. No staging occurs in this task. |
+| R14B8 | false | reject (carried) | carried R13B9/R12B10: same expanded schema representation and hypothetical future divergence, with no new inconsistent definition or incorrect caller admission. Preserve the prior verdict; no re-verification or schema refactor. |
+| R14B9 | low | reject | The 4,957-line test file makes occasional navigation harder, but the suggested split identifies no independent failing assertion or specific uncovered behavior beyond the separately verified B1/B2 defects. Reorganizing fixture modules and all historical source bindings is more than a direct correction for this cosmetic maintenance cost. Existing assertions and identities remain intact. |
+| R14B10 | medium | patch | The earlier producer paragraph still says runtime capture version 1 is required, while the effective parser/policy and later paragraph require version 2. Correct that primary paragraph and label its older fixture facts historical; link the current version-2 producer requirements rather than requiring readers to reconcile contradictory instructions. |
+| R14E1 | high | patch | Parent independently repeats the source-authored optional local ref-struct case: metadata inspection succeeds and pinned xUnit fails before executing a test. The direct default path lacks the existing byref-like exclusion. |
+| R14V1 | high | patch | Parent independently compiles/inspects the reviewer's optional and explicit-default ref-struct fixtures and reruns both exact binaries. Both are admitted by the current helper and both runners exit 1 with NotSupportedException; the direct default path needs the same value-type eligibility check already used for nullable arguments. |
+
+Only after those individual verdicts, R14B2/R14E1/R14V1 are grouped as the
+same missing direct byref-like exclusion. B1, B3, B5, B6 and B10 remain separate
+roots. Every surviving fix is local, adds no public contract surface, and guards
+only a demonstrated state or corrects the existing producer documentation.
+They route to patch, with no intent/spec loopback, no counter increment and no
+new deferred entry. The frozen authorization, prior evidence, user files,
+actual entry/trust state and runtime hold remain unchanged.
 
 ## Verification
 
@@ -3067,3 +3333,344 @@ Evidence:
 - [Source preservation audit](../../module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-source-audit.json).
 - [Schema, data and trust audit](../../module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-data-source-audit.json).
 - [Exact parent audit commands](../../module/validation/epic-16-prerequisite-implementation/review-iteration-11/parent-audit-commands.json).
+
+### Re-derived implementation verification — review iteration 12
+
+All authorized prerequisite changes are implemented and verified; parent review and
+completion remain separate. Exactly 42 owned files were hash-verified before
+restoration. All five protected inputs, all 7,954 preexisting evidence files seen
+at restoration, and the 2,854 prior indexed implementation artifacts remain
+unchanged. The original combined run retained an 86-file source snapshot with 71
+bound paths, including the Commons 2025 MIT notice and copied-method attribution.
+A concurrent user/Cursor /pushall commit changed the evidence whitespace attribute
+during that run; its sourceUnchanged=false result is preserved. Current packaging
+and legacy checks use a separate stable 86-file snapshot, described below.
+
+- Each of the four reverse-save experiments now records executed and completed
+  saves against one durable state: complete native replay proposals, original CAS
+  expectation, newer commit, rejected stale write, and complete preserved contents.
+  Both distinct replica processes perform correlated final reads and derive the
+  decision from that same committed snapshot. Existing horizon, pending and
+  recovery experiments remain independent.
+- Both six-state tenant-authorization captures retain actual request/read/response
+  operations, native projection/checkpoint and source fingerprints, persisted
+  freshness, gap/conflict/provider causes, and honest absent metadata. Responses
+  derive from native role/status/permission inputs. The 100-tick freshness limit
+  is an independently pinned test control, not a production SLO. Native Unknown
+  role yields InsufficientRole. The fixed .NET helper applies the retained Commons
+  tenant/principal input methods before admitting a read. Compiled actual Commons
+  parity controls cover invalid zero-read inputs and legitimate Unicode; unrelated
+  opaque identifiers, nullable descriptions and open native maps remain supported.
+- Provider-failure and retry-exhaustion captures record one or three actual failed
+  attempts, source-derived proposed state, correlated provider fault/restoration,
+  terminal processing and the observed empty acknowledgement inventory. The
+  complete durable contents before and after restoration must remain equal. All
+  successful durable outcomes and duplicate zero-write semantics are preserved.
+- Both test and product source stamps require genuine approved framework ownership,
+  exact constructor signatures and complete blobs. Task/ValueTask and ParamArray
+  recognition use the same real identity boundary. Genuine SDK stamps and supported
+  constructors still pass. The unsigned custom Task passes the actual pinned runner
+  but is rejected as an unsupported framework async return; the foreign ParamArray
+  is rejected by both inspector and runner. The original local product-stamp probe
+  remains a recorded rejection; the parent's distinct external product-stamp
+  counterexample is corrected. No general compatibility claim is introduced.
+- Catch-up enqueue transactions cannot reuse lifecycle stage commit identities;
+  legitimate work/drain sharing remains valid. SDK/build prerequisite failures
+  retain bounded stdout/stderr tails and the real exit code while preserving
+  HelperUnavailable and structured BLOCKED results.
+- Original combined verification: **2,879 passed** in
+  **2579.38s**, preserving all 2,416 prior cases and adding
+  463 cases (2,717
+  successor and 162 historical adoption-v2). Current packaging-epoch legacy verification:
+  **72 passed** in **101.76s**. These combined, packaging and legacy suites have zero
+  assertion failures/errors/skips. The original wrapper exited 1 because the
+  post-run freeze check detected .gitattributes drift; it did not start legacy.
+  Exact original commands, streams, JUnit, source archive and sourceUnchanged=false
+  remain intact. The full combined run was not repeated or relabelled as current.
+- Concurrent user commit `46ca7bf39b25318418b7145b7ce75bb306471cd0` preserved current
+  work, added only `-whitespace` to the prerequisite evidence attribute rule, and
+  advanced Builds, EventStore, Folders, FrontComposer, McpCli, Memories, Parties,
+  Platform, Projects and Tenants gitlinks. The worker preserved those bytes and
+  commits. The original baseline remains unchanged. `-text` and `diff` remain
+  intact; the new flag suppresses whitespace diagnostics for retained evidence
+  without changing text conversion, checkout bytes or executed code. Only that
+  attribute's bound SHA was refreshed. Exactly two frozen paths differ from the
+  original archive: .gitattributes and its binding hash; all code/tests and the
+  other 84 paths are unchanged.
+- Current packaging verification: **19 passed** in
+  **66.77s**, plus the **72 legacy passes** above. The exact
+  selector in packaging/command.json covers binding inventory/pins, executing-source
+  rejection, atomic publication, genuine fresh-checkout native retention, binary
+  Git diff behavior and autocrlf checkout preservation. Both current runs report
+  sourceUnchanged=true against packaging-source.json. The original final-source.json
+  remains separate. Current HEAD/gitlinks and exact old/new binding bytes are
+  retained in packaging-epoch/. Original inventory final-source.json has SHA-256
+  `ed4e8a100abdd4ca22f2cc5df225d69da6275ccde4b4e9e4e865c4a1a6c27573`;
+  current inventory packaging-source.json has SHA-256
+  `68ad9ad781fd6aebffe1a7c7042ea054a0d3b533cbd9ad1b8bd19b4ebe5ad22d`.
+  No full combined run on this packaging epoch is claimed.
+- **39 distinct guards across 42 mutation runs** produce **199 targeted assertion
+  failures with zero setup errors/skips**. Three Program.cs guards were repeated
+  after the notice-only correction, giving every guard a mutation against final
+  exact target bytes. Every failed mutation case passes in the combined run; its
+  code/test bytes are identical in the current packaging epoch. All patches, original/mutated bytes, command records and source epochs are retained.
+- Exploratory evidence remains honest: the first run had 428 passes and two old
+  nullable-description positives whose new full reverse snapshots needed matching
+  refreshes. Subsequent selected runs passed 100, 21, 12, 34 and six cases. The
+  21-pass epoch had the subsequently corrected Unknown-role expectation; it is not
+  presented as final native parity. The wrong converter source-path lookup was a
+  preparation error, not a test failure. The combined assertion results supersede
+  those exploratory selections; the separate current packaging checks do not
+  erase the observed source drift.
+- Genuine pinned xUnit execution retains untouched raw TRX and seven synthetic
+  product stand-ins. Fresh-checkout regeneration/insertion passes after original
+  build/measurement/payload locations disappear. Each original/current packaging
+  experiment retains its own 31 exact committed artifacts, including 26 publication paths, nine PE binaries and five captures
+  with the same seven-product inventory. Helper provenance confirms SDK 10.0.402
+  and .NET 10.0.13. These fixtures confer no runtime or owner authority.
+- All eighteen actual runtime/final-record commands remain **BLOCKED / exit 2 /
+  ENTRY_QUALIFICATION_PENDING**. All 54 runtime paths remain absent; both exact
+  Story 7.3 guards and git diff --check pass, with operational bytes restored.
+  The 18 scenarios, 32 requirements, 38 graph nodes, 61 edges, rollback obligations
+  and predecessor pins are preserved. Entry remains null, trust empty, accepted
+  CLI 4.35.2, Story 16.1 draft/backlog and hold ACTIVE.
+- Evidence is indexed by
+  `module/validation/epic-16-prerequisite-implementation/review-iteration-12/verification.json`.
+  Exact disposable commit messages passed pinned commitlint before use. The first
+  batched read included bmad-build/SKILL.md before reaching the spec-only handoff
+  instruction; this is explicitly recorded. No skill was rendered/invoked, no
+  secondary workflow, child agent or completion orchestration ran. This worker
+  performed no actual repository staging/commit/push, dependency update, runtime application start or runtime publication. Concurrent user Git
+  activity is attributed separately above.
+- The prohibited broad lane was not rerun. REFRESH_UV_DRIFT and Story 10.4 guidance
+  binding remain unresolved and unweakened. Actual Platform integration
+  qualification, seventeen adoption findings, provider/environment parity, recovery
+  drills, operator/deputy coverage, capacity/waiver decisions, human SM-2 and separate
+  owner entry remain outside this prerequisite implementation.
+
+
+### Parent acceptance audit — iteration 12
+
+The parent accepts all six authorized prerequisite tasks. The staged original-baseline
+review diff contains 11,877 file sections, including concurrent user gitlink changes
+and every untracked file. Its inventory and current policy/document changes were
+read alongside the 1,008-line source delta, schema/data/native-source audits and
+previously reviewed history. Fifty-seven archived binary sections forced to raw text
+by Git attributes were rendered from identical bytes as standard Git binary patches
+in the temporary review copy. Repository attributes and index were not changed.
+
+- Independent JUnit audit confirms 2,879 combined passes, all 2,416 earlier cases
+  retained, 463 additions, and all eight acceptance-matrix rows covered by executed
+  passing evidence. The original combined run retains sourceUnchanged=false.
+  Its 86 archived source hashes are valid; all implementation/test bytes remain
+  identical. Only the concurrent whitespace attribute and its single binding hash
+  differ in the current 86-file snapshot. Current packaging and legacy runs pass
+  19 and 72 cases with stable current hashes. No final-epoch full rerun is claimed.
+- All 3,746 implementation artifacts and 3,770 nested references were independently
+  verified. The early inventory audit raced three final handoff files; that failure
+  is retained, and the completed-inventory rerun passes. Both native experiment
+  epochs independently retain 31 files matching actual disposable Git objects,
+  nine binaries and identical seven-product inventories across five captures.
+- All 39 mutation guards have exact-target runs; their 199 assertion failures have
+  passing combined controls. Twenty independent parent native/caller controls pass.
+  Existing test assertions, prior artifacts, open native maps, actual source methods
+  and license notices are preserved. All thirteen newly attributed source files
+  still match after the concurrent dependency commits.
+- All 71 bound sources, three test hashes, five protected files and 38 validated
+  disposable commit messages are verified. The real index is empty. Both completion
+  guards and whitespace checks pass; all eighteen runtime commands remain BLOCKED
+  with ENTRY_QUALIFICATION_PENDING and all 54 runtime paths remain absent. Runtime
+  publication remains not-applicable; existing broad-lane blockers were not rerun
+  or weakened. The runtime hold remains ACTIVE.
+
+Evidence:
+
+- [Verification index](../../module/validation/epic-16-prerequisite-implementation/review-iteration-12/verification.json).
+- [Acceptance and matrix audit](../../module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit.json).
+- [Artifact audit](../../module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-artifact-audit.json).
+- [Mutation audit](../../module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-mutation-audit.json).
+- [Current native retention audit](../../module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-native-retention-packaging-audit.json).
+- [Staged diff acceptance](../../module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-diff-acceptance.json).
+- [Exact parent audit commands and retained early failure](../../module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit-commands.json).
+
+
+### Worker verification — iteration 13
+
+The iteration-13 implementation is complete for parent audit and acceptance.
+Runtime entry and owner approval remain held. Evidence is indexed in
+`module/validation/epic-16-prerequisite-implementation/review-iteration-13/verification.json`;
+its run entries explicitly name each completed source epoch.
+
+- Restored the 42 owned files from the hash-verified preservation manifest before
+  editing. All 12,245 pre-existing evidence files and all 3,746 indexed iteration-12
+  artifacts remain unchanged. The concurrent user commit/gitlinks, five protected
+  files and `-whitespace` rule are preserved; the real index remains empty.
+- Constructor admission validates selected constant kinds/encodings, genuine
+  Decimal/DateTime defaults and complete fixture-provider constructor/value blobs.
+  The 13 parent constructor positives remain valid; the nonnull nullable-enum
+  default rejects as actual xUnit requires. Parent R13P2 corrected an invented
+  decimal sign restriction: every nonzero sign is negative. Parent R13P3 corrected
+  invalid Nullable<String>/Object admission through one central supported
+  non-nullable value-type constraint, including optional/nonnull paths and
+  array/nested/byref-like exclusions. Actual-runner positives preserve supported
+  primitive, enum, local value, Decimal and DateTime forms. The inspector remains
+  a bounded metadata protocol and never executes supplied evidence.
+- Task/ValueTask return signatures retain their required class/value encoding.
+  All five scenarios now bind nine loaded implementation owners, including
+  EventStore.Server's reconciler/retry worker and Commons.TenantAccess's evaluator.
+  Byte digest, MVID, owner revision/gitlink, required declarations and shared
+  five-scenario inventory are checked. The original five upstream API preservation
+  seams remain separate from implementation ownership. All three contracts and
+  producer instructions match the nine-product capture schema.
+- Final generation rereads exact raw TRX bytes and rejects digest drift or aliases
+  before writing output. Native paths remain separately required publication
+  paths. The fixed helper's exact evidence-rejection response remains FAIL;
+  host failures become HelperUnavailable/BLOCKED with bounded real streams/exit.
+  Scoped binary Git attributes cover retained apphosts/PDB/key/cache bytes and
+  earlier DLL shapes while source/schema/TRX remain readable. Nine actual archived
+  binary shapes produce standard normal Git diffs with exact bytes preserved.
+- Final frozen verification: **3,032 combined passes** in
+  **2265.52s**, **72 legacy passes** in **102.61s**, and
+  **131 focused passes**, all without failures/errors/skips. All 2,879 prior
+  combined case identities, 72 legacy identities and 19 packaging controls are
+  preserved. All 86 source/test/policy inputs remain unchanged, with 71 bound
+  source paths. Final **23 guard removals** cause **53 assertion failures**
+  with zero setup errors/skips; every failed case passes on final exact source.
+- Genuine pinned xUnit publication retains 28 exact
+  publication paths, 11 PE binaries, five captures,
+  five untouched raw TRX files and 33 retained committed
+  files in total. All captures bind the same nine synthetic product stand-ins.
+  Fresh-checkout regeneration/insertion succeeds after original build/measurement
+  paths disappear. Exact candidate/publication/lifecycle commit and tree bytes use
+  reversible base64 JSON, with raw hashes/Git object IDs verified; retained blob
+  files match their Git objects. Ordinary diffs remain readable. These synthetic
+  fixtures confer no actual product/runtime authority. Helper provenance retains
+  SDK 10.0.402 and runtime .NET 10.0.13.
+- Exploratory and interrupted epochs are retained honestly. Early mutation setup
+  used a wrong decimal blob length and ambiguous byte offsets; metadata offsets
+  replaced those guesses. A schema-helper lookup error was corrected. The first
+  trailing-signature mutation shared a source-stamp signature and survived; the
+  corrected Type-constructor probe fails the intended assertion. Pre-R13P2/P3
+  green selections retain their incomplete protocol interpretation. The initial
+  combined run was stopped at the parent's request after 104 passes for R13P3;
+  an accidentally overbroad historical-generator selection was stopped after
+  199 passes, then the exact 72-case selector passed. The first nested-nullable
+  mutation needed a two-byte coded handle; its final equal-width probe now yields
+  the intended rejection assertion. None of these partial/pre-fix runs is
+  presented as final verification. The next full run retained1127 passes and one
+  obsolete expected-gitlink-order failure before interruption. The isolated case
+  confirmed production evaluation passed; only the test tuple was corrected to
+  Commons/EventStore/Tenants lexical order. Its prior130 focused/native/parent
+  epochs remain unchanged, with the one-line source delta explicitly recorded.
+  No prior artifact was rewritten.
+- All eighteen actual held runtime/final-record commands still return
+  **BLOCKED / exit 2 / ENTRY_QUALIFICATION_PENDING**; both completion guards and
+  whitespace checks pass with operational bytes restored. The 54 runtime paths
+  remain absent; 18 scenarios, 32 requirements, 38 nodes, 61 edges and rollback/
+  predecessor obligations are unchanged. Entry is null, trust empty, accepted CLI
+  4.35.2, Story16.1 draft/backlog and hold ACTIVE. Exact disposable commit messages
+  passed pinned commitlint before use. No actual repository staging/commit/push,
+  dependency update, runtime publication, child agent or workflow invocation ran.
+  The initial accidental skill-manifest read remains documented in restoration.json.
+
+Parent acceptance/review/completion remains outstanding. The prohibited broad
+repository lane was not rerun; REFRESH_UV_DRIFT and Story10.4 guidance binding remain
+unresolved and unweakened. Actual Platform integration, the seventeen adoption
+findings, provider/environment parity, recovery drills, operator/deputy coverage,
+capacity/waiver decisions, human SM-2 and separate owner entry remain required.
+
+
+### Parent acceptance audit — iteration 13
+
+The parent accepts all six authorized prerequisite tasks after reviewing the
+original-baseline diff, its complete file inventory, the 1,847-line incremental
+source/document delta and prior reviewed history. The step-03 diff contains
+24,441 sections, including 14,190 untracked files; 11,857 sections are unchanged
+from the preceding review. Normal Git output is valid UTF-8 without a binary
+rerendering workaround. The original baseline and real index are unchanged.
+
+- Independent audits confirm **3,032 combined**, **72 legacy** and **131 focused**
+  passes, with no failures/errors/skips and the same 86-file source snapshot.
+  All 2,879 prior combined cases, 72 legacy cases and 19 packaging controls remain.
+  There are 153 new combined cases, including 127 iteration-13 cases. All eight
+  frozen matrix rows have executed passing coverage. All 71 source bindings and
+  three test hashes match current bytes.
+- All **12,048 implementation artifacts** and **12,081 nested references** match
+  their hashes; the inventory is exact and trackable. All 3,746 prior indexed
+  artifacts remain unchanged. Thirty independent parent native/caller controls
+  pass. The 23 exact final guard-removal probes produce 53 targeted test failures
+  with zero setup errors/skips; every selected case passes in the final combined
+  control. Earlier errors, interrupted runs and the one-line expected Git ordering
+  correction retain their separate source epochs.
+- The final native experiment retains 33 committed files, 28 publication paths,
+  11 PEs and five raw TRX/capture pairs with the same nine-product inventory.
+  All 43 commit/tree objects and 33 mapped blobs match actual disposable Git
+  objects; raw hashes and Git IDs were recomputed. Publication/lifecycle changes
+  were derived from retained tree bytes. These fixtures grant no runtime authority.
+- Both completion guards and whitespace checks pass. All eighteen actual runtime
+  commands remain **BLOCKED / exit2 / ENTRY_QUALIFICATION_PENDING**, and all 54
+  runtime paths remain absent. Five protected files and the 18 scenarios, 32
+  requirements, 38 nodes and 61 edges are unchanged. The 38 exact disposable
+  messages have 390 retained successful pinned-commitlint validations. Runtime
+  publication is not-applicable; accepted CLI4.35.2, empty trust, null entry,
+  Story16.1 draft/backlog and the ACTIVE hold remain in force.
+
+Evidence: [verification index](../../module/validation/epic-16-prerequisite-implementation/review-iteration-13/verification.json),
+[acceptance audit](../../module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-acceptance-audit.json),
+[artifact audit](../../module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-artifact-audit.json),
+[mutation audit](../../module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-mutation-audit-order.json),
+[native audit](../../module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-native-retention-audit-order.json),
+[state audit](../../module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-state-audit-order.json),
+and [exact audit commands](../../module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-audit-commands.json).
+
+Independent review and workflow completion follow this acceptance audit. Existing
+REFRESH_UV_DRIFT and Story10.4 guidance-binding failures were not rerun or weakened.
+Actual Platform qualification and seventeen adoption findings, parity/recovery/
+operator/capacity evidence, human SM-2 and owner entry remain outside this scope.
+
+### Parent patch acceptance audit — review 14
+
+The three independent review reports produced six local patch roots. Each of the
+twelve filed findings has an individual verdict above; the build-provenance
+correctness claim was withdrawn, schema duplication carries its earlier rejection,
+and two low-impact reorganization suggestions were rejected. No spec loopback,
+new deferred entry or runtime authorization occurred. The review-loop counter
+remains 13.
+
+Final-source verification passes **3,047 combined tests**,
+**72 legacy tests** and **43 focused tests**, including all 3,032 prior combined
+identities and 15 new regressions. Eight exact guard/remedy removals produce
+**11 targeted assertion failures**, zero setup errors/skips; every selected case
+passes in the full final suite. All 86 frozen source/test/policy files and 71 bound
+source digests match every final run; source bytes remained unchanged.
+
+Independent parent probes confirm the same retained varargs/default/ref-struct/
+cyclic inputs now reject as invalid evidence, while the valid nested control
+passes. Actual generator CLI calls accept both omitted and explicit exact output
+pairs and reject partial pairs. The real evaluator preserves source-literal
+predicate explanations, while parser and unrelated exceptions remain generic.
+
+All 24,390 earlier evidence files and all 803 worker patch artifacts retain their
+exact hashes. The final native fixture preserves 33 committed artifacts,
+11 managed assemblies, five raw TRX/captures, nine consistent products,
+28 publication paths and 43 exact commit/tree objects. The parent
+recomputed hashes and Git object IDs and derived publication/lifecycle changes
+from the retained raw trees. These synthetic fixture products establish tooling
+interoperability only.
+
+All 18 actual commands remain BLOCKED/ENTRY_QUALIFICATION_PENDING, both completion
+workflow guards pass, 54 runtime artifact paths remain absent and the protected
+five files are unchanged. Entry remains null, trusted entries empty, accepted CLI
+4.35.2, Story 16.1 draft/backlog and implementation hold ACTIVE. All 18 scenarios,
+32 requirements, 38 graph nodes and 61 graph edges remain preserved. The real Git
+index stays empty. No staging, commits, pushes, remote operations, dependency
+updates, runtime implementation or owner acceptance occurred.
+
+The earlier broad-lane REFRESH_UV_DRIFT and Story 10.4 binding failures remain
+recorded; their prohibited broad rerun was not performed. Platform/adoption
+qualification, human parity/recovery/SM-2 and separate owner entry remain pending.
+Exact current commands, streams, JUnit, source snapshots, mutation inputs and
+parent audits are retained under
+`module/validation/epic-16-prerequisite-implementation/review-iteration-14/`.
+
+Final verification index: [review 14 evidence](../../module/validation/epic-16-prerequisite-implementation/review-iteration-14/verification.json).

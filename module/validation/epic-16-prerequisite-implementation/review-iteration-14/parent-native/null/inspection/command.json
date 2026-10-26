@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "dotnet",
+    "/tmp/epic16-native-oracle-q3b81dvj/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+  ],
+  "cwd": "/tmp/epic16-native-oracle-q3b81dvj",
+  "exitCode": 0,
+  "stdoutSha256": "22eb02060be53878ef353704c4bd2d7a074a1755fab5daedaa2d59dca7a85264",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

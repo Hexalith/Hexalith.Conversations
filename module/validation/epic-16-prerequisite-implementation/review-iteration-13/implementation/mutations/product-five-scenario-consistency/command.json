@@ -1,0 +1,29 @@
+{
+  "name": "product-five-scenario-consistency",
+  "path": "_bmad/scripts/epic16_products.py",
+  "old": "need(all(inventory == inventories[0] for inventory in inventories[1:]), 'PRODUCT_IMPLEMENTATION_DRIFT', 'five measured scenarios')",
+  "new": "pass",
+  "selector": "round10_generator_rejects_different_owned and (7 or 8)",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r13-mutant-product-five-scenario-consistency-r9o5mks2/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round10_generator_rejects_different_owned and (7 or 8)",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations/product-five-scenario-consistency/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r13-mutant-product-five-scenario-consistency-r9o5mks2",
+  "exitCode": 1,
+  "elapsedSeconds": 43.291039328003535,
+  "originalSha256": "3b4d2e085a42faf33e97ad8e782e604737c4b364ded157767ddbd845d2b3635e",
+  "mutatedSha256": "809e9a4e602080e72f067e434be010ba7cb32e6f1cf7484a65e046543c0fc1b0",
+  "testSha256": "89b772a2f03573dc5cb7982dc3f04283923350aa6c50f7886d808a9101faa834",
+  "tests": {
+    "tests": 2,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0
+  }
+}

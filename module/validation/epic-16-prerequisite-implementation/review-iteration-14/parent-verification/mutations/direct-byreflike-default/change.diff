@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_native_helper/TestConstruction.cs
++++ _bmad/scripts/epic16_native_helper/TestConstruction.cs
+@@ -310,7 +310,7 @@
+             bool value = definition.BaseType.Kind == HandleKind.TypeReference
+                 && (FrameworkSystemType(reader, "class " + Names.Name(reader, definition.BaseType), "System.ValueType", "class ")
+                     || FrameworkSystemType(reader, "class " + Names.Name(reader, definition.BaseType), "System.Enum", "class "));
+-            return value ? NonNullableValueType(reader, type) : type.StartsWith("class ", StringComparison.Ordinal);
++            return type.StartsWith(value ? "valuetype " : "class ", StringComparison.Ordinal);
+         }
+         return false;
+     }

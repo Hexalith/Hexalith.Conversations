@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "K4WOHnI8BMc=",
+  "success": true,
+  "projectFilePath": "/tmp/review13-blind-9r644fs3/Evidence.csproj",
+  "expectedPackageFiles": [
+    "/home/administrator/.nuget/packages/microsoft.bcl.asyncinterfaces/6.0.0/microsoft.bcl.asyncinterfaces.6.0.0.nupkg.sha512",
+    "/home/administrator/.nuget/packages/xunit.v3.common/4.0.2/xunit.v3.common.4.0.2.nupkg.sha512",
+    "/home/administrator/.nuget/packages/xunit.v3.extensibility.core/4.0.2/xunit.v3.extensibility.core.4.0.2.nupkg.sha512"
+  ],
+  "logs": []
+}

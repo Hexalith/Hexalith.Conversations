@@ -1,0 +1,40 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__ test_round13_host_failures_are_blocked_with_bounded_real_diagnostics[150] ___
+
+qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-774/test_round13_host_failures_are0/runtime')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f71e589f950>
+exit_code = 150
+
+    @pytest.mark.parametrize('exit_code',[1,150,137,-11])
+    def test_round13_host_failures_are_blocked_with_bounded_real_diagnostics(qualified_runtime,monkeypatch,exit_code):
+        native=tooling.native_helper;workspace,assembly=native._helper();real=native.subprocess.run
+        def run(argv,**kwargs):
+            if argv==['dotnet',str(assembly)]:return subprocess.CompletedProcess(argv,exit_code,stdout=b'x'*5000+b'host-out',stderr=b'y'*5000+b'You must install or update .NET to run this application.')
+            return real(argv,**kwargs)
+        monkeypatch.setattr(native.subprocess,'run',run)
+>       with pytest.raises(native.HelperUnavailable) as error:native._run(dict(operation='provenance'))
+                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+_bmad/scripts/tests/test_epic16_tooling.py:4772: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+request = {'operation': 'provenance'}
+
+    def _run(request):
+        workspace, assembly = _helper()
+        try:
+            result = subprocess.run(['dotnet', str(assembly)], input=json.dumps(request).encode(),
+                cwd=workspace.name, capture_output=True, timeout=60)
+        except (OSError, subprocess.TimeoutExpired) as error:
+            raise HelperUnavailable('fixed helper execution unavailable') from error
+        if result.returncode:
+            if result.returncode == 1 and result.stdout == b'' and result.stderr == b'Invalid native evidence.':
+                raise ValueError('invalid native evidence')
+>           raise ValueError('invalid native evidence')
+E           ValueError: invalid native evidence
+
+_bmad/scripts/epic16_native.py:149: ValueError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round13_host_failures_are_blocked_with_bounded_real_diagnostics[150]
+1 failed, 2869 deselected in 23.73s

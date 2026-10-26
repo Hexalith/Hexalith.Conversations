@@ -1,0 +1,11 @@
+Stack overflow.
+Repeated 37361 times:
+--------------------------------
+   at Hexalith.Conversations.Tooling.SignatureNames.DefinitionName(System.Reflection.Metadata.MetadataReader, System.Reflection.Metadata.TypeDefinitionHandle)
+--------------------------------
+   at Hexalith.Conversations.Tooling.SignatureNames.Name(System.Reflection.Metadata.MetadataReader, System.Reflection.Metadata.EntityHandle)
+   at Hexalith.Conversations.Tooling.TestConstruction+<>c__DisplayClass1_0.<Validate>b__0(System.Reflection.Metadata.TypeDefinitionHandle)
+   at System.Linq.Enumerable.ToDictionary[[System.Reflection.Metadata.TypeDefinitionHandle, System.Reflection.Metadata, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a],[System.__Canon, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Reflection.Metadata.TypeDefinitionHandle, System.Reflection.Metadata, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a]](System.Collections.Generic.IEnumerable`1<System.Reflection.Metadata.TypeDefinitionHandle>, System.Func`2<System.Reflection.Metadata.TypeDefinitionHandle,System.__Canon>, System.Func`2<System.Reflection.Metadata.TypeDefinitionHandle,System.Reflection.Metadata.TypeDefinitionHandle>, System.Collections.Generic.IEqualityComparer`1<System.__Canon>)
+   at Hexalith.Conversations.Tooling.TestConstruction.Validate(System.Reflection.Metadata.MetadataReader, System.Reflection.Metadata.TypeDefinitionHandle)
+   at Hexalith.Conversations.Tooling.Program.Inspect(System.Text.Json.JsonElement)
+   at Hexalith.Conversations.Tooling.Program.Main()

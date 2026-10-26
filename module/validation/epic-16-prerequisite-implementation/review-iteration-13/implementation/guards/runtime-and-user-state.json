@@ -1,0 +1,23 @@
+{
+  "rootHead": "46ca7bf39b25318418b7145b7ce75bb306471cd0",
+  "rootIndexUnchanged": true,
+  "protectedUnchanged": {
+    "global.json": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652",
+    "_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md": "b75f23a2801096413dd356ddd5f8260bfb3ec829e66fb476566d2bee1e4a750c",
+    "docs/implementation/ext-conv-ai-1-runtime-qualification.md": "92aacc8e608b67224f3d0639644c9e23d4f878c414f69766c42a94d5beb21453",
+    "tests/tooling/test_ext_conv_ai_1_installed_delivery_packet.py": "3cf9003c5034f82fe1e8420aa6ae30f8ace9eb6bbea192b984178162dfdd31e6",
+    "_bmad-output/implementation-artifacts/deferred-work.md": "7120f13821d0b0ee929c4e8e084b8b83b5860d1a4c60f7686419d24952068f0a"
+  },
+  "runtimeSpecSha256": "4822158a8b4fd03fba0de2d8faaf7364e818b4b977bdf139e7e75ed63045a1cc",
+  "sprintSha256": "18744a7ddbf62ed1b02050fb644630f95ca1c80e6be497fa75cc00d3c73df500",
+  "acceptedPin": "4.35.2",
+  "activeAndHistoricalWarningsUnchanged": true,
+  "branch": "main",
+  "directSubmodules": " 3f194e17174994d308ec84af9ee2b5aa68674d0d references/Hexalith.AI.Tools (heads/main)\n-db897eac9f2819220b32d237109d7255218b46a9 references/Hexalith.Builds\n 1663028fb6d9f46a0bf17919edeb21bb99be1587 references/Hexalith.Commons (v2.30.3-4-g1663028)\n fd327dc553169128021ee447d2a2f247fe1c33e4 references/Hexalith.EventStore (v3.128.2-4-gfd327dc55)\n b8c66d649ccfd0700392ca65840a24e4cacdeecc references/Hexalith.Folders (v1.3.1-47-gb8c66d64)\n 4f5ce9e67d0c07cc2ed049a4e8c644c8a448bb8a references/Hexalith.FrontComposer (v4.7.0-107-g4f5ce9e6)\n a61f7eda9419dc47ec1ef641b57e549e102279a7 references/Hexalith.McpCli (v1.0.0-77-ga61f7ed)\n 092191bc67e0439f8d79ce60109c98e594b81734 references/Hexalith.Memories (v2.29.15-32-g092191bc)\n 027a5005ebc6bae79cbeebaf27638abab26dbf96 references/Hexalith.Parties (v1.6.0-39-g027a5005)\n b117945e2ba7911fd2c47843f866487341300398 references/Hexalith.Platform (heads/main)\n 8590879176681cc5e69ecfed37c70cb2b57535fd references/Hexalith.Projects (v1.2.0-37-g8590879)\n 665068ec0791fd2ea0e00e1c04b25d60ed0b9fbb references/Hexalith.Tenants (v5.10.1-59-g665068ec)\n",
+  "warningSurfaceHashes": {
+    "src/Hexalith.Conversations.Server/Program.cs": "c5155b67f8478d4d74ec731161157d7e6d980ec1cfcd226e21409a1c4fef9ed9",
+    "docs/release-evidence/projection-read-store-population-proof-v2.md": "58a26b85d7812ad513e8260a40f012f8de8214364db1e2a2ab78ffa407348c40"
+  },
+  "priorRootHead": "46ca7bf39b25318418b7145b7ce75bb306471cd0",
+  "concurrentUserCommit": true
+}

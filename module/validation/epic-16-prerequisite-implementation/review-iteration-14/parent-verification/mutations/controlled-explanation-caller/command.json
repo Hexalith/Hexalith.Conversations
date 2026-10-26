@@ -1,0 +1,29 @@
+{
+  "name": "controlled-explanation-caller",
+  "path": "_bmad/scripts/epic16_tooling.py",
+  "old": "except measurements.domain.PredicateError as error:\n        return failed(result, Stop('MEASUREMENT_INVALID', str(error)))",
+  "new": "except measurements.domain.PredicateError as error:\n        return failed(result, Stop('MEASUREMENT_INVALID', scenario))",
+  "selector": "round14_real_evaluator_retains",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r14-mutant-controlled-explanation-caller-493lj4mt/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round14_real_evaluator_retains",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-verification/mutations/controlled-explanation-caller/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r14-mutant-controlled-explanation-caller-493lj4mt",
+  "exitCode": 1,
+  "elapsedSeconds": 16.483737169997767,
+  "originalSha256": "1d47daf61c51b5f4553e14f36b5c3fbd2dcec4d17c977b892e4cf20aa903fcc7",
+  "mutatedSha256": "749c4f78dfaf3b1984b0f5eba69ae99ec6c367c4cda132090e90eb9e649782dd",
+  "testSha256": "041019802d8f68321ae6354d48f4c8ecb78312b39a6df709b7cb30d9bc2a38a7",
+  "tests": {
+    "tests": 2,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0
+  }
+}

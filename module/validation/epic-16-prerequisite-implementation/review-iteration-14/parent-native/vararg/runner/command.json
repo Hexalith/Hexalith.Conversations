@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "dotnet",
+    "/tmp/epic16-blind-vararg-6rskk2b5/bin/Debug/net10.0/Evidence.dll",
+    "-automated",
+    "sync",
+    "-failSkips",
+    "-method",
+    "Synthetic.TestClass.Scenario01",
+    "-trx",
+    "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-native/vararg/actual.trx"
+  ],
+  "cwd": "/tmp/epic16-blind-vararg-6rskk2b5",
+  "exitCode": 1,
+  "stdoutSha256": "f613c68000505e06fe2400af500696b3e3be4201e91c9703d68167f66180168e",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

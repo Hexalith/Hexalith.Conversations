@@ -1,0 +1,75 @@
+[
+  {
+    "argv": [
+      "dotnet",
+      "build",
+      "Evidence.csproj",
+      "-c",
+      "Debug",
+      "--nologo",
+      "-m:1",
+      "-p:NuGetAudit=false"
+    ],
+    "cwd": "/tmp/epic16-blind-cycle-g134dbww",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "build",
+      "Locator.csproj",
+      "-c",
+      "Debug",
+      "--nologo",
+      "-m:1",
+      "-p:NuGetAudit=false"
+    ],
+    "cwd": "/tmp/epic16-blind-cycle-g134dbww/locator",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-blind-cycle-g134dbww/locator/bin/Debug/net10.0/Locator.dll",
+      "/tmp/epic16-blind-cycle-g134dbww/bin/Debug/net10.0/Evidence.dll"
+    ],
+    "cwd": "/tmp/epic16-blind-cycle-g134dbww",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-native-oracle-_pe6ehl6/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+    ],
+    "cwd": "/tmp/epic16-native-oracle-_pe6ehl6",
+    "stdin": "/tmp/epic16-blind-cycle-g134dbww/original.request.json",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-native-oracle-_pe6ehl6/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+    ],
+    "cwd": "/tmp/epic16-native-oracle-_pe6ehl6",
+    "stdin": "/tmp/epic16-blind-cycle-g134dbww/mutant.request.json",
+    "exitCode": -6
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-blind-cycle-g134dbww/retained-helper/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+    ],
+    "cwd": "/tmp/epic16-blind-cycle-g134dbww/retained-helper",
+    "stdin": "/tmp/epic16-blind-cycle-g134dbww/original.retained-inspector.request.json",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-blind-cycle-g134dbww/retained-helper/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+    ],
+    "cwd": "/tmp/epic16-blind-cycle-g134dbww/retained-helper",
+    "stdin": "/tmp/epic16-blind-cycle-g134dbww/mutant.retained-inspector.request.json",
+    "exitCode": -6
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "scope": "Authorized prerequisite tooling review",
+  "runtimeEvidencePublication": "not-applicable",
+  "reason": "No actual runtime implementation or runtime record publication is authorized; expected held-command results are acceptance controls, not a request to lift the runtime gate.",
+  "actualRuntimeCommandResult": "BLOCKED",
+  "actualRuntimeExitCode": 2,
+  "actualRuntimeBlockers": [
+    "ENTRY_QUALIFICATION_PENDING"
+  ],
+  "sourceSnapshotSha256": "490b1bd5c63ab9f3f04809b9e9bd23713a7235d3dc4e016ae7ff1850303938c8",
+  "allSixPrerequisiteTasksAccepted": true,
+  "reviewStatus": "in-review",
+  "runtimeHold": "ACTIVE",
+  "indexEmpty": true,
+  "gitDiffCheckExitCode": 0
+}

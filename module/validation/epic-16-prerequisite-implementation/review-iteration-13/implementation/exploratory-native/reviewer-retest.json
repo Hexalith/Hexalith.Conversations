@@ -1,0 +1,56 @@
+[
+  {
+    "name": "constructor-default",
+    "phase": "valid",
+    "state": "PASS",
+    "result": {
+      "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "type": "Synthetic.TestClass",
+      "method": "Scenario01",
+      "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+    }
+  },
+  {
+    "name": "constructor-default",
+    "phase": "mutated",
+    "state": "ValueError",
+    "result": "invalid native evidence"
+  },
+  {
+    "name": "collection-blob",
+    "phase": "valid",
+    "state": "PASS",
+    "result": {
+      "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "type": "Synthetic.TestClass",
+      "method": "Scenario01",
+      "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+    }
+  },
+  {
+    "name": "collection-blob",
+    "phase": "mutated",
+    "state": "ValueError",
+    "result": "invalid native evidence"
+  },
+  {
+    "name": "return-kind",
+    "phase": "valid",
+    "state": "PASS",
+    "result": {
+      "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "type": "Synthetic.TestClass",
+      "method": "Scenario01",
+      "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+    }
+  },
+  {
+    "name": "return-kind",
+    "phase": "mutated",
+    "state": "ValueError",
+    "result": "invalid native evidence"
+  }
+]

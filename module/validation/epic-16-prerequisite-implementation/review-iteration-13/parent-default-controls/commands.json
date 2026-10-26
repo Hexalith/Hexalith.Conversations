@@ -1,0 +1,29 @@
+[
+  {
+    "label": "build",
+    "argv": [
+      "dotnet",
+      "build",
+      "Evidence.csproj",
+      "-c",
+      "Debug",
+      "--nologo",
+      "-m:1",
+      "-p:NuGetAudit=false"
+    ],
+    "cwd": "/tmp/epic16-r13-default-controls-sc0tbns_",
+    "exitCode": 0
+  },
+  {
+    "label": "runner",
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-r13-default-controls-sc0tbns_/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips"
+    ],
+    "cwd": "/tmp/epic16-r13-default-controls-sc0tbns_",
+    "exitCode": 1
+  }
+]

@@ -1,0 +1,1 @@
+namespace Hexalith.Conversations.Contracts.Projections { public class ConversationDetailProjectionV1 { [System.Runtime.InteropServices.DllImport("fixture-native")] public static extern int Unsupported(); } }

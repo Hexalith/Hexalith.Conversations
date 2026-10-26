@@ -1,0 +1,70 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_round10_generator_rejects_different_owned_implementations_across_five_tests[7] _
+
+round10_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-747/test_round10_generator_rejects0/fixture')
+product_index = 7
+
+    @pytest.mark.parametrize('product_index',[0,2,7,8])
+    def test_round10_generator_rejects_different_owned_implementations_across_five_tests(round10_runtime,product_index):
+        repo=round10_runtime;scenario='AC-16.1-04';name=tooling.products.PRODUCTS[product_index]['assemblyName'];product=tooling.products.PRODUCTS[product_index]
+        path=repo/tooling.native_path('runtime',scenario);payload=json.loads(records.parse_trx(path.read_bytes())['results'][0]['output']);row=payload['loadedProducts'][product_index]
+        content=round9_compile_product(product,row['sourceRevision'],round9_product_source(product).replace('=> value;', '=> value + "other implementation";'))
+        artifact=tooling.capture.binary_path('16.1',digest(content));(repo/artifact).write_bytes(content);meta=tooling.native_helper.inspect_product(content,row['sourceRevision'])
+        round10_rewrite_runtime(repo,scenario,lambda p:p['loadedProducts'][product_index].update(sha256=digest(content),mvid=meta['mvid']))
+        cp=tooling.capture.capture_path('16.1',scenario);capture=json.loads((repo/cp).read_bytes());capture['products'][product_index].update(path=artifact,sha256=digest(content),mvid=meta['mvid']);dump(repo,cp,capture)
+        for n in range(1,6):
+            ac=f'AC-16.1-0{n}';result=tooling.evaluate(repo,'16.1',ac);assert result['result']=='PASS',result;dump(repo,tooling.receipt_path('runtime',ac),result)
+>       rejected(tooling.generate(repo,'16.1')[0],'PRODUCT_IMPLEMENTATION_DRIFT')
+
+_bmad/scripts/tests/test_epic16_tooling.py:3742: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-final-record.v1', 'storyId': '16.1', 'result': 'PASS', 'validationScope': 'runtime', ...}
+code = 'PRODUCT_IMPLEMENTATION_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-final-record.v1', 'storyId': '16.1', 'result': 'PASS', 'validationScope': 'runtime', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:118: AssertionError
+_ test_round10_generator_rejects_different_owned_implementations_across_five_tests[8] _
+
+round10_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-747/test_round10_generator_rejects1/fixture')
+product_index = 8
+
+    @pytest.mark.parametrize('product_index',[0,2,7,8])
+    def test_round10_generator_rejects_different_owned_implementations_across_five_tests(round10_runtime,product_index):
+        repo=round10_runtime;scenario='AC-16.1-04';name=tooling.products.PRODUCTS[product_index]['assemblyName'];product=tooling.products.PRODUCTS[product_index]
+        path=repo/tooling.native_path('runtime',scenario);payload=json.loads(records.parse_trx(path.read_bytes())['results'][0]['output']);row=payload['loadedProducts'][product_index]
+        content=round9_compile_product(product,row['sourceRevision'],round9_product_source(product).replace('=> value;', '=> value + "other implementation";'))
+        artifact=tooling.capture.binary_path('16.1',digest(content));(repo/artifact).write_bytes(content);meta=tooling.native_helper.inspect_product(content,row['sourceRevision'])
+        round10_rewrite_runtime(repo,scenario,lambda p:p['loadedProducts'][product_index].update(sha256=digest(content),mvid=meta['mvid']))
+        cp=tooling.capture.capture_path('16.1',scenario);capture=json.loads((repo/cp).read_bytes());capture['products'][product_index].update(path=artifact,sha256=digest(content),mvid=meta['mvid']);dump(repo,cp,capture)
+        for n in range(1,6):
+            ac=f'AC-16.1-0{n}';result=tooling.evaluate(repo,'16.1',ac);assert result['result']=='PASS',result;dump(repo,tooling.receipt_path('runtime',ac),result)
+>       rejected(tooling.generate(repo,'16.1')[0],'PRODUCT_IMPLEMENTATION_DRIFT')
+
+_bmad/scripts/tests/test_epic16_tooling.py:3742: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-final-record.v1', 'storyId': '16.1', 'result': 'PASS', 'validationScope': 'runtime', ...}
+code = 'PRODUCT_IMPLEMENTATION_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+>       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-final-record.v1', 'storyId': '16.1', 'result': 'PASS', 'validationScope': 'runtime', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:118: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round10_generator_rejects_different_owned_implementations_across_five_tests[7]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round10_generator_rejects_different_owned_implementations_across_five_tests[8]
+2 failed, 2855 deselected in 44.31s

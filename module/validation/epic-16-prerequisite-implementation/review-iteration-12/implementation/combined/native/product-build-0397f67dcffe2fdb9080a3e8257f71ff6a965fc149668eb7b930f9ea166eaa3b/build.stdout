@@ -1,9 +1,9 @@
   Determining projects to restore...
-  Restored /tmp/epic16-product-fixture-moa87kw1/Product.csproj (in 35 ms).
-  Product -> /tmp/epic16-product-fixture-moa87kw1/bin/Debug/net10.0/Hexalith.Conversations.Contracts.dll
+  Restored /tmp/epic16-product-fixture-xkkwemka/Product.csproj (in 80 ms).
+  Product -> /tmp/epic16-product-fixture-xkkwemka/bin/Debug/net10.0/Hexalith.Conversations.Contracts.dll
 
 Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:01.44
+Time Elapsed 00:00:02.82

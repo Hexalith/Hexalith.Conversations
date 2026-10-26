@@ -1,0 +1,25 @@
+{
+  "frozenFiles": 86,
+  "boundSources": 71,
+  "heldCommands": 18,
+  "heldResult": "BLOCKED",
+  "heldExitCode": 2,
+  "heldBlockers": [
+    "ENTRY_QUALIFICATION_PENDING"
+  ],
+  "completionGuards": 2,
+  "operationalBytesRestored": true,
+  "absentRuntimePaths": 54,
+  "protectedFiles": 5,
+  "preservedScenarios": 18,
+  "requirements": 32,
+  "graphNodes": 38,
+  "graphEdges": 61,
+  "helperSdk": "10.0.402",
+  "helperRuntime": "10.0.13",
+  "sourceUnchanged": true,
+  "mainIndexEmpty": true,
+  "gitDiffCheckPassed": true,
+  "actualRuntimePublication": "not-applicable",
+  "runtimeHold": "ACTIVE"
+}

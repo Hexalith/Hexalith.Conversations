@@ -1,0 +1,427 @@
+{
+  "contractAndSchemaChanges": [
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json/nativeProtocol/productPolicy/requiredProducts",
+      "before": [
+        {
+          "assemblyName": "Hexalith.Conversations.Server",
+          "owner": ".",
+          "surfaces": [
+            "Hexalith.Conversations.Server.Projections.ConversationProjectionReadModelWriter",
+            "Hexalith.Conversations.Server.TenantAccess.ConversationTenantAccessService"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Conversations.Contracts",
+          "owner": ".",
+          "surfaces": [
+            "Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "surfaces": [
+            "Hexalith.Tenants.Client.Projections.ITenantProjectionStore",
+            "Hexalith.Tenants.Client.Handlers.TenantProjectionEventHandler"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "surfaces": [
+            "Hexalith.Tenants.Contracts.Events.TenantDisabled"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.Client.Projections.IReadModelStore",
+            "Hexalith.EventStore.Client.Streams.IAuthoritativeEventStreamReader"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.DomainService.DomainProjectionDispatcher"
+          ]
+        }
+      ],
+      "after": [
+        {
+          "assemblyName": "Hexalith.Conversations.Server",
+          "owner": ".",
+          "surfaces": [
+            "Hexalith.Conversations.Server.Projections.ConversationProjectionReadModelWriter",
+            "Hexalith.Conversations.Server.TenantAccess.ConversationTenantAccessService"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Conversations.Contracts",
+          "owner": ".",
+          "surfaces": [
+            "Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "surfaces": [
+            "Hexalith.Tenants.Client.Projections.ITenantProjectionStore",
+            "Hexalith.Tenants.Client.Handlers.TenantProjectionEventHandler"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "surfaces": [
+            "Hexalith.Tenants.Contracts.Events.TenantDisabled"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.Client.Projections.IReadModelStore",
+            "Hexalith.EventStore.Client.Streams.IAuthoritativeEventStreamReader"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.DomainService.DomainProjectionDispatcher"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Server",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.Server.Projections.ProjectionDeliveryReconciler",
+            "Hexalith.EventStore.Server.Projections.ProjectionDeliveryRetryWorker"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Commons.TenantAccess",
+          "owner": "references/Hexalith.Commons",
+          "surfaces": [
+            "Hexalith.Commons.TenantAccess.TenantAccessEvaluator"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json/nativeProtocol/productPolicy/upstreamApiAssemblies",
+      "before": null,
+      "after": [
+        "Hexalith.Tenants.Client",
+        "Hexalith.Tenants.Contracts",
+        "Hexalith.EventStore.Client",
+        "Hexalith.EventStore.Contracts",
+        "Hexalith.EventStore.DomainService"
+      ]
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json/nativeProtocol/productPolicy/requiredProducts",
+      "before": [
+        {
+          "assemblyName": "Hexalith.Conversations.Server",
+          "owner": ".",
+          "surfaces": [
+            "Hexalith.Conversations.Server.Projections.ConversationProjectionReadModelWriter",
+            "Hexalith.Conversations.Server.TenantAccess.ConversationTenantAccessService"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Conversations.Contracts",
+          "owner": ".",
+          "surfaces": [
+            "Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "surfaces": [
+            "Hexalith.Tenants.Client.Projections.ITenantProjectionStore",
+            "Hexalith.Tenants.Client.Handlers.TenantProjectionEventHandler"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "surfaces": [
+            "Hexalith.Tenants.Contracts.Events.TenantDisabled"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.Client.Projections.IReadModelStore",
+            "Hexalith.EventStore.Client.Streams.IAuthoritativeEventStreamReader"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.DomainService.DomainProjectionDispatcher"
+          ]
+        }
+      ],
+      "after": [
+        {
+          "assemblyName": "Hexalith.Conversations.Server",
+          "owner": ".",
+          "surfaces": [
+            "Hexalith.Conversations.Server.Projections.ConversationProjectionReadModelWriter",
+            "Hexalith.Conversations.Server.TenantAccess.ConversationTenantAccessService"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Conversations.Contracts",
+          "owner": ".",
+          "surfaces": [
+            "Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "surfaces": [
+            "Hexalith.Tenants.Client.Projections.ITenantProjectionStore",
+            "Hexalith.Tenants.Client.Handlers.TenantProjectionEventHandler"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "surfaces": [
+            "Hexalith.Tenants.Contracts.Events.TenantDisabled"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.Client.Projections.IReadModelStore",
+            "Hexalith.EventStore.Client.Streams.IAuthoritativeEventStreamReader"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.DomainService.DomainProjectionDispatcher"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Server",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.Server.Projections.ProjectionDeliveryReconciler",
+            "Hexalith.EventStore.Server.Projections.ProjectionDeliveryRetryWorker"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Commons.TenantAccess",
+          "owner": "references/Hexalith.Commons",
+          "surfaces": [
+            "Hexalith.Commons.TenantAccess.TenantAccessEvaluator"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json/nativeProtocol/productPolicy/upstreamApiAssemblies",
+      "before": null,
+      "after": [
+        "Hexalith.Tenants.Client",
+        "Hexalith.Tenants.Contracts",
+        "Hexalith.EventStore.Client",
+        "Hexalith.EventStore.Contracts",
+        "Hexalith.EventStore.DomainService"
+      ]
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json/nativeProtocol/productPolicy/requiredProducts",
+      "before": [
+        {
+          "assemblyName": "Hexalith.Conversations.Server",
+          "owner": ".",
+          "surfaces": [
+            "Hexalith.Conversations.Server.Projections.ConversationProjectionReadModelWriter",
+            "Hexalith.Conversations.Server.TenantAccess.ConversationTenantAccessService"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Conversations.Contracts",
+          "owner": ".",
+          "surfaces": [
+            "Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "surfaces": [
+            "Hexalith.Tenants.Client.Projections.ITenantProjectionStore",
+            "Hexalith.Tenants.Client.Handlers.TenantProjectionEventHandler"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "surfaces": [
+            "Hexalith.Tenants.Contracts.Events.TenantDisabled"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.Client.Projections.IReadModelStore",
+            "Hexalith.EventStore.Client.Streams.IAuthoritativeEventStreamReader"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.DomainService.DomainProjectionDispatcher"
+          ]
+        }
+      ],
+      "after": [
+        {
+          "assemblyName": "Hexalith.Conversations.Server",
+          "owner": ".",
+          "surfaces": [
+            "Hexalith.Conversations.Server.Projections.ConversationProjectionReadModelWriter",
+            "Hexalith.Conversations.Server.TenantAccess.ConversationTenantAccessService"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Conversations.Contracts",
+          "owner": ".",
+          "surfaces": [
+            "Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "surfaces": [
+            "Hexalith.Tenants.Client.Projections.ITenantProjectionStore",
+            "Hexalith.Tenants.Client.Handlers.TenantProjectionEventHandler"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "surfaces": [
+            "Hexalith.Tenants.Contracts.Events.TenantDisabled"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.Client.Projections.IReadModelStore",
+            "Hexalith.EventStore.Client.Streams.IAuthoritativeEventStreamReader"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.DomainService.DomainProjectionDispatcher"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Server",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.Server.Projections.ProjectionDeliveryReconciler",
+            "Hexalith.EventStore.Server.Projections.ProjectionDeliveryRetryWorker"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Commons.TenantAccess",
+          "owner": "references/Hexalith.Commons",
+          "surfaces": [
+            "Hexalith.Commons.TenantAccess.TenantAccessEvaluator"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json/nativeProtocol/productPolicy/upstreamApiAssemblies",
+      "before": null,
+      "after": [
+        "Hexalith.Tenants.Client",
+        "Hexalith.Tenants.Contracts",
+        "Hexalith.EventStore.Client",
+        "Hexalith.EventStore.Contracts",
+        "Hexalith.EventStore.DomainService"
+      ]
+    },
+    {
+      "path": "_bmad/schemas/epic-16-tooling-v1.schema.json/$defs/nativeCapture/properties/products/maxItems",
+      "before": 7,
+      "after": 9
+    },
+    {
+      "path": "_bmad/schemas/epic-16-tooling-v1.schema.json/$defs/nativeCapture/properties/products/minItems",
+      "before": 7,
+      "after": 9
+    }
+  ],
+  "preservedContractsUnchanged": true,
+  "changeCount": 8
+}

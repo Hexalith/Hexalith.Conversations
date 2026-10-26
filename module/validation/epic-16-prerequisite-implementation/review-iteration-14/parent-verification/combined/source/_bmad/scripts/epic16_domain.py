@@ -1,0 +1,277 @@
+"""Bounded evidence oracles for retained Conversations/Tenants event semantics.
+
+Only the explicitly closed controlled experiment is supported. This module never
+persists a projection, dispatches events, or substitutes for a production service.
+Source attribution and the measured protocol are in epic16-domain-sources.json.
+"""
+from copy import deepcopy
+from datetime import datetime
+import re
+
+from epic16_native import strict_json, normalize_party_id
+from evidence_boundary_current import digest
+
+MAX_SEQUENCE = 9223372036854775807
+MAX_TICKS = 3155378975999999999
+BINDING_FIELDS = ('tenant', 'conversation', 'eventType', 'sequence', 'serializationFormat', 'payloadSha256', 'selectedUtcTicks')
+
+
+class PredicateError(ValueError):
+    """A controlled predicate failure carrying only its source-literal explanation."""
+
+
+def require(condition, detail):
+    if not condition: raise PredicateError(detail)
+
+
+def shape(value, keys):
+    require(isinstance(value, dict) and set(value) == set(keys), 'closed controlled domain value')
+
+
+# Char.IsWhiteSpace in the pinned .NET runtime: Unicode separators plus these
+# control characters. Python additionally classifies U+001C..U+001F as whitespace.
+# Exhaustive BMP comparison with the fixed native helper guards this exact set.
+NATIVE_WHITESPACE = frozenset('\t\n\v\f\r\u0085\u0020\u00a0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u2028\u2029\u202f\u205f\u3000')
+
+
+def nonblank(value):
+    return isinstance(value, str) and any(char not in NATIVE_WHITESPACE for char in value)
+
+
+def text(value):
+    require(nonblank(value), 'nonempty domain identity')
+    return value
+
+
+def identifier(value, prefix):
+    if prefix == 'party':
+        require(isinstance(value, str) and value.startswith('party:'), 'actual PartyId wire prefix')
+        return normalize_party_id(value[len('party:'):])
+    text(value)
+    require(value.startswith(prefix + ':'), 'actual typed identifier wire prefix')
+    return text(value[len(prefix)+1:])
+
+
+def ticks(value):
+    require(type(value) is int and 1 <= value <= MAX_TICKS, 'representable UTC ticks')
+    return value
+
+
+def same(left, right):
+    """JSON domain equality preserves exact recursive primitive types."""
+    if type(left) is not type(right): return False
+    if isinstance(left, dict): return left.keys() == right.keys() and all(same(left[key], right[key]) for key in left)
+    if isinstance(left, list): return len(left) == len(right) and all(same(a, b) for a, b in zip(left, right))
+    return left == right
+
+
+def sequence(value, *, checkpoint=False):
+    require(type(value) is int and (0 if checkpoint else 1) <= value <= MAX_SEQUENCE, 'representable native Int64 sequence')
+    return value
+
+
+def timestamp(value, *, conversation=False):
+    """Convert actual ISO DateTimeOffset JSON to UTC ticks without float loss."""
+    text(value)
+    match = re.fullmatch(r'(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d)(?:\.(\d{1,7}))?(Z|[+-]\d\d:\d\d)', value, flags=re.ASCII)
+    require(match is not None, 'DateTimeOffset JSON timestamp')
+    date = datetime.fromisoformat(match[1])
+    if conversation: require(date.year >= 2000, 'Conversations plausible DateTimeOffset timestamp')
+    offset_minutes = 0
+    if match[3] != 'Z':
+        hours, minutes = int(match[3][1:3]), int(match[3][4:6])
+        require(hours <= 14 and minutes <= 59 and (hours != 14 or minutes == 0), 'valid .NET DateTimeOffset offset')
+        offset_minutes = (hours * 60 + minutes) * (1 if match[3][0] == '+' else -1)
+    # Arithmetic avoids datetime.astimezone overflowing before UTC range checks.
+    seconds = (date.toordinal()-1)*86400 + date.hour*3600 + date.minute*60 + date.second - offset_minutes*60
+    result = seconds*10000000 + int((match[2] or '').ljust(7, '0'))
+    require(0 <= result <= MAX_TICKS, 'representable DateTimeOffset UTC ticks')
+    return ticks(result) if conversation else result
+
+
+EVENT_FIELDS = {
+    'ConversationCreated': ('businessReference', 'projectId', 'folderId', 'label', 'providerCorrelation'),
+    'ConversationMetadataUpdated': ('label', 'businessReference', 'attributes'),
+    'ParticipantAdded': ('participantPartyId', 'participantType', 'participantRole'),
+    'FileReferenceAttached': ('fileId', 'folderId', 'messageId'),
+    'MessageAppended': ('messageId', 'authorPartyId', 'text', 'providerCorrelation'),
+    'MessageContentRedacted': ('target','category','policyReference','rationale','auditEvidence'),
+    'ConversationClosed': ('reasonCode',), 'ConversationArchived': ('reasonCode',),
+}
+METADATA_FIELDS = ('schemaVersion', 'eventId', 'eventType', 'tenantId', 'conversationId', 'correlationId', 'occurredAt', 'actorPartyId', 'causationId', 'deduplicationKey')
+
+
+def conversation_envelope(envelope):
+    """Derive full duplicate identity from independent raw envelope/payload bytes."""
+    shape(envelope, ('tenant', 'conversation', 'eventType', 'sequence', 'serializationFormat', 'messageId', 'timestampUtcTicks', 'payload'))
+    for key in ('tenant', 'conversation', 'eventType', 'messageId'): text(envelope[key])
+    sequence(envelope['sequence'])
+    require(envelope['serializationFormat'] == 'json', 'known controlled serialization format')
+    ticks(envelope['timestampUtcTicks'])
+    kind = envelope['eventType']; require(kind in EVENT_FIELDS, 'supported actual Conversations event type')
+    payload = strict_json(envelope['payload'].encode())
+    has_metadata = 'metadata' in payload
+    shape(payload, EVENT_FIELDS[kind] + (('metadata', 'createdAt') if kind == 'ConversationCreated' else ('metadata',)) if has_metadata else EVENT_FIELDS[kind])
+    selected_id, selected_ticks = envelope['messageId'], envelope['timestampUtcTicks']
+    if has_metadata:
+        meta = payload['metadata']; shape(meta, METADATA_FIELDS)
+        require(type(meta['schemaVersion']) is int and meta['schemaVersion'] == 1 and meta['eventType'] == kind and identifier(meta['tenantId'], 'tenant') == envelope['tenant'] and identifier(meta['conversationId'], 'conv') == envelope['conversation'], 'payload metadata matches authoritative envelope')
+        for key in ('eventId', 'correlationId'): text(meta[key])
+        meta['actorPartyId'] = 'party:' + identifier(meta['actorPartyId'], 'party')
+        require(meta['causationId'] is None or isinstance(meta['causationId'], str), 'optional causation identity')
+        selected_id, selected_ticks = meta['eventId'], timestamp(meta['occurredAt'], conversation=True)
+        require(meta['deduplicationKey'] == f"{meta['tenantId']}|{meta['conversationId']}|{meta['eventId']}|{meta['schemaVersion']}", 'actual computed deduplication key')
+        if kind == 'ConversationCreated': require(timestamp(payload['createdAt'], conversation=True) == selected_ticks, 'actual computed creation time')
+    if kind == 'MessageContentRedacted':
+        require(has_metadata, 'governance requires contract metadata')
+        target=payload['target']; shape(target,('messageId','fileId','partyId','kind','segmentReference'))
+        require(target['kind']=='Message' and target['fileId'] is None and target['partyId'] is None and target['segmentReference'] is None, 'controlled actual message redaction target')
+        identifier(target['messageId'],'message')
+        require(payload['category'] in ('DisplayMask','ContentSuppression','ReferenceWithheld'), 'actual redaction category')
+        # Fixed safe policy controls, intentionally not a general free-text classifier.
+        require(payload['policyReference']=='policy-a' and payload['rationale']=='privacy-request', 'controlled safe governance policy and rationale')
+        audit=payload['auditEvidence'];shape(audit,('handle','policyReference','capturedAt'));shape(audit['handle'],('value',))
+        require(audit['handle']['value']=='evidence-a' and audit['policyReference']=='policy-a', 'actual safe audit evidence identity')
+        timestamp(audit['capturedAt'],conversation=True)
+        require(int(audit['capturedAt'][:4]) <= 9998 and audit['capturedAt'].endswith(('Z','+00:00','-00:00')), 'actual governance audit timestamp uses UTC and audited business range')
+    for key in (() if kind == 'MessageContentRedacted' else EVENT_FIELDS[kind]):
+        value = payload[key]
+        if key == 'attributes':
+            require(value is None or isinstance(value, dict) and all(nonblank(k) and isinstance(v,str) for k,v in value.items()), 'actual metadata attributes')
+        elif key == 'businessReference':
+            if value is not None:
+                shape(value, ('system','value'));text(value['system']);text(value['value'])
+        elif key in ('participantPartyId','authorPartyId','fileId','messageId','folderId','projectId'):
+            if value is not None: payload[key] = identifier(value, {'participantPartyId':'party','authorPartyId':'party','fileId':'file','messageId':'message','folderId':'folder','projectId':'project'}[key])
+            else: require(key in ('folderId','projectId') or key=='messageId' and kind=='FileReferenceAttached', 'required typed identifier')
+        elif key == 'participantType': require(value in ('Human', 'AIAgent', 'LLM'), 'actual participant type')
+        elif key == 'participantRole': require(value in ('Member', 'Facilitator', 'Observer'), 'actual participant role')
+        elif key == 'providerCorrelation': require(value is None, 'controlled experiment excludes provider wrapper')
+        elif key in ('participantPartyId', 'fileId', 'authorPartyId', 'text') or key == 'messageId' and kind == 'MessageAppended': text(value)
+        else: require(value is None or isinstance(value, str), 'optional domain value')
+    binding = {key: envelope[key] for key in ('tenant','conversation','eventType','sequence','serializationFormat')}
+    binding.update(payloadSha256=digest(envelope['payload'].encode()), selectedUtcTicks=selected_ticks)
+    return binding, selected_id, payload
+
+
+def empty_conversation(tenant, conversation):
+    return dict(tenantId=tenant, conversationId=conversation, lifecycle='Initializing', label=None,
+        businessReference=None, projectId=None, folderId=None, attributes={}, participants=[], messages=[], fileReferences=[], processedEventIds=[])
+
+
+def collection_items(state):
+    """The v2 hash contains complete controlled domain values, including nested lists."""
+    identity = state['conversationId']
+    result = [dict(key='conversation:' + identity, value={k: deepcopy(v) for k,v in state.items() if k not in ('participants','messages','fileReferences')})]
+    for name, id_key in (('participants','participantPartyId'),('messages','messageId'),('fileReferences','fileId')):
+        result.extend(dict(key=name + ':' + item[id_key], value=deepcopy(item)) for item in state[name])
+    result.sort(key=lambda row: row['key'].encode('utf-16-be'))
+    require(len({r['key'] for r in result}) == len(result), 'unique domain collection identities')
+    return result
+
+
+def conversation_replay(events, *, before=None, checkpoint=0):
+    require(events and isinstance(events, list), 'retained authoritative conversation history')
+    sequence(checkpoint, checkpoint=True)
+    first, _, _ = conversation_envelope(events[0])
+    state = empty_conversation(first['tenant'], first['conversation']) if before is None else deepcopy(before)
+    require(state['tenantId'] == first['tenant'] and state['conversationId'] == first['conversation'], 'retained preceding state identity')
+    times=[]; identities=set(state['processedEventIds'])
+    for offset, envelope in enumerate(events, 1):
+        binding, identity, payload = conversation_envelope(envelope)
+        require(binding['sequence'] == checkpoint + offset and binding['tenant'] == state['tenantId'] and binding['conversation'] == state['conversationId'], 'contiguous same-conversation authoritative replay')
+        require(identity not in identities, 'unique authoritative event identity'); identities.add(identity)
+        times.append(binding['selectedUtcTicks']); kind=binding['eventType']
+        if kind == 'ConversationCreated':
+            require(state['lifecycle'] == 'Initializing', 'creation begins controlled history')
+            state['lifecycle']='Open'
+            for key in ('label','businessReference','projectId','folderId'): state[key]=payload[key]
+        else:
+            require(state['lifecycle'] != 'Initializing', 'controlled history has creation')
+            if kind == 'ConversationMetadataUpdated':
+                for key in ('label','businessReference'):
+                    if payload[key] is not None: state[key]=payload[key]
+                if payload['attributes']: state['attributes']=deepcopy(payload['attributes'])
+            elif kind in ('ParticipantAdded','MessageAppended','FileReferenceAttached'):
+                name, identity_key = {'ParticipantAdded':('participants','participantPartyId'),'MessageAppended':('messages','messageId'),'FileReferenceAttached':('fileReferences','fileId')}[kind]
+                item = {key: deepcopy(payload[key]) for key in EVENT_FIELDS[kind]}; item['occurredAtUtcTicks']=binding['selectedUtcTicks']
+                require(not any(x[identity_key] == item[identity_key] for x in state[name]), 'duplicate entity poisons materialized projection')
+                state[name].append(item); state[name].sort(key=lambda x:x[identity_key].encode('utf-16-be'))
+            elif kind == 'ConversationClosed':
+                if state['lifecycle'] != 'Archived': state['lifecycle']='Closed'
+            elif kind == 'ConversationArchived': state['lifecycle']='Archived'
+            else: raise ValueError('governance event requires separate bounded redaction experiment')
+        state['processedEventIds']=sorted(identities,key=lambda x:x.encode('utf-16-be'))
+    return state, times
+
+
+TENANT_EVENT_FIELDS = {
+    'TenantUpdated': ('tenantId','name','description','updatedAt'),
+    'TenantDisabled': ('tenantId','disabledAt'), 'TenantEnabled': ('tenantId','enabledAt'),
+    'UserAddedToTenant': ('tenantId','userId','role'), 'UserRemovedFromTenant': ('tenantId','userId'),
+    'UserRoleChanged': ('tenantId','userId','oldRole','newRole'),
+    'TenantConfigurationSet': ('tenantId','key','value'), 'TenantConfigurationRemoved': ('tenantId','key'),
+}
+TENANT_STATE_FIELDS = ('tenantId','name','description','status','members','configuration')
+
+
+def configuration_key(value):
+    # Actual Set/Remove validators use NotNull + MinimumLength(1), not NotEmpty.
+    require(isinstance(value, str) and len(value) > 0, 'nonempty configuration key')
+    return value
+
+
+def tenant_state(value):
+    """Validate actual TenantReadModel primitive types even inside raw fault JSON."""
+    shape(value, TENANT_STATE_FIELDS)
+    text(value['tenantId']);text(value['name'])
+    require(value['description'] is None or isinstance(value['description'],str), 'typed tenant description')
+    require(value['status'] in ('Active','Disabled'), 'known controlled tenant status')
+    require(isinstance(value['members'],dict) and isinstance(value['configuration'],dict), 'typed tenant collections')
+    for user, role in value['members'].items():
+        text(user);require(role in ('Unknown','TenantOwner','TenantContributor','TenantReader'), 'typed member role')
+    for key, item in value['configuration'].items():
+        configuration_key(key);require(isinstance(item,str), 'typed configuration value')
+    return value
+
+
+def tenant_replay(start, events, checkpoint, horizon):
+    tenant_state(start)
+    sequence(checkpoint, checkpoint=True); sequence(horizon)
+    require(horizon > checkpoint and len(events) == horizon-checkpoint, 'complete contiguous authoritative tenant replay')
+    state=deepcopy(start); by={}; seen=set()
+    for seq, row in enumerate(events, checkpoint+1):
+        shape(row, ('sequence','messageId','eventType','persistedPayload','payloadSha256'))
+        require(type(row['sequence']) is int and row['sequence']==seq and text(row['messageId']) not in seen, 'unique contiguous replay identity'); seen.add(row['messageId'])
+        require(row['payloadSha256']==digest(row['persistedPayload'].encode()), 'authoritative tenant raw payload')
+        kind=row['eventType']; require(kind in TENANT_EVENT_FIELDS,'actual Tenants event type')
+        value=strict_json(row['persistedPayload'].encode()); shape(value,TENANT_EVENT_FIELDS[kind])
+        require(value['tenantId']==start['tenantId'],'same-tenant authoritative replay')
+        if kind=='TenantUpdated':
+            text(value['name']);require(value['description'] is None or isinstance(value['description'],str), 'typed tenant updated description')
+            state.update(name=value['name'],description=value['description']); timestamp(value['updatedAt'])
+        elif kind in ('TenantDisabled','TenantEnabled'):
+            state['status']='Disabled' if kind=='TenantDisabled' else 'Active'; timestamp(value['disabledAt' if kind=='TenantDisabled' else 'enabledAt'])
+        elif kind in ('UserAddedToTenant','UserRoleChanged'):
+            role=value['role' if kind=='UserAddedToTenant' else 'newRole']; require(role in ('TenantOwner','TenantContributor','TenantReader'),'actual tenant role')
+            if kind=='UserRoleChanged': require(value['oldRole'] in ('Unknown','TenantOwner','TenantContributor','TenantReader'), 'typed previous tenant role')
+            state['members'][text(value['userId'])]=role
+        elif kind=='UserRemovedFromTenant': state['members'].pop(text(value['userId']),None)
+        elif kind=='TenantConfigurationSet':
+            require(isinstance(value['value'], str), 'typed configuration value')
+            state['configuration'][configuration_key(value['key'])]=value['value']
+        else: state['configuration'].pop(configuration_key(value['key']),None)
+        by[seq]=deepcopy(state)
+    return state,by
+
+
+def tenant_decision(state, sequence):
+    # Explicit test control: actor-a needs contributor and conversations.enabled=true.
+    # Production permission policy is not established by this conformance oracle.
+    tenant_state(state)
+    member='actor-a' in state['members']
+    values=dict(state='Healthy',sequence=sequence,tenantEnabled=state['status']=='Active',member=member,
+        roleAllowed=not member or state['members']['actor-a'] in ('TenantOwner','TenantContributor'),
+        configurationAllowed=state['configuration'].get('conversations.enabled')=='true')
+    values['allowed']=all(values[k] for k in ('tenantEnabled','member','roleAllowed','configurationAllowed'))
+    return values

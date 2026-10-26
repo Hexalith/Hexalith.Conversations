@@ -1,0 +1,1 @@
+namespace Synthetic; public class Unused {}

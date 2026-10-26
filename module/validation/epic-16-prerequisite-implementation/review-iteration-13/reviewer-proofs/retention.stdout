@@ -1,0 +1,5 @@
+constructor-default: exact retained mutation verified; both original byte sets accepted by metadata inspector
+return-kind: exact retained mutation verified; both original byte sets accepted by metadata inspector
+collection-blob: exact retained mutation verified; both original byte sets accepted by metadata inspector
+private-struct-layout: API inventories equal in retained same-source reproduction
+interface-method-mapping: API inventories equal in retained same-source reproduction

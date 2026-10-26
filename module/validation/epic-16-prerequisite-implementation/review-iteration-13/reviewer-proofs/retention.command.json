@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "python3",
+    "/tmp/epic16-review13-blind-proofs/retain_probes.py"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "exitCode": 0,
+  "stdout": "retention.stdout",
+  "stderr": "retention.stderr"
+}

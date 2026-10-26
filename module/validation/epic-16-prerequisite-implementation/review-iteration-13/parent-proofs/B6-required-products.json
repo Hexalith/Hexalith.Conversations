@@ -1,0 +1,62 @@
+{
+  "requiredProducts": [
+    {
+      "assemblyName": "Hexalith.Conversations.Server",
+      "owner": ".",
+      "surfaces": [
+        "Hexalith.Conversations.Server.Projections.ConversationProjectionReadModelWriter",
+        "Hexalith.Conversations.Server.TenantAccess.ConversationTenantAccessService"
+      ]
+    },
+    {
+      "assemblyName": "Hexalith.Conversations.Contracts",
+      "owner": ".",
+      "surfaces": [
+        "Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1"
+      ]
+    },
+    {
+      "assemblyName": "Hexalith.Tenants.Client",
+      "owner": "references/Hexalith.Tenants",
+      "surfaces": [
+        "Hexalith.Tenants.Client.Projections.ITenantProjectionStore",
+        "Hexalith.Tenants.Client.Handlers.TenantProjectionEventHandler"
+      ]
+    },
+    {
+      "assemblyName": "Hexalith.Tenants.Contracts",
+      "owner": "references/Hexalith.Tenants",
+      "surfaces": [
+        "Hexalith.Tenants.Contracts.Events.TenantDisabled"
+      ]
+    },
+    {
+      "assemblyName": "Hexalith.EventStore.Client",
+      "owner": "references/Hexalith.EventStore",
+      "surfaces": [
+        "Hexalith.EventStore.Client.Projections.IReadModelStore",
+        "Hexalith.EventStore.Client.Streams.IAuthoritativeEventStreamReader"
+      ]
+    },
+    {
+      "assemblyName": "Hexalith.EventStore.Contracts",
+      "owner": "references/Hexalith.EventStore",
+      "surfaces": [
+        "Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest"
+      ]
+    },
+    {
+      "assemblyName": "Hexalith.EventStore.DomainService",
+      "owner": "references/Hexalith.EventStore",
+      "surfaces": [
+        "Hexalith.EventStore.DomainService.DomainProjectionDispatcher"
+      ]
+    }
+  ],
+  "missingRelevantAssemblies": [
+    "Hexalith.EventStore.Server",
+    "Hexalith.Commons.TenantAccess"
+  ],
+  "successfulRealGeneratorControl": "B4-baseline.json",
+  "scope": "The current successful controlled runtime fixture inventory does not bind these two actual behavior owners; source caller ownership is checked separately."
+}

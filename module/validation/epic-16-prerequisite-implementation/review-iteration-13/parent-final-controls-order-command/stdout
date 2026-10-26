@@ -1,0 +1,126 @@
+{
+  "count": 30,
+  "sourceUnchanged": true,
+  "results": [
+    {
+      "label": "constructor-default-valid",
+      "result": "accepted"
+    },
+    {
+      "label": "constructor-default-mutated",
+      "result": "invalid native evidence"
+    },
+    {
+      "label": "return-kind-valid",
+      "result": "accepted"
+    },
+    {
+      "label": "return-kind-mutated",
+      "result": "invalid native evidence"
+    },
+    {
+      "label": "collection-blob-valid",
+      "result": "accepted"
+    },
+    {
+      "label": "collection-blob-mutated",
+      "result": "invalid native evidence"
+    },
+    {
+      "label": "Synthetic.NullableNull.Scenario01",
+      "result": "accepted"
+    },
+    {
+      "label": "Synthetic.StringDefault.Scenario01",
+      "result": "accepted"
+    },
+    {
+      "label": "Synthetic.OptionalString.Scenario01",
+      "result": "accepted"
+    },
+    {
+      "label": "Synthetic.OptionalInt.Scenario01",
+      "result": "accepted"
+    },
+    {
+      "label": "Synthetic.AttributeDefault.Scenario01",
+      "result": "accepted"
+    },
+    {
+      "label": "Synthetic.NullReference.Scenario01",
+      "result": "accepted"
+    },
+    {
+      "label": "Synthetic.NullableValue.Scenario01",
+      "result": "accepted"
+    },
+    {
+      "label": "Synthetic.ParamsArray.Scenario01",
+      "result": "accepted"
+    },
+    {
+      "label": "Synthetic.EnumDefault.Scenario01",
+      "result": "accepted"
+    },
+    {
+      "label": "Synthetic.LongDefault.Scenario01",
+      "result": "accepted"
+    },
+    {
+      "label": "Synthetic.IntDefault.Scenario01",
+      "result": "accepted"
+    },
+    {
+      "label": "Synthetic.DateTimeDefault.Scenario01",
+      "result": "accepted"
+    },
+    {
+      "label": "Synthetic.DecimalDefault.Scenario01",
+      "result": "accepted"
+    },
+    {
+      "label": "Synthetic.NullableEnum.Scenario01",
+      "result": "invalid native evidence"
+    },
+    {
+      "label": "decimal-sign-0",
+      "result": "accepted"
+    },
+    {
+      "label": "decimal-sign-1",
+      "result": "accepted"
+    },
+    {
+      "label": "decimal-sign-127",
+      "result": "accepted"
+    },
+    {
+      "label": "decimal-sign-128",
+      "result": "accepted"
+    },
+    {
+      "label": "decimal-sign-255",
+      "result": "accepted"
+    },
+    {
+      "label": "nullable-valid",
+      "result": "accepted"
+    },
+    {
+      "label": "nullable-string",
+      "result": "invalid native evidence"
+    },
+    {
+      "label": "nullable-object",
+      "result": "invalid native evidence"
+    },
+    {
+      "label": "real-generator-final-trx-drift",
+      "result": "FAIL"
+    },
+    {
+      "label": "real-runtime-helper-host",
+      "result": "BLOCKED"
+    }
+  ]
+}

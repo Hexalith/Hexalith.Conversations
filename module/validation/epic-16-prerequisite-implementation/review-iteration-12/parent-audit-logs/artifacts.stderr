@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/epic16-review12-parent-artifacts.py", line 17, in <module>
+    assert set(paths)==actual,dict(missing=sorted(actual-set(paths)),extra=sorted(set(paths)-actual))
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: {'missing': ['module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/handoff-diff-check.stderr.txt', 'module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/handoff-diff-check.stdout.txt', 'module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/handoff-update.json'], 'extra': []}

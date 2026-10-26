@@ -1,0 +1,1 @@
+namespace Synthetic; public class TestClass(int? value = 7) { [Xunit.Fact] public void Scenario01() { if (!(value == 7)) throw new System.Exception("Unexpected native default"); } }

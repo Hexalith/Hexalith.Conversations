@@ -16,8 +16,12 @@ MAX_TICKS = 3155378975999999999
 BINDING_FIELDS = ('tenant', 'conversation', 'eventType', 'sequence', 'serializationFormat', 'payloadSha256', 'selectedUtcTicks')
 
 
+class PredicateError(ValueError):
+    """A controlled predicate failure carrying only its source-literal explanation."""
+
+
 def require(condition, detail):
-    if not condition: raise ValueError(detail)
+    if not condition: raise PredicateError(detail)
 
 
 def shape(value, keys):

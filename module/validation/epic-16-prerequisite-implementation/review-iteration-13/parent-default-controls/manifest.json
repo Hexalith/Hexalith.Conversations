@@ -1,0 +1,236 @@
+{
+  "scope": "Independent actual pinned xUnit constructor-default exploration; expected all14pass was disproved for one shape, retained honestly",
+  "workspace": "/tmp/epic16-r13-default-controls-sc0tbns_",
+  "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "method": "Scenario01",
+  "rows": [
+    {
+      "test": "Synthetic.NullableNull.Scenario01",
+      "result": "test-passed",
+      "messages": [],
+      "inspectorExit": 0,
+      "inspectorMetadata": {
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "type": "Synthetic.NullableNull",
+        "method": "Scenario01",
+        "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+      }
+    },
+    {
+      "test": "Synthetic.StringDefault.Scenario01",
+      "result": "test-passed",
+      "messages": [],
+      "inspectorExit": 0,
+      "inspectorMetadata": {
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "type": "Synthetic.StringDefault",
+        "method": "Scenario01",
+        "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+      }
+    },
+    {
+      "test": "Synthetic.OptionalString.Scenario01",
+      "result": "test-passed",
+      "messages": [],
+      "inspectorExit": 0,
+      "inspectorMetadata": {
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "type": "Synthetic.OptionalString",
+        "method": "Scenario01",
+        "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+      }
+    },
+    {
+      "test": "Synthetic.OptionalInt.Scenario01",
+      "result": "test-passed",
+      "messages": [],
+      "inspectorExit": 0,
+      "inspectorMetadata": {
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "type": "Synthetic.OptionalInt",
+        "method": "Scenario01",
+        "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+      }
+    },
+    {
+      "test": "Synthetic.AttributeDefault.Scenario01",
+      "result": "test-passed",
+      "messages": [],
+      "inspectorExit": 0,
+      "inspectorMetadata": {
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "type": "Synthetic.AttributeDefault",
+        "method": "Scenario01",
+        "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+      }
+    },
+    {
+      "test": "Synthetic.NullReference.Scenario01",
+      "result": "test-passed",
+      "messages": [],
+      "inspectorExit": 0,
+      "inspectorMetadata": {
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "type": "Synthetic.NullReference",
+        "method": "Scenario01",
+        "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+      }
+    },
+    {
+      "test": "Synthetic.NullableValue.Scenario01",
+      "result": "test-passed",
+      "messages": [],
+      "inspectorExit": 0,
+      "inspectorMetadata": {
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "type": "Synthetic.NullableValue",
+        "method": "Scenario01",
+        "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+      }
+    },
+    {
+      "test": "Synthetic.ParamsArray.Scenario01",
+      "result": "test-passed",
+      "messages": [],
+      "inspectorExit": 0,
+      "inspectorMetadata": {
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "type": "Synthetic.ParamsArray",
+        "method": "Scenario01",
+        "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+      }
+    },
+    {
+      "test": "Synthetic.EnumDefault.Scenario01",
+      "result": "test-passed",
+      "messages": [],
+      "inspectorExit": 0,
+      "inspectorMetadata": {
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "type": "Synthetic.EnumDefault",
+        "method": "Scenario01",
+        "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+      }
+    },
+    {
+      "test": "Synthetic.LongDefault.Scenario01",
+      "result": "test-passed",
+      "messages": [],
+      "inspectorExit": 0,
+      "inspectorMetadata": {
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "type": "Synthetic.LongDefault",
+        "method": "Scenario01",
+        "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+      }
+    },
+    {
+      "test": "Synthetic.IntDefault.Scenario01",
+      "result": "test-passed",
+      "messages": [],
+      "inspectorExit": 0,
+      "inspectorMetadata": {
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "type": "Synthetic.IntDefault",
+        "method": "Scenario01",
+        "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+      }
+    },
+    {
+      "test": "Synthetic.DateTimeDefault.Scenario01",
+      "result": "test-passed",
+      "messages": [],
+      "inspectorExit": 0,
+      "inspectorMetadata": {
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "type": "Synthetic.DateTimeDefault",
+        "method": "Scenario01",
+        "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+      }
+    },
+    {
+      "test": "Synthetic.DecimalDefault.Scenario01",
+      "result": "test-passed",
+      "messages": [],
+      "inspectorExit": 0,
+      "inspectorMetadata": {
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "type": "Synthetic.DecimalDefault",
+        "method": "Scenario01",
+        "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+      }
+    },
+    {
+      "test": "Synthetic.NullableEnum.Scenario01",
+      "result": "test-failed",
+      "messages": [
+        "Object of type 'System.Int32' cannot be converted to type 'System.Nullable`1[Synthetic.Choice]'."
+      ],
+      "inspectorExit": 0,
+      "inspectorMetadata": {
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "type": "Synthetic.NullableEnum",
+        "method": "Scenario01",
+        "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+      }
+    }
+  ],
+  "summary": {
+    "$type": "test-assembly-finished",
+    "AssemblyUniqueID": "a7784b533906d1769930ee06cf38f52abc6d7acb693932817cc658b686360986",
+    "ExecutionTime": 0.161,
+    "FinishTime": "2026-10-26T07:10:57.0983861+00:00",
+    "TestsFailed": 1,
+    "TestsNotRun": 0,
+    "TestsSkipped": 0,
+    "TestsTotal": 14
+  },
+  "binarySha256": "b7af103a3fbb318a9193be4f7980761daa3c0f89a37efb967e08e6b756dc1cc1",
+  "commands": [
+    {
+      "label": "build",
+      "argv": [
+        "dotnet",
+        "build",
+        "Evidence.csproj",
+        "-c",
+        "Debug",
+        "--nologo",
+        "-m:1",
+        "-p:NuGetAudit=false"
+      ],
+      "cwd": "/tmp/epic16-r13-default-controls-sc0tbns_",
+      "exitCode": 0
+    },
+    {
+      "label": "runner",
+      "argv": [
+        "dotnet",
+        "/tmp/epic16-r13-default-controls-sc0tbns_/bin/Debug/net10.0/Evidence.dll",
+        "-automated",
+        "sync",
+        "-failSkips"
+      ],
+      "cwd": "/tmp/epic16-r13-default-controls-sc0tbns_",
+      "exitCode": 1
+    }
+  ],
+  "preservedHelper": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/helper-toolchain-final/bin/Debug/net10.0/Epic16.NativeHelper.dll",
+    "sha256": "3aba9f7b77b4f3d38c6ea0cd000d91d06e3f6d9faa3cdd32cb5f373c61fc4227"
+  }
+}

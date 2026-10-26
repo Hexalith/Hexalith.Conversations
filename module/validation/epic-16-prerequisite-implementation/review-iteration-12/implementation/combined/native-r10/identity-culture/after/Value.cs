@@ -1,0 +1,1 @@
+[assembly:System.Reflection.AssemblyCulture("fr-FR")]namespace External { public class Value {} }

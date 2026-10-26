@@ -1,0 +1,1 @@
+namespace Synthetic; public class TestClass(bool value = true) { [Xunit.Fact] public void Scenario01() {} }

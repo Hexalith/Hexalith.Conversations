@@ -1,0 +1,1 @@
+using Synthetic;  namespace Synthetic { public class Fixture {} [Xunit.CollectionDefinition("UniqueCollectionR13")] public class Group : Xunit.ICollectionFixture<Fixture> {} [Xunit.Collection("UniqueCollectionR13")] public class TestClass(Fixture value) { [Xunit.Fact] public void Scenario01() { System.ArgumentNullException.ThrowIfNull(value); } } }

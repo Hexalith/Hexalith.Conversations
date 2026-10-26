@@ -1,0 +1,1 @@
+namespace Synthetic; public struct Value { public int Number; } public class TestClass(Value value = default) { [Xunit.Fact] public void Scenario01() { if (value.Number != 0) throw new System.Exception("Unexpected default"); } }

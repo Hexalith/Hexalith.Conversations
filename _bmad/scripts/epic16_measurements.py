@@ -56,7 +56,7 @@ BINDING_FIELDS = ('tenant', 'conversation', 'eventType', 'sequence', 'serializat
 
 def require(condition: bool, detail: str) -> None:
     if not condition:
-        raise ValueError(detail)
+        raise domain.PredicateError(detail)
 
 
 def exact_rows(rows: list, ids: tuple | dict, key: str = 'id') -> dict:

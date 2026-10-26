@@ -1,0 +1,18 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-r13-focused-final-order/round13-defaults0/Evidence.csproj (in 104 ms).
+/tmp/epic16-r13-focused-final-order/round13-defaults0/Tests.cs(9,31): warning CS9113: Parameter 'value' is unread. [/tmp/epic16-r13-focused-final-order/round13-defaults0/Evidence.csproj]
+/tmp/epic16-r13-focused-final-order/round13-defaults0/Tests.cs(22,96): warning xUnit1041: Fixture argument 'value' does not have a fixture source (if it comes from a collection definition, ensure the definition is in the same assembly as the test) (https://xunit.net/xunit.analyzers/rules/xUnit1041) [/tmp/epic16-r13-focused-final-order/round13-defaults0/Evidence.csproj]
+/tmp/epic16-r13-focused-final-order/round13-defaults0/Tests.cs(21,97): warning xUnit1041: Fixture argument 'value' does not have a fixture source (if it comes from a collection definition, ensure the definition is in the same assembly as the test) (https://xunit.net/xunit.analyzers/rules/xUnit1041) [/tmp/epic16-r13-focused-final-order/round13-defaults0/Evidence.csproj]
+/tmp/epic16-r13-focused-final-order/round13-defaults0/Tests.cs(15,86): warning xUnit1041: Fixture argument 'value' does not have a fixture source (if it comes from a collection definition, ensure the definition is in the same assembly as the test) (https://xunit.net/xunit.analyzers/rules/xUnit1041) [/tmp/epic16-r13-focused-final-order/round13-defaults0/Evidence.csproj]
+  Evidence -> /tmp/epic16-r13-focused-final-order/round13-defaults0/bin/Debug/net10.0/Evidence.dll
+
+Build succeeded.
+
+/tmp/epic16-r13-focused-final-order/round13-defaults0/Tests.cs(9,31): warning CS9113: Parameter 'value' is unread. [/tmp/epic16-r13-focused-final-order/round13-defaults0/Evidence.csproj]
+/tmp/epic16-r13-focused-final-order/round13-defaults0/Tests.cs(22,96): warning xUnit1041: Fixture argument 'value' does not have a fixture source (if it comes from a collection definition, ensure the definition is in the same assembly as the test) (https://xunit.net/xunit.analyzers/rules/xUnit1041) [/tmp/epic16-r13-focused-final-order/round13-defaults0/Evidence.csproj]
+/tmp/epic16-r13-focused-final-order/round13-defaults0/Tests.cs(21,97): warning xUnit1041: Fixture argument 'value' does not have a fixture source (if it comes from a collection definition, ensure the definition is in the same assembly as the test) (https://xunit.net/xunit.analyzers/rules/xUnit1041) [/tmp/epic16-r13-focused-final-order/round13-defaults0/Evidence.csproj]
+/tmp/epic16-r13-focused-final-order/round13-defaults0/Tests.cs(15,86): warning xUnit1041: Fixture argument 'value' does not have a fixture source (if it comes from a collection definition, ensure the definition is in the same assembly as the test) (https://xunit.net/xunit.analyzers/rules/xUnit1041) [/tmp/epic16-r13-focused-final-order/round13-defaults0/Evidence.csproj]
+    4 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.52

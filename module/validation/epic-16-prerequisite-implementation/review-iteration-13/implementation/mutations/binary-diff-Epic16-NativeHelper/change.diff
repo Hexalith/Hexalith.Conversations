@@ -1,0 +1,10 @@
+--- .gitattributes
++++ .gitattributes
+@@ -156,6 +156,6 @@
+ module/validation/epic-16-prerequisite-implementation/**/*.snk -text -diff
+ module/validation/epic-16-prerequisite-implementation/**/*.cache -text -diff
+ module/validation/epic-16-prerequisite-implementation/**/apphost -text -diff
+-module/validation/epic-16-prerequisite-implementation/**/Epic16.NativeHelper -text -diff
++module/validation/epic-16-prerequisite-implementation/**/Epic16.NativeHelper -text diff
+ module/validation/epic-16-prerequisite-implementation/**/Evidence -text -diff
+ module/validation/epic-16-prerequisite-implementation/**/Goldens -text -diff

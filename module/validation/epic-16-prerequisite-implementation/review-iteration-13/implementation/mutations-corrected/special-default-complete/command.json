@@ -1,0 +1,29 @@
+{
+  "name": "special-default-complete",
+  "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+  "old": "if (blob.ReadUInt16() != 0 || blob.RemainingBytes != 0) throw new InvalidDataException(\"Invalid default attribute blob.\");",
+  "new": "_ = blob.ReadUInt16();",
+  "selector": "round13_defaults_validate and (decimal-named or date-named)",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r13-mutant-special-default-complete-im62gipa/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round13_defaults_validate and (decimal-named or date-named)",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-corrected/special-default-complete/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r13-mutant-special-default-complete-im62gipa",
+  "exitCode": 1,
+  "elapsedSeconds": 9.04955516802147,
+  "originalSha256": "b1f4399f3215d3eb1eb3bd1f8639e131652a17a6d4f60cced73e68f6f39e3c8b",
+  "mutatedSha256": "d1ddcb6c03f097caafc30d2d142b43b880ba5462bc74e6a3aad9e30a6f8639aa",
+  "testSha256": "ad6049e16ab218872880723fcdfa15da86f0858fa4802bb50ba7d1a02c82330d",
+  "tests": {
+    "tests": 2,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0
+  }
+}

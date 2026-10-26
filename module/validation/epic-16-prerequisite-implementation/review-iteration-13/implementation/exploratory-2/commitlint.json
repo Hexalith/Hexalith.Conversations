@@ -1,0 +1,32 @@
+{
+  "test: retain synthetic product source fixtures": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: initialize disposable fixture": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: bind disposable fixture sources": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: establish correlated runtime baseline": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: bind correlated runtime product experiment": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: qualify disposable runtime consumer": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

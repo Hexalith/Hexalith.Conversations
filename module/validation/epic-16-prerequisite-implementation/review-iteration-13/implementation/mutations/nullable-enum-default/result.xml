@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="2" time="5.393" timestamp="2026-10-26T08:38:45.536729+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round13_selected_typed_defaults_match_actual_pinned_runner[nullable-enum]" time="4.307"><failure message="Failed: DID NOT RAISE ValueError">round13_defaults = (PosixPath('/tmp/pytest-of-administrator/pytest-695/round13-defaults0'), PosixPath('/tmp/pytest-of-administrator/pytes...c', '-failSkips', '-method', ...], 'cwd': '/tmp/pytest-of-administrator/pytest-695/round13-defaults0', 'exitCode': 1}])
+index = 7
+
+    @pytest.mark.parametrize('index',range(len(ROUND13_DEFAULTS)),ids=[row[0] for row in ROUND13_DEFAULTS])
+    def test_round13_selected_typed_defaults_match_actual_pinned_runner(round13_defaults,index):
+        directory,binary,commands=round13_defaults;shape=ROUND13_DEFAULTS[index][0];name=f'Synthetic.Default{index}'
+        argv=['dotnet',str(binary),'-automated','sync','-failSkips','-method',name+'.Scenario01']
+        result=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
+        (directory/(shape+'.stdout')).write_bytes(result.stdout);(directory/(shape+'.stderr')).write_bytes(result.stderr)
+        commands.append(dict(argv=argv,cwd=str(directory),exitCode=result.returncode))
+        positive=shape!='nullable-enum'
+        assert result.returncode==(0 if positive else 1),(shape,result.stdout,result.stderr)
+        if positive:assert tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,name,'Scenario01')['method']=='Scenario01'
+        else:
+            assert b'cannot be converted' in result.stdout+result.stderr
+&gt;           with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,name,'Scenario01')
+E           Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:4640: Failed</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round13_selected_typed_defaults_match_actual_pinned_runner[nullable-enum-null]" time="0.315" /></testsuite></testsuites>

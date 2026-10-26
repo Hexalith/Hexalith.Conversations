@@ -1,0 +1,15 @@
+--- _bmad/scripts/epic16_native_helper/TestConstruction.cs
++++ _bmad/scripts/epic16_native_helper/TestConstruction.cs
+@@ -219,12 +219,6 @@
+         if (blob.ReadUInt16() != 1) throw new BadImageFormatException();
+         string? value = count == 1 ? blob.ReadSerializedString() : null;
+         if (count == 1 && value is null) throw new InvalidDataException("Null fixture provider.");
+-        int named = blob.ReadUInt16();
+-        if (named > (mode == "definition" ? 1 : 0)) throw new InvalidDataException("Unsupported fixture named arguments.");
+-        if (named == 1 && (blob.ReadByte() != 0x54 || blob.ReadByte() != 0x02
+-            || blob.ReadSerializedString() != "DisableParallelization" || blob.ReadByte() > 1))
+-            throw new InvalidDataException("Invalid fixture named option.");
+-        if (blob.RemainingBytes != 0) throw new InvalidDataException("Trailing fixture attribute data.");
+         return value;
+     }
+ 

@@ -1,0 +1,19 @@
+{
+  "source": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/provenance.json",
+  "sourceSha256": "7352392d8182d3745eb249f1a682668b3ef7207bc201ccd538bfabaf015bf686",
+  "retainedArtifacts": 33,
+  "publicationPaths": 28,
+  "nativeAssemblies": 11,
+  "captures": 5,
+  "rawTrx": 5,
+  "loadedProductsPerCapture": 9,
+  "allProductInventoriesEqual": true,
+  "exactCommitAndTreeObjects": 43,
+  "exactMappedBlobs": 33,
+  "rawSha256AndGitObjectIdsRecomputed": true,
+  "allObjectsMatchActualDisposableGit": true,
+  "publicationAndLifecycleDiffDerivedFromRetainedRawTrees": true,
+  "completedFocusedTestVerified": true,
+  "focusedAndCombinedSourcesIdentical": true,
+  "scope": "Synthetic observations and nine source-stamped stand-ins; genuine xUnit 4.0.2 fixture runner; test-only trust; no product runtime qualification"
+}

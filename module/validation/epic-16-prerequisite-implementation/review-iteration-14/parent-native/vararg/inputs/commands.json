@@ -1,0 +1,40 @@
+[
+  {
+    "argv": [
+      "dotnet",
+      "build",
+      "Evidence.csproj",
+      "-c",
+      "Debug",
+      "--nologo",
+      "-m:1",
+      "-p:NuGetAudit=false"
+    ],
+    "cwd": "/tmp/epic16-blind-vararg-6rskk2b5",
+    "exitCode": 0
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-blind-vararg-6rskk2b5/bin/Debug/net10.0/Evidence.dll",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-method",
+      "Synthetic.TestClass.Scenario01",
+      "-trx",
+      "/tmp/epic16-blind-vararg-6rskk2b5/result.trx"
+    ],
+    "cwd": "/tmp/epic16-blind-vararg-6rskk2b5",
+    "exitCode": 1
+  },
+  {
+    "argv": [
+      "dotnet",
+      "/tmp/epic16-blind-vararg-6rskk2b5/retained-helper/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+    ],
+    "cwd": "/tmp/epic16-blind-vararg-6rskk2b5/retained-helper",
+    "stdin": "/tmp/epic16-blind-vararg-6rskk2b5/evidence.retained-inspector.request.json",
+    "exitCode": 0
+  }
+]

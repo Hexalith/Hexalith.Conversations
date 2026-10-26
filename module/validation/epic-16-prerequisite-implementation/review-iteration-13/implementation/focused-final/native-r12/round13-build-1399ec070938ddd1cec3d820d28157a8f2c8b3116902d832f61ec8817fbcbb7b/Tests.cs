@@ -1,0 +1,1 @@
+namespace Synthetic; public class TestClass { [Xunit.Fact] public System.Threading.Tasks.ValueTask Scenario01() => default; }

@@ -1,0 +1,28 @@
+{
+  "api": {
+    "assemblyAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute:.ctor:32:0:1:Void(valuetype [{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute+.DebuggingModes):0100070100000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.CompilationRelaxationsAttribute:.ctor:32:0:1:Void(Int32):0100080000000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RuntimeCompatibilityAttribute:.ctor:32:0:0:Void():01000100540216577261704E6F6E457863657074696F6E5468726F777301;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.Versioning.TargetFrameworkAttribute:.ctor:32:0:1:Void(String):0100192E4E4554436F72654170702C56657273696F6E3D7631302E300100540E144672616D65776F726B446973706C61794E616D65092E4E45542031302E30",
+    "kind": "conservative-ecma335-public-declarations-v1",
+    "moduleAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RefSafetyRulesAttribute:.ctor:32:0:1:Void(Int32):01000B0000000000",
+    "types": {
+      ".Api": {
+        "header": "Public, SequentialLayout, Sealed, BeforeFieldInit:[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.ValueType::0:0:",
+        "interfaces": [],
+        "members": [
+          "method:Existing:Public, HideBySig:IL:32:0:0:Void():::"
+        ]
+      }
+    }
+  },
+  "assemblyFlags": 0,
+  "assemblyName": "Probe",
+  "assemblyVersion": "0.0.0.0",
+  "culture": "",
+  "declaredTypes": [
+    ".<Module>",
+    ".Api"
+  ],
+  "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "mvid": "bc141080-c54e-4955-9b91-ad4733aca9a7",
+  "publicKey": "",
+  "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+}

@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "/tmp/epic16-review13-blind-proofs/metadata_inspect.py",
+    "product",
+    "/tmp/epic16-review13-blind-proofs/interface-method-mapping/candidate/Probe.dll.bytes",
+    "--revision",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  ],
+  "cwd": "/tmp/epic16-review13-blind-proofs/interface-method-mapping/candidate",
+  "exitCode": 0
+}

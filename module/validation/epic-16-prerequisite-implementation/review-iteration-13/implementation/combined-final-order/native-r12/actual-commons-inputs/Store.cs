@@ -1,0 +1,2 @@
+using Hexalith.Commons.TenantAccess; using Hexalith.Tenants.Contracts.Enums;
+sealed class Store(string principal):ITenantAccessStateStore { public int Reads; public Task<TenantAccessState?> GetAsync(string id,CancellationToken ct=default) { Reads++; return Task.FromResult<TenantAccessState?>(new(id,(int)TenantStatus.Active,new Dictionary<string,int>{{principal,(int)TenantRole.TenantContributor}})); } }

@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_products.py
++++ _bmad/scripts/epic16_products.py
+@@ -59,7 +59,7 @@
+         content=reader.read(artifact['path']);capture.no_alias(reader,artifact['path'],need)
+         need(digest(content)==artifact['sha256']==observation['sha256'], 'PRODUCT_CAPTURE_DRIFT', name)
+         metadata=native.inspect_product(content,owners[owner])
+-        need(metadata['assemblyName']==name and metadata['mvid']==observation['mvid']==artifact['mvid'] and set(expected['surfaces'])<=set(metadata['declaredTypes']), 'PRODUCT_METADATA_DRIFT', name)
++        need(metadata['assemblyName']==name and metadata['mvid']==observation['mvid']==artifact['mvid'], 'PRODUCT_METADATA_DRIFT', name)
+         result.append(dict(path=artifact['path'],sha256=artifact['sha256'],owner=owner,**metadata))
+     need(len({row['path'] for row in result})==len(result), 'PRODUCT_INVENTORY_INVALID', scenario)
+     return result

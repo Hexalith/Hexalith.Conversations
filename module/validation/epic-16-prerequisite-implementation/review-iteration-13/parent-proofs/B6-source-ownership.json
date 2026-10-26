@@ -1,0 +1,31 @@
+{
+  "sources": [
+    {
+      "originalPath": "src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessService.cs",
+      "retainedPath": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-proofs/B6-source-0.cs.bytes",
+      "sha256": "d4827d183085398b4c6a8d503813b4d1a9b40d9a662f8a7dfc3aeaeccbb4ead5"
+    },
+    {
+      "originalPath": "references/Hexalith.Commons/src/libraries/Hexalith.Commons.TenantAccess/TenantAccessEvaluator.cs",
+      "retainedPath": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-proofs/B6-source-1.cs.bytes",
+      "sha256": "0ce89e385db66952b366900f8cbd787c42eee03e81597236029fa94e2c6cc16b"
+    },
+    {
+      "originalPath": "references/Hexalith.EventStore/src/Hexalith.EventStore.Server/Projections/ProjectionDeliveryReconciler.cs",
+      "retainedPath": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-proofs/B6-source-2.cs.bytes",
+      "sha256": "074ccba3701605b48e135db7b88fabbca0141a4dd2ce667a6476a5c8a40150e5"
+    },
+    {
+      "originalPath": "references/Hexalith.EventStore/src/Hexalith.EventStore.Server/Projections/ProjectionDeliveryRetryWorker.cs",
+      "retainedPath": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-proofs/B6-source-3.cs.bytes",
+      "sha256": "a83ac5c7331ee1ccb6913f4f7ae2f34cdf5fc71a56155f6389d54b4da0ebe1bd"
+    }
+  ],
+  "directCommonsDependencyDeclared": true,
+  "actualCaller": "ConversationTenantAccessService.CheckAccessAsync -> TenantAccessEvaluator.EvaluateAsync",
+  "actualEventStoreImplementations": [
+    "ProjectionDeliveryReconciler",
+    "ProjectionDeliveryRetryWorker"
+  ],
+  "currentRequiredLoadedInventoryOmitsTheirAssemblies": true
+}

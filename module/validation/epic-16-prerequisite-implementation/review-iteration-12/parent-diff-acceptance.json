@@ -1,0 +1,26 @@
+{
+  "diff": "/tmp/epic16-review-next-4q9n86rc/step03.diff",
+  "sha256": "ec769f4046c529900923eb6d972efe6045f82da4c6b472ca2907fc6da330a7a5",
+  "bytes": 134758719,
+  "fileSections": 11877,
+  "binaryPatches": 1218,
+  "allUntrackedIncluded": true,
+  "gitlinksExplicitlyIncluded": true,
+  "binaryRerenderedSections": 57,
+  "binaryRendering": "Unchanged repository bytes rendered as standard Git binary patches in an isolated temporary directory; no Git index or attributes changed",
+  "review": "Parent read the staged diff inventory and latest policy/doc changes, the retained 1,008-line source delta, schema/data/native provenance audits and earlier reviewed history; all 3,746 artifact hashes and 3,770 references independently audited. Native artifacts checked against exact disposable Git objects.",
+  "sourceDelta": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-final-source.diff",
+    "sha256": "401d3d79bfee791c083c43dbadf9a287bc8676404c0dcab40605ca01d40679ab"
+  },
+  "tasksAccepted": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "runtimeHold": "ACTIVE",
+  "scope": "prerequisite tooling and qualification only"
+}

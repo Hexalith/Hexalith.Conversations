@@ -1,0 +1,47 @@
+{
+  "test: retain synthetic product source fixtures": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: initialize disposable fixture": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: bind disposable fixture sources": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: qualify disposable runtime consumer": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: bind portable native capture fixture": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: publish portable native capture fixture": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: retain portable native fixture insertion": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: establish correlated runtime baseline": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: bind correlated runtime product experiment": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

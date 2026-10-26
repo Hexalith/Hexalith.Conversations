@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "dotnet",
+    "build",
+    "Product.csproj",
+    "-c",
+    "Debug",
+    "--nologo",
+    "-m:1",
+    "-p:NuGetAudit=false"
+  ],
+  "cwd": "/tmp/epic16-product-fixture-koy7p68n",
+  "exitCode": 0
+}

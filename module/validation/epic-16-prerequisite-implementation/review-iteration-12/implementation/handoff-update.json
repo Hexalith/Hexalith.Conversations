@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "git",
+    "diff",
+    "--check"
+  ],
+  "exitCode": 0,
+  "documents": [
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-epic-16-prerequisite-implementation.md",
+      "sha256": "f2148800fbea14dfbd31ddbd0c4e6338298e08534ddbe1be7b587a8516162458"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/epic-16-prerequisite-implementation-handoff-2026-10-25.md",
+      "sha256": "ab189a17e5733ea5bca5c19318e2892f883c1bc4e8a30f05cd50e12c2708ea01"
+    }
+  ]
+}

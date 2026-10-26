@@ -1,0 +1,29 @@
+{
+  "name": "binary-diff-wildcard-cache",
+  "path": ".gitattributes",
+  "old": "module/validation/epic-16-prerequisite-implementation/**/*.cache -text -diff",
+  "new": "module/validation/epic-16-prerequisite-implementation/**/*.cache -text diff",
+  "selector": "round13_opaque_native and Product.assets.cache",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r13-mutant-binary-diff-wildcard-cache-q2ie4_u6/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round13_opaque_native and Product.assets.cache",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-corrected/binary-diff-wildcard-cache/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r13-mutant-binary-diff-wildcard-cache-q2ie4_u6",
+  "exitCode": 1,
+  "elapsedSeconds": 13.34424114599824,
+  "originalSha256": "d743202ab8c0bdf3dcd000a4a101acde352b6e6cf305a49b708b23c6e7029d7d",
+  "mutatedSha256": "9c46ce1db506273eabfe12828730fa19e5db1f4540ac82886505d0bbb028c686",
+  "testSha256": "ad6049e16ab218872880723fcdfa15da86f0858fa4802bb50ba7d1a02c82330d",
+  "tests": {
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  }
+}

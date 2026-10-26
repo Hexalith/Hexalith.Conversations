@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "projects": [
+    {
+      "path": "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "kind": "AppHost",
+      "owner": "Conversations owner with Architect/Runtime",
+      "consumers": [
+        "Hexalith.Conversations.slnx",
+        "tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj",
+        ".github/workflows/ci.yml (aspire-test-project)",
+        "tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs",
+        "tests/Hexalith.Conversations.Contracts.Tests/ContractPackageInventoryTest.cs",
+        "tests/Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs",
+        "tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs",
+        "README.md (local production-boundary test harness)",
+        "tests/Hexalith.Conversations.Contracts.Tests/Documentation/DomainModuleAuthoringTemplateValidationTest.cs",
+        "_bmad/scripts/check_package_refresh_environment.py"
+      ],
+      "state": "frozen",
+      "replacementPlan": "pending: producer-owned Platform source/package/hosted mapping; baseline owner and Architect/Runtime must decide exemption or relocation before Story 16.3.",
+      "retirementPlan": "pending: retain exact project and consumers until replacement is adopted and every applicable gate has owner-reviewed exact-subject evidence; this inventory grants no retirement authority. Historical Git-blob reference only: tests/Hexalith.Conversations.Conformance.Tests/PackageEnvironmentAuthorityV18ValidationTest.cs reads the AppHost from its frozen candidate, not the active filesystem.",
+      "gates": {
+        "producerAdoption": "pending",
+        "ownerReviewedSourcePackageDeployedParity": "pending",
+        "eventStoreAd22ExactSubjectRemovalAuthority": "pending: EventStore owner must provide exact-subject consumer-removal authority or an owner-reviewed not-applicable disposition"
+      }
+    },
+    {
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj",
+      "kind": "AppHost",
+      "owner": "Conversations fixture maintainer with Quality",
+      "consumers": [
+        "tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx",
+        ".github/workflows/ci.yml (minimal-module fixture lane)",
+        "_bmad/scripts/verify_minimal_module_fixture.py",
+        "_bmad/scripts/generate_sm2_evidence.py",
+        "_bmad/scripts/verify_sm2_evidence.py",
+        "tests/Hexalith.Conversations.Contracts.Tests/Documentation/MinimalModuleAuthoringCostBaselineValidationTest.cs",
+        "tests/fixtures/Hexalith.Conversations.MinimalModule/README.md (repository-only fixture)",
+        "tests/Hexalith.Conversations.Contracts.Tests/Documentation/DomainModuleAuthoringTemplateValidationTest.cs"
+      ],
+      "state": "frozen",
+      "replacementPlan": "pending: producer-owned Platform source/package/hosted mapping; baseline owner and Architect/Runtime must decide exemption or relocation before Story 16.3.",
+      "retirementPlan": "pending: retain exact project and consumers until replacement is adopted and every applicable gate has owner-reviewed exact-subject evidence; this inventory grants no retirement authority.",
+      "gates": {
+        "producerAdoption": "pending",
+        "ownerReviewedSourcePackageDeployedParity": "pending",
+        "eventStoreAd22ExactSubjectRemovalAuthority": "pending: EventStore owner must provide exact-subject consumer-removal authority or an owner-reviewed not-applicable disposition"
+      }
+    }
+  ]
+}

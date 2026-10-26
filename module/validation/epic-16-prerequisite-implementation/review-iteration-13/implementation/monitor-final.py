@@ -1,0 +1,5 @@
+from pathlib import Path
+import json,re,hashlib,time
+base=Path('module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation');run=base/'combined-final-order';source=json.loads((run/'source.json').read_bytes())['files'];command=json.loads((run/'command.json').read_bytes());progress=''.join(m.group(0) for line in (run/'stdout').read_text().splitlines() if (m:=re.match(r'^[.FEsyxXP]+(?=\s*\[|\s*$)',line)));ids=[line for line in (base/'diagnostic-collection/stdout').read_text().splitlines() if line.startswith('_bmad/scripts/tests/') and '::' in line];record=dict(time=time.time(),elapsedSeconds=round(time.time()-command['started'],1),observedCases=len(progress),expectedCollected=len(ids),failures=[dict(index=i,nodeid=ids[i]) for i,c in enumerate(progress) if c in 'FE'],sourceUnchanged=all(hashlib.sha256(Path(p).read_bytes()).hexdigest()==h for p,h in source.items()),exitCode=command.get('exitCode'))
+with (base/'progress-final.jsonl').open('a') as f:f.write(json.dumps(record)+'\n')
+print(json.dumps(record));assert record['sourceUnchanged']

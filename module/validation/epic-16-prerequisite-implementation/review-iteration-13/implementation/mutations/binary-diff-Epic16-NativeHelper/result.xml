@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="13.297" timestamp="2026-10-26T08:41:34.205723+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round13_opaque_native_evidence_has_binary_normal_diffs[Epic16.NativeHelper]" time="12.609"><failure message="assert False&#10; +  where False = all(&lt;generator object test_round13_opaque_native_evidence_has_binary_normal_diffs.&lt;locals&gt;.&lt;genexpr&gt; at 0x7c578b257010&gt;)">repository = PosixPath('/tmp/pytest-of-administrator/pytest-712/test_round13_opaque_native_evi0/fixture')
+name = 'Epic16.NativeHelper'
+
+    @pytest.mark.parametrize('name',['Evidence','Goldens','Epic16.NativeHelper','apphost','sample.pdb','public.snk','Product.assets.cache','sample.dll','sample.dll.bytes'])
+    def test_round13_opaque_native_evidence_has_binary_normal_diffs(repository,name):
+        path='module/validation/epic-16-prerequisite-implementation/review-iteration-13/build/bin/Debug/'+name
+        raw=b'\x7fELF\0\x90\xff\r\nopaque-native\0';target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
+&gt;       assert all(path+': '+key+': unset' in git(repository,'check-attr',key,'--',path) for key in ('text','diff','whitespace'))
+E       assert False
+E        +  where False = all(&lt;generator object test_round13_opaque_native_evidence_has_binary_normal_diffs.&lt;locals&gt;.&lt;genexpr&gt; at 0x7c578b257010&gt;)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4785: AssertionError</failure></testcase></testsuite></testsuites>

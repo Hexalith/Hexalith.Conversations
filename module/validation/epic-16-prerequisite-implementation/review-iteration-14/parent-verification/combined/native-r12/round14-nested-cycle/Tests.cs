@@ -1,0 +1,1 @@
+namespace Synthetic; public class TestClass { [Xunit.Fact] public void Scenario01() {} } public class Outer { public class Inner {} }

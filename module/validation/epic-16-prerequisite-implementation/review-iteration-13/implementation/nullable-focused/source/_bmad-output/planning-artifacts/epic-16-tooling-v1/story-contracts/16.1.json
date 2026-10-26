@@ -1,0 +1,319 @@
+{
+  "schemaVersion": "hexalith.conversations.epic16-tooling-contract.v1",
+  "storyId": "16.1",
+  "purpose": "prerequisite-tooling-only",
+  "predecessor": "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.1.json",
+  "preservedContract": {
+    "schemaVersion": "hexalith.conversations.epic16-successor-draft.v1",
+    "status": "draft",
+    "storyId": "16.1",
+    "predecessorContract": "_bmad-output/planning-artifacts/v9/story-contracts/16.1.json",
+    "architectureDecisions": [
+      "AD-5",
+      "AD-6",
+      "AD-7",
+      "AD-8"
+    ],
+    "predecessors": [
+      "7.4",
+      "IR-0"
+    ],
+    "outcome": {
+      "title": "Persist tenant-access projection state and prove convergence",
+      "bounded": "Add a tenant-domain durable-store capability behind `ITenantProjectionStore`, configure its Conversations consumer, expose explicit freshness/sequence/gap state, prove restart and two-replica convergence, and remove the single-replica warning only after those proofs pass."
+    },
+    "rollback": {
+      "boundary": "Revert only the durable provider/configuration, Conversations adoption, tests/evidence, Tenants promotion commit, and root gitlink update. Preserve tenant events, public contracts, completed records, other gitlinks, and accepted evidence."
+    },
+    "scenarios": [
+      {
+        "id": "AC-16.1-01",
+        "legacyCommand": "python3 _bmad/scripts/verify_story_16_1.py --repository . --scenario AC-16.1-01 --candidate HEAD --output artifacts/v14/16.1/AC-16.1-01.json",
+        "given": "Given Hexalith.Platform infrastructure and operational policy, its owner-reviewed AD-5 envelope, and additive EventStore and Tenants contracts for durable tenant authorization.",
+        "when": "When contract tests evaluate tenant-segmented storage keys, freshness, sequence progression, fingerprints, pending gaps, and every non-healthy access state.",
+        "then": "Then EventStore owns immutable-envelope extraction, ETag/CAS, retry, replay scheduling, fenced leases, and acknowledgement; Tenants owns the pure transition and projection/checkpoint schema behind ITenantProjectionStore; Conversations configures and consumes those seams without generic Dapr store plumbing. Exact-next events atomically CAS projection and checkpoint. Identical accepted fingerprints are no-ops; accepted-sequence identity conflicts become Corrupt. Older sequences are never reapplied: authoritative-history comparison makes an exact match a no-op, missing or mismatched identity Corrupt, and unavailable verification Unavailable. Only Healthy(lastContiguousSequence) permits authorization; unknown, stale, gapped, corrupt, or unavailable state denies access. The envelope identifies its Architect/Runtime owner, local/CI/staging/production parity and providers, infrastructure responsibilities, state/pubsub/secret/identity dependencies, health/telemetry, backup/rebuild/disaster procedures, operator runbooks, scaling limits, and waiver expiry; only Release accepts capacity or parity waivers. Platform owns physical provider/component selection, injected configuration, declarative subscriptions, identity, telemetry and recovery policy; Conversations follows its enrollment kit and never hardcodes a separate infrastructure binding.",
+        "requirementIds": [
+          "E6-A4-DURABLE-TENANT-ACCESS",
+          "E6-A4-FRESHNESS-GAP-DETECTION",
+          "AD5-ENVELOPE-OWNERSHIP",
+          "AD5-ENVIRONMENT-PROVIDER-PARITY",
+          "AD5-DEPENDENCIES-HEALTH-TELEMETRY",
+          "AD5-RECOVERY-RUNBOOKS-SCALING-WAIVERS",
+          "AD6-PLATFORM-TENANT-OWNERSHIP",
+          "AD6-ATOMIC-SEQUENCE-FINGERPRINT"
+        ]
+      },
+      {
+        "id": "AC-16.1-02",
+        "legacyCommand": "python3 _bmad/scripts/verify_story_16_1.py --repository . --scenario AC-16.1-02 --candidate HEAD --output artifacts/v14/16.1/AC-16.1-02.json",
+        "given": "Given acknowledged tenant events with both authorized and denied outcomes persisted together with sequence and freshness metadata.",
+        "when": "When the Conversations process and any recovery worker restart without tenant-event redelivery and authorization is checked through the consumer.",
+        "then": "Then persisted decisions and sequence/freshness metadata reload identically. Any pending gap remains fail-closed with its immutable expected sequence, monotonic recoveryThrough horizon, and durable per-sequence observed messageId/eventType/payloadFingerprint evidence. Recovery resumes through EventStore under a restart-safe fenced lease and record version; restart cannot discard pending fingerprints or grant authorization before verified Healthy state.",
+        "requirementIds": [
+          "E6-A4-RESTART-CONVERGENCE",
+          "AD6-DURABLE-GAP-HORIZON",
+          "AD6-FENCED-REPLAY-RECOVERY"
+        ]
+      },
+      {
+        "id": "AC-16.1-03",
+        "legacyCommand": "python3 _bmad/scripts/verify_story_16_1.py --repository . --scenario AC-16.1-03 --candidate HEAD --output artifacts/v14/16.1/AC-16.1-03.json",
+        "given": "Given two Conversations replicas sharing the durable tenant projection while Dapr delivers each event to exactly one consumer-group member.",
+        "when": "When concurrent deliveries and reverse-save schedules race against updates, retries, and a recovery horizon extension.",
+        "then": "Then both replicas converge to the same safe access decision and contiguous sequence; neither remains permanently empty or regresses a disable, membership, role, or configuration change. Every future delivery CAS-merges recoveryThrough=max(current, deliveredSequence), retains all observed evidence, treats identical evidence as a no-op, and makes conflicting evidence Corrupt. Recovery CAS-proves an unchanged lease, record version, checkpoint, and horizon with no pending fingerprint before Healthy; otherwise it continues through the enlarged horizon. An expired or superseded worker cannot clear newer state. Acknowledgement follows a durable accepted, duplicate, pending, or corrupt outcome only.",
+        "requirementIds": [
+          "E6-A4-MULTI-REPLICA-CONVERGENCE",
+          "AD6-ATOMIC-SEQUENCE-FINGERPRINT",
+          "AD6-DURABLE-GAP-HORIZON",
+          "AD6-ACKNOWLEDGEMENT-RETRY",
+          "AD6-FENCED-REPLAY-RECOVERY",
+          "AD6-CONCURRENCY-FAULT-MATRIX"
+        ]
+      },
+      {
+        "id": "AC-16.1-04",
+        "legacyCommand": "python3 _bmad/scripts/verify_story_16_1.py --repository . --scenario AC-16.1-04 --candidate HEAD --output artifacts/v14/16.1/AC-16.1-04.json",
+        "given": "Given provider and consumer conformance fixtures with duplicate, out-of-order, missing-sequence, store-unavailable, corrupt-record, and tenant-disable inputs.",
+        "when": "When tests execute reverse-save concurrency, equal-sequence mismatch, at least three interleaved future deliveries, concurrent horizon extension, three-total-attempt retry exhaustion, lease expiry and restart, failed and successful recovery, and two-replica schedules.",
+        "then": "Then duplicates are idempotent and every unsafe state is visible with stable content-safe diagnostics and denies authorization. Future deliveries persist immutable expected sequence and monotonically merge the recovery horizon and observed fingerprints without removal or replacement. Authoritative replay validates every observation and applies the same Tenants transition contiguously; missing or conflicting authoritative history becomes Corrupt. Provider/CAS failure or retry exhaustion is retryable and is never acknowledged; provider or exhausted retry state is Unavailable. Only durably committed accepted, duplicate, pending, or corrupt outcomes acknowledge delivery. Queries never schedule, perform, or clear recovery, and Conversations never clears gap/corruption state.",
+        "requirementIds": [
+          "E6-A4-FRESHNESS-GAP-DETECTION",
+          "AD6-ATOMIC-SEQUENCE-FINGERPRINT",
+          "AD6-DURABLE-GAP-HORIZON",
+          "AD6-ACKNOWLEDGEMENT-RETRY",
+          "AD6-FENCED-REPLAY-RECOVERY",
+          "AD6-CONCURRENCY-FAULT-MATRIX"
+        ]
+      },
+      {
+        "id": "AC-16.1-05",
+        "legacyCommand": "python3 _bmad/scripts/verify_story_16_1.py --repository . --scenario AC-16.1-05 --candidate HEAD --output artifacts/v14/16.1/AC-16.1-05.json",
+        "given": "Given implemented additive Tenants and EventStore seams, Conversations configuration and access adapters, and an accepted operational envelope.",
+        "when": "When the focused Tenants and Conversations projects build and test and public-contract, tenant-safety, restart, and two-replica evidence is compared.",
+        "then": "Then required measured tests have zero failed, skipped, or not-run results; upstream surfaces remain additive, public Conversations contract shape is preserved, and personal tenant data never enters Conversations events or logs. Shared runtime capability remains platform-owned. Remove the single-replica warning only after restart and two-replica convergence proofs pass; local topology cannot substitute for the envelope or a Release-owned capacity/parity waiver.",
+        "requirementIds": [
+          "E6-A4-DURABLE-TENANT-ACCESS",
+          "E6-A4-SINGLE-REPLICA-WARNING-REMOVAL-GATE",
+          "AD5-ENVIRONMENT-PROVIDER-PARITY",
+          "AD5-RECOVERY-RUNBOOKS-SCALING-WAIVERS",
+          "AD6-PLATFORM-TENANT-OWNERSHIP"
+        ]
+      },
+      {
+        "id": "AC-16.1-06",
+        "legacyCommand": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/16.1.json --format bundle --output-json docs/release-evidence/story-16.1-final-record-v2.json --output-markdown docs/release-evidence/story-16.1-final-record-v2.md",
+        "given": "Given later approved successor adoption, compatible predecessor evidence, authorized Story 16.1 entry, and five nonempty passing measured scenario results at the committed candidate.",
+        "when": "When the canonical final-record generator supports the adopted successor contract and generates its JSON and deterministic Markdown pair.",
+        "then": "Then the generated summary is 6/6/0/0/0/0 and binds exact root/Tenants gitlinks, source/input/output/schema digests, candidate identity, fault ledger, and the unchanged rollback boundary. Counts, file lists, commits, and verdicts are derived rather than caller-authored. This draft does not claim generator compatibility, verifier availability, owner approval, or permission to start the story; hold remains ACTIVE pending separate decisions.",
+        "requirementIds": [
+          "E6-A4-SINGLE-REPLICA-WARNING-REMOVAL-GATE",
+          "AD5-ENVELOPE-OWNERSHIP"
+        ]
+      }
+    ],
+    "finalRecord": {
+      "paths": [
+        "docs/release-evidence/story-16.1-final-record-v2.json",
+        "docs/release-evidence/story-16.1-final-record-v2.md"
+      ],
+      "summary": {
+        "required": 6,
+        "passed": 6,
+        "failed": 0,
+        "blocked": 0,
+        "skipped": 0,
+        "notRun": 0
+      }
+    },
+    "adoption": {
+      "generatorCompatible": false,
+      "scenarioVerifiersAvailable": false,
+      "requiresOwnerDecision": true
+    }
+  },
+  "authority": {
+    "implementationHold": "ACTIVE",
+    "executionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  },
+  "nativeProtocol": {
+    "format": "TRX",
+    "testName": "Fully qualified class and ScenarioNN method from untouched pinned xUnit TRX; AC identity is in JSON output.",
+    "resultOutput": "strict JSON: scenarioId, candidate, sources, contractSha256, observations",
+    "sourceRevision": "full committed root candidate; raw root gitlinks bind dependencies",
+    "runtimeTestSource": "tests/Hexalith.Conversations.IntegrationTests/Epic16/Story16_1EvidenceTests.cs",
+    "publicSourceBaseline": "8039d2abcf41bcd2c01fa3dbe618cbec2f4f6da3",
+    "conformanceControls": {
+      "attemptLimit": 3,
+      "timeoutMs": 1000,
+      "cancelBoundMs": 100,
+      "endpoints": [
+        {
+          "id": "conversations-http",
+          "owner": "apphost",
+          "kind": "http"
+        },
+        {
+          "id": "dapr-placement",
+          "owner": "dapr",
+          "kind": "tcp"
+        },
+        {
+          "id": "dapr-scheduler",
+          "owner": "dapr",
+          "kind": "tcp"
+        }
+      ]
+    },
+    "catalogControl": {
+      "appId": "conversation",
+      "serviceVersion": "v1",
+      "routes": [
+        {
+          "domain": "conversation",
+          "projectionType": "conversation-read-model"
+        }
+      ],
+      "wireRoutes": [
+        "/project/v2",
+        "/project/v2/reconcile"
+      ],
+      "scope": "controlled-native-experiment-not-operational-approval"
+    },
+    "capturePolicy": {
+      "captureVersion": 2,
+      "manifestPattern": "artifacts/epic16-runtime/16.1/<scenario>.capture.json",
+      "binaryPattern": "artifacts/epic16-runtime/16.1/binaries/<sha256>.dll",
+      "originalPathStyles": [
+        "posix",
+        "windows"
+      ],
+      "originalPathsAreMetadataOnly": true,
+      "publication": "five native results and receipts, exact capture/binary inventory, deterministic final pair"
+    },
+    "productPolicy": {
+      "captureVersion": 2,
+      "requiredProducts": [
+        {
+          "assemblyName": "Hexalith.Conversations.Server",
+          "owner": ".",
+          "surfaces": [
+            "Hexalith.Conversations.Server.Projections.ConversationProjectionReadModelWriter",
+            "Hexalith.Conversations.Server.TenantAccess.ConversationTenantAccessService"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Conversations.Contracts",
+          "owner": ".",
+          "surfaces": [
+            "Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Client",
+          "owner": "references/Hexalith.Tenants",
+          "surfaces": [
+            "Hexalith.Tenants.Client.Projections.ITenantProjectionStore",
+            "Hexalith.Tenants.Client.Handlers.TenantProjectionEventHandler"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "owner": "references/Hexalith.Tenants",
+          "surfaces": [
+            "Hexalith.Tenants.Contracts.Events.TenantDisabled"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Client",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.Client.Projections.IReadModelStore",
+            "Hexalith.EventStore.Client.Streams.IAuthoritativeEventStreamReader"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.DomainService.DomainProjectionDispatcher"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Server",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.Server.Projections.ProjectionDeliveryReconciler",
+            "Hexalith.EventStore.Server.Projections.ProjectionDeliveryRetryWorker"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Commons.TenantAccess",
+          "owner": "references/Hexalith.Commons",
+          "surfaces": [
+            "Hexalith.Commons.TenantAccess.TenantAccessEvaluator"
+          ]
+        }
+      ],
+      "upstreamApiAssemblies": [
+        "Hexalith.Tenants.Client",
+        "Hexalith.Tenants.Contracts",
+        "Hexalith.EventStore.Client",
+        "Hexalith.EventStore.Contracts",
+        "Hexalith.EventStore.DomainService"
+      ],
+      "publicApiComparison": "conservative-ecma335-public-declarations-v1",
+      "rootPublicApi": "unchanged-baseline-and-loaded-candidate-declarations",
+      "productCorrelation": "same-owned-bytes-mvid-revision-in-api-and-all-five-scenarios",
+      "unsupported": "native marshalling, field RVAs, PInvoke and exported/forwarded types fail; no general binary compatibility claim"
+    },
+    "wirePolicy": {
+      "method": "POST",
+      "path": "/project/v2/reconcile",
+      "requestType": "Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest",
+      "responseType": "Hexalith.EventStore.Contracts.Projections.ProjectionDispatchResponse",
+      "dispatcher": "Hexalith.EventStore.DomainService.DomainProjectionDispatcher.ReconcileAsync",
+      "policy": "EventStoreWorkload:domain-service:project"
+    },
+    "warningSurface": "src/Hexalith.Conversations.Server/Program.cs",
+    "tenantAccessControl": {
+      "id": "tenant-access-observation-v1",
+      "maxAgeTicks": 100
+    }
+  },
+  "commands": [
+    {
+      "scenarioId": "AC-16.1-01",
+      "command": "python3 _bmad/scripts/verify_story_16_1.py --repository . --contract _bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json --scenario AC-16.1-01 --candidate HEAD --output artifacts/epic16-runtime/16.1/AC-16.1-01.json"
+    },
+    {
+      "scenarioId": "AC-16.1-02",
+      "command": "python3 _bmad/scripts/verify_story_16_1.py --repository . --contract _bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json --scenario AC-16.1-02 --candidate HEAD --output artifacts/epic16-runtime/16.1/AC-16.1-02.json"
+    },
+    {
+      "scenarioId": "AC-16.1-03",
+      "command": "python3 _bmad/scripts/verify_story_16_1.py --repository . --contract _bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json --scenario AC-16.1-03 --candidate HEAD --output artifacts/epic16-runtime/16.1/AC-16.1-03.json"
+    },
+    {
+      "scenarioId": "AC-16.1-04",
+      "command": "python3 _bmad/scripts/verify_story_16_1.py --repository . --contract _bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json --scenario AC-16.1-04 --candidate HEAD --output artifacts/epic16-runtime/16.1/AC-16.1-04.json"
+    },
+    {
+      "scenarioId": "AC-16.1-05",
+      "command": "python3 _bmad/scripts/verify_story_16_1.py --repository . --contract _bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json --scenario AC-16.1-05 --candidate HEAD --output artifacts/epic16-runtime/16.1/AC-16.1-05.json"
+    },
+    {
+      "scenarioId": "AC-16.1-06",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json --format bundle --output-json docs/release-evidence/story-16.1-final-record-v2.json --output-markdown docs/release-evidence/story-16.1-final-record-v2.md"
+    }
+  ]
+}

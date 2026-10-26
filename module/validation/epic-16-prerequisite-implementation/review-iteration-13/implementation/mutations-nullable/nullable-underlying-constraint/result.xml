@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="9" skipped="0" tests="10" time="49.176" timestamp="2026-10-26T09:10:48.019975+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round13_runtime_caller_rejects_malformed_constructor_provider_or_return[nullable-constraint]" time="26.701"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}&#10;assert 'PASS' == 'FAIL'&#10;  &#10;  - FAIL&#10;  + PASS">qualified_runtime = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_runtime_caller_re0/runtime')
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_runtime_caller_re0')
+fault = 'nullable-constraint'
+
+    @pytest.mark.parametrize('fault',['default','provider','return-kind','nullable-constraint'])
+    def test_round13_runtime_caller_rejects_malformed_constructor_provider_or_return(qualified_runtime,tmp_path,fault):
+        repo=qualified_runtime;candidate=git(repo,'rev-parse','HEAD');name='Hexalith.Conversations.IntegrationTests.Epic16.Story16_2EvidenceTests'
+        prefix='namespace Hexalith.Conversations.IntegrationTests.Epic16; '
+        if fault=='default':source=prefix+'public class Story16_2EvidenceTests(int value = 8675309) { [Xunit.Fact] public void Scenario02() {} }'
+        elif fault=='nullable-constraint':source=prefix+'public class Story16_2EvidenceTests(int? value = null) { [Xunit.Fact] public void Scenario02() {} }'
+        elif fault=='provider':source=prefix+'public class Fixture {} [Xunit.CollectionDefinition("R13Collection")] public class Group : Xunit.ICollectionFixture&lt;Fixture&gt; {} [Xunit.Collection("R13Collection")] public class Story16_2EvidenceTests(Fixture value) { [Xunit.Fact] public void Scenario02() {} }'
+        else:source=prefix+'public class Story16_2EvidenceTests { [Xunit.Fact] public System.Threading.Tasks.Task Scenario02() =&gt; System.Threading.Tasks.Task.CompletedTask; }'
+        binary=round13_compile(tmp_path/fault,candidate,source);metadata=tooling.native_helper.inspect_assembly(binary,candidate,name,'Scenario02');assert metadata['method']=='Scenario02'
+        locations=round13_locations(binary);mutant=bytearray(binary)
+        if fault=='provider':
+            row=next(r for r in locations['attributes'] if r['type'].endswith(']Xunit.CollectionAttribute'));offset=row['valueOffset'];blob=bytes.fromhex(row['value']);assert len(blob)&lt;128;mutant[offset+len(blob)-1]=1
+        else:
+            row=next(r for r in locations['methods'] if r['type']==name and r['name']==('.ctor' if fault in ('default','nullable-constraint') else 'Scenario02'));offset=row['signatureOffset'];blob=bytes.fromhex(row['signature']);assert len(blob)&lt;128
+            if fault in ('default','nullable-constraint'):assert blob[-1]==0x08;mutant[offset+len(blob)]=0x0e
+            else:assert blob[2]==0x12;mutant[offset+3]=0x11
+        root=json.loads((repo/tooling.capture.capture_path('16.2','AC-16.2-02')).read_bytes())['originalRepositoryRoot']
+        retain_capture(repo,'AC-16.2-02',bytes(mutant),root=root)
+&gt;       rejected(runtime_evaluate(repo),'NATIVE_BINARY_DRIFT')
+
+_bmad/scripts/tests/test_epic16_tooling.py:4861: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+code = 'NATIVE_BINARY_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+&gt;       assert result['result'] == state, result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_bmad/scripts/tests/test_epic16_tooling.py:118: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round13_nullable_constraint_applies_before_all_default_paths[string-null]" time="2.277"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai0')
+path = 'null', argument = 'string'
+
+    @pytest.mark.parametrize('path',['null','optional','nonnull'])
+    @pytest.mark.parametrize('argument',['string','object'])
+    def test_round13_nullable_constraint_applies_before_all_default_paths(tmp_path,path,argument):
+        parameter={'null':'int? value = null','optional':'[System.Runtime.InteropServices.Optional] int? value','nonnull':'int? value = 7'}[path]
+        condition='value == 7' if path=='nonnull' else 'value is null'
+        source='namespace Synthetic; public class TestClass('+parameter+') { [Xunit.Fact] public void Scenario01() { if (!('+condition+')) throw new System.Exception("Unexpected native default"); } }'
+        directory=tmp_path/'native';binary_path,commands=round13_build(directory,source);binary=binary_path.read_bytes()
+        assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        location=next(r for r in round13_locations(binary)['methods'] if r['type']=='Synthetic.TestClass' and r['name']=='.ctor');signature=bytes.fromhex(location['signature']);assert signature[-1]==0x08 and len(signature)&lt;128
+        mutant=bytearray(binary);mutant[location['signatureOffset']+len(signature)]=0x0e if argument=='string' else 0x1c
+&gt;       round13_nullable_runner_control(directory,binary_path,binary,bytes(mutant),commands,'path-'+path+'-'+argument)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4920: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai0/native')
+binary_path = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai0/native/bin/Debug/net10.0/Evidence.dll')
+valid = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+invalid = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+commands = [{'argv': ['dotnet', 'build', 'Evidence.csproj', '-c', 'Debug', '--nologo', ...], 'cwd': '/tmp/pytest-of-administrator...mp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai0/native', 'exitCode': 1, 'phase': 'invalid', ...}]
+label = 'path-null-string'
+
+    def round13_nullable_runner_control(directory,binary_path,valid,invalid,commands,label):
+        for phase,content in [('valid',valid),('invalid',invalid)]:
+            binary_path.write_bytes(content);(directory/(phase+'.dll.bytes')).write_bytes(content)
+            argv=['dotnet',str(binary_path),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01'];run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
+            (directory/(phase+'.stdout')).write_bytes(run.stdout);(directory/(phase+'.stderr')).write_bytes(run.stderr);commands.append(dict(argv=argv,cwd=str(directory),exitCode=run.returncode,phase=phase,binarySha256=digest(content)))
+            assert run.returncode==(0 if phase=='valid' else 1),(phase,run.stdout,run.stderr)
+            if phase=='invalid':assert b'TypeLoadException' in run.stdout+run.stderr
+&gt;       with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(invalid,'a'*40,'Synthetic.TestClass','Scenario01')
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:4954: Failed</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round13_nullable_constraint_applies_before_all_default_paths[string-optional]" time="2.353"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai1')
+path = 'optional', argument = 'string'
+
+    @pytest.mark.parametrize('path',['null','optional','nonnull'])
+    @pytest.mark.parametrize('argument',['string','object'])
+    def test_round13_nullable_constraint_applies_before_all_default_paths(tmp_path,path,argument):
+        parameter={'null':'int? value = null','optional':'[System.Runtime.InteropServices.Optional] int? value','nonnull':'int? value = 7'}[path]
+        condition='value == 7' if path=='nonnull' else 'value is null'
+        source='namespace Synthetic; public class TestClass('+parameter+') { [Xunit.Fact] public void Scenario01() { if (!('+condition+')) throw new System.Exception("Unexpected native default"); } }'
+        directory=tmp_path/'native';binary_path,commands=round13_build(directory,source);binary=binary_path.read_bytes()
+        assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        location=next(r for r in round13_locations(binary)['methods'] if r['type']=='Synthetic.TestClass' and r['name']=='.ctor');signature=bytes.fromhex(location['signature']);assert signature[-1]==0x08 and len(signature)&lt;128
+        mutant=bytearray(binary);mutant[location['signatureOffset']+len(signature)]=0x0e if argument=='string' else 0x1c
+&gt;       round13_nullable_runner_control(directory,binary_path,binary,bytes(mutant),commands,'path-'+path+'-'+argument)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4920: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai1/native')
+binary_path = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai1/native/bin/Debug/net10.0/Evidence.dll')
+valid = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+invalid = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+commands = [{'argv': ['dotnet', 'build', 'Evidence.csproj', '-c', 'Debug', '--nologo', ...], 'cwd': '/tmp/pytest-of-administrator...mp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai1/native', 'exitCode': 1, 'phase': 'invalid', ...}]
+label = 'path-optional-string'
+
+    def round13_nullable_runner_control(directory,binary_path,valid,invalid,commands,label):
+        for phase,content in [('valid',valid),('invalid',invalid)]:
+            binary_path.write_bytes(content);(directory/(phase+'.dll.bytes')).write_bytes(content)
+            argv=['dotnet',str(binary_path),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01'];run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
+            (directory/(phase+'.stdout')).write_bytes(run.stdout);(directory/(phase+'.stderr')).write_bytes(run.stderr);commands.append(dict(argv=argv,cwd=str(directory),exitCode=run.returncode,phase=phase,binarySha256=digest(content)))
+            assert run.returncode==(0 if phase=='valid' else 1),(phase,run.stdout,run.stderr)
+            if phase=='invalid':assert b'TypeLoadException' in run.stdout+run.stderr
+&gt;       with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(invalid,'a'*40,'Synthetic.TestClass','Scenario01')
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:4954: Failed</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round13_nullable_constraint_applies_before_all_default_paths[string-nonnull]" time="2.266" /><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round13_nullable_constraint_applies_before_all_default_paths[object-null]" time="2.316"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai3')
+path = 'null', argument = 'object'
+
+    @pytest.mark.parametrize('path',['null','optional','nonnull'])
+    @pytest.mark.parametrize('argument',['string','object'])
+    def test_round13_nullable_constraint_applies_before_all_default_paths(tmp_path,path,argument):
+        parameter={'null':'int? value = null','optional':'[System.Runtime.InteropServices.Optional] int? value','nonnull':'int? value = 7'}[path]
+        condition='value == 7' if path=='nonnull' else 'value is null'
+        source='namespace Synthetic; public class TestClass('+parameter+') { [Xunit.Fact] public void Scenario01() { if (!('+condition+')) throw new System.Exception("Unexpected native default"); } }'
+        directory=tmp_path/'native';binary_path,commands=round13_build(directory,source);binary=binary_path.read_bytes()
+        assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        location=next(r for r in round13_locations(binary)['methods'] if r['type']=='Synthetic.TestClass' and r['name']=='.ctor');signature=bytes.fromhex(location['signature']);assert signature[-1]==0x08 and len(signature)&lt;128
+        mutant=bytearray(binary);mutant[location['signatureOffset']+len(signature)]=0x0e if argument=='string' else 0x1c
+&gt;       round13_nullable_runner_control(directory,binary_path,binary,bytes(mutant),commands,'path-'+path+'-'+argument)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4920: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai3/native')
+binary_path = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai3/native/bin/Debug/net10.0/Evidence.dll')
+valid = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+invalid = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+commands = [{'argv': ['dotnet', 'build', 'Evidence.csproj', '-c', 'Debug', '--nologo', ...], 'cwd': '/tmp/pytest-of-administrator...mp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai3/native', 'exitCode': 1, 'phase': 'invalid', ...}]
+label = 'path-null-object'
+
+    def round13_nullable_runner_control(directory,binary_path,valid,invalid,commands,label):
+        for phase,content in [('valid',valid),('invalid',invalid)]:
+            binary_path.write_bytes(content);(directory/(phase+'.dll.bytes')).write_bytes(content)
+            argv=['dotnet',str(binary_path),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01'];run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
+            (directory/(phase+'.stdout')).write_bytes(run.stdout);(directory/(phase+'.stderr')).write_bytes(run.stderr);commands.append(dict(argv=argv,cwd=str(directory),exitCode=run.returncode,phase=phase,binarySha256=digest(content)))
+            assert run.returncode==(0 if phase=='valid' else 1),(phase,run.stdout,run.stderr)
+            if phase=='invalid':assert b'TypeLoadException' in run.stdout+run.stderr
+&gt;       with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(invalid,'a'*40,'Synthetic.TestClass','Scenario01')
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:4954: Failed</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round13_nullable_constraint_applies_before_all_default_paths[object-optional]" time="2.277"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai4')
+path = 'optional', argument = 'object'
+
+    @pytest.mark.parametrize('path',['null','optional','nonnull'])
+    @pytest.mark.parametrize('argument',['string','object'])
+    def test_round13_nullable_constraint_applies_before_all_default_paths(tmp_path,path,argument):
+        parameter={'null':'int? value = null','optional':'[System.Runtime.InteropServices.Optional] int? value','nonnull':'int? value = 7'}[path]
+        condition='value == 7' if path=='nonnull' else 'value is null'
+        source='namespace Synthetic; public class TestClass('+parameter+') { [Xunit.Fact] public void Scenario01() { if (!('+condition+')) throw new System.Exception("Unexpected native default"); } }'
+        directory=tmp_path/'native';binary_path,commands=round13_build(directory,source);binary=binary_path.read_bytes()
+        assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        location=next(r for r in round13_locations(binary)['methods'] if r['type']=='Synthetic.TestClass' and r['name']=='.ctor');signature=bytes.fromhex(location['signature']);assert signature[-1]==0x08 and len(signature)&lt;128
+        mutant=bytearray(binary);mutant[location['signatureOffset']+len(signature)]=0x0e if argument=='string' else 0x1c
+&gt;       round13_nullable_runner_control(directory,binary_path,binary,bytes(mutant),commands,'path-'+path+'-'+argument)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4920: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai4/native')
+binary_path = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai4/native/bin/Debug/net10.0/Evidence.dll')
+valid = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+invalid = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+commands = [{'argv': ['dotnet', 'build', 'Evidence.csproj', '-c', 'Debug', '--nologo', ...], 'cwd': '/tmp/pytest-of-administrator...mp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai4/native', 'exitCode': 1, 'phase': 'invalid', ...}]
+label = 'path-optional-object'
+
+    def round13_nullable_runner_control(directory,binary_path,valid,invalid,commands,label):
+        for phase,content in [('valid',valid),('invalid',invalid)]:
+            binary_path.write_bytes(content);(directory/(phase+'.dll.bytes')).write_bytes(content)
+            argv=['dotnet',str(binary_path),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01'];run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
+            (directory/(phase+'.stdout')).write_bytes(run.stdout);(directory/(phase+'.stderr')).write_bytes(run.stderr);commands.append(dict(argv=argv,cwd=str(directory),exitCode=run.returncode,phase=phase,binarySha256=digest(content)))
+            assert run.returncode==(0 if phase=='valid' else 1),(phase,run.stdout,run.stderr)
+            if phase=='invalid':assert b'TypeLoadException' in run.stdout+run.stderr
+&gt;       with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(invalid,'a'*40,'Synthetic.TestClass','Scenario01')
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:4954: Failed</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round13_nullable_constraint_applies_before_all_default_paths[object-nonnull]" time="2.281"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai5')
+path = 'nonnull', argument = 'object'
+
+    @pytest.mark.parametrize('path',['null','optional','nonnull'])
+    @pytest.mark.parametrize('argument',['string','object'])
+    def test_round13_nullable_constraint_applies_before_all_default_paths(tmp_path,path,argument):
+        parameter={'null':'int? value = null','optional':'[System.Runtime.InteropServices.Optional] int? value','nonnull':'int? value = 7'}[path]
+        condition='value == 7' if path=='nonnull' else 'value is null'
+        source='namespace Synthetic; public class TestClass('+parameter+') { [Xunit.Fact] public void Scenario01() { if (!('+condition+')) throw new System.Exception("Unexpected native default"); } }'
+        directory=tmp_path/'native';binary_path,commands=round13_build(directory,source);binary=binary_path.read_bytes()
+        assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        location=next(r for r in round13_locations(binary)['methods'] if r['type']=='Synthetic.TestClass' and r['name']=='.ctor');signature=bytes.fromhex(location['signature']);assert signature[-1]==0x08 and len(signature)&lt;128
+        mutant=bytearray(binary);mutant[location['signatureOffset']+len(signature)]=0x0e if argument=='string' else 0x1c
+&gt;       round13_nullable_runner_control(directory,binary_path,binary,bytes(mutant),commands,'path-'+path+'-'+argument)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4920: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai5/native')
+binary_path = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai5/native/bin/Debug/net10.0/Evidence.dll')
+valid = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+invalid = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+commands = [{'argv': ['dotnet', 'build', 'Evidence.csproj', '-c', 'Debug', '--nologo', ...], 'cwd': '/tmp/pytest-of-administrator...mp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai5/native', 'exitCode': 1, 'phase': 'invalid', ...}]
+label = 'path-nonnull-object'
+
+    def round13_nullable_runner_control(directory,binary_path,valid,invalid,commands,label):
+        for phase,content in [('valid',valid),('invalid',invalid)]:
+            binary_path.write_bytes(content);(directory/(phase+'.dll.bytes')).write_bytes(content)
+            argv=['dotnet',str(binary_path),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01'];run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
+            (directory/(phase+'.stdout')).write_bytes(run.stdout);(directory/(phase+'.stderr')).write_bytes(run.stderr);commands.append(dict(argv=argv,cwd=str(directory),exitCode=run.returncode,phase=phase,binarySha256=digest(content)))
+            assert run.returncode==(0 if phase=='valid' else 1),(phase,run.stdout,run.stderr)
+            if phase=='invalid':assert b'TypeLoadException' in run.stdout+run.stderr
+&gt;       with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(invalid,'a'*40,'Synthetic.TestClass','Scenario01')
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:4954: Failed</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round13_nullable_constraint_excludes_invalid_value_shapes[array]" time="2.310"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai6')
+argument = 'array'
+
+    @pytest.mark.parametrize('argument',['array','nested','byref-like'])
+    def test_round13_nullable_constraint_excludes_invalid_value_shapes(tmp_path,argument):
+        support='public struct Wrapper {}'
+        parameter='Wrapper? value = null'
+        if argument=='nested':support='public struct Wrapper&lt;T&gt; {}';parameter='Wrapper&lt;int&gt;? value = null'
+        if argument=='byref-like':support+=' public ref struct Blocked {}'
+        source='namespace Synthetic; '+support+' public class TestClass('+parameter+') { [Xunit.Fact] public void Scenario01() { if (value is not null) throw new System.Exception("Unexpected native default"); } }'
+        directory=tmp_path/'native';binary_path,commands=round13_build(directory,source);binary=binary_path.read_bytes();locations=round13_locations(binary)
+        if argument=='nested':
+            # The source-authored generic struct is runnable, but intentionally outside
+            # this inspector's bounded local non-generic default subset.
+            with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')
+        else:assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        location=next(r for r in locations['methods'] if r['type']=='Synthetic.TestClass' and r['name']=='.ctor');signature=bytearray.fromhex(location['signature']);assert len(signature)&lt;128
+        wrapper=next(r['coded'] for r in locations['types'] if r['name']=='Synthetic.Wrapper'+('`1' if argument=='nested' else ''));assert wrapper&lt;128
+        if argument=='array':assert signature[-2:]==bytes([0x11,wrapper]);signature[-2:]=bytes([0x1d,0x08])
+        elif argument=='nested':
+            nullable=next(r['coded'] for r in locations['types'] if r['name'].endswith(']System.Nullable`1'));assert nullable&lt;128 and signature[-5:]==bytes([0x15,0x11,wrapper,1,8]);signature[-3]=nullable
+        else:
+            blocked=next(r['coded'] for r in locations['types'] if r['name']=='Synthetic.Blocked');assert blocked&lt;128 and signature[-2:]==bytes([0x11,wrapper]);signature[-1]=blocked
+        offset=location['signatureOffset']+1;mutant=binary[:offset]+bytes(signature)+binary[offset+len(signature):]
+&gt;       round13_nullable_runner_control(directory,binary_path,binary,mutant,commands,'shape-'+argument)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4944: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai6/native')
+binary_path = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai6/native/bin/Debug/net10.0/Evidence.dll')
+valid = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+invalid = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+commands = [{'argv': ['dotnet', 'build', 'Evidence.csproj', '-c', 'Debug', '--nologo', ...], 'cwd': '/tmp/pytest-of-administrator...mp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai6/native', 'exitCode': 1, 'phase': 'invalid', ...}]
+label = 'shape-array'
+
+    def round13_nullable_runner_control(directory,binary_path,valid,invalid,commands,label):
+        for phase,content in [('valid',valid),('invalid',invalid)]:
+            binary_path.write_bytes(content);(directory/(phase+'.dll.bytes')).write_bytes(content)
+            argv=['dotnet',str(binary_path),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01'];run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
+            (directory/(phase+'.stdout')).write_bytes(run.stdout);(directory/(phase+'.stderr')).write_bytes(run.stderr);commands.append(dict(argv=argv,cwd=str(directory),exitCode=run.returncode,phase=phase,binarySha256=digest(content)))
+            assert run.returncode==(0 if phase=='valid' else 1),(phase,run.stdout,run.stderr)
+            if phase=='invalid':assert b'TypeLoadException' in run.stdout+run.stderr
+&gt;       with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(invalid,'a'*40,'Synthetic.TestClass','Scenario01')
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:4954: Failed</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round13_nullable_constraint_excludes_invalid_value_shapes[nested]" time="1.864"><failure message="assert (165 &lt; 128)">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai7')
+argument = 'nested'
+
+    @pytest.mark.parametrize('argument',['array','nested','byref-like'])
+    def test_round13_nullable_constraint_excludes_invalid_value_shapes(tmp_path,argument):
+        support='public struct Wrapper {}'
+        parameter='Wrapper? value = null'
+        if argument=='nested':support='public struct Wrapper&lt;T&gt; {}';parameter='Wrapper&lt;int&gt;? value = null'
+        if argument=='byref-like':support+=' public ref struct Blocked {}'
+        source='namespace Synthetic; '+support+' public class TestClass('+parameter+') { [Xunit.Fact] public void Scenario01() { if (value is not null) throw new System.Exception("Unexpected native default"); } }'
+        directory=tmp_path/'native';binary_path,commands=round13_build(directory,source);binary=binary_path.read_bytes();locations=round13_locations(binary)
+        if argument=='nested':
+            # The source-authored generic struct is runnable, but intentionally outside
+            # this inspector's bounded local non-generic default subset.
+            with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')
+        else:assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        location=next(r for r in locations['methods'] if r['type']=='Synthetic.TestClass' and r['name']=='.ctor');signature=bytearray.fromhex(location['signature']);assert len(signature)&lt;128
+        wrapper=next(r['coded'] for r in locations['types'] if r['name']=='Synthetic.Wrapper'+('`1' if argument=='nested' else ''));assert wrapper&lt;128
+        if argument=='array':assert signature[-2:]==bytes([0x11,wrapper]);signature[-2:]=bytes([0x1d,0x08])
+        elif argument=='nested':
+&gt;           nullable=next(r['coded'] for r in locations['types'] if r['name'].endswith(']System.Nullable`1'));assert nullable&lt;128 and signature[-5:]==bytes([0x15,0x11,wrapper,1,8]);signature[-3]=nullable
+                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           assert (165 &lt; 128)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4940: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round13_nullable_constraint_excludes_invalid_value_shapes[byref-like]" time="2.375"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai8')
+argument = 'byref-like'
+
+    @pytest.mark.parametrize('argument',['array','nested','byref-like'])
+    def test_round13_nullable_constraint_excludes_invalid_value_shapes(tmp_path,argument):
+        support='public struct Wrapper {}'
+        parameter='Wrapper? value = null'
+        if argument=='nested':support='public struct Wrapper&lt;T&gt; {}';parameter='Wrapper&lt;int&gt;? value = null'
+        if argument=='byref-like':support+=' public ref struct Blocked {}'
+        source='namespace Synthetic; '+support+' public class TestClass('+parameter+') { [Xunit.Fact] public void Scenario01() { if (value is not null) throw new System.Exception("Unexpected native default"); } }'
+        directory=tmp_path/'native';binary_path,commands=round13_build(directory,source);binary=binary_path.read_bytes();locations=round13_locations(binary)
+        if argument=='nested':
+            # The source-authored generic struct is runnable, but intentionally outside
+            # this inspector's bounded local non-generic default subset.
+            with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')
+        else:assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        location=next(r for r in locations['methods'] if r['type']=='Synthetic.TestClass' and r['name']=='.ctor');signature=bytearray.fromhex(location['signature']);assert len(signature)&lt;128
+        wrapper=next(r['coded'] for r in locations['types'] if r['name']=='Synthetic.Wrapper'+('`1' if argument=='nested' else ''));assert wrapper&lt;128
+        if argument=='array':assert signature[-2:]==bytes([0x11,wrapper]);signature[-2:]=bytes([0x1d,0x08])
+        elif argument=='nested':
+            nullable=next(r['coded'] for r in locations['types'] if r['name'].endswith(']System.Nullable`1'));assert nullable&lt;128 and signature[-5:]==bytes([0x15,0x11,wrapper,1,8]);signature[-3]=nullable
+        else:
+            blocked=next(r['coded'] for r in locations['types'] if r['name']=='Synthetic.Blocked');assert blocked&lt;128 and signature[-2:]==bytes([0x11,wrapper]);signature[-1]=blocked
+        offset=location['signatureOffset']+1;mutant=binary[:offset]+bytes(signature)+binary[offset+len(signature):]
+&gt;       round13_nullable_runner_control(directory,binary_path,binary,mutant,commands,'shape-'+argument)
+
+_bmad/scripts/tests/test_epic16_tooling.py:4944: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+directory = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai8/native')
+binary_path = PosixPath('/tmp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai8/native/bin/Debug/net10.0/Evidence.dll')
+valid = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+invalid = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\...00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+commands = [{'argv': ['dotnet', 'build', 'Evidence.csproj', '-c', 'Debug', '--nologo', ...], 'cwd': '/tmp/pytest-of-administrator...mp/pytest-of-administrator/pytest-758/test_round13_nullable_constrai8/native', 'exitCode': 1, 'phase': 'invalid', ...}]
+label = 'shape-byref-like'
+
+    def round13_nullable_runner_control(directory,binary_path,valid,invalid,commands,label):
+        for phase,content in [('valid',valid),('invalid',invalid)]:
+            binary_path.write_bytes(content);(directory/(phase+'.dll.bytes')).write_bytes(content)
+            argv=['dotnet',str(binary_path),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01'];run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
+            (directory/(phase+'.stdout')).write_bytes(run.stdout);(directory/(phase+'.stderr')).write_bytes(run.stderr);commands.append(dict(argv=argv,cwd=str(directory),exitCode=run.returncode,phase=phase,binarySha256=digest(content)))
+            assert run.returncode==(0 if phase=='valid' else 1),(phase,run.stdout,run.stderr)
+            if phase=='invalid':assert b'TypeLoadException' in run.stdout+run.stderr
+&gt;       with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(invalid,'a'*40,'Synthetic.TestClass','Scenario01')
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:4954: Failed</failure></testcase></testsuite></testsuites>

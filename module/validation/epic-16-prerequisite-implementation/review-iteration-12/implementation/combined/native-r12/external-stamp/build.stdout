@@ -1,0 +1,14 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_3/native/external/External.csproj (in 67 ms).
+  Restored /tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_3/native/probe/Evidence.csproj (in 111 ms).
+/tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_3/native/external/Attribute.cs(1,88): warning CS9113: Parameter 'value' is unread. [/tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_3/native/external/External.csproj]
+  External -> /tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_3/native/external/bin/Debug/net10.0/External.dll
+  Evidence -> /tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_3/native/probe/bin/Debug/net10.0/Evidence.dll
+
+Build succeeded.
+
+/tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_3/native/external/Attribute.cs(1,88): warning CS9113: Parameter 'value' is unread. [/tmp/epic16-r12-final-lc84tfns/combined/test_round12_native_framework_3/native/external/External.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.46

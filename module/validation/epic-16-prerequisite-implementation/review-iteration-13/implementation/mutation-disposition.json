@@ -1,0 +1,18 @@
+{
+  "originalRun": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations/mutation-probes.json",
+    "sha256": "d480273f8adec5cfb1c6671fef3032ba15b6d4f46a38cf8d18e311e7735eee9e"
+  },
+  "finalRun": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final-order/mutation-probes.json",
+    "sha256": "4450fb3070f86d401a75ee237d5d490e3e378af99044581d504712a16177e1ae"
+  },
+  "originalSurvival": "Collection(string) shares its constructor signature blob with the independently validated AssemblyInformationalVersion constructor. The first probe was rejected by the retained source-stamp guard; it did not demonstrate sensitivity of the new trailing-signature check.",
+  "correction": "The same production guard removal was repeated against the unique Collection(Type) constructor signature. That case failed its expected-rejection assertion. All23 removals were repeated on the final exact test/source bytes after native build-stream retention and parent decimal-sign/nullable-constraint corrections.",
+  "originalSurvivors": [
+    "provider-constructor-trailing"
+  ],
+  "demonstratedGuards": 23,
+  "finalAssertionFailures": 53,
+  "setupErrors": 0
+}

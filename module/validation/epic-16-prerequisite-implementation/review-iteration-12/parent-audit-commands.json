@@ -34,5 +34,145 @@
       "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit-scripts/epic16-review12-parent-final-controls.py",
       "sha256": "8cf01de22b05bd17afeb4fcb1ed3b8ba72d82a9f5f40e4e70ff9120f4251a05b"
     }
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "/tmp/epic16-review12-parent-native-retention.py"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "stdout": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit-logs/native-retention.stdout",
+      "sha256": "ad86d30a9b86bd5add808e5b41b08a2a593094c03f97ab298d3cc43f9c75d36a"
+    },
+    "stderr": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit-logs/native-retention.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "retainedScript": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit-scripts/epic16-review12-parent-native-retention.py",
+      "sha256": "40677a1f2c70c4c5eb6cac8aeeb9a3d4fea6dd0d744e8a495ed63ed2f855a6ae"
+    }
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "/tmp/epic16-review12-parent-mutations.py"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "result": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-mutation-audit.json",
+      "sha256": "be8a32c9a15d01c483f9502a415bee3bb2b61d0c9e717fb25197cf22e997eaf4"
+    },
+    "retainedScript": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit-scripts/epic16-review12-parent-mutations.py",
+      "sha256": "05ca8aad8358aec54a4fd5863d27c1ba8f97adf184388554ca3b855fc23e30a4"
+    }
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "/tmp/epic16-review12-parent-audit.py"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "stdout": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit-logs/audit.stdout",
+      "sha256": "bebd5a2907c03c09489e1c5802429c69ef9ffbad6626ef5087a55357cd2fe4b3"
+    },
+    "stderr": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit-logs/audit.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "retainedScript": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit-scripts/epic16-review12-parent-audit.py",
+      "sha256": "a5583a9e0f700371ca681d227a728ff4cebf8125d9a6e1fe15ec09792d65ae6f"
+    }
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "/tmp/epic16-review12-parent-native-retention-packaging.py"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "stdout": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit-logs/native-retention-packaging.stdout",
+      "sha256": "9ff9adf06c7ea7093e773ef5310139ad3b4232af242ff2ee25cd252bb5938f77"
+    },
+    "stderr": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit-logs/native-retention-packaging.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "retainedScript": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit-scripts/epic16-review12-parent-native-retention-packaging.py",
+      "sha256": "0c1e3841584cefe98a3fa9e29b4e42554dca5d20a67906e4095436afb1fac6c9"
+    }
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "/tmp/epic16-review12-parent-artifacts.py"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 1,
+    "stdout": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit-logs/artifacts.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit-logs/artifacts.stderr",
+      "sha256": "6bf892eda8c0255087d0fbe4bdf64cec3430b78b4a02c934f96deb1f672bd2fb"
+    },
+    "retainedScript": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit-scripts/epic16-review12-parent-artifacts.py",
+      "sha256": "85069e3db808f75f7dd4f697d705f94a248a0d957c8f539ebd81ec5d5495c018"
+    }
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "/tmp/epic16-review12-parent-artifacts.py"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "stdout": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit-logs/artifacts-attempt-2.stdout",
+      "sha256": "0d30d07c55ae5708ea7ce50e83c0575d994389f57a1608bc9ea64542e885c43d"
+    },
+    "stderr": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit-logs/artifacts-attempt-2.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "retainedScript": {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/parent-audit-scripts/epic16-review12-parent-artifacts.py",
+      "sha256": "85069e3db808f75f7dd4f697d705f94a248a0d957c8f539ebd81ec5d5495c018"
+    }
   }
 ]

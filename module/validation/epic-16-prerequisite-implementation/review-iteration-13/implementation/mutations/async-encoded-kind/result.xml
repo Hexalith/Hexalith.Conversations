@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="6.571" timestamp="2026-10-26T08:39:35.412214+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round13_async_return_kind_is_not_erased_by_signature_decoding[Task]" time="3.810"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-702/test_round13_async_return_kind0')
+kind = 'Task'
+
+    @pytest.mark.parametrize('kind',['Task','ValueTask'])
+    def test_round13_async_return_kind_is_not_erased_by_signature_decoding(tmp_path,kind):
+        source='namespace Synthetic; public class TestClass { [Xunit.Fact] public System.Threading.Tasks.'+kind+' Scenario01() =&gt; '+('System.Threading.Tasks.Task.CompletedTask' if kind=='Task' else 'default')+'; }'
+        binary=compile_evidence(tmp_path/kind,'a'*40,source)
+        assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        encoded=0x12 if kind=='Task' else 0x11
+        # Unique parameterless instance return signature; length includes the handle.
+        offsets=[i for i in range(1,len(binary)-5) if binary[i:i+3]==bytes([0x20,0,encoded]) and binary[i-1] in (4,5)]
+        assert len(offsets)==1,offsets
+        mutant=bytearray(binary);mutant[offsets[0]+2]=0x11 if kind=='Task' else 0x12;mutant=bytes(mutant)
+        round11_retain('r13-return-'+kind,{'valid.dll.bytes':binary,'invalid.dll.bytes':mutant})
+&gt;       with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(mutant,'a'*40,'Synthetic.TestClass','Scenario01')
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:4695: Failed</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round13_async_return_kind_is_not_erased_by_signature_decoding[ValueTask]" time="1.826"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-702/test_round13_async_return_kind1')
+kind = 'ValueTask'
+
+    @pytest.mark.parametrize('kind',['Task','ValueTask'])
+    def test_round13_async_return_kind_is_not_erased_by_signature_decoding(tmp_path,kind):
+        source='namespace Synthetic; public class TestClass { [Xunit.Fact] public System.Threading.Tasks.'+kind+' Scenario01() =&gt; '+('System.Threading.Tasks.Task.CompletedTask' if kind=='Task' else 'default')+'; }'
+        binary=compile_evidence(tmp_path/kind,'a'*40,source)
+        assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        encoded=0x12 if kind=='Task' else 0x11
+        # Unique parameterless instance return signature; length includes the handle.
+        offsets=[i for i in range(1,len(binary)-5) if binary[i:i+3]==bytes([0x20,0,encoded]) and binary[i-1] in (4,5)]
+        assert len(offsets)==1,offsets
+        mutant=bytearray(binary);mutant[offsets[0]+2]=0x11 if kind=='Task' else 0x12;mutant=bytes(mutant)
+        round11_retain('r13-return-'+kind,{'valid.dll.bytes':binary,'invalid.dll.bytes':mutant})
+&gt;       with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(mutant,'a'*40,'Synthetic.TestClass','Scenario01')
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:4695: Failed</failure></testcase></testsuite></testsuites>

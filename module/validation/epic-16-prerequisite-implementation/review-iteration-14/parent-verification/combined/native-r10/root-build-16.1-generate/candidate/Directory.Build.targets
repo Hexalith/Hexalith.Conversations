@@ -1,0 +1,1 @@
+<Project><Target Name="GenerateFixtureContract" BeforeTargets="CoreCompile"><WriteLinesToFile File="$(IntermediateOutputPath)Generated.cs" Lines="namespace Synthetic { public class Generated {} }" Overwrite="true" /><ItemGroup><Compile Include="$(IntermediateOutputPath)Generated.cs" /></ItemGroup></Target></Project>

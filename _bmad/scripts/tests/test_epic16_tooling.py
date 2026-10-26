@@ -1076,7 +1076,7 @@ def test_qualified_runtime_evaluate_binds_binary_dependency_canonicalizer_and_an
     assert result['bindings']['testBinary']['sourceRevision'] == result['candidate']['commit']
     assert result['bindings']['testBinary']['testFramework'] == 'xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c'
     assert result['bindings']['canonicalizerSource'] == dict(path=tooling.CANONICALIZER_SOURCE,sha256=tooling.measurements.EVENTSTORE_CANONICALIZER_SHA256)
-    assert result['candidate']['gitlinks'] == [dict(path=owner,commit=git(qualified_runtime/owner,'rev-parse','HEAD')) for owner in ('references/Hexalith.EventStore','references/Hexalith.Tenants')]
+    assert result['candidate']['gitlinks'] == [dict(path=owner,commit=git(qualified_runtime/owner,'rev-parse','HEAD')) for owner in ('references/Hexalith.Commons','references/Hexalith.EventStore','references/Hexalith.Tenants')]
     assert not (qualified_runtime/tooling.receipt_path('runtime','AC-16.2-02')).exists()
 
 
@@ -2394,8 +2394,8 @@ public sealed class Story16_2EvidenceTests(Xunit.ITestOutputHelper output)
     private void Emit(string scenario)
     {
         var payload = System.Text.Json.Nodes.JsonNode.Parse(System.IO.File.ReadAllText(System.IO.Path.Combine(System.Environment.GetEnvironmentVariable("EPIC16_FIXTURE_PAYLOADS")!, scenario+".json")))!;
-        System.Reflection.Assembly[] assemblies = [typeof(Hexalith.Conversations.Server.Projections.ConversationProjectionReadModelWriter).Assembly, typeof(Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1).Assembly, typeof(Hexalith.Tenants.Client.Projections.ITenantProjectionStore).Assembly, typeof(Hexalith.Tenants.Contracts.Events.TenantDisabled).Assembly, typeof(Hexalith.EventStore.Client.Projections.IReadModelStore).Assembly, typeof(Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest).Assembly, typeof(Hexalith.EventStore.DomainService.DomainProjectionDispatcher).Assembly];
-        string[] owners = [".",".","references/Hexalith.Tenants","references/Hexalith.Tenants","references/Hexalith.EventStore","references/Hexalith.EventStore","references/Hexalith.EventStore"];
+        System.Reflection.Assembly[] assemblies = [typeof(Hexalith.Conversations.Server.Projections.ConversationProjectionReadModelWriter).Assembly, typeof(Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1).Assembly, typeof(Hexalith.Tenants.Client.Projections.ITenantProjectionStore).Assembly, typeof(Hexalith.Tenants.Contracts.Events.TenantDisabled).Assembly, typeof(Hexalith.EventStore.Client.Projections.IReadModelStore).Assembly, typeof(Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest).Assembly, typeof(Hexalith.EventStore.DomainService.DomainProjectionDispatcher).Assembly, typeof(Hexalith.EventStore.Server.Projections.ProjectionDeliveryReconciler).Assembly, typeof(Hexalith.Commons.TenantAccess.TenantAccessEvaluator).Assembly];
+        string[] owners = [".",".","references/Hexalith.Tenants","references/Hexalith.Tenants","references/Hexalith.EventStore","references/Hexalith.EventStore","references/Hexalith.EventStore","references/Hexalith.EventStore","references/Hexalith.Commons"];
         var loaded = new System.Text.Json.Nodes.JsonArray();
         for (int i=0;i<assemblies.Length;i++)
         {
@@ -2459,7 +2459,7 @@ public sealed class Story16_2EvidenceTests(Xunit.ITestOutputHelper output)
     git(repo,'add',spec);git(repo,'commit','-qm','test: retain portable native fixture insertion')
     relocated=tmp_path/'fresh-checkout'
     subprocess.run(['git','clone','--no-hardlinks','-q',str(repo),str(relocated)],capture_output=True,check=True)
-    for dependency in ('references/Hexalith.EventStore','references/Hexalith.Tenants'):
+    for dependency in ('references/Hexalith.EventStore','references/Hexalith.Tenants','references/Hexalith.Commons'):
         subprocess.run(['git','clone','--no-hardlinks','-q',str(repo/dependency),str(relocated/dependency)],capture_output=True,check=True)
     # A fresh clone has only committed capture binaries, with no measurement runner.
     assert not (relocated/'artifacts/measurement-only-runner').exists()
@@ -3167,7 +3167,7 @@ def round9_dependencies(repo):
     import tempfile
     if _DEPENDENCY_TEMPLATES is None:
         _DEPENDENCY_TEMPLATES=Path(tempfile.mkdtemp(prefix='epic16-dependency-source-fixtures-'))
-        for owner in ('references/Hexalith.EventStore','references/Hexalith.Tenants'):
+        for owner in ('references/Hexalith.EventStore','references/Hexalith.Tenants','references/Hexalith.Commons'):
             child=_DEPENDENCY_TEMPLATES/owner;child.mkdir(parents=True)
             (child/'.gitignore').write_text('artifacts/\n')
             for product in tooling.products.PRODUCTS:
@@ -3177,7 +3177,7 @@ def round9_dependencies(repo):
                 path=child/'src/Hexalith.EventStore.Client/Projections/ReadModelBatchCanonicalJson.cs';path.parent.mkdir(parents=True);path.write_bytes((ROOT/'_bmad/scripts/epic16_native_helper/ReadModelBatchCanonicalJson.cs').read_bytes())
             git(child,'init','-q');git(child,'config','user.name','Disposable Fixture');git(child,'config','user.email','fixture@example.invalid');git(child,'add','.');git(child,'commit','-qm','test: retain synthetic product source fixtures')
     declarations=[]
-    for owner in ('references/Hexalith.EventStore','references/Hexalith.Tenants'):
+    for owner in ('references/Hexalith.EventStore','references/Hexalith.Tenants','references/Hexalith.Commons'):
         child=repo/owner;child.parent.mkdir(parents=True,exist_ok=True);shutil.copytree(_DEPENDENCY_TEMPLATES/owner,child)
         revision=git(child,'rev-parse','HEAD');git(repo,'update-index','--add','--cacheinfo','160000,'+revision+','+owner)
         declarations.append('[submodule "'+owner+'"]\n\tpath = '+owner+'\n\turl = https://example.invalid/disposable\n')
@@ -3191,7 +3191,7 @@ def round9_api_observations(repo, data, scope=SCOPE):
     rows=[]
     for product in tooling.products.PRODUCTS:
         owner=product['owner']
-        if owner=='.':continue
+        if product['assemblyName'] not in tooling.products.UPSTREAM_API_NAMES:continue
         revision=git(repo/owner,'rev-parse','HEAD')
         binary=round10_product_bytes(repo,product,revision)
         path=f'artifacts/epic16-{scope}/16.1/binaries/{digest(binary)}.dll';target=repo/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(binary)
@@ -3362,7 +3362,7 @@ def test_round9_warning_is_derived_from_candidate_surface_after_prerequisites(re
     assert result['blockers'] and result['assertionLedger']
 
 
-@pytest.mark.parametrize('product_index',range(7))
+@pytest.mark.parametrize('product_index',range(len(tooling.products.PRODUCTS)))
 @pytest.mark.parametrize('fault',['bytes','managed-bytes','mvid','owner','revision','omitted','relabelled','reported-owner','capture-owner','reported-source','capture-source','substituted'])
 def test_round9_loaded_products_are_independently_owned_and_bound(qualified_runtime,product_index,fault):
     repo=qualified_runtime;scenario='AC-16.2-02';path=repo/tooling.native_path('runtime',scenario);tree=ET.fromstring(path.read_bytes());output=tree.find('./{*}Results/{*}UnitTestResult/{*}Output/{*}StdOut');payload=json.loads(output.text)
@@ -3375,7 +3375,7 @@ def test_round9_loaded_products_are_independently_owned_and_bound(qualified_runt
     elif fault=='reported-source':row['sourceRevision']='f'*40
     elif fault=='capture-source':artifact['sourceRevision']='f'*40
     elif fault=='substituted':
-        other=capture['products'][(product_index+1)%7]
+        other=capture['products'][(product_index+1)%len(tooling.products.PRODUCTS)]
         for field in ('path','sha256','mvid'):artifact[field]=other[field]
         for field in ('sha256','mvid'):row[field]=other[field]
     elif fault=='mvid':row['mvid']=artifact['mvid']='00000000-0000-0000-0000-000000000000'
@@ -3729,7 +3729,7 @@ def test_round10_api_candidate_must_be_the_actual_loaded_product(round10_runtime
     rejected(tooling.evaluate(repo,'16.1',scenario),'PRODUCT_API_CORRELATION_DRIFT')
 
 
-@pytest.mark.parametrize('product_index',[0,2])
+@pytest.mark.parametrize('product_index',[0,2,7,8])
 def test_round10_generator_rejects_different_owned_implementations_across_five_tests(round10_runtime,product_index):
     repo=round10_runtime;scenario='AC-16.1-04';name=tooling.products.PRODUCTS[product_index]['assemblyName'];product=tooling.products.PRODUCTS[product_index]
     path=repo/tooling.native_path('runtime',scenario);payload=json.loads(records.parse_trx(path.read_bytes())['results'][0]['output']);row=payload['loadedProducts'][product_index]
@@ -4567,3 +4567,487 @@ def test_round12_reverse_save_rejects_coherent_shared_process(repository,index):
     consumer['processId']=consumer['scope']['processId']=process
     consumer['storeRead']['scope']['processId']=consumer['response']['scope']['processId']=process
     round8_submit(repository,'AC-16.1-03',data)
+
+
+# Iteration 13: all native execution below is test-authored disposable code. The
+# fixed inspector never executes the supplied assemblies or their attributes.
+def round13_build(directory, source, revision='a'*40):
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+    (directory/'Evidence.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType><GenerateAssemblyInfo>false</GenerateAssemblyInfo><EnableNETAnalyzers>false</EnableNETAnalyzers></PropertyGroup><ItemGroup><PackageReference Include="xunit.v3" Version="4.0.2" /></ItemGroup></Project>')
+    (directory/'Stamp.cs').write_text('[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+'+revision+'")]')
+    (directory/'Tests.cs').write_text(source)
+    command=['dotnet','build','Evidence.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false']
+    result=subprocess.run(command,cwd=directory,capture_output=True,timeout=120)
+    (directory/'build.stdout').write_bytes(result.stdout);(directory/'build.stderr').write_bytes(result.stderr)
+    commands=[dict(argv=command,cwd=str(directory),exitCode=result.returncode)]
+    assert result.returncode==0,(result.stdout,result.stderr)
+    return directory/'bin/Debug/net10.0/Evidence.dll', commands
+
+
+ROUND13_DEFAULTS = [
+ ('int','int value = 8675309','value == 8675309'),
+ ('long','long value = 1','value == 1L'),
+ ('string','string value = ""','value == ""'),
+ ('null-reference','object value = null','value is null'),
+ ('nullable-int','int? value = 7','value == 7'),
+ ('nullable-null','int? value = null','value is null'),
+ ('enum','Choice value = Choice.One','value == Choice.One'),
+ ('nullable-enum','Choice? value = Choice.One','true'),
+ ('decimal','decimal value = 1.5m','value == 1.5m'),
+ ('datetime','System.DateTime value = default','value == default(System.DateTime)'),
+ ('optional-string','[System.Runtime.InteropServices.Optional] string value','value is null'),
+ ('optional-int','[System.Runtime.InteropServices.Optional] int value','value == 0'),
+ ('params','params string[] value','value.Length == 0'),
+ ('attribute-default','[System.Runtime.InteropServices.DefaultParameterValue(3)] int value','value == 3'),
+ ('nullable-enum-null','Choice? value = null','value is null'),
+ ('local-value','Value value = default','value.Number == 0'),
+ ('nullable-decimal','decimal? value = 1.5m','value == 1.5m'),
+ ('nullable-local-value','Value? value = null','value is null'),
+ ('nullable-datetime','System.DateTime? value = null','value is null'),
+ ('nullable-date-attribute','[System.Runtime.CompilerServices.DateTimeConstant(123)] System.DateTime? value','value.Value.Ticks == 123'),
+ ('date-attribute','[System.Runtime.CompilerServices.DateTimeConstant(123)] System.DateTime value','value.Ticks == 123'),
+ ('optional-enum','[System.Runtime.InteropServices.Optional] Choice value','value == Choice.Zero'),
+ ('fixture-unused-default','Fixture value = null','value != null'),
+ ('output-unused-default','Xunit.ITestOutputHelper value = null','value != null'),
+ ('bool','bool value = true','value'),
+ ('char','char value = \'é\'','value == \'é\''),
+ ('byte','byte value = 2','value == 2'),
+ ('double','double value = 1.25','value == 1.25'),
+]
+
+
+@pytest.fixture(scope='session')
+def round13_defaults(tmp_path_factory):
+    directory=tmp_path_factory.mktemp('round13-defaults')
+    source='namespace Synthetic; public enum Choice { Zero, One } public struct Value { public int Number; } public class Fixture {}\n'
+    for index,(name,parameter,condition) in enumerate(ROUND13_DEFAULTS):
+        inheritance=' : Xunit.IClassFixture<Fixture>' if name=='fixture-unused-default' else ''
+        source+=f'public class Default{index}({parameter}){inheritance} {{ [Xunit.Fact] public void Scenario01() {{ if (!({condition})) throw new System.Exception("Unexpected default"); }} }}\n'
+    binary,commands=round13_build(directory,source)
+    return directory,binary,commands
+
+
+@pytest.mark.parametrize('index',range(len(ROUND13_DEFAULTS)),ids=[row[0] for row in ROUND13_DEFAULTS])
+def test_round13_selected_typed_defaults_match_actual_pinned_runner(round13_defaults,index):
+    directory,binary,commands=round13_defaults;shape=ROUND13_DEFAULTS[index][0];name=f'Synthetic.Default{index}'
+    argv=['dotnet',str(binary),'-automated','sync','-failSkips','-method',name+'.Scenario01']
+    result=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
+    (directory/(shape+'.stdout')).write_bytes(result.stdout);(directory/(shape+'.stderr')).write_bytes(result.stderr)
+    commands.append(dict(argv=argv,cwd=str(directory),exitCode=result.returncode))
+    positive=shape!='nullable-enum'
+    assert result.returncode==(0 if positive else 1),(shape,result.stdout,result.stderr)
+    if positive:assert tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,name,'Scenario01')['method']=='Scenario01'
+    else:
+        assert b'cannot be converted' in result.stdout+result.stderr
+        with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,name,'Scenario01')
+    round12_retain_native('round13-defaults',directory,commands)
+
+
+@pytest.mark.parametrize('fault',['wrong-type','truncated-constant','invalid-bool','invalid-null','decimal-scale','decimal-named','decimal-trailing','date-range','date-named'])
+def test_round13_defaults_validate_selected_kind_encoding_and_complete_blob(tmp_path,fault):
+    if fault.startswith('decimal'):
+        parameter='decimal value = 1.23456789m';source='namespace Synthetic; public class TestClass('+parameter+') { [Xunit.Fact] public void Scenario01() {} }'
+    elif fault.startswith('date'):
+        source='namespace Synthetic; public class TestClass([System.Runtime.CompilerServices.DateTimeConstant(123456789)] System.DateTime value) { [Xunit.Fact] public void Scenario01() {} }'
+    elif fault=='invalid-bool':source='namespace Synthetic; public class TestClass(bool value = true) { [Xunit.Fact] public void Scenario01() {} }'
+    elif fault=='invalid-null':source='namespace Synthetic; public class TestClass(object value = null) { [Xunit.Fact] public void Scenario01() {} }'
+    else:source='namespace Synthetic; public class TestClass(int value = 8675309, string other = "typed") { [Xunit.Fact] public void Scenario01() {} }'
+    binary=round13_compile(tmp_path/fault,'a'*40,source)
+    assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+    if fault=='wrong-type':before=bytes.fromhex('05200201080e');after=bytes.fromhex('052002010e0e')
+    elif fault=='truncated-constant':before=b'\x04'+(8675309).to_bytes(4,'little');after=b'\x03'+before[1:]
+    elif fault=='invalid-bool':before=bytes([1,1]);after=bytes([1,2])
+    elif fault=='invalid-null':before=bytes([4,0,0,0,0]);after=bytes([4,1,0,0,0])
+    elif fault.startswith('decimal'):
+        before=bytes([18,1,0,8,0])+bytes(8)+(123456789).to_bytes(4,'little')+bytes(2);after=bytearray(before)
+        if fault=='decimal-scale':after[3]=29
+        elif fault=='decimal-named':after[-2]=1
+        else:after[0]=17
+        after=bytes(after)
+    else:
+        before=bytes([12,1,0])+(123456789).to_bytes(8,'little')+bytes(2);after=bytearray(before)
+        if fault=='date-range':after[3:11]=(2**63-1).to_bytes(8,'little')
+        else:after[-2]=1
+        after=bytes(after)
+    locations=round13_locations(binary)
+    if fault in ('wrong-type',):
+        target=next(row for row in locations['methods'] if row['type']=='Synthetic.TestClass' and row['name']=='.ctor')['signatureOffset']
+    elif fault in ('truncated-constant','invalid-bool','invalid-null'):
+        target=next(row for row in locations['constants'] if row['type']=='Synthetic.TestClass' and row['parameter']=='value')['offset']
+    else:
+        target=next(row for row in locations['attributes'] if row['type'].endswith('DecimalConstantAttribute' if fault.startswith('decimal') else 'DateTimeConstantAttribute'))['valueOffset']
+    assert binary[target:target+len(before)]==before,(fault,before.hex(),binary[target:target+len(before)].hex())
+    mutant=binary[:target]+after+binary[target+len(before):]
+    round11_retain('r13-default-'+fault,{'valid.dll.bytes':binary,'invalid.dll.bytes':mutant})
+    with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(mutant,'a'*40,'Synthetic.TestClass','Scenario01')
+
+
+@pytest.mark.parametrize('kind',['Task','ValueTask'])
+def test_round13_async_return_kind_is_not_erased_by_signature_decoding(tmp_path,kind):
+    source='namespace Synthetic; public class TestClass { [Xunit.Fact] public System.Threading.Tasks.'+kind+' Scenario01() => '+('System.Threading.Tasks.Task.CompletedTask' if kind=='Task' else 'default')+'; }'
+    binary=round13_compile(tmp_path/kind,'a'*40,source)
+    assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+    encoded=0x12 if kind=='Task' else 0x11
+    # Unique parameterless instance return signature; length includes the handle.
+    offsets=[i for i in range(1,len(binary)-5) if binary[i:i+3]==bytes([0x20,0,encoded]) and binary[i-1] in (4,5)]
+    assert len(offsets)==1,offsets
+    mutant=bytearray(binary);mutant[offsets[0]+2]=0x11 if kind=='Task' else 0x12;mutant=bytes(mutant)
+    round11_retain('r13-return-'+kind,{'valid.dll.bytes':binary,'invalid.dll.bytes':mutant})
+    with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(mutant,'a'*40,'Synthetic.TestClass','Scenario01')
+
+
+@pytest.mark.parametrize('shape',['assembly','assembly-generic','collection-string','collection-type','collection-generic','definition-string','definition-type','definition-named'])
+@pytest.mark.parametrize('fault',['positive','named-count','trailing','constructor','signature-trailing'])
+def test_round13_provider_attributes_require_complete_supported_metadata(tmp_path,shape,fault):
+    generic=shape in ('assembly-generic','collection-generic')
+    assembly='[assembly:Xunit.AssemblyFixture'+('<Synthetic.Fixture>]' if generic else '(typeof(Synthetic.Fixture))]') if shape.startswith('assembly') else ''
+    definition='[Xunit.CollectionDefinition("UniqueCollectionR13"'+(', DisableParallelization=true' if shape=='definition-named' else '')+')]'
+    if shape=='definition-type':definition='[Xunit.CollectionDefinition(DisableParallelization=true)]'
+    collection='[Xunit.Collection("UniqueCollectionR13")]'
+    if shape in ('collection-type','definition-type'):collection='[Xunit.Collection(typeof(Group))]'
+    elif shape=='collection-generic':collection='[Xunit.Collection<Group>]'
+    support='public class Fixture {} '+definition+' public class Group : Xunit.ICollectionFixture<Fixture> {}'
+    source='using Synthetic; '+assembly+' namespace Synthetic { '+support+' '+('' if assembly else collection)+' public class TestClass(Fixture value) { [Xunit.Fact] public void Scenario01() { System.ArgumentNullException.ThrowIfNull(value); } } }'
+    directory=tmp_path/'native';binary_path,commands=round13_build(directory,source);binary=binary_path.read_bytes()
+    assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+    if fault=='positive':
+        argv=['dotnet',str(binary_path),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01'];run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
+        (directory/'run.stdout').write_bytes(run.stdout);(directory/'run.stderr').write_bytes(run.stderr);commands.append(dict(argv=argv,cwd=str(directory),exitCode=run.returncode))
+        assert run.returncode==0,(run.stdout,run.stderr)
+    else:
+        locations=round13_locations(binary)
+        expected='Xunit.AssemblyFixtureAttribute' if assembly else 'Xunit.CollectionDefinitionAttribute' if shape.startswith('definition') else 'Xunit.CollectionAttribute'
+        if generic:expected+='`1'
+        attribute=next(row for row in locations['attributes'] if row['type'].split(']')[-1].split('<')[0]==expected)
+        target=attribute['signatureOffset'] if fault in ('constructor','signature-trailing') else attribute['valueOffset']
+        original=bytes.fromhex(attribute['signature'] if fault in ('constructor','signature-trailing') else attribute['value'])
+        assert len(original)<128
+        before=bytes([len(original)])+original;after=bytearray(before)
+        if fault=='constructor':
+            # Keep all other member-reference identity intact; the ctor's return
+            # type must be Void, including generic parameterless constructors.
+            after[3]=0x08
+        elif fault=='signature-trailing':after[0]+=1
+        elif fault=='trailing':after[0]+=1
+        else:
+            if shape in ('definition-type','definition-named'):after[-1]=2
+            else:after[-2]=1
+        assert binary[target:target+len(before)]==before
+        mutant=binary[:target]+bytes(after)+binary[target+len(before):]
+        (directory/'invalid.dll.bytes').write_bytes(mutant)
+        with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(mutant,'a'*40,'Synthetic.TestClass','Scenario01')
+    round12_retain_native('round13-provider-'+shape+'-'+fault,directory,commands)
+
+
+@pytest.mark.parametrize('fault',['changed','hardlink','symlink'])
+def test_round13_generator_rereads_native_after_actual_evaluation_before_writing(round10_runtime,monkeypatch,fault):
+    repo=round10_runtime;story='16.1'
+    for n in range(1,6):
+        row=tooling.evaluate(repo,story,f'AC-{story}-0{n}');assert row['result']=='PASS',row
+        dump(repo,tooling.receipt_path('runtime',row['scenarioId']),row)
+    original=tooling.capture.inventory
+    def mutate(reader,actual_story,rows,need):
+        path=repo/rows[0]['bindings']['native']['path'];raw=path.read_bytes()
+        if fault=='changed':path.write_bytes(raw+b'\n<!-- drift after admission -->')
+        else:
+            path.unlink();alias=repo/'artifacts/native-alias';alias.write_bytes(raw)
+            if fault=='hardlink':os.link(alias,path)
+            else:path.symlink_to(alias)
+        return original(reader,actual_story,rows,need)
+    monkeypatch.setattr(tooling.capture,'inventory',mutate)
+    result,j,m=tooling.generate(repo,story,write=True)
+    assert result['result']=='FAIL' and result['assertionLedger'],result
+    assert result['blockers'] and j is None and m is None
+    assert not any((repo/path).exists() for path in tooling.final_paths('runtime',story))
+
+
+@pytest.mark.parametrize('exit_code',[1,150,137,-11])
+def test_round13_host_failures_are_blocked_with_bounded_real_diagnostics(qualified_runtime,monkeypatch,exit_code):
+    native=tooling.native_helper;workspace,assembly=native._helper();real=native.subprocess.run
+    def run(argv,**kwargs):
+        if argv==['dotnet',str(assembly)]:return subprocess.CompletedProcess(argv,exit_code,stdout=b'x'*5000+b'host-out',stderr=b'y'*5000+b'You must install or update .NET to run this application.')
+        return real(argv,**kwargs)
+    monkeypatch.setattr(native.subprocess,'run',run)
+    with pytest.raises(native.HelperUnavailable) as error:native._run(dict(operation='provenance'))
+    message=str(error.value);assert 'exit='+str(exit_code) in message and 'host-out' in message and 'install or update .NET' in message and len(message)<4200
+    native.inspect_product.cache_clear();rejected(runtime_evaluate(qualified_runtime),'NATIVE_HELPER_UNAVAILABLE','BLOCKED')
+
+
+def test_round13_documented_helper_rejection_remains_invalid_evidence(monkeypatch):
+    native=tooling.native_helper;workspace,assembly=native._helper()
+    monkeypatch.setattr(native.subprocess,'run',lambda *a,**k:subprocess.CompletedProcess(a[0],1,stdout=b'',stderr=b'Invalid native evidence.'))
+    with pytest.raises(ValueError):native._run(dict(operation='metadata'))
+
+
+@pytest.mark.parametrize('name',['Evidence','Goldens','Epic16.NativeHelper','apphost','sample.pdb','public.snk','Product.assets.cache','sample.dll','sample.dll.bytes'])
+def test_round13_opaque_native_evidence_has_binary_normal_diffs(repository,name):
+    path='module/validation/epic-16-prerequisite-implementation/review-iteration-13/build/bin/Debug/'+name
+    raw=b'\x7fELF\0\x90\xff\r\nopaque-native\0';target=repository/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
+    assert all(path+': '+key+': unset' in git(repository,'check-attr',key,'--',path) for key in ('text','diff','whitespace'))
+    git(repository,'add','-f','--',path)
+    diff=subprocess.run(['git','-C',str(repository),'diff','--cached','--',path],capture_output=True,check=True).stdout
+    assert 'Binary files ' in diff.decode('utf-8') and raw not in diff and target.read_bytes()==raw
+
+
+@pytest.mark.parametrize('name',['Tests.cs','capture.json','raw.trx','build.stdout','report.md'])
+def test_round13_evidence_source_and_raw_text_stay_readable(repository,name):
+    path='module/validation/epic-16-prerequisite-implementation/review-iteration-13/build/'+name
+    attrs=git(repository,'check-attr','text','diff','whitespace','--',path)
+    assert path+': text: unset' in attrs and path+': diff: set' in attrs and path+': whitespace: unset' in attrs
+
+
+def test_round13_implementation_owners_do_not_expand_upstream_compatibility_scope(round10_runtime):
+    result=tooling.evaluate(round10_runtime,'16.1','AC-16.1-05');assert result['result']=='PASS',result
+    implementations={p['assemblyName'] for p in result['bindings']['testBinary']['products']}
+    assert {'Hexalith.EventStore.Server','Hexalith.Commons.TenantAccess'}<=implementations
+    assert [p['assemblyName'] for p in result['bindings']['upstreamApiPreservation']]==list(tooling.products.UPSTREAM_API_NAMES)
+    assert not {'Hexalith.EventStore.Server','Hexalith.Commons.TenantAccess'} & set(tooling.products.UPSTREAM_API_NAMES)
+
+
+_ROUND13_LOCATOR = None
+
+
+def round13_locations(binary):
+    """Locate exact metadata heap bytes for mutations without loading the PE."""
+    global _ROUND13_LOCATOR
+    import tempfile
+    if _ROUND13_LOCATOR is None:
+        directory=Path(tempfile.mkdtemp(prefix='epic16-metadata-locations-'))
+        (directory/'global.json').write_bytes((ROOT/'global.json').read_bytes())
+        (directory/'Probe.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup></Project>')
+        (directory/'SignatureNames.cs').write_bytes((ROOT/'_bmad/scripts/epic16_native_helper/SignatureNames.cs').read_bytes())
+        (directory/'Program.cs').write_text('''using System.Reflection.Metadata;
+using System.Reflection.Metadata.Ecma335;
+using System.Reflection.PortableExecutable;
+using System.Text.Json;
+using Hexalith.Conversations.Tooling;
+using var pe = new PEReader(File.OpenRead(args[0])); var reader=pe.GetMetadataReader(); var names=new SignatureNames();
+int Offset(BlobHandle h) => pe.PEHeaders.MetadataStartOffset+reader.GetHeapMetadataOffset(HeapIndex.Blob)+MetadataTokens.GetHeapOffset(h);
+var attributes=new List<object>(); var constants=new List<object>(); var methods=new List<object>();
+foreach(var h in reader.CustomAttributes) { var a=reader.GetCustomAttribute(h); if(a.Constructor.Kind!=HandleKind.MemberReference) continue; var c=reader.GetMemberReference((MemberReferenceHandle)a.Constructor); attributes.Add(new{type=names.Name(reader,c.Parent),signature=Convert.ToHexString(reader.GetBlobBytes(c.Signature)),signatureOffset=Offset(c.Signature),value=Convert.ToHexString(reader.GetBlobBytes(a.Value)),valueOffset=Offset(a.Value)}); }
+foreach(var h in reader.TypeDefinitions) { var t=reader.GetTypeDefinition(h); foreach(var mh in t.GetMethods()) { var m=reader.GetMethodDefinition(mh); methods.Add(new{type=names.Name(reader,h),name=reader.GetString(m.Name),signature=Convert.ToHexString(reader.GetBlobBytes(m.Signature)),signatureOffset=Offset(m.Signature)}); foreach(var ph in m.GetParameters()) { var p=reader.GetParameter(ph); var ch=p.GetDefaultValue(); if(ch.IsNil) continue; var c=reader.GetConstant(ch); constants.Add(new{type=names.Name(reader,h),parameter=reader.GetString(p.Name),kind=c.TypeCode.ToString(),offset=Offset(c.Value),value=Convert.ToHexString(reader.GetBlobBytes(c.Value))}); } } }
+var types=reader.TypeDefinitions.Select(h=>new{name=names.Name(reader,h),coded=MetadataTokens.GetRowNumber(h)*4}).Concat(reader.TypeReferences.Select(h=>new{name=names.Name(reader,h),coded=MetadataTokens.GetRowNumber(h)*4+1})).ToArray();
+var nested=new{offset=pe.PEHeaders.MetadataStartOffset+reader.GetTableMetadataOffset(TableIndex.NestedClass),size=reader.GetTableRowSize(TableIndex.NestedClass),rows=reader.GetTableRowCount(TableIndex.NestedClass)};
+Console.Write(JsonSerializer.Serialize(new{attributes,constants,methods,types,nested}));''')
+        argv=['dotnet','build','Probe.csproj','-c','Debug','--nologo','-m:1','-p:NuGetAudit=false'];run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=120)
+        (directory/'build.stdout').write_bytes(run.stdout);(directory/'build.stderr').write_bytes(run.stderr)
+        assert run.returncode==0,(run.stdout,run.stderr)
+        round12_retain_native('round13-mutation-locator',directory,[dict(argv=argv,cwd=str(directory),exitCode=run.returncode)])
+        _ROUND13_LOCATOR=directory
+    target=_ROUND13_LOCATOR/'input.dll.bytes';target.write_bytes(binary)
+    result=subprocess.run(['dotnet',str(_ROUND13_LOCATOR/'bin/Debug/net10.0/Probe.dll'),str(target)],capture_output=True,timeout=30)
+    assert result.returncode==0,(result.stdout,result.stderr)
+    return json.loads(result.stdout)
+
+
+@pytest.mark.parametrize('fault',['default','provider','return-kind','nullable-constraint'])
+def test_round13_runtime_caller_rejects_malformed_constructor_provider_or_return(qualified_runtime,tmp_path,fault):
+    repo=qualified_runtime;candidate=git(repo,'rev-parse','HEAD');name='Hexalith.Conversations.IntegrationTests.Epic16.Story16_2EvidenceTests'
+    prefix='namespace Hexalith.Conversations.IntegrationTests.Epic16; '
+    if fault=='default':source=prefix+'public class Story16_2EvidenceTests(int value = 8675309) { [Xunit.Fact] public void Scenario02() {} }'
+    elif fault=='nullable-constraint':source=prefix+'public class Story16_2EvidenceTests(int? value = null) { [Xunit.Fact] public void Scenario02() {} }'
+    elif fault=='provider':source=prefix+'public class Fixture {} [Xunit.CollectionDefinition("R13Collection")] public class Group : Xunit.ICollectionFixture<Fixture> {} [Xunit.Collection("R13Collection")] public class Story16_2EvidenceTests(Fixture value) { [Xunit.Fact] public void Scenario02() {} }'
+    else:source=prefix+'public class Story16_2EvidenceTests { [Xunit.Fact] public System.Threading.Tasks.Task Scenario02() => System.Threading.Tasks.Task.CompletedTask; }'
+    binary=round13_compile(tmp_path/fault,candidate,source);metadata=tooling.native_helper.inspect_assembly(binary,candidate,name,'Scenario02');assert metadata['method']=='Scenario02'
+    locations=round13_locations(binary);mutant=bytearray(binary)
+    if fault=='provider':
+        row=next(r for r in locations['attributes'] if r['type'].endswith(']Xunit.CollectionAttribute'));offset=row['valueOffset'];blob=bytes.fromhex(row['value']);assert len(blob)<128;mutant[offset+len(blob)-1]=1
+    else:
+        row=next(r for r in locations['methods'] if r['type']==name and r['name']==('.ctor' if fault in ('default','nullable-constraint') else 'Scenario02'));offset=row['signatureOffset'];blob=bytes.fromhex(row['signature']);assert len(blob)<128
+        if fault in ('default','nullable-constraint'):assert blob[-1]==0x08;mutant[offset+len(blob)]=0x0e
+        else:assert blob[2]==0x12;mutant[offset+3]=0x11
+    root=json.loads((repo/tooling.capture.capture_path('16.2','AC-16.2-02')).read_bytes())['originalRepositoryRoot']
+    retain_capture(repo,'AC-16.2-02',bytes(mutant),root=root)
+    rejected(runtime_evaluate(repo),'NATIVE_BINARY_DRIFT')
+    round11_retain('r13-runtime-caller-'+fault,{'valid.dll.bytes':binary,'invalid.dll.bytes':bytes(mutant)})
+
+
+@pytest.mark.parametrize('product_index',[7,8])
+@pytest.mark.parametrize('fault',['missing','duplicate'])
+def test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer(qualified_runtime,product_index,fault):
+    repo=qualified_runtime;scenario='AC-16.2-02';path=tooling.capture.capture_path('16.2',scenario);document=json.loads((repo/path).read_bytes())
+    if fault=='missing':document['products'].pop(product_index)
+    else:document['products'][product_index]=deepcopy(document['products'][0])
+    validator=jsonschema.Draft202012Validator(json.loads((repo/tooling.SCHEMA).read_bytes())['$defs']['nativeCapture'])
+    if fault=='missing':assert list(validator.iter_errors(document))
+    else:assert not list(validator.iter_errors(document)) # ordered identity is a consumer obligation
+    dump(repo,path,document);result=runtime_evaluate(repo)
+    assert result['result']=='FAIL' and result['blockers'],result
+
+
+@pytest.mark.parametrize('product_index,surface_index',[(7,0),(7,1),(8,0)])
+def test_round13_new_owner_requires_actual_behavior_surface(qualified_runtime,product_index,surface_index):
+    repo=qualified_runtime;scenario='AC-16.2-02';product=tooling.products.PRODUCTS[product_index]
+    path=tooling.capture.capture_path('16.2',scenario);capture=json.loads((repo/path).read_bytes());row=capture['products'][product_index]
+    missing=product['surfaces'][surface_index].rsplit('.',1)[1]
+    source=round9_product_source(product).replace('class '+missing+' ', 'class UnrelatedBehaviorOwner ')
+    binary=round9_compile_product(product,row['sourceRevision'],source);metadata=tooling.native_helper.inspect_product(binary,row['sourceRevision'])
+    artifact=tooling.capture.binary_path('16.2',digest(binary));(repo/artifact).write_bytes(binary)
+    assert metadata['assemblyName']==product['assemblyName'] and product['surfaces'][surface_index] not in metadata['declaredTypes']
+    round10_rewrite_runtime(repo,scenario,lambda p:p['loadedProducts'][product_index].update(sha256=digest(binary),mvid=metadata['mvid']))
+    capture=json.loads((repo/path).read_bytes());capture['products'][product_index].update(path=artifact,sha256=digest(binary),mvid=metadata['mvid']);dump(repo,path,capture)
+    rejected(runtime_evaluate(repo),'PRODUCT_METADATA_DRIFT')
+
+
+def round13_compile(directory,revision,source):
+    binary,commands=round13_build(directory,source,revision)
+    round12_retain_native('round13-build-'+digest((revision+'\n'+source).encode()),directory,commands)
+    return binary.read_bytes()
+
+
+@pytest.mark.parametrize('sign',[0,1,127,128,255])
+def test_round13_decimal_default_sign_matches_actual_trusted_constructor(tmp_path,sign):
+    expected='1m' if sign==0 else '-1m'
+    source='namespace Synthetic; public class TestClass([System.Runtime.CompilerServices.DecimalConstant(0,'+str(sign)+',0u,0u,1u)] decimal value) { [Xunit.Fact] public void Scenario01() { if (value != '+expected+') throw new System.Exception("Incorrect native decimal sign"); } }'
+    directory=tmp_path/'decimal-sign';binary,commands=round13_build(directory,source)
+    argv=['dotnet',str(binary),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01'];run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
+    (directory/'run.stdout').write_bytes(run.stdout);(directory/'run.stderr').write_bytes(run.stderr);commands.append(dict(argv=argv,cwd=str(directory),exitCode=run.returncode))
+    assert run.returncode==0,(run.stdout,run.stderr)
+    assert tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+    round12_retain_native('round13-native-decimal-sign-'+str(sign),directory,commands)
+
+
+@pytest.mark.parametrize('path',['null','optional','nonnull'])
+@pytest.mark.parametrize('argument',['string','object'])
+def test_round13_nullable_constraint_applies_before_all_default_paths(tmp_path,path,argument):
+    parameter={'null':'int? value = null','optional':'[System.Runtime.InteropServices.Optional] int? value','nonnull':'int? value = 7'}[path]
+    condition='value == 7' if path=='nonnull' else 'value is null'
+    source='namespace Synthetic; public class TestClass('+parameter+') { [Xunit.Fact] public void Scenario01() { if (!('+condition+')) throw new System.Exception("Unexpected native default"); } }'
+    directory=tmp_path/'native';binary_path,commands=round13_build(directory,source);binary=binary_path.read_bytes()
+    assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+    location=next(r for r in round13_locations(binary)['methods'] if r['type']=='Synthetic.TestClass' and r['name']=='.ctor');signature=bytes.fromhex(location['signature']);assert signature[-1]==0x08 and len(signature)<128
+    mutant=bytearray(binary);mutant[location['signatureOffset']+len(signature)]=0x0e if argument=='string' else 0x1c
+    round13_nullable_runner_control(directory,binary_path,binary,bytes(mutant),commands,'path-'+path+'-'+argument)
+
+
+@pytest.mark.parametrize('argument',['array','nested','byref-like'])
+def test_round13_nullable_constraint_excludes_invalid_value_shapes(tmp_path,argument):
+    support='public struct Wrapper {}'
+    parameter='Wrapper? value = null'
+    if argument=='nested':support=' '.join('public struct Padding'+str(i)+' {}' for i in range(33))+' public struct Wrapper<T> {}';parameter='Wrapper<int>? value = null'
+    if argument=='byref-like':support+=' public ref struct Blocked {}'
+    source='namespace Synthetic; '+support+' public class TestClass('+parameter+') { [Xunit.Fact] public void Scenario01() { if (value is not null) throw new System.Exception("Unexpected native default"); } }'
+    directory=tmp_path/'native';binary_path,commands=round13_build(directory,source);binary=binary_path.read_bytes();locations=round13_locations(binary)
+    if argument=='nested':
+        # The source-authored generic struct is runnable, but intentionally outside
+        # this inspector's bounded local non-generic default subset.
+        with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')
+    else:assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+    location=next(r for r in locations['methods'] if r['type']=='Synthetic.TestClass' and r['name']=='.ctor');signature=bytearray.fromhex(location['signature']);assert len(signature)<128
+    wrapper=next(r['coded'] for r in locations['types'] if r['name']=='Synthetic.Wrapper'+('`1' if argument=='nested' else ''))
+    if argument=='array':assert signature[-2:]==bytes([0x11,wrapper]);signature[-2:]=bytes([0x1d,0x08])
+    elif argument=='nested':
+        nullable=next(r['coded'] for r in locations['types'] if r['name'].endswith(']System.Nullable`1'));assert 128<=wrapper<16384 and 128<=nullable<16384
+        encoded_wrapper=bytes([0x80 | (wrapper>>8),wrapper&255]);encoded_nullable=bytes([0x80 | (nullable>>8),nullable&255])
+        assert signature[-6:]==bytes([0x15,0x11])+encoded_wrapper+bytes([1,8]);signature[-4:-2]=encoded_nullable
+    else:
+        blocked=next(r['coded'] for r in locations['types'] if r['name']=='Synthetic.Blocked');assert blocked<128 and signature[-2:]==bytes([0x11,wrapper]);signature[-1]=blocked
+    offset=location['signatureOffset']+1;mutant=binary[:offset]+bytes(signature)+binary[offset+len(signature):]
+    round13_nullable_runner_control(directory,binary_path,binary,mutant,commands,'shape-'+argument)
+
+
+def round13_nullable_runner_control(directory,binary_path,valid,invalid,commands,label):
+    for phase,content in [('valid',valid),('invalid',invalid)]:
+        binary_path.write_bytes(content);(directory/(phase+'.dll.bytes')).write_bytes(content)
+        argv=['dotnet',str(binary_path),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01'];run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
+        (directory/(phase+'.stdout')).write_bytes(run.stdout);(directory/(phase+'.stderr')).write_bytes(run.stderr);commands.append(dict(argv=argv,cwd=str(directory),exitCode=run.returncode,phase=phase,binarySha256=digest(content)))
+        assert run.returncode==(0 if phase=='valid' else 1),(phase,run.stdout,run.stderr)
+        if phase=='invalid':assert b'TypeLoadException' in run.stdout+run.stderr
+    with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(invalid,'a'*40,'Synthetic.TestClass','Scenario01')
+    round12_retain_native('round13-nullable-constraint-'+label,directory,commands)
+
+
+@pytest.mark.parametrize('shape',['void','varargs','optional-value','default-value','optional-ref','default-ref'])
+def test_round14_test_calling_convention_and_direct_defaults_match_runner(tmp_path,shape):
+    support='';constructor='';body='public void Scenario01() {}'
+    if shape=='varargs':body='public void Scenario01(__arglist) {}'
+    elif shape!='void':
+        support='public '+('ref ' if shape.endswith('ref') else '')+'struct Value { public int Number; }'
+        parameter='[System.Runtime.InteropServices.Optional] Value value' if shape.startswith('optional') else 'Value value = default'
+        constructor='('+parameter+')'
+        if not shape.endswith('ref'):body='public void Scenario01() { if (value.Number != 0) throw new System.Exception("Unexpected default"); }'
+    directory=tmp_path/'native'
+    binary,commands=round13_build(directory,'namespace Synthetic; '+support+' public class TestClass'+constructor+' { [Xunit.Fact] '+body+' }')
+    argv=['dotnet',str(binary),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01','-trx',str(directory/'actual.trx')]
+    run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
+    (directory/'run.stdout').write_bytes(run.stdout);(directory/'run.stderr').write_bytes(run.stderr)
+    commands.append(dict(argv=argv,cwd=str(directory),exitCode=run.returncode))
+    positive=shape not in ('varargs','optional-ref','default-ref')
+    assert run.returncode==(0 if positive else 1),(run.stdout,run.stderr)
+    if positive:assert tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+    else:
+        assert (b'System.NotSupportedException' if shape=='varargs' else b'ByRef-like') in run.stdout+run.stderr
+        with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')
+    round12_retain_native('round14-runner-'+shape,directory,commands)
+
+
+def test_round14_nested_definition_cycle_is_invalid_evidence(tmp_path):
+    directory=tmp_path/'native'
+    binary,commands=round13_build(directory,'namespace Synthetic; public class TestClass { [Xunit.Fact] public void Scenario01() {} } public class Outer { public class Inner {} }')
+    original=binary.read_bytes()
+    assert tooling.native_helper.inspect_assembly(original,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+    locations=round13_locations(original);table=locations['nested'];width=table['size']//2
+    target=next(row['coded']//4 for row in locations['types'] if row['name']=='Synthetic.Outer+Inner')
+    mutant=bytearray(original)
+    for row in range(table['rows']):
+        start=table['offset']+row*table['size']
+        if int.from_bytes(original[start:start+width],'little')==target:
+            mutant[start+width:start+2*width]=target.to_bytes(width,'little');break
+    else:pytest.fail('NestedClass target missing')
+    changed=[i for i,(a,b) in enumerate(zip(original,mutant)) if a!=b]
+    assert len(changed)==1
+    (directory/'mutant.dll.bytes').write_bytes(mutant)
+    (directory/'mutation.json').write_text(json.dumps(dict(offset=changed[0],before=original[changed[0]],after=mutant[changed[0]],originalSha256=digest(original),mutantSha256=digest(mutant)),indent=2)+'\n')
+    with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(bytes(mutant),'a'*40,'Synthetic.TestClass','Scenario01')
+    round12_retain_native('round14-nested-cycle',directory,commands)
+
+
+@pytest.mark.parametrize('helper',['domain','measurements'])
+def test_round14_real_evaluator_retains_controlled_predicate_explanation(repository,helper):
+    scenario='AC-16.1-01';assert evaluate(repository,scenario)['result']=='PASS'
+    data=deepcopy(OBSERVATIONS[scenario])
+    if helper=='domain':
+        data['authorization'][1]['allowed']=True
+        expected='authorization summaries derive from actual read and access inputs'
+    else:
+        data['transitions'][0]['state']='Corrupt'
+        expected='sequence transition state'
+    native(repository,scenario,data)
+    result=evaluate(repository,scenario);rejected(result,'MEASUREMENT_INVALID')
+    assert result['assertionLedger'][-1]==dict(id='MEASUREMENT_INVALID',subject=expected,state='FAIL')
+
+
+@pytest.mark.parametrize('error',['unrelated','parser'])
+def test_round14_untrusted_exception_details_remain_generic(repository,monkeypatch,error):
+    scenario='AC-16.1-01';assert evaluate(repository,scenario)['result']=='PASS'
+    canary='UNTRUSTED-SECRET-R14'
+    def fail(*args):
+        if error=='parser':int(canary)
+        raise ValueError(canary)
+    monkeypatch.setattr(tooling.measurements,'evaluate',fail)
+    result=evaluate(repository,scenario);rejected(result,'MEASUREMENT_INVALID')
+    assert result['assertionLedger'][-1]==dict(id='MEASUREMENT_INVALID',subject=scenario,state='FAIL')
+    assert canary not in json.dumps(result)
+
+
+@pytest.mark.parametrize('flags',['omitted','explicit','json-only','markdown-only'])
+def test_round14_real_generator_cli_default_and_explicit_output_pair(repository,flags):
+    for n in range(1,6):
+        scenario=f'AC-16.1-0{n}';row=evaluate(repository,scenario);assert row['result']=='PASS',row
+        dump(repository,tooling.receipt_path(SCOPE,scenario),row)
+    paths=tooling.final_paths(SCOPE,'16.1')
+    argv=[sys.executable,str(ROOT/'_bmad/scripts/generate_story_record.py'),'--repository',str(repository),'--contract',tooling.contract_path('16.1'),'--scope',SCOPE,'--format','bundle']
+    if flags in ('explicit','json-only'):argv+=['--output-json',paths[0]]
+    if flags in ('explicit','markdown-only'):argv+=['--output-markdown',paths[1]]
+    run=subprocess.run(argv,cwd=ROOT,capture_output=True,timeout=90);result=json.loads(run.stdout)
+    if flags in ('omitted','explicit'):
+        assert run.returncode==0 and result['result']=='PASS',(run.stdout,run.stderr)
+        assert result['outputs']==paths and all((repository/path).is_file() for path in paths)
+    else:
+        assert run.returncode==1,(run.stdout,run.stderr)
+        rejected(result,'OUTPUT_FORBIDDEN');assert all(not (repository/path).exists() for path in paths)
+    if os.environ.get('EPIC16_R12_NATIVE_EVIDENCE'):
+        out=Path(os.environ['EPIC16_R12_NATIVE_EVIDENCE'])/('round14-generator-'+flags);out.mkdir(parents=True,exist_ok=True)
+        (out/'stdout').write_bytes(run.stdout);(out/'stderr').write_bytes(run.stderr)
+        (out/'command.json').write_text(json.dumps(dict(argv=argv,cwd=str(ROOT),exitCode=run.returncode),indent=2)+'\n')

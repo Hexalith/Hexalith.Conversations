@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="8.852" timestamp="2026-10-26T08:48:14.658453+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[decimal-named]" time="5.948"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-739/test_round13_defaults_validate0')
+fault = 'decimal-named'
+
+    @pytest.mark.parametrize('fault',['wrong-type','truncated-constant','invalid-bool','invalid-null','decimal-scale','decimal-named','decimal-trailing','date-range','date-named'])
+    def test_round13_defaults_validate_selected_kind_encoding_and_complete_blob(tmp_path,fault):
+        if fault.startswith('decimal'):
+            parameter='decimal value = 1.23456789m';source='namespace Synthetic; public class TestClass('+parameter+') { [Xunit.Fact] public void Scenario01() {} }'
+        elif fault.startswith('date'):
+            source='namespace Synthetic; public class TestClass([System.Runtime.CompilerServices.DateTimeConstant(123456789)] System.DateTime value) { [Xunit.Fact] public void Scenario01() {} }'
+        elif fault=='invalid-bool':source='namespace Synthetic; public class TestClass(bool value = true) { [Xunit.Fact] public void Scenario01() {} }'
+        elif fault=='invalid-null':source='namespace Synthetic; public class TestClass(object value = null) { [Xunit.Fact] public void Scenario01() {} }'
+        else:source='namespace Synthetic; public class TestClass(int value = 8675309, string other = "typed") { [Xunit.Fact] public void Scenario01() {} }'
+        binary=round13_compile(tmp_path/fault,'a'*40,source)
+        assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        if fault=='wrong-type':before=bytes.fromhex('05200201080e');after=bytes.fromhex('052002010e0e')
+        elif fault=='truncated-constant':before=b'\x04'+(8675309).to_bytes(4,'little');after=b'\x03'+before[1:]
+        elif fault=='invalid-bool':before=bytes([1,1]);after=bytes([1,2])
+        elif fault=='invalid-null':before=bytes([4,0,0,0,0]);after=bytes([4,1,0,0,0])
+        elif fault.startswith('decimal'):
+            before=bytes([18,1,0,8,0])+bytes(8)+(123456789).to_bytes(4,'little')+bytes(2);after=bytearray(before)
+            if fault=='decimal-scale':after[3]=29
+            elif fault=='decimal-named':after[-2]=1
+            else:after[0]=17
+            after=bytes(after)
+        else:
+            before=bytes([12,1,0])+(123456789).to_bytes(8,'little')+bytes(2);after=bytearray(before)
+            if fault=='date-range':after[3:11]=(2**63-1).to_bytes(8,'little')
+            else:after[-2]=1
+            after=bytes(after)
+        locations=round13_locations(binary)
+        if fault in ('wrong-type',):
+            target=next(row for row in locations['methods'] if row['type']=='Synthetic.TestClass' and row['name']=='.ctor')['signatureOffset']
+        elif fault in ('truncated-constant','invalid-bool','invalid-null'):
+            target=next(row for row in locations['constants'] if row['type']=='Synthetic.TestClass' and row['parameter']=='value')['offset']
+        else:
+            target=next(row for row in locations['attributes'] if row['type'].endswith('DecimalConstantAttribute' if fault.startswith('decimal') else 'DateTimeConstantAttribute'))['valueOffset']
+        assert binary[target:target+len(before)]==before,(fault,before.hex(),binary[target:target+len(before)].hex())
+        mutant=binary[:target]+after+binary[target+len(before):]
+        round11_retain('r13-default-'+fault,{'valid.dll.bytes':binary,'invalid.dll.bytes':mutant})
+&gt;       with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(mutant,'a'*40,'Synthetic.TestClass','Scenario01')
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:4680: Failed</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[date-named]" time="2.013"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-739/test_round13_defaults_validate1')
+fault = 'date-named'
+
+    @pytest.mark.parametrize('fault',['wrong-type','truncated-constant','invalid-bool','invalid-null','decimal-scale','decimal-named','decimal-trailing','date-range','date-named'])
+    def test_round13_defaults_validate_selected_kind_encoding_and_complete_blob(tmp_path,fault):
+        if fault.startswith('decimal'):
+            parameter='decimal value = 1.23456789m';source='namespace Synthetic; public class TestClass('+parameter+') { [Xunit.Fact] public void Scenario01() {} }'
+        elif fault.startswith('date'):
+            source='namespace Synthetic; public class TestClass([System.Runtime.CompilerServices.DateTimeConstant(123456789)] System.DateTime value) { [Xunit.Fact] public void Scenario01() {} }'
+        elif fault=='invalid-bool':source='namespace Synthetic; public class TestClass(bool value = true) { [Xunit.Fact] public void Scenario01() {} }'
+        elif fault=='invalid-null':source='namespace Synthetic; public class TestClass(object value = null) { [Xunit.Fact] public void Scenario01() {} }'
+        else:source='namespace Synthetic; public class TestClass(int value = 8675309, string other = "typed") { [Xunit.Fact] public void Scenario01() {} }'
+        binary=round13_compile(tmp_path/fault,'a'*40,source)
+        assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        if fault=='wrong-type':before=bytes.fromhex('05200201080e');after=bytes.fromhex('052002010e0e')
+        elif fault=='truncated-constant':before=b'\x04'+(8675309).to_bytes(4,'little');after=b'\x03'+before[1:]
+        elif fault=='invalid-bool':before=bytes([1,1]);after=bytes([1,2])
+        elif fault=='invalid-null':before=bytes([4,0,0,0,0]);after=bytes([4,1,0,0,0])
+        elif fault.startswith('decimal'):
+            before=bytes([18,1,0,8,0])+bytes(8)+(123456789).to_bytes(4,'little')+bytes(2);after=bytearray(before)
+            if fault=='decimal-scale':after[3]=29
+            elif fault=='decimal-named':after[-2]=1
+            else:after[0]=17
+            after=bytes(after)
+        else:
+            before=bytes([12,1,0])+(123456789).to_bytes(8,'little')+bytes(2);after=bytearray(before)
+            if fault=='date-range':after[3:11]=(2**63-1).to_bytes(8,'little')
+            else:after[-2]=1
+            after=bytes(after)
+        locations=round13_locations(binary)
+        if fault in ('wrong-type',):
+            target=next(row for row in locations['methods'] if row['type']=='Synthetic.TestClass' and row['name']=='.ctor')['signatureOffset']
+        elif fault in ('truncated-constant','invalid-bool','invalid-null'):
+            target=next(row for row in locations['constants'] if row['type']=='Synthetic.TestClass' and row['parameter']=='value')['offset']
+        else:
+            target=next(row for row in locations['attributes'] if row['type'].endswith('DecimalConstantAttribute' if fault.startswith('decimal') else 'DateTimeConstantAttribute'))['valueOffset']
+        assert binary[target:target+len(before)]==before,(fault,before.hex(),binary[target:target+len(before)].hex())
+        mutant=binary[:target]+after+binary[target+len(before):]
+        round11_retain('r13-default-'+fault,{'valid.dll.bytes':binary,'invalid.dll.bytes':mutant})
+&gt;       with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(mutant,'a'*40,'Synthetic.TestClass','Scenario01')
+E       Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:4680: Failed</failure></testcase></testsuite></testsuites>

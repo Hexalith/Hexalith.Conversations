@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_native_helper/SignatureNames.cs
++++ _bmad/scripts/epic16_native_helper/SignatureNames.cs
+@@ -34,7 +34,7 @@
+     private string DefinitionName(MetadataReader reader, TypeDefinitionHandle handle, HashSet<TypeDefinitionHandle>? visited = null)
+     {
+         visited ??= [];
+-        if (!visited.Add(handle)) throw new InvalidDataException("Cyclic nested type definition.");
++        visited.Add(handle);
+         TypeDefinition type = reader.GetTypeDefinition(handle);
+         return type.IsNested ? DefinitionName(reader, type.GetDeclaringType(), visited) + "+" + reader.GetString(type.Name)
+             : reader.GetString(type.Namespace) + "." + reader.GetString(type.Name);

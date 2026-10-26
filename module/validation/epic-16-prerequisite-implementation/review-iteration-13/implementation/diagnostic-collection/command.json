@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "--collect-only",
+    "-q",
+    "_bmad/scripts/tests/test_epic16_tooling.py",
+    "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "exitCode": 0,
+  "sourceManifest": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/combined-final-constraint/source.json",
+  "sourceManifestSha256": "ce612c8a307df05a2703b08524cb502caa830bb4cfa3630ac4bf5c7564999026",
+  "collected": 3032,
+  "observedProgress": 889,
+  "failures": [
+    {
+      "index": 347,
+      "nodeid": "_bmad/scripts/tests/test_epic16_tooling.py::test_qualified_runtime_evaluate_binds_binary_dependency_canonicalizer_and_ancestor",
+      "marker": "F"
+    }
+  ]
+}

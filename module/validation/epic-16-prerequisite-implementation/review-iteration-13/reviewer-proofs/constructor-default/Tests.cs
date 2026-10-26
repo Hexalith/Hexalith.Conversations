@@ -1,0 +1,1 @@
+[assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")] namespace Synthetic { public class TestClass { public TestClass(int value=8675309, string other="") {} [Xunit.Fact] public void Scenario01() {} } }

@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-product-fixture-5mdmfvh_/Product.csproj (in 38 ms).
+  Product -> /tmp/epic16-product-fixture-5mdmfvh_/bin/Debug/net10.0/Hexalith.Conversations.Server.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.42

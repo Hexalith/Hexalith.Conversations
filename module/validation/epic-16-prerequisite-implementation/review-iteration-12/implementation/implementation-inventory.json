@@ -1,0 +1,216 @@
+{
+  "restoredOwnedCount": 42,
+  "currentOwnedCount": 42,
+  "currentOwnedFiles": [
+    {
+      "path": ".gitattributes",
+      "sha256": "90a6b437c3dc866e9f49a1fa3cc2e6d2aa550b9fd2194ad284cfe91166e35b5b",
+      "changedSincePreservation": true
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "06ab10cb4c940d3de41ad95b05516b721c5e1b98c476235c26c3f0e04dd8dc37",
+      "changedSincePreservation": false
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md",
+      "sha256": "f5e788cd7ef0c9ab2cc8cca4ecba56f00391e3726197d555e56ff2c52f836d64",
+      "changedSincePreservation": true
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+      "sha256": "999981fb74e922fa9ea3cf9c69498b73e139d78c1b078135a88df5fdeaf9d623",
+      "changedSincePreservation": true
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "sha256": "fa99d67d7785fb4fb2e6560be326c858733253b3ce6ab05ec830233cbc2f6859",
+      "changedSincePreservation": true
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+      "sha256": "f0e47c06a816e3f6c1db2e43b07f6a931597729e2652b7fd528dca894d0d2d79",
+      "changedSincePreservation": true
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json",
+      "sha256": "c32de38f59d8b3ee39272ce8c957b5540c90cfb038e7d895ec6b8178a6c00075",
+      "changedSincePreservation": true
+    },
+    {
+      "path": "_bmad/schemas/epic-16-tooling-v1.schema.json",
+      "sha256": "ebfb75d5e8df14b79226d23cb1fd776c555971d0325b5111fa71bdbf16e43148",
+      "changedSincePreservation": true
+    },
+    {
+      "path": "_bmad/scripts/epic16_capture.py",
+      "sha256": "6c0f174f984adfa5694e32d47c8009554d0cde22feab876c3134cba628b93d89",
+      "changedSincePreservation": false
+    },
+    {
+      "path": "_bmad/scripts/epic16_domain.py",
+      "sha256": "dc043488b746651af0f528bec3ecc2788dccc4bf0962d86e52e40aabfaa745af",
+      "changedSincePreservation": false
+    },
+    {
+      "path": "_bmad/scripts/epic16_execution.py",
+      "sha256": "b83a28b33e39965c65af91843e8f3b9f68e071272d950dfca25e192c68965755",
+      "changedSincePreservation": false
+    },
+    {
+      "path": "_bmad/scripts/epic16_faults.py",
+      "sha256": "1a58f4492e7b4b53a2d016c05b54df31274a90d6494c3cd40c3251426c1959b5",
+      "changedSincePreservation": false
+    },
+    {
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "sha256": "0c429d1608323c71c9605bab3a02556d5d5d389a79515f0d08b0083d75ada465",
+      "changedSincePreservation": true
+    },
+    {
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "sha256": "ff956e3d86bcb034d02f50ce98e540e0ff67e8de3338bd975aecb41eebe425eb",
+      "changedSincePreservation": true
+    },
+    {
+      "path": "_bmad/scripts/epic16_native.py",
+      "sha256": "f4a254c51e1c3e139c2aab173dd3dc0e754370466af54e0627bc6624561368f0",
+      "changedSincePreservation": true
+    },
+    {
+      "path": "_bmad/scripts/epic16_native_helper/Epic16.NativeHelper.csproj",
+      "sha256": "f3057cab73b03ec077940f41c8b23a30032c563c1989dc680ac7b60764d4fcb5",
+      "changedSincePreservation": false
+    },
+    {
+      "path": "_bmad/scripts/epic16_native_helper/EventStore-LICENSE",
+      "sha256": "6af66baf053023d456706de321e3cea6a6edbb288ffec10f673186b1befe7ac2",
+      "changedSincePreservation": false
+    },
+    {
+      "path": "_bmad/scripts/epic16_native_helper/ProductMetadata.cs",
+      "sha256": "ef75fbd3b889b78c2e2678db4d99cdb7448f231f29b3d22cb300dff0bb5e3902",
+      "changedSincePreservation": true
+    },
+    {
+      "path": "_bmad/scripts/epic16_native_helper/Program.cs",
+      "sha256": "950cdd62a13d75db36cc39c2d7e1f505ab5db4c99caf908bf08f415f10475b3e",
+      "changedSincePreservation": true
+    },
+    {
+      "path": "_bmad/scripts/epic16_native_helper/README.md",
+      "sha256": "dd4853479673fe407a584bec33cef3ef53b6217cb55261065996318007840832",
+      "changedSincePreservation": true
+    },
+    {
+      "path": "_bmad/scripts/epic16_native_helper/ReadModelBatchCanonicalJson.cs",
+      "sha256": "1f9430e33cefaa51757c36f27d57ed509a31d08aa5f35b05a4159b7d806362f9",
+      "changedSincePreservation": false
+    },
+    {
+      "path": "_bmad/scripts/epic16_native_helper/SignatureNames.cs",
+      "sha256": "c7598398a621cab9d559e4b384c548867ccc5529265f15665935275cb9f6c856",
+      "changedSincePreservation": false
+    },
+    {
+      "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+      "sha256": "06c002bbe8eadf3b9203d22c122dcc74d0e835e383a91f45e67cab7209ef377d",
+      "changedSincePreservation": true
+    },
+    {
+      "path": "_bmad/scripts/epic16_products.py",
+      "sha256": "e62f151bedd8ca160d4f80fa7e43d68513ed0fdb0a0f1ce1eeae66a9845429c8",
+      "changedSincePreservation": false
+    },
+    {
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "sha256": "b80c2632de8198ad823518844dd17e483af977947bff841b5934ce7c0ec2ceb9",
+      "changedSincePreservation": false
+    },
+    {
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "sha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+      "changedSincePreservation": true
+    },
+    {
+      "path": "_bmad/scripts/epic16_tooling.py",
+      "sha256": "06aceb3404a8a60e4118ccb866925dd90b472e3a002dc506bd1a25e77a9a0882",
+      "changedSincePreservation": true
+    },
+    {
+      "path": "_bmad/scripts/epic16_trust.py",
+      "sha256": "9468e3ac9a41f035e6c3a5dc62cc433b381673fa1cf003790600caaa52c60716",
+      "changedSincePreservation": true
+    },
+    {
+      "path": "_bmad/scripts/generate_story_record.py",
+      "sha256": "9e080cd220200535513225fce558f36a61fca52d3df0b6f304a3672b76ec1bd4",
+      "changedSincePreservation": false
+    },
+    {
+      "path": "_bmad/scripts/tests/fixtures/epic16-adoption-v2-generator.py.gz",
+      "sha256": "f8a3691ae2e71fc0ea9487d162f19b32d1c2a528b71c36a3c2f390a39f7afbd5",
+      "changedSincePreservation": false
+    },
+    {
+      "path": "_bmad/scripts/tests/fixtures/epic16-adoption-v2-gitattributes.txt",
+      "sha256": "388d83954dfd6a188ddd2beddaae31e43afe08ec5895639e502d699d5742a9c5",
+      "changedSincePreservation": false
+    },
+    {
+      "path": "_bmad/scripts/tests/fixtures/epic16-contract-wire-goldens.json",
+      "sha256": "f08bbd0ce5205a282c8cb2bfbfeac76046ee73494c41a80c527a1c191552fe93",
+      "changedSincePreservation": false
+    },
+    {
+      "path": "_bmad/scripts/tests/fixtures/epic16-contract-wire-provenance.json",
+      "sha256": "daef7f4e47b2c160b9bba813e9e1e38a3806b8167823bfb60bcf277d58afe8ee",
+      "changedSincePreservation": false
+    },
+    {
+      "path": "_bmad/scripts/tests/fixtures/epic16-domain-sources-LICENSE.txt",
+      "sha256": "efcb59007c3076d592a59784cdb027934d51126c1dc5bb6fdb8e61079ae91142",
+      "changedSincePreservation": true
+    },
+    {
+      "path": "_bmad/scripts/tests/fixtures/epic16-domain-sources.json",
+      "sha256": "e3dab27bad8647d76cef2359de80cea4ea1d51f17306e2e98c9f099bfb14d236",
+      "changedSincePreservation": true
+    },
+    {
+      "path": "_bmad/scripts/tests/fixtures/epic16-observations-v1.json",
+      "sha256": "0c92ee2de6565cb692688aef786c99af23ea56f013c1fba44b12d767969512b7",
+      "changedSincePreservation": true
+    },
+    {
+      "path": "_bmad/scripts/tests/fixtures/epic16-protocol-goldens.json",
+      "sha256": "04b547e3cf9da207a67142473967fb6ca01ffc4e32df4bd886ae769a0063d373",
+      "changedSincePreservation": false
+    },
+    {
+      "path": "_bmad/scripts/tests/test_epic16_tooling.py",
+      "sha256": "9847013f441cb0a2014ea8199e3dcf891c4c572a321056c9d250ad8646a891ba",
+      "changedSincePreservation": true
+    },
+    {
+      "path": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py",
+      "sha256": "0a24cbfaa943c01ae37e720c4c7ace7cc63a902148bb5fced7bba511982a9472",
+      "changedSincePreservation": false
+    },
+    {
+      "path": "_bmad/scripts/verify_story_16_1.py",
+      "sha256": "d33063a4d9f0b5df8073606a909d1df023edd5278041ba3877c15f2eb696df7a",
+      "changedSincePreservation": false
+    },
+    {
+      "path": "_bmad/scripts/verify_story_16_2.py",
+      "sha256": "9dd3e559eec69b762fe5e9ef6205fc55be7f23a064ccde063e129be2feb57d16",
+      "changedSincePreservation": false
+    },
+    {
+      "path": "_bmad/scripts/verify_story_16_3.py",
+      "sha256": "86db4c032a177e18212bb1b8977d7e0825eba3890efa30b4b8d68cb172e2a0d3",
+      "changedSincePreservation": false
+    }
+  ]
+}

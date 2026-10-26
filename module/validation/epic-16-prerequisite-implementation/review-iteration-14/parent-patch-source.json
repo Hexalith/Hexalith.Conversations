@@ -1,0 +1,13 @@
+{
+  "changedPaths": [
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+    "_bmad/scripts/epic16_domain.py",
+    "_bmad/scripts/epic16_measurements.py",
+    "_bmad/scripts/epic16_native_helper/Program.cs",
+    "_bmad/scripts/epic16_native_helper/SignatureNames.cs",
+    "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+    "_bmad/scripts/epic16_tooling.py",
+    "_bmad/scripts/tests/test_epic16_tooling.py"
+  ]
+}

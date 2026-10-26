@@ -1,0 +1,700 @@
+{
+  "scope": "Exact final mutation audit; full combined passing control pending",
+  "guards": 23,
+  "assertionFailures": 53,
+  "setupErrors": 0,
+  "skips": 0,
+  "allFinalTargetsMatch": true,
+  "allSelectedCasesPassInFinalCombined": false,
+  "control": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/focused-final-constraint/result.xml",
+  "rows": [
+    {
+      "name": "nullable-enum-default",
+      "counts": {
+        "tests": 2,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "052d8b13a28bac1e7aff565cf532bc757437af047f2c5574e7acb5c8f86b2b52",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "typed-default-kind",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "00bad71840152c78ea81b0a150dcf5e9b8cc73cb1bd5e62d9a7bad2de49b7e6b",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "constant-encoding",
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "c4b8708da9765d495c1668b49df4d9ee553a83764616aba4f49ca43a43909c37",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "special-default-complete",
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "1e8acc78b8282d67f75643d19225a4fe8bc542dedfa7ae7c45e26e2d5d0d8c66",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "provider-constructor-trailing",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "31314784d3ba30d0caf4252360c53f1de0bc7fe20006d5f29d87da4a1dd27116",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "provider-constructor",
+      "counts": {
+        "tests": 2,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "dd1021362736caaa96f91fc03a6540c2e223ef1fe380e217ac79fffcd4f4d7f8",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "decimal-native-scale",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "fc30249e205685192a7fcab4bdcc8dedd047981e0ccdd337e4c9681d6130cf7d",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "owner-schema-count",
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "f1a6a985d55adf3e1457f4cf0efefe02ce266bf2cd535225eee6279a63dbdd52",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "nullable-underlying-constraint",
+      "counts": {
+        "tests": 10,
+        "failures": 9,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "ee0ddf47a65d2d470128356104935554885f0c50ab50f9665e7b1c2d76089833",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "provider-complete-blob",
+      "counts": {
+        "tests": 16,
+        "failures": 16,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "5b2628aecacb94c00e9e2490a940030ec142a222faecdfc20f97195c5a7561a1",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "async-encoded-kind",
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "52a70b52bbecd1ee4e25d1462187f3878705d1bd36bc7fa7d19bc385c57497bc",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "product-owner-surface",
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "b5802bf13f401cf1097ff37f68d7f8802268095e148fb1b8e55dfbd17031ef52",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "product-five-scenario-consistency",
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "66e777661ccab91373bec770277edb631f56d1e422b51caf834598ea5ea43670",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "raw-native-digest",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "4aaf6e1285077ad39f02584c4fb938315bdffe107115aa426f2a53e7519a9243",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "raw-native-alias",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "aa0d6cd169b0e7c58c363afcc28cce17bd833aea22e959afec78cb6b396d770a",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "helper-host-blocked",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "2f1da31a9979dadead0594fa9d7b513446573441d49f7ed973d0ea5dda2115a2",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "binary-diff-wildcard-pdb",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "981796a24edb4b5eb56a01e7172ddf49f22c277f3182612ceea0ff313f10f1fa",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "binary-diff-wildcard-snk",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "e1df6c37b63be0cfaac710c10e050420abd6058e55df4efe1fc53b6db17e8811",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "binary-diff-wildcard-cache",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "06a1337725ea670afd31a8624034ab996a19680229f7024918741015c78ad671",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "binary-diff-apphost",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "840e9ea233c1c816455ed1f1c2f8c4373fc70f2fdb7e7b67c9170be5f473ac45",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "binary-diff-Epic16-NativeHelper",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "f8fb604592aa17ed26017cc4db09805521605f28d1c836612aab9a4cadacc86f",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "binary-diff-Evidence",
+      "counts": {
+        "tests": 9,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "7b0f22fb409f22b70cef2016e7ef8384270e7f2cf5e9b262aee42e9d5fefdea3",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "binary-diff-Goldens",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactFinalTargetAndTestHashes": true,
+      "exactOriginalAndMutatedBytes": true,
+      "selectedCasesMissingFromControl": [],
+      "streams": {
+        "stdout": "31e163f361bb2820dc6f76cd97fb83f9455bf9e967e6a8c54bc50662736d894d",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "failureMessages": [
+    {
+      "guard": "nullable-enum-default",
+      "test": "test_round13_selected_typed_defaults_match_actual_pinned_runner[nullable-enum]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "typed-default-kind",
+      "test": "test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[wrong-type]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "constant-encoding",
+      "test": "test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[truncated-constant]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "constant-encoding",
+      "test": "test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[invalid-bool]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "special-default-complete",
+      "test": "test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[decimal-named]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "special-default-complete",
+      "test": "test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[date-named]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "provider-constructor-trailing",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[signature-trailing-collection-type]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "provider-constructor",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[constructor-assembly]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "decimal-native-scale",
+      "test": "test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[decimal-scale]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "owner-schema-count",
+      "test": "test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer[missing-7]",
+      "message": "AssertionError: assert []\n +  where [] = list(<generator object create.<locals>.Validator.iter_errors at 0x7d2942853880>)\n +    where <generator object create.<locals>.Validator.iter_errors at 0x7d2942853880> = iter_errors({'binary': {'path': 'artifacts/epic16-runtime/16.2/binaries/a4b97f469c0c047239e6e560f1a088358aaec5bafd5bbd81bd6e4b0399...pic16-runtime/16.2/AC-16.2-02.trx', 'sha256': '2915c79bf4bbc55ec21762b396845fdad5d1330fd24edcb5703d21b61387aef9'}, ...})\n +      where iter_errors = Draft202012Validator(schema={'additionalProperties': False, 'properties': {'binary': {'additionalProperties': False, '...cenarioId', 'candidate', 'native', 'pathStyle', 'originalRepositoryRoot', ...], 'type': 'object'}, format_checker=None).iter_errors",
+      "type": null
+    },
+    {
+      "guard": "owner-schema-count",
+      "test": "test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer[missing-8]",
+      "message": "AssertionError: assert []\n +  where [] = list(<generator object create.<locals>.Validator.iter_errors at 0x7d294183df80>)\n +    where <generator object create.<locals>.Validator.iter_errors at 0x7d294183df80> = iter_errors({'binary': {'path': 'artifacts/epic16-runtime/16.2/binaries/a4b97f469c0c047239e6e560f1a088358aaec5bafd5bbd81bd6e4b0399...pic16-runtime/16.2/AC-16.2-02.trx', 'sha256': '2915c79bf4bbc55ec21762b396845fdad5d1330fd24edcb5703d21b61387aef9'}, ...})\n +      where iter_errors = Draft202012Validator(schema={'additionalProperties': False, 'properties': {'binary': {'additionalProperties': False, '...cenarioId', 'candidate', 'native', 'pathStyle', 'originalRepositoryRoot', ...], 'type': 'object'}, format_checker=None).iter_errors",
+      "type": null
+    },
+    {
+      "guard": "nullable-underlying-constraint",
+      "test": "test_round13_runtime_caller_rejects_malformed_constructor_provider_or_return[nullable-constraint]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "nullable-underlying-constraint",
+      "test": "test_round13_nullable_constraint_applies_before_all_default_paths[string-null]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "nullable-underlying-constraint",
+      "test": "test_round13_nullable_constraint_applies_before_all_default_paths[string-optional]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "nullable-underlying-constraint",
+      "test": "test_round13_nullable_constraint_applies_before_all_default_paths[object-null]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "nullable-underlying-constraint",
+      "test": "test_round13_nullable_constraint_applies_before_all_default_paths[object-optional]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "nullable-underlying-constraint",
+      "test": "test_round13_nullable_constraint_applies_before_all_default_paths[object-nonnull]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "nullable-underlying-constraint",
+      "test": "test_round13_nullable_constraint_excludes_invalid_value_shapes[array]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "nullable-underlying-constraint",
+      "test": "test_round13_nullable_constraint_excludes_invalid_value_shapes[nested]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "nullable-underlying-constraint",
+      "test": "test_round13_nullable_constraint_excludes_invalid_value_shapes[byref-like]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "provider-complete-blob",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[named-count-assembly]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "provider-complete-blob",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[named-count-assembly-generic]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "provider-complete-blob",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[named-count-collection-string]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "provider-complete-blob",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[named-count-collection-type]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "provider-complete-blob",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[named-count-collection-generic]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "provider-complete-blob",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[named-count-definition-string]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "provider-complete-blob",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[named-count-definition-type]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "provider-complete-blob",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[named-count-definition-named]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "provider-complete-blob",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[trailing-assembly]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "provider-complete-blob",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[trailing-assembly-generic]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "provider-complete-blob",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[trailing-collection-string]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "provider-complete-blob",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[trailing-collection-type]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "provider-complete-blob",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[trailing-collection-generic]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "provider-complete-blob",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[trailing-definition-string]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "provider-complete-blob",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[trailing-definition-type]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "provider-complete-blob",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[trailing-definition-named]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "async-encoded-kind",
+      "test": "test_round13_async_return_kind_is_not_erased_by_signature_decoding[Task]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "async-encoded-kind",
+      "test": "test_round13_async_return_kind_is_not_erased_by_signature_decoding[ValueTask]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "product-owner-surface",
+      "test": "test_round13_new_owner_requires_actual_behavior_surface[7-0]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "product-owner-surface",
+      "test": "test_round13_new_owner_requires_actual_behavior_surface[7-1]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "product-owner-surface",
+      "test": "test_round13_new_owner_requires_actual_behavior_surface[8-0]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-02', 'validationScope': 'runtime', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "product-five-scenario-consistency",
+      "test": "test_round10_generator_rejects_different_owned_implementations_across_five_tests[7]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-final-record.v1', 'storyId': '16.1', 'result': 'PASS', 'validationScope': 'runtime', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "product-five-scenario-consistency",
+      "test": "test_round10_generator_rejects_different_owned_implementations_across_five_tests[8]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-final-record.v1', 'storyId': '16.1', 'result': 'PASS', 'validationScope': 'runtime', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "raw-native-digest",
+      "test": "test_round13_generator_rereads_native_after_actual_evaluation_before_writing[changed]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-final-record.v1', 'storyId': '16.1', 'result': 'PASS', 'validationScope': 'runtime', ...}\nassert ('PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS)",
+      "type": null
+    },
+    {
+      "guard": "raw-native-alias",
+      "test": "test_round13_generator_rereads_native_after_actual_evaluation_before_writing[hardlink]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-final-record.v1', 'storyId': '16.1', 'result': 'PASS', 'validationScope': 'runtime', ...}\nassert ('PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS)",
+      "type": null
+    },
+    {
+      "guard": "helper-host-blocked",
+      "test": "test_round13_host_failures_are_blocked_with_bounded_real_diagnostics[150]",
+      "message": "ValueError: invalid native evidence",
+      "type": null
+    },
+    {
+      "guard": "binary-diff-wildcard-pdb",
+      "test": "test_round13_opaque_native_evidence_has_binary_normal_diffs[sample.pdb]",
+      "message": "assert False\n +  where False = all(<generator object test_round13_opaque_native_evidence_has_binary_normal_diffs.<locals>.<genexpr> at 0x78d626afbbc0>)",
+      "type": null
+    },
+    {
+      "guard": "binary-diff-wildcard-snk",
+      "test": "test_round13_opaque_native_evidence_has_binary_normal_diffs[public.snk]",
+      "message": "assert False\n +  where False = all(<generator object test_round13_opaque_native_evidence_has_binary_normal_diffs.<locals>.<genexpr> at 0x7b1e86b13bc0>)",
+      "type": null
+    },
+    {
+      "guard": "binary-diff-wildcard-cache",
+      "test": "test_round13_opaque_native_evidence_has_binary_normal_diffs[Product.assets.cache]",
+      "message": "assert False\n +  where False = all(<generator object test_round13_opaque_native_evidence_has_binary_normal_diffs.<locals>.<genexpr> at 0x79422cbe3bc0>)",
+      "type": null
+    },
+    {
+      "guard": "binary-diff-apphost",
+      "test": "test_round13_opaque_native_evidence_has_binary_normal_diffs[apphost]",
+      "message": "assert False\n +  where False = all(<generator object test_round13_opaque_native_evidence_has_binary_normal_diffs.<locals>.<genexpr> at 0x764c1114fbc0>)",
+      "type": null
+    },
+    {
+      "guard": "binary-diff-Epic16-NativeHelper",
+      "test": "test_round13_opaque_native_evidence_has_binary_normal_diffs[Epic16.NativeHelper]",
+      "message": "assert False\n +  where False = all(<generator object test_round13_opaque_native_evidence_has_binary_normal_diffs.<locals>.<genexpr> at 0x7a3cdb897ef0>)",
+      "type": null
+    },
+    {
+      "guard": "binary-diff-Evidence",
+      "test": "test_round13_opaque_native_evidence_has_binary_normal_diffs[Evidence]",
+      "message": "assert False\n +  where False = all(<generator object test_round13_opaque_native_evidence_has_binary_normal_diffs.<locals>.<genexpr> at 0x7a91511cbbc0>)",
+      "type": null
+    },
+    {
+      "guard": "binary-diff-Goldens",
+      "test": "test_round13_opaque_native_evidence_has_binary_normal_diffs[Goldens]",
+      "message": "assert False\n +  where False = all(<generator object test_round13_opaque_native_evidence_has_binary_normal_diffs.<locals>.<genexpr> at 0x754ec04dbbc0>)",
+      "type": null
+    }
+  ]
+}

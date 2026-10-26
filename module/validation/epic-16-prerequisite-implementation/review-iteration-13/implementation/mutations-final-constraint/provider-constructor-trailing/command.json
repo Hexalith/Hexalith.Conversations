@@ -1,0 +1,29 @@
+{
+  "name": "provider-constructor-trailing",
+  "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+  "old": "signatureBlob.RemainingBytes != 0 || reader.GetString(constructor.Name)",
+  "new": "reader.GetString(constructor.Name)",
+  "selector": "round13_provider and signature-trailing and collection-type",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r13-mutant-provider-constructor-trailing-o5of54ky/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round13_provider and signature-trailing and collection-type",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final-constraint/provider-constructor-trailing/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r13-mutant-provider-constructor-trailing-o5of54ky",
+  "exitCode": 1,
+  "elapsedSeconds": 6.655183563998435,
+  "originalSha256": "fe4e695373ea16df32c097b98ba221d9b43f1fb7f442ad887700bb81145b547f",
+  "mutatedSha256": "8cb9ec457b61c6f88a2f33b0d11668062742573437061130f53089ecb21dc816",
+  "testSha256": "129d5a61270c9f2783d5581c66dd69fe5b79a28b2e3da0d7a1bd59f4d4ed31f3",
+  "tests": {
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  }
+}

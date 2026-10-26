@@ -1,0 +1,1922 @@
+{
+  "scope": "Final mutation audit",
+  "runs": 42,
+  "distinctGuards": 39,
+  "assertionFailures": 199,
+  "errors": 0,
+  "skipped": 0,
+  "allGuardsHaveExactFinalTarget": true,
+  "allMutantCasesPassInFinalControl": true,
+  "rows": [
+    {
+      "epoch": "mutations",
+      "name": "tenant-operation-order",
+      "counts": {
+        "tests": 7,
+        "failures": 7,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "a162d760daa194c7396c0a8188ddad43b0191ef2ea7cdafa62189deb459edfe8",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "tenant-operation-scope",
+      "counts": {
+        "tests": 16,
+        "failures": 6,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "add9a7d5538483bf19118c7f277c325f4b2e1f3b84d2005eb9596fabd42ff536",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "reverse-original-cas",
+      "counts": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "6355610be10a8cb07a93050060a091757e3eab6d12dac177464bc99622480ef6",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "tenant-executed-completed",
+      "counts": {
+        "tests": 34,
+        "failures": 30,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "5c85bf9c1cf6b62de69403e81c66ca147b74cec1ab18232e1568cfa47969f950",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "reverse-native-proposal",
+      "counts": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "3df3b0548f554b9913b34c0c44828d2046de04ab2b9a4ec5aad1ecc9c80f54da",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "reverse-durable-chain",
+      "counts": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "12e129458c913c9aa6701fc7f37193cd412902a1a2eea51088e072bd8bd13b83",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "reverse-cas-result",
+      "counts": {
+        "tests": 8,
+        "failures": 8,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "765e1891ef8d2171311ed9ae4ecd0a25e8f980dfebb95f61bf1c01fbe61877df",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "reverse-preserved-after",
+      "counts": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "952bec183c4801458e5e190b3ff81134ee0cccc8eae9de4e0460448cc41b7404",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "reverse-read-identities",
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "90e17aee5afd98b54d988ee422b370bb9e63c84ab1a5936f6748eafd9c13b157",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "reverse-final-store-read",
+      "counts": {
+        "tests": 8,
+        "failures": 8,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "405bc18daf56d3d4afc26f82d0fea3139ea889f2a4b51f0099227478945c5c78",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "reverse-process-replicas",
+      "counts": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "33b7d003484dbb9d0f80d38aa22dfa35c5bf85223b2a085cfc909335c23eb21e",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "access-source-state",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "f7dab1f9fae491a169017cc40c524e7b21599ad64141eab1198f4a91f9908b82",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "access-stored-cause",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "04a6d34da9ebd593fa90e6f69bb93d0fd520deef7e3c51d90c3afcb55930390b",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "access-freshness",
+      "counts": {
+        "tests": 3,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "24598acc837dcf9c03d2ff4291e921a03b4fb1e5a8b4e01603c2a7cd27d7c190",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "access-missing-metadata",
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "7605a32b337f44650a59b3772b7c978789f274905bd4c6b64ad493c6ef964d47",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "access-principal",
+      "counts": {
+        "tests": 22,
+        "failures": 16,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "2526f1acfa29a807f3ccac3a3f03f30af28f5df9cc61aff4ca3f2e8f20d091d3",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "access-policy",
+      "counts": {
+        "tests": 12,
+        "failures": 12,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "6b0e8c9558f67369a6fbddcbe8246fe76e5230befcb2f951b2b970dfbe07232b",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "failure-attempt-count",
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "66b5f2616eb13161e7390f223b1a91a36dccd5cbb707732d9488f3a9315f47b0",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "failure-proposal",
+      "counts": {
+        "tests": 6,
+        "failures": 6,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "03bdb15a6f0224e998f3421418023ca417c6b55b6a6c9b99ad4767a3423395a7",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "failure-provider-outcome",
+      "counts": {
+        "tests": 6,
+        "failures": 6,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "708c8492b11df33df705e4f573dd53b8694788880256844aca9f506c2bb9d6cc",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "failure-terminal",
+      "counts": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "21c96eba3406fb6a4134a87cd5fb4632b3fb45167b0c40df89c91028fa10bbf0",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "failure-ack-observation",
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "0a9bedaf443067b188447c4be68da5e8f01b5bd57233e86940f2fdf01c29fc5e",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "failure-restoration",
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "df93f243f34d8ac9edc08787ad7a1212248834ed9d94b51b445b1a20f74483ab",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "failure-preserved-state",
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "c82af9cb4e546a49fcbbbd529d9752c33fea74030a33eed8bf70464657f7073c",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "failure-injected-correlation",
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "247cf2fa13c70998f7c407150aa427de7f808d73cd395aa360ae2e21112971a5",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "diagnostic-exit",
+      "counts": {
+        "tests": 8,
+        "failures": 8,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "aec36582f3e27660151911ec7cf8ed4b4151208d3291e030963fe5db0e8cb76b",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "diagnostic-stdout",
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "47938583a3c441889b784e846c9d99817dd024c0b8e60590be5f4ebefa6967d0",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "enqueue-stage-transactions",
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "cb9e4011963960e7ac7010f32006731f5a15584f559cf7e9cc26a03412493ad1",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "diagnostic-stderr",
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "e0d96f274be12cd191e3e13ce65a63c1aa588995ca1e949172b946640e0dd09b",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "diagnostic-bound",
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "774999406225d98137814d9017d67411ba4a7e0bafcabda3761040224ca9260b",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "product-source-owner",
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "b3d1014602c368739bf9f17c765fd296dbf5a7023c875056c4dcd27e2ecb256b",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "test-source-owner",
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": false,
+      "streams": {
+        "stdout": "455f00e60637c19d77b4a472561d575cac59b7018b31ec807562baa33cb14e48",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "access-response",
+      "counts": {
+        "tests": 216,
+        "failures": 24,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "38bd36e8753d19169a2789f788da81e6fb8781d5836f8f305242f57f480ba0ff",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "source-constructor-signature",
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "8bc0442aed83f104feab0ce998d30d4c47015cf12fd0301541e084a1c5814f7d",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "test-source-blob",
+      "counts": {
+        "tests": 4,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": false,
+      "streams": {
+        "stdout": "ae2f8ada8bb84d4ee7b3ec3836828d8bcff42f9223c3a20557dfb26531dbe655",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "product-source-blob",
+      "counts": {
+        "tests": 2,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "2e73e3ea5ec72c0b3e681e59ecb75f25348876f3ed866a38fffd2893f251c37b",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "async-return-owner",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": false,
+      "streams": {
+        "stdout": "66fe0c57d1a1875ec2a1181be9c02332e8aae95bbf06fafba17b7183267b5e9c",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "params-complete-blob",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "322d661c8f7f4e75d4b0f86d321768d31a43761f6a84cf4a356b0c987d7113f9",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations",
+      "name": "params-framework-owner",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "ab1421ad8d8dd305a5720a50a2c6d8e8209da6bafe733af82a4d99fa5ab0fa53",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations-notice",
+      "name": "async-return-owner",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "a5b9bdb5f86e9f3d22ee4f6a938c0f67e2fd45d2e2873c1c13a5b4b886a538b2",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations-notice",
+      "name": "test-source-blob",
+      "counts": {
+        "tests": 4,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "9910089cf3a0a13e9a27bc8c69dfdea692dbc1665d60e626b4e472c43bc61aac",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    },
+    {
+      "epoch": "mutations-notice",
+      "name": "test-source-owner",
+      "counts": {
+        "tests": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exactOriginalAndMutantBytes": true,
+      "originalMatchesFinalTarget": true,
+      "streams": {
+        "stdout": "d6c82420e0670354a510d238e42b8a2946ab37a1643a8be862fe09a6dcdcf50b",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "allSelectedCasesPassInFinalControl": true
+    }
+  ],
+  "failureMessages": [
+    {
+      "guard": "tenant-operation-order",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-early-path24-1-0]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-operation-order",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-early-path24-1-1]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-operation-order",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-early-path24-1-2]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-operation-order",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-early-path24-1-3]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-operation-order",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-order-path9-1-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-operation-order",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-order-path9-1-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-operation-order",
+      "test": "test_round12_reverse_read_operations_are_distinct_and_ordered[same-order]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-operation-scope",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-scope-path19-foreign-0]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-operation-scope",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-scope-path19-foreign-1]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-operation-scope",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-scope-path19-foreign-2]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-operation-scope",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-scope-path19-foreign-3]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-operation-scope",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-scope-path7-foreign-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-operation-scope",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-scope-path7-foreign-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-original-cas",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[expectation-path10-21-0]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-original-cas",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[expectation-path10-21-1]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-original-cas",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[expectation-path10-21-2]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-original-cas",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[expectation-path10-21-3]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[unexecuted-path2-False-0]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[unexecuted-path2-False-1]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[unexecuted-path2-False-2]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[unexecuted-path2-False-3]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[incomplete-path3-False-0]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[incomplete-path3-False-1]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[incomplete-path3-False-2]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[incomplete-path3-False-3]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-unexecuted-path17-False-0]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-unexecuted-path17-False-1]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-unexecuted-path17-False-2]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-unexecuted-path17-False-3]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[response-incomplete-path18-False-0]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[response-incomplete-path18-False-1]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[response-incomplete-path18-False-2]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[response-incomplete-path18-False-3]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[processing-unexecuted-path2-False-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[processing-unexecuted-path2-False-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-unexecuted-path3-False-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-unexecuted-path3-False-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-incomplete-path4-False-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-incomplete-path4-False-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[completion-incomplete-path5-False-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[completion-incomplete-path5-False-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[ack-unexecuted-path19-False-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[ack-unexecuted-path19-False-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[restoration-unexecuted-path22-False-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[restoration-unexecuted-path22-False-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[after-unexecuted-path25-False-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "tenant-executed-completed",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[after-unexecuted-path25-False-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-native-proposal",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[proposal-path11-stale invention-0]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-native-proposal",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[proposal-path11-stale invention-1]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-native-proposal",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[proposal-path11-stale invention-2]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-native-proposal",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[proposal-path11-stale invention-3]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-durable-chain",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[before-path15-10-0]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-durable-chain",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[before-path15-10-1]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-durable-chain",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[before-path15-10-2]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-durable-chain",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[before-path15-10-3]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-cas-result",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[newer-result-path12-False-0]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-cas-result",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[newer-result-path12-False-1]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-cas-result",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[newer-result-path12-False-2]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-cas-result",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[newer-result-path12-False-3]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-cas-result",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[stale-result-path13-True-0]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-cas-result",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[stale-result-path13-True-1]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-cas-result",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[stale-result-path13-True-2]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-cas-result",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[stale-result-path13-True-3]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-preserved-after",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[after-path16-11-0]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-preserved-after",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[after-path16-11-1]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-preserved-after",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[after-path16-11-2]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-preserved-after",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[after-path16-11-3]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-read-identities",
+      "test": "test_round12_reverse_read_operations_are_distinct_and_ordered[store-operation]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-read-identities",
+      "test": "test_round12_reverse_read_operations_are_distinct_and_ordered[response-operation]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-final-store-read",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-state-path21-wrong-0]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-final-store-read",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-state-path21-wrong-1]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-final-store-read",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-state-path21-wrong-2]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-final-store-read",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-state-path21-wrong-3]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-final-store-read",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-transaction-path22-unrelated-0]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-final-store-read",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-transaction-path22-unrelated-1]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-final-store-read",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-transaction-path22-unrelated-2]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-final-store-read",
+      "test": "test_round12_reverse_save_executes_actual_shared_cas_and_both_consumers[read-transaction-path22-unrelated-3]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-process-replicas",
+      "test": "test_round12_reverse_save_rejects_coherent_shared_process[0]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-process-replicas",
+      "test": "test_round12_reverse_save_rejects_coherent_shared_process[1]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-process-replicas",
+      "test": "test_round12_reverse_save_rejects_coherent_shared_process[2]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "reverse-process-replicas",
+      "test": "test_round12_reverse_save_rejects_coherent_shared_process[3]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-03', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-source-state",
+      "test": "test_round12_authorization_state_derives_from_actual_inputs[projection]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-stored-cause",
+      "test": "test_round12_authorization_state_derives_from_actual_inputs[health]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-freshness",
+      "test": "test_round12_authorization_state_derives_from_actual_inputs[freshness]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-freshness",
+      "test": "test_round12_authorization_state_derives_from_actual_inputs[future-clock]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-missing-metadata",
+      "test": "test_round12_authorization_state_derives_from_actual_inputs[unknown-snapshot]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-missing-metadata",
+      "test": "test_round12_authorization_state_derives_from_actual_inputs[unavailable-snapshot]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-principal",
+      "test": "test_round12_native_access_principal_admission_precedes_read[\\x1c]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-principal",
+      "test": "test_round12_native_access_principal_admission_precedes_read[a\\x1fb]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-principal",
+      "test": "test_round12_native_access_principal_admission_precedes_read[a\\x7fb]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-principal",
+      "test": "test_round12_native_access_principal_admission_precedes_read[a\\x85b]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-principal",
+      "test": "test_round12_native_access_principal_admission_precedes_read[a\\x9fb]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-principal",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant/a-False]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-principal",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant:a-False]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-principal",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[ tenant-a-False]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-principal",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant a-False]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-principal",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\\x1c-False]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-principal",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\\x7f-False]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-principal",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[cafe\\u0301-False]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-principal",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\\u200b-False]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-principal",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\\ue000-False]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-principal",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\\u0378-False]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-principal",
+      "test": "test_round12_native_tenant_input_rules_admit_only_real_executed_requests[tenant\\U0001f600-False]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-policy",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-0-AC-16.1-01]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-policy",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-0-AC-16.1-02]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-policy",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-1-AC-16.1-01]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-policy",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-1-AC-16.1-02]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-policy",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-2-AC-16.1-01]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-policy",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-2-AC-16.1-02]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-policy",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-3-AC-16.1-01]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-policy",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-3-AC-16.1-02]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-policy",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-4-AC-16.1-01]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-policy",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-4-AC-16.1-02]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-policy",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-5-AC-16.1-01]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-policy",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[threshold-path14-999999-5-AC-16.1-02]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-attempt-count",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-count-path8-one-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-attempt-count",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-count-path8-one-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-proposal",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[number-path10-2-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-proposal",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[number-path10-2-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-proposal",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[expected-path11-foreign-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-proposal",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[expected-path11-foreign-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-proposal",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[proposed-path12-99-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-proposal",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[proposed-path12-99-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-provider-outcome",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[success-path13-True-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-provider-outcome",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[success-path13-True-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-provider-outcome",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[transaction-path14-invented-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-provider-outcome",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[transaction-path14-invented-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-provider-outcome",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[result-path15-Completed-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-provider-outcome",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[result-path15-Completed-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-terminal",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[outcome-path16-Healthy-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-terminal",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[outcome-path16-Healthy-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-terminal",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-reference-path17-value17-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-terminal",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[attempt-reference-path17-value17-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-ack-observation",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[ack-reference-path20-foreign-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-ack-observation",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[ack-reference-path20-foreign-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-restoration",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[restoration-path23-Unavailable-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-restoration",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[restoration-path23-Unavailable-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-preserved-state",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[after-path24-11-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-preserved-state",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[after-path24-11-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-injected-correlation",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[fault-path26-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff-4]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "failure-injected-correlation",
+      "test": "test_round12_failed_deliveries_execute_bounded_attempts_and_no_ack[fault-path26-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff-5]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "diagnostic-exit",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stderr-sdk]",
+      "message": "assert (('exit=' + '41') in \"repository-approved SDK unavailable: exit=unknown; stdout=''; stderr='ERR-END'\")\n +  where '41' = str(41)",
+      "type": null
+    },
+    {
+      "guard": "diagnostic-exit",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stderr-build]",
+      "message": "assert (('exit=' + '42') in \"fixed helper build failed: exit=unknown; stdout=''; stderr='ERR-END'\")\n +  where '42' = str(42)",
+      "type": null
+    },
+    {
+      "guard": "diagnostic-exit",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stdout-sdk]",
+      "message": "assert (('exit=' + '41') in \"repository-approved SDK unavailable: exit=unknown; stdout='OUT-END'; stderr=''\")\n +  where '41' = str(41)",
+      "type": null
+    },
+    {
+      "guard": "diagnostic-exit",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stdout-build]",
+      "message": "assert (('exit=' + '42') in \"fixed helper build failed: exit=unknown; stdout='OUT-END'; stderr=''\")\n +  where '42' = str(42)",
+      "type": null
+    },
+    {
+      "guard": "diagnostic-exit",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[both-sdk]",
+      "message": "assert (('exit=' + '41') in \"repository-approved SDK unavailable: exit=unknown; stdout='OUT-END'; stderr='ERR-END'\")\n +  where '41' = str(41)",
+      "type": null
+    },
+    {
+      "guard": "diagnostic-exit",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[both-build]",
+      "message": "assert (('exit=' + '42') in \"fixed helper build failed: exit=unknown; stdout='OUT-END'; stderr='ERR-END'\")\n +  where '42' = str(42)",
+      "type": null
+    },
+    {
+      "guard": "diagnostic-exit",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[oversized-sdk]",
+      "message": "assert (('exit=' + '41') in \"repository-approved SDK unavailable: exit=unknown; stdout='XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYERR-END'\")\n +  where '41' = str(41)",
+      "type": null
+    },
+    {
+      "guard": "diagnostic-exit",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[oversized-build]",
+      "message": "assert (('exit=' + '42') in \"fixed helper build failed: exit=unknown; stdout='XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYERR-END'\")\n +  where '42' = str(42)",
+      "type": null
+    },
+    {
+      "guard": "diagnostic-stdout",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stdout-sdk]",
+      "message": "assert 'OUT-END' in \"repository-approved SDK unavailable: exit=41; stdout=omitted; stderr=''\"",
+      "type": null
+    },
+    {
+      "guard": "diagnostic-stdout",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stdout-build]",
+      "message": "assert 'OUT-END' in \"fixed helper build failed: exit=42; stdout=omitted; stderr=''\"",
+      "type": null
+    },
+    {
+      "guard": "enqueue-stage-transactions",
+      "test": "test_round12_enqueue_transaction_cannot_reuse_lifecycle_commit[0]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "enqueue-stage-transactions",
+      "test": "test_round12_enqueue_transaction_cannot_reuse_lifecycle_commit[1]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "enqueue-stage-transactions",
+      "test": "test_round12_enqueue_transaction_cannot_reuse_lifecycle_commit[2]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.2', 'scenarioId': 'AC-16.2-04', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "diagnostic-stderr",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stderr-sdk]",
+      "message": "assert 'ERR-END' in \"repository-approved SDK unavailable: exit=41; stdout=''; stderr=omitted\"",
+      "type": null
+    },
+    {
+      "guard": "diagnostic-stderr",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[stderr-build]",
+      "message": "assert 'ERR-END' in \"fixed helper build failed: exit=42; stdout=''; stderr=omitted\"",
+      "type": null
+    },
+    {
+      "guard": "diagnostic-bound",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[oversized-sdk]",
+      "message": "assert 18080 < 4500\n +  where 18080 = len(\"repository-approved SDK unavailable: exit=41; stdout='XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYERR-END'\")",
+      "type": null
+    },
+    {
+      "guard": "diagnostic-bound",
+      "test": "test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit[oversized-build]",
+      "message": "assert 18070 < 4500\n +  where 18070 = len(\"fixed helper build failed: exit=42; stdout='XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYERR-END'\")",
+      "type": null
+    },
+    {
+      "guard": "product-source-owner",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[external-stamp]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "product-source-owner",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[external-metadata]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "test-source-owner",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[local-stamp]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "test-source-owner",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[external-stamp]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "test-source-owner",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[external-metadata]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-0-AC-16.1-01]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-0-AC-16.1-02]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-1-AC-16.1-01]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-1-AC-16.1-02]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-2-AC-16.1-01]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-2-AC-16.1-02]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-3-AC-16.1-01]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-3-AC-16.1-02]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-4-AC-16.1-01]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-4-AC-16.1-02]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-5-AC-16.1-01]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[read-correlation-path12-unrelated-5-AC-16.1-02]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-0-AC-16.1-01]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-0-AC-16.1-02]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-1-AC-16.1-01]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-1-AC-16.1-02]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-2-AC-16.1-01]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-2-AC-16.1-02]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-3-AC-16.1-01]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-3-AC-16.1-02]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-4-AC-16.1-01]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-4-AC-16.1-02]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-5-AC-16.1-01]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "access-response",
+      "test": "test_round12_six_authorization_states_bind_executed_native_read_and_response[response-path13-foreign-5-AC-16.1-02]",
+      "message": "AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-02', 'validationScope': 'tooling-fixture', ...}\nassert 'PASS' == 'FAIL'\n  \n  - FAIL\n  + PASS",
+      "type": null
+    },
+    {
+      "guard": "source-constructor-signature",
+      "test": "test_round12_source_stamp_requires_exact_native_constructor_and_blob[test-constructor-signature]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "source-constructor-signature",
+      "test": "test_round12_source_stamp_requires_exact_native_constructor_and_blob[product-constructor-signature]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "test-source-blob",
+      "test": "test_round12_source_stamp_requires_exact_native_constructor_and_blob[test-named-blob]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "product-source-blob",
+      "test": "test_round12_source_stamp_requires_exact_native_constructor_and_blob[product-named-blob]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "async-return-owner",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[custom-task]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "params-complete-blob",
+      "test": "test_round12_params_requires_complete_framework_attribute_blob",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "params-framework-owner",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[custom-params]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "async-return-owner",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[custom-task]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "test-source-blob",
+      "test": "test_round12_source_stamp_requires_exact_native_constructor_and_blob[test-named-blob]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "test-source-owner",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[local-stamp]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "test-source-owner",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[external-stamp]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    },
+    {
+      "guard": "test-source-owner",
+      "test": "test_round12_native_framework_identity_matches_supported_source_return_and_params[external-metadata]",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "type": null
+    }
+  ]
+}

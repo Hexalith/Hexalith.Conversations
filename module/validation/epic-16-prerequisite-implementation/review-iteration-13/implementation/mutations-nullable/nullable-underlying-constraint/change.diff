@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_native_helper/TestConstruction.cs
++++ _bmad/scripts/epic16_native_helper/TestConstruction.cs
+@@ -244,7 +244,7 @@
+                 && ProductMetadata.IsFrameworkType(reader, handle) && type.StartsWith(prefix, StringComparison.Ordinal) && type.EndsWith('>'))
+             {
+                 string argument = type[prefix.Length..^1];
+-                if (!NonNullableValueType(reader, argument))
++                if (false)
+                     throw new InvalidDataException("Nullable default violates the supported non-nullable value-type constraint.");
+                 return argument;
+             }

@@ -1,0 +1,7 @@
+{
+  "initial": "focused",
+  "result": "42 passed, 1 assertion failed",
+  "reason": "The actual varargs runner reports System.NotSupportedException, not the assumed word Vararg.",
+  "change": "Only the new runner assertion checks the actual exception type; production code and all other assertions are unchanged.",
+  "final": "focused-final"
+}

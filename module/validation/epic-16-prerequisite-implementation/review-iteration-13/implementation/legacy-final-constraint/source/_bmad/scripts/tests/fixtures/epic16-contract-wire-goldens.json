@@ -1,0 +1,76 @@
+{
+  "sourceKind": "trusted-current-Contracts-assembly",
+  "synthetic": true,
+  "assembly": "Hexalith.Conversations.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+  "informationalVersion": "1.0.0+ed53473ea4c67aa10ffc46c9b951d9864fe263d4",
+  "events": [
+    {
+      "eventType": "ConversationCreated",
+      "payload": "{\"metadata\":{\"schemaVersion\":1,\"eventId\":\"event-1\",\"eventType\":\"ConversationCreated\",\"tenantId\":\"tenant:tenant-a\",\"conversationId\":\"conv:conversation-a\",\"correlationId\":\"correlation-a\",\"occurredAt\":\"2026-01-02T03:04:06+00:00\",\"actorPartyId\":\"party:actor-a\",\"causationId\":null,\"deduplicationKey\":\"tenant:tenant-a|conv:conversation-a|event-1|1\"},\"businessReference\":{\"system\":\"case\",\"value\":\"a\"},\"projectId\":\"project:project-a\",\"folderId\":\"folder:folder-a\",\"label\":\"Seed conversation\",\"providerCorrelation\":null,\"createdAt\":\"2026-01-02T03:04:06+00:00\"}"
+    },
+    {
+      "eventType": "ParticipantAdded",
+      "payload": "{\"metadata\":{\"schemaVersion\":1,\"eventId\":\"event-2\",\"eventType\":\"ParticipantAdded\",\"tenantId\":\"tenant:tenant-a\",\"conversationId\":\"conv:conversation-a\",\"correlationId\":\"correlation-a\",\"occurredAt\":\"2026-01-02T03:04:07+00:00\",\"actorPartyId\":\"party:actor-a\",\"causationId\":null,\"deduplicationKey\":\"tenant:tenant-a|conv:conversation-a|event-2|1\"},\"participantPartyId\":\"party:participant-a\",\"participantType\":\"Human\",\"participantRole\":\"Member\"}"
+    },
+    {
+      "eventType": "MessageAppended",
+      "payload": "{\"metadata\":{\"schemaVersion\":1,\"eventId\":\"event-3\",\"eventType\":\"MessageAppended\",\"tenantId\":\"tenant:tenant-a\",\"conversationId\":\"conv:conversation-a\",\"correlationId\":\"correlation-a\",\"occurredAt\":\"2026-01-02T03:04:08+00:00\",\"actorPartyId\":\"party:actor-a\",\"causationId\":null,\"deduplicationKey\":\"tenant:tenant-a|conv:conversation-a|event-3|1\"},\"messageId\":\"message:message-a\",\"authorPartyId\":\"party:actor-a\",\"text\":\"Controlled message\",\"providerCorrelation\":null}"
+    },
+    {
+      "eventType": "FileReferenceAttached",
+      "payload": "{\"metadata\":{\"schemaVersion\":1,\"eventId\":\"event-4\",\"eventType\":\"FileReferenceAttached\",\"tenantId\":\"tenant:tenant-a\",\"conversationId\":\"conv:conversation-a\",\"correlationId\":\"correlation-a\",\"occurredAt\":\"2026-01-02T03:04:09+00:00\",\"actorPartyId\":\"party:actor-a\",\"causationId\":null,\"deduplicationKey\":\"tenant:tenant-a|conv:conversation-a|event-4|1\"},\"fileId\":\"file:file-a\",\"folderId\":\"folder:folder-a\",\"messageId\":\"message:message-a\"}"
+    },
+    {
+      "eventType": "ConversationMetadataUpdated",
+      "payload": "{\"metadata\":{\"schemaVersion\":1,\"eventId\":\"event-5\",\"eventType\":\"ConversationMetadataUpdated\",\"tenantId\":\"tenant:tenant-a\",\"conversationId\":\"conv:conversation-a\",\"correlationId\":\"correlation-a\",\"occurredAt\":\"2026-01-02T03:04:10+00:00\",\"actorPartyId\":\"party:actor-a\",\"causationId\":null,\"deduplicationKey\":\"tenant:tenant-a|conv:conversation-a|event-5|1\"},\"label\":\"Corrected conversation\",\"businessReference\":{\"system\":\"case\",\"value\":\"b\"},\"attributes\":{\"scope\":\"controlled\"}}"
+    }
+  ],
+  "dateTimes": [
+    {
+      "json": "\"2026-01-02T03:04:05+00:00\"",
+      "utcTicks": 639029198450000000
+    },
+    {
+      "json": "\"2026-01-02T03:04:05.0000001+00:00\"",
+      "utcTicks": 639029198450000001
+    },
+    {
+      "json": "\"2026-01-02T03:04:05.1234567+00:00\"",
+      "utcTicks": 639029198451234567
+    },
+    {
+      "json": "\"2026-01-02T03:04:05-05:30\"",
+      "utcTicks": 639029396450000000
+    },
+    {
+      "json": "\"2000-01-01T00:00:00+00:00\"",
+      "utcTicks": 630822816000000000
+    },
+    {
+      "json": "\"9999-12-31T23:59:59.9999999+00:00\"",
+      "utcTicks": 3155378975999999999
+    }
+  ],
+  "additionalEvents": [
+    {
+      "eventType": "ConversationClosed",
+      "payload": "{\"metadata\":{\"schemaVersion\":1,\"eventId\":\"event-6\",\"eventType\":\"ConversationClosed\",\"tenantId\":\"tenant:tenant-a\",\"conversationId\":\"conv:conversation-a\",\"correlationId\":\"correlation-a\",\"occurredAt\":\"2026-01-02T03:04:11+00:00\",\"actorPartyId\":\"party:actor-a\",\"causationId\":null,\"deduplicationKey\":\"tenant:tenant-a|conv:conversation-a|event-6|1\"},\"reasonCode\":null}"
+    },
+    {
+      "eventType": "ConversationClosed",
+      "payload": "{\"metadata\":{\"schemaVersion\":1,\"eventId\":\"event-7\",\"eventType\":\"ConversationClosed\",\"tenantId\":\"tenant:tenant-a\",\"conversationId\":\"conv:conversation-a\",\"correlationId\":\"correlation-a\",\"occurredAt\":\"2026-01-02T03:04:12+00:00\",\"actorPartyId\":\"party:actor-a\",\"causationId\":null,\"deduplicationKey\":\"tenant:tenant-a|conv:conversation-a|event-7|1\"},\"reasonCode\":\"completed\"}"
+    },
+    {
+      "eventType": "ConversationArchived",
+      "payload": "{\"metadata\":{\"schemaVersion\":1,\"eventId\":\"event-8\",\"eventType\":\"ConversationArchived\",\"tenantId\":\"tenant:tenant-a\",\"conversationId\":\"conv:conversation-a\",\"correlationId\":\"correlation-a\",\"occurredAt\":\"2026-01-02T03:04:13+00:00\",\"actorPartyId\":\"party:actor-a\",\"causationId\":null,\"deduplicationKey\":\"tenant:tenant-a|conv:conversation-a|event-8|1\"},\"reasonCode\":null}"
+    },
+    {
+      "eventType": "ConversationArchived",
+      "payload": "{\"metadata\":{\"schemaVersion\":1,\"eventId\":\"event-9\",\"eventType\":\"ConversationArchived\",\"tenantId\":\"tenant:tenant-a\",\"conversationId\":\"conv:conversation-a\",\"correlationId\":\"correlation-a\",\"occurredAt\":\"2026-01-02T03:04:14+00:00\",\"actorPartyId\":\"party:actor-a\",\"causationId\":null,\"deduplicationKey\":\"tenant:tenant-a|conv:conversation-a|event-9|1\"},\"reasonCode\":\"archived\"}"
+    },
+    {
+      "eventType": "MessageContentRedacted",
+      "payload": "{\"metadata\":{\"schemaVersion\":1,\"eventId\":\"event-10\",\"eventType\":\"MessageContentRedacted\",\"tenantId\":\"tenant:tenant-a\",\"conversationId\":\"conv:conversation-a\",\"correlationId\":\"correlation-a\",\"occurredAt\":\"2026-01-02T03:04:15+00:00\",\"actorPartyId\":\"party:actor-a\",\"causationId\":null,\"deduplicationKey\":\"tenant:tenant-a|conv:conversation-a|event-10|1\"},\"target\":{\"messageId\":\"message:message-a\",\"fileId\":null,\"partyId\":null,\"kind\":\"Message\",\"segmentReference\":null},\"category\":\"DisplayMask\",\"policyReference\":\"policy-a\",\"rationale\":\"privacy-request\",\"auditEvidence\":{\"handle\":{\"value\":\"evidence-a\"},\"policyReference\":\"policy-a\",\"capturedAt\":\"2026-01-02T03:04:15+00:00\"}}"
+    }
+  ]
+}

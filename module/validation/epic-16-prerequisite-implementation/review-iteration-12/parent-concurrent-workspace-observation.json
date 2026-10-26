@@ -1,0 +1,26 @@
+{
+  "concurrentHead": "46ca7bf39b25318418b7145b7ce75bb306471cd0",
+  "commitMetadata": "commit 46ca7bf39b25318418b7145b7ce75bb306471cd0\nAuthor:     Jerome Piquot <jpiquot@itaneo.com>\nAuthorDate: Mon Oct 26 06:58:50 2026 +0100\nCommit:     Jerome Piquot <jpiquot@itaneo.com>\nCommitDate: Mon Oct 26 06:58:50 2026 +0100\n\n    build: sync local changes via /pushall\n    \n    Co-authored-by: Cursor <cursoragent@cursor.com>\n",
+  "boundFrozenFiles": 86,
+  "observedDrift": [
+    {
+      "path": ".gitattributes",
+      "frozenSha256": "060e4e42b7a277db5f3dad307660f7895b9ca8ce1b7ae40090b2c67406a43ef2",
+      "currentSha256": "90a6b437c3dc866e9f49a1fa3cc2e6d2aa550b9fd2194ad284cfe91166e35b5b"
+    }
+  ],
+  "concurrentGitlinkChanges": [
+    ":160000 160000 9c8f722a db897eac M\treferences/Hexalith.Builds",
+    ":160000 160000 694e37ba fd327dc5 M\treferences/Hexalith.EventStore",
+    ":160000 160000 2472a500 b8c66d64 M\treferences/Hexalith.Folders",
+    ":160000 160000 76e063b5 4f5ce9e6 M\treferences/Hexalith.FrontComposer",
+    ":160000 160000 4b60d49e a61f7eda M\treferences/Hexalith.McpCli",
+    ":160000 160000 7b0c8b56 092191bc M\treferences/Hexalith.Memories",
+    ":160000 160000 986a369e 027a5005 M\treferences/Hexalith.Parties",
+    ":160000 160000 c4fad9cd b117945e M\treferences/Hexalith.Platform",
+    ":160000 160000 94f6ad1f 85908791 M\treferences/Hexalith.Projects",
+    ":160000 160000 3b60914a 665068ec M\treferences/Hexalith.Tenants"
+  ],
+  "indexEmpty": true,
+  "decision": "Preserve the user/Cursor concurrent commit and all dependency work. Original 2,879 passing cases remain tied to original source epoch with sourceUnchanged=false. Narrow current packaging and binding checks plus queued legacy, held/completion and native preservation verification establish the changed policy. No full-suite rerun is claimed."
+}

@@ -1,0 +1,25 @@
+{
+  "build": [
+    "dotnet",
+    "build",
+    "Evidence.csproj",
+    "-c",
+    "Debug",
+    "--nologo",
+    "-m:1",
+    "-p:NuGetAudit=false"
+  ],
+  "run": [
+    "dotnet",
+    "/tmp/epic16-r12-final-lc84tfns/combined/test_round11_fact_discovery_ag2/native/bin/Debug/net10.0/Evidence.dll",
+    "-automated",
+    "sync",
+    "-failSkips",
+    "-method",
+    "Synthetic.TestClass.Scenario01",
+    "-trx",
+    "/tmp/epic16-r12-final-lc84tfns/combined/test_round11_fact_discovery_ag2/native/result.trx"
+  ],
+  "buildExit": 0,
+  "runExit": 0
+}

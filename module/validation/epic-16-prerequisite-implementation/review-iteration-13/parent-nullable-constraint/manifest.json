@@ -1,0 +1,97 @@
+{
+  "scope": "Independent exact same-size compiled Nullable generic argument mutation; pinned xUnit actual runner; no runtime authority",
+  "workspace": "/tmp/epic16-r13-nullable-proof-32wc676s",
+  "sourceManifest": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-default-controls/manifest.json",
+  "rows": [
+    {
+      "label": "valid",
+      "sha256": "b7af103a3fbb318a9193be4f7980761daa3c0f89a37efb967e08e6b756dc1cc1",
+      "mutationOffset": 6873,
+      "oldByte": 8,
+      "newByte": 8,
+      "inspection": {
+        "result": "PASS",
+        "metadata": {
+          "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "type": "Synthetic.NullableNull",
+          "method": "Scenario01",
+          "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+        }
+      },
+      "runner": {
+        "argv": [
+          "dotnet",
+          "/tmp/epic16-r13-nullable-proof-32wc676s/valid/Evidence.dll",
+          "-automated",
+          "sync",
+          "-failSkips",
+          "-method",
+          "Synthetic.NullableNull.Scenario01"
+        ],
+        "cwd": "/tmp/epic16-r13-nullable-proof-32wc676s/valid",
+        "exitCode": 0
+      }
+    },
+    {
+      "label": "string",
+      "sha256": "f3144c449ad4171d2ff1dc2304527e24e610f6d3a489494ec69d7f87c7b9c716",
+      "mutationOffset": 6873,
+      "oldByte": 8,
+      "newByte": 14,
+      "inspection": {
+        "result": "PASS",
+        "metadata": {
+          "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "type": "Synthetic.NullableNull",
+          "method": "Scenario01",
+          "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+        }
+      },
+      "runner": {
+        "argv": [
+          "dotnet",
+          "/tmp/epic16-r13-nullable-proof-32wc676s/string/Evidence.dll",
+          "-automated",
+          "sync",
+          "-failSkips",
+          "-method",
+          "Synthetic.NullableNull.Scenario01"
+        ],
+        "cwd": "/tmp/epic16-r13-nullable-proof-32wc676s/string",
+        "exitCode": 1
+      }
+    },
+    {
+      "label": "object",
+      "sha256": "d6e94e3e4cc8e946782f64aa2eb64dc831b2fb0680e3cb5d948ba53191e014d5",
+      "mutationOffset": 6873,
+      "oldByte": 8,
+      "newByte": 28,
+      "inspection": {
+        "result": "PASS",
+        "metadata": {
+          "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "type": "Synthetic.NullableNull",
+          "method": "Scenario01",
+          "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+        }
+      },
+      "runner": {
+        "argv": [
+          "dotnet",
+          "/tmp/epic16-r13-nullable-proof-32wc676s/object/Evidence.dll",
+          "-automated",
+          "sync",
+          "-failSkips",
+          "-method",
+          "Synthetic.NullableNull.Scenario01"
+        ],
+        "cwd": "/tmp/epic16-r13-nullable-proof-32wc676s/object",
+        "exitCode": 1
+      }
+    }
+  ]
+}

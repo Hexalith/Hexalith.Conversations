@@ -1,0 +1,17 @@
+{
+  "backup": "/tmp/epic16-review13-preservation-kbmw7del",
+  "manifestSha256": "30782df6678d58e0c19be4881f80cfe4bc78e0bfb12bf2b3f9f29c7c4c2bc0f0",
+  "ownedFiles": 42,
+  "originalBaselineTrackedFiles": 4,
+  "originalTaskAddedFiles": 38,
+  "currentTrackedFiles": 42,
+  "frozenVerified": 86,
+  "protectedVerified": 5,
+  "baselineRestored": 4,
+  "taskAddedFilesRemoved": 38,
+  "concurrentAttributeRulePreserved": true,
+  "concurrentHeadPreserved": "46ca7bf39b25318418b7145b7ce75bb306471cd0",
+  "allEvidencePreserved": true,
+  "retainedEvidenceFiles": 12202,
+  "indexEmpty": true
+}

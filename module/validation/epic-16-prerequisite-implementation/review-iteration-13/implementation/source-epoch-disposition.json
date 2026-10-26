@@ -1,0 +1,326 @@
+{
+  "epochs": [
+    {
+      "label": "exploratory-1",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/exploratory-1/command.json",
+        "sha256": "aecab8d4f6202e301584a52f8e385611c21587d2462ffd28640a474dd52c6d0d"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/exploratory-1/source.json",
+        "sha256": "7fae48666400515b3156018409a3ec12f5abd0fb83396a893a6b0f0fb6f97779"
+      },
+      "counts": {
+        "tests": 74,
+        "failures": 5,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "69 passes and five test-preparation failures: decimal blob-length prefix was incorrectly assumed16 rather than18; broad signature search found two candidate signatures. These were corrected with exact MetadataReader heap offsets. Original results retained."
+    },
+    {
+      "label": "exploratory-2",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/exploratory-2/command.json",
+        "sha256": "e42c56fbf9c87f54030b3a719508062aafde0dd1d181b5567edf6a1be37836ad"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/exploratory-2/source.json",
+        "sha256": "38a97ac9bc682d6e1113b7725d2375dadb53e7abeb25f45fb16cdaa57899ff24"
+      },
+      "counts": {
+        "tests": 92,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "92 iteration13 controls passed with actual pinned constructor/provider controls and structured runtime/publication/host checks."
+    },
+    {
+      "label": "exploratory-3",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/exploratory-3/command.json",
+        "sha256": "e018319177d741957e4165def8f7ab8c15296d0b3dafa36307ba2f065b713949"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/exploratory-3/source.json",
+        "sha256": "67cd986fd7cb3c15680caee840f2627e4cd137294228a045ae1f0abe97f75684"
+      },
+      "counts": {
+        "tests": 47,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "43 passes and four new-test AttributeErrors: schema validator helper name did not exist. Replaced with the existing jsonschema Draft202012Validator API; expectations unchanged."
+    },
+    {
+      "label": "exploratory-4",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/exploratory-4/command.json",
+        "sha256": "7a018f11303b71006d9a87d5d8c75a66e2d7144e67e91c2e24804dd7cebc5750"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/exploratory-4/source.json",
+        "sha256": "08e851d483730eda74b7fc16fd4f4abc7694c5300317ef654cd4934128c3e841"
+      },
+      "counts": {
+        "tests": 113,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "113 selected controls passed, including genuine9-owner native publication and both new-owner mixed-implementation rejections. Later test-only retention changes add separate native build stdout/stderr and exact build inputs without changing production sources."
+    },
+    {
+      "label": "focused-final",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/focused-final/command.json",
+        "sha256": "8b4ef6610b87a2b57213ed542cbe2c439bbe07d88059aac839039dcae4ba2738"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/focused-final/source.json",
+        "sha256": "66d26699d959cbc2d04c0d5aff4a5ac3ff1189bb4a4156d743b09932b6cd2138"
+      },
+      "counts": {
+        "tests": 113,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "113 selected controls passed with native build-stream retention. Parent R13P2 later disproved the decimal-sign restriction; this pre-correction source and its green results are retained as an incomplete protocol interpretation."
+    },
+    {
+      "label": "focused-corrected",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/focused-corrected/command.json",
+        "sha256": "5457ad332153118d31f1614312ef873c1f8f14c96f57e3b53a2ae273628f0b0f"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/focused-corrected/source.json",
+        "sha256": "960d5b34aae6e121de9c5b6484259c4dfaaa230b92e56d8014629f7653d5b915"
+      },
+      "counts": {
+        "tests": 117,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "117 selected controls passed after the decimal-sign correction. Parent R13P3 later disproved Nullable<String>/Object admission; this remains a pre-constraint-correction epoch."
+    },
+    {
+      "label": "nullable-focused",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/nullable-focused/command.json",
+        "sha256": "8bf12c5cca306cb5d21c6eab15ec043872adf6239d0aeed0cf9c0c650b6b1adc"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/nullable-focused/source.json",
+        "sha256": "3945a23d922d7e3a033a419d43068fd343f1e7a6c451d6b3f0d6537bb38d44b0"
+      },
+      "counts": {
+        "tests": 38,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "37 selected controls passed and one nested-nullable preparation assertion failed because a TypeRef required a two-byte coded handle. The equal-width control was corrected without changing production behavior."
+    },
+    {
+      "label": "focused-final-constraint",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/focused-final-constraint/command.json",
+        "sha256": "bf64c2aab6aede40096a5136b1c4e777c3d26b33f2ff166a1fb8411ce904e669"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/focused-final-constraint/source.json",
+        "sha256": "ce612c8a307df05a2703b08524cb502caa830bb4cfa3630ac4bf5c7564999026"
+      },
+      "counts": {
+        "tests": 130,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "130 selected controls passed after nullable corrections. The later combined run exposed only an outdated lexical Gitlink expected order in a separate preserved positive test."
+    },
+    {
+      "label": "focused-final-order",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/focused-final-order/command.json",
+        "sha256": "3c9830bb209b432f27351bb5291c451cbfca48db415ccd8a43f571937663901a"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/focused-final-order/source.json",
+        "sha256": "490b1bd5c63ab9f3f04809b9e9bd23713a7235d3dc4e016ae7ff1850303938c8"
+      },
+      "counts": {
+        "tests": 131,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "131 selected controls pass on final source, adding the corrected old positive to all130 preceding focused cases."
+    },
+    {
+      "label": "combined-final-constraint",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/combined-final-constraint/command.json",
+        "sha256": "93e9601566f2ed5de617a8488e78ea563e8f92ed191b5debb0d8add21169a9b9"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/combined-final-constraint/source.json",
+        "sha256": "ce612c8a307df05a2703b08524cb502caa830bb4cfa3630ac4bf5c7564999026"
+      },
+      "counts": {
+        "tests": 1128,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "Stopped after1127 passes and one failing obsolete expected-gitlink-order assertion; production runtime evaluation passed. The isolated diagnostic confirms the one-line test expectation correction. Exit2 and unchanged source are retained."
+    },
+    {
+      "label": "legacy-final-constraint",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/legacy-final-constraint/command.json",
+        "sha256": "3751cf636d4d9141cfa31e1d4ade107d542a10bccefe9be56b0db9f9917dab21"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/legacy-final-constraint/source.json",
+        "sha256": "ce612c8a307df05a2703b08524cb502caa830bb4cfa3630ac4bf5c7564999026"
+      },
+      "counts": {
+        "tests": 72,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "72 exact legacy cases passed on the pre-order-correction source; retained separately from the final repeated legacy lane."
+    },
+    {
+      "label": "diagnostic-qualified-runtime",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/diagnostic-qualified-runtime/command.json",
+        "sha256": "3bb0ba606a5032c8a0c6a7110722a7fb8add25737fc499501c9de91e81f57667"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/diagnostic-qualified-runtime/source.json",
+        "sha256": "ce612c8a307df05a2703b08524cb502caa830bb4cfa3630ac4bf5c7564999026"
+      },
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "The isolated old positive reproduced the Commons-first lexical-order mismatch, with all preceding runtime/binary/canonicalizer assertions passing."
+    },
+    {
+      "label": "combined",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/combined/command.json",
+        "sha256": "c12c6bb85c4edcbfb4d6df5f6f18788cbc027bbb09c0971d17ba162b47b11a92"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/combined/source.json",
+        "sha256": "960d5b34aae6e121de9c5b6484259c4dfaaa230b92e56d8014629f7653d5b915"
+      },
+      "counts": {
+        "tests": 104,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "Parent stopped the initial combined run pending R13P3 proof after104 passes. Exit2 and stable source retained; no completed combined claim."
+    },
+    {
+      "label": "legacy",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/legacy/command.json",
+        "sha256": "87e83e6f3a996c00c6c3802f81126d64ee1471653c501648597965157ab4d859"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/legacy/source.json",
+        "sha256": "960d5b34aae6e121de9c5b6484259c4dfaaa230b92e56d8014629f7653d5b915"
+      },
+      "counts": {
+        "tests": 199,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "Initial command accidentally selected the whole historical generator module; stopped after199 passes when selection error was detected. No completed legacy claim."
+    },
+    {
+      "label": "legacy-selected",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/legacy-selected/command.json",
+        "sha256": "d0046d6227bcd186dd8395821a2ab74c84e8555c8816e884b45003856d1657b8"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/legacy-selected/source.json",
+        "sha256": "960d5b34aae6e121de9c5b6484259c4dfaaa230b92e56d8014629f7653d5b915"
+      },
+      "counts": {
+        "tests": 72,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "The exact earlier selector passed72 cases before R13P3; preserved as a pre-fix epoch, rerun on final source separately."
+    }
+  ],
+  "finalSource": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/combined-final-order/source.json",
+    "sha256": "490b1bd5c63ab9f3f04809b9e9bd23713a7235d3dc4e016ae7ff1850303938c8"
+  },
+  "originalIteration12Source": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/final-source.json",
+    "sha256": "ed4e8a100abdd4ca22f2cc5df225d69da6275ccde4b4e9e4e865c4a1a6c27573"
+  },
+  "currentIteration12Source": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/packaging-source.json",
+    "sha256": "68ad9ad781fd6aebffe1a7c7042ea054a0d3b533cbd9ad1b8bd19b4ebe5ad22d"
+  },
+  "archiveMapping": {
+    ".gitignore": ".gitignore.bytes"
+  },
+  "sourceFileCount": 86,
+  "boundSourceCount": 71,
+  "preparationNotes": [
+    "The first final state-check launch raced creation of the combined source snapshot and stopped before any guard command. Its FileNotFoundError streams are retained; the sequential retry passed."
+  ],
+  "restoration": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/restoration.json",
+    "sha256": "cc0e228ed95bae5e9326bec94d9dcb640880ad41cea101cb02cea9a338edd541"
+  },
+  "parentDefaults": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-default-controls/manifest.json",
+    "sha256": "b0638dbe451ee1616d3e78475a4c911765d83ad5c58d20b59faf9510667a6040"
+  },
+  "parentDecimalSign": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-decimal-sign/manifest.json",
+    "sha256": "97ab990f0947fa2dfded43c7f12825581d2e6b16dead8c8957ddcc608b1b872b"
+  },
+  "parentNullableConstraint": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-nullable-constraint/manifest.json",
+    "sha256": "9d5d32f0504f2330d71bf05eb01056f5af3424bb0ab77f31b738a478f720a39d"
+  },
+  "interruptedCombined": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/combined-parent-audit-hold.json",
+    "sha256": "bc26809f179e020fb0a983f7256bb2ae48a33b25501b6e1bc84b227728de9157"
+  },
+  "legacySelectionCorrection": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/legacy-selection-correction.json",
+    "sha256": "366b2a9201a1fe62a88797debf21af66fab06e572d3996ba61f207850f7b52df"
+  },
+  "gitlinkOrderCorrection": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/gitlink-order-source-disposition.json",
+    "sha256": "b032281bc89f4827a94c29dc98ac462bfd803f42d866a9adc7c8278cd2f32358"
+  },
+  "interruptedOrderEpoch": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/combined-order-correction-hold.json",
+    "sha256": "6d6aabbe75b69c09b23b37311ffb93dcf4d24cf8ff33b1dcc5e2828567c6d514"
+  }
+}

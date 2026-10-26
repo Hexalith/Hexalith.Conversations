@@ -1,0 +1,23 @@
+{
+  "wrapperArgv": [
+    "python3",
+    "/tmp/epic16-r12-final-tests.py"
+  ],
+  "wrapperExitCode": 1,
+  "pytestExitCode": 0,
+  "pytestResult": "2879 passed in 2579.38s (0:42:59)",
+  "assertion": "AssertionError: .gitattributes",
+  "legacyStarted": false,
+  "changedFrozenPaths": [
+    ".gitattributes"
+  ],
+  "otherFrozenPathsUnchanged": 85,
+  "originalSha256": "060e4e42b7a277db5f3dad307660f7895b9ca8ce1b7ae40090b2c67406a43ef2",
+  "observedSha256": "90a6b437c3dc866e9f49a1fa3cc2e6d2aa550b9fd2194ad284cfe91166e35b5b",
+  "observedModifiedUtc": "2026-10-26T05:58:35.416123+00:00",
+  "bindingEntry": {
+    "path": ".gitattributes",
+    "sha256": "060e4e42b7a277db5f3dad307660f7895b9ca8ce1b7ae40090b2c67406a43ef2"
+  },
+  "disposition": "Pending parent attribution and explicit evidence disposition; worker did not make or revert this edit."
+}

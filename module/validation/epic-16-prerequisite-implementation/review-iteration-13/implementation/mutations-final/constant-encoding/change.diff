@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_native_helper/TestConstruction.cs
++++ _bmad/scripts/epic16_native_helper/TestConstruction.cs
+@@ -331,7 +331,7 @@
+             ConstantTypeCode.String => bytes.Length % 2 == 0 ? bytes.Length : -1,
+             _ => -1,
+         };
+-        if (bytes.Length != length || length < 0 || constant.TypeCode == ConstantTypeCode.Boolean && bytes[0] > 1)
++        if (false)
+             throw new InvalidDataException("Malformed constructor constant.");
+         if (constant.TypeCode == ConstantTypeCode.NullReference)
+         {

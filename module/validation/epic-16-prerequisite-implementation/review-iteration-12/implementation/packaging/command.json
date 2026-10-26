@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "_bmad/scripts/tests/test_epic16_tooling.py",
+    "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py",
+    "-k",
+    "binding_inventory_requires_exact_order_and_cardinality or contract_schema_predecessor_and_source_pins_are_independent or package_preparation_preserves_all_obligations_and_has_no_entry or clean_different_repository_cannot_claim_unexecuted_bound_source_bytes or runtime_evaluator_rejects_clean_bound_sources_that_differ_from_executing_tree or atomic_committed_publication_and_lifecycle_pass or round6_genuine_native_capture_publication_survives_fresh_checkout or round7_retained_pe_has_binary_attributes_and_safe_normal_git_diff or disposable_git_checkout_preserves_bound_root_bytes_with_autocrlf or rehashed_checkout_policy_cannot_redefine_pinned_bytes",
+    "--basetemp=/tmp/epic16-r12-packaging-hnufd2q0/packaging",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/packaging/result.xml"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "environment": {
+    "EPIC16_BASETEMP": "/tmp/epic16-r12-packaging-hnufd2q0/packaging",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "EPIC16_COMMITLINT_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/packaging/commitlint.json",
+    "EPIC16_R12_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/packaging/native-r12",
+    "EPIC16_R11_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/packaging/native",
+    "EPIC16_R10_NATIVE_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/packaging/native-r10"
+  },
+  "exitCode": 0,
+  "durationSeconds": 67.03011798858643,
+  "sourceUnchanged": true,
+  "files": {
+    "commitlint.json": "aaa48a4feaff35b5a88f760ed8a42dcaf49347afa636fb98fb551acfe77d99aa",
+    "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout": "5b0a2194656284a4d8fadc591c40b97ca232b0e717fe39f0f3eeadbae0b8b771",
+    "source-hashes.json": "8223126cb5fa33fa297401836c9709f4ed387396cfe922087747c39412649d80",
+    "result.xml": "88167c17975bfdb4d90149aebcf7197121205150257b8d9c1eaa2857b3680dd1"
+  }
+}

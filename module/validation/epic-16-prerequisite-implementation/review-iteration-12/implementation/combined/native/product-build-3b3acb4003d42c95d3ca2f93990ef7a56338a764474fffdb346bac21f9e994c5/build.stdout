@@ -1,9 +1,9 @@
   Determining projects to restore...
-  Restored /tmp/epic16-product-fixture-4cca5_xa/Product.csproj (in 49 ms).
-  Product -> /tmp/epic16-product-fixture-4cca5_xa/bin/Debug/net10.0/Hexalith.Conversations.Contracts.dll
+  Restored /tmp/epic16-product-fixture-17vjva14/Product.csproj (in 140 ms).
+  Product -> /tmp/epic16-product-fixture-17vjva14/bin/Debug/net10.0/Hexalith.Conversations.Contracts.dll
 
 Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:02.31
+Time Elapsed 00:00:04.11

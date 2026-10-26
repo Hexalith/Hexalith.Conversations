@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "python3",
+    "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/final-evidence.py"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "exitCode": 1,
+  "exceptionType": "KeyError",
+  "exceptionKey": "deviation",
+  "failurePhase": "Final record construction after all validation assertions and inventory collection",
+  "verificationWritten": false,
+  "scriptSha256": "2b03ac0c25a787848b267d0ce7d60f073973de6e68f0299c08aca77dd1ee5295",
+  "script": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/final-evidence-attempt1.py.bytes"
+}

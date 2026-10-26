@@ -1,0 +1,234 @@
+[
+  {
+    "name": "default-calling-convention",
+    "path": "_bmad/scripts/epic16_native_helper/Program.cs",
+    "old": "header.CallingConvention != SignatureCallingConvention.Default || ",
+    "new": "",
+    "selector": "round14_test_calling_convention and varargs",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r14-mutant-default-calling-convention-j0latsye/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round14_test_calling_convention and varargs",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-verification/mutations/default-calling-convention/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r14-mutant-default-calling-convention-j0latsye",
+    "exitCode": 1,
+    "elapsedSeconds": 5.1295257229940034,
+    "originalSha256": "ca06233bdb4466306b9f0f329f1c087fec71a3f46005562454410503491a5e9a",
+    "mutatedSha256": "32973a86860a8a46a3892b89ca71235f753704b3653ae41877053b95167efc4d",
+    "testSha256": "041019802d8f68321ae6354d48f4c8ecb78312b39a6df709b7cb30d9bc2a38a7",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "direct-byreflike-default",
+    "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+    "old": "return value ? NonNullableValueType(reader, type) : type.StartsWith(\"class \", StringComparison.Ordinal);",
+    "new": "return type.StartsWith(value ? \"valuetype \" : \"class \", StringComparison.Ordinal);",
+    "selector": "round14_test_calling_convention and (optional-ref or default-ref)",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r14-mutant-direct-byreflike-default-19y98j8r/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round14_test_calling_convention and (optional-ref or default-ref)",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-verification/mutations/direct-byreflike-default/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r14-mutant-direct-byreflike-default-19y98j8r",
+    "exitCode": 1,
+    "elapsedSeconds": 7.290870234981412,
+    "originalSha256": "48b39a9048eadd8f6c094db9a267069bfdaf24af65e5a069e46337af7dbbe218",
+    "mutatedSha256": "fe4e695373ea16df32c097b98ba221d9b43f1fb7f442ad887700bb81145b547f",
+    "testSha256": "041019802d8f68321ae6354d48f4c8ecb78312b39a6df709b7cb30d9bc2a38a7",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "nested-cycle",
+    "path": "_bmad/scripts/epic16_native_helper/SignatureNames.cs",
+    "old": "if (!visited.Add(handle)) throw new InvalidDataException(\"Cyclic nested type definition.\");",
+    "new": "visited.Add(handle);",
+    "selector": "round14_nested_definition_cycle",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r14-mutant-nested-cycle-ru_kynlj/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round14_nested_definition_cycle",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-verification/mutations/nested-cycle/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r14-mutant-nested-cycle-ru_kynlj",
+    "exitCode": 1,
+    "elapsedSeconds": 6.7142528090043925,
+    "originalSha256": "a65eb6120957a90478e644ba06f02f38085bfbd8b767d1a97e2ad36838e03450",
+    "mutatedSha256": "7ec45833cd71184b828db9ce1bdbcfa5ed0c336f129ce9b15ae9041ae5d2f95b",
+    "testSha256": "041019802d8f68321ae6354d48f4c8ecb78312b39a6df709b7cb30d9bc2a38a7",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "domain-predicate-explanation",
+    "path": "_bmad/scripts/epic16_domain.py",
+    "old": "if not condition: raise PredicateError(detail)",
+    "new": "if not condition: raise ValueError(detail)",
+    "selector": "round14_real_evaluator_retains and domain",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r14-mutant-domain-predicate-explanation-3d_ddkyr/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round14_real_evaluator_retains and domain",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-verification/mutations/domain-predicate-explanation/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r14-mutant-domain-predicate-explanation-3d_ddkyr",
+    "exitCode": 1,
+    "elapsedSeconds": 15.599295010004425,
+    "originalSha256": "b59cc54ea133a7c831047294bf34a7d92c5b63421578cb57ce47ed3b61a98cf3",
+    "mutatedSha256": "a2e40cbf99c951b3beeb466cab4956bf1eed2d6087d8e30359c084701ebc9c02",
+    "testSha256": "041019802d8f68321ae6354d48f4c8ecb78312b39a6df709b7cb30d9bc2a38a7",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "measurement-predicate-explanation",
+    "path": "_bmad/scripts/epic16_measurements.py",
+    "old": "raise domain.PredicateError(detail)",
+    "new": "raise ValueError(detail)",
+    "selector": "round14_real_evaluator_retains and measurements",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r14-mutant-measurement-predicate-explanation-qu7vpwto/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round14_real_evaluator_retains and measurements",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-verification/mutations/measurement-predicate-explanation/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r14-mutant-measurement-predicate-explanation-qu7vpwto",
+    "exitCode": 1,
+    "elapsedSeconds": 15.599244710989296,
+    "originalSha256": "c4db659fcaa43f55d0f88e2fdc47c0f9c2ac84676a2ffed7d5cfbbb88091f71f",
+    "mutatedSha256": "ff956e3d86bcb034d02f50ce98e540e0ff67e8de3338bd975aecb41eebe425eb",
+    "testSha256": "041019802d8f68321ae6354d48f4c8ecb78312b39a6df709b7cb30d9bc2a38a7",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "controlled-explanation-caller",
+    "path": "_bmad/scripts/epic16_tooling.py",
+    "old": "except measurements.domain.PredicateError as error:\n        return failed(result, Stop('MEASUREMENT_INVALID', str(error)))",
+    "new": "except measurements.domain.PredicateError as error:\n        return failed(result, Stop('MEASUREMENT_INVALID', scenario))",
+    "selector": "round14_real_evaluator_retains",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r14-mutant-controlled-explanation-caller-493lj4mt/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round14_real_evaluator_retains",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-verification/mutations/controlled-explanation-caller/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r14-mutant-controlled-explanation-caller-493lj4mt",
+    "exitCode": 1,
+    "elapsedSeconds": 16.483737169997767,
+    "originalSha256": "1d47daf61c51b5f4553e14f36b5c3fbd2dcec4d17c977b892e4cf20aa903fcc7",
+    "mutatedSha256": "749c4f78dfaf3b1984b0f5eba69ae99ec6c367c4cda132090e90eb9e649782dd",
+    "testSha256": "041019802d8f68321ae6354d48f4c8ecb78312b39a6df709b7cb30d9bc2a38a7",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "untrusted-explanation-nondisclosure",
+    "path": "_bmad/scripts/epic16_tooling.py",
+    "old": "except (ValueError, TypeError, KeyError, IndexError, AttributeError, OverflowError, RecursionError):\n        return failed(result, Stop('MEASUREMENT_INVALID', scenario))",
+    "new": "except (ValueError, TypeError, KeyError, IndexError, AttributeError, OverflowError, RecursionError) as error:\n        return failed(result, Stop('MEASUREMENT_INVALID', str(error)))",
+    "selector": "round14_untrusted_exception",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r14-mutant-untrusted-explanation-nondisclosure-0gh5aswf/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round14_untrusted_exception",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-verification/mutations/untrusted-explanation-nondisclosure/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r14-mutant-untrusted-explanation-nondisclosure-0gh5aswf",
+    "exitCode": 1,
+    "elapsedSeconds": 16.4070259060245,
+    "originalSha256": "1d47daf61c51b5f4553e14f36b5c3fbd2dcec4d17c977b892e4cf20aa903fcc7",
+    "mutatedSha256": "6616ebd47b6e7685fc1375188719c20e753464ce5a1ac8f38b52459cae8afe28",
+    "testSha256": "041019802d8f68321ae6354d48f4c8ecb78312b39a6df709b7cb30d9bc2a38a7",
+    "tests": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "name": "omitted-cli-pair",
+    "path": "_bmad/scripts/epic16_tooling.py",
+    "old": "paths=None if args.output_json is None and args.output_markdown is None else [args.output_json, args.output_markdown])",
+    "new": "paths=[args.output_json, args.output_markdown])",
+    "selector": "round14_real_generator_cli and omitted",
+    "argv": [
+      "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+      "-m",
+      "pytest",
+      "-q",
+      "/tmp/epic16-r14-mutant-omitted-cli-pair-w4f4rdah/_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round14_real_generator_cli and omitted",
+      "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-verification/mutations/omitted-cli-pair/result.xml"
+    ],
+    "cwd": "/tmp/epic16-r14-mutant-omitted-cli-pair-w4f4rdah",
+    "exitCode": 1,
+    "elapsedSeconds": 17.428434333996847,
+    "originalSha256": "1d47daf61c51b5f4553e14f36b5c3fbd2dcec4d17c977b892e4cf20aa903fcc7",
+    "mutatedSha256": "0ec2b18621bc7a6bb533b60a4203643c6f489eac3e2f0536ac032b4ea6bc00a3",
+    "testSha256": "041019802d8f68321ae6354d48f4c8ecb78312b39a6df709b7cb30d9bc2a38a7",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  }
+]

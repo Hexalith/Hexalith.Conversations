@@ -1,0 +1,29 @@
+{
+  "name": "product-owner-surface",
+  "path": "_bmad/scripts/epic16_products.py",
+  "old": " and set(expected['surfaces'])<=set(metadata['declaredTypes'])",
+  "new": "",
+  "selector": "round13_new_owner_requires_actual_behavior_surface",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r13-mutant-product-owner-surface-9p0sic4h/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round13_new_owner_requires_actual_behavior_surface",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final-order/product-owner-surface/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r13-mutant-product-owner-surface-9p0sic4h",
+  "exitCode": 1,
+  "elapsedSeconds": 30.41626062200521,
+  "originalSha256": "3b4d2e085a42faf33e97ad8e782e604737c4b364ded157767ddbd845d2b3635e",
+  "mutatedSha256": "c2a09b8ec7932689abf5c588a9bdc5f7478c6963a1e67902af0e24d486f11499",
+  "testSha256": "590cc9e8f0164194e243536d06962f89baf006c324d3cd48077f44c7a17d89b0",
+  "tests": {
+    "tests": 3,
+    "failures": 3,
+    "errors": 0,
+    "skipped": 0
+  }
+}

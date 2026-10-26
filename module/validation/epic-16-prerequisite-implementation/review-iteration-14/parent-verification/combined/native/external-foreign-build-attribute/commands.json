@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "dotnet",
+    "build",
+    "Attributes.csproj",
+    "-c",
+    "Debug",
+    "--nologo",
+    "-m:1",
+    "-p:NuGetAudit=false"
+  ],
+  "cwd": "/tmp/epic16-r14-parent-combined/test_round11_framework_ownersh1/attributes",
+  "exitCode": 0
+}

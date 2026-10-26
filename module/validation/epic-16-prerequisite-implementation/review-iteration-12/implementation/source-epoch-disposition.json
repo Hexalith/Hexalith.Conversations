@@ -1,0 +1,161 @@
+{
+  "originalCombinedSource": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/final-source.json",
+    "sha256": "ed4e8a100abdd4ca22f2cc5df225d69da6275ccde4b4e9e4e865c4a1a6c27573"
+  },
+  "currentPackagingSource": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/packaging-source.json",
+    "sha256": "68ad9ad781fd6aebffe1a7c7042ea054a0d3b533cbd9ad1b8bd19b4ebe5ad22d"
+  },
+  "concurrentDisposition": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/packaging-epoch/disposition.json",
+    "sha256": "880ef3d7f4894717c86a91d192776736810d569e5cc0724e21dccc10fc873247"
+  },
+  "preNoticeSource": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/pre-notice-source.json",
+    "sha256": "28e41fe572d3be29e0a137420a1e621c20a03a10720550e5444ee097468cecab"
+  },
+  "preNoticeHelper": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/helper-toolchain/provenance.json",
+    "sha256": "eef245b292e11112e4924aa15550bd9a77430475b3fa29290210bcbcc8f6cdc3"
+  },
+  "originalCombinedSourceUnchanged": false,
+  "currentPackagingSourceUnchanged": true,
+  "intermediate": [
+    {
+      "label": "exploratory-a",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/exploratory-a/command.json",
+        "sha256": "94dde1619d5dd58df2de18cd6d7e84c6d6a3d015887311e5ca1464a8db25d7db"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/exploratory-a/source-hashes.json",
+        "sha256": "16bffa5a3f3423b5ffd2a06dbf78b4b1f9cf08fb947d3d6686e4592c0d008b1d"
+      },
+      "counts": {
+        "tests": 430,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "428 passes and two old nullable-description positives failed because their new reverse-save execution snapshots had not been refreshed. The captures were correlated with the same admitted native replay; the expected positive remained unchanged."
+    },
+    {
+      "label": "exploratory-b",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/exploratory-b/command.json",
+        "sha256": "d68f6cfd703104b836f828612a0c9e501a0ae2df50dff138928e974394a9c1bc"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/exploratory-b/source-hashes.json",
+        "sha256": "d36a48cb8a13046a0d912fcaa4022c78a6c33aeacb8f03f0c607c25a795b9fa4"
+      },
+      "counts": {
+        "tests": 100,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "100 selected passes, including genuine framework stamps and parameters, native custom Task runner success with inspector rejection, foreign parameter-array runner rejection, and preserved nullable/opaque-ID positives."
+    },
+    {
+      "label": "exploratory-c",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/exploratory-c/command.json",
+        "sha256": "6d818a42260d668883f70bc545936ffed2333454f6d3f835e8db862bfc9fed81"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/exploratory-c/source-hashes.json",
+        "sha256": "c51c4dfc2f50fe5823f61787b405ba6b3ba0fd874a0bffb2b3600a3a06424f57"
+      },
+      "counts": {
+        "tests": 21,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "21 selected passes. This source epoch incorrectly expected UnmappedRole for the defined Unknown role; source audit corrected it to native InsufficientRole before final verification. Parent later independently confirmed the correction."
+    },
+    {
+      "label": "exploratory-d",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/exploratory-d/command.json",
+        "sha256": "80391f358c1a0dd1651f425cb3f4b7ce37defb5e0a7023ea96b8fd2bd3aa0e33"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/exploratory-d/source-hashes.json",
+        "sha256": "6bcb22743ee2a48acc29257bc8a68dffa543225bbf259dffc714fa89e8e47b82"
+      },
+      "counts": {
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "12 selected passes after the Unknown-role correction, including the complete ParamArray attribute blob control."
+    },
+    {
+      "label": "exploratory-e",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/exploratory-e/command.json",
+        "sha256": "9554641196967c82ce902a253c330db8f2afff32af00d00696f8bfdc7d291466"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/exploratory-e/source-hashes.json",
+        "sha256": "78d4f447ab1d81151bffa9a31d20052f7fd1398da080eecb1d71bb80df0023a0"
+      },
+      "counts": {
+        "tests": 34,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "34 selected passes after native tenant/principal input validation, including exact compiled actual Commons evaluator parity and legitimate Unicode controls."
+    },
+    {
+      "label": "exploratory-f",
+      "command": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/exploratory-f/command.json",
+        "sha256": "2b1601f331ebb02b6007547077784dd936ec12e0b6457b257aa25afc6743f344"
+      },
+      "source": {
+        "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/exploratory-f/source-hashes.json",
+        "sha256": "486afca7fca461ed477df51adafd3c08b57afe2ac1cde4def250669e3cdb4177"
+      },
+      "counts": {
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "6 selected passes for coherent same-process rejection and genuinely shortened failed-attempt inventories."
+    }
+  ],
+  "mutationDisposition": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/mutation-disposition.json",
+    "sha256": "cbdabd2ed326b42f7b54d68c187c8c2bb0cc46022338fd14ab32c2b0ff3dcd12"
+  },
+  "archiveMapping": {
+    ".gitignore": ".gitignore.bytes"
+  },
+  "snapshotCounts": {
+    "exploratory": 80,
+    "final": 86
+  },
+  "preparationNotes": [
+    "The initial native access source-attribution script guessed Enums/TenantStatusJsonConverter.cs and stopped after helper edits; the actual Serialization/TenantStatusJsonConverter.cs was then retained. This was a preparation lookup error, not a test result.",
+    "Concurrent user/Cursor /pushall commit 46ca7bf39b25318418b7145b7ce75bb306471cd0 changed only the frozen evidence whitespace attribute during combined execution and advanced root/submodule commits. All 2879 passes and sourceUnchanged=false are preserved. Only the attribute binding hash was refreshed; affected packaging/checkout/source checks and 72 legacy ran on stable current 86 source. No full combined rerun is claimed.",
+    "Three Program.cs mutations were repeated after the notice-only source correction so every guard has a run against the final exact target bytes. Earlier source epochs and helper/state checks are retained.",
+    "The initial batched read included bmad-build/SKILL.md before reaching the spec-only handoff instruction. No render, invocation, workflow, child agent or completion orchestration followed."
+  ],
+  "retainedHistoryArtifactCount": 2854,
+  "allPreexistingEvidenceCount": 7954,
+  "currentPackagingCommand": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/packaging/command.json",
+    "sha256": "64fb887fbd6ac794d9cd49919783d02f217a728809316d493d0ae3ab2306561b"
+  },
+  "currentLegacyCommand": {
+    "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-12/implementation/legacy/command.json",
+    "sha256": "a0a9c9da1f2a2e3716293476f3e097aeebea9499a5db0f7d2fddaa8bf6d0c503"
+  }
+}

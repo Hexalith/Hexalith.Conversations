@@ -1,0 +1,11 @@
+--- prior/_bmad/scripts/tests/test_epic16_tooling.py
++++ final/_bmad/scripts/tests/test_epic16_tooling.py
+@@ -1076,7 +1076,7 @@
+     assert result['bindings']['testBinary']['sourceRevision'] == result['candidate']['commit']
+     assert result['bindings']['testBinary']['testFramework'] == 'xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c'
+     assert result['bindings']['canonicalizerSource'] == dict(path=tooling.CANONICALIZER_SOURCE,sha256=tooling.measurements.EVENTSTORE_CANONICALIZER_SHA256)
+-    assert result['candidate']['gitlinks'] == [dict(path=owner,commit=git(qualified_runtime/owner,'rev-parse','HEAD')) for owner in ('references/Hexalith.EventStore','references/Hexalith.Tenants','references/Hexalith.Commons')]
++    assert result['candidate']['gitlinks'] == [dict(path=owner,commit=git(qualified_runtime/owner,'rev-parse','HEAD')) for owner in ('references/Hexalith.Commons','references/Hexalith.EventStore','references/Hexalith.Tenants')]
+     assert not (qualified_runtime/tooling.receipt_path('runtime','AC-16.2-02')).exists()
+ 
+ 

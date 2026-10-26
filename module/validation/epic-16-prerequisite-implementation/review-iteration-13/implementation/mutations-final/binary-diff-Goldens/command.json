@@ -1,0 +1,29 @@
+{
+  "name": "binary-diff-Goldens",
+  "path": ".gitattributes",
+  "old": "module/validation/epic-16-prerequisite-implementation/**/Goldens -text -diff",
+  "new": "module/validation/epic-16-prerequisite-implementation/**/Goldens -text diff",
+  "selector": "round13_opaque_native and Goldens",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r13-mutant-binary-diff-Goldens-ni6scuxl/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round13_opaque_native and Goldens",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/binary-diff-Goldens/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r13-mutant-binary-diff-Goldens-ni6scuxl",
+  "exitCode": 1,
+  "elapsedSeconds": 15.615727407013765,
+  "originalSha256": "d743202ab8c0bdf3dcd000a4a101acde352b6e6cf305a49b708b23c6e7029d7d",
+  "mutatedSha256": "d7f3aabec180fa172705d8a2192c1f2e83c60cdd7bc583900b094630adf7e467",
+  "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+  "tests": {
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  }
+}

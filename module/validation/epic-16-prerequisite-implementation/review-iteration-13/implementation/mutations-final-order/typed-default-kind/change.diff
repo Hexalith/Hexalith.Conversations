@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_native_helper/TestConstruction.cs
++++ _bmad/scripts/epic16_native_helper/TestConstruction.cs
+@@ -374,7 +374,7 @@
+         if (underlying is not null && EnumPrimitive(reader, underlying) is not null)
+             throw new InvalidDataException("Nullable enum default is not a supplied enum instance.");
+         string targetPrimitive = EnumPrimitive(reader, targetType) ?? targetType;
+-        if (!(targetPrimitive == kind || targetPrimitive == "Object"))
++        if (false)
+             throw new InvalidDataException("Constructor constant is incompatible with its parameter.");
+         return true;
+     }

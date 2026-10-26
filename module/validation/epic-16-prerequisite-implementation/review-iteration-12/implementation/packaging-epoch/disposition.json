@@ -1,0 +1,74 @@
+{
+  "cause": "Concurrent user/Cursor /pushall commit, established independently by parent",
+  "concurrentCommit": "46ca7bf39b25318418b7145b7ce75bb306471cd0",
+  "currentHead": "46ca7bf39b25318418b7145b7ce75bb306471cd0",
+  "changedFrozenPaths": [
+    ".gitattributes",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json"
+  ],
+  "unchangedFrozenCount": 84,
+  "codeAndTestsUnchanged": true,
+  "sourceAttributeSha256": "90a6b437c3dc866e9f49a1fa3cc2e6d2aa550b9fd2194ad284cfe91166e35b5b",
+  "originalSourceSha256": "ed4e8a100abdd4ca22f2cc5df225d69da6275ccde4b4e9e4e865c4a1a6c27573",
+  "packagingSourceSha256": "68ad9ad781fd6aebffe1a7c7042ea054a0d3b533cbd9ad1b8bd19b4ebe5ad22d",
+  "delta": ".gitattributes adds only -whitespace to retained raw prerequisite evidence. -text and diff remain unchanged. Git whitespace reporting is suppressed only for that evidence subtree; no text conversion, checkout behavior, execution or native protocol changes.",
+  "bindingDelta": "Only the .gitattributes source SHA changes; all other binding bytes,71 paths,null entry and authority remain identical.",
+  "originalCombinedSourceUnchanged": false,
+  "fullCombinedRerun": false,
+  "workerStageCommitPush": false,
+  "dependencyUpdatesByWorker": false,
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "status",
+        "--short"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "c7540cb9112b6df0adbd24d3102c0670415b34f277db4b1fe383ea172e0d77f3",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "git",
+        "log",
+        "-1",
+        "--format=fuller"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "9f07aed26bedcd479a39d38a30cbd17105f7087945355baf89ec110103426b96",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "HEAD:references"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "047261501b17f886565abb6fd65c0cf2d8f5a20da0834adb053da303c8e614fa",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "git",
+        "submodule",
+        "status"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "bfb8f97ef2f8486d39f0778d71fe9f19560c3f06c9b6b045ac8e3f3feb840da3",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--name-only"
+      ],
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

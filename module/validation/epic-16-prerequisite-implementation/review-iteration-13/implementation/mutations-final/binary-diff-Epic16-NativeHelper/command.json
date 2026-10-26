@@ -1,0 +1,29 @@
+{
+  "name": "binary-diff-Epic16-NativeHelper",
+  "path": ".gitattributes",
+  "old": "module/validation/epic-16-prerequisite-implementation/**/Epic16.NativeHelper -text -diff",
+  "new": "module/validation/epic-16-prerequisite-implementation/**/Epic16.NativeHelper -text diff",
+  "selector": "round13_opaque_native and Epic16.NativeHelper",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r13-mutant-binary-diff-Epic16-NativeHelper-6znkbw0s/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round13_opaque_native and Epic16.NativeHelper",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final/binary-diff-Epic16-NativeHelper/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r13-mutant-binary-diff-Epic16-NativeHelper-6znkbw0s",
+  "exitCode": 1,
+  "elapsedSeconds": 14.767766209988622,
+  "originalSha256": "d743202ab8c0bdf3dcd000a4a101acde352b6e6cf305a49b708b23c6e7029d7d",
+  "mutatedSha256": "1bee23f146dcdb3e011ea6654fb4bece12374f7f9de2e1aaba7c0066632612bd",
+  "testSha256": "5f43e1723ed4f9e44206d8fae0a282c1e8c47f1884550829ca2bc5479ee6ff0e",
+  "tests": {
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  }
+}

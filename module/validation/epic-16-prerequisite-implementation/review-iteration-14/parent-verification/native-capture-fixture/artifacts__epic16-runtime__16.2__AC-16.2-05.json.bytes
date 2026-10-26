@@ -1,0 +1,835 @@
+{
+  "assertionLedger": [
+    {
+      "id": "preservation",
+      "state": "PASS",
+      "subject": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json"
+    },
+    {
+      "id": "AC-16.2-05:public-surface",
+      "state": "PASS",
+      "subject": "AC-16.2-05"
+    },
+    {
+      "id": "AC-16.2-05:tenant-isolation",
+      "state": "PASS",
+      "subject": "AC-16.2-05"
+    },
+    {
+      "id": "AC-16.2-05:generation-mismatch",
+      "state": "PASS",
+      "subject": "AC-16.2-05"
+    },
+    {
+      "id": "AC-16.2-05:replay-query-dependencies",
+      "state": "PASS",
+      "subject": "AC-16.2-05"
+    }
+  ],
+  "authority": {
+    "executionAllowed": false,
+    "implementationHold": "ACTIVE",
+    "ownerApprovalClaimed": false,
+    "pushAuthorized": false,
+    "releaseAuthorized": false
+  },
+  "bindings": {
+    "canonicalizerSource": null,
+    "compiledPublicPreservation": {
+      "baseline": {
+        "metadata": {
+          "api": {
+            "assemblyAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute:.ctor:32:0:1:Void(valuetype [{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute+.DebuggingModes):0100070100000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.CompilationRelaxationsAttribute:.ctor:32:0:1:Void(Int32):0100080000000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RuntimeCompatibilityAttribute:.ctor:32:0:0:Void():01000100540216577261704E6F6E457863657074696F6E5468726F777301;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.Versioning.TargetFrameworkAttribute:.ctor:32:0:1:Void(String):0100192E4E4554436F72654170702C56657273696F6E3D7631302E300100540E144672616D65776F726B446973706C61794E616D65092E4E45542031302E30",
+            "kind": "conservative-ecma335-public-declarations-v1",
+            "moduleAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RefSafetyRulesAttribute:.ctor:32:0:1:Void(Int32):01000B0000000000",
+            "types": {
+              "Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1": {
+                "header": "Public, BeforeFieldInit:[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:IL:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:IL:32:0:1:String(String)::1:value:None:absent::[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.NullableContextAttribute:.ctor:32:0:1:Void(Byte):0100010000"
+                ]
+              }
+            }
+          },
+          "assemblyFlags": 0,
+          "assemblyName": "Hexalith.Conversations.Contracts",
+          "assemblyVersion": "0.0.0.0",
+          "culture": "",
+          "declaredTypes": [
+            ".<Module>",
+            "Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1"
+          ],
+          "informationalVersion": "1.0.0+86a599d9e0457f183906d6b060864c86174028b5",
+          "mvid": "7cbd1d60-f32d-4a93-86ce-dc598c2609ae",
+          "publicKey": "",
+          "sourceRevision": "86a599d9e0457f183906d6b060864c86174028b5"
+        },
+        "path": "artifacts/epic16-runtime/16.2/binaries/206a3630d4112f1675159ed44aef40c98815eeb270af3f33bdad46904ab667bf.dll",
+        "revision": "86a599d9e0457f183906d6b060864c86174028b5",
+        "sha256": "206a3630d4112f1675159ed44aef40c98815eeb270af3f33bdad46904ab667bf"
+      },
+      "candidate": {
+        "metadata": {
+          "api": {
+            "assemblyAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute:.ctor:32:0:1:Void(valuetype [{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute+.DebuggingModes):0100070100000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.CompilationRelaxationsAttribute:.ctor:32:0:1:Void(Int32):0100080000000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RuntimeCompatibilityAttribute:.ctor:32:0:0:Void():01000100540216577261704E6F6E457863657074696F6E5468726F777301;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.Versioning.TargetFrameworkAttribute:.ctor:32:0:1:Void(String):0100192E4E4554436F72654170702C56657273696F6E3D7631302E300100540E144672616D65776F726B446973706C61794E616D65092E4E45542031302E30",
+            "kind": "conservative-ecma335-public-declarations-v1",
+            "moduleAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RefSafetyRulesAttribute:.ctor:32:0:1:Void(Int32):01000B0000000000",
+            "types": {
+              "Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1": {
+                "header": "Public, BeforeFieldInit:[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:IL:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:IL:32:0:1:String(String)::1:value:None:absent::[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.NullableContextAttribute:.ctor:32:0:1:Void(Byte):0100010000"
+                ]
+              }
+            }
+          },
+          "assemblyFlags": 0,
+          "assemblyName": "Hexalith.Conversations.Contracts",
+          "assemblyVersion": "0.0.0.0",
+          "culture": "",
+          "declaredTypes": [
+            ".<Module>",
+            "Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1"
+          ],
+          "informationalVersion": "1.0.0+dbef6c2a9118d0030eba89a588e15771ce832ec2",
+          "mvid": "723475fd-f13d-40b3-a52d-a294e01780f4",
+          "publicKey": "",
+          "sourceRevision": "dbef6c2a9118d0030eba89a588e15771ce832ec2"
+        },
+        "path": "artifacts/epic16-runtime/16.2/binaries/bed0dabdeaba7129c5418e43033e045666872b034ac9fa0970f6ff9e3164bdd8.dll",
+        "revision": "dbef6c2a9118d0030eba89a588e15771ce832ec2",
+        "sha256": "bed0dabdeaba7129c5418e43033e045666872b034ac9fa0970f6ff9e3164bdd8"
+      },
+      "kind": "unchanged-supported-compiled-public-declarations"
+    },
+    "contract": {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+      "sha256": "d577b99b830a0869f7ddb3a037c65a57fcea36cd90d6ef53dcc5cfebcd637ec9"
+    },
+    "entry": {
+      "authorizationRevision": "51186dc7c6021f22472895488c27d001db65db6c",
+      "predecessorFiles": [
+        {
+          "identity": "16.1",
+          "path": "fixture-predecessor.json",
+          "sha256": "15a67c38da771544616b5e32e778a3b98591a62d1d87fd364423ca8ac2f7eb96"
+        }
+      ],
+      "qualification": {
+        "path": "fixture-entry.json",
+        "sha256": "41348c371d5e148ad15c36570789430e152b1e05a8e8bd2e756f3e564a719413"
+      },
+      "runtimeQualified": true,
+      "scope": "runtime"
+    },
+    "faultLedger": [],
+    "native": {
+      "path": "artifacts/epic16-runtime/16.2/AC-16.2-05.trx",
+      "sha256": "c039ae3d40c546f3a9561026ccfa3200c067ae7944e318dc88637b9dff0049eb"
+    },
+    "observationsSha256": "55a93a5c3b5d3c7ece4fec42d4d574a323bd7ffb951fedf2107322606dae0a5d",
+    "publicSourcePreservation": {
+      "after": [
+        {
+          "path": "src/Hexalith.Conversations.Contracts/Contract.cs",
+          "sha256": "5322c130d4b25292ceb56bc95808e2b4f70ca577a98f8bc6a69387e06f24ecd5"
+        }
+      ],
+      "baseline": "86a599d9e0457f183906d6b060864c86174028b5",
+      "before": [
+        {
+          "path": "src/Hexalith.Conversations.Contracts/Contract.cs",
+          "sha256": "5322c130d4b25292ceb56bc95808e2b4f70ca577a98f8bc6a69387e06f24ecd5"
+        }
+      ],
+      "candidate": "dbef6c2a9118d0030eba89a588e15771ce832ec2",
+      "kind": "complete-tracked-source-preservation"
+    },
+    "rollback": {
+      "boundary": "Revert only timestamp derivation, the lifecycle/watermark addition, read semantics, tests/evidence, and the Story 16.2 record. Preserve event history, public contract shape, Story 16.1 state, and prior proof history."
+    },
+    "schema": {
+      "path": "_bmad/schemas/epic-16-tooling-v1.schema.json",
+      "sha256": "f72a7435dac004cc80c88f444dd8cca135a67f29805ce9f95c68e2e596424ee3"
+    },
+    "sources": [
+      {
+        "path": "tests/Hexalith.Conversations.IntegrationTests/Epic16/Story16_2EvidenceTests.cs",
+        "sha256": "9f03cc78c75546f8f51a929021100cfcacc4ea3a3bcce62a47ab23da2503ab9d"
+      }
+    ],
+    "testBinary": {
+      "capture": {
+        "path": "artifacts/epic16-runtime/16.2/AC-16.2-05.capture.json",
+        "sha256": "08ebcf14afa08a1b5c923036851bd0c246944d1209076bfa3b7970d0844dc275"
+      },
+      "informationalVersion": "1.0.0+dbef6c2a9118d0030eba89a588e15771ce832ec2",
+      "method": "Scenario05",
+      "path": "artifacts/epic16-runtime/16.2/binaries/6ab73e00d8ff6a11a880af9293f76a0235505c7f40fcc1fb1c83f91b71beb5e8.dll",
+      "products": [
+        {
+          "api": {
+            "assemblyAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute:.ctor:32:0:1:Void(valuetype [{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute+.DebuggingModes):0100070100000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.CompilationRelaxationsAttribute:.ctor:32:0:1:Void(Int32):0100080000000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RuntimeCompatibilityAttribute:.ctor:32:0:0:Void():01000100540216577261704E6F6E457863657074696F6E5468726F777301;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.Versioning.TargetFrameworkAttribute:.ctor:32:0:1:Void(String):0100192E4E4554436F72654170702C56657273696F6E3D7631302E300100540E144672616D65776F726B446973706C61794E616D65092E4E45542031302E30",
+            "kind": "conservative-ecma335-public-declarations-v1",
+            "moduleAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RefSafetyRulesAttribute:.ctor:32:0:1:Void(Int32):01000B0000000000",
+            "types": {
+              "Hexalith.Conversations.Server.Projections.ConversationProjectionReadModelWriter": {
+                "header": "Public, BeforeFieldInit:[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:IL:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:IL:32:0:1:String(String)::1:value:None:absent::[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.NullableContextAttribute:.ctor:32:0:1:Void(Byte):0100010000"
+                ]
+              },
+              "Hexalith.Conversations.Server.TenantAccess.ConversationTenantAccessService": {
+                "header": "Public, BeforeFieldInit:[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:IL:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:IL:32:0:1:String(String)::1:value:None:absent::[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.NullableContextAttribute:.ctor:32:0:1:Void(Byte):0100010000"
+                ]
+              }
+            }
+          },
+          "assemblyFlags": 0,
+          "assemblyName": "Hexalith.Conversations.Server",
+          "assemblyVersion": "0.0.0.0",
+          "culture": "",
+          "declaredTypes": [
+            ".<Module>",
+            "Hexalith.Conversations.Server.Projections.ConversationProjectionReadModelWriter",
+            "Hexalith.Conversations.Server.TenantAccess.ConversationTenantAccessService"
+          ],
+          "informationalVersion": "1.0.0+dbef6c2a9118d0030eba89a588e15771ce832ec2",
+          "mvid": "6ee6b285-77a9-4766-8356-f234f9360b8d",
+          "owner": ".",
+          "path": "artifacts/epic16-runtime/16.2/binaries/8742a8a447cb9148dc48446399d59d495bad624145d09fa613577d5cf9a48864.dll",
+          "publicKey": "",
+          "sha256": "8742a8a447cb9148dc48446399d59d495bad624145d09fa613577d5cf9a48864",
+          "sourceRevision": "dbef6c2a9118d0030eba89a588e15771ce832ec2"
+        },
+        {
+          "api": {
+            "assemblyAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute:.ctor:32:0:1:Void(valuetype [{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute+.DebuggingModes):0100070100000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.CompilationRelaxationsAttribute:.ctor:32:0:1:Void(Int32):0100080000000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RuntimeCompatibilityAttribute:.ctor:32:0:0:Void():01000100540216577261704E6F6E457863657074696F6E5468726F777301;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.Versioning.TargetFrameworkAttribute:.ctor:32:0:1:Void(String):0100192E4E4554436F72654170702C56657273696F6E3D7631302E300100540E144672616D65776F726B446973706C61794E616D65092E4E45542031302E30",
+            "kind": "conservative-ecma335-public-declarations-v1",
+            "moduleAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RefSafetyRulesAttribute:.ctor:32:0:1:Void(Int32):01000B0000000000",
+            "types": {
+              "Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1": {
+                "header": "Public, BeforeFieldInit:[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:IL:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:IL:32:0:1:String(String)::1:value:None:absent::[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.NullableContextAttribute:.ctor:32:0:1:Void(Byte):0100010000"
+                ]
+              }
+            }
+          },
+          "assemblyFlags": 0,
+          "assemblyName": "Hexalith.Conversations.Contracts",
+          "assemblyVersion": "0.0.0.0",
+          "culture": "",
+          "declaredTypes": [
+            ".<Module>",
+            "Hexalith.Conversations.Contracts.Projections.ConversationDetailProjectionV1"
+          ],
+          "informationalVersion": "1.0.0+dbef6c2a9118d0030eba89a588e15771ce832ec2",
+          "mvid": "723475fd-f13d-40b3-a52d-a294e01780f4",
+          "owner": ".",
+          "path": "artifacts/epic16-runtime/16.2/binaries/bed0dabdeaba7129c5418e43033e045666872b034ac9fa0970f6ff9e3164bdd8.dll",
+          "publicKey": "",
+          "sha256": "bed0dabdeaba7129c5418e43033e045666872b034ac9fa0970f6ff9e3164bdd8",
+          "sourceRevision": "dbef6c2a9118d0030eba89a588e15771ce832ec2"
+        },
+        {
+          "api": {
+            "assemblyAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute:.ctor:32:0:1:Void(valuetype [{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute+.DebuggingModes):0100070100000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.CompilationRelaxationsAttribute:.ctor:32:0:1:Void(Int32):0100080000000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RuntimeCompatibilityAttribute:.ctor:32:0:0:Void():01000100540216577261704E6F6E457863657074696F6E5468726F777301;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.Versioning.TargetFrameworkAttribute:.ctor:32:0:1:Void(String):0100192E4E4554436F72654170702C56657273696F6E3D7631302E300100540E144672616D65776F726B446973706C61794E616D65092E4E45542031302E30",
+            "kind": "conservative-ecma335-public-declarations-v1",
+            "moduleAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RefSafetyRulesAttribute:.ctor:32:0:1:Void(Int32):01000B0000000000",
+            "types": {
+              "Hexalith.Tenants.Client.Handlers.TenantProjectionEventHandler": {
+                "header": "Public, BeforeFieldInit:[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:IL:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:IL:32:0:1:String(String)::1:value:None:absent::[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.NullableContextAttribute:.ctor:32:0:1:Void(Byte):0100010000"
+                ]
+              },
+              "Hexalith.Tenants.Client.Projections.ITenantProjectionStore": {
+                "header": "Public, BeforeFieldInit:[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:IL:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:IL:32:0:1:String(String)::1:value:None:absent::[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.NullableContextAttribute:.ctor:32:0:1:Void(Byte):0100010000"
+                ]
+              }
+            }
+          },
+          "assemblyFlags": 0,
+          "assemblyName": "Hexalith.Tenants.Client",
+          "assemblyVersion": "0.0.0.0",
+          "culture": "",
+          "declaredTypes": [
+            ".<Module>",
+            "Hexalith.Tenants.Client.Handlers.TenantProjectionEventHandler",
+            "Hexalith.Tenants.Client.Projections.ITenantProjectionStore"
+          ],
+          "informationalVersion": "1.0.0+dc3e3d332158e4c0e60c53cf6dd5a6c93fa47cdf",
+          "mvid": "c3121042-02d0-416a-b503-ce0326e947a1",
+          "owner": "references/Hexalith.Tenants",
+          "path": "artifacts/epic16-runtime/16.2/binaries/be9caf829d7ed669f9abf8eeea54bd62638ee82e0fae487d9d17f20493f4ea98.dll",
+          "publicKey": "",
+          "sha256": "be9caf829d7ed669f9abf8eeea54bd62638ee82e0fae487d9d17f20493f4ea98",
+          "sourceRevision": "dc3e3d332158e4c0e60c53cf6dd5a6c93fa47cdf"
+        },
+        {
+          "api": {
+            "assemblyAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute:.ctor:32:0:1:Void(valuetype [{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute+.DebuggingModes):0100070100000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.CompilationRelaxationsAttribute:.ctor:32:0:1:Void(Int32):0100080000000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RuntimeCompatibilityAttribute:.ctor:32:0:0:Void():01000100540216577261704E6F6E457863657074696F6E5468726F777301;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.Versioning.TargetFrameworkAttribute:.ctor:32:0:1:Void(String):0100192E4E4554436F72654170702C56657273696F6E3D7631302E300100540E144672616D65776F726B446973706C61794E616D65092E4E45542031302E30",
+            "kind": "conservative-ecma335-public-declarations-v1",
+            "moduleAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RefSafetyRulesAttribute:.ctor:32:0:1:Void(Int32):01000B0000000000",
+            "types": {
+              "Hexalith.Tenants.Contracts.Events.TenantDisabled": {
+                "header": "Public, BeforeFieldInit:[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:IL:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:IL:32:0:1:String(String)::1:value:None:absent::[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.NullableContextAttribute:.ctor:32:0:1:Void(Byte):0100010000"
+                ]
+              }
+            }
+          },
+          "assemblyFlags": 0,
+          "assemblyName": "Hexalith.Tenants.Contracts",
+          "assemblyVersion": "0.0.0.0",
+          "culture": "",
+          "declaredTypes": [
+            ".<Module>",
+            "Hexalith.Tenants.Contracts.Events.TenantDisabled"
+          ],
+          "informationalVersion": "1.0.0+dc3e3d332158e4c0e60c53cf6dd5a6c93fa47cdf",
+          "mvid": "cf03e043-c025-4dfb-8875-13b5291a50a9",
+          "owner": "references/Hexalith.Tenants",
+          "path": "artifacts/epic16-runtime/16.2/binaries/f406b883e3c1f591c5aa9981a048dc1b1096b97d83400223b0baadf250010191.dll",
+          "publicKey": "",
+          "sha256": "f406b883e3c1f591c5aa9981a048dc1b1096b97d83400223b0baadf250010191",
+          "sourceRevision": "dc3e3d332158e4c0e60c53cf6dd5a6c93fa47cdf"
+        },
+        {
+          "api": {
+            "assemblyAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute:.ctor:32:0:1:Void(valuetype [{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute+.DebuggingModes):0100070100000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.CompilationRelaxationsAttribute:.ctor:32:0:1:Void(Int32):0100080000000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RuntimeCompatibilityAttribute:.ctor:32:0:0:Void():01000100540216577261704E6F6E457863657074696F6E5468726F777301;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.Versioning.TargetFrameworkAttribute:.ctor:32:0:1:Void(String):0100192E4E4554436F72654170702C56657273696F6E3D7631302E300100540E144672616D65776F726B446973706C61794E616D65092E4E45542031302E30",
+            "kind": "conservative-ecma335-public-declarations-v1",
+            "moduleAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RefSafetyRulesAttribute:.ctor:32:0:1:Void(Int32):01000B0000000000",
+            "types": {
+              "Hexalith.EventStore.Client.Projections.IReadModelStore": {
+                "header": "Public, BeforeFieldInit:[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:IL:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:IL:32:0:1:String(String)::1:value:None:absent::[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.NullableContextAttribute:.ctor:32:0:1:Void(Byte):0100010000"
+                ]
+              },
+              "Hexalith.EventStore.Client.Streams.IAuthoritativeEventStreamReader": {
+                "header": "Public, BeforeFieldInit:[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:IL:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:IL:32:0:1:String(String)::1:value:None:absent::[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.NullableContextAttribute:.ctor:32:0:1:Void(Byte):0100010000"
+                ]
+              }
+            }
+          },
+          "assemblyFlags": 0,
+          "assemblyName": "Hexalith.EventStore.Client",
+          "assemblyVersion": "0.0.0.0",
+          "culture": "",
+          "declaredTypes": [
+            ".<Module>",
+            "Hexalith.EventStore.Client.Projections.IReadModelStore",
+            "Hexalith.EventStore.Client.Streams.IAuthoritativeEventStreamReader"
+          ],
+          "informationalVersion": "1.0.0+728d7c898c4e70b12c8e650e66b95b9f8a28a42e",
+          "mvid": "76c045ce-b194-471a-9ce0-d575900218bc",
+          "owner": "references/Hexalith.EventStore",
+          "path": "artifacts/epic16-runtime/16.2/binaries/443a76884f00672c46bb4f6a330dce5c4f8f4840bcd01e0193acd9d20109526d.dll",
+          "publicKey": "",
+          "sha256": "443a76884f00672c46bb4f6a330dce5c4f8f4840bcd01e0193acd9d20109526d",
+          "sourceRevision": "728d7c898c4e70b12c8e650e66b95b9f8a28a42e"
+        },
+        {
+          "api": {
+            "assemblyAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute:.ctor:32:0:1:Void(valuetype [{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute+.DebuggingModes):0100070100000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.CompilationRelaxationsAttribute:.ctor:32:0:1:Void(Int32):0100080000000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RuntimeCompatibilityAttribute:.ctor:32:0:0:Void():01000100540216577261704E6F6E457863657074696F6E5468726F777301;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.Versioning.TargetFrameworkAttribute:.ctor:32:0:1:Void(String):0100192E4E4554436F72654170702C56657273696F6E3D7631302E300100540E144672616D65776F726B446973706C61794E616D65092E4E45542031302E30",
+            "kind": "conservative-ecma335-public-declarations-v1",
+            "moduleAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RefSafetyRulesAttribute:.ctor:32:0:1:Void(Int32):01000B0000000000",
+            "types": {
+              "Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest": {
+                "header": "Public, BeforeFieldInit:[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:IL:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:IL:32:0:1:String(String)::1:value:None:absent::[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.NullableContextAttribute:.ctor:32:0:1:Void(Byte):0100010000"
+                ]
+              }
+            }
+          },
+          "assemblyFlags": 0,
+          "assemblyName": "Hexalith.EventStore.Contracts",
+          "assemblyVersion": "0.0.0.0",
+          "culture": "",
+          "declaredTypes": [
+            ".<Module>",
+            "Hexalith.EventStore.Contracts.Projections.ProjectionDispatchRequest"
+          ],
+          "informationalVersion": "1.0.0+728d7c898c4e70b12c8e650e66b95b9f8a28a42e",
+          "mvid": "5824f7c5-3984-4e52-85e0-61ab6702ba2d",
+          "owner": "references/Hexalith.EventStore",
+          "path": "artifacts/epic16-runtime/16.2/binaries/ac5da463415b1ef451df04f13df36576eac9f5128bd397df361534307c5a64dc.dll",
+          "publicKey": "",
+          "sha256": "ac5da463415b1ef451df04f13df36576eac9f5128bd397df361534307c5a64dc",
+          "sourceRevision": "728d7c898c4e70b12c8e650e66b95b9f8a28a42e"
+        },
+        {
+          "api": {
+            "assemblyAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute:.ctor:32:0:1:Void(valuetype [{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute+.DebuggingModes):0100070100000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.CompilationRelaxationsAttribute:.ctor:32:0:1:Void(Int32):0100080000000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RuntimeCompatibilityAttribute:.ctor:32:0:0:Void():01000100540216577261704E6F6E457863657074696F6E5468726F777301;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.Versioning.TargetFrameworkAttribute:.ctor:32:0:1:Void(String):0100192E4E4554436F72654170702C56657273696F6E3D7631302E300100540E144672616D65776F726B446973706C61794E616D65092E4E45542031302E30",
+            "kind": "conservative-ecma335-public-declarations-v1",
+            "moduleAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RefSafetyRulesAttribute:.ctor:32:0:1:Void(Int32):01000B0000000000",
+            "types": {
+              "Hexalith.EventStore.DomainService.DomainProjectionDispatcher": {
+                "header": "Public, BeforeFieldInit:[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:IL:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:IL:32:0:1:String(String)::1:value:None:absent::[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.NullableContextAttribute:.ctor:32:0:1:Void(Byte):0100010000"
+                ]
+              }
+            }
+          },
+          "assemblyFlags": 0,
+          "assemblyName": "Hexalith.EventStore.DomainService",
+          "assemblyVersion": "0.0.0.0",
+          "culture": "",
+          "declaredTypes": [
+            ".<Module>",
+            "Hexalith.EventStore.DomainService.DomainProjectionDispatcher"
+          ],
+          "informationalVersion": "1.0.0+728d7c898c4e70b12c8e650e66b95b9f8a28a42e",
+          "mvid": "7bdc302e-0865-4a0f-9dc5-205635b085e9",
+          "owner": "references/Hexalith.EventStore",
+          "path": "artifacts/epic16-runtime/16.2/binaries/ac1d1ef2e8c6e3422cde44e86a08661ff4aa8d1e39a3bf6ef90a94e989f5e105.dll",
+          "publicKey": "",
+          "sha256": "ac1d1ef2e8c6e3422cde44e86a08661ff4aa8d1e39a3bf6ef90a94e989f5e105",
+          "sourceRevision": "728d7c898c4e70b12c8e650e66b95b9f8a28a42e"
+        },
+        {
+          "api": {
+            "assemblyAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute:.ctor:32:0:1:Void(valuetype [{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute+.DebuggingModes):0100070100000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.CompilationRelaxationsAttribute:.ctor:32:0:1:Void(Int32):0100080000000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RuntimeCompatibilityAttribute:.ctor:32:0:0:Void():01000100540216577261704E6F6E457863657074696F6E5468726F777301;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.Versioning.TargetFrameworkAttribute:.ctor:32:0:1:Void(String):0100192E4E4554436F72654170702C56657273696F6E3D7631302E300100540E144672616D65776F726B446973706C61794E616D65092E4E45542031302E30",
+            "kind": "conservative-ecma335-public-declarations-v1",
+            "moduleAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RefSafetyRulesAttribute:.ctor:32:0:1:Void(Int32):01000B0000000000",
+            "types": {
+              "Hexalith.EventStore.Server.Projections.ProjectionDeliveryReconciler": {
+                "header": "Public, BeforeFieldInit:[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:IL:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:IL:32:0:1:String(String)::1:value:None:absent::[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.NullableContextAttribute:.ctor:32:0:1:Void(Byte):0100010000"
+                ]
+              },
+              "Hexalith.EventStore.Server.Projections.ProjectionDeliveryRetryWorker": {
+                "header": "Public, BeforeFieldInit:[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:IL:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:IL:32:0:1:String(String)::1:value:None:absent::[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.NullableContextAttribute:.ctor:32:0:1:Void(Byte):0100010000"
+                ]
+              }
+            }
+          },
+          "assemblyFlags": 0,
+          "assemblyName": "Hexalith.EventStore.Server",
+          "assemblyVersion": "0.0.0.0",
+          "culture": "",
+          "declaredTypes": [
+            ".<Module>",
+            "Hexalith.EventStore.Server.Projections.ProjectionDeliveryReconciler",
+            "Hexalith.EventStore.Server.Projections.ProjectionDeliveryRetryWorker"
+          ],
+          "informationalVersion": "1.0.0+728d7c898c4e70b12c8e650e66b95b9f8a28a42e",
+          "mvid": "019d03ea-bcf5-40ae-ae17-bf23df63f149",
+          "owner": "references/Hexalith.EventStore",
+          "path": "artifacts/epic16-runtime/16.2/binaries/b074c991dcae7f9818f56d8718ba22962a431b93e18921d3fd34c1d20baa57a0.dll",
+          "publicKey": "",
+          "sha256": "b074c991dcae7f9818f56d8718ba22962a431b93e18921d3fd34c1d20baa57a0",
+          "sourceRevision": "728d7c898c4e70b12c8e650e66b95b9f8a28a42e"
+        },
+        {
+          "api": {
+            "assemblyAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute:.ctor:32:0:1:Void(valuetype [{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Diagnostics.DebuggableAttribute+.DebuggingModes):0100070100000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.CompilationRelaxationsAttribute:.ctor:32:0:1:Void(Int32):0100080000000000;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RuntimeCompatibilityAttribute:.ctor:32:0:0:Void():01000100540216577261704E6F6E457863657074696F6E5468726F777301;[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.Versioning.TargetFrameworkAttribute:.ctor:32:0:1:Void(String):0100192E4E4554436F72654170702C56657273696F6E3D7631302E300100540E144672616D65776F726B446973706C61794E616D65092E4E45542031302E30",
+            "kind": "conservative-ecma335-public-declarations-v1",
+            "moduleAttributes": "[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.RefSafetyRulesAttribute:.ctor:32:0:1:Void(Int32):01000B0000000000",
+            "types": {
+              "Hexalith.Commons.TenantAccess.TenantAccessEvaluator": {
+                "header": "Public, BeforeFieldInit:[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Object::0:0:",
+                "interfaces": [],
+                "members": [
+                  "method:.ctor:Public, HideBySig, SpecialName, RTSpecialName:IL:32:0:0:Void():::",
+                  "method:Existing:Public, HideBySig:IL:32:0:1:String(String)::1:value:None:absent::[{\"name\":\"System.Runtime\",\"version\":\"10.0.0.0\",\"culture\":\"\",\"flags\":0,\"publicKeyOrToken\":\"B03F5F7F11D50A3A\"}]System.Runtime.CompilerServices.NullableContextAttribute:.ctor:32:0:1:Void(Byte):0100010000"
+                ]
+              }
+            }
+          },
+          "assemblyFlags": 0,
+          "assemblyName": "Hexalith.Commons.TenantAccess",
+          "assemblyVersion": "0.0.0.0",
+          "culture": "",
+          "declaredTypes": [
+            ".<Module>",
+            "Hexalith.Commons.TenantAccess.TenantAccessEvaluator"
+          ],
+          "informationalVersion": "1.0.0+81290936360e99c2a687e513879d4e24a95b5a8d",
+          "mvid": "18db872c-07a7-4d43-bcdf-88b067235424",
+          "owner": "references/Hexalith.Commons",
+          "path": "artifacts/epic16-runtime/16.2/binaries/4126d9f17cc68ae3ebce3d38ee61c28b34840646ac5214c42a4e005efc32d9b7.dll",
+          "publicKey": "",
+          "sha256": "4126d9f17cc68ae3ebce3d38ee61c28b34840646ac5214c42a4e005efc32d9b7",
+          "sourceRevision": "81290936360e99c2a687e513879d4e24a95b5a8d"
+        }
+      ],
+      "sha256": "6ab73e00d8ff6a11a880af9293f76a0235505c7f40fcc1fb1c83f91b71beb5e8",
+      "sourceRevision": "dbef6c2a9118d0030eba89a588e15771ce832ec2",
+      "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c",
+      "type": "Hexalith.Conversations.IntegrationTests.Epic16.Story16_2EvidenceTests"
+    },
+    "tooling": [
+      {
+        "path": ".config/dotnet-tools.json",
+        "sha256": "5d72a022a9416cb753da75cda1b0f1945fd938c065521fd9946aaa525fe048da"
+      },
+      {
+        "path": ".gitattributes",
+        "sha256": "d743202ab8c0bdf3dcd000a4a101acde352b6e6cf305a49b708b23c6e7029d7d"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/README.md",
+        "sha256": "bc7d953ab6ea741b488ae8c96f5d4a7dde6d1fe2ef0ff33a3ff79b2cb82a6157"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/execution-graph.json",
+        "sha256": "989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/inventories.json",
+        "sha256": "791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json",
+        "sha256": "074189ef4eea79bddeef5935b27df01c637dc5bf832a17eb24933c52968364c0"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.1.json",
+        "sha256": "da8c5462c77239f9f770a9b803b436824efb8e58f7f182fb66ec1343902beae7"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json",
+        "sha256": "542f1de5e4af3c58c9df7d654e04dd2ea99b9f63cd50bcf864ef5c2ba1257963"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.3.json",
+        "sha256": "226a0a060951139346282a8048338ff9af35014fe7154d79a8863da56507c9dc"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/README.md",
+        "sha256": "e12ee39652b9d7e18052716c955962d716f7e48b6fea2cd1f43f6a22d783ecb0"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/execution-graph.json",
+        "sha256": "989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/inventories.json",
+        "sha256": "791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/package.json",
+        "sha256": "4c533a78c3f0f115f28d1113e5b2e71a4d71c93b5c08b4e3ebf8cfa23e47b9bd"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.1.json",
+        "sha256": "3088bcf463a6bd7643925195c0ecf3e34f26e72caf6706c08e2c62b3ddaae2f6"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.2.json",
+        "sha256": "d9fd9f9fe66b178f2435396ab467886d9dd04024754ff5970345fa1802f53560"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.3.json",
+        "sha256": "b353f763387047063f3c2c8d9a0373de8e61f054ea7a3df714c29f43db21b712"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/epic.md",
+        "sha256": "b0b110461e81457a12b35bc8515ad691d26a926b206189495241f7f52a50097c"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/execution-graph.json",
+        "sha256": "989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/inventories.json",
+        "sha256": "791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/package.json",
+        "sha256": "16eaf5b30e379ca50172a20fa5b069ac6a3cd4c675c5ca322d9178a1929f5746"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.1.json",
+        "sha256": "3e44d0498d231633a12ee122d72535c178870a1601ab8c552c815566fe257e08"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.2.json",
+        "sha256": "a21c8c817e5126343110a5e6730883b5cf32738610b3f552ef6cdbbfe605a965"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.3.json",
+        "sha256": "5eeccfb8427e4ebccc1955f965d00e3c5655834a3c3005443c970be2dd99509a"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+        "sha256": "724a8446b505724700b50009df97387e9f7631d63d800a491e54f23095c9043b"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+        "sha256": "d577b99b830a0869f7ddb3a037c65a57fcea36cd90d6ef53dcc5cfebcd637ec9"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json",
+        "sha256": "c510f07c4aa2714f07df5c36e11f6b38a0639ddea56d293996752ebe068103f5"
+      },
+      {
+        "path": "_bmad/schemas/epic-16-adoption-v1.schema.json",
+        "sha256": "884d8efb4bf58571c99dca0b63ba0f97b10e50db0cb4bd238ed5a96f017f4f98"
+      },
+      {
+        "path": "_bmad/schemas/epic-16-adoption-v2.schema.json",
+        "sha256": "12278d301a8945ba929d28ecb7a8091663e40f23d821aa4cf3d2d3ec765d3a4f"
+      },
+      {
+        "path": "_bmad/schemas/epic-16-prerequisites-v1.schema.json",
+        "sha256": "b7095d7191a96dcefb5a0c333958e5c7eccbd7fa1fae9cb8d62ea2ec8bcad497"
+      },
+      {
+        "path": "_bmad/schemas/epic-16-tooling-v1.schema.json",
+        "sha256": "f72a7435dac004cc80c88f444dd8cca135a67f29805ce9f95c68e2e596424ee3"
+      },
+      {
+        "path": "_bmad/scripts/authoring_outputs.py",
+        "sha256": "17abd7aca9d82cc6bdb17cf5db5df711b06e75ed4bcac46138f98daf750d897d"
+      },
+      {
+        "path": "_bmad/scripts/config_utils.py",
+        "sha256": "48afe2bc18a29201e343cce3703be1e70df9c83ee74eeb68e57ef8ef42e8c651"
+      },
+      {
+        "path": "_bmad/scripts/contained_reader.py",
+        "sha256": "fac77aa5381c54fd7df3d2b70204b46b4be353992a6529a44dac2da46ea6001b"
+      },
+      {
+        "path": "_bmad/scripts/epic16_capture.py",
+        "sha256": "a05acdd2300589e9c08c67ffa1c397c615f3fccfdd1b1e753d8e8e60c9947e99"
+      },
+      {
+        "path": "_bmad/scripts/epic16_domain.py",
+        "sha256": "b59cc54ea133a7c831047294bf34a7d92c5b63421578cb57ce47ed3b61a98cf3"
+      },
+      {
+        "path": "_bmad/scripts/epic16_execution.py",
+        "sha256": "b83a28b33e39965c65af91843e8f3b9f68e071272d950dfca25e192c68965755"
+      },
+      {
+        "path": "_bmad/scripts/epic16_faults.py",
+        "sha256": "1a58f4492e7b4b53a2d016c05b54df31274a90d6494c3cd40c3251426c1959b5"
+      },
+      {
+        "path": "_bmad/scripts/epic16_lifecycle.py",
+        "sha256": "0c429d1608323c71c9605bab3a02556d5d5d389a79515f0d08b0083d75ada465"
+      },
+      {
+        "path": "_bmad/scripts/epic16_measurements.py",
+        "sha256": "c4db659fcaa43f55d0f88e2fdc47c0f9c2ac84676a2ffed7d5cfbbb88091f71f"
+      },
+      {
+        "path": "_bmad/scripts/epic16_native.py",
+        "sha256": "a092c95518aa2b7e1bfb26cbbe15ef196aa5bf5c951616625f5c12b94b9c6155"
+      },
+      {
+        "path": "_bmad/scripts/epic16_native_helper/Epic16.NativeHelper.csproj",
+        "sha256": "f3057cab73b03ec077940f41c8b23a30032c563c1989dc680ac7b60764d4fcb5"
+      },
+      {
+        "path": "_bmad/scripts/epic16_native_helper/EventStore-LICENSE",
+        "sha256": "6af66baf053023d456706de321e3cea6a6edbb288ffec10f673186b1befe7ac2"
+      },
+      {
+        "path": "_bmad/scripts/epic16_native_helper/ProductMetadata.cs",
+        "sha256": "ef75fbd3b889b78c2e2678db4d99cdb7448f231f29b3d22cb300dff0bb5e3902"
+      },
+      {
+        "path": "_bmad/scripts/epic16_native_helper/Program.cs",
+        "sha256": "ca06233bdb4466306b9f0f329f1c087fec71a3f46005562454410503491a5e9a"
+      },
+      {
+        "path": "_bmad/scripts/epic16_native_helper/README.md",
+        "sha256": "e65d5be2a5597753bc167e6ebcebd4ce48a71e100d87e3e329601246d55138ac"
+      },
+      {
+        "path": "_bmad/scripts/epic16_native_helper/ReadModelBatchCanonicalJson.cs",
+        "sha256": "1f9430e33cefaa51757c36f27d57ed509a31d08aa5f35b05a4159b7d806362f9"
+      },
+      {
+        "path": "_bmad/scripts/epic16_native_helper/SignatureNames.cs",
+        "sha256": "a65eb6120957a90478e644ba06f02f38085bfbd8b767d1a97e2ad36838e03450"
+      },
+      {
+        "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+        "sha256": "48b39a9048eadd8f6c094db9a267069bfdaf24af65e5a069e46337af7dbbe218"
+      },
+      {
+        "path": "_bmad/scripts/epic16_products.py",
+        "sha256": "3b4d2e085a42faf33e97ad8e782e604737c4b364ded157767ddbd845d2b3635e"
+      },
+      {
+        "path": "_bmad/scripts/epic16_relationships.py",
+        "sha256": "b80c2632de8198ad823518844dd17e483af977947bff841b5934ce7c0ec2ceb9"
+      },
+      {
+        "path": "_bmad/scripts/epic16_schedules.py",
+        "sha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7"
+      },
+      {
+        "path": "_bmad/scripts/epic16_tooling.py",
+        "sha256": "1d47daf61c51b5f4553e14f36b5c3fbd2dcec4d17c977b892e4cf20aa903fcc7"
+      },
+      {
+        "path": "_bmad/scripts/epic16_trust.py",
+        "sha256": "adde2059614ad92722a67580d1f745378c184e496ce3e0c5325564c334d3a6a1"
+      },
+      {
+        "path": "_bmad/scripts/evidence_boundary_current.py",
+        "sha256": "42ae5eb021be38647bf0172db4d4b41cd7c3c5fc299edffbeee616527b6eefdd"
+      },
+      {
+        "path": "_bmad/scripts/generate_story_record.py",
+        "sha256": "9e080cd220200535513225fce558f36a61fca52d3df0b6f304a3672b76ec1bd4"
+      },
+      {
+        "path": "_bmad/scripts/tests/fixtures/epic16-contract-wire-goldens.json",
+        "sha256": "f08bbd0ce5205a282c8cb2bfbfeac76046ee73494c41a80c527a1c191552fe93"
+      },
+      {
+        "path": "_bmad/scripts/tests/fixtures/epic16-contract-wire-provenance.json",
+        "sha256": "daef7f4e47b2c160b9bba813e9e1e38a3806b8167823bfb60bcf277d58afe8ee"
+      },
+      {
+        "path": "_bmad/scripts/tests/fixtures/epic16-domain-sources.json",
+        "sha256": "e3dab27bad8647d76cef2359de80cea4ea1d51f17306e2e98c9f099bfb14d236"
+      },
+      {
+        "path": "_bmad/scripts/tests/fixtures/epic16-protocol-goldens.json",
+        "sha256": "04b547e3cf9da207a67142473967fb6ca01ffc4e32df4bd886ae769a0063d373"
+      },
+      {
+        "path": "_bmad/scripts/verify_epic_16_adoption.py",
+        "sha256": "b22b6d25ae86186d0575a19dfa09b810220c70d3fb9c0eadefc781a53ce68505"
+      },
+      {
+        "path": "_bmad/scripts/verify_epic_16_adoption_v2.py",
+        "sha256": "f9ac03603a2b1635b7bb7e7f44262c2acb8f0272fbf55030ea1012932d93b568"
+      },
+      {
+        "path": "_bmad/scripts/verify_epic_16_prerequisites.py",
+        "sha256": "b10e910aefdd7f9f19cb80bbb19936efd2340f641be45787c140cf45738bbfa6"
+      },
+      {
+        "path": "_bmad/scripts/verify_story_16_1.py",
+        "sha256": "d33063a4d9f0b5df8073606a909d1df023edd5278041ba3877c15f2eb696df7a"
+      },
+      {
+        "path": "_bmad/scripts/verify_story_16_2.py",
+        "sha256": "9dd3e559eec69b762fe5e9ef6205fc55be7f23a064ccde063e129be2feb57d16"
+      },
+      {
+        "path": "_bmad/scripts/verify_story_16_3.py",
+        "sha256": "86db4c032a177e18212bb1b8977d7e0825eba3890efa30b4b8d68cb172e2a0d3"
+      },
+      {
+        "path": "_bmad/scripts/verify_story_completion_workflows.py",
+        "sha256": "1a01c22abda5aff3ae74b277c4437490c752b130c764199e47799235d6129d99"
+      },
+      {
+        "path": "docs/runbooks/current-change-validation.md",
+        "sha256": "d5284f00b8c850d43cabfcd45d2a4cf94d76a04a0bf7d6761ead7f17e5947801"
+      },
+      {
+        "path": "global.json",
+        "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+      },
+      {
+        "path": "module/hexalith.module-manifest.v2.json",
+        "sha256": "0bed1c297c9c9d78fdb8f37197ac5f71d829191c0535fdd78e4034aaa017bdf0"
+      },
+      {
+        "path": "module/hosting-inventory.json",
+        "sha256": "1bfd46248158637c950cd6764a47f926b1683568218208a0107d3b1ed3ada1e7"
+      },
+      {
+        "path": "module/sm-2-checklist.md",
+        "sha256": "71fb1992ca38602e4cfba34d1b5471459aff986a1ac87b774fb887feafaeec37"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+        "sha256": "10d40e7fcfcb1b587a138adbafc7cfc0b5d978f466c246144c0b54fb5ca51210"
+      }
+    ],
+    "upstreamApiPreservation": null,
+    "warningSurface": null
+  },
+  "blockers": [],
+  "candidate": {
+    "changedPaths": [
+      "_bmad-output/implementation-artifacts/spec-16-2-make-replay-time-deterministic-and-missing-index-state-truthful.md",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+      "tests/Hexalith.Conversations.IntegrationTests/Epic16/Story16_2EvidenceTests.cs"
+    ],
+    "commit": "dbef6c2a9118d0030eba89a588e15771ce832ec2",
+    "gitlinks": [
+      {
+        "commit": "81290936360e99c2a687e513879d4e24a95b5a8d",
+        "path": "references/Hexalith.Commons"
+      },
+      {
+        "commit": "728d7c898c4e70b12c8e650e66b95b9f8a28a42e",
+        "path": "references/Hexalith.EventStore"
+      },
+      {
+        "commit": "dc3e3d332158e4c0e60c53cf6dd5a6c93fa47cdf",
+        "path": "references/Hexalith.Tenants"
+      }
+    ],
+    "parent": "86a599d9e0457f183906d6b060864c86174028b5"
+  },
+  "counts": {
+    "failed": 0,
+    "passed": 1,
+    "skipped": 0,
+    "total": 1
+  },
+  "exitCode": 0,
+  "result": "PASS",
+  "runtimeQualified": true,
+  "scenarioId": "AC-16.2-05",
+  "schemaVersion": "hexalith.conversations.epic16-measured-result.v1",
+  "storyId": "16.2",
+  "validationScope": "runtime"
+}

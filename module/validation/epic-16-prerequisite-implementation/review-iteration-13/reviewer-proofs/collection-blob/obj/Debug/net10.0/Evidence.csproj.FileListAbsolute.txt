@@ -1,0 +1,10 @@
+/tmp/review13-blind-9r644fs3/bin/Debug/net10.0/Evidence.deps.json
+/tmp/review13-blind-9r644fs3/bin/Debug/net10.0/Evidence.dll
+/tmp/review13-blind-9r644fs3/bin/Debug/net10.0/Evidence.pdb
+/tmp/review13-blind-9r644fs3/obj/Debug/net10.0/Evidence.csproj.AssemblyReference.cache
+/tmp/review13-blind-9r644fs3/obj/Debug/net10.0/Evidence.GeneratedMSBuildEditorConfig.editorconfig
+/tmp/review13-blind-9r644fs3/obj/Debug/net10.0/Evidence.csproj.CoreCompileInputs.cache
+/tmp/review13-blind-9r644fs3/obj/Debug/net10.0/Evidence.dll
+/tmp/review13-blind-9r644fs3/obj/Debug/net10.0/refint/Evidence.dll
+/tmp/review13-blind-9r644fs3/obj/Debug/net10.0/Evidence.pdb
+/tmp/review13-blind-9r644fs3/obj/Debug/net10.0/ref/Evidence.dll

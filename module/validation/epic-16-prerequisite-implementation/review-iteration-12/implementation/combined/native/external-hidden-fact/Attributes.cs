@@ -1,0 +1,1 @@
+namespace System.Custom { public class HiddenFactAttribute : Xunit.FactAttribute {} } namespace System.Reflection { public class AssemblyFileVersionAttribute : System.Attribute { public AssemblyFileVersionAttribute(string value) {} } } namespace Custom { public class StampAttribute : System.Attribute { public StampAttribute(int value) {} public StampAttribute(uint value) {} } }

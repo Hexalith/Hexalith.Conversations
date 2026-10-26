@@ -1,0 +1,41 @@
+{
+  "workspace": "/tmp/epic16-r13-parent-bpqmnwpq",
+  "artifacts": [
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-proofs/B4-baseline.json",
+      "sha256": "c439a3ff0009e06e28307aeecfbc84d39ec0484294f31cc9c61f9967ae0addbd"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-proofs/B4-native-after.trx",
+      "sha256": "dd1b5d04db275af6fcb8b717d594f9b580bf70729e95e79a545c2bcd19e84a3f"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-proofs/B4-native-before.trx",
+      "sha256": "e6282067da89bf8cdf95c01e00d960eaf9470ccda4b198d872660455d9458c6f"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-proofs/B4-proof.json",
+      "sha256": "fb396a2a81cd6f6de3156b4dafe94ffe47f12d0ee408250cf2eb0c73b113c29d"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-proofs/B4-stale-native-final-record.json",
+      "sha256": "c439a3ff0009e06e28307aeecfbc84d39ec0484294f31cc9c61f9967ae0addbd"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-proofs/B5-proof.json",
+      "sha256": "9311d2e14d95d0d2f78269b472fc7c5eed13c2505cb8d2587246197331692a18"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-proofs/B6-required-products.json",
+      "sha256": "42edf0b3b5e49a80d0f77d8255d8fca727947bb416b90b7de1c39f282208dc73"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-proofs/initial-probe-before-fixture-contract-pin.py",
+      "sha256": "646e238551b0797446928481617d89663bd1145cd22c860e8f54847c2d691106"
+    },
+    {
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/parent-proofs/initial-probe-disposition.json",
+      "sha256": "557fd7f9a8c15fd838acc111087ac8d05620a3a5319e42e45b96fcf482e8788f"
+    }
+  ]
+}

@@ -241,7 +241,29 @@
           "surfaces": [
             "Hexalith.EventStore.DomainService.DomainProjectionDispatcher"
           ]
+        },
+        {
+          "assemblyName": "Hexalith.EventStore.Server",
+          "owner": "references/Hexalith.EventStore",
+          "surfaces": [
+            "Hexalith.EventStore.Server.Projections.ProjectionDeliveryReconciler",
+            "Hexalith.EventStore.Server.Projections.ProjectionDeliveryRetryWorker"
+          ]
+        },
+        {
+          "assemblyName": "Hexalith.Commons.TenantAccess",
+          "owner": "references/Hexalith.Commons",
+          "surfaces": [
+            "Hexalith.Commons.TenantAccess.TenantAccessEvaluator"
+          ]
         }
+      ],
+      "upstreamApiAssemblies": [
+        "Hexalith.Tenants.Client",
+        "Hexalith.Tenants.Contracts",
+        "Hexalith.EventStore.Client",
+        "Hexalith.EventStore.Contracts",
+        "Hexalith.EventStore.DomainService"
       ],
       "publicApiComparison": "conservative-ecma335-public-declarations-v1",
       "rootPublicApi": "unchanged-baseline-and-loaded-candidate-declarations",

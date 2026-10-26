@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-product-fixture-7w7jo1oa/Product.csproj (in 39 ms).
+  Product -> /tmp/epic16-product-fixture-7w7jo1oa/bin/Debug/net10.0/Hexalith.EventStore.Contracts.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.40

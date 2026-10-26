@@ -1,0 +1,889 @@
+{
+  "priorCombined": 2879,
+  "retainedCombined": 2879,
+  "currentCombined": 3032,
+  "newCases": [
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round10_generator_rejects_different_owned_implementations_across_five_tests[7]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round10_generator_rejects_different_owned_implementations_across_five_tests[8]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_async_return_kind_is_not_erased_by_signature_decoding[Task]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_async_return_kind_is_not_erased_by_signature_decoding[ValueTask]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_decimal_default_sign_matches_actual_trusted_constructor[0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_decimal_default_sign_matches_actual_trusted_constructor[127]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_decimal_default_sign_matches_actual_trusted_constructor[128]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_decimal_default_sign_matches_actual_trusted_constructor[1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_decimal_default_sign_matches_actual_trusted_constructor[255]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[date-named]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[date-range]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[decimal-named]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[decimal-scale]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[decimal-trailing]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[invalid-bool]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[invalid-null]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[truncated-constant]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[wrong-type]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_documented_helper_rejection_remains_invalid_evidence"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_evidence_source_and_raw_text_stay_readable[Tests.cs]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_evidence_source_and_raw_text_stay_readable[build.stdout]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_evidence_source_and_raw_text_stay_readable[capture.json]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_evidence_source_and_raw_text_stay_readable[raw.trx]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_evidence_source_and_raw_text_stay_readable[report.md]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_generator_rereads_native_after_actual_evaluation_before_writing[changed]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_generator_rereads_native_after_actual_evaluation_before_writing[hardlink]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_generator_rereads_native_after_actual_evaluation_before_writing[symlink]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_host_failures_are_blocked_with_bounded_real_diagnostics[-11]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_host_failures_are_blocked_with_bounded_real_diagnostics[137]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_host_failures_are_blocked_with_bounded_real_diagnostics[150]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_host_failures_are_blocked_with_bounded_real_diagnostics[1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_implementation_owners_do_not_expand_upstream_compatibility_scope"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer[duplicate-7]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer[duplicate-8]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer[missing-7]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer[missing-8]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_new_owner_requires_actual_behavior_surface[7-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_new_owner_requires_actual_behavior_surface[7-1]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_new_owner_requires_actual_behavior_surface[8-0]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_nullable_constraint_applies_before_all_default_paths[object-nonnull]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_nullable_constraint_applies_before_all_default_paths[object-null]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_nullable_constraint_applies_before_all_default_paths[object-optional]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_nullable_constraint_applies_before_all_default_paths[string-nonnull]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_nullable_constraint_applies_before_all_default_paths[string-null]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_nullable_constraint_applies_before_all_default_paths[string-optional]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_nullable_constraint_excludes_invalid_value_shapes[array]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_nullable_constraint_excludes_invalid_value_shapes[byref-like]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_nullable_constraint_excludes_invalid_value_shapes[nested]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_opaque_native_evidence_has_binary_normal_diffs[Epic16.NativeHelper]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_opaque_native_evidence_has_binary_normal_diffs[Evidence]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_opaque_native_evidence_has_binary_normal_diffs[Goldens]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_opaque_native_evidence_has_binary_normal_diffs[Product.assets.cache]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_opaque_native_evidence_has_binary_normal_diffs[apphost]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_opaque_native_evidence_has_binary_normal_diffs[public.snk]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_opaque_native_evidence_has_binary_normal_diffs[sample.dll.bytes]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_opaque_native_evidence_has_binary_normal_diffs[sample.dll]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_opaque_native_evidence_has_binary_normal_diffs[sample.pdb]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[constructor-assembly-generic]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[constructor-assembly]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[constructor-collection-generic]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[constructor-collection-string]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[constructor-collection-type]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[constructor-definition-named]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[constructor-definition-string]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[constructor-definition-type]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[named-count-assembly-generic]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[named-count-assembly]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[named-count-collection-generic]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[named-count-collection-string]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[named-count-collection-type]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[named-count-definition-named]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[named-count-definition-string]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[named-count-definition-type]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[positive-assembly-generic]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[positive-assembly]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[positive-collection-generic]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[positive-collection-string]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[positive-collection-type]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[positive-definition-named]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[positive-definition-string]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[positive-definition-type]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[signature-trailing-assembly-generic]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[signature-trailing-assembly]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[signature-trailing-collection-generic]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[signature-trailing-collection-string]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[signature-trailing-collection-type]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[signature-trailing-definition-named]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[signature-trailing-definition-string]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[signature-trailing-definition-type]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[trailing-assembly-generic]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[trailing-assembly]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[trailing-collection-generic]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[trailing-collection-string]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[trailing-collection-type]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[trailing-definition-named]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[trailing-definition-string]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_provider_attributes_require_complete_supported_metadata[trailing-definition-type]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_runtime_caller_rejects_malformed_constructor_provider_or_return[default]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_runtime_caller_rejects_malformed_constructor_provider_or_return[nullable-constraint]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_runtime_caller_rejects_malformed_constructor_provider_or_return[provider]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_runtime_caller_rejects_malformed_constructor_provider_or_return[return-kind]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[attribute-default]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[bool]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[byte]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[char]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[date-attribute]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[datetime]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[decimal]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[double]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[enum]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[fixture-unused-default]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[int]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[local-value]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[long]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[null-reference]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[nullable-date-attribute]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[nullable-datetime]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[nullable-decimal]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[nullable-enum-null]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[nullable-enum]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[nullable-int]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[nullable-local-value]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[nullable-null]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[optional-enum]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[optional-int]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[optional-string]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[output-unused-default]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[params]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round13_selected_typed_defaults_match_actual_pinned_runner[string]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[bytes-7]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[bytes-8]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[capture-owner-7]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[capture-owner-8]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[capture-source-7]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[capture-source-8]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[managed-bytes-7]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[managed-bytes-8]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[mvid-7]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[mvid-8]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[omitted-7]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[omitted-8]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[owner-7]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[owner-8]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[relabelled-7]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[relabelled-8]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[reported-owner-7]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[reported-owner-8]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[reported-source-7]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[reported-source-8]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[revision-7]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[revision-8]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[substituted-7]"
+    ],
+    [
+      "_bmad.scripts.tests.test_epic16_tooling",
+      "test_round9_loaded_products_are_independently_owned_and_bound[substituted-8]"
+    ]
+  ],
+  "priorLegacy": 72,
+  "identicalLegacy": true,
+  "preservedPackagingCases": 19,
+  "mutantFailuresPassingOnFinalSource": [
+    {
+      "mutation": "nullable-enum-default",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_selected_typed_defaults_match_actual_pinned_runner[nullable-enum]"
+    },
+    {
+      "mutation": "typed-default-kind",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[wrong-type]"
+    },
+    {
+      "mutation": "constant-encoding",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[truncated-constant]"
+    },
+    {
+      "mutation": "constant-encoding",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[invalid-bool]"
+    },
+    {
+      "mutation": "special-default-complete",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[decimal-named]"
+    },
+    {
+      "mutation": "special-default-complete",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[date-named]"
+    },
+    {
+      "mutation": "provider-constructor-trailing",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[signature-trailing-collection-type]"
+    },
+    {
+      "mutation": "provider-constructor",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[constructor-assembly]"
+    },
+    {
+      "mutation": "decimal-native-scale",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[decimal-scale]"
+    },
+    {
+      "mutation": "owner-schema-count",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer[missing-7]"
+    },
+    {
+      "mutation": "owner-schema-count",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_new_owner_capture_inventory_is_exact_in_schema_and_consumer[missing-8]"
+    },
+    {
+      "mutation": "nullable-underlying-constraint",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_runtime_caller_rejects_malformed_constructor_provider_or_return[nullable-constraint]"
+    },
+    {
+      "mutation": "nullable-underlying-constraint",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_nullable_constraint_applies_before_all_default_paths[string-null]"
+    },
+    {
+      "mutation": "nullable-underlying-constraint",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_nullable_constraint_applies_before_all_default_paths[string-optional]"
+    },
+    {
+      "mutation": "nullable-underlying-constraint",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_nullable_constraint_applies_before_all_default_paths[object-null]"
+    },
+    {
+      "mutation": "nullable-underlying-constraint",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_nullable_constraint_applies_before_all_default_paths[object-optional]"
+    },
+    {
+      "mutation": "nullable-underlying-constraint",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_nullable_constraint_applies_before_all_default_paths[object-nonnull]"
+    },
+    {
+      "mutation": "nullable-underlying-constraint",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_nullable_constraint_excludes_invalid_value_shapes[array]"
+    },
+    {
+      "mutation": "nullable-underlying-constraint",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_nullable_constraint_excludes_invalid_value_shapes[nested]"
+    },
+    {
+      "mutation": "nullable-underlying-constraint",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_nullable_constraint_excludes_invalid_value_shapes[byref-like]"
+    },
+    {
+      "mutation": "provider-complete-blob",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[named-count-assembly]"
+    },
+    {
+      "mutation": "provider-complete-blob",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[named-count-assembly-generic]"
+    },
+    {
+      "mutation": "provider-complete-blob",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[named-count-collection-string]"
+    },
+    {
+      "mutation": "provider-complete-blob",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[named-count-collection-type]"
+    },
+    {
+      "mutation": "provider-complete-blob",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[named-count-collection-generic]"
+    },
+    {
+      "mutation": "provider-complete-blob",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[named-count-definition-string]"
+    },
+    {
+      "mutation": "provider-complete-blob",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[named-count-definition-type]"
+    },
+    {
+      "mutation": "provider-complete-blob",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[named-count-definition-named]"
+    },
+    {
+      "mutation": "provider-complete-blob",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[trailing-assembly]"
+    },
+    {
+      "mutation": "provider-complete-blob",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[trailing-assembly-generic]"
+    },
+    {
+      "mutation": "provider-complete-blob",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[trailing-collection-string]"
+    },
+    {
+      "mutation": "provider-complete-blob",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[trailing-collection-type]"
+    },
+    {
+      "mutation": "provider-complete-blob",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[trailing-collection-generic]"
+    },
+    {
+      "mutation": "provider-complete-blob",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[trailing-definition-string]"
+    },
+    {
+      "mutation": "provider-complete-blob",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[trailing-definition-type]"
+    },
+    {
+      "mutation": "provider-complete-blob",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_provider_attributes_require_complete_supported_metadata[trailing-definition-named]"
+    },
+    {
+      "mutation": "async-encoded-kind",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_async_return_kind_is_not_erased_by_signature_decoding[Task]"
+    },
+    {
+      "mutation": "async-encoded-kind",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_async_return_kind_is_not_erased_by_signature_decoding[ValueTask]"
+    },
+    {
+      "mutation": "product-owner-surface",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_new_owner_requires_actual_behavior_surface[7-0]"
+    },
+    {
+      "mutation": "product-owner-surface",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_new_owner_requires_actual_behavior_surface[7-1]"
+    },
+    {
+      "mutation": "product-owner-surface",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_new_owner_requires_actual_behavior_surface[8-0]"
+    },
+    {
+      "mutation": "product-five-scenario-consistency",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round10_generator_rejects_different_owned_implementations_across_five_tests[7]"
+    },
+    {
+      "mutation": "product-five-scenario-consistency",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round10_generator_rejects_different_owned_implementations_across_five_tests[8]"
+    },
+    {
+      "mutation": "raw-native-digest",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_generator_rereads_native_after_actual_evaluation_before_writing[changed]"
+    },
+    {
+      "mutation": "raw-native-alias",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_generator_rereads_native_after_actual_evaluation_before_writing[hardlink]"
+    },
+    {
+      "mutation": "helper-host-blocked",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_host_failures_are_blocked_with_bounded_real_diagnostics[150]"
+    },
+    {
+      "mutation": "binary-diff-wildcard-pdb",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_opaque_native_evidence_has_binary_normal_diffs[sample.pdb]"
+    },
+    {
+      "mutation": "binary-diff-wildcard-snk",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_opaque_native_evidence_has_binary_normal_diffs[public.snk]"
+    },
+    {
+      "mutation": "binary-diff-wildcard-cache",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_opaque_native_evidence_has_binary_normal_diffs[Product.assets.cache]"
+    },
+    {
+      "mutation": "binary-diff-apphost",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_opaque_native_evidence_has_binary_normal_diffs[apphost]"
+    },
+    {
+      "mutation": "binary-diff-Epic16-NativeHelper",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_opaque_native_evidence_has_binary_normal_diffs[Epic16.NativeHelper]"
+    },
+    {
+      "mutation": "binary-diff-Evidence",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_opaque_native_evidence_has_binary_normal_diffs[Evidence]"
+    },
+    {
+      "mutation": "binary-diff-Goldens",
+      "classname": "_bmad.scripts.tests.test_epic16_tooling",
+      "test": "test_round13_opaque_native_evidence_has_binary_normal_diffs[Goldens]"
+    }
+  ]
+}

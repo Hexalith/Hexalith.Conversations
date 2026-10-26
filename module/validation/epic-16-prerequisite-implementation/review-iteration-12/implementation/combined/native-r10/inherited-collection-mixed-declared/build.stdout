@@ -1,0 +1,12 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-r12-final-lc84tfns/combined/test_round10_inherited_collect8/runner/Evidence.csproj (in 163 ms).
+/tmp/epic16-r12-final-lc84tfns/combined/test_round10_inherited_collect8/runner/Tests.cs(7,102): warning xUnit1041: Fixture argument 'value' does not have a fixture source (if it comes from a collection definition, ensure the definition is in the same assembly as the test) (https://xunit.net/xunit.analyzers/rules/xUnit1041) [/tmp/epic16-r12-final-lc84tfns/combined/test_round10_inherited_collect8/runner/Evidence.csproj]
+  Evidence -> /tmp/epic16-r12-final-lc84tfns/combined/test_round10_inherited_collect8/runner/bin/Debug/net10.0/Evidence.dll
+
+Build succeeded.
+
+/tmp/epic16-r12-final-lc84tfns/combined/test_round10_inherited_collect8/runner/Tests.cs(7,102): warning xUnit1041: Fixture argument 'value' does not have a fixture source (if it comes from a collection definition, ensure the definition is in the same assembly as the test) (https://xunit.net/xunit.analyzers/rules/xUnit1041) [/tmp/epic16-r12-final-lc84tfns/combined/test_round10_inherited_collect8/runner/Evidence.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.48

@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_native.py
++++ _bmad/scripts/epic16_native.py
+@@ -146,7 +146,7 @@
+     if result.returncode:
+         if result.returncode == 1 and result.stdout == b'' and result.stderr == b'Invalid native evidence.':
+             raise ValueError('invalid native evidence')
+-        raise HelperUnavailable(_process_failure('fixed helper host failed', result))
++        raise ValueError('invalid native evidence')
+     return json.loads(result.stdout)
+ 
+ 

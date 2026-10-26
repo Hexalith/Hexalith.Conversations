@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_native_helper/TestConstruction.cs
++++ _bmad/scripts/epic16_native_helper/TestConstruction.cs
+@@ -206,7 +206,7 @@
+         var decoder = new SignatureDecoder<string, object?>(Names, reader, null);
+         MethodSignature<string> signature = decoder.DecodeMethodSignature(ref signatureBlob);
+         if (signatureBlob.RemainingBytes != 0 || reader.GetString(constructor.Name) != ".ctor" || signature.Header.RawValue != 0x20
+-            || signature.GenericParameterCount != 0 || signature.ReturnType != "Void"
++            || signature.GenericParameterCount != 0
+             || signature.RequiredParameterCount != signature.ParameterTypes.Length)
+             throw new InvalidDataException("Unsupported fixture attribute constructor.");
+         int count = signature.ParameterTypes.Length;

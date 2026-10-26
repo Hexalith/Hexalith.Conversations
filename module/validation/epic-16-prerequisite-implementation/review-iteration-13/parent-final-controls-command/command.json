@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "python3",
+    "/tmp/epic16-review13-parent-final-controls.py",
+    "/tmp/epic16-r13-focused-final-constraint/test_round6_genuine_native_cap0/fresh-checkout",
+    "focused-final-constraint"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "exitCode": 0,
+  "elapsedSeconds": 11.34815788269043
+}

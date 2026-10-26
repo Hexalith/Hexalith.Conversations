@@ -1,0 +1,11 @@
+{
+  "input": "module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-native/null/inspection/stdin.json",
+  "inputSha256": "8314efa5342c868c52530e29fc1a1cc2b78310f67a9d114eb1b62f16939005ab",
+  "argv": [
+    "dotnet",
+    "/tmp/epic16-native-oracle-17q_jd0s/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+  ],
+  "cwd": "/tmp/epic16-native-oracle-17q_jd0s",
+  "exitCode": 1,
+  "expected": "invalid evidence"
+}

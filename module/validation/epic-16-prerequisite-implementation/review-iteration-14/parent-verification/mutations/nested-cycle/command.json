@@ -1,0 +1,29 @@
+{
+  "name": "nested-cycle",
+  "path": "_bmad/scripts/epic16_native_helper/SignatureNames.cs",
+  "old": "if (!visited.Add(handle)) throw new InvalidDataException(\"Cyclic nested type definition.\");",
+  "new": "visited.Add(handle);",
+  "selector": "round14_nested_definition_cycle",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r14-mutant-nested-cycle-ru_kynlj/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round14_nested_definition_cycle",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-verification/mutations/nested-cycle/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r14-mutant-nested-cycle-ru_kynlj",
+  "exitCode": 1,
+  "elapsedSeconds": 6.7142528090043925,
+  "originalSha256": "a65eb6120957a90478e644ba06f02f38085bfbd8b767d1a97e2ad36838e03450",
+  "mutatedSha256": "7ec45833cd71184b828db9ce1bdbcfa5ed0c336f129ce9b15ae9041ae5d2f95b",
+  "testSha256": "041019802d8f68321ae6354d48f4c8ecb78312b39a6df709b7cb30d9bc2a38a7",
+  "tests": {
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  }
+}

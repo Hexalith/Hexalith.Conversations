@@ -1,0 +1,54 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+______ test_round14_untrusted_exception_details_remain_generic[unrelated] ______
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-811/test_round14_untrusted_excepti0/fixture')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x75fe8d849550>
+error = 'unrelated'
+
+    @pytest.mark.parametrize('error',['unrelated','parser'])
+    def test_round14_untrusted_exception_details_remain_generic(repository,monkeypatch,error):
+        scenario='AC-16.1-01';assert evaluate(repository,scenario)['result']=='PASS'
+        canary='UNTRUSTED-SECRET-R14'
+        def fail(*args):
+            if error=='parser':int(canary)
+            raise ValueError(canary)
+        monkeypatch.setattr(tooling.measurements,'evaluate',fail)
+        result=evaluate(repository,scenario);rejected(result,'MEASUREMENT_INVALID')
+>       assert result['assertionLedger'][-1]==dict(id='MEASUREMENT_INVALID',subject=scenario,state='FAIL')
+E       AssertionError: assert {'id': 'MEASU...tate': 'FAIL'} == {'id': 'MEASU...tate': 'FAIL'}
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Differing items:
+E         {'subject': 'UNTRUSTED-SECRET-R14'} != {'subject': 'AC-16.1-01'}
+E         Use -v to get more diff
+
+_bmad/scripts/tests/test_epic16_tooling.py:5030: AssertionError
+_______ test_round14_untrusted_exception_details_remain_generic[parser] ________
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-811/test_round14_untrusted_excepti1/fixture')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x75fe8d9db610>
+error = 'parser'
+
+    @pytest.mark.parametrize('error',['unrelated','parser'])
+    def test_round14_untrusted_exception_details_remain_generic(repository,monkeypatch,error):
+        scenario='AC-16.1-01';assert evaluate(repository,scenario)['result']=='PASS'
+        canary='UNTRUSTED-SECRET-R14'
+        def fail(*args):
+            if error=='parser':int(canary)
+            raise ValueError(canary)
+        monkeypatch.setattr(tooling.measurements,'evaluate',fail)
+        result=evaluate(repository,scenario);rejected(result,'MEASUREMENT_INVALID')
+>       assert result['assertionLedger'][-1]==dict(id='MEASUREMENT_INVALID',subject=scenario,state='FAIL')
+E       assert {'id': 'MEASU...tate': 'FAIL'} == {'id': 'MEASU...tate': 'FAIL'}
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Differing items:
+E         {'subject': "invalid literal for int() with base 10: 'UNTRUSTED-SECRET-R14'"} != {'subject': 'AC-16.1-01'}
+E         Use -v to get more diff
+
+_bmad/scripts/tests/test_epic16_tooling.py:5030: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round14_untrusted_exception_details_remain_generic[unrelated]
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round14_untrusted_exception_details_remain_generic[parser]
+2 failed, 2883 deselected in 16.22s

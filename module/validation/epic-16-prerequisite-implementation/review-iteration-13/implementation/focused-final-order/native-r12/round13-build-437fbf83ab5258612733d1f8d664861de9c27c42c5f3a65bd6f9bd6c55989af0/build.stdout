@@ -1,0 +1,12 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-r13-focused-final-order/test_round13_runtime_caller_re1/provider/Evidence.csproj (in 106 ms).
+/tmp/epic16-r13-focused-final-order/test_round13_runtime_caller_re1/provider/Tests.cs(1,267): warning CS9113: Parameter 'value' is unread. [/tmp/epic16-r13-focused-final-order/test_round13_runtime_caller_re1/provider/Evidence.csproj]
+  Evidence -> /tmp/epic16-r13-focused-final-order/test_round13_runtime_caller_re1/provider/bin/Debug/net10.0/Evidence.dll
+
+Build succeeded.
+
+/tmp/epic16-r13-focused-final-order/test_round13_runtime_caller_re1/provider/Tests.cs(1,267): warning CS9113: Parameter 'value' is unread. [/tmp/epic16-r13-focused-final-order/test_round13_runtime_caller_re1/provider/Evidence.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.44

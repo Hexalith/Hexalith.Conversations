@@ -1,0 +1,12 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-r13-focused-corrected/test_round13_defaults_validate6/decimal-trailing/Evidence.csproj (in 109 ms).
+/tmp/epic16-r13-focused-corrected/test_round13_defaults_validate6/decimal-trailing/Tests.cs(1,53): warning CS9113: Parameter 'value' is unread. [/tmp/epic16-r13-focused-corrected/test_round13_defaults_validate6/decimal-trailing/Evidence.csproj]
+  Evidence -> /tmp/epic16-r13-focused-corrected/test_round13_defaults_validate6/decimal-trailing/bin/Debug/net10.0/Evidence.dll
+
+Build succeeded.
+
+/tmp/epic16-r13-focused-corrected/test_round13_defaults_validate6/decimal-trailing/Tests.cs(1,53): warning CS9113: Parameter 'value' is unread. [/tmp/epic16-r13-focused-corrected/test_round13_defaults_validate6/decimal-trailing/Evidence.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.58

@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "/tmp/epic16-review13-blind-proofs/metadata_inspect.py",
+    "test",
+    "/tmp/epic16-review13-blind-proofs/return-kind/mutated.dll.bytes",
+    "--revision",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "--type",
+    "Synthetic.TestClass",
+    "--method",
+    "Scenario01"
+  ],
+  "cwd": "/tmp/epic16-review13-blind-proofs/return-kind",
+  "exitCode": 0
+}

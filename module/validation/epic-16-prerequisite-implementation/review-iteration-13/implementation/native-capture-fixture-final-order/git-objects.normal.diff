@@ -1,0 +1,459 @@
+diff --git a/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/git-objects.json b/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/git-objects.json
+new file mode 100644
+index 0000000..2047659
+--- /dev/null
++++ b/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/git-objects.json
+@@ -0,0 +1,453 @@
++{
++  "scope": "Exact candidate/publication/lifecycle commit and tree objects; publication blobs are the retained exact files",
++  "objects": {
++    "7c91876bb22dc14012b22333bcf9b3f93f643115": {
++      "type": "commit",
++      "rawBase64": "dHJlZSA4MGJkYTM4ZmUzMzE0YTY0YWVlODQ3MDcyNDFiMTI1YzRmZTMxZDExCnBhcmVudCBiMzM4MTVlNWJlM2Y4N2FkNWYyNjY2ZjIwYjRjNDZiMTAzM2E4MDQ1CmF1dGhvciBEaXNwb3NhYmxlIEZpeHR1cmUgPGZpeHR1cmVAZXhhbXBsZS5pbnZhbGlkPiAxNzkyODg2NDAwICswMDAwCmNvbW1pdHRlciBEaXNwb3NhYmxlIEZpeHR1cmUgPGZpeHR1cmVAZXhhbXBsZS5pbnZhbGlkPiAxNzkyODg2NDAwICswMDAwCgp0ZXN0OiBiaW5kIHBvcnRhYmxlIG5hdGl2ZSBjYXB0dXJlIGZpeHR1cmUK",
++      "sha256": "99b3c6cee71d186b62e32dd278e1ea1c3e71f2d4d1a6d21650d6c5afaee78575"
++    },
++    "80bda38fe3314a64aee84707241b125c4fe31d11": {
++      "type": "tree",
++      "rawBase64": "NDAwMDAgLmNvbmZpZwDEApA+/u+JAp7icWwE9ZzDtdByyjEwMDY0NCAuZ2l0YXR0cmlidXRlcwB3MY1gU96CJiO79VdISukFnSkL6zEwMDY0NCAuZ2l0aWdub3JlANT1iO3+9aMjcGDACvrFFyWGQpFTMTAwNjQ0IC5naXRtb2R1bGVzAJGNXXrYZe/BW7rrgaFg+ARh6tSaNDAwMDAgX2JtYWQtb3V0cHV0AEU/vX+0Vr056VVGplthWxuNyt+GNDAwMDAgX2JtYWQAjLLkGwp9CZc9Hsm/RHL2imcX+Ao0MDAwMCBkb2NzAG8bAN2xy3yLu7cq8SimPgBwWOMUMTAwNjQ0IGZpeHR1cmUtZW50cnktdHJ1c3QuanNvbgDRmz5TrGF2VH9j9VAVI7weieWRIjEwMDY0NCBmaXh0dXJlLWVudHJ5Lmpzb24AH+Bj/dYvfShXnFMyAox6wvwYOLgxMDA2NDQgZml4dHVyZS1wcmVkZWNlc3Nvci5qc29uAHGwLKaf+k4JZhz1xpCB9eBf9OblNDAwMDAgZml4dHVyZS1wcm9kdWN0cwAXSc7I6nV2bZ4mcN8V0sxwED2tvTEwMDY0NCBmaXh0dXJlLXNwZWMubWQAjxx8klCfDTgwVq4uVq2adqabwCMxMDA2NDQgZ2xvYmFsLmpzb24AhG9QLC1cX0aPeHXnqhJmiPpAugo0MDAwMCBtb2R1bGUAfNk1wGZvC4W/eifT7zCZ09Jx0pU0MDAwMCByZWZlcmVuY2VzAPOcLzLcuqWH6PKmbSzJ9FZhivuANDAwMDAgc3JjABCj6iTITjbSbRJhw37MpICZ56hSNDAwMDAgdGVzdHMAJmGL9b5Z7yBuXYjA8mVVIrHumGI=",
++      "sha256": "14fd97a5aa0a723ba647814f9f5dae92327a0274c87df6f9dcb96904b95a6dc1"
++    },
++    "c402903efeef89029ee2716c04f59cc3b5d072ca": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IGRvdG5ldC10b29scy5qc29uAOUcpVovjUyldpJC9JxuYhWGATrq",
++      "sha256": "008e9f511181e9550af6c09b6638912530f26863fa1ce2483826485f3c1499c2"
++    },
++    "453fbd7fb456bd39e95546a65b615b1b8dcadf86": {
++      "type": "tree",
++      "rawBase64": "NDAwMDAgaW1wbGVtZW50YXRpb24tYXJ0aWZhY3RzALK6xusJ6HoC6yNYzGOlVsimNO7wNDAwMDAgcGxhbm5pbmctYXJ0aWZhY3RzADHYmVB8mrc46ZNehzafEv6zYcIY",
++      "sha256": "f51be978072af8ee435663558aacaaa5bd67a0eaa6e591ffa8ee4b0d9ce7bacd"
++    },
++    "b2bac6eb09e87a02eb2358cc63a556c8a634eef0": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IHNwZWMtMTYtMi1tYWtlLXJlcGxheS10aW1lLWRldGVybWluaXN0aWMtYW5kLW1pc3NpbmctaW5kZXgtc3RhdGUtdHJ1dGhmdWwubWQAjxx8klCfDTgwVq4uVq2adqabwCMxMDA2NDQgc3ByaW50LXN0YXR1cy55YW1sAAWDwqkS37AR8sUzWgw859xTjUNI",
++      "sha256": "ff23d1ff1504623985d308182eece890eb9dfc67c8c94f87662596b1d97d82d3"
++    },
++    "31d899507c9ab738e9935e87369f12feb361c218": {
++      "type": "tree",
++      "rawBase64": "NDAwMDAgZXBpYy0xNi1hZG9wdGlvbi12MQBwF9VkzXPAON1/uMGZT9cxr0tdtTQwMDAwIGVwaWMtMTYtYWRvcHRpb24tdjIAC5HoQYc7NewJiyq+VrlllJMUlVU0MDAwMCBlcGljLTE2LXByZXJlcXVpc2l0ZXMtdjEAurXduv1vgAnhG2o3OlSojDBKdZk0MDAwMCBlcGljLTE2LXRvb2xpbmctdjEAnGPWNpBy+AHWovkiz9H1AYeKiJE=",
++      "sha256": "9ba2f4accfdb438bb78157895bd54df8b2c094db9347c95fc4b905f49bbcb82f"
++    },
++    "7017d564cd73c038dd7fb8c1994fd731af4b5db5": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IFJFQURNRS5tZABqxyOwCcrBL9alOgKfChlATa+o0TEwMDY0NCBleGVjdXRpb24tZ3JhcGguanNvbgBCEyd3YgaGMMVWt5x/JOytWmaqYjEwMDY0NCBpbnZlbnRvcmllcy5qc29uAE3ni4xwmMQaHtJ1FTfZo1CYPJ3PMTAwNjQ0IHBhY2thZ2UuanNvbgDibhGMHayrfSgbccnhJfQB/zPF2TQwMDAwIHN0b3J5LWNvbnRyYWN0cwDqjHhuFJ+UozwpU1BSd2bCNtmVFw==",
++      "sha256": "e91d36b335a0614553802b0684e2abfe469946cc6681e837ac961841aa818b1e"
++    },
++    "ea8c786e149f94a33c295350527766c236d99517": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IDE2LjEuanNvbgA+RnXoHiF5zdaCqndubAkjDVUEgzEwMDY0NCAxNi4yLmpzb24AAjUgZ3a95ep4qQqgq+qQB+RZcVsxMDA2NDQgMTYuMy5qc29uAAISTpGEJ0Hn8TZXLBgDlOnWePST",
++      "sha256": "f4d7177beff2adb33fe71ea05486bd370f0b892013f0ec2cb11396d2572d7cba"
++    },
++    "0b91e841873b35ec098b2abe56b9659493149555": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IFJFQURNRS5tZABZUvv7nv9AgF6mD26N1LOd8GEsKjEwMDY0NCBleGVjdXRpb24tZ3JhcGguanNvbgBCEyd3YgaGMMVWt5x/JOytWmaqYjEwMDY0NCBpbnZlbnRvcmllcy5qc29uAE3ni4xwmMQaHtJ1FTfZo1CYPJ3PMTAwNjQ0IHBhY2thZ2UuanNvbgCyYlcexnPUYJCPatcvDz6Qb7acSjQwMDAwIHN0b3J5LWNvbnRyYWN0cwD4Fomt9g5PRVLHHcUOFkYdOGI4CA==",
++      "sha256": "fc77e5240bd1755e7f80910eb2dfaf3857714018945bcb50921a1b828a22da0a"
++    },
++    "f81689adf60e4f4552c71dc50e16461d38623808": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IDE2LjEuanNvbgAr37LpOOtnAqNzZwN419iybRkFNTEwMDY0NCAxNi4yLmpzb24AVc1elwVbB+lpqbaiw6SUdX00UtQxMDA2NDQgMTYuMy5qc29uAJK+ysOoSf0HDwycpn1a2e021+Ge",
++      "sha256": "cd3b0228548c352c74751b63b16dafaa7287f4e79dadb8f7b59ca9fe91995db7"
++    },
++    "bab5ddbafd6f8009e11b6a373a54a88c304a7599": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IGVwaWMubWQArOFs1f/I3Xam5zcLRGm/EE+3kB8xMDA2NDQgZXhlY3V0aW9uLWdyYXBoLmpzb24AQhMnd2IGhjDFVrecfyTsrVpmqmIxMDA2NDQgaW52ZW50b3JpZXMuanNvbgBN54uMcJjEGh7SdRU32aNQmDydzzEwMDY0NCBwYWNrYWdlLmpzb24AOnpbhCCUhmiyV0BulmM1ey+boS80MDAwMCBzdG9yeS1jb250cmFjdHMAbId7WCZhmyyYHo38HenakW7BYEA=",
++      "sha256": "c52867819c251c7f0c57ba7bbc1d2d5cec32cad37e0046fc887350e97f39a670"
++    },
++    "6c877b5826619b2c981e8dfc1de9da916ec16040": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IDE2LjEuanNvbgDHpOsrOdivUs4898WTPw/B3YDQIDEwMDY0NCAxNi4yLmpzb24At+YNYcC0Wl2m9NgUMBs9CV10Lb8xMDA2NDQgMTYuMy5qc29uAE3i9Ud72nJj3ZsE99dXYclTKxsa",
++      "sha256": "2e526547b73ee3c9f4837720d6afcf6c5c749d378abb636951948772e94c70ff"
++    },
++    "9c63d6369072f801d6a2f922cfd1f501878a8891": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IGJpbmRpbmcuanNvbgD9l7AFc87fGtMiN8yl9xstMpyOJTQwMDAwIHN0b3J5LWNvbnRyYWN0cwC7b7kmpe09XKuir6Y+LhpQEDadJQ==",
++      "sha256": "ec3258557c70480afcee9e2c943ee88b03b49d3783b201059abfae83f9b70dbc"
++    },
++    "bb6fb926a5ed3d5caba2afa63e2e1a5010369d25": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IDE2LjEuanNvbgBNVSY6lDm8FaqPBq1ri8E7a0TaCTEwMDY0NCAxNi4yLmpzb24Ajzwe7QEmUizoF/k2tGlxQGXSh7cxMDA2NDQgMTYuMy5qc29uAEPlYg/6vfHw13ReeXTjTICyDrl6",
++      "sha256": "251a58c978d483fa013fbbbc3bec6a22b950a7aa96da0fba1bbb8eafa2b7629f"
++    },
++    "8cb2e41b0a7d09973d1ec9bf4472f68a6717f80a": {
++      "type": "tree",
++      "rawBase64": "NDAwMDAgc2NoZW1hcwDDeNtvXCPRXGR2wIOxGjQaxAoY5jQwMDAwIHNjcmlwdHMAxE/xLX+rrKsn30f4ZiIOy1PNA4Y=",
++      "sha256": "8231d4cd5c9a9437ee696dec7fa9ae1c92f0d6c1040b256eaff88f624964e521"
++    },
++    "c378db6f5c23d15c6476c083b11a341ac40a18e6": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IGVwaWMtMTYtYWRvcHRpb24tdjEuc2NoZW1hLmpzb24AM9IFLAfJGMZSBoIFx2zOiLJWqR8xMDA2NDQgZXBpYy0xNi1hZG9wdGlvbi12Mi5zY2hlbWEuanNvbgCpMr7eFECb/s8IcryEfSqaM3/P+TEwMDY0NCBlcGljLTE2LXByZXJlcXVpc2l0ZXMtdjEuc2NoZW1hLmpzb24APIGhIVVcTARNYZtO5DH2d4Zrm4YxMDA2NDQgZXBpYy0xNi10b29saW5nLXYxLnNjaGVtYS5qc29uAC7XDor8uUfQSSo/6PReKUgF8itm",
++      "sha256": "a69df0635602823cccaec77ccf610ab92bd8d59c58b3d388d36c9cd117fa81af"
++    },
++    "c44ff12d7fabacab27df47f866220ecb53cd0386": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IGF1dGhvcmluZ19vdXRwdXRzLnB5AGr0/tWwPU2Ov3IenTIfXWX8VhbbMTAwNjQ0IGNvbmZpZ191dGlscy5weQDfa7B55TIct458jYe92Y2XPllL7TEwMDY0NCBjb250YWluZWRfcmVhZGVyLnB5ABCd5cuf3MiWgpqWfKFGwH7V5tOVMTAwNjQ0IGVwaWMxNl9jYXB0dXJlLnB5ABGnlWKM36eBT62dROfaXk0EuQFxMTAwNjQ0IGVwaWMxNl9kb21haW4ucHkATSbV1rFt2VnH1EcrRy9u2sMNrhExMDA2NDQgZXBpYzE2X2V4ZWN1dGlvbi5weQBosiXFHm9WF1PAx9r1wnTgK3Lb3TEwMDY0NCBlcGljMTZfZmF1bHRzLnB5ANBccwB3Pk/BCTo8gWtZwtWAUxv3MTAwNjQ0IGVwaWMxNl9saWZlY3ljbGUucHkAJoLyii6Ip7lIqOLMxeLm1Xvvz34xMDA2NDQgZXBpYzE2X21lYXN1cmVtZW50cy5weQDNrV+hJC53d5nUKvEu5m+2zIoKZDEwMDY0NCBlcGljMTZfbmF0aXZlLnB5ABhwtBIlLu//0Um3/QoEwUJN/gQuNDAwMDAgZXBpYzE2X25hdGl2ZV9oZWxwZXIAT0picUpQMCiioaeOPdu7xLcjawoxMDA2NDQgZXBpYzE2X3Byb2R1Y3RzLnB5APV2OuuTtoY/EoSoKILmBk5CqhJiMTAwNjQ0IGVwaWMxNl9yZWxhdGlvbnNoaXBzLnB5AHUZy9ZEk/exZvaLPYz/7HqadVZ7MTAwNjQ0IGVwaWMxNl9zY2hlZHVsZXMucHkAtfWQOkZ1zsL17Tl6ueTGm3oSlP4xMDA2NDQgZXBpYzE2X3Rvb2xpbmcucHkAcBQPaw7bUEiaSga4vDVwEIqVwVkxMDA2NDQgZXBpYzE2X3RydXN0LnB5ABlafwabrcyBylNkNRCRJV3pSDvNMTAwNjQ0IGV2aWRlbmNlX2JvdW5kYXJ5X2N1cnJlbnQucHkAukoF7ZnDAkFVj3F6Ng9Zl9OkOq8xMDA2NDQgZ2VuZXJhdGVfc3RvcnlfcmVjb3JkLnB5AG+TlRADyiJOZuSGkT9lldLVfyiwNDAwMDAgdGVzdHMAluBKsIgvglTCKT55LEt+6p+bNmIxMDA2NDQgdmVyaWZ5X2VwaWNfMTZfYWRvcHRpb24ucHkA78THJVqEFqqWGXy4iCYDmj/lBmcxMDA2NDQgdmVyaWZ5X2VwaWNfMTZfYWRvcHRpb25fdjIucHkAPPUVSNG9HE8V0H8pi4/gfNc4BxwxMDA2NDQgdmVyaWZ5X2VwaWNfMTZfcHJlcmVxdWlzaXRlcy5weQDv/y3iGdioxQqZdV2rluBiBOMjNTEwMDY0NCB2ZXJpZnlfc3RvcnlfMTZfMS5weQB/plxDm9mpcotvFJc7i5NzeC99qzEwMDY0NCB2ZXJpZnlfc3RvcnlfMTZfMi5weQCBTu992G6Ce0GVUx4n2M6TSKv2JzEwMDY0NCB2ZXJpZnlfc3RvcnlfMTZfMy5weQDWvcmEn3MWoUUepa5aWxZWbByoujEwMDY0NCB2ZXJpZnlfc3RvcnlfY29tcGxldGlvbl93b3JrZmxvd3MucHkAWtD7Cf+KIsvgVzG8fpuwjRdpdC4=",
++      "sha256": "16d8e1c4b4d0cf7518cc7991c2821d14b7c85100447c932db9a8d457f134e4bc"
++    },
++    "4f4a62714a503028a2a1a78e3ddbbbc4b7236b0a": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IEVwaWMxNi5OYXRpdmVIZWxwZXIuY3Nwcm9qAAlfUxD0Zz3ddprEzu65zdI3tCh5MTAwNjQ0IEV2ZW50U3RvcmUtTElDRU5TRQAkbBuQYDcEFlr4/Z4NBvxeCfb5dDEwMDY0NCBQcm9kdWN0TWV0YWRhdGEuY3MAa0+QHBBOcpS361IqYJowA/VfZnoxMDA2NDQgUHJvZ3JhbS5jcwAtLY7CPFiRZ5QplRGw828KBK470jEwMDY0NCBSRUFETUUubWQAgm0JA+f9HrjiykUx4tJXt7GaUfExMDA2NDQgUmVhZE1vZGVsQmF0Y2hDYW5vbmljYWxKc29uLmNzAKzHYBi1ZX8EBKtYFBO25gy9wnfVMTAwNjQ0IFNpZ25hdHVyZU5hbWVzLmNzANbJO9cujgEZzZfJs1hC9jCs2X6EMTAwNjQ0IFRlc3RDb25zdHJ1Y3Rpb24uY3MARUlyCGnyvfQFrN+Sn8lVIXohgX0=",
++      "sha256": "cbea22cb5b0d21c325d6f11073e1c80c4ea88e04f0b71f5d014ca5404816a69d"
++    },
++    "96e04ab0882f8254c2293e792c4b7eea9f9b3662": {
++      "type": "tree",
++      "rawBase64": "NDAwMDAgZml4dHVyZXMARVJtjGjC4gnyHBiIj0IQjzHgizM=",
++      "sha256": "75f16f1e268176d2d8bde0892fc4c2932e4ad053c53feb1d2b2813a44c0237a3"
++    },
++    "45526d8c68c2e209f21c18888f42108f31e08b33": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IGVwaWMxNi1jb250cmFjdC13aXJlLWdvbGRlbnMuanNvbgB6K6rYVodvw67dlCR1QIc9lJIJoDEwMDY0NCBlcGljMTYtY29udHJhY3Qtd2lyZS1wcm92ZW5hbmNlLmpzb24AYXtmevU+EBqn2S59QklWFEp2n7QxMDA2NDQgZXBpYzE2LWRvbWFpbi1zb3VyY2VzLmpzb24ApfPNV/b74S75xQt6y7WRb7Ne0FUxMDA2NDQgZXBpYzE2LXByb3RvY29sLWdvbGRlbnMuanNvbgCPUKi4USAbBVo32Gon69cPG4h6Dg==",
++      "sha256": "dbd91d35268f57916c7b3544ff3957b25536c7f9b3d2c040c33d3f8113d48bcf"
++    },
++    "6f1b00ddb1cb7c8bbbb72af128a63e007058e314": {
++      "type": "tree",
++      "rawBase64": "NDAwMDAgcnVuYm9va3MAoStwnMmgDwh57CntceQ4BJ2wB+w=",
++      "sha256": "d34a917f22a142cf4085d85acc2c1750c280cb6bc01049b761d1d1d0e998d26c"
++    },
++    "a12b709cc9a00f0879ec29ed71e438049db007ec": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IGN1cnJlbnQtY2hhbmdlLXZhbGlkYXRpb24ubWQAUIFAOAUAqPjQFazXed47vBH1rJc=",
++      "sha256": "e9d97adb5bd01011eb03f0c3133ec3323357ecec9b01d431b84a2984f3d3723f"
++    },
++    "1749cec8ea75766d9e2670df15d2cc70103dadbd": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IEhleGFsaXRoLkNvbnZlcnNhdGlvbnMuQ29udHJhY3RzLmNzACEjCFJ7BawTG0ix9jrSb9CWCxx/MTAwNjQ0IEhleGFsaXRoLkNvbnZlcnNhdGlvbnMuU2VydmVyLmNzABAeUJ0qiJYl2854XEYxpge6bURK",
++      "sha256": "14742286101f7b328af74c71428e598b2d326389ec05128289d009542172c5da"
++    },
++    "7cd935c0666f0b85bf7a27d3ef3099d3d271d295": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IGhleGFsaXRoLm1vZHVsZS1tYW5pZmVzdC52Mi5qc29uANQbsiQe4VAfOIlN65OAZXLeHaeoMTAwNjQ0IGhvc3RpbmctaW52ZW50b3J5Lmpzb24A+HS4e0wqvOfxI8mVDYpphkxuXe0xMDA2NDQgc20tMi1jaGVja2xpc3QubWQASBvFRQL+zomoXM8ABtGx3CWDGnI=",
++      "sha256": "5e87bafbc5eadeb08676322a5fe2c52566348675f4d1755a25560a91642b1699"
++    },
++    "f39c2f32dcbaa587e8f2a66d2cc9f456618afb80": {
++      "type": "tree",
++      "rawBase64": "MTYwMDAwIEhleGFsaXRoLkNvbW1vbnMAgSkJNjYOmcKmh+UTh51OJKlbWo0xNjAwMDAgSGV4YWxpdGguRXZlbnRTdG9yZQByjXyJjE5wsSyOZQ5muVufiiikLjE2MDAwMCBIZXhhbGl0aC5UZW5hbnRzANw+PTMhWOTA5gxTz23Vpsk/pHzf",
++      "sha256": "006cca4bbd4914874636b59ebdba9bd6cbf383ab99588684bbf96de95e8d47c6"
++    },
++    "10a3ea24c84e36d26d1261c37ecca48099e7a852": {
++      "type": "tree",
++      "rawBase64": "NDAwMDAgSGV4YWxpdGguQ29udmVyc2F0aW9ucy5Db250cmFjdHMAPnE/eR/+RQSiFGdtVEHZgLdTVGo0MDAwMCBIZXhhbGl0aC5Db252ZXJzYXRpb25zLlNlcnZlcgAQu1PPsvF5g+aopIsm0VZwu+n1Ww==",
++      "sha256": "716802d378493409af014e0f9f6587a7f159bdb1c8b89f329d9fd0c1393a9cbd"
++    },
++    "3e713f791ffe4504a214676d5441d980b753546a": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IENvbnRyYWN0LmNzAE+6JTnpZc8GdcjD0413nS1b5e29",
++      "sha256": "cd6df3300dfd7a6b3eabb080ed69a82aac8e35ec9b78321caed849e8876c9723"
++    },
++    "10bb53cfb2f17983e6a8a48b26d15670bbe9f55b": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IFByb2dyYW0uY3MABxSqxOjusM3xo2iiiip5Q2Iwk84=",
++      "sha256": "dd391bd9367541ed0401a6d442ae7913faba7d0f5195ed3310a07fbd7caf67e7"
++    },
++    "26618bf5be59ef206e5d88c0f2655522b1ee9862": {
++      "type": "tree",
++      "rawBase64": "NDAwMDAgSGV4YWxpdGguQ29udmVyc2F0aW9ucy5JbnRlZ3JhdGlvblRlc3RzALWFUbHuqCi2jHc0T+W5GgSijNYzMTAwNjQ0IGVwaWMxNl9uYXRpdmVfZml4dHVyZS5weQBQQ7y9mwjB5gxz0iXH+yFvMyVrHA==",
++      "sha256": "640eaa266ea34f941cd8ee9a72704dc2aac40893a417936abdf5e0c277555aac"
++    },
++    "b58551b1eea828b68c77344fe5b91a04a28cd633": {
++      "type": "tree",
++      "rawBase64": "NDAwMDAgRXBpYzE2AJnDetTZOjOXOBC0Z35B2JYbs/O7",
++      "sha256": "4198d76df04917b0fe503d07b185ee2a311f725e412347c49f80bd7c986a54e0"
++    },
++    "99c37ad4d93a33973810b4677e41d8961bb3f3bb": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IFN0b3J5MTZfMkV2aWRlbmNlVGVzdHMuY3MAUqT3TYBDpxnzGIy6Z657U4dxYN0=",
++      "sha256": "979b4c70c3c5df53b9798d9d1354857f0ad87f5d7c12c437fe84bbe8a12fd40c"
++    },
++    "0e4b88eda6bb62e57fbf9fe2a623e0f89051e602": {
++      "type": "commit",
++      "rawBase64": "dHJlZSA2NmNlNzc4NWU1ZjQ1OTkzODMwNTZhOGZiYTEwMzY2NmMzNmM5MWQ4CnBhcmVudCA3YzkxODc2YmIyMmRjMTQwMTJiMjIzMzNiY2Y5YjNmOTNmNjQzMTE1CmF1dGhvciBEaXNwb3NhYmxlIEZpeHR1cmUgPGZpeHR1cmVAZXhhbXBsZS5pbnZhbGlkPiAxNzkyODg2NDAwICswMDAwCmNvbW1pdHRlciBEaXNwb3NhYmxlIEZpeHR1cmUgPGZpeHR1cmVAZXhhbXBsZS5pbnZhbGlkPiAxNzkyODg2NDAwICswMDAwCgp0ZXN0OiBwdWJsaXNoIHBvcnRhYmxlIG5hdGl2ZSBjYXB0dXJlIGZpeHR1cmUK",
++      "sha256": "f25a33dbed251bb72a301431bf255a5da9f24e64b390362fa0f3ac84bf3c119f"
++    },
++    "66ce7785e5f4599383056a8fba103666c36c91d8": {
++      "type": "tree",
++      "rawBase64": "NDAwMDAgLmNvbmZpZwDEApA+/u+JAp7icWwE9ZzDtdByyjEwMDY0NCAuZ2l0YXR0cmlidXRlcwB3MY1gU96CJiO79VdISukFnSkL6zEwMDY0NCAuZ2l0aWdub3JlANT1iO3+9aMjcGDACvrFFyWGQpFTMTAwNjQ0IC5naXRtb2R1bGVzAJGNXXrYZe/BW7rrgaFg+ARh6tSaNDAwMDAgX2JtYWQtb3V0cHV0AEU/vX+0Vr056VVGplthWxuNyt+GNDAwMDAgX2JtYWQAjLLkGwp9CZc9Hsm/RHL2imcX+Ao0MDAwMCBhcnRpZmFjdHMAPHiNdyzbq2Byb8rUiTvUZP1NnVE0MDAwMCBkb2NzAMkJEOInFgpm6eQwaVcwZQODfxjbMTAwNjQ0IGZpeHR1cmUtZW50cnktdHJ1c3QuanNvbgDRmz5TrGF2VH9j9VAVI7weieWRIjEwMDY0NCBmaXh0dXJlLWVudHJ5Lmpzb24AH+Bj/dYvfShXnFMyAox6wvwYOLgxMDA2NDQgZml4dHVyZS1wcmVkZWNlc3Nvci5qc29uAHGwLKaf+k4JZhz1xpCB9eBf9OblNDAwMDAgZml4dHVyZS1wcm9kdWN0cwAXSc7I6nV2bZ4mcN8V0sxwED2tvTEwMDY0NCBmaXh0dXJlLXNwZWMubWQAjxx8klCfDTgwVq4uVq2adqabwCMxMDA2NDQgZ2xvYmFsLmpzb24AhG9QLC1cX0aPeHXnqhJmiPpAugo0MDAwMCBtb2R1bGUAfNk1wGZvC4W/eifT7zCZ09Jx0pU0MDAwMCByZWZlcmVuY2VzAPOcLzLcuqWH6PKmbSzJ9FZhivuANDAwMDAgc3JjABCj6iTITjbSbRJhw37MpICZ56hSNDAwMDAgdGVzdHMAJmGL9b5Z7yBuXYjA8mVVIrHumGI=",
++      "sha256": "620beb8b9dc85e4a38757c730f70974a7b353e6501ae651139159569086b0d08"
++    },
++    "3c788d772cdbab60726fcad4893bd464fd4d9d51": {
++      "type": "tree",
++      "rawBase64": "NDAwMDAgZXBpYzE2LXJ1bnRpbWUAJIgNtrSjIqp6uzOpVruYEKjF/3g=",
++      "sha256": "270f4146b67861a5d7d47374e1bd0be2cc99db9a5ed61e600ebb360db0e392a9"
++    },
++    "24880db6b4a322aa7abb33a956bb9810a8c5ff78": {
++      "type": "tree",
++      "rawBase64": "NDAwMDAgMTYuMgAVaAtiwb2HekD9HW1LHjAh9ZryBw==",
++      "sha256": "311f380cdf9fe07146e15465f84a845f70acb49534067bbd2461524916acc1d2"
++    },
++    "15680b62c1bd877a40fd1d6d4b1e3021f59af207": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IEFDLTE2LjItMDEuY2FwdHVyZS5qc29uABltUUGUzOgpi1sGWBJ3ig8bMdr+MTAwNjQ0IEFDLTE2LjItMDEuanNvbgCEKZTbd5s4DFypFdYstMeaOsPD7zEwMDY0NCBBQy0xNi4yLTAxLnRyeABjCUc0IOLGjql/EAbCJXhq8rO8UDEwMDY0NCBBQy0xNi4yLTAyLmNhcHR1cmUuanNvbgDhTq0CFGRX5fAZSnVNWJkIWWVofTEwMDY0NCBBQy0xNi4yLTAyLmpzb24ARzf6Ubw9jo6xOWr8zewddlJEmBExMDA2NDQgQUMtMTYuMi0wMi50cngAoula0L+LWD4Eh8QnCLUrYcZAJtgxMDA2NDQgQUMtMTYuMi0wMy5jYXB0dXJlLmpzb24ARISwglwepzx73Ea8s6gUNIFrOSsxMDA2NDQgQUMtMTYuMi0wMy5qc29uAFTFVqC9TfxlDer5uKZf+K8L2ypUMTAwNjQ0IEFDLTE2LjItMDMudHJ4AFUJUzKVSrY+ViAfrliDFen40yzcMTAwNjQ0IEFDLTE2LjItMDQuY2FwdHVyZS5qc29uAByCWRxOwjpEKPRdH8XCeW/T/SqzMTAwNjQ0IEFDLTE2LjItMDQuanNvbgCOeQVEk/cz3J9XwuzpVYMEbJmgyDEwMDY0NCBBQy0xNi4yLTA0LnRyeABMrJBTVSQbc99eXH+iiwlVcW5i3DEwMDY0NCBBQy0xNi4yLTA1LmNhcHR1cmUuanNvbgAtm28CtbgNBveYohPTXakdm/TaQjEwMDY0NCBBQy0xNi4yLTA1Lmpzb24AmVrCMc6k4AFG9u0Kt4sXRrX+wSkxMDA2NDQgQUMtMTYuMi0wNS50cngAZLzNbpf5U/wXabmc4buBAjZUN2s0MDAwMCBiaW5hcmllcwC23HYIbzhGKT48qRQIXjWcJiNAzw==",
++      "sha256": "e6f02d997e06a98b31913f7d3f410844c7e9c544b6718a82b433b653467acb01"
++    },
++    "b6dc76086f3846293e3ca914085e359c262340cf": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IDAzZTdiOGYwYzM0YzFkOTcyMmM5ZjBiMGIxMjMzNjBlNGZjZDZmNDA2MGI0NjAyYmJjNDk1MGJhOTFmNmFiMDYuZGxsAJZQtNv2x76eOMhyPi17QQuExzbNMTAwNjQ0IDFlOGViNTI3YmY3OWQ2MTUzNWNlMThjNjU2Zjk0YTU0OTYxNWFlMjk2MmQ1NzMwNWJjNDM1Y2RjYTJkOWI5NmQuZGxsAJPl8jRxtc/LL8zOe8jiy0Nxi3ouMTAwNjQ0IDM4NzY0YzhmYzU2ZWZkYjM5ODcxZTJmNDA2OGY1MDgwMmJiN2QwZGFmOTFiMmU5MDUzNzg5OTc0NDc1YjJiOGUuZGxsADD5V+yDH85MCHA01qx3Og9lIYmeMTAwNjQ0IDNlMzVhNTBiYjBkODYzNjIyYzJiYmQ2MzkyYmRhYzNmMTliZWU5NmE1YTM2ODAwZjRkNzY4ZGZlMTQ2YjU1ZWIuZGxsAPcK18vL+8AlIpdg5L8dSEHORZI7MTAwNjQ0IDUxNjBjOGIxMzJiZGM5OTVhMTg0ZTdjNTkxOTlmYzhlZjNhNTZhY2RmY2FkNWJjM2MwZmU4Y2QwN2RiZDk5ZGYuZGxsAJcBu3o8iQByOgfp6YdEYvph1ZvXMTAwNjQ0IDVjMWI5ZTkyZTljNTdiOGM3NTNlMDJkNGIzOTI4YTdjZGNlMTkyYjhiODhkNDIzZTAwZmYwNTRjZjE3OGQxNGUuZGxsABGbiplQt6P4ph3X7lqKf/0ELCXVMTAwNjQ0IGJhMWU5MDQ1MTdjYjcwNGVmMWM0ZThjZGY4ZDJjZDIxNDA3NzA2MTc1YWFjZjVlZmYyZGY4MjdlMWIwMzkwNTIuZGxsAIdTcwExzCFVOlMuVh5KCKejQrwwMTAwNjQ0IGMwZGNkOTg0OTJkNWIzMDhhMGY5MGQzODAzMjhiZDE2ZTBhNGU2MTNjNDI0YTNhNmYwMmE2M2U5NmRmNWE2YTUuZGxsAJWhjHDxYMu8/FG1u3lceHXbBH1tMTAwNjQ0IGU5ZjdlM2EwZjA0ZGJjMDQ2ZTlmMDdjM2U2ZGM1ODcxNGVmNjc5YzUzZTNhNzZiODFhMWI3N2M0ZGJlYTdkY2YuZGxsAGyHNkyz81RBzx8sO5ercqmbEcMHMTAwNjQ0IGYxYzVhNjNkNTFhZWE2ZTZlYTlkNzYwYzg3OTljMDQyYTMyOGNmYTcyOWYzYzQ1NzcyYzJhZWJiZDUyMjIxZDAuZGxsAJacbXZ01lezC5Jskdz1CVGJD/SeMTAwNjQ0IGY2YzJlODE0OGQ5YWM0ZGYyNzA1MDZkNTQzZDI5ZTcwYzJjZTMyOTMzMWZjOWVlYTRlOTkyMTA1MTgwODJiMmQuZGxsAAiQlnYY3sMGHnOsVCZcoNO6fo+f",
++      "sha256": "acf6de2ff3270263580dcc09e7531e1710f1192db642412afff2bb15aed11525"
++    },
++    "c90910e227160a66e9e4306957306503837f18db": {
++      "type": "tree",
++      "rawBase64": "NDAwMDAgcmVsZWFzZS1ldmlkZW5jZQCkCKzSHpYrr9tawOFmyVExm3X2GTQwMDAwIHJ1bmJvb2tzAKErcJzJoA8Ieewp7XHkOASdsAfs",
++      "sha256": "b58bc66c35fd4fb7cfaf76dbb6502e76589a61d5956c83a1c261181e041ba8dc"
++    },
++    "a408acd21e962bafdb5ac0e166c951319b75f619": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IHN0b3J5LTE2LjItZmluYWwtcmVjb3JkLXYyLmpzb24AFgpt2dr2GzCDi+s6/fTrJfe2j8MxMDA2NDQgc3RvcnktMTYuMi1maW5hbC1yZWNvcmQtdjIubWQA6Evqr0gc9LzhKUqeofDh+aaszz8=",
++      "sha256": "eafb860164c309c87f85398edc4316fb4b7cce76b80bc743aaa14d1f780f496c"
++    },
++    "1681aca75b5a96cf71424d64890085528d255f16": {
++      "type": "commit",
++      "rawBase64": "dHJlZSBjMDY2ZTM3MTQzOGU0M2NhYzU4ZmIxZTkyMWM0YmE4ZWY1ZmUzOTM5CnBhcmVudCAwZTRiODhlZGE2YmI2MmU1N2ZiZjlmZTJhNjIzZTBmODkwNTFlNjAyCmF1dGhvciBEaXNwb3NhYmxlIEZpeHR1cmUgPGZpeHR1cmVAZXhhbXBsZS5pbnZhbGlkPiAxNzkyODg2NDAwICswMDAwCmNvbW1pdHRlciBEaXNwb3NhYmxlIEZpeHR1cmUgPGZpeHR1cmVAZXhhbXBsZS5pbnZhbGlkPiAxNzkyODg2NDAwICswMDAwCgp0ZXN0OiByZXRhaW4gcG9ydGFibGUgbmF0aXZlIGZpeHR1cmUgaW5zZXJ0aW9uCg==",
++      "sha256": "6818000ca9fed171ee90ae506f7d2c9e7021fcc5d87a73f7e9cef37aa7e5b954"
++    },
++    "c066e371438e43cac58fb1e921c4ba8ef5fe3939": {
++      "type": "tree",
++      "rawBase64": "NDAwMDAgLmNvbmZpZwDEApA+/u+JAp7icWwE9ZzDtdByyjEwMDY0NCAuZ2l0YXR0cmlidXRlcwB3MY1gU96CJiO79VdISukFnSkL6zEwMDY0NCAuZ2l0aWdub3JlANT1iO3+9aMjcGDACvrFFyWGQpFTMTAwNjQ0IC5naXRtb2R1bGVzAJGNXXrYZe/BW7rrgaFg+ARh6tSaNDAwMDAgX2JtYWQtb3V0cHV0ANyT+Hyj11DX4H1MwRKVAkKKOzppNDAwMDAgX2JtYWQAjLLkGwp9CZc9Hsm/RHL2imcX+Ao0MDAwMCBhcnRpZmFjdHMAPHiNdyzbq2Byb8rUiTvUZP1NnVE0MDAwMCBkb2NzAMkJEOInFgpm6eQwaVcwZQODfxjbMTAwNjQ0IGZpeHR1cmUtZW50cnktdHJ1c3QuanNvbgDRmz5TrGF2VH9j9VAVI7weieWRIjEwMDY0NCBmaXh0dXJlLWVudHJ5Lmpzb24AH+Bj/dYvfShXnFMyAox6wvwYOLgxMDA2NDQgZml4dHVyZS1wcmVkZWNlc3Nvci5qc29uAHGwLKaf+k4JZhz1xpCB9eBf9OblNDAwMDAgZml4dHVyZS1wcm9kdWN0cwAXSc7I6nV2bZ4mcN8V0sxwED2tvTEwMDY0NCBmaXh0dXJlLXNwZWMubWQAjxx8klCfDTgwVq4uVq2adqabwCMxMDA2NDQgZ2xvYmFsLmpzb24AhG9QLC1cX0aPeHXnqhJmiPpAugo0MDAwMCBtb2R1bGUAfNk1wGZvC4W/eifT7zCZ09Jx0pU0MDAwMCByZWZlcmVuY2VzAPOcLzLcuqWH6PKmbSzJ9FZhivuANDAwMDAgc3JjABCj6iTITjbSbRJhw37MpICZ56hSNDAwMDAgdGVzdHMAJmGL9b5Z7yBuXYjA8mVVIrHumGI=",
++      "sha256": "b6e0f2ce84db76137f9ae3c4e0de35e936943ca3534060326178e000b994465a"
++    },
++    "dc93f87ca3d750d7e07d4cc1129502428a3b3a69": {
++      "type": "tree",
++      "rawBase64": "NDAwMDAgaW1wbGVtZW50YXRpb24tYXJ0aWZhY3RzAANrOVmUeP8L3s6zkw6OvczfVhv7NDAwMDAgcGxhbm5pbmctYXJ0aWZhY3RzADHYmVB8mrc46ZNehzafEv6zYcIY",
++      "sha256": "865ed74ca24c02df6c2fe91ef6998a922029f872815ae7b43583249f68a24272"
++    },
++    "036b39599478ff0bdeceb3930e8ebdccdf561bfb": {
++      "type": "tree",
++      "rawBase64": "MTAwNjQ0IHNwZWMtMTYtMi1tYWtlLXJlcGxheS10aW1lLWRldGVybWluaXN0aWMtYW5kLW1pc3NpbmctaW5kZXgtc3RhdGUtdHJ1dGhmdWwubWQAahkkHFlCoeJTg1kPHdyM9cyxUVIxMDA2NDQgc3ByaW50LXN0YXR1cy55YW1sAAWDwqkS37AR8sUzWgw859xTjUNI",
++      "sha256": "a012c276710538566bdd48a7599e4a14daadf9a4295e9883d29f9c02252face4"
++    }
++  },
++  "blobs": [
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-01.capture.json",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__AC-16.2-01.capture.json.bytes",
++      "sha256": "df7396357e42b0d11f58b392f4cb94fe145c58120cdf91adcf5940d4907cd41c",
++      "gitObjectId": "196d514194cce8298b5b065812778a0f1b31dafe",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-01.json",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__AC-16.2-01.json.bytes",
++      "sha256": "83adae8dc887b159b5d24123ca4a02e53be210a617d863cc951a8507af55d77d",
++      "gitObjectId": "842994db779b380c5ca915d62cb4c79a3ac3c3ef",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-01.trx",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__AC-16.2-01.trx.bytes",
++      "sha256": "5ff00f8fc021a7386d4772f434c48beef0d4953d337aaa6a9ea636d13020382d",
++      "gitObjectId": "6309473420e2c68ea97f1006c225786af2b3bc50",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-02.capture.json",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__AC-16.2-02.capture.json.bytes",
++      "sha256": "40dabc25071aab046bbc334793870897968605aede4aa21216869479a6e4bba3",
++      "gitObjectId": "e14ead02146457e5f0194a754d5899085965687d",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-02.json",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__AC-16.2-02.json.bytes",
++      "sha256": "e62c5cbe6b2ef98dc7b524a3f3070dd021bf9908fb2354cff16fa85737a1e003",
++      "gitObjectId": "4737fa51bc3d8e8eb1396afccdec1d7652449811",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-02.trx",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__AC-16.2-02.trx.bytes",
++      "sha256": "344a0d98d7b1240374b79746db2152128ca41c1822f2b46f82fb5a6b1ab573c4",
++      "gitObjectId": "a2e95ad0bf8b583e0487c42708b52b61c64026d8",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-03.capture.json",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__AC-16.2-03.capture.json.bytes",
++      "sha256": "cb032f7f89197a94cd62da4cf194f0a4f4320ef203a955587bb35d9169c712c6",
++      "gitObjectId": "4484b0825c1ea73c7bdc46bcb3a81434816b392b",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-03.json",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__AC-16.2-03.json.bytes",
++      "sha256": "69c50cce6f330daed4b3b81374ab91f20c00d8e66d0c427d99e4867d91c59b23",
++      "gitObjectId": "54c556a0bd4dfc650deaf9b8a65ff8af0bdb2a54",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-03.trx",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__AC-16.2-03.trx.bytes",
++      "sha256": "a05aef7a5b0ad0899c38819be630213469262d8779c0409d6e3c354fcff7ebf1",
++      "gitObjectId": "55095332954ab63e56201fae588315e9f8d32cdc",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-04.capture.json",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__AC-16.2-04.capture.json.bytes",
++      "sha256": "143670e741dd53a087d1f842b94ea9a8d4535730ce35dcc9e886e0f29ea48e25",
++      "gitObjectId": "1c82591c4ec23a4428f45d1fc5c2796fd3fd2ab3",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-04.json",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__AC-16.2-04.json.bytes",
++      "sha256": "f3957d4e2b9c322a80cf08bdf0f9ad3d03820b907cf15ec7caf786e8fb614ada",
++      "gitObjectId": "8e79054493f733dc9f57c2ece95583046c99a0c8",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-04.trx",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__AC-16.2-04.trx.bytes",
++      "sha256": "3abd5917f44eaf3c4708abbb953f527083c132b040872afedf0833b843feb7c1",
++      "gitObjectId": "4cac905355241b73df5e5c7fa28b0955716e62dc",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-05.capture.json",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__AC-16.2-05.capture.json.bytes",
++      "sha256": "2ef439f33da3f54ee0e8c35ff01e30a212ed3122db406f53132592b3a84935fe",
++      "gitObjectId": "2d9b6f02b5b80d06f798a213d35da91d9bf4da42",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-05.json",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__AC-16.2-05.json.bytes",
++      "sha256": "2d9f544c628289e8471500f3a5792cab21d9853a7c9a94a346a59a43293bdbff",
++      "gitObjectId": "995ac231cea4e00146f6ed0ab78b1746b5fec129",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/AC-16.2-05.trx",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__AC-16.2-05.trx.bytes",
++      "sha256": "dc593e46261a15f37c54e089afd572ec366a97d55ebdea322b491bf29aef450e",
++      "gitObjectId": "64bccd6e97f953fc1769b99ce1bb81023654376b",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/03e7b8f0c34c1d9722c9f0b0b123360e4fcd6f4060b4602bbc4950ba91f6ab06.dll",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__binaries__03e7b8f0c34c1d9722c9f0b0b123360e4fcd6f4060b4602bbc4950ba91f6ab06.dll.bytes",
++      "sha256": "03e7b8f0c34c1d9722c9f0b0b123360e4fcd6f4060b4602bbc4950ba91f6ab06",
++      "gitObjectId": "9650b4dbf6c7be9e38c8723e2d7b410b84c736cd",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/1e8eb527bf79d61535ce18c656f94a549615ae2962d57305bc435cdca2d9b96d.dll",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__binaries__1e8eb527bf79d61535ce18c656f94a549615ae2962d57305bc435cdca2d9b96d.dll.bytes",
++      "sha256": "1e8eb527bf79d61535ce18c656f94a549615ae2962d57305bc435cdca2d9b96d",
++      "gitObjectId": "93e5f23471b5cfcb2fccce7bc8e2cb43718b7a2e",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/38764c8fc56efdb39871e2f4068f50802bb7d0daf91b2e9053789974475b2b8e.dll",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__binaries__38764c8fc56efdb39871e2f4068f50802bb7d0daf91b2e9053789974475b2b8e.dll.bytes",
++      "sha256": "38764c8fc56efdb39871e2f4068f50802bb7d0daf91b2e9053789974475b2b8e",
++      "gitObjectId": "30f957ec831fce4c087034d6ac773a0f6521899e",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/3e35a50bb0d863622c2bbd6392bdac3f19bee96a5a36800f4d768dfe146b55eb.dll",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__binaries__3e35a50bb0d863622c2bbd6392bdac3f19bee96a5a36800f4d768dfe146b55eb.dll.bytes",
++      "sha256": "3e35a50bb0d863622c2bbd6392bdac3f19bee96a5a36800f4d768dfe146b55eb",
++      "gitObjectId": "f70ad7cbcbfbc025229760e4bf1d4841ce45923b",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/5160c8b132bdc995a184e7c59199fc8ef3a56acdfcad5bc3c0fe8cd07dbd99df.dll",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__binaries__5160c8b132bdc995a184e7c59199fc8ef3a56acdfcad5bc3c0fe8cd07dbd99df.dll.bytes",
++      "sha256": "5160c8b132bdc995a184e7c59199fc8ef3a56acdfcad5bc3c0fe8cd07dbd99df",
++      "gitObjectId": "9701bb7a3c8900723a07e9e9874462fa61d59bd7",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/5c1b9e92e9c57b8c753e02d4b3928a7cdce192b8b88d423e00ff054cf178d14e.dll",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__binaries__5c1b9e92e9c57b8c753e02d4b3928a7cdce192b8b88d423e00ff054cf178d14e.dll.bytes",
++      "sha256": "5c1b9e92e9c57b8c753e02d4b3928a7cdce192b8b88d423e00ff054cf178d14e",
++      "gitObjectId": "119b8a9950b7a3f8a61dd7ee5a8a7ffd042c25d5",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/ba1e904517cb704ef1c4e8cdf8d2cd21407706175aacf5eff2df827e1b039052.dll",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__binaries__ba1e904517cb704ef1c4e8cdf8d2cd21407706175aacf5eff2df827e1b039052.dll.bytes",
++      "sha256": "ba1e904517cb704ef1c4e8cdf8d2cd21407706175aacf5eff2df827e1b039052",
++      "gitObjectId": "8753730131cc21553a532e561e4a08a7a342bc30",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/c0dcd98492d5b308a0f90d380328bd16e0a4e613c424a3a6f02a63e96df5a6a5.dll",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__binaries__c0dcd98492d5b308a0f90d380328bd16e0a4e613c424a3a6f02a63e96df5a6a5.dll.bytes",
++      "sha256": "c0dcd98492d5b308a0f90d380328bd16e0a4e613c424a3a6f02a63e96df5a6a5",
++      "gitObjectId": "95a18c70f160cbbcfc51b5bb795c7875db047d6d",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/e9f7e3a0f04dbc046e9f07c3e6dc58714ef679c53e3a76b81a1b77c4dbea7dcf.dll",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__binaries__e9f7e3a0f04dbc046e9f07c3e6dc58714ef679c53e3a76b81a1b77c4dbea7dcf.dll.bytes",
++      "sha256": "e9f7e3a0f04dbc046e9f07c3e6dc58714ef679c53e3a76b81a1b77c4dbea7dcf",
++      "gitObjectId": "6c87364cb3f35441cf1f2c3b97ab72a99b11c307",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/f1c5a63d51aea6e6ea9d760c8799c042a328cfa729f3c45772c2aebbd52221d0.dll",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__binaries__f1c5a63d51aea6e6ea9d760c8799c042a328cfa729f3c45772c2aebbd52221d0.dll.bytes",
++      "sha256": "f1c5a63d51aea6e6ea9d760c8799c042a328cfa729f3c45772c2aebbd52221d0",
++      "gitObjectId": "969c6d7674d657b30b926c91dcf50951890ff49e",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "artifacts/epic16-runtime/16.2/binaries/f6c2e8148d9ac4df270506d543d29e70c2ce329331fc9eea4e99210518082b2d.dll",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/artifacts__epic16-runtime__16.2__binaries__f6c2e8148d9ac4df270506d543d29e70c2ce329331fc9eea4e99210518082b2d.dll.bytes",
++      "sha256": "f6c2e8148d9ac4df270506d543d29e70c2ce329331fc9eea4e99210518082b2d",
++      "gitObjectId": "0890967618dec3061e73ac54265ca0d3ba7e8f9f",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "docs/release-evidence/story-16.2-final-record-v2.json",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/docs__release-evidence__story-16.2-final-record-v2.json.bytes",
++      "sha256": "71cd94c9d244945a9a6c84fa3943afda450f0832cb6dbf91f72f776f74dfb1b8",
++      "gitObjectId": "160a6dd9daf61b30838beb3afdf4eb25f7b68fc3",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "docs/release-evidence/story-16.2-final-record-v2.md",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/docs__release-evidence__story-16.2-final-record-v2.md.bytes",
++      "sha256": "bea26aecbd70ecb8ae9cab7d2716c7c2f8a79d72fad31ae6c705d240e89256c7",
++      "gitObjectId": "e84beaaf481cf4bce1294a9ea1f0e1f9a6accf3f",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "tests/Hexalith.Conversations.IntegrationTests/Epic16/Story16_2EvidenceTests.cs",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/tests__Hexalith.Conversations.IntegrationTests__Epic16__Story16_2EvidenceTests.cs.bytes",
++      "sha256": "9f03cc78c75546f8f51a929021100cfcacc4ea3a3bcce62a47ab23da2503ab9d",
++      "gitObjectId": "52a4f74d8043a719f3188cba67ae7b53877160dd",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/_bmad-output__planning-artifacts__epic-16-tooling-v1__story-contracts__16.2.json.bytes",
++      "sha256": "6fe5131e6c8eceb0b892ef1008e07c3b830024e3c092eac101eb7c0905154f80",
++      "gitObjectId": "8f3c1eed0126522ce817f936b469714065d287b7",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/_bmad-output__planning-artifacts__epic-16-tooling-v1__binding.json.bytes",
++      "sha256": "cf7050c32a3b9e80ce843f68b0af0cdae17a94a0456258afceb9b441e2d7786c",
++      "gitObjectId": "fd97b00573cedf1ad32237cca5f71b2d329c8e25",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "fixture-entry.json",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/fixture-entry.json.bytes",
++      "sha256": "b4a08d48e74f4e9d925e9b229dfce77547eaa3838eb18b47c5726deb937d8698",
++      "gitObjectId": "1fe063fdd62f7d28579c5332028c7ac2fc1838b8",
++      "gitObjectType": "blob"
++    },
++    {
++      "fixturePath": "_bmad-output/implementation-artifacts/spec-16-2-make-replay-time-deterministic-and-missing-index-state-truthful.md",
++      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture-final-order/_bmad-output__implementation-artifacts__spec-16-2-make-replay-time-deterministic-and-missing-index-state-truthful.md.bytes",
++      "sha256": "14a12b1636cc1a1086405f65f7d4dffb02009c58e4192b21d6feb0b5dbe3e263",
++      "gitObjectId": "6a19241c5942a1e25383590f1ddc8cf5ccb15152",
++      "gitObjectType": "blob"
++    }
++  ]
++}

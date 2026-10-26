@@ -1,0 +1,697 @@
+"""Additive Epic 16 measured-evidence consumer and deterministic final records.
+
+Preparation never grants runtime entry. Fixture scope exercises the same native
+measurement checks but can only produce visibly non-runtime fixture artifacts.
+"""
+from __future__ import annotations
+
+import argparse
+from copy import deepcopy
+import json
+import os
+from pathlib import Path
+import re
+import sys
+from xml.etree import ElementTree as ET
+from xml.parsers import expat
+
+import jsonschema
+
+from authoring_outputs import OutputError, output_target, write_outputs
+from contained_reader import ContainedReader, ReadError, relative_path
+from evidence_boundary_current import canonical, digest
+import generate_story_record as records
+import epic16_measurements as measurements
+import epic16_native as native_helper
+import epic16_capture as capture
+import epic16_products as products
+from epic16_trust import CONTRACT_PINS, PREDECESSOR_PINS, SCHEMA_PIN
+
+BASE = '_bmad-output/planning-artifacts/epic-16-tooling-v1'
+BINDING = BASE + '/binding.json'
+SCHEMA = '_bmad/schemas/epic-16-tooling-v1.schema.json'
+CONTRACT_SCHEMA = 'hexalith.conversations.epic16-tooling-contract.v1'
+RESULT_SCHEMA = 'hexalith.conversations.epic16-measured-result.v1'
+RECORD_SCHEMA = 'hexalith.conversations.epic16-final-record.v1'
+AUTHORITY = dict(implementationHold='ACTIVE', executionAllowed=False,
+                 ownerApprovalClaimed=False, releaseAuthorized=False, pushAuthorized=False)
+# An artifact cannot nominate its own trust root. A separately reviewed successor
+# must pin qualified owner decisions here before any runtime evidence is accepted.
+TRUSTED_ENTRIES: dict[str, str] = {}
+ENTRY_REQUIREMENTS = ('platformTool', 'adoption', 'operationalEnvelope', 'providerParity',
+                      'recoveryDrill', 'operatorCoverage', 'capacityWaiver', 'sm2', 'ownerEntry')
+TOOL_SOURCES = (native_helper.POLICY_PATH, *native_helper.HELPER_FILES, '_bmad/scripts/epic16_native.py', '_bmad/scripts/epic16_tooling.py', '_bmad/scripts/epic16_measurements.py',
+    '_bmad/scripts/epic16_domain.py', '_bmad/scripts/epic16_lifecycle.py', '_bmad/scripts/epic16_schedules.py', '_bmad/scripts/epic16_capture.py', '_bmad/scripts/epic16_faults.py', '_bmad/scripts/epic16_relationships.py', '_bmad/scripts/epic16_execution.py', '_bmad/scripts/epic16_products.py',
+    '_bmad/scripts/tests/fixtures/epic16-protocol-goldens.json',
+    '_bmad/scripts/tests/fixtures/epic16-domain-sources.json',
+    '_bmad/scripts/tests/fixtures/epic16-contract-wire-goldens.json',
+    '_bmad/scripts/tests/fixtures/epic16-contract-wire-provenance.json',
+    '_bmad/scripts/epic16_trust.py', '_bmad/scripts/generate_story_record.py',
+    '_bmad/scripts/contained_reader.py', '_bmad/scripts/evidence_boundary_current.py',
+    '_bmad/scripts/authoring_outputs.py', '_bmad/scripts/config_utils.py',
+    '_bmad/scripts/verify_story_completion_workflows.py', '_bmad/scripts/verify_story_16_1.py',
+    '_bmad/scripts/verify_story_16_2.py', '_bmad/scripts/verify_story_16_3.py', SCHEMA,
+    '.gitattributes', '.config/dotnet-tools.json', 'module/hexalith.module-manifest.v2.json',
+    'module/hosting-inventory.json', 'module/sm-2-checklist.md', 'docs/runbooks/current-change-validation.md')
+# Capture caller bytes once: later repository claims must describe these loaded
+# local modules and the fixed helper compiled by this process.
+_EXECUTION_ROOT = Path(__file__).absolute().parents[2]
+_EXECUTABLE_PATHS = tuple(path for path in TOOL_SOURCES if path.endswith('.py') or path in native_helper.HELPER_FILES or path == native_helper.POLICY_PATH)
+_EXECUTION_FAILURE = None
+try:
+    with ContainedReader(_EXECUTION_ROOT) as _execution_reader:
+        _EXECUTION_BYTES = {path: _execution_reader.read(path) for path in _EXECUTABLE_PATHS}
+except ReadError as _capture_error:
+    _EXECUTION_BYTES = {}
+    _EXECUTION_FAILURE = (_capture_error.code, _capture_error.unavailable)
+
+
+def verify_executing_sources(reader):
+    if _EXECUTION_FAILURE is not None:
+        code, unavailable = _EXECUTION_FAILURE
+        raise Stop(code, 'executing source snapshot', blocked=unavailable)
+    with ContainedReader(_EXECUTION_ROOT) as caller:
+        for path, original in _EXECUTION_BYTES.items():
+            need(read(reader, path) == original == read(caller, path), 'EXECUTING_SOURCE_DRIFT', path)
+            if path.endswith('.py'):
+                module = sys.modules.get(Path(path).stem)
+                if module is not None:
+                    need(Path(module.__file__).absolute() == _EXECUTION_ROOT / path, 'EXECUTING_SOURCE_DRIFT', path)
+
+
+FIXTURE_SOURCE = 'tests/epic16_native_fixture.py'
+CANONICALIZER_SOURCE = 'references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Projections/ReadModelBatchCanonicalJson.cs'
+SPRINT = '_bmad-output/implementation-artifacts/sprint-status.yaml'
+STORY_KEYS = {
+    '16.1': '16-1-persist-tenant-access-projection-state-and-prove-convergence',
+    '16.2': '16-2-make-replay-time-deterministic-and-missing-index-state-truthful',
+    '16.3': '16-3-diagnose-apphost-preflight-failures-and-prove-terminal-reconciliation-live',
+}
+
+def spec_path(scope, story):
+    return f'_bmad-output/implementation-artifacts/spec-{STORY_KEYS[story]}.md' if scope == 'runtime' else 'fixture-spec.md'
+
+
+
+class Stop(Exception):
+    def __init__(self, code, subject, *, blocked=False):
+        self.code, self.subject, self.blocked = code, subject, blocked
+        super().__init__(code)
+
+
+def need(condition, code, subject, *, blocked=False):
+    if not condition:
+        raise Stop(code, subject, blocked=blocked)
+
+
+def parse(content):
+    try:
+        return native_helper.strict_json(content)
+    except (ValueError, UnicodeError, RecursionError):
+        raise Stop('JSON_INVALID', 'strict UTF-8 JSON') from None
+
+
+def read(reader, path):
+    try:
+        return reader.read(path)
+    except ReadError as error:
+        raise Stop(error.code, path, blocked=error.unavailable) from None
+
+
+def load(reader, path):
+    return parse(read(reader, path))
+
+
+def contract_path(story):
+    return f'{BASE}/story-contracts/{story}.json'
+
+
+def root_path(scope, story):
+    return f'artifacts/epic16-{scope}/{story}'
+
+
+def receipt_path(scope, scenario):
+    return f'{root_path(scope, scenario[3:7])}/{scenario}.json'
+
+
+def native_path(scope, scenario):
+    return f'{root_path(scope, scenario[3:7])}/{scenario}.trx'
+
+
+def final_paths(scope, story):
+    if scope == 'runtime':
+        return [f'docs/release-evidence/story-{story}-final-record-v2.{ext}' for ext in ('json', 'md')]
+    return [f'{root_path(scope, story)}/final-record.{ext}' for ext in ('json', 'md')]
+
+
+def validate_package(reader, story):
+    path = contract_path(story)
+    need(path in CONTRACT_PINS, 'CONTRACT_UNKNOWN', path)
+    raw = read(reader, path)
+    need(digest(raw) == CONTRACT_PINS[path], 'CONTRACT_DRIFT', path)
+    schema_bytes = read(reader, SCHEMA)
+    need(digest(schema_bytes) == SCHEMA_PIN, 'SCHEMA_DRIFT', SCHEMA)
+    contract = parse(raw)
+    schema = parse(schema_bytes)
+    try:
+        jsonschema.validate(contract, schema['$defs']['contract'])
+    except jsonschema.ValidationError:
+        raise Stop('SCHEMA_INVALID', path) from None
+    need(contract['nativeProtocol']['catalogControl'] == dict(measurements.relationships.CATALOG_CONTROL, scope='controlled-native-experiment-not-operational-approval'), 'CONTRACT_DRIFT', path)
+    need(contract['nativeProtocol']['conformanceControls'] == measurements.faults.CONTROL_POLICY, 'CONTRACT_DRIFT', path)
+    need(contract['nativeProtocol']['tenantAccessControl'] == measurements.schedules.TENANT_ACCESS_CONTROL, 'CONTRACT_DRIFT', 'independent tenant freshness test control')
+    need(contract['nativeProtocol']['capturePolicy'] == capture.policy(story), 'CONTRACT_DRIFT', 'portable native capture policy')
+    need(contract['nativeProtocol']['productPolicy'] == products.policy(), 'CONTRACT_DRIFT', 'independent required product ownership and surfaces')
+    enrollment = load(reader, 'module/hexalith.module-manifest.v2.json')
+    servers = [server for module in enrollment['modules'] if module['identity']['moduleId']=='conversations' for server in module['identity']['servers'] if server['id']=='domain']
+    need(len(servers)==1 and servers[0]['appId']==measurements.relationships.CATALOG_CONTROL['appId'], 'CONTRACT_DRIFT', 'enrolled runtime identity')
+    need(contract['storyId'] == story and contract['authority'] == AUTHORITY
+         and all(contract['authority'][key] is False for key in AUTHORITY if key != 'implementationHold'), 'AUTHORITY_INVALID', path)
+    for p, expected in PREDECESSOR_PINS.items():
+        need(digest(read(reader, p)) == expected, 'PREDECESSOR_DRIFT', p)
+    preserved = load(reader, contract['predecessor'])['preservedContract']
+    need(contract['preservedContract'] == preserved, 'OBLIGATION_DRIFT', path)
+    need([s['id'] for s in preserved['scenarios']] == [f'AC-{story}-0{n}' for n in range(1, 7)], 'INVENTORY_DRIFT', path)
+    binding = load(reader, BINDING)
+    need(set(binding) == {'schemaVersion', 'purpose', 'authority', 'sources', 'entry'}, 'BINDING_INVALID', BINDING)
+    need(binding['schemaVersion'] == 'hexalith.conversations.epic16-tooling-binding.v1'
+         and binding['purpose'] == 'prerequisite-tooling-only' and canonical(binding['authority']) == canonical(AUTHORITY), 'AUTHORITY_INVALID', BINDING)
+    expected_paths = sorted((*TOOL_SOURCES, *CONTRACT_PINS, *PREDECESSOR_PINS))
+    need([r['path'] for r in binding['sources']] == expected_paths, 'INVENTORY_DRIFT', BINDING)
+    for row in binding['sources']:
+        need(set(row) == {'path', 'sha256'} and row['sha256'] == digest(read(reader, row['path'])), 'SOURCE_DRIFT', row['path'])
+    verify_executing_sources(reader)
+    return contract, binding
+
+
+def git_facts(repository, candidate, scope, story, reader, binding, *, publication=False, verify_spec=None):
+    try:
+        candidate = records.resolve_commit(repository, candidate, 'CANDIDATE_UNAVAILABLE')
+        head = records.resolve_commit(repository, 'HEAD', 'CANDIDATE_UNAVAILABLE')
+        need(publication or candidate == head, 'CANDIDATE_STALE', 'HEAD')
+        shallow = records.run_git(repository, 'rev-parse', '--is-shallow-repository').stdout.strip()
+        partial = records.run_git(repository, 'config', '--get', 'extensions.partialClone', allowed_returncodes=(0, 1)).stdout.strip()
+        need(shallow == b'false' and not partial, 'HISTORY_UNAVAILABLE', candidate, blocked=True)
+        parents = records.run_git(repository, 'rev-list', '--parents', '-n', '1', candidate).stdout.decode().split()
+        need(len(parents) >= 2, 'HISTORY_UNAVAILABLE', candidate, blocked=True)
+        need(len(parents) == 2, 'CANDIDATE_MERGE', candidate)
+        # Explicitly require the parent object, not just its name in the commit.
+        records.run_git(repository, 'cat-file', '-e', parents[1] + '^{commit}')
+        records.run_git(repository, 'rev-list', '--objects', '--missing=error', candidate)
+        sources = []
+        for row in binding['sources'] + [dict(path=BINDING, sha256=digest(read(reader, BINDING)))]:
+            raw = records.v2_committed_blob(repository, candidate, row['path'])
+            need(raw is not None, 'SOURCE_UNCOMMITTED', row['path'], blocked=True)
+            need(digest(raw) == row['sha256'], 'SOURCE_DRIFT', row['path'])
+            sources.append(row)
+        dirty = records.worktree_path_status(repository)
+        allowed = {receipt_path(scope, f'AC-{story}-0{n}') for n in range(1, 6)} | set(final_paths(scope, story))
+        allowed |= {native_path(scope, f'AC-{story}-0{n}') for n in range(1, 6)}
+        if scope == 'runtime':
+            allowed |= {capture.capture_path(story, f'AC-{story}-0{n}') for n in range(1,6)}
+            allowed |= {path for path in dirty if re.fullmatch(re.escape(root_path(scope,story)) + r'/binaries/[0-9a-f]{64}\.dll',path)}
+        # Other stories' receipts may be measured in the same disposable checkout.
+        if scope == 'tooling-fixture':
+            allowed |= {p for s in measurements.STORIES for p in final_paths(scope, s)}
+            allowed |= {fn(scope, ac) for ac in measurements.SCENARIOS for fn in (receipt_path, native_path)}
+        if verify_spec:
+            need(records.v2_working_spec_lifecycle_only_change(repository, head, verify_spec, read(reader, verify_spec), record_region=True, task_checkboxes=True), 'LIFECYCLE_DRIFT', verify_spec)
+            allowed.add(verify_spec)
+            if SPRINT in dirty:
+                need(records.v2_working_sprint_status_only_change(repository, head, STORY_KEYS[story], read(reader, SPRINT)), 'LIFECYCLE_DRIFT', SPRINT)
+                allowed.add(SPRINT)
+        need(not set(dirty) - allowed, 'CANDIDATE_DIRTY', 'source working tree', blocked=True)
+        links = [dict(path=p, commit=c) for p, c in records.v2_raw_gitlinks(repository, candidate)]
+        declared = records.root_submodule_paths(repository, candidate)
+        need([r['path'] for r in links] == sorted(declared), 'GITLINK_INVENTORY_DRIFT', '.gitmodules')
+        if scope == 'runtime':
+            verify_dependencies(repository, links)
+        # The root candidate is the source identity. Native test assemblies additionally
+        # carry their source revision, and root dependency identities are raw gitlinks.
+        changes = records.raw_diff_records(repository, parents[1], candidate)
+        return dict(commit=candidate, parent=parents[1], gitlinks=links,
+                    changedPaths=sorted(r[5] for r in changes)), sources
+    except records.GateError:
+        raise Stop('HISTORY_UNAVAILABLE', 'raw Git candidate facts', blocked=True) from None
+
+
+def verify_dependencies(repository, links):
+    """Read only direct root dependencies; never traverse or initialize nested ones."""
+    for link in links:
+        child = repository / link['path']
+        try:
+            with ContainedReader(child):
+                records.validate_repository(child)
+            actual = records.resolve_commit(child, 'HEAD', 'DEPENDENCY_UNAVAILABLE')
+            need(actual == link['commit'], 'DEPENDENCY_COMMIT_DRIFT', link['path'])
+            need(not records.worktree_path_status(child), 'DEPENDENCY_DIRTY', link['path'], blocked=True)
+        except (ReadError, records.GateError):
+            raise Stop('DEPENDENCY_UNAVAILABLE', link['path'], blocked=True) from None
+
+
+def entry_evidence(reader, binding, story, candidate, scope):
+    if scope == 'tooling-fixture':
+        need(binding['entry'] is None, 'FIXTURE_AUTHORITY_FORBIDDEN', BINDING)
+        return dict(scope='tooling-fixture', runtimeQualified=False, qualification='not-applicable')
+    entry = binding['entry']
+    need(entry is not None, 'ENTRY_QUALIFICATION_PENDING', story, blocked=True)
+    need(isinstance(entry, dict) and set(entry) == {'path', 'sha256'}, 'ENTRY_UNTRUSTED', story)
+    need(TRUSTED_ENTRIES.get(entry['path']) == entry['sha256'], 'ENTRY_UNTRUSTED', entry['path'])
+    raw = read(reader, entry['path'])
+    need(digest(raw) == entry['sha256'], 'ENTRY_DRIFT', entry['path'])
+    document = parse(raw)
+    requirements = ENTRY_REQUIREMENTS + (('appHostOwnership',) if story == '16.3' else ())
+    need(isinstance(document, dict) and set(document) == {'authorizationRevision', 'storyId', 'qualifications', 'executionAllowed', 'ownerApprovalClaimed', 'predecessors'}, 'ENTRY_INVENTORY_DRIFT', story)
+    need(document['storyId'] == story, 'ENTRY_STORY_DRIFT', story)
+    revision = document['authorizationRevision']
+    need(isinstance(revision, str) and re.fullmatch('[0-9a-f]{40}', revision), 'ENTRY_REVISION_INVALID', story)
+    try:
+        resolved = records.resolve_commit(reader.repository, revision, 'ENTRY_REVISION_UNAVAILABLE')
+        need(resolved == revision and records.is_ancestor(reader.repository, revision, candidate), 'ENTRY_ANCESTRY_INVALID', story)
+    except records.GateError:
+        raise Stop('ENTRY_REVISION_UNAVAILABLE', story, blocked=True) from None
+    need(isinstance(document['qualifications'], dict) and set(document['qualifications']) == set(requirements), 'ENTRY_INVENTORY_DRIFT', story)
+    need(all(document['qualifications'][key] == 'PASS' for key in requirements), 'ENTRY_QUALIFICATION_PENDING', story, blocked=True)
+    need(document['executionAllowed'] is True and document['ownerApprovalClaimed'] is True, 'ENTRY_AUTHORITY_INVALID', story)
+    expected = load(reader, contract_path(story))['preservedContract']['predecessors']
+    predecessors = document['predecessors']
+    need(isinstance(predecessors, list) and [r['identity'] for r in predecessors] == expected, 'ENTRY_PREDECESSOR_DRIFT', story)
+    files = []
+    for predecessor in predecessors:
+        need(set(predecessor) == {'identity', 'files'} and predecessor['files'], 'ENTRY_PREDECESSOR_DRIFT', story)
+        paths = [row['path'] for row in predecessor['files']]
+        need(len(paths) == len(set(paths)), 'ENTRY_PREDECESSOR_DRIFT', story)
+        for row in predecessor['files']:
+            need(set(row) == {'path', 'sha256'} and digest(read(reader, row['path'])) == row['sha256'], 'ENTRY_PREDECESSOR_DRIFT', row['path'])
+            files.append(dict(identity=predecessor['identity'], **row))
+    return dict(scope='runtime', runtimeQualified=True, qualification=entry, authorizationRevision=revision, predecessorFiles=files)
+
+
+def source_manifest(repository, reader, candidate, scope, story):
+    paths = [FIXTURE_SOURCE] if scope == 'tooling-fixture' else [
+        f'tests/Hexalith.Conversations.IntegrationTests/Epic16/Story{story.replace(".", "_")}EvidenceTests.cs']
+    rows = []
+    for path in paths:
+        raw = records.v2_committed_blob(repository, candidate, path)
+        need(raw is not None, 'NATIVE_TESTS_UNAVAILABLE', path, blocked=True)
+        need(read(reader, path) == raw, 'NATIVE_SOURCE_DRIFT', path)
+        rows.append(dict(path=path, sha256=digest(raw)))
+    return rows
+
+
+def parse_native(raw, scenario, candidate, sources, contract_sha):
+    try:
+        # Expat decodes declarations before handlers run, including UTF-16.
+        guard = expat.ParserCreate()
+        def forbidden(*args): raise ValueError('DTD/entity declaration forbidden')
+        guard.StartDoctypeDeclHandler = forbidden
+        guard.EntityDeclHandler = forbidden
+        guard.ExternalEntityRefHandler = forbidden
+        guard.Parse(raw, True)
+        parsed = records.parse_trx(raw)
+        root = ET.fromstring(raw)
+    except (ET.ParseError, expat.ExpatError, ValueError, TypeError, LookupError):
+        raise Stop('NATIVE_INVALID', scenario) from None
+    need(parsed['recomputed'] == dict(total=1, passed=1, failed=0, skipped=0)
+         and parsed['reported'] == dict(total=1, executed=1, passed=1, failed=0, skipped=0)
+         and not parsed['unknown_outcomes'], 'NATIVE_COUNTS_INVALID', scenario)
+    need(root.tag.rsplit('}', 1)[-1] == 'TestRun', 'NATIVE_INVALID', scenario)
+    summaries = root.findall('./{*}ResultSummary')
+    need(len(summaries) == 1 and summaries[0].get('outcome') == 'Completed', 'NATIVE_COUNTS_INVALID', scenario)
+    need(not root.findall('.//{*}ErrorInfo') and all(node.get('outcome') in ('Passed', 'Completed', 'Warning')
+         for node in root.findall('.//{*}RunInfo')), 'NATIVE_RUN_FAILED', scenario)
+    counters = summaries[0].findall('./{*}Counters')
+    need(len(counters) == 1 and all(re.fullmatch(r'[0-9]+', v) and int(v) == (1 if k in ('total', 'executed', 'passed') else 0) for k, v in counters[0].attrib.items()), 'NATIVE_COUNTS_INVALID', scenario)
+    containers = root.findall('./{*}Results')
+    need(len(containers) == 1 and all(child.tag.rsplit('}', 1)[-1] == 'UnitTestResult' for child in containers[0]), 'NATIVE_COUNTS_INVALID', scenario)
+    results = root.findall('./{*}Results/{*}UnitTestResult')
+    need(len(root.findall('.//{*}UnitTestResult')) == len(results) and not any(node.tag.rsplit('}', 1)[-1].endswith('TestResult') and node not in results for node in root.iter()), 'NATIVE_COUNTS_INVALID', scenario)
+    need(len(results) == 1 and not results[0].findall('.//{*}InnerResults'), 'NATIVE_IDENTITY_DRIFT', scenario)
+    definitions = root.findall('./{*}TestDefinitions/{*}UnitTest')
+    entries = root.findall('./{*}TestEntries/{*}TestEntry')
+    need(len(definitions) == len(entries) == 1 and results[0].get('testId')
+         == definitions[0].get('id') == entries[0].get('testId')
+         and results[0].get('executionId') == entries[0].get('executionId')
+         and bool(results[0].get('testId')) and bool(results[0].get('executionId')), 'NATIVE_IDENTITY_DRIFT', scenario)
+    methods = definitions[0].findall('./{*}TestMethod')
+    executions = definitions[0].findall('./{*}Execution')
+    need(len(methods) == len(executions) == 1, 'NATIVE_IDENTITY_DRIFT', scenario)
+    method, execution = methods[0], executions[0]
+    expected_class = 'Hexalith.Conversations.IntegrationTests.Epic16.Story' + scenario[3:7].replace('.', '_') + 'EvidenceTests'
+    need(method is not None and method.get('className') == expected_class and method.get('name') == 'Scenario' + scenario[-2:]
+         and execution is not None and execution.get('id') == results[0].get('executionId'), 'NATIVE_IDENTITY_DRIFT', scenario)
+    need(parsed['results'][0]['test'] == expected_class + '.Scenario' + scenario[-2:], 'NATIVE_IDENTITY_DRIFT', scenario)
+    payload = parse(parsed['results'][0]['output'].encode())
+    need(set(payload) in ({'scenarioId', 'candidate', 'sources', 'contractSha256', 'observations'}, {'scenarioId', 'candidate', 'sources', 'contractSha256', 'observations','loadedProducts'}), 'NATIVE_BINDING_INVALID', scenario)
+    need(payload['scenarioId'] == scenario and payload['candidate'] == candidate
+         and payload['sources'] == sources and payload['contractSha256'] == contract_sha, 'NATIVE_BINDING_INVALID', scenario)
+    return payload['observations'], parsed['recomputed']
+
+
+def verify_canonicalizer_source(reader):
+    """Verify actual bytes after the runtime's direct-dependency cleanliness check."""
+    content = read(reader, CANONICALIZER_SOURCE)
+    measured = digest(content)
+    need(measured == measurements.EVENTSTORE_CANONICALIZER_SHA256,
+         'CANONICALIZER_SOURCE_DRIFT', CANONICALIZER_SOURCE)
+    return dict(path=CANONICALIZER_SOURCE, sha256=measured)
+
+
+def native_binary(reader, raw, candidate, scenario, *, retained=False, facts=None):
+    parsed = records.parse_trx(raw)
+    need(len(parsed['code_bases']) == 1, 'NATIVE_BINARY_UNAVAILABLE', scenario, blocked=True)
+    path = parsed['code_bases'][0]
+    capture_binding = None
+    if retained:
+        path, content, capture_binding, document = capture.resolve(reader, raw, path, candidate, scenario, read, load, need, load(reader, SCHEMA)['$defs']['nativeCapture'])
+    elif path.startswith('/'):
+        # Lexical conversion only. Never resolve symlinks or normalize dot segments.
+        prefix = reader.repository.as_posix().rstrip('/') + '/'
+        need(path.startswith(prefix), 'PATH_INVALID', path)
+        path = path[len(prefix):]
+    relative_path(path)
+    if not retained: content = read(reader, path)
+    try:
+        metadata = native_helper.inspect_assembly(content, candidate,
+            'Hexalith.Conversations.IntegrationTests.Epic16.Story' + scenario[3:7].replace('.', '_') + 'EvidenceTests', 'Scenario' + scenario[-2:])
+    except ValueError:
+        raise Stop('NATIVE_BINARY_DRIFT', path) from None
+    result = dict(path=path, sha256=digest(content), **metadata)
+    if retained:
+        result['capture'] = capture_binding
+        result['products'] = products.loaded(reader, raw, candidate, scenario, document, facts, need)
+    return result
+
+
+def verify_warning(repository, reader, facts, scope, data, contract):
+    path=measurements.execution.WARNING_PATH;marker=measurements.execution.WARNING_MARKER.encode()
+    baseline=facts['parent'] if scope=='tooling-fixture' else contract['nativeProtocol']['publicSourceBaseline']
+    before=records.v2_committed_blob(repository,baseline,path)
+    after=records.v2_committed_blob(repository,facts['commit'],path)
+    need(before is not None and after is not None, 'WARNING_SURFACE_UNAVAILABLE', path, blocked=True)
+    need(read(reader,path)==after and data['warningSurface']==dict(path=path,beforeSha256=digest(before),afterSha256=digest(after)), 'WARNING_SURFACE_DRIFT', path)
+    removed=marker in before and marker not in after
+    need(removed and data['warningRemoved'] is removed, 'SINGLE_REPLICA_WARNING_RETAINED', path)
+    return dict(path=path,baseline=baseline,candidate=facts['commit'],beforeSha256=digest(before),afterSha256=digest(after),warningRemoved=removed)
+
+
+def verify_public_surface(repository, reader, facts, scope, data, contract):
+    """Conservative source preservation, not a binary compatibility assertion."""
+    root = 'src/Hexalith.Conversations.Contracts'
+    baseline = facts['parent'] if scope == 'tooling-fixture' else contract['nativeProtocol']['publicSourceBaseline']
+    manifests = []
+    for revision in (baseline, facts['commit']):
+        records.resolve_commit(repository, revision, 'PUBLIC_BASELINE_UNAVAILABLE')
+        output = records.run_git(repository, 'ls-tree', '-r', '-z', revision, '--', root).stdout
+        rows = []
+        for raw in output.split(b'\0'):
+            if not raw: continue
+            header, path = raw.split(b'\t', 1); mode, kind, oid = header.split()
+            path = path.decode('utf-8')
+            need(mode == b'100644' and kind == b'blob', 'PUBLIC_SURFACE_INVALID', path)
+            content = records.v2_committed_blob(repository, revision, path)
+            need(content is not None, 'PUBLIC_SURFACE_INVALID', path)
+            if revision == facts['commit']:
+                need(read(reader, path) == content, 'PUBLIC_SURFACE_DRIFT', path)
+            rows.append(dict(path=path, sha256=digest(content)))
+        need(bool(rows), 'PUBLIC_SURFACE_UNAVAILABLE', root, blocked=True)
+        manifests.append(sorted(rows, key=lambda row: row['path']))
+    before, after = manifests
+    need(before == after, 'PUBLIC_SURFACE_DRIFT', root)
+    need(data['contractSourcesBefore'] == before and data['contractSourcesAfter'] == after,
+         'PUBLIC_SURFACE_DRIFT', root)
+    need(data['beforeContractSha256'] == digest(canonical(before)) and data['afterContractSha256'] == digest(canonical(after)),
+         'PUBLIC_SURFACE_DRIFT', root)
+    return dict(baseline=baseline, candidate=facts['commit'], before=before, after=after, kind='complete-tracked-source-preservation')
+
+
+def report(story, scenario, scope):
+    return dict(schemaVersion=RESULT_SCHEMA, storyId=story, scenarioId=scenario,
+        validationScope=scope, runtimeQualified=False, authority=deepcopy(AUTHORITY),
+        result='BLOCKED', exitCode=2, candidate=None, bindings={}, counts=dict(total=0, passed=0, failed=0, skipped=0),
+        assertionLedger=[], blockers=[])
+
+
+def failed(result, error):
+    result['result'] = 'BLOCKED' if error.blocked else 'FAIL'
+    result['exitCode'] = 2 if error.blocked else 1
+    result['blockers'] = [error.code]
+    result['assertionLedger'].append(dict(id=error.code, subject=str(error.subject) or '(empty)', state=result['result']))
+    return result
+
+
+def evaluate(repository: Path, story: str, scenario: str, candidate='HEAD', scope='runtime', *, publication=False, verify_spec=None):
+    result = report(story, scenario, scope)
+    try:
+        need(scope in ('runtime', 'tooling-fixture') and scenario in measurements.SCENARIOS and scenario[3:7] == story, 'SCENARIO_INVALID', scenario)
+        with ContainedReader(repository) as reader:
+            contract, binding = validate_package(reader, story)
+            result['assertionLedger'].append(dict(id='preservation', subject=contract_path(story), state='PASS'))
+            # Entry precedes runtime consumption. Held preparation cannot emit a
+            # runtime PASS even when a caller fabricates native measurements.
+            candidate = records.resolve_commit(repository, candidate, 'CANDIDATE_UNAVAILABLE')
+            entry = entry_evidence(reader, binding, story, candidate, scope)
+            facts, tooling = git_facts(repository, candidate, scope, story, reader, binding, publication=publication, verify_spec=verify_spec)
+            result['candidate'] = facts
+            if scope == 'runtime': entry = entry_evidence(reader, binding, story, facts['commit'], scope)
+            sources = source_manifest(repository, reader, facts['commit'], scope, story)
+            path = native_path(scope, scenario)
+            raw = read(reader, path)
+            observations, counts = parse_native(raw, scenario, facts['commit'], sources, CONTRACT_PINS[contract_path(story)])
+            if scope == 'runtime':
+                # A runtime TRX must bind an actual source-stamped test binary;
+                # fixture TRX deliberately earns no such qualification.
+                binary = native_binary(reader, raw, facts['commit'], scenario, retained=True, facts=facts)
+                canonicalizer = verify_canonicalizer_source(reader) if scenario == 'AC-16.2-02' else None
+            else:
+                binary = None
+                canonicalizer = None
+            try:
+                jsonschema.validators.extend(jsonschema.Draft202012Validator, type_checker=jsonschema.Draft202012Validator.TYPE_CHECKER.redefine('integer', lambda checker, value: type(value) is int))(load(reader, SCHEMA)['$defs'][scenario]).validate(observations)
+            except jsonschema.ValidationError as error:
+                raise Stop('MEASUREMENT_INVALID' if error.validator == 'maximum' else 'MEASUREMENT_SCHEMA_INVALID', scenario) from None
+            # Cross-scenario dependencies are recomputed from native evidence,
+            # rather than trusted from another JSON receipt.
+            dependencies = {'AC-16.1-05': ('AC-16.1-02', 'AC-16.1-03'),
+                'AC-16.2-05': ('AC-16.2-02', 'AC-16.2-03'), 'AC-16.3-04': ('AC-16.3-03',)}.get(scenario, ())
+            for dependency in dependencies:
+                other = evaluate(repository, story, dependency, facts['commit'], scope, publication=publication, verify_spec=verify_spec)
+                need(other['result'] == 'PASS', 'SCENARIO_DEPENDENCY_FAILED', dependency,
+                     blocked=other['result'] == 'BLOCKED')
+                if scenario == 'AC-16.3-04':
+                    with ContainedReader(repository) as dependency_reader:
+                        dependency_raw = read(dependency_reader, native_path(scope, dependency))
+                    previous, _ = parse_native(dependency_raw, dependency, facts['commit'], sources, CONTRACT_PINS[contract_path(story)])
+                    need(all(observations[key] == previous[key] for key in ('persistedPendingId', 'pendingSequence', 'tenant', 'runtimeId', 'catalogSha256', 'catalogBytes', 'catalogFingerprint', 'pendingLocation', 'wireRoutes', 'pendingEvent', 'pendingBinding', 'precedingEvents')), 'RECONCILIATION_IDENTITY_DRIFT', scenario)
+            checks = measurements.evaluate(scenario, observations)
+            surface = verify_public_surface(repository, reader, facts, scope, observations, contract) if scenario in ('AC-16.1-05','AC-16.2-05') else None
+            upstream = products.upstream(repository, reader, facts, surface['baseline'], observations, need, binary['products'] if binary else None) if scenario=='AC-16.1-05' else None
+            compiled = products.root_surface(repository, reader, facts, surface['baseline'], observations, story, need, binary['products'] if binary else None) if surface else None
+            warning = verify_warning(repository, reader, facts, scope, observations, contract) if scenario=='AC-16.1-05' else None
+            result.update(result='PASS', exitCode=0, counts=counts, runtimeQualified=entry['runtimeQualified'])
+            result['bindings'] = dict(contract=dict(path=contract_path(story), sha256=CONTRACT_PINS[contract_path(story)]),
+                schema=dict(path=SCHEMA, sha256=SCHEMA_PIN), native=dict(path=path, sha256=digest(raw)),
+                sources=sources, tooling=tooling, entry=entry, testBinary=binary, canonicalizerSource=canonicalizer, publicSourcePreservation=surface, compiledPublicPreservation=compiled, upstreamApiPreservation=upstream, warningSurface=warning, observationsSha256=digest(canonical(observations)),
+                faultLedger=observations.get('faults', []), rollback=contract['preservedContract']['rollback'])
+            result['assertionLedger'] += [dict(id=scenario + ':' + name, subject=scenario, state='PASS') for name in checks]
+            return result
+    except native_helper.HelperUnavailable as error:
+        return failed(result, Stop('NATIVE_HELPER_UNAVAILABLE', str(error), blocked=True))
+    except Stop as error:
+        return failed(result, error)
+    except ReadError as error:
+        return failed(result, Stop(error.code, 'repository', blocked=error.unavailable))
+    except records.GateError:
+        return failed(result, Stop('HISTORY_UNAVAILABLE', 'Git', blocked=True))
+    except measurements.domain.PredicateError as error:
+        return failed(result, Stop('MEASUREMENT_INVALID', scenario))
+    except (ValueError, TypeError, KeyError, IndexError, AttributeError, OverflowError, RecursionError):
+        return failed(result, Stop('MEASUREMENT_INVALID', scenario))
+
+
+def json_bytes(value):
+    return (json.dumps(value, ensure_ascii=True, sort_keys=True, indent=2) + '\n').encode()
+
+
+def preflight_outputs(repository, paths):
+    try:
+        for path in paths:
+            relative_path(path)
+            target = output_target(repository, path)
+            need(not target.exists() or target.stat().st_nlink == 1, 'OUTPUT_ALIAS', path)
+    except (OutputError, ReadError):
+        raise Stop('OUTPUT_FORBIDDEN', 'contained output') from None
+
+
+def safe_write(repository, outputs, readonly=()):
+    preflight_outputs(repository, [path for path, _ in outputs])
+    try:
+        write_outputs(repository, outputs, readonly=tuple(readonly), readonly_roots=(BASE, 'references', '.git'))
+    except OutputError:
+        raise Stop('OUTPUT_FORBIDDEN', 'contained output') from None
+
+
+def make_pair(document):
+    """No recursive hash: hash canonical payload, then Markdown, then emit JSON."""
+    record = deepcopy(document)
+    payload = digest(canonical(record))
+    md = (f'**Epic 16 final record** — {record["storyId"]}\n\n'
+          f'Scope: `{record["validationScope"]}`. Runtime qualified: `{str(record["runtimeQualified"]).lower()}`.\n\n'
+          f'Candidate: `{record["candidate"]["commit"]}`. Payload SHA-256: `{payload}`.\n\n'
+          '| Scenario | Result | Native tests |\n| --- | --- | ---: |\n' +
+          ''.join(f'| {r["scenarioId"]} | {r["result"]} | {r["counts"]["total"]} |\n' for r in record['scenarios']) +
+          '\nSummary: 6/6/0/0/0/0.\n\nRollback: ' + record['rollback']['boundary'] + '\n').encode()
+    record['digests'] = dict(payloadSha256=payload, markdownSha256=digest(md))
+    return record, json_bytes(record), md
+
+
+def generate(repository, story, candidate='HEAD', scope='runtime', *, write=False, paths=None, publication=False, verify_spec=None):
+    failure = report(story, f'AC-{story}-06', scope)
+    try:
+        allowed = final_paths(scope, story)
+        need(paths is None or list(paths) == allowed, 'OUTPUT_FORBIDDEN', 'exact final pair')
+        with ContainedReader(repository) as reader:
+            preflight_outputs(repository, allowed)
+            contract, _ = validate_package(reader, story)
+            candidate = records.resolve_commit(repository, candidate, 'CANDIDATE_UNAVAILABLE')
+            rows = [evaluate(repository, story, f'AC-{story}-0{n}', candidate, scope, publication=publication, verify_spec=verify_spec) for n in range(1, 6)]
+            for row in rows:
+                if row['result'] != 'PASS':
+                    return row, None, None
+            need(all(row['candidate']['commit'] == candidate for row in rows), 'CANDIDATE_DRIFT', candidate)
+            if scope == 'runtime': products.consistent(rows, need)
+            receipts = []
+            for row in rows:
+                path = receipt_path(scope, row['scenarioId'])
+                raw = read(reader, path)
+                # Compare complete derived receipts including counts, ledgers,
+                # native/source/entry bindings and candidate identity.
+                need(raw == json_bytes(row), 'RECEIPT_DRIFT', path)
+                receipts.append(dict(path=path, sha256=digest(raw)))
+            allowed = final_paths(scope, story)
+            need(paths is None or list(paths) == allowed, 'OUTPUT_FORBIDDEN', 'exact final pair')
+            retained = capture.inventory(reader, story, rows, need) if scope == 'runtime' else []
+            self_row = dict(scenarioId=f'AC-{story}-06', result='PASS', counts=dict(total=0, passed=0, failed=0, skipped=0),
+                assertionLedger=[dict(id='derive-sixth', subject='five measured passing scenarios and exact receipts', state='PASS')])
+            document = dict(schemaVersion=RECORD_SCHEMA, storyId=story, result='PASS', validationScope=scope,
+                runtimeQualified=scope == 'runtime', authority=deepcopy(AUTHORITY), candidate=rows[0]['candidate'],
+                contract=rows[0]['bindings']['contract'], schema=rows[0]['bindings']['schema'],
+                predecessors=contract['preservedContract']['predecessors'], scenarios=rows + [self_row],
+                receipts=receipts, retainedNativeArtifacts=retained, rollback=contract['preservedContract']['rollback'], outputs=allowed,
+                summary=dict(required=len(rows) + 1, passed=sum(r['result'] == 'PASS' for r in rows) + 1,
+                             failed=0, blocked=0, skipped=0, notRun=0))
+            result, j, m = make_pair(document)
+            if write:
+                safe_write(repository, list(zip(allowed, (j, m))), [r['path'] for r in receipts])
+            return result, j, m
+    except Stop as error:
+        return failed(failure, error), None, None
+    except ReadError as error:
+        return failed(failure, Stop(error.code, 'repository', blocked=error.unavailable)), None, None
+    except (OSError, records.GateError):
+        return failed(failure, Stop('HISTORY_UNAVAILABLE', 'repository', blocked=True)), None, None
+    except (ValueError, TypeError, KeyError):
+        return failed(failure, Stop('RECORD_INVALID', story)), None, None
+
+
+def verify_inserted(repository, story, path, scope):
+    failure = report(story, f'AC-{story}-06', scope)
+    try:
+        need(path == spec_path(scope, story), 'SPEC_PATH_INVALID', path)
+        with ContainedReader(repository) as reader:
+            jpath, mpath = final_paths(scope, story)
+            installed_j, installed_m = read(reader, jpath), read(reader, mpath)
+            document = parse(installed_j)
+            result, j, m = generate(repository, story, document['candidate']['commit'], scope, publication=True, verify_spec=path)
+            if j is None: return result
+            need(installed_j == j and installed_m == m, 'RECORD_DRIFT', story)
+            raw = read(reader, path)
+            region = records.v2_record_region(raw)
+            need(region is not None and raw[region[0]:region[1]] == m, 'INSERTED_RECORD_DRIFT', path)
+            head = records.resolve_commit(repository, 'HEAD', 'CANDIDATE_UNAVAILABLE')
+            candidate = document['candidate']['commit']
+            need(records.is_ancestor(repository, candidate, head), 'PUBLICATION_HISTORY_INVALID', story)
+            # Complete history is inspected commit-by-commit: source changes that
+            # are later reverted cannot disappear from the publication boundary.
+            commits = records.run_git(repository, 'rev-list', '--reverse', candidate + '..' + head).stdout.decode().split()
+            publication_paths = set(final_paths(scope, story)) | {
+                fn(scope, f'AC-{story}-0{n}') for fn in (receipt_path, native_path) for n in range(1, 6)}
+            publication_paths |= {row['path'] for row in result['retainedNativeArtifacts']}
+            previous = candidate
+            published = False
+            for commit in commits:
+                parents = records.run_git(repository, 'rev-list', '--parents', '-n', '1', commit).stdout.decode().split()
+                need(parents == [commit, previous], 'PUBLICATION_HISTORY_INVALID', commit)
+                changes = records.raw_diff_records(repository, previous, commit)
+                changed = {row[5] for row in changes}
+                if not published:
+                    need(changed == publication_paths and len(changes) == len(publication_paths)
+                         and all(r[0] == '000000' and r[1] == '100644' and r[4] == 'A' for r in changes),
+                         'PUBLICATION_SCOPE_DRIFT', commit)
+                    for evidence_path in publication_paths:
+                        need(records.v2_committed_blob(repository, commit, evidence_path) == read(reader, evidence_path), 'PUBLICATION_BYTES_DRIFT', evidence_path)
+                    published = True
+                else:
+                    need(bool(changed) and changed <= {path, SPRINT} and len(changed) == len(changes) and all(r[0:2] == ('100644', '100644') for r in changes), 'LIFECYCLE_DRIFT', commit)
+                    if path in changed:
+                        need(records.v2_spec_lifecycle_only_change(repository, previous, commit, path,
+                            record_region=True, task_checkboxes=True), 'LIFECYCLE_DRIFT', path)
+                    if SPRINT in changed:
+                        need(records.v2_sprint_status_only_change(repository, previous, commit, STORY_KEYS[story]), 'LIFECYCLE_DRIFT', SPRINT)
+                previous = commit
+            if scope == 'runtime':
+                need(published, 'PUBLICATION_MISSING', story, blocked=True)
+            return result
+    except Stop as error:
+        return failed(failure, error)
+    except ReadError as error:
+        return failed(failure, Stop(error.code, path, blocked=error.unavailable))
+    except (ValueError, KeyError, TypeError, records.GateError):
+        return failed(failure, Stop('INSERTED_RECORD_DRIFT', path))
+
+
+def is_invocation(arguments):
+    for i, value in enumerate(arguments):
+        if value == '--contract' and i + 1 < len(arguments) and arguments[i + 1] in CONTRACT_PINS: return True
+        if value.startswith('--contract=') and value.split('=', 1)[1] in CONTRACT_PINS: return True
+    return False
+
+
+def main(arguments=None, *, story=None, generator=False):
+    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
+    parser.add_argument('--repository', default='.')
+    parser.add_argument('--contract', required=True, choices=list(CONTRACT_PINS))
+    parser.add_argument('--candidate', default='HEAD')
+    parser.add_argument('--scope', choices=('runtime', 'tooling-fixture'), default='runtime')
+    if generator:
+        parser.add_argument('--format', choices=('bundle',), default='bundle')
+        parser.add_argument('--output-json'); parser.add_argument('--output-markdown')
+        parser.add_argument('--verify-inserted-record')
+    else:
+        parser.add_argument('--scenario', required=True); parser.add_argument('--output')
+    args = parser.parse_args(arguments)
+    selected = Path(args.contract).stem
+    if story is not None and selected != story:
+        result = failed(report(story, args.scenario, args.scope), Stop('CONTRACT_STORY_MISMATCH', selected))
+    elif generator:
+        if args.verify_inserted_record:
+            result = verify_inserted(Path(args.repository), selected, args.verify_inserted_record, args.scope)
+        else:
+            result, _, _ = generate(Path(args.repository), selected, args.candidate, args.scope, write=True,
+                paths=None if args.output_json is None and args.output_markdown is None else [args.output_json, args.output_markdown])
+    else:
+        try:
+            if args.output:
+                need(args.output == receipt_path(args.scope, args.scenario), 'OUTPUT_FORBIDDEN', args.output)
+                preflight_outputs(Path(args.repository), [args.output])
+        except Stop as error:
+            result = failed(report(selected, args.scenario, args.scope), error)
+        else:
+            result = evaluate(Path(args.repository), selected, args.scenario, args.candidate, args.scope)
+        if args.output and result['result'] == 'PASS':
+            try:
+                need(args.output == receipt_path(args.scope, args.scenario), 'OUTPUT_FORBIDDEN', args.output)
+                safe_write(Path(args.repository), [(args.output, json_bytes(result))], [native_path(args.scope, args.scenario)])
+            except Stop as error: result = failed(result, error)
+    records.v2_write_stdout(json_bytes(result))
+    return {'PASS': 0, 'FAIL': 1, 'BLOCKED': 2}[result['result']]

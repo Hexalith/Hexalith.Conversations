@@ -1,0 +1,62 @@
+{
+  "scope": "Exact commit/tree bytes reversibly base64 encoded in readable JSON; existing publication blobs retain their previous file-type representation",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "init",
+        "-q"
+      ],
+      "cwd": "/tmp/epic16-r13-object-diffs-9sy0n9o1",
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "git",
+        "check-attr",
+        "diff",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/git-objects.json"
+      ],
+      "cwd": "/tmp/epic16-r13-object-diffs-9sy0n9o1",
+      "exitCode": 0,
+      "stdoutSha256": "ea8f89c57e970e28643b9bf5bba99c93f64d7be4fd1895b22e6baa18e82d6161",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "git",
+        "add",
+        "-f",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/git-objects.json"
+      ],
+      "cwd": "/tmp/epic16-r13-object-diffs-9sy0n9o1",
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--",
+        "module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/native-capture-fixture/git-objects.json"
+      ],
+      "cwd": "/tmp/epic16-r13-object-diffs-9sy0n9o1",
+      "exitCode": 0,
+      "stdoutSha256": "4e7df0c1b38e0f61d23f788b3a76b5e9136a6609cd29a2e08215f31917838d5c",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "gitObjects": 43,
+  "verifiedBlobs": 33,
+  "jsonSha256": "9431d48cf2448e1ab1c28ed5b4c5948752ad20d88777dd60f2bc85864e848dde",
+  "normalDiffSha256": "4e7df0c1b38e0f61d23f788b3a76b5e9136a6609cd29a2e08215f31917838d5c",
+  "allRawGitObjectIdsVerified": true,
+  "allRawSha256Verified": true,
+  "normalDiffUtf8": true
+}

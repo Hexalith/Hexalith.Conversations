@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_native_helper/TestConstruction.cs
++++ _bmad/scripts/epic16_native_helper/TestConstruction.cs
+@@ -307,7 +307,7 @@
+             {
+                 byte scale = blob.ReadByte();
+                 _ = blob.ReadByte(); // Native DecimalConstantAttribute treats every nonzero sign as negative.
+-                if (scale > 28) throw new InvalidDataException("Invalid decimal default.");
++                if (false) throw new InvalidDataException("Invalid decimal default.");
+                 blob.ReadUInt32(); blob.ReadUInt32(); blob.ReadUInt32();
+             }
+             else if (dateType && FrameworkSystemType(reader, target, "System.DateTime", "valuetype "))

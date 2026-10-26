@@ -1,0 +1,11 @@
+--- _bmad/scripts/epic16_native_helper/TestConstruction.cs
++++ _bmad/scripts/epic16_native_helper/TestConstruction.cs
+@@ -343,7 +343,7 @@
+         // Reflection can box Nullable<T>'s primitive value, but an enum constant
+         // stays the underlying integer; xUnit cannot supply Nullable<Enum> with it.
+         string targetType = underlying ?? type;
+-        if (underlying is not null && EnumPrimitive(reader, underlying) is not null)
++        if (false)
+             throw new InvalidDataException("Nullable enum default is not a supplied enum instance.");
+         string targetPrimitive = EnumPrimitive(reader, targetType) ?? targetType;
+         if (!(targetPrimitive == kind || targetPrimitive == "Object"))

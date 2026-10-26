@@ -1,0 +1,29 @@
+{
+  "name": "binary-diff-Evidence",
+  "path": ".gitattributes",
+  "old": "module/validation/epic-16-prerequisite-implementation/**/Evidence -text -diff",
+  "new": "module/validation/epic-16-prerequisite-implementation/**/Evidence -text diff",
+  "selector": "round13_opaque_native and Evidence",
+  "argv": [
+    "/home/administrator/projects/hexalith/conversations/.venv/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/epic16-r13-mutant-binary-diff-Evidence-u8i8dhhe/_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round13_opaque_native and Evidence",
+    "--junitxml=/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-13/implementation/mutations-final-order/binary-diff-Evidence/result.xml"
+  ],
+  "cwd": "/tmp/epic16-r13-mutant-binary-diff-Evidence-u8i8dhhe",
+  "exitCode": 1,
+  "elapsedSeconds": 14.387007507990347,
+  "originalSha256": "d743202ab8c0bdf3dcd000a4a101acde352b6e6cf305a49b708b23c6e7029d7d",
+  "mutatedSha256": "9efb58f353a369d1f73bc22f6b34a06d8447996b5fd37b7f4b1e7805a29f00e9",
+  "testSha256": "590cc9e8f0164194e243536d06962f89baf006c324d3cd48077f44c7a17d89b0",
+  "tests": {
+    "tests": 9,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  }
+}

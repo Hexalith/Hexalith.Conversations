@@ -1,0 +1,37 @@
+{
+  "test: retain synthetic product source fixtures": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: initialize disposable fixture": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: bind disposable fixture sources": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: publish disposable measured fixtures": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: insert disposable final record": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: change disposable source": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: restore disposable source": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

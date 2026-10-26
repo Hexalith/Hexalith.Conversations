@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="7.115" timestamp="2026-10-26T11:05:25.382756+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round14_test_calling_convention_and_direct_defaults_match_runner[optional-ref]" time="4.096"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-806/test_round14_test_calling_conv0')
+shape = 'optional-ref'
+
+    @pytest.mark.parametrize('shape',['void','varargs','optional-value','default-value','optional-ref','default-ref'])
+    def test_round14_test_calling_convention_and_direct_defaults_match_runner(tmp_path,shape):
+        support='';constructor='';body='public void Scenario01() {}'
+        if shape=='varargs':body='public void Scenario01(__arglist) {}'
+        elif shape!='void':
+            support='public '+('ref ' if shape.endswith('ref') else '')+'struct Value { public int Number; }'
+            parameter='[System.Runtime.InteropServices.Optional] Value value' if shape.startswith('optional') else 'Value value = default'
+            constructor='('+parameter+')'
+            if not shape.endswith('ref'):body='public void Scenario01() { if (value.Number != 0) throw new System.Exception("Unexpected default"); }'
+        directory=tmp_path/'native'
+        binary,commands=round13_build(directory,'namespace Synthetic; '+support+' public class TestClass'+constructor+' { [Xunit.Fact] '+body+' }')
+        argv=['dotnet',str(binary),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01','-trx',str(directory/'actual.trx')]
+        run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
+        (directory/'run.stdout').write_bytes(run.stdout);(directory/'run.stderr').write_bytes(run.stderr)
+        commands.append(dict(argv=argv,cwd=str(directory),exitCode=run.returncode))
+        positive=shape not in ('varargs','optional-ref','default-ref')
+        assert run.returncode==(0 if positive else 1),(run.stdout,run.stderr)
+        if positive:assert tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        else:
+            assert (b'System.NotSupportedException' if shape=='varargs' else b'ByRef-like') in run.stdout+run.stderr
+&gt;           with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')
+E           Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:4981: Failed</failure></testcase><testcase classname="_bmad.scripts.tests.test_epic16_tooling" name="test_round14_test_calling_convention_and_direct_defaults_match_runner[default-ref]" time="2.095"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-806/test_round14_test_calling_conv1')
+shape = 'default-ref'
+
+    @pytest.mark.parametrize('shape',['void','varargs','optional-value','default-value','optional-ref','default-ref'])
+    def test_round14_test_calling_convention_and_direct_defaults_match_runner(tmp_path,shape):
+        support='';constructor='';body='public void Scenario01() {}'
+        if shape=='varargs':body='public void Scenario01(__arglist) {}'
+        elif shape!='void':
+            support='public '+('ref ' if shape.endswith('ref') else '')+'struct Value { public int Number; }'
+            parameter='[System.Runtime.InteropServices.Optional] Value value' if shape.startswith('optional') else 'Value value = default'
+            constructor='('+parameter+')'
+            if not shape.endswith('ref'):body='public void Scenario01() { if (value.Number != 0) throw new System.Exception("Unexpected default"); }'
+        directory=tmp_path/'native'
+        binary,commands=round13_build(directory,'namespace Synthetic; '+support+' public class TestClass'+constructor+' { [Xunit.Fact] '+body+' }')
+        argv=['dotnet',str(binary),'-automated','sync','-failSkips','-method','Synthetic.TestClass.Scenario01','-trx',str(directory/'actual.trx')]
+        run=subprocess.run(argv,cwd=directory,capture_output=True,timeout=30)
+        (directory/'run.stdout').write_bytes(run.stdout);(directory/'run.stderr').write_bytes(run.stderr)
+        commands.append(dict(argv=argv,cwd=str(directory),exitCode=run.returncode))
+        positive=shape not in ('varargs','optional-ref','default-ref')
+        assert run.returncode==(0 if positive else 1),(run.stdout,run.stderr)
+        if positive:assert tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')['method']=='Scenario01'
+        else:
+            assert (b'System.NotSupportedException' if shape=='varargs' else b'ByRef-like') in run.stdout+run.stderr
+&gt;           with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary.read_bytes(),'a'*40,'Synthetic.TestClass','Scenario01')
+E           Failed: DID NOT RAISE ValueError
+
+_bmad/scripts/tests/test_epic16_tooling.py:4981: Failed</failure></testcase></testsuite></testsuites>

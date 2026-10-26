@@ -1,0 +1,1 @@
+namespace Synthetic; public class Fixture {} [Xunit.CollectionDefinition("ZZunique")] public class Definition:Xunit.ICollectionFixture<Fixture> {} [Xunit.Collection("ZZunique")] public class TestClass { public TestClass(Fixture fixture) {} [Xunit.Fact] public void Scenario01() {} }

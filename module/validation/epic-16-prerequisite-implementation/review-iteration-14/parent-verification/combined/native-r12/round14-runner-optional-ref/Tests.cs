@@ -1,0 +1,1 @@
+namespace Synthetic; public ref struct Value { public int Number; } public class TestClass([System.Runtime.InteropServices.Optional] Value value) { [Xunit.Fact] public void Scenario01() {} }

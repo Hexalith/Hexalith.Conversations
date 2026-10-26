@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "dotnet",
+    "/tmp/review14-refstruct-h7_v5woq/optional/bin/Debug/net10.0/Evidence.dll",
+    "-automated",
+    "sync",
+    "-failSkips",
+    "-method",
+    "Synthetic.TestClass.Scenario01",
+    "-trx",
+    "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-native/optional/actual.trx"
+  ],
+  "cwd": "/tmp/review14-refstruct-h7_v5woq/optional",
+  "exitCode": 1,
+  "stdoutSha256": "4c41f7c0e051b3101bc6390f5127635b910b8dc474732c8c47cfd8ea4a90a31f",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

@@ -1,0 +1,42 @@
+{
+  "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "type": "Synthetic.TestClass",
+  "method": "Scenario01",
+  "originalDirectory": "/tmp/review13-native-shape-z_y5nh90/return-kind",
+  "originalBuildCommand": [
+    "dotnet",
+    "build",
+    "Evidence.csproj",
+    "-c",
+    "Debug",
+    "--nologo",
+    "-m:1",
+    "-p:NuGetAudit=false"
+  ],
+  "originalBuildExitCode": 0,
+  "originalBuildStreams": "Not retained by the original probe.",
+  "originalRunnerCommand": [
+    "dotnet",
+    "/tmp/review13-native-shape-z_y5nh90/return-kind/bin/Debug/net10.0/Evidence.dll",
+    "-automated",
+    "sync",
+    "-failSkips",
+    "-method",
+    "Synthetic.TestClass.Scenario01"
+  ],
+  "originalRunnerCwd": "/tmp/review13-native-shape-z_y5nh90/return-kind",
+  "originalRunnerExitCode": 1,
+  "originalRunnerStdout": "run.stdout",
+  "originalRunnerStderr": "run.stderr",
+  "mutation": {
+    "beforeHex": "05200012809d",
+    "afterHex": "05200011809d",
+    "occurrences": 1
+  },
+  "validBinary": "valid.dll.bytes",
+  "validBinaryRetention": "Reconstructed byte-for-byte by reversing the unique original fixed-length mutation.",
+  "mutatedBinary": "mutated.dll.bytes",
+  "mutatedBinaryRetention": "Copied exact bytes from the existing original runner binary.",
+  "validSha256": "1ddf55489b4b085e1fe2930b1d487f04d13dc5264a70b8db97bf3961d32f74f8",
+  "mutatedSha256": "0941edeffa96c6db992f522ca8164fb9a9ac293c37e37d7b13d915308d9242a1"
+}

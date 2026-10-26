@@ -1,0 +1,20 @@
+{"tenant":"tenant/a","principal":"actor-a","IsAllowed":false,"Denial":"MalformedTenant","Reads":0,"ReadsHealth":0}
+{"tenant":"tenant:a","principal":"actor-a","IsAllowed":false,"Denial":"MalformedTenant","Reads":0,"ReadsHealth":0}
+{"tenant":" tenant-a","principal":"actor-a","IsAllowed":false,"Denial":"MalformedTenant","Reads":0,"ReadsHealth":0}
+{"tenant":"tenant a","principal":"actor-a","IsAllowed":false,"Denial":"MalformedTenant","Reads":0,"ReadsHealth":0}
+{"tenant":"tenant\u001C","principal":"actor-a","IsAllowed":false,"Denial":"MalformedTenant","Reads":0,"ReadsHealth":0}
+{"tenant":"tenant\u007F","principal":"actor-a","IsAllowed":false,"Denial":"MalformedTenant","Reads":0,"ReadsHealth":0}
+{"tenant":"cafe\u0301","principal":"actor-a","IsAllowed":false,"Denial":"MalformedTenant","Reads":0,"ReadsHealth":0}
+{"tenant":"tenant\u200B","principal":"actor-a","IsAllowed":false,"Denial":"MalformedTenant","Reads":0,"ReadsHealth":0}
+{"tenant":"tenant\uE000","principal":"actor-a","IsAllowed":false,"Denial":"MalformedTenant","Reads":0,"ReadsHealth":0}
+{"tenant":"tenant\u0378","principal":"actor-a","IsAllowed":false,"Denial":"MalformedTenant","Reads":0,"ReadsHealth":0}
+{"tenant":"tenant\uD83D\uDE00","principal":"actor-a","IsAllowed":false,"Denial":"MalformedTenant","Reads":0,"ReadsHealth":0}
+{"tenant":"caf\u00E9","principal":"actor-a","IsAllowed":true,"Denial":"None","Reads":1,"ReadsHealth":1}
+{"tenant":"\u79DF\u6237","principal":"actor-a","IsAllowed":true,"Denial":"None","Reads":1,"ReadsHealth":1}
+{"tenant":"tenant-\u00C5","principal":"actor-a","IsAllowed":true,"Denial":"None","Reads":1,"ReadsHealth":1}
+{"tenant":"tenant-a","principal":" actor-a","IsAllowed":false,"Denial":"MissingCaller","Reads":0,"ReadsHealth":0}
+{"tenant":"tenant-a","principal":"actor-a ","IsAllowed":false,"Denial":"MissingCaller","Reads":0,"ReadsHealth":0}
+{"tenant":"tenant-a","principal":"a\u001Cb","IsAllowed":false,"Denial":"MissingCaller","Reads":0,"ReadsHealth":0}
+{"tenant":"tenant-a","principal":"a\u0085b","IsAllowed":false,"Denial":"MissingCaller","Reads":0,"ReadsHealth":0}
+{"tenant":"tenant-a","principal":"acteur-\u00E9","IsAllowed":true,"Denial":"None","Reads":1,"ReadsHealth":1}
+{"tenant":"tenant-a","principal":"actor-extra","IsAllowed":true,"Denial":"None","Reads":1,"ReadsHealth":1}

@@ -1,0 +1,92 @@
+{
+  "results": [
+    {
+      "label": "vararg",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-native/vararg/inputs/Evidence.dll",
+      "sha256": "278b22db63aee45cf00077f4e8c2c8504b94745849273591ab7dd2efa96d945e",
+      "argv": [
+        "dotnet",
+        "/tmp/epic16-native-oracle-ahs7kc1e/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+      ],
+      "cwd": "/tmp/epic16-native-oracle-ahs7kc1e",
+      "exitCode": 1,
+      "classification": {
+        "exception": "ValueError",
+        "message": "invalid native evidence"
+      }
+    },
+    {
+      "label": "optional",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-native/optional/inputs/Evidence.dll",
+      "sha256": "93b5acf3cd676e9d6baeecd40e59f03487903e3dba74609140bac96882a0c757",
+      "argv": [
+        "dotnet",
+        "/tmp/epic16-native-oracle-ahs7kc1e/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+      ],
+      "cwd": "/tmp/epic16-native-oracle-ahs7kc1e",
+      "exitCode": 1,
+      "classification": {
+        "exception": "ValueError",
+        "message": "invalid native evidence"
+      }
+    },
+    {
+      "label": "null",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-native/null/inputs/Evidence.dll",
+      "sha256": "1fae7af95af6097e620b03d51f657645a90be9b05fb4973684a6de92d7f2f47e",
+      "argv": [
+        "dotnet",
+        "/tmp/epic16-native-oracle-ahs7kc1e/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+      ],
+      "cwd": "/tmp/epic16-native-oracle-ahs7kc1e",
+      "exitCode": 1,
+      "classification": {
+        "exception": "ValueError",
+        "message": "invalid native evidence"
+      }
+    },
+    {
+      "label": "nested",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-native/cycle/inputs/original.dll",
+      "sha256": "5aa2004d6c6c109255b9b911e37f2c3957a8e90a134d32d621f074fccc843452",
+      "argv": [
+        "dotnet",
+        "/tmp/epic16-native-oracle-ahs7kc1e/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+      ],
+      "cwd": "/tmp/epic16-native-oracle-ahs7kc1e",
+      "exitCode": 0,
+      "classification": {
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "type": "Synthetic.TestClass",
+        "method": "Scenario01",
+        "informationalVersion": "1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "testFramework": "xunit.v3.core, Version=4.0.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c"
+      }
+    },
+    {
+      "label": "cyclic",
+      "path": "module/validation/epic-16-prerequisite-implementation/review-iteration-14/parent-native/cycle/inputs/mutant.dll",
+      "sha256": "afef162d51903044a8d11f03a6b701528a47b0077d70a50139349fac54f6b712",
+      "argv": [
+        "dotnet",
+        "/tmp/epic16-native-oracle-ahs7kc1e/bin/Debug/net10.0/Epic16.NativeHelper.dll"
+      ],
+      "cwd": "/tmp/epic16-native-oracle-ahs7kc1e",
+      "exitCode": 1,
+      "classification": {
+        "exception": "ValueError",
+        "message": "invalid native evidence"
+      }
+    }
+  ],
+  "helperSources": {
+    "_bmad/scripts/epic16_native_helper/Epic16.NativeHelper.csproj": "f3057cab73b03ec077940f41c8b23a30032c563c1989dc680ac7b60764d4fcb5",
+    "_bmad/scripts/epic16_native_helper/Program.cs": "ca06233bdb4466306b9f0f329f1c087fec71a3f46005562454410503491a5e9a",
+    "_bmad/scripts/epic16_native_helper/TestConstruction.cs": "48b39a9048eadd8f6c094db9a267069bfdaf24af65e5a069e46337af7dbbe218",
+    "_bmad/scripts/epic16_native_helper/ProductMetadata.cs": "ef75fbd3b889b78c2e2678db4d99cdb7448f231f29b3d22cb300dff0bb5e3902",
+    "_bmad/scripts/epic16_native_helper/SignatureNames.cs": "a65eb6120957a90478e644ba06f02f38085bfbd8b767d1a97e2ad36838e03450",
+    "_bmad/scripts/epic16_native_helper/ReadModelBatchCanonicalJson.cs": "1f9430e33cefaa51757c36f27d57ed509a31d08aa5f35b05a4159b7d806362f9",
+    "_bmad/scripts/epic16_native_helper/README.md": "e65d5be2a5597753bc167e6ebcebd4ce48a71e100d87e3e329601246d55138ac",
+    "_bmad/scripts/epic16_native_helper/EventStore-LICENSE": "6af66baf053023d456706de321e3cea6a6edbb288ffec10f673186b1befe7ac2"
+  }
+}

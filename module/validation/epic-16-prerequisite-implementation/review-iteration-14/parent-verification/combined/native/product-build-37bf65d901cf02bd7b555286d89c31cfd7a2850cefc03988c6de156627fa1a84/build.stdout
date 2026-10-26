@@ -1,0 +1,12 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-product-fixture-67ijdskz/Product.csproj (in 35 ms).
+/tmp/epic16-product-fixture-67ijdskz/Product.cs(1,9): warning CS3012: You must specify the CLSCompliant attribute on the assembly, not the module, to enable CLS compliance checking [/tmp/epic16-product-fixture-67ijdskz/Product.csproj]
+  Product -> /tmp/epic16-product-fixture-67ijdskz/bin/Debug/net10.0/Hexalith.Tenants.Client.dll
+
+Build succeeded.
+
+/tmp/epic16-product-fixture-67ijdskz/Product.cs(1,9): warning CS3012: You must specify the CLSCompliant attribute on the assembly, not the module, to enable CLS compliance checking [/tmp/epic16-product-fixture-67ijdskz/Product.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.30

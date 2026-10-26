@@ -1,0 +1,20 @@
+{
+  "apiEqual": true,
+  "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "assemblyName": "Probe",
+  "scope": "Same-source reproduction of the existing original probe; original ephemeral binary bytes were deleted by round9_compile_product and were not retained.",
+  "originalCompilerCommand": [
+    "dotnet",
+    "build",
+    "Product.csproj",
+    "-c",
+    "Debug",
+    "--nologo",
+    "-m:1",
+    "-p:NuGetAudit=false"
+  ],
+  "originalSources": {
+    "baseline": "public interface I { void Existing() {} } public class Api:I { void I.Existing() {} }",
+    "candidate": "public interface I { void Existing() {} } public class Api:I {}"
+  }
+}

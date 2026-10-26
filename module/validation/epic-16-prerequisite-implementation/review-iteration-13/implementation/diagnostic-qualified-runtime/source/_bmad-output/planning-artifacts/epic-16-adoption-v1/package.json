@@ -1,0 +1,232 @@
+{
+  "schemaVersion": "hexalith.conversations.epic16-adoption-package.v1",
+  "status": "candidate-for-owner-review",
+  "baselineRevision": "bb6ae6e6574377e8fc628266f16b51a301f9736e",
+  "authority": {
+    "implementationHold": "ACTIVE",
+    "executionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  },
+  "sourceBindings": {
+    "_bmad-output/planning-artifacts/architecture.md": "948d9c98d99d2453a1ff3904f4f05392b3a2959e379c5fd6e466dc20ed1f05be",
+    "_bmad-output/planning-artifacts/epics.md": "e6411339d2db80770f7aa923b43caf9c9fe8c416fdf9c5f94e07cddb3d3ca6e7",
+    "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md": "7098e7355522f503e136dc8c5e84ce5c873cb5bad08b92aa54495811c54853b6",
+    "_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-18.md": "3e4cacb752c8e962691e391d6634d136274adbe2dfa4daea35f0d443ec455ddc",
+    "_bmad-output/planning-artifacts/v9-execution-graph-v1.json": "989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747",
+    "_bmad-output/planning-artifacts/v9/story-contracts/16.1.json": "a533959de8227a0fe31d152f3578e63cd10ba129b51506693290b05f7fbfe1d7",
+    "_bmad-output/planning-artifacts/v9/story-contracts/16.2.json": "09e8462c84dfd909df652993b4bb83ca5b65dd1bac14ced571994ae534ec97ab",
+    "_bmad-output/planning-artifacts/v9/story-contracts/16.3.json": "4702547ebc24970cddfe034a2ab3f3b74babf3b97b16fd7e55787e0c311cafd8",
+    "_bmad-output/planning-artifacts/implementation-hold-v1.json": "2c594075e8b212c7db05b00fa9bb3f1c626845437dc819c7f0e39460f5d80b12",
+    "_bmad-output/implementation-artifacts/sprint-status.yaml": "df1a0bbae47828c76d678db58c592e33000e82ce7956b460a32ce416e9a5df65",
+    "docs/runbooks/current-change-validation.md": "54cb71749300c6f4188999170b7c825fd97f181f2f4902b94c6245b2af2ce9d7",
+    ".gitmodules": "f772e17bced54e00841b7e84c2e9e4e1624387883c129d2a851316cacab38987",
+    "references/Hexalith.Platform/README.md": "1fbfdb11a8a74bcdb0ce5e93366da4694bb7429d81710e7a05a56938f3577d36",
+    "references/Hexalith.Platform/docs/domain-module-enrollment.md": "ecf10bc1896a3827be20bee7cf1defb56025b5ebf25151a3b82e6472fe9bb34c",
+    "references/Hexalith.Platform/hexalith-platform.json": "a2bef51e9bb0f11ccc6b49757a9cf28a7d71692ed588448a73b12f0a3d0db103",
+    "references/Hexalith.Platform/.config/dotnet-tools.json": "9e21fa262e48d20f4a29b9de40c6544c95bd14e2fd9e624f8d23ab73d419e25a",
+    "references/Hexalith.Platform/_bmad-output/specs/spec-platform/SPEC.md": "7afec7574a99a72efb94b150e6520a09d56faea372d13e5a6d841040fb30e8d4",
+    "references/Hexalith.Platform/_bmad-output/planning-artifacts/architecture/architecture-platform-2026-09-27/ARCHITECTURE-SPINE.md": "cc95a53ab85becee18f924cc9a1a915a2a05fcce8caed3a3d46643ee1051e936",
+    "references/Hexalith.Platform/src/Hexalith.Platform.Composition/PlatformDaprBindings.cs": "d860b5f140ca605aeb530074b9e388dffd7ffbf94603abdc77addcd03708ee9c",
+    "references/Hexalith.Platform/src/Hexalith.Platform.Composition/PlatformAppModel.cs": "491a63452a4bb362a4bb3c7c5b5160647d90eb8e293e04d8c1cc3602b0c49216",
+    "_bmad-output/planning-artifacts/production-operational-envelope-v1.md": "0114ba16bde6086cc30aa45e7eaafa8b7a5330fea4bfecfbf355fafcbbf67db3",
+    "_bmad/schemas/epic-16-prerequisites-v1.schema.json": "b7095d7191a96dcefb5a0c333958e5c7eccbd7fa1fae9cb8d62ea2ec8bcad497",
+    "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/epic.md": "b0b110461e81457a12b35bc8515ad691d26a926b206189495241f7f52a50097c",
+    "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.1.json": "3e44d0498d231633a12ee122d72535c178870a1601ab8c552c815566fe257e08",
+    "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.2.json": "a21c8c817e5126343110a5e6730883b5cf32738610b3f552ef6cdbbfe605a965",
+    "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.3.json": "5eeccfb8427e4ebccc1955f965d00e3c5655834a3c3005443c970be2dd99509a",
+    "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/package.json": "16eaf5b30e379ca50172a20fa5b069ac6a3cd4c675c5ca322d9178a1929f5746",
+    "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/inventories.json": "791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8",
+    "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/execution-graph.json": "989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747",
+    "_bmad/scripts/verify_epic_16_prerequisites.py": "b10e910aefdd7f9f19cb80bbb19936efd2340f641be45787c140cf45738bbfa6",
+    "_bmad/scripts/generate_story_record.py": "c55a5e58f8a43d31906347bf90dddeb1661ebdfe251abf0c2b03e0a0f5c1cd50",
+    "references/Hexalith.Builds/schemas/hexalith.module-manifest.v2.json": "888d719b58493b4ebe14975e96262eca87e00afee8fe3a451a83ac7da366293e",
+    "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceRoutes.cs": "7e8215d6e69c8c077e9995de7355cf72fb4d8d8863a781e599464633545f87f6",
+    "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServicePolicies.cs": "76710ac3b8a5f78fcfb2ca6ce5a4605e372b52d76a9f995fca259d48efb53fa6",
+    "references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Authentication/EventStoreWorkloadOperations.cs": "58f0adf647ad3f57034318a2dd2eeccf0d553491b819fc5525e3eaf3b7b5d6f7",
+    "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceSecurityExtensions.cs": "759e27337c8146dd8518d02ba5907d85ddf1c6a91d3dc316b40964b77f82f629",
+    "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj": "11aedb0ea85809e27284405ffad0eaed519c42ad2344a570ad9abfc1f6af6cd0",
+    "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj": "320077e5282671bbe921ce01c3ed7f8680d096f31a499e0e41a32ff49a02e36f",
+    "references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Authentication/DaprAppChannelToken.cs": "0934a549051cfbc026d11d0422f386adb3deefb0f83313bb9bf49c7e76d74788",
+    "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceExtensions.cs": "881ef5a456d4ee778161d9383c72684679a0e7af03eff85f99597aee02748692",
+    "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDataProtectionServiceCollectionExtensions.cs": "7f01b7602baaf08a567c0e5d45c9db656c4e71305127951b03d23f3ef92da82b",
+    "references/Hexalith.Tenants/src/Hexalith.Tenants.Client/Registration/TenantServiceCollectionExtensions.cs": "16100f8857e93d74ecd2c48c60b34b6ba6fcdf95d433837f36907be04e570def",
+    "src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessServiceCollectionExtensions.cs": "f392210ede5f9eb15d3fa56808a276af8c101f25d6e7837c7b21f2b1b9522428",
+    "src/Hexalith.Conversations.Server/Program.cs": "c5155b67f8478d4d74ec731161157d7e6d980ec1cfcd226e21409a1c4fef9ed9"
+  },
+  "files": [
+    {
+      "path": ".config/dotnet-tools.json",
+      "sha256": "9e21fa262e48d20f4a29b9de40c6544c95bd14e2fd9e624f8d23ab73d419e25a"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/README.md",
+      "sha256": "bc7d953ab6ea741b488ae8c96f5d4a7dde6d1fe2ef0ff33a3ff79b2cb82a6157"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/execution-graph.json",
+      "sha256": "989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/inventories.json",
+      "sha256": "791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.1.json",
+      "sha256": "da8c5462c77239f9f770a9b803b436824efb8e58f7f182fb66ec1343902beae7"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json",
+      "sha256": "542f1de5e4af3c58c9df7d654e04dd2ea99b9f63cd50bcf864ef5c2ba1257963"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.3.json",
+      "sha256": "226a0a060951139346282a8048338ff9af35014fe7154d79a8863da56507c9dc"
+    },
+    {
+      "path": "_bmad/schemas/epic-16-adoption-v1.schema.json",
+      "sha256": "884d8efb4bf58571c99dca0b63ba0f97b10e50db0cb4bd238ed5a96f017f4f98"
+    },
+    {
+      "path": "module/README.md",
+      "sha256": "35b33d9fcd315aacebb70181e4313035ef9979b99cab2ba903f699572c977ef3"
+    },
+    {
+      "path": "module/hexalith.module-manifest.v2.json",
+      "sha256": "0bed1c297c9c9d78fdb8f37197ac5f71d829191c0535fdd78e4034aaa017bdf0"
+    },
+    {
+      "path": "module/hosting-inventory.json",
+      "sha256": "1bfd46248158637c950cd6764a47f926b1683568218208a0107d3b1ed3ada1e7"
+    },
+    {
+      "path": "module/sm-2-checklist.md",
+      "sha256": "71fb1992ca38602e4cfba34d1b5471459aff986a1ac87b774fb887feafaeec37"
+    },
+    {
+      "path": "module/validation/adoption-text.txt",
+      "sha256": "9468023ec91fcb1b68232b0a86034457378aaba4211cd6a9e5540f5cc9788f5a"
+    },
+    {
+      "path": "module/validation/adoption.json",
+      "sha256": "80b991caeea83f5e2d409853712f3c48ba12aadd2e14f1ecc07a3003159b824d"
+    },
+    {
+      "path": "module/validation/manifest.txt",
+      "sha256": "bc037e128cae9965e41ebb9c79ae42d51a432e95acf1102acaa7ef5fe498bdf0"
+    },
+    {
+      "path": "module/validation/restore.txt",
+      "sha256": "5e16199b8629d57251372ca4a61c168330f1502b8688b02a3468323bda14c2ec"
+    },
+    {
+      "path": "module/validation/results.json",
+      "sha256": "32c65f853c202ed7e0ff6e7ec9525ce462a5496c5b573478a010964187ffaa02"
+    },
+    {
+      "path": "module/validation/version.txt",
+      "sha256": "53dbc1fffed5b37cb2587bcb7691e0ed28d44939df0b2cf1a4a76d07c5325b9d"
+    }
+  ],
+  "capabilities": {
+    "generatorCompatible": false,
+    "supportedGeneratorSchemas": [
+      "hexalith.conversations.story-contract.v1",
+      "hexalith.conversations.v14-story-contract.v1"
+    ],
+    "candidateWrapperSupported": false,
+    "scenarioVerifiersAvailable": false,
+    "reviewVerifierScope": "structural-consistency-only",
+    "requiresOwnerDecision": true
+  },
+  "qualifications": {
+    "source": "pending",
+    "package": "pending",
+    "hosted": "pending",
+    "sm2": "unverified",
+    "operationalEnvelope": "pending-owner-acceptance",
+    "apphostOwnership": "pending-exemption-or-relocation",
+    "entryApproval": "pending",
+    "runtimeProofs": "not-run",
+    "tenantsOptionsBinding": "pending",
+    "dataProtectionRegistration": "pending",
+    "declarativeSubscriptionQualification": "pending",
+    "acceptedManifestToolCompatibility": "blocked-app-api-token-key-format"
+  },
+  "pendingDecisions": [
+    {
+      "id": "operational-provider-and-scope",
+      "owner": "Hexalith.Platform with Conversations owner",
+      "state": "pending",
+      "question": "Qualify Conversations Platform enrollment, injected readmodel/checkpoint stores and Tenants subscription scopes; infrastructure selection is resolved in favor of Hexalith.Platform."
+    },
+    {
+      "id": "environment-versions-and-parity",
+      "owner": "Hexalith.Platform with Quality",
+      "state": "pending",
+      "question": "Bind the exact accepted Platform tool/catalog and EventStore-ratified runtime/profile; prove source/package/hosted parity for the enrolled workload."
+    },
+    {
+      "id": "accountable-operators-and-identity",
+      "owner": "Hexalith.Platform Administrator and named recovery deputy",
+      "state": "pending",
+      "question": "Bind Platform environment workload identities, OpenBao/Dapr credentials, telemetry and private GitHub notification destinations; prove operator/deputy coverage and access."
+    },
+    {
+      "id": "recovery-targets-and-restore-drill",
+      "owner": "Hexalith.Platform with Conversations and Tenants owners",
+      "state": "pending",
+      "question": "Inherit Platform NFR-2: continuous RPO at most one hour, RTO at most four hours within declared response coverage, 30-minute backup cadence, seven-day frequent/30-day daily retention and monthly drills. Supply state inventory/hooks and prove qualified restoration."
+    },
+    {
+      "id": "capacity-limits-and-waivers",
+      "owner": "Hexalith.Platform with Release owner",
+      "state": "pending",
+      "question": "Inherit Platform resource/replica policy (default one); qualify workload bounds and two-replica schedules. Record any capacity/parity waiver separately with explicit scope/expiry; no independent infrastructure choice is requested."
+    },
+    {
+      "id": "apphost-exemption-or-relocation",
+      "owner": "Hexalith baseline owner with Architect/Runtime",
+      "state": "pending",
+      "question": "Resolve the retained module AppHost through a named exemption or relocation before Story 16.3 entry."
+    },
+    {
+      "id": "successor-adoption-and-scoped-execution",
+      "owner": "Release owner with Planning Tooling, Architecture and Quality",
+      "state": "pending",
+      "question": "Approve successor contract/schema/generator/verifier adoption and a scoped current-policy entry decision; preparation grants no runtime authority."
+    }
+  ],
+  "reviewBoundary": [
+    ".config/dotnet-tools.json",
+    "_bmad-output/implementation-artifacts/spec-epic-16-adoption-preparation.md",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v1/README.md",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v1/execution-graph.json",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v1/inventories.json",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.1.json",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.3.json",
+    "_bmad/schemas/epic-16-adoption-v1.schema.json",
+    "_bmad/scripts/contained_reader.py",
+    "_bmad/scripts/tests/fixtures/epic16-reference-inputs.json",
+    "_bmad/scripts/tests/test_verify_epic_16_adoption.py",
+    "_bmad/scripts/verify_epic_16_adoption.py",
+    "module/README.md",
+    "module/hexalith.module-manifest.v2.json",
+    "module/hosting-inventory.json",
+    "module/sm-2-checklist.md",
+    "module/validation/adoption-text.txt",
+    "module/validation/adoption.json",
+    "module/validation/manifest.txt",
+    "module/validation/restore.txt",
+    "module/validation/results.json",
+    "module/validation/version.txt"
+  ],
+  "evidenceBoundary": {
+    "status": "not-applicable",
+    "scope": "runtime-publication",
+    "reason": "Preparation publishes no runtime receipts or final records."
+  }
+}

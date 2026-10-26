@@ -1,0 +1,1 @@
+extern alias custom; [assembly:System.Reflection.AssemblyInformationalVersion("1.0.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")] namespace Synthetic; public class TestClass { [Xunit.Fact, custom::System.Custom.HiddenFact] public void Scenario01() {} }

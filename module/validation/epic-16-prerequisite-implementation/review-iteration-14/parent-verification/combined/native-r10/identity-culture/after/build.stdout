@@ -1,0 +1,14 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-r14-parent-combined/test_round10_external_signatur2/after/external/External.csproj (in 63 ms).
+  Restored /tmp/epic16-r14-parent-combined/test_round10_external_signatur2/after/api/Api.csproj (in 64 ms).
+  External -> /tmp/epic16-r14-parent-combined/test_round10_external_signatur2/after/external/bin/Debug/net10.0/External.dll
+CSC : warning CS8009: Referenced assembly 'External, Version=1.0.0.0, Culture=fr-FR, PublicKeyToken=2fbc00b4fe5afdb7' has different culture setting of 'fr-FR'. [/tmp/epic16-r14-parent-combined/test_round10_external_signatur2/after/api/Api.csproj]
+  Api -> /tmp/epic16-r14-parent-combined/test_round10_external_signatur2/after/api/bin/Debug/net10.0/Probe.Api.dll
+
+Build succeeded.
+
+CSC : warning CS8009: Referenced assembly 'External, Version=1.0.0.0, Culture=fr-FR, PublicKeyToken=2fbc00b4fe5afdb7' has different culture setting of 'fr-FR'. [/tmp/epic16-r14-parent-combined/test_round10_external_signatur2/after/api/Api.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.15

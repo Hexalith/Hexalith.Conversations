@@ -144,7 +144,9 @@ def _run(request):
     except (OSError, subprocess.TimeoutExpired) as error:
         raise HelperUnavailable('fixed helper execution unavailable') from error
     if result.returncode:
-        raise ValueError('invalid native evidence')
+        if result.returncode == 1 and result.stdout == b'' and result.stderr == b'Invalid native evidence.':
+            raise ValueError('invalid native evidence')
+        raise HelperUnavailable(_process_failure('fixed helper host failed', result))
     return json.loads(result.stdout)
 
 

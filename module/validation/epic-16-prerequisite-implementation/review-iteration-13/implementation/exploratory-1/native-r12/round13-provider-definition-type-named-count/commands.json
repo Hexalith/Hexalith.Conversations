@@ -1,0 +1,16 @@
+[
+  {
+    "argv": [
+      "dotnet",
+      "build",
+      "Evidence.csproj",
+      "-c",
+      "Debug",
+      "--nologo",
+      "-m:1",
+      "-p:NuGetAudit=false"
+    ],
+    "cwd": "/tmp/pytest-of-administrator/pytest-691/test_round13_provider_attribut14/native",
+    "exitCode": 0
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "priorSource": "focused-final-constraint/source.json",
+  "finalSource": "focused-final-order/source.json",
+  "changed": [
+    "_bmad/scripts/tests/test_epic16_tooling.py"
+  ],
+  "unchangedCount": 85,
+  "reason": "The newly required Commons gitlink sorts before EventStore and Tenants. Only the positive test expected-order tuple changes; production, contract, schema and fixture logic are byte-identical.",
+  "priorNativeArchive": "native-capture-fixture/provenance.json",
+  "priorParentControls": "review-iteration-13/parent-final-controls/report.json"
+}

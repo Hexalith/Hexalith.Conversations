@@ -1,0 +1,36 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__ test_round14_real_generator_cli_default_and_explicit_output_pair[omitted] ___
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-812/test_round14_real_generator_cl0/fixture')
+flags = 'omitted'
+
+    @pytest.mark.parametrize('flags',['omitted','explicit','json-only','markdown-only'])
+    def test_round14_real_generator_cli_default_and_explicit_output_pair(repository,flags):
+        for n in range(1,6):
+            scenario=f'AC-16.1-0{n}';row=evaluate(repository,scenario);assert row['result']=='PASS',row
+            dump(repository,tooling.receipt_path(SCOPE,scenario),row)
+        paths=tooling.final_paths(SCOPE,'16.1')
+        argv=[sys.executable,str(ROOT/'_bmad/scripts/generate_story_record.py'),'--repository',str(repository),'--contract',tooling.contract_path('16.1'),'--scope',SCOPE,'--format','bundle']
+        if flags in ('explicit','json-only'):argv+=['--output-json',paths[0]]
+        if flags in ('explicit','markdown-only'):argv+=['--output-markdown',paths[1]]
+        run=subprocess.run(argv,cwd=ROOT,capture_output=True,timeout=90);result=json.loads(run.stdout)
+        if flags in ('omitted','explicit'):
+>           assert run.returncode==0 and result['result']=='PASS',(run.stdout,run.stderr)
+E           AssertionError: (b'{
+E               "assertionLedger": [
+E                 {
+E                   "id": "OUTPUT_FORBIDDEN",
+E                   "state": "FAIL",
+E                   "subject": "exact ...ith.conversations.epic16-measured-result.v1",
+E               "storyId": "16.1",
+E               "validationScope": "tooling-fixture"
+E             }
+E             ', b'')
+E           assert (1 == 0)
+E            +  where 1 = CompletedProcess(args=['/home/administrator/projects/hexalith/conversations/.venv/bin/python3', '/tmp/epic16-r14-mutan...versations.epic16-measured-result.v1",\n  "storyId": "16.1",\n  "validationScope": "tooling-fixture"\n}\n', stderr=b'').returncode
+
+_bmad/scripts/tests/test_epic16_tooling.py:5045: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling.py::test_round14_real_generator_cli_default_and_explicit_output_pair[omitted]
+1 failed, 2884 deselected in 17.28s

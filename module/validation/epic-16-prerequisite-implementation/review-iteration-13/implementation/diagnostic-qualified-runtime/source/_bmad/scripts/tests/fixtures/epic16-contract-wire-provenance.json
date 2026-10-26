@@ -1,0 +1,783 @@
+{
+  "scope": "controlled-serialization-goldens",
+  "assemblies": [
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Contracts/bin/Release/net10.0/Hexalith.Conversations.Contracts.dll",
+      "sha256": "e5bc3fad4aa1f6ae86420b29e9c70e907fa8e43f91a34a6f856425b03b1e6f8a"
+    },
+    {
+      "path": "/home/administrator/.nuget/packages/hexalith.commons.serialization/2.30.3/lib/net10.0/Hexalith.Commons.Serialization.dll",
+      "sha256": "ad8051f493daddac7519fc2a38d3e3ae59ba2d4c29777d56f38c23e9c440c2af"
+    }
+  ],
+  "currentContractSources": [
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Agents/AgentMessageProvenance.cs",
+      "sha256": "34eed52f1014126bb8539c22682e58f8373b852c59f3572cc348eb825b042b16"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Agents/ApproveConversationDeletionCommand.cs",
+      "sha256": "ca8368363387ec3437b26b617b300a64cdbd9d36b63e3d2de7e70f4a4f431aeb"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Agents/ConversationActiveCountQuery.cs",
+      "sha256": "36a7c4ded2bf4f5781c3faa3522f733a7b21d609e4520aa2ccca2d830ba79ee6"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Agents/ConversationActiveCountResult.cs",
+      "sha256": "f6909c00598fb17f01612f65a7577b4993b1d7b582cfc2043729dedee6145433"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Agents/ConversationAgentCommandResult.cs",
+      "sha256": "c6e603e621833aaf32fd83203176dd4373319edff6438d4d31f2180bba81eec7"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Agents/ConversationAgentMessage.cs",
+      "sha256": "35cc56462809616e9d28c4fa6f288d2437b003a803802f77f3c9e37e161451ac"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Agents/ConversationAgentReadQuery.cs",
+      "sha256": "7e6dda99cfd4e92efde75dc09928d620e767794dd05c76c6a98628706c429723"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Agents/ConversationAgentReadResult.cs",
+      "sha256": "223d802ff26f02018d74b9f1843ac0025ccf2248f54c9aed23c7b86629d17443"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Agents/ConversationAgentsOutcome.cs",
+      "sha256": "40e6a6b4a52197b4bfd674b9bf8b933928b7a2deae952be7e20b31c191c8a43e"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Agents/ConversationDeletionAcknowledgement.cs",
+      "sha256": "71830f3f95e4239f300e1804e7230213d4e236691a2f602fd7927e9687977f42"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Agents/ConversationDeletionDeliveryAction.cs",
+      "sha256": "d7a1c173a210902d55ebebf3bef430d08103034c87427bdca4504140fdb4c071"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Agents/ConversationDeletionSignal.cs",
+      "sha256": "4419fd99b04529649d152e79ae745d48d1a0366e0a4a062650f901bc5dbc0a99"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Agents/ConversationDeletionSourceQuery.cs",
+      "sha256": "2797e6e7affdfb6bfe41d7ecbc6ed149a5c88a73f96cd2fe124d04f19d6022ff"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Agents/ConversationDeletionSourceResult.cs",
+      "sha256": "2ab5d6314a11a83cd68a474e5abc8a58f675b081103bbf24281c62cfa7991000"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Agents/DeleteConversationMessageCommand.cs",
+      "sha256": "e7e86cf9495d5f2a4a24af9faa9b3344bec349e1d068b82a8ce2a0ba3f33797d"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Agents/EditConversationMessageCommand.cs",
+      "sha256": "5c81f289b278e053f39892ff28d7ed008bb543205f2a8e05b173811b79c1ea2f"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Agents/RecordConversationDeletionDeliveryCommand.cs",
+      "sha256": "d6469a427e504175bf55d5584d8d4ef94e270dda505f528a1cade062027649d8"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Agents/RemoveAgentParticipantCommand.cs",
+      "sha256": "63c550516ca58b8dc5a87a88dcfbce387f765bb4efa113f5abe23217296cdc59"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Commands/AddParticipantCommand.cs",
+      "sha256": "cc988ad4cd8ebe0fdb0b6890c583abae5001abce7db63ec50f78f4baeb138bee"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Commands/AppendMessageCommand.cs",
+      "sha256": "a5b39c6fb7da2eebb4167a1a70b35cec0fda110df6ba6647174766136035922c"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Commands/ArchiveConversationCommand.cs",
+      "sha256": "a34932fb6ee0f7a8551aa9a2f17bcc48614ffba7cdf66a6b987a707dc4c4a72c"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Commands/AttachFileReferenceCommand.cs",
+      "sha256": "e2954b287a770e8c1a7bc8fe472dba9ebfbff603e2ea67d9cc730914951f896d"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Commands/CloseConversationCommand.cs",
+      "sha256": "f641a9ace3ff9584082ba156d70b6d92b43d68c5d50fbdb7e754928dfc69e086"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Commands/ConversationCommandMetadata.cs",
+      "sha256": "b51ddda06892513c03fbd51a51b08d2528dcc0fcf2ef49308ca0dbf921a09735"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Commands/ConversationProjectAssignment.cs",
+      "sha256": "515fa769ef28fe8206c6d876213d298171bb011ca264d4cc8212dc8b7595d5f7"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Commands/ConversationProjectAssignmentOperation.cs",
+      "sha256": "b1fd24979a90f799d4ef5dd056f757bcb10f796e1d8c3ac3b536798a7228760b"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Commands/CreateConversationCommand.cs",
+      "sha256": "51cc9b7e8c2a249928035a6229c83b29f1f5b35169707c27e65882a0b1ab6cbd"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Commands/ReassignConversationProjectCommand.cs",
+      "sha256": "c2bdafb9295bbfb5ee62116d1e65e1263a8e884891319d74ecd350e761573689"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Commands/UpdateConversationMetadataCommand.cs",
+      "sha256": "ca0e89cd480aedb72f1205a41c9c6cfe3ca720d40e56365d7f38263c4cfad5a3"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Conformance/BuyerAcceptanceVocabulary.cs",
+      "sha256": "2e3a2562211860ae412161628e0e06ba4ad76241b926be956204eeca14adb633"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Conformance/BuyerPartialAcceptanceItemV1.cs",
+      "sha256": "5b31632607870962074ac2de4feda385e001ced174476f29433309c9cec9851c"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Conformance/CapabilityReleaseScopeEntryV1.cs",
+      "sha256": "3f2566c73f5e300f08d1bf7aff8aefecd3a0c7cbdad72e095c51e988bc6c6de5"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Conformance/CapabilityReleaseScopeVocabulary.cs",
+      "sha256": "a1d6b71c7faf1fbc33291ad4c8d0592c3fb23fcd9b251426a0ec6a56299e77f9"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Conformance/ConformanceCheckResultV1.cs",
+      "sha256": "43fe9ef5dd2b5b058d2e0021d8167cf5d612cf5845e9128fe337ac38fc5ff3af"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Conformance/ConformanceContractValidation.cs",
+      "sha256": "a22ee269ad4cf6ab442cbcc9d67cf53aacacf1148c08f2f5f155e2c57653570d"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Conformance/ConformanceManifestV1.cs",
+      "sha256": "8041373d5b6a6eb83490b7e4be864319ba5ed04a2e96d7232e6c9c3d43396542"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Conformance/ConformanceRunResultV1.cs",
+      "sha256": "32316c4ef320837fbdc0a28172be04aab53f1d9401d79d91a3828d1fda385818"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Conformance/ConformanceVocabulary.cs",
+      "sha256": "7d4df7a38bd8c36d407ff57452b302876339e03367d8f6248ab12c2dd0ec92cf"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Conformance/ReleaseConformanceArtifactV1.cs",
+      "sha256": "6f32bcf6b8e9ebdb36a449035b7279ada7a4ce52b484e459591ec27fccfeb230"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Conformance/ReleaseGateStatus.cs",
+      "sha256": "501135dd033d577e0b5f368b559f49f297adecc685a0dd3ef846798c5aff6ca6"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Conformance/ReleaseWaiverV1.cs",
+      "sha256": "28a5fbdb5a8e4eef9483c357d699e6be254828851c774013f3c7f6cd17345b84"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Conformance/SecondAdopterStatusEntryV1.cs",
+      "sha256": "cba41ea6858f66ef99e6edf1ad2348fb4025ed48b20599d246000559776c849f"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Conformance/SecondAdopterVocabulary.cs",
+      "sha256": "538222a8a3eac620859bfa315bfea9f67f54e2fbfe4f8cb4bd87e289bf7391f2"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/ContractsAssemblyMarker.cs",
+      "sha256": "c11f4a860a6f672133c1edca3c8cc94c79ce78e9ddada24201a76abe0c1379fb"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Diagnostics/ConversationCorePreconditionCatalog.cs",
+      "sha256": "f24187f3eaf04fa0535f0ceb44091b521884f57f9b3452e873e55525831de3c7"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Diagnostics/CorePreconditionV1.cs",
+      "sha256": "35e7a532a91369daadcdbfb396b78d10d511552ee7ab9750a99b1e9814657f67"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Diagnostics/DiagnosticContractValidation.cs",
+      "sha256": "e07bd8b0a459a76ee4806dda9673e1891230629415e3094b16871edd0c40c33c"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Diagnostics/OnboardingDiagnosticCheckResultV1.cs",
+      "sha256": "5f69ceb1a871366a74b45085f0aa87f8ff18a2634141746c2cb10c272df5c8f9"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Diagnostics/OnboardingDiagnosticRunResultV1.cs",
+      "sha256": "5c5e60eeac66b0b254b3d4d9690dac0cbf8909011bc0e342b7cf1e425a7f0be7"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Diagnostics/OnboardingDiagnosticVocabulary.cs",
+      "sha256": "284bd39fde6dce4a03b62f9558850436a8a16fd6a48929c57823171efa9c90db"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Errors/ConversationError.cs",
+      "sha256": "b4e8f1760a036f84e8f3b8064a58c960388b102bdcf97d599f44ae6c25c6cbb8"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCatalog.cs",
+      "sha256": "d3dcc8a7d55fc828a49695364869b4257a525a51868a56c65d4335a86b131fa4"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCategory.cs",
+      "sha256": "0fb49e64b1f6441c6c127fe9a1f526cc66486ff6a1f478b4b3fce00ddad05ae3"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Errors/ConversationErrorClientAction.cs",
+      "sha256": "a9df8696e512c14db0005e708385d6ed4d5cac781ab464e708f49bad8125a95c"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCode.cs",
+      "sha256": "3af7362954ad01dfa73147142fd4e86bcf46d3c293da132c55dfc7259e037d66"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Errors/ConversationErrorDescriptor.cs",
+      "sha256": "153dbf136ee9289e63ed400d972955f447e35aba45c7b5774cc2be6864a6fa24"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Errors/ConversationErrorResult.cs",
+      "sha256": "4dda769b00cf93e0ce05c9bf684e766a8cf435cb0d7e062b418cd04a763be3b9"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Events/AgentParticipantRemoved.cs",
+      "sha256": "711bc5efd1a8adc2510783e0f012e2342420afc5eddf1e9d9dd6971dfd2646dc"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Events/ConversationArchived.cs",
+      "sha256": "f23b2443a6e4afc19d1848d6bd33370500a3967f386f8a1332c495824c8bddd6"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Events/ConversationClosed.cs",
+      "sha256": "69e6adb2efbb0ffbfe6ff6845a9f535b55f06a169c4941b6aa7a5971616af554"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Events/ConversationContentMarkedSensitive.cs",
+      "sha256": "3077acbf056da952a879ba8c2e994db2e8b0f5feb667597c4615563634b89514"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Events/ConversationCreated.cs",
+      "sha256": "7f126ce6f2718eafc4f841a96c8a7ede368fd9acb084a489b92d2c8e63b6d133"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Events/ConversationDeletionApproved.cs",
+      "sha256": "8b4a641c56627a5c17d92d1c70aee8ecbb951bba721026ebdd52b2281b0c5c44"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Events/ConversationDeletionDeliveryRecorded.cs",
+      "sha256": "8b7efcd2711cb01169ae32d928dc3513ff76bc7411c845d16502e03ef18b98f5"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Events/ConversationEventMetadata.cs",
+      "sha256": "532fdb27a06b525bcab4ffa435488dc486d07505c0c7648857fa564bfc0da54b"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Events/ConversationEventType.cs",
+      "sha256": "35512d463aab3d3087d4cfb01f0233e10e2ee9cecf485231def80800d5921f4f"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Events/ConversationLifecycleChanged.cs",
+      "sha256": "4637ad362ed8103a9c5f58f1f18bf7d072f4c2ab3f15d3b5886f35417e4a3ce7"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Events/ConversationLifecycleStatus.cs",
+      "sha256": "e988ae9a52c2a21d33dc344b4a9c4a6f324b90242396180e70b63af8b0669a7a"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Events/ConversationMetadataUpdated.cs",
+      "sha256": "acde2ff6ea39cb7840d7b38d7ea454a0f646e3e2811f48a47c14b5457578a93b"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Events/ConversationProjectChanged.cs",
+      "sha256": "8ceba54cf07a49786d40d738878e31326a9b0b8bf31cbc7a14fac83ee2ec2057"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Events/FileReferenceAttached.cs",
+      "sha256": "9687447be6646d3cdf57dfee6ca92221b26c462e9cd6353e7766d49ab5402642"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Events/MessageAppended.cs",
+      "sha256": "2840508cec8ebe3e7b022bad69b1043cd7c405f55c16778ca211e5f0b5831c89"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Events/MessageContentRedacted.cs",
+      "sha256": "0a386752d4a8430217fb86504a80dc517e27a0291801b11d006d6a8077e5d095"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Events/MessageDeleted.cs",
+      "sha256": "0b69005dc85fed2d59b5ece091fc33c4d845af87aa5af4a11e52b589fcb1a0cb"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Events/MessageEdited.cs",
+      "sha256": "d9d60a73bdd4450ed0f681ed41f1ab44b990a5ab4080ed3ac3c45d9213a4dca1"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Events/ParticipantAdded.cs",
+      "sha256": "4955b0980abacc56a2c37dbd2e0c6cd58f85b20660378a2c0954773cd3132243"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Events/RetentionPolicyReplaced.cs",
+      "sha256": "56981094c1a7d4e39fb92d2e1a399c1ff0db77dfcce10c1c771c5a317e871c92"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Events/RetentionPolicySet.cs",
+      "sha256": "969e216448f24a1abdf0193b273d0c07997955746c359c34634828b28441fcb0"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Governance/AuditEvidenceHandle.cs",
+      "sha256": "eec95cb93876e96e4884222a86a503ec5397bae403a128b74c22174c0a0ad354"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Governance/AuditRecordActionClassification.cs",
+      "sha256": "08909be3f0af4f73775937c8c7db1a597fcc0457211f133e61cf1451e030f627"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Governance/AuditRecordPolicyTreatmentV1.cs",
+      "sha256": "4e849690443d0ecb985b55fd3ca20be1705aa6989eaa55de16212d121f064665"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Governance/BuyerAcceptanceDemoContracts.cs",
+      "sha256": "3ee0ce777fbfd5823a416219a313dda95ce87ffb78c39cdaae2246b78a555a17"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Governance/ConversationGovernanceVerificationContracts.cs",
+      "sha256": "8c5805ee01df5a032d952b5bd0f6b216c479cb6a3d597b9bfa103f2fb2ee22f2"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Governance/ConversationRedactionResult.cs",
+      "sha256": "47d7e28f6efe861cc040dcd538a91e180dcdb6a100ec02bcd0b3998385686e6e"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Governance/ConversationRetentionPolicyResult.cs",
+      "sha256": "6cb5878f1a07a6ce2d825f6ae22fc1c2953cd5af6ed63005eb0d89047dd828c3"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Governance/ConversationSensitivityMarkResult.cs",
+      "sha256": "160174cc1fb1f7dbf586f8b078db5d08e5c0eca8b5a08949a0a2696111c6900f"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Governance/GovernanceAuditEvidence.cs",
+      "sha256": "a5bd517614198c299d8a400dbfd7044ad783e9874b171a76f522d79845b08399"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Governance/GovernanceAuditEvidenceReference.cs",
+      "sha256": "3b9a18539b41fd2fce656bac9ab8389c415148beef2d6ae47a5e520554ff5818"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Governance/GovernanceContractValidation.cs",
+      "sha256": "6a4cf2b1f3230c5b44d95f979abbbdcc37c2982321c973bf5bf7468b0921c38e"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Governance/GovernanceOperationMetadata.cs",
+      "sha256": "0a096ef786874b868383f615a18589d78d169f68e3f7b339c0a75332572fb2ae"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Governance/GovernanceRequest.cs",
+      "sha256": "1c7ee57e63a4166b824a348cce7fdd7d42dabd158c2591bd55469f50fc278408"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Governance/GovernanceTarget.cs",
+      "sha256": "edabfb17a2d1d49dada97e4bce3cbb0076f07caa407afa928b54b40d536a0665"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Governance/GovernanceVocabularies.cs",
+      "sha256": "0613cee0f278fd09cde71c7a6cbce62aee3596eed4f9c8466334445c76226f75"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Governance/MarkConversationContentSensitiveCommand.cs",
+      "sha256": "c5a1676dbd457d9e041ab6b3ae166c74261dc67090d5ce1fdb81628a0c9ae7cf"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Governance/PrivilegedOperationalJustificationV1.cs",
+      "sha256": "9beb50e9171ed426ace545e1af196690fe11fd04edd7f5964c1a49a97ac77bb2"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Governance/RecordPrivilegedOperationalJustificationCommand.cs",
+      "sha256": "26026af3e8aa78e92e07deed721928e763fc8f10da42b8cf1df1b248e8cae16b"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Governance/RedactMessageContentCommand.cs",
+      "sha256": "ec71f5c3d5bc67b32c5a3906cfe45cc6d26f7cd3d40a503aa3e54762daae02bf"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Governance/SetConversationRetentionPolicyCommand.cs",
+      "sha256": "9dc9a588bcff6d77fd288efd07cc60976c00eba1c644512eeb22056ec5f43c56"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Identifiers/BusinessReference.cs",
+      "sha256": "f1d3267d96d2c5a8bd68406c0a7f348b47a91180ff9f0992104a736c17ebd55a"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Identifiers/CallerMetadata.cs",
+      "sha256": "ba11b5bb544e48137010b79c530af37c8bacec857d1ec34cf91b300ee85988ff"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Identifiers/ConversationId.cs",
+      "sha256": "e54cb2a3e137bc5e230d2941278d6cb3f3f568cb7f337ab8dfb9cd7131593339"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Identifiers/FileId.cs",
+      "sha256": "d9bf66fd3d7f6f60677fa09aa6dd179a28dd573eea13cdbd23abc907dd39c97d"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Identifiers/FolderId.cs",
+      "sha256": "25cb44932aa9ac7eef3c127c54caf842fdd297697e4e625c3c67f9b7a63b5ea9"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Identifiers/MessageId.cs",
+      "sha256": "6af15bc58a69fc90bdb7356001b3673db009b55e2821f756840eb79c420b04a0"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Identifiers/PartyId.cs",
+      "sha256": "4320f91086ee50c7e86fb1d67f304543939aa2d183cadc7ea7a51849feb155fa"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Identifiers/ProjectId.cs",
+      "sha256": "1f1ec1f6ac010d567ac1ef8cea6cfde0c8c73e0c50130b2f01d423449868c7b4"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Identifiers/ProviderCorrelationMetadata.cs",
+      "sha256": "3cf6da1663e56d2a752308bfbf120adf10ea152c105bb6a2679e7745af14c1f6"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Identifiers/TenantId.cs",
+      "sha256": "4d092ff898e67b545bf86313cefdd7a86ef01931fda428acb0362db30d36f6bd"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Participants/ParticipantRole.cs",
+      "sha256": "12f99f4e599bac9e3b73dc55d500cd38d12eac9b8e746da2151ed4b29473f12d"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Participants/ParticipantType.cs",
+      "sha256": "ff1f078c7c9d44b1b31f1473bf6a0d4a8d6a1fe360df7fb6181681c4280a9776"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Projections/ConversationDetailProjectionV1.cs",
+      "sha256": "0c499a33eb48a38017778ea716fa090cdef3b9943b9640a6aae9c10d8cf46a06"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Projections/ConversationFileReferenceProjectionV1.cs",
+      "sha256": "e8884e7bda61e763d7fd9412cafe1316c71fa38772333fde9b4f4789a8e31723"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Projections/ConversationMessageProjection.cs",
+      "sha256": "69577cd2aaac55f55245976c2e439602e45ec01648f0031070fb144fb3e0321d"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Projections/ConversationParticipantProjectionV1.cs",
+      "sha256": "c26d0818d1d490b7a32f142580930dcc426311d58555f36a4ea0d45d76a74bbd"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Projections/ConversationRedactionProjectionV1.cs",
+      "sha256": "1e12cd7209f5ecb7c12d7798b3644edbe0fdaa02807b2160eb9c14d842204b67"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Projections/ConversationRetentionPolicyProjectionV1.cs",
+      "sha256": "1c828b5793df1a3b65de138e82734bd720f491707d4f7088ae28b01dd491285f"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Projections/ConversationSensitivityMarkProjectionV1.cs",
+      "sha256": "40a11e7d35da332beaf644eb239a4d82a861a0e9c137ca7b56c3dfecaec34a99"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Projections/ConversationSummaryProjection.cs",
+      "sha256": "a4c78298db99c1bea9bfd46ee00ee976bc47563d1ff6ab3ab9120fb907ba16f0"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Projections/ConversationSummaryProjectionV1.cs",
+      "sha256": "5eb8e75643fd31f99b224d0496af1ac4cf4c984e79ec36bee03f7491e08510e9"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Projections/ConversationTimelineMessageProjectionV1.cs",
+      "sha256": "ca907810c40884b7bb407c8b1280e405f8ae3a4d7f35d6b3990a450e1253bc5d"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Projections/ProjectionFreshness.cs",
+      "sha256": "a4db4893d0ea2d4a69a885c1956f4447e38aac0ada1f7437db240214e968562a"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Projections/ProjectionFreshnessReasonCode.cs",
+      "sha256": "6ba56b20b607cb3d7d22a8cd58a0d419fd323f7a5eeda96d868058fe01c380bc"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Projections/ProjectionFreshnessV1.cs",
+      "sha256": "85e37a381b3e0c33c9a9728c3980fe4a9fafc787ecd9014d214bae90bd9ac168"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationAdvisoryMetadataResult.cs",
+      "sha256": "4a99ca943776b782fd40385d483351a756367a27a97f4701d7dfe8e549286760"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationAuditRecordDetailsV1.cs",
+      "sha256": "a1f278bedc6c358bb227bd9fe5acc4def514431a26f4882a9dff0b4088949d8b"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationAuditRecordResult.cs",
+      "sha256": "c2b44de6170d554b1100f8d703305bee8117d67f34acb059676379943a1b5d05"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationCitationResult.cs",
+      "sha256": "f3382ef899d212c83f39eb20baa015ff5b8809e5be03fb44e67b7af885dcc58f"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationCitationTargetV1.cs",
+      "sha256": "20b80f09d9a67bbc2a0cef19958e3fbe2fe7527cd3cd4de79e6eb131eca7e643"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationCitationV1.cs",
+      "sha256": "416baee1707909382ad0ecdc1a136f8d98dff73f2a9851f73ba5f3cf56ed9a64"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationCommandAvailabilityV1.cs",
+      "sha256": "aea413f54f84fc18c01d301e0f912a03e48c581f1645467307bbcb1a57b1e29d"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationDetailResult.cs",
+      "sha256": "3b246c2b9d3807d48d0d460a1acda2ecc561fb584e14f1faaf7053fd7229e799"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationDetailsV1.cs",
+      "sha256": "38d76c2b26eb927d0563547d2aa10e57d3a953a606d1e3761b70fee1f2937d97"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationEvidenceEntryV1.cs",
+      "sha256": "b9c6937fe47a853f4cf308458cbb384eab98139b501ce4d24d58c64e5465b260"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationEvidenceTrustPostureV1.cs",
+      "sha256": "e0e100f3288703d6f68fcfb5b4f98e46d1fff7ee4c2e0ed41d598b6e2e5a0ec9"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationListFilterV1.cs",
+      "sha256": "4473d20a1d8b559a19e48b701daece80aa590ec02553a09edb9dd6c53de4fb49"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationListResult.cs",
+      "sha256": "f0fba43df8ff99a27d48d9c63428bd7ef25aa68a17bfd9d4774b57695fe45fb0"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationPageMetadata.cs",
+      "sha256": "53057fc350a6b6f9cf33540f7a3ad4652962addbcd4038ac3b0598fd458587bb"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationPageRequest.cs",
+      "sha256": "84c8f48f24ad3e9965fb486b444233e6e6bc78a693a85b136c6046827c1a68ec"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationProviderCorrelationV1.cs",
+      "sha256": "038ea3d7ea6a33421930e967f5cbd905d0a1487c4f818f19955d1cde6d9efa81"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationRedactionAttributionV1.cs",
+      "sha256": "30cc0b334a0151a299de84b7c3cf47bbbeebf31285d5b99089b41fec9ae04101"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationResolutionMetadataResultV1.cs",
+      "sha256": "d918916abfb3cfc61e83a9271df658d3dd564372856ade4c8df3eb7fe368e45e"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationResolutionMetadataV1.cs",
+      "sha256": "ee03cfd31c165ed43fe19ea86ddc0ac392ddf761c4e282ed42232081cf3e048b"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationResolutionScoringLabel.cs",
+      "sha256": "8742ce4ffc892ce8eaee0751f77cec2d7939b9c784655abedb99e1b40326f2f4"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationSearchTrustPreviewV1.cs",
+      "sha256": "1c36ea4f3f39eff8966207fc5d67d020edd2ead761aa436dec872524a014ba7a"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationSearchVocabularies.cs",
+      "sha256": "a1cdc0a8fc651a9315bcf24e8f5164360e9d57ba6121540536cf7a4a476df07a"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationSummaryV1.cs",
+      "sha256": "60e7ad79013ee05dca9a5aecaa0d72857bb2a6a2b4753bcc675aa4752996cb4c"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationTemporalAnchorV1.cs",
+      "sha256": "aa72452e8b0f6bf64a01ff3e76c0d74a36d20c5985beea34ecb12f21d37fa830"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationTemporalConfidenceV1.cs",
+      "sha256": "9da4270d8dcc74d347b0f083a8044ff4fe11c8c7264607425b60d9d9f9640855"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationTemporalDetailResult.cs",
+      "sha256": "07dc7601aca74b2d751dba87bbb11a313d8fef9b76a9f661fc7d3c6d6258f221"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ConversationTemporalDetailsV1.cs",
+      "sha256": "33ed049575efbd1fd43d84ee8ac12aecb83622a77075d6c3df807241bcd677af"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/FileReferenceHydrationV1.cs",
+      "sha256": "4bb76136bdba7a2bac6792008fb1c18b37f719a9c91bdcf2ed555a1053606fc0"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/FolderReferenceHydrationV1.cs",
+      "sha256": "1653cf3093619a62608f0be4792267112d74bd919191989898b825dda37c8506"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/GetConversationAdvisoryMetadataQuery.cs",
+      "sha256": "13e321de92a4dcaed55e91663e7bd4763da2bb8f9611293966264cfc5916edae"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/GetConversationAtPointInTimeQuery.cs",
+      "sha256": "bb2e55e6c6e30b143521a7d34ab1e46387b0b00631df9fe4b0a1119993620aec"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/GetConversationAuditRecordQuery.cs",
+      "sha256": "56f575cc9df67752141298b55d2c4954e5117609237842ea5276d00102461fee"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/GetConversationCitationQuery.cs",
+      "sha256": "97a6bd6f352d251da2f1b091b04edd097554c8c87205bb43f0956cfad64b8334"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/GetConversationQuery.cs",
+      "sha256": "00d3cb1001caaf49fb6631ff8d73f7084d3cb82731a26ef8942e8e2f4fa11458"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/GetConversationResolutionMetadataQuery.cs",
+      "sha256": "62fccfc71fd7b5108ed54d4a1f45bb89e4c04acb8ec07c32348c74da7a9ad2b8"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/GetPrivilegedOperationalJustificationQuery.cs",
+      "sha256": "4068baebcabdd149e4632cbc9c4e803e184edae2b8029f995451483b2c449e4c"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/HydrationContractValidation.cs",
+      "sha256": "fe62d42ce788862adc7ae19f09cfa28a6538371326bef1e3e2df76165c11e64b"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ListConversationsQuery.cs",
+      "sha256": "aa4f68a5cb4ae44ee47c0e608eae23b27e6d432efa27112b0f3be40f674ccd8c"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/PartyReferenceHydrationV1.cs",
+      "sha256": "24347412839ccb7a235dd5ebc76e4167b16f6ae0c4cdf0de12434a9f5ddab9ad"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/PrivilegedOperationalJustificationDetailsV1.cs",
+      "sha256": "19c4f790753f27db07ac1101c2fbad08d94d15caf25284536dc724af118cd2a5"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/PrivilegedOperationalJustificationResult.cs",
+      "sha256": "64e84e1e49d764767ad2e3a392742eaa19eb6b2632ebcbcedde0b5cfaec5f03b"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ProjectReferenceHydrationV1.cs",
+      "sha256": "9b67c7d7ab63583ed0d00de354533c195ea18d96259c6e16f91a9ba02522b7d2"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Results/ConversationCommandAcceptedResult.cs",
+      "sha256": "cc3484d50b54a451ba8d11d256748492ce8e26452f87de9a716f773d3d720648"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Results/ConversationCommandType.cs",
+      "sha256": "236fa168cc1d1d28f4351a436e68287daa546ec9722f345dc6136e4554a57e33"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Results/ConversationCreatedResult.cs",
+      "sha256": "b336e32d639f697acb3b8366fdb47011a8f338d04d60c9beb0b3615e4a6099b6"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Results/ReadModelVisibility.cs",
+      "sha256": "aaf581c5821cbd0169c711373baa72d279445e6e43aeed95326797b0664e896a"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Serialization/ClosedVocabularyJsonConverters.cs",
+      "sha256": "6fbd020606c0d2044fa2f91285de750dace6ac3c48498c3a15e6dde693b003d0"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Serialization/ConversationIntValueJsonConverter.cs",
+      "sha256": "02f53d33ef8cf84c5787d7ccba2a9402628c20dc244d8df8e276e61676979bcf"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Serialization/ConversationStringValueJsonConverter.cs",
+      "sha256": "208a5c3c81cfdca3c4d0cf063b62b5442f769dda256cc02bd88d0b4e277f3096"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Serialization/ConversationsJsonContext.cs",
+      "sha256": "06c29b0f50f3017b25d3a40855b7eab2fe7d482a358a3f75cbf0e07c6c81ae82"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Serialization/IdentifierJsonConverters.cs",
+      "sha256": "22135c8cf65aecd888d14425dd9b0618f9435c1c4a88c7da3c83d65fab739018"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Serialization/PrefixedIdentifierJsonConverter.cs",
+      "sha256": "705e7c1518ea28d960c28afef48d8c705a821154a750ba792f5be4f09a709cc9"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Serialization/ProjectionFreshnessReasonCodeJsonConverter.cs",
+      "sha256": "9c5d1ec2aed9ef4baf202c7ee992edf58b0f19af0d199d7083090f54d69e08a9"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Serialization/ProjectionTrustStateJsonConverter.cs",
+      "sha256": "0460842cecde338ddfbdd80058f5c239c9177487ea8e7bcf7d0df69dd2e67909"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Serialization/SchemaVersionJsonConverter.cs",
+      "sha256": "9ec9862a857ae0caad39eedd2a74b166514dd83b2d82f93feaf588313cc31742"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/TrustStates/ProjectionTrustState.cs",
+      "sha256": "6db8d478899726ca39827aedbddf34a9fd7c05a825fc61734180437de189e14d"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Versioning/ContractCompatibilityMetadata.cs",
+      "sha256": "61ddd38ff39d6aebe6b46bcb3aa04fa8dd500b1d2e598c9b905dbaa4d324d1fe"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Versioning/ContractVersionInfo.cs",
+      "sha256": "ea70a03503408d3b5c116ba45bf892da967ed5a161de0d75d4b8a35ff07e85c6"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Versioning/SchemaVersion.cs",
+      "sha256": "15dfcaadd4c03e78d80b37ee0437a0d075816175e03cd44d8a0b48d02f10b995"
+    }
+  ],
+  "assemblySourceRevision": "ed53473ea4c67aa10ffc46c9b951d9864fe263d4",
+  "currentHead": "8039d2abcf41bcd2c01fa3dbe618cbec2f4f6da3",
+  "sourceEquivalence": {
+    "argv": [
+      "git",
+      "diff",
+      "--name-only",
+      "ed53473ea4c67aa10ffc46c9b951d9864fe263d4",
+      "HEAD",
+      "--",
+      "src/Hexalith.Conversations.Contracts",
+      "Directory.Build.props",
+      "Directory.Build.targets",
+      "Directory.Packages.props"
+    ],
+    "exitCode": 0,
+    "stdout": "",
+    "contractsAndRootBuildInputsUnchanged": true
+  },
+  "goldensSha256": "f08bbd0ce5205a282c8cb2bfbfeac76046ee73494c41a80c527a1c191552fe93",
+  "additionalExperiment": {
+    "command": [
+      "dotnet",
+      "run",
+      "--project",
+      "/tmp/epic16-contract-goldens-r4",
+      "--configuration",
+      "Debug"
+    ],
+    "exitCode": 0,
+    "sourceSha256": "9503ab6b9e8338a2470823384a3b5cda7c332a205e6b921f2ba5506c27fa8a50",
+    "outputSha256": "676a3c9f14d56a27d3671f6804f6648da7fe41d9b20776c69ccec071dd5afa38",
+    "retainedAdditionalEvents": [
+      "ConversationClosed:null",
+      "ConversationClosed:completed",
+      "ConversationArchived:null",
+      "ConversationArchived:archived",
+      "MessageContentRedacted"
+    ]
+  }
+}
