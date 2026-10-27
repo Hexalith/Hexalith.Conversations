@@ -579,26 +579,64 @@ class ReleaseToolingTests(unittest.TestCase):
             publish_arguments = capture.read_text(encoding="utf-8").strip()
             self.assertTrue(publish_arguments.startswith("scripts/verify-release-state.py publishable 1.1.0 "))
 
-    def test_msbuild_dependency_mode_matrix_is_evaluated(self) -> None:
-        project = ROOT / "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj"
-        cases = (("Debug", "false", "true"), ("Release", "false", "false"), ("Debug", "true", "false"))
-        for configuration, ci, expected in cases:
-            result = subprocess.run(
-                [
-                    "dotnet",
-                    "msbuild",
-                    str(project),
-                    "-nologo",
-                    f"-p:Configuration={configuration}",
-                    f"-p:CI={ci}",
-                    "-getProperty:UseHexalithProjectReferences",
-                ],
-                cwd=ROOT,
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-            self.assertEqual(expected, result.stdout.strip(), f"Configuration={configuration}, CI={ci}")
+    def test_unmapped_build_refuses_every_ambient_configuration(self) -> None:
+        # Use the real consumer XML with an inert catalog bootstrap so absent nested
+        # checkouts cannot hide the consumer's explicit missing-mapping diagnostic.
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for name in ("Directory.Build.props", "Directory.Packages.props", "global.json"):
+                (root / name).write_bytes((ROOT / name).read_bytes())
+            catalog = root / "references/Hexalith.Builds/Props/Directory.Packages.props"
+            catalog.parent.mkdir(parents=True)
+            catalog.write_text("<Project />", encoding="utf-8")
+            project = root / "Hexalith.Conversations.Contracts.csproj"
+            project.write_bytes((ROOT / "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj").read_bytes())
+            for configuration, ci in (("Debug", "false"), ("Release", "false"), ("Debug", "true")):
+                result = subprocess.run(
+                    ["dotnet", "msbuild", str(project), "-nologo", "-target:PrepareForBuild",
+                     f"-p:Configuration={configuration}", f"-p:CI={ci}"],
+                    cwd=root,
+                    env=validate_consumer_packages.isolated_consumer_environment(os.environ.copy()),
+                    check=False, capture_output=True, text=True,
+                )
+                self.assertNotEqual(0, result.returncode)
+                self.assertIn("requires the Platform tool-selected source mapping", result.stdout + result.stderr)
+        # Actual source/Debug and package/Release graph evaluations are exercised by
+        # PlatformEnrollmentMappingTest.EvaluatedReferencesUseOnlyMappedIdentities.
+
+    def test_pack_inherits_producer_mapping_without_overriding_selection(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary)
+            with mock.patch.object(sys, "argv", ["pack-release-packages.py", str(output), "1.2.3"]), \
+                 mock.patch.object(pack_release_packages, "prepare_output_directory", return_value=output), \
+                 mock.patch.object(pack_release_packages.subprocess, "run") as run:
+                self.assertEqual(0, pack_release_packages.main())
+            self.assertEqual(4, run.call_count)
+            for call in run.call_args_list:
+                arguments = call.args[0]
+                self.assertIn("-p:Version=1.2.3", arguments)
+                self.assertEqual("Release", arguments[arguments.index("--configuration") + 1])
+                self.assertFalse(any("UseHexalithProjectReferences" in argument for argument in arguments))
+                self.assertNotIn("env", call.kwargs)
+
+    def test_standalone_consumers_remove_parent_mapping_imports(self) -> None:
+        parent = {key: "parent-owned" for key in (
+            "CustomBeforeDirectoryBuildProps", "CustomAfterMicrosoftCommonProps",
+            "CustomBeforeDirectoryBuildTargets", "CustomAfterDirectoryBuildTargets",
+            "AfterMicrosoftNETSdkTargets", "HEXALITH_SOURCE_MAPPING_HASH", "Configuration")}
+        parent.update(PATH="/bin", NUGET_PACKAGES="cache", customaftermicrosoftcommonprops="case-insensitive")
+        isolated = validate_consumer_packages.isolated_consumer_environment(parent)
+        self.assertEqual({"PATH": "/bin", "NUGET_PACKAGES": "cache"}, isolated)
+        self.assertEqual("parent-owned", parent["Configuration"])
+        with tempfile.TemporaryDirectory() as temporary:
+            project = validate_consumer_packages.write_public_consumer(Path(temporary), "1.0.0")
+            with mock.patch.object(validate_consumer_packages, "run_dotnet") as run:
+                validate_consumer_packages.validate_consumer(project, Path(temporary) / "NuGet.Config", isolated, False)
+            self.assertEqual(3, run.call_count)
+            self.assertIn("-p:Configuration=Release", run.call_args_list[0].args[0])
+            self.assertEqual("Release", run.call_args_list[1].args[0][4])
+            for call in run.call_args_list:
+                self.assertEqual(isolated, call.args[2])
 
     def test_workflows_pin_bypass_and_freeze_contract(self) -> None:
         release = (ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
@@ -654,6 +692,12 @@ class ReleaseToolingTests(unittest.TestCase):
     def test_ci_and_security_automation_cover_release_boundary(self) -> None:
         ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
         tooling_job = ci.split("  tooling:", maxsplit=1)[1]
+        windows_job = ci.split("\n  testsupport-windows:\n", maxsplit=1)[1].split("\n  repository:\n", maxsplit=1)[0]
+        windows_checkout = windows_job.split("      - name: Check out source\n", maxsplit=1)[1].split("\n      - ", maxsplit=1)[0]
+        self.assertLess(windows_job.index("git config --global core.longpaths true"), windows_job.index("      - name: Check out source\n"))
+        self.assertIn("uses: actions/checkout@", windows_checkout)
+        self.assertIn("          fetch-depth: 0\n", windows_checkout)
+        self.assertNotIn("sparse-checkout", windows_checkout)
         self.assertIn("domain-ci.yml@main", ci)
         self.assertIn("run-consumer-validation: true", ci)
         unit_projects = ci.split("      unit-test-projects: |", maxsplit=1)[1].split("      integration-test-projects:", maxsplit=1)[0]

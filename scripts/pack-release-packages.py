@@ -45,7 +45,6 @@ def main() -> int:
                 "--output",
                 str(output_directory),
                 f"-p:Version={version}",
-                "-p:UseHexalithProjectReferences=false",
                 "/m:1",
                 "/nr:false",
             ],

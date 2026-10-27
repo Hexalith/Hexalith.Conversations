@@ -204,9 +204,6 @@ public sealed class PlatformEnrollmentMappingTest
     /// <summary>Packs the actual Contracts inventory in mapped Debug source mode.</summary>
     internal static string PackSourceInventory(string repositoryRoot, string packageOutput)
     {
-        string MappedRoot(string identity) => typeof(PlatformEnrollmentMappingTest).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
-            .Single(attribute => attribute.Key == "Enrolled" + identity + "Root").Value
-            ?? throw new InvalidOperationException("The test build did not retain its selected mapping.");
         string workspace = Path.Combine(packageOutput, "mapping");
         string commons = MappedRoot("Commons");
         SourceMapping mapping = new(WorkspaceMode.Source, repositoryRoot, "Hexalith.Conversations",
@@ -223,6 +220,10 @@ public sealed class PlatformEnrollmentMappingTest
         pack.ExitCode.ShouldBe(0, pack.Output + pack.ErrorOutput);
         return version.Output.Trim();
     }
+
+    private static string MappedRoot(string identity) => typeof(PlatformEnrollmentMappingTest).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
+        .Single(attribute => attribute.Key == "Enrolled" + identity + "Root").Value
+        ?? throw new InvalidOperationException("The test build did not retain its selected mapping.");
 
     private static string[] Items(JsonDocument output, string name)
         => output.RootElement.GetProperty("Items").GetProperty(name).EnumerateArray().Select(item => item.GetProperty("Identity").GetString()!).ToArray();
@@ -264,7 +265,7 @@ public sealed class PlatformEnrollmentMappingTest
 
             string props = Path.Combine(root, layout, "Hexalith.Builds", "Props", "Directory.Packages.props");
             Directory.CreateDirectory(Path.GetDirectoryName(props)!);
-            File.Copy(Path.Combine(repository, "references", "Hexalith.Builds", "Props", "Directory.Packages.props"), props);
+            File.Copy(Path.Combine(MappedRoot("Builds"), "Props", "Directory.Packages.props"), props);
         }
 
         return root;

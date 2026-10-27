@@ -117,6 +117,11 @@ jobs:
         with:
           global-json-file: global.json
 
+      - name: Prepare package build imports
+        uses: ./references/Hexalith.Builds/Github/prepare-module-build
+        with:
+          manifest: module/hexalith.module-manifest.v2.json
+
       - name: Set up supported Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:

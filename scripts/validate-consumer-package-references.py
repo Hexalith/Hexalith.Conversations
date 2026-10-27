@@ -177,6 +177,18 @@ def assert_package_only(project: Path) -> None:
         raise ValueError(f"temporary consumer contains a source reference: {project}")
 
 
+MAPPING_ENVIRONMENT = {
+    "custombeforedirectorybuildprops", "customaftermicrosoftcommonprops",
+    "custombeforedirectorybuildtargets", "customafterdirectorybuildtargets",
+    "aftermicrosoftnetsdktargets", "hexalith_source_mapping_hash", "configuration",
+}
+
+
+def isolated_consumer_environment(parent: dict[str, str]) -> dict[str, str]:
+    """Keep standalone package consumers independent of the caller's generated imports."""
+    return {name: value for name, value in parent.items() if name.lower() not in MAPPING_ENVIRONMENT}
+
+
 def run_dotnet(arguments: list[str], working_directory: Path, environment: dict[str, str]) -> None:
     subprocess.run(["dotnet", *arguments], cwd=working_directory, env=environment, check=True)
 
@@ -187,6 +199,7 @@ def validate_consumer(project: Path, config: Path, environment: dict[str, str], 
         [
             "restore",
             str(project),
+            "-p:Configuration=Release",
             "--configfile",
             str(config),
             "-p:NuGetAudit=true",
@@ -229,7 +242,7 @@ def main() -> int:
 
     try:
         config = write_nuget_config(work_directory, package_directory)
-        environment = os.environ.copy()
+        environment = isolated_consumer_environment(os.environ.copy())
         environment["DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER"] = "1"
         environment["MSBUILDDISABLENODEREUSE"] = "1"
         environment["NUGET_PACKAGES"] = str(work_directory / ".nuget" / "packages")

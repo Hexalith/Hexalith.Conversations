@@ -18,6 +18,7 @@ jobs:
     uses: Hexalith/Hexalith.Builds/.github/workflows/domain-ci.yml@main
     with:
       solution: Hexalith.Conversations.slnx
+      module-manifest: module/hexalith.module-manifest.v2.json
       build-timeout-minutes: 30
       test-platform: microsoft-testing-platform
       run-consumer-validation: true
@@ -46,8 +47,8 @@ jobs:
           persist-credentials: false
           submodules: false
 
-      - name: Initialize only the pinned root platform and build dependencies
-        run: git submodule update --init -- references/Hexalith.Builds references/Hexalith.EventStore
+      - name: Initialize only the direct pinned Builds catalog
+        run: git -c submodule.recurse=false submodule update --init --checkout -- references/Hexalith.Builds
 
       - name: Initialize .NET
         uses: actions/setup-dotnet@v6.0.0
@@ -60,7 +61,7 @@ jobs:
           python-version: '3.11'
 
       - name: Test missing and unsuccessful result detection
-        run: python3 -m unittest discover -s tests/tooling -p 'test_minimal_module_compatibility_results.py'
+        run: python3 -m unittest discover -s tests/tooling -p 'test_minimal_module_compatibility_*.py'
 
       - name: Locked restore and build the platform-backed fixture
         shell: bash
@@ -71,9 +72,11 @@ jobs:
           compatibility="$PWD/tests/compatibility/MinimalModule/RegisteredCommand.targets"
           dotnet restore "$fixture" --locked-mode -p:Configuration=Release \
             "-p:CustomAfterMicrosoftCommonTargets=$compatibility" \
+            -p:MinimalModuleCompatibilityMode=package -p:MinimalModuleCompatibilityUseSuccessorLocks=true \
             2>&1 | tee TestResults/minimal-module/restore.log
           dotnet build "$fixture" --configuration Release --no-restore \
             "-p:CustomAfterMicrosoftCommonTargets=$compatibility" \
+            -p:MinimalModuleCompatibilityMode=package -p:MinimalModuleCompatibilityUseSuccessorLocks=true \
             2>&1 | tee TestResults/minimal-module/build.log
 
       - name: Run all six fixture tests and the registered-command assertion without skips
@@ -99,6 +102,9 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 15
     steps:
+      - name: Enable long paths before source checkout
+        run: git config --global core.longpaths true
+
       - name: Check out source
         uses: actions/checkout@v7
         with:
@@ -106,15 +112,18 @@ jobs:
           persist-credentials: false
           submodules: false
 
-      - name: Initialize root-declared build dependency
-        run: |
-          git config --global core.longpaths true
-          git submodule update --init -- references/Hexalith.Builds
+      - name: Initialize root-declared build identity dependencies
+        run: git submodule update --init -- references/Hexalith.Builds references/Hexalith.Platform
 
       - name: Initialize .NET
         uses: actions/setup-dotnet@v6.0.0
         with:
           global-json-file: global.json
+
+      - name: Prepare package build imports
+        uses: ./references/Hexalith.Builds/Github/prepare-module-build
+        with:
+          manifest: module/hexalith.module-manifest.v2.json
 
       - name: Set up Python for the process fixture
         uses: actions/setup-python@v7.0.0
@@ -181,6 +190,11 @@ jobs:
         with:
           global-json-file: global.json
 
+      - name: Prepare package build imports
+        uses: ./references/Hexalith.Builds/Github/prepare-module-build
+        with:
+          manifest: module/hexalith.module-manifest.v2.json
+
       - name: Build tests and install Playwright Chromium
         shell: pwsh
         run: ./tests/install-playwright.ps1 -Configuration Release
@@ -222,6 +236,11 @@ jobs:
         uses: actions/setup-dotnet@v6.0.0
         with:
           global-json-file: global.json
+
+      - name: Prepare package build imports
+        uses: ./references/Hexalith.Builds/Github/prepare-module-build
+        with:
+          manifest: module/hexalith.module-manifest.v2.json
 
       - name: Build portable conformance project
         run: >-
@@ -304,6 +323,11 @@ jobs:
         uses: actions/setup-dotnet@v6.0.0
         with:
           global-json-file: global.json
+
+      - name: Prepare package build imports
+        uses: ./references/Hexalith.Builds/Github/prepare-module-build
+        with:
+          manifest: module/hexalith.module-manifest.v2.json
 
       - name: Set up Python for tooling tests
         uses: actions/setup-python@v7.0.0
