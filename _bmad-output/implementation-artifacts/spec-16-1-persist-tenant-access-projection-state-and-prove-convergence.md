@@ -22,6 +22,8 @@ context:
 
 **2026-10-27 decision:** Prepare a separate enrollment/adoption-remediation plan. This selects prerequisite planning; runtime entry remains held.
 
+**2026-10-27 follow-up decision:** The user selected option 1: prepare a separate tooling-qualification and source-binding-refresh plan. This authorizes planning only; runtime entry remains held.
+
 ## Boundaries & Constraints
 
 **Always:** Enforce architecture AD-5/AD-6. EventStore owns identity, CAS, retry, replay, fenced recovery and acknowledgements; Tenants owns transitions/checkpoints. Conversations evaluates one state/health/checkpoint snapshot per invocation. Only proven healthy state authorizes. Preserve compatibility and historical evidence.
@@ -45,16 +47,17 @@ context:
 
 ## Code Map
 
-[Current investigation](story-16-1-entry-investigation-2026-10-26.md): exact seams, commands and owner gates. Tenants lacks durable snapshots; Conversations separates state/health. Successor tooling exists, entry null/trust empty. Isolated CLI 4.38.0 remains unqualified for enrollment; accepted pins are 4.35.2.
+[Current investigation](story-16-1-entry-investigation-2026-10-27.md): owner seams, exact commands and remaining gates. Enrollment source remediation and producer CI preparation are implemented. Accepted CLI 4.35.2 lacks `prepare-build`. Six story commands now FAIL on bound `.gitattributes` drift. Entry remains null, trust empty.
+
+The selected [separate prerequisite draft](spec-epic-16-tooling-qualification-and-binding-refresh.md) contains the next scope; its implementation is not approved.
 
 ## Tasks & Acceptance
 
 **Prerequisites; runtime remains held:**
 
-- [x] `module/`, planning `epic-16-adoption-v2/` — retain preparation.
-- [x] `module/validation/epic-16-prerequisite-implementation/qualification.json` — retain bounded 4.38.0 observations.
-- [x] `_bmad/scripts/generate_story_record.py`, `verify_story_16_{1,2,3}.py`, planning `epic-16-tooling-v1/` — successor consumption/fifteen scenarios implemented under the done prerequisite spec.
-- [ ] Platform/root `.config/dotnet-tools.json`, build/Dapr mappings — separately scope adoption remediation and qualify release/source pairing before alignment.
+- [x] `module/`, planning `epic-16-adoption-v2/`, successor tooling — retain completed preparation and enrollment source remediation.
+- [ ] Platform/root `.config/dotnet-tools.json`, producer preparation — separately qualify a compatible published release/source/catalog tuple before alignment; resolve ten excluded adoption failures.
+- [ ] Planning `epic-16-tooling-v1/` — separately scope additive source-binding refresh; preserve accepted predecessors and the current drift failure.
 - [ ] Planning `production-operational-envelope-v1.md`, `module/sm-2-checklist.md` — obtain parity, recovery/operator, capacity disposition, human SM-2 and trusted owner entry.
 
 **After qualified entry; upstream paths belong to their root-declared repositories:**
@@ -80,16 +83,20 @@ context:
 
 2026-10-27: the user selected the separate remediation-planning route. See [the new draft](spec-epic-16-enrollment-adoption-remediation.md); implementation and runtime entry remain unapproved.
 
+2026-10-27 later investigation: the separate remediation is now done; producer preparation is present. Fresh commands fail source binding before entry. Runtime remains held.
+
 ## Spec Change Log
 
 2026-10-25: refreshed investigation; frozen intent unchanged. History remains in `spec-epic-16-adoption-v2-preparation.md`.
 
 2026-10-26: replaced stale tooling tasks with completed prerequisite facts and remaining entry work; preserved frozen intent verbatim.
 
+2026-10-27: reconciled committed remediation/CI changes and measured drift; preserved frozen intent and draft/backlog.
+
 ## Review Triage Log
 
 ## Verification
 
-[Current commands/results](story-16-1-entry-investigation-2026-10-26.md#verification): six story commands BLOCKED/exit 2; accepted CLI adoption exit 1, six PASS/24 FAIL; historical v2 checker FAIL/four source mismatches. Runtime publication not-applicable; prior tests not rerun.
+[Current commands/results](story-16-1-entry-investigation-2026-10-27.md#verification): six story commands FAIL/exit 1/SOURCE_DRIFT; accepted CLI adoption exit 1, six PASS/ten FAIL; `prepare-build` exit 1/HXC001. Runtime publication not-applicable; prior native test results were not rerun.
 
 After entry: individual Debug builds, focused xUnit, affected suites and six successor contract commands; no missing runtime result may pass.

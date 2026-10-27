@@ -1,0 +1,16 @@
+Description:
+  Runs supported Hexalith module qualifications.
+
+Usage:
+  Hexalith.Builds.Module.Cli [command] [options]
+
+Options:
+  -?, -h, --help  Show help and usage information
+  --version       Show version information
+
+Commands:
+  run       Starts a supported module runtime.
+  debug     Starts the active module and root-declared dependencies from source in Debug and reports launcher process ids.
+  down      Tears down runner-owned module resources.
+  test      Runs a named module qualification profile.
+  validate  Validates local Platform module declarations without starting resources.

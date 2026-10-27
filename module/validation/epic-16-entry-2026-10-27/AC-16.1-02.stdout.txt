@@ -1,0 +1,34 @@
+{
+  "assertionLedger": [
+    {
+      "id": "SOURCE_DRIFT",
+      "state": "FAIL",
+      "subject": ".gitattributes"
+    }
+  ],
+  "authority": {
+    "executionAllowed": false,
+    "implementationHold": "ACTIVE",
+    "ownerApprovalClaimed": false,
+    "pushAuthorized": false,
+    "releaseAuthorized": false
+  },
+  "bindings": {},
+  "blockers": [
+    "SOURCE_DRIFT"
+  ],
+  "candidate": null,
+  "counts": {
+    "failed": 0,
+    "passed": 0,
+    "skipped": 0,
+    "total": 0
+  },
+  "exitCode": 1,
+  "result": "FAIL",
+  "runtimeQualified": false,
+  "scenarioId": "AC-16.1-02",
+  "schemaVersion": "hexalith.conversations.epic16-measured-result.v1",
+  "storyId": "16.1",
+  "validationScope": "runtime"
+}

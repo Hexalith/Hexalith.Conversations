@@ -8,6 +8,15 @@ The Epic 16 hold remains ACTIVE; Story 16.1 stays draft/backlog, entry null and
 trust empty. Source corrections confer no owner acceptance, live qualification,
 deployment, host retirement, release or push authority.
 
+Current entry investigation at `26298b31eb4d362f88e008246ac3acb160128330` is
+recorded in [the 2026-10-27 report](../_bmad-output/implementation-artifacts/story-16-1-entry-investigation-2026-10-27.md).
+Both native adoption formats still fail with six PASS and ten FAIL rows.
+All six Story 16.1 commands now fail `SOURCE_DRIFT` on `.gitattributes` before
+entry evaluation; the earlier BLOCKED observations below remain historical.
+CI preparation exists, but accepted CLI 4.35.2 rejects its `prepare-build`
+command with HXC001. Source implementation does not establish accepted-artifact
+qualification or successful CI execution.
+
 Fresh observations are retained in
 [the remediation validation directory](validation/epic-16-enrollment-remediation-2026-10-27/).
 The native scanner reads tracked sources from the working checkout at baseline
@@ -36,7 +45,9 @@ additions; it does not change native scanner coverage or claim tracked-candidate
 qualification. The later [attribute-placement correction](validation/epic-16-enrollment-remediation-2026-10-27/review-fix-2/README.md)
 restores the accepted root attributes bytes and scopes raw-byte protection inside
 the observation directory; no root-binding refresh is required for that rule.
-Current parent verification remains pending.
+The completed parent source-slice verification is recorded in the
+[remediation spec](../_bmad-output/implementation-artifacts/spec-epic-16-enrollment-adoption-remediation.md#verification).
+Those retained test results are not new executions against the later candidate.
 
 ## Mapped validation workflow
 
@@ -44,7 +55,9 @@ Current parent verification remains pending.
    mode and materialize its mapping with Builds'
    `SourceMappingMaterializer.WriteAsync`. It must pass the complete generated
    `SourceMappingMaterializer.Environment` to every restore/build/test child.
-   `validate` does not resolve mappings, and no public map-only CLI is available.
+   `validate` does not resolve mappings. Current Builds source implements the
+   runtime-free `prepare-build` CLI, but accepted 4.35.2 lacks it; using the
+   public command requires a separately qualified published successor.
    Do not set dependency roots/modes by hand or probe sibling layouts.
 2. In source mode, build the affected test projects individually in Debug under
    that environment, then invoke their built native xUnit assemblies with
@@ -56,14 +69,15 @@ Current parent verification remains pending.
 3. Keep package/Release and deployed acceptance separate, with exact tool,
    mapping/catalog, source/package/image and provider identities. The pending
    [Platform handoff](platform-handoff.md) lists those owner gates.
-4. The current root `.github/workflows/ci.yml` and the selected Builds
-   `.github/workflows/domain-ci.yml` still invoke plain restore/build without
-   generated mapping imports. Their initialization action only initializes root
-   dependencies; it does not materialize a mapping. Those CI invocations will
-   fail the mandatory mapping gate until owners implement and qualify the
-   producer mapping path. This slice changes no workflow/upstream source and
-   does not weaken the gate. Standalone package/property evaluation is source
-   evidence, not a successful CI build.
+4. Current root `.github/workflows/ci.yml` and Builds
+   `.github/workflows/domain-ci.yml` invoke the producer's
+   `Github/prepare-module-build` action before affected restores/builds. That
+   action calls `prepare-build --mode package` and exports verified mapping
+   imports. Accepted 4.35.2 rejects this command; qualify the exact successor
+   artifact, accepted pin and Platform/catalog tuple before claiming CI
+   integration. Standalone package/property evaluation and source tests do not
+   prove a successful CI build. The earlier prerequisite slice did not change
+   workflows; subsequent commits added this preparation path.
 
 ## Declaration and runtime ownership
 
@@ -251,14 +265,18 @@ they do not make the package structurally inconsistent merely by being recorded.
    real active-checkout breakpoint and edit, direct-only dependency checks,
    readiness, stop/cleanup and Story 3.11 owner acceptance. It remains unverified.
 4. The Epic 16 successor schema, generator and measured scenario verifiers exist;
-   the six Story 16.1 contract commands currently return BLOCKED with
-   ENTRY_QUALIFICATION_PENDING. Runtime execution and publication require the
+   the earlier six Story 16.1 observations returned BLOCKED with
+   ENTRY_QUALIFICATION_PENDING. The current candidate instead fails SOURCE_DRIFT
+   on `.gitattributes`, before checking the still-null entry. Resolve source
+   binding through a separately scoped additive refresh. Runtime execution and publication require the
    separate trusted owner entry decision after prerequisites pass. Keep all
    eighteen scenarios, thirty-two requirements, graph edges and rollback/final-
    record obligations. The raw-byte rule now lives in the observation directory's
-   own `.gitattributes`; the accepted root attributes and tooling bindings remain
-   unchanged. The superseded review-fix-1 root-binding refresh note is retained
-   as historical observation, not current required work.
+   own `.gitattributes`; that remediation restored the accepted root bytes.
+   A later committed mapping-test attributes rule changed the bound root file.
+   The old review-fix-1 note remains historical; the current refresh requirement
+   follows the new measured drift and does not authorize overwriting accepted
+   bindings or removing the legitimate attributes rule.
 5. Keep both AppHosts in [hosting-inventory.json](hosting-inventory.json) frozen.
    The inventory names tracked consumers, including solution/test/CI and fixture
    tooling; immutable evidence also records these paths as historical references.

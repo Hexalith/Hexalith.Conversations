@@ -113,15 +113,23 @@ Contracts package inventory/metadata assertions remain active in package/Release
 no Release runtime or package parity is claimed by these tests. A published
 producer testing-helper strategy remains qualification work.
 
-**CI integration gate — pending:** the root `.github/workflows/ci.yml` direct
-TestSupport/Admin/conformance builds and its reused Builds `domain-ci.yml`
-restore/build steps currently supply no generated mapping imports. The selected
-Builds initialization action only initializes root dependencies; inspection found
-no mapping materialization or import environment in that workflow/action
-closure. The new mandatory mapping gate rejects those plain invocations. Owners
-must implement and qualify the producer CI mapping path before integration can
-be called green; no CI run or Release build is claimed here, and this slice does
-not modify the workflow/upstream source or introduce a package fallback.
+**CI integration gate — pending; source status reconciled 2026-10-27:** at
+`26298b31eb4d362f88e008246ac3acb160128330`, root `.github/workflows/ci.yml`
+and current Builds `domain-ci.yml` invoke `Github/prepare-module-build` before
+affected restores/builds. The producer action restores the exact accepted tool,
+calls `prepare-build --mode package`, and exports verified mapping imports.
+This source path was added after the prerequisite slice; it needs no duplicate
+implementation. Accepted root/Platform CLI 4.35.2 lacks that command, and a fresh
+invocation fails HXC001/exit 1. Owners must qualify a compatible published
+successor and exact Platform/catalog/tool pairing before accepting integration.
+No CI run, Release build, pin update or package fallback is claimed here.
+
+The [current entry investigation](../_bmad-output/implementation-artifacts/story-16-1-entry-investigation-2026-10-27.md)
+also records six actual Story 16.1 commands failing SOURCE_DRIFT/exit 1 on the
+later committed `.gitattributes` change. The prior BLOCKED observations remain
+unchanged; current failures precede the still-null entry check. An additive
+source-binding refresh needs separate scope. Accepted evidence, current bound
+sources, null entry, empty trust and runtime hold are preserved.
 
 Architect/Runtime and Release must resolve the draft operational envelope:
 local/CI/staging/production provider parity, backup/restore/rebuild and recovery
@@ -139,5 +147,6 @@ implementation and Story 16.1 lifecycle work remain outside this slice.
 - [ ] Operational envelope, provider/recovery/operator/capacity gates and scoped owner entry are accepted.
 
 Result: **pending**. Story 16.1 entry remains null, trust empty, draft/backlog and
-`ACTIVE` hold unchanged. All six held contract commands remain BLOCKED; no runtime
+`ACTIVE` hold unchanged. The latest six contract commands FAIL on source drift;
+earlier BLOCKED results remain historical. No runtime
 receipt/final pair or human acceptance is supplied by this source slice.
