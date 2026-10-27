@@ -20,6 +20,8 @@ context:
 
 **Decision:** Prepare prerequisites first; inherit Hexalith.Platform infrastructure and operational policy. On 2026-10-23 the user selected Platform enrollment and successor tooling preparation for review; runtime remains held. On 2026-10-25 the user approved additive prerequisite refresh with accepted CLI 4.35.2; runtime entry remains held. On 2026-10-25 the user authorized corrected CLI qualification and successor-tooling implementation under the separate prerequisite scope; runtime entry remains held.
 
+**2026-10-27 decision:** Prepare a separate enrollment/adoption-remediation plan. This selects prerequisite planning; runtime entry remains held.
+
 ## Boundaries & Constraints
 
 **Always:** Enforce architecture AD-5/AD-6. EventStore owns identity, CAS, retry, replay, fenced recovery and acknowledgements; Tenants owns transitions/checkpoints. Conversations evaluates one state/health/checkpoint snapshot per invocation. Only proven healthy state authorizes. Preserve compatibility and historical evidence.
@@ -43,23 +45,24 @@ context:
 
 ## Code Map
 
-The [entry investigation](story-16-1-entry-investigation-2026-10-25.md) records seams, tests and commands. Tenants lacks durable snapshots; Conversations separates state/health. Published CLI 4.38.0 fixes token validation; Platform accepts 4.35.2.
+[Current investigation](story-16-1-entry-investigation-2026-10-26.md): exact seams, commands and owner gates. Tenants lacks durable snapshots; Conversations separates state/health. Successor tooling exists, entry null/trust empty. Isolated CLI 4.38.0 remains unqualified for enrollment; accepted pins are 4.35.2.
 
 ## Tasks & Acceptance
 
-**Prerequisites; implementation authorized in [the prerequisite spec](spec-epic-16-prerequisite-implementation.md); runtime remains held:**
+**Prerequisites; runtime remains held:**
 
 - [x] `module/`, planning `epic-16-adoption-v2/` — retain preparation.
-- [ ] Platform/root `.config/dotnet-tools.json` — qualify a corrected CLI and address review findings before alignment; retain observations.
-- [ ] `_bmad/scripts/generate_story_record.py`, `_bmad/schemas/`, `_bmad/scripts/verify_story_16_{1,2,3}.py` — implement successor consumption and fifteen measured scenarios. Preserve eighteen ACs, completion guards and missing-measurement denial; use additive bindings.
-- [ ] Planning `production-operational-envelope-v1.md`, `module/sm-2-checklist.md` — resolve adoption findings and obtain owner-qualified parity, recovery/operator, human SM-2 evidence and separate scoped entry.
+- [x] `module/validation/epic-16-prerequisite-implementation/qualification.json` — retain bounded 4.38.0 observations.
+- [x] `_bmad/scripts/generate_story_record.py`, `verify_story_16_{1,2,3}.py`, planning `epic-16-tooling-v1/` — successor consumption/fifteen scenarios implemented under the done prerequisite spec.
+- [ ] Platform/root `.config/dotnet-tools.json`, build/Dapr mappings — separately scope adoption remediation and qualify release/source pairing before alignment.
+- [ ] Planning `production-operational-envelope-v1.md`, `module/sm-2-checklist.md` — obtain parity, recovery/operator, capacity disposition, human SM-2 and trusted owner entry.
 
 **After qualified entry; upstream paths belong to their root-declared repositories:**
 
-- [ ] EventStore Client `Subscriptions/`, `Projections/` — validate raw binding before deduplication; add atomic mutation, pending evidence, fenced recovery and durable acknowledgement.
-- [ ] Tenants Client `Projections/`, `Handlers/TenantProjectionEventHandler.cs`, `Registration/TenantServiceCollectionExtensions.cs` — add durable coherent snapshots and pure transitions, preserving signatures.
-- [ ] Conversations `Server/TenantAccess/ConversationTenantProjectionSnapshotAdapter.cs`, access/signal/registration — evaluate one persisted snapshot, deny unproven health and bind injected options. Retain Program.cs disclosure until proofs pass.
-- [ ] Owner Client tests and Conversations `Server.Tests/TenantAccess/`, `IntegrationTests/TenantAccess/` — cover the frozen matrix, reverse saves, three interleaved future deliveries, horizon extension, lease expiry/restart and provider exhaustion; assert persisted end-state/acknowledgements.
+- [ ] EventStore Client `Subscriptions/`, `Projections/` — raw binding before deduplication, atomic mutation, pending evidence, fenced recovery and durable acknowledgements.
+- [ ] Tenants Client `Projections/`, handler/registration — durable coherent snapshots and pure transitions; preserve signatures.
+- [ ] Conversations `Server/TenantAccess/ConversationTenantProjectionSnapshotAdapter.cs`, access/signal/registration — one persisted snapshot, fail-closed health and injected options. Retain Program.cs disclosure until proofs pass.
+- [ ] Owner Client tests, Conversations `Server.Tests/TenantAccess/`, new `IntegrationTests/Epic16/Story16_1EvidenceTests.cs` — frozen matrix/concurrency/recovery/provider faults, persisted end-state/acknowledgements and native loaded-product capture.
 
 **Acceptance Criteria:**
 
@@ -73,14 +76,20 @@ The [entry investigation](story-16-1-entry-investigation-2026-10-25.md) records 
 
 2026-10-23: three owner repositories plus enrollment/evidence affected; no runtime changes. Approved prerequisite preparation is tracked separately in `spec-epic-16-adoption-preparation.md`; this runtime story remains draft/backlog.
 
+2026-10-26: prerequisite implementation is done. Refreshed planning and retained ten command observations; no runtime implementation, dependency update or lifecycle transition. Entry route remains unresolved.
+
+2026-10-27: the user selected the separate remediation-planning route. See [the new draft](spec-epic-16-enrollment-adoption-remediation.md); implementation and runtime entry remain unapproved.
+
 ## Spec Change Log
 
 2026-10-25: refreshed investigation; frozen intent unchanged. History remains in `spec-epic-16-adoption-v2-preparation.md`.
+
+2026-10-26: replaced stale tooling tasks with completed prerequisite facts and remaining entry work; preserved frozen intent verbatim.
 
 ## Review Triage Log
 
 ## Verification
 
-[Exact current commands/results](story-16-1-entry-investigation-2026-10-25.md#verification): v2 verifier FAIL on three upstream source changes; accepted CLI adoption exit 1, six PASS/eighteen FAIL; 162 verifier tests pass. Entry remains BLOCKED. No runtime was started.
+[Current commands/results](story-16-1-entry-investigation-2026-10-26.md#verification): six story commands BLOCKED/exit 2; accepted CLI adoption exit 1, six PASS/24 FAIL; historical v2 checker FAIL/four source mismatches. Runtime publication not-applicable; prior tests not rerun.
 
-After entry: individual Debug builds, focused xUnit, affected suites and scoped verification.
+After entry: individual Debug builds, focused xUnit, affected suites and six successor contract commands; no missing runtime result may pass.

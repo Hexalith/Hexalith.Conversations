@@ -1,0 +1,354 @@
+{
+  "schemaVersion": "hexalith.conversations.epic16-adoption-check.v2",
+  "validationScope": "structural-consistency-only",
+  "result": "FAIL",
+  "entryReadiness": "BLOCKED",
+  "authority": {
+    "implementationHold": "ACTIVE",
+    "executionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  },
+  "assertionLedger": [
+    {
+      "id": "source:_bmad-output/planning-artifacts/architecture.md",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/epics.md",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-18.md",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/v9-execution-graph-v1.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/v9/story-contracts/16.1.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/v9/story-contracts/16.2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/v9/story-contracts/16.3.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/implementation-hold-v1.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/implementation-artifacts/sprint-status.yaml",
+      "state": "PASS"
+    },
+    {
+      "id": "source:docs/runbooks/current-change-validation.md",
+      "state": "PASS"
+    },
+    {
+      "id": "source:.gitmodules",
+      "state": "PASS"
+    },
+    {
+      "id": "source:references/Hexalith.Platform/README.md",
+      "state": "FAIL"
+    },
+    {
+      "id": "source:references/Hexalith.Platform/docs/domain-module-enrollment.md",
+      "state": "PASS"
+    },
+    {
+      "id": "source:references/Hexalith.Platform/hexalith-platform.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:references/Hexalith.Platform/.config/dotnet-tools.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:references/Hexalith.Platform/_bmad-output/specs/spec-platform/SPEC.md",
+      "state": "PASS"
+    },
+    {
+      "id": "source:references/Hexalith.Platform/_bmad-output/planning-artifacts/architecture/architecture-platform-2026-09-27/ARCHITECTURE-SPINE.md",
+      "state": "PASS"
+    },
+    {
+      "id": "source:references/Hexalith.Platform/src/Hexalith.Platform.Composition/PlatformDaprBindings.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "source:references/Hexalith.Platform/src/Hexalith.Platform.Composition/PlatformAppModel.cs",
+      "state": "FAIL"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/production-operational-envelope-v1.md",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad/schemas/epic-16-prerequisites-v1.schema.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/epic.md",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.1.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.3.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/package.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/inventories.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/execution-graph.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad/scripts/verify_epic_16_prerequisites.py",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad/scripts/generate_story_record.py",
+      "state": "FAIL"
+    },
+    {
+      "id": "source:references/Hexalith.Builds/schemas/hexalith.module-manifest.v2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceRoutes.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "source:references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServicePolicies.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "source:references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Authentication/EventStoreWorkloadOperations.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "source:references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceSecurityExtensions.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "source:src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "state": "PASS"
+    },
+    {
+      "id": "source:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj",
+      "state": "PASS"
+    },
+    {
+      "id": "source:references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Authentication/DaprAppChannelToken.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "source:references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceExtensions.cs",
+      "state": "FAIL"
+    },
+    {
+      "id": "source:references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDataProtectionServiceCollectionExtensions.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "source:references/Hexalith.Tenants/src/Hexalith.Tenants.Client/Registration/TenantServiceCollectionExtensions.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "source:src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessServiceCollectionExtensions.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "source:src/Hexalith.Conversations.Server/Program.cs",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/epic-16-adoption-v1/README.md",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/epic-16-adoption-v1/execution-graph.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/epic-16-adoption-v1/inventories.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.1.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.3.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad/schemas/epic-16-adoption-v1.schema.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:module/hexalith.module-manifest.v2.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:module/hosting-inventory.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:module/sm-2-checklist.md",
+      "state": "PASS"
+    },
+    {
+      "id": "source:module/validation/adoption-text.txt",
+      "state": "PASS"
+    },
+    {
+      "id": "source:module/validation/adoption.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:module/validation/manifest.txt",
+      "state": "PASS"
+    },
+    {
+      "id": "source:module/validation/restore.txt",
+      "state": "PASS"
+    },
+    {
+      "id": "source:module/validation/results.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:module/validation/version.txt",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad/scripts/verify_epic_16_adoption.py",
+      "state": "PASS"
+    },
+    {
+      "id": "source:_bmad/scripts/contained_reader.py",
+      "state": "PASS"
+    },
+    {
+      "id": "input-diagnostic",
+      "state": "FAIL"
+    }
+  ],
+  "blockers": [
+    "SOURCE_BINDING_INVALID",
+    "SOURCE_BYTES_DRIFT"
+  ],
+  "diagnostics": [
+    {
+      "code": "SOURCE_BYTES_DRIFT",
+      "detail": "independently pinned current source differs: references/Hexalith.Platform/README.md"
+    },
+    {
+      "code": "SOURCE_BYTES_DRIFT",
+      "detail": "independently pinned current source differs: references/Hexalith.Platform/src/Hexalith.Platform.Composition/PlatformAppModel.cs"
+    },
+    {
+      "code": "SOURCE_BYTES_DRIFT",
+      "detail": "independently pinned current source differs: _bmad/scripts/generate_story_record.py"
+    },
+    {
+      "code": "SOURCE_BYTES_DRIFT",
+      "detail": "independently pinned current source differs: references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceExtensions.cs"
+    },
+    {
+      "code": "SOURCE_BINDING_INVALID",
+      "detail": "current source or preserved predecessor binding changed"
+    }
+  ],
+  "entryBlockers": [
+    {
+      "code": "GENERATOR_UNSUPPORTED",
+      "state": "BLOCKED",
+      "detail": "Generator supports V9/V14 contracts; v2 wrappers remain unsupported."
+    },
+    {
+      "code": "SCENARIO_VERIFIERS_UNAVAILABLE",
+      "state": "BLOCKED",
+      "detail": "Fifteen measured scenario verifiers and successor final-record support remain unavailable."
+    },
+    {
+      "code": "QUALIFICATION_PENDING",
+      "state": "BLOCKED",
+      "detail": "Source/Debug, package/Release, hosted parity, AD-5/AD-6, recovery and operator qualification remain pending."
+    },
+    {
+      "code": "SM2_UNVERIFIED",
+      "state": "BLOCKED",
+      "detail": "Human active-checkout breakpoint/edit, readiness, cleanup and Story 3.11 acceptance remain unverified."
+    },
+    {
+      "code": "APPHOST_OWNERSHIP_PENDING",
+      "state": "BLOCKED",
+      "detail": "Both inventory AppHosts remain frozen; baseline owner exemption/relocation and retirement gates remain pending."
+    },
+    {
+      "code": "OWNER_ENTRY_DECISION_PENDING",
+      "state": "BLOCKED",
+      "detail": "All seven original owner decisions and a separately scoped runtime entry decision remain pending."
+    },
+    {
+      "code": "TENANTS_OPTIONS_BINDING_PENDING",
+      "state": "BLOCKED",
+      "detail": "Bind Tenants:PubSubName/TopicName using AddHexalithTenants configureOptions before route qualification."
+    },
+    {
+      "code": "DATA_PROTECTION_REGISTRATION_PENDING",
+      "state": "BLOCKED",
+      "detail": "Adopt SDK AddEventStoreDataProtection with IConfiguration and a stable application name; qualify persisted keys/restart."
+    },
+    {
+      "code": "DECLARATIVE_SUBSCRIPTIONS_PENDING",
+      "state": "BLOCKED",
+      "detail": "Inject Dapr:DeclarativeSubscriptions=true; qualify protected /tenants/events, dead-letter behavior and absent discovery."
+    },
+    {
+      "code": "LIVE_TOOL_RECHECK_REQUIRED",
+      "state": "BLOCKED",
+      "detail": "Native reports cover the recorded working tree and supported tracked source only; rerun both modes on the owner-reviewed tracked candidate."
+    }
+  ],
+  "evidenceBoundary": {
+    "status": "not-applicable",
+    "scope": "runtime-publication",
+    "reason": "Preparation publishes no runtime receipts or final records."
+  }
+}

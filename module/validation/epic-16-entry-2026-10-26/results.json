@@ -1,0 +1,166 @@
+{
+  "candidate": "109ef750a1ed0d1b02ba7efee8807d611fbad130",
+  "scope": "Story 16.1 entry investigation only; no runtime execution or publication",
+  "commands": [
+    {
+      "id": "tool-version",
+      "command": "dotnet tool run hexalith-module --version",
+      "exitCode": 0,
+      "elapsedSeconds": 0.239,
+      "stdout": {
+        "path": "module/validation/epic-16-entry-2026-10-26/tool-version.stdout.txt",
+        "sha256": "2263b9f44abd72ad7f9a4c5ad92505b0ebbccb4356f1e289438b203995fa6de9",
+        "bytes": 48
+      },
+      "stderr": {
+        "path": "module/validation/epic-16-entry-2026-10-26/tool-version.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "id": "ordinary",
+      "command": "dotnet tool run hexalith-module -- validate --manifest module/hexalith.module-manifest.v2.json",
+      "exitCode": 1,
+      "elapsedSeconds": 0.416,
+      "stdout": {
+        "path": "module/validation/epic-16-entry-2026-10-26/ordinary.stdout.txt",
+        "sha256": "bc037e128cae9965e41ebb9c79ae42d51a432e95acf1102acaa7ef5fe498bdf0",
+        "bytes": 436
+      },
+      "stderr": {
+        "path": "module/validation/epic-16-entry-2026-10-26/ordinary.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "id": "adoption-json",
+      "command": "dotnet tool run hexalith-module -- validate --manifest module/hexalith.module-manifest.v2.json --adoption --output json",
+      "exitCode": 1,
+      "elapsedSeconds": 14.341,
+      "stdout": {
+        "path": "module/validation/epic-16-entry-2026-10-26/adoption-json.stdout.txt",
+        "sha256": "c6a3aed7c8f835e51791409a0377e44b9423ad2a70c411c43174bba53c2a5dbd",
+        "bytes": 17419
+      },
+      "stderr": {
+        "path": "module/validation/epic-16-entry-2026-10-26/adoption-json.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "id": "adoption-v2",
+      "command": "uv run --frozen --no-sync python3 _bmad/scripts/verify_epic_16_adoption_v2.py --repository .",
+      "exitCode": 1,
+      "elapsedSeconds": 0.144,
+      "stdout": {
+        "path": "module/validation/epic-16-entry-2026-10-26/adoption-v2.stdout.txt",
+        "sha256": "386299677c9b12f229f689b7159d1fadc30008df6e3a55cbcba104c6f46ba630",
+        "bytes": 11468
+      },
+      "stderr": {
+        "path": "module/validation/epic-16-entry-2026-10-26/adoption-v2.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "id": "AC-16.1-01",
+      "command": "python3 _bmad/scripts/verify_story_16_1.py --repository . --contract _bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json --scenario AC-16.1-01 --candidate HEAD --output artifacts/epic16-runtime/16.1/AC-16.1-01.json",
+      "exitCode": 2,
+      "elapsedSeconds": 0.158,
+      "stdout": {
+        "path": "module/validation/epic-16-entry-2026-10-26/AC-16.1-01.stdout.txt",
+        "sha256": "3d3fbd9fd81253e9dc957e309f7366f02c73babc56e98fd6560da48dbad8832e",
+        "bytes": 883
+      },
+      "stderr": {
+        "path": "module/validation/epic-16-entry-2026-10-26/AC-16.1-01.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "id": "AC-16.1-02",
+      "command": "python3 _bmad/scripts/verify_story_16_1.py --repository . --contract _bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json --scenario AC-16.1-02 --candidate HEAD --output artifacts/epic16-runtime/16.1/AC-16.1-02.json",
+      "exitCode": 2,
+      "elapsedSeconds": 0.139,
+      "stdout": {
+        "path": "module/validation/epic-16-entry-2026-10-26/AC-16.1-02.stdout.txt",
+        "sha256": "30c4e5ea7003f2bf41241a1e176fdaf9c71dd9e7d08b932c81bfa3bbf2f05e39",
+        "bytes": 883
+      },
+      "stderr": {
+        "path": "module/validation/epic-16-entry-2026-10-26/AC-16.1-02.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "id": "AC-16.1-03",
+      "command": "python3 _bmad/scripts/verify_story_16_1.py --repository . --contract _bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json --scenario AC-16.1-03 --candidate HEAD --output artifacts/epic16-runtime/16.1/AC-16.1-03.json",
+      "exitCode": 2,
+      "elapsedSeconds": 0.134,
+      "stdout": {
+        "path": "module/validation/epic-16-entry-2026-10-26/AC-16.1-03.stdout.txt",
+        "sha256": "a591f00e40908642d8578a8ae89a6a709252a34f338c98e4167a45f5a9f808d5",
+        "bytes": 883
+      },
+      "stderr": {
+        "path": "module/validation/epic-16-entry-2026-10-26/AC-16.1-03.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "id": "AC-16.1-04",
+      "command": "python3 _bmad/scripts/verify_story_16_1.py --repository . --contract _bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json --scenario AC-16.1-04 --candidate HEAD --output artifacts/epic16-runtime/16.1/AC-16.1-04.json",
+      "exitCode": 2,
+      "elapsedSeconds": 0.135,
+      "stdout": {
+        "path": "module/validation/epic-16-entry-2026-10-26/AC-16.1-04.stdout.txt",
+        "sha256": "26a7ff6e57ba12f54f12275713c09181838533e3056b88079a2d43fe3a0f1399",
+        "bytes": 883
+      },
+      "stderr": {
+        "path": "module/validation/epic-16-entry-2026-10-26/AC-16.1-04.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "id": "AC-16.1-05",
+      "command": "python3 _bmad/scripts/verify_story_16_1.py --repository . --contract _bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json --scenario AC-16.1-05 --candidate HEAD --output artifacts/epic16-runtime/16.1/AC-16.1-05.json",
+      "exitCode": 2,
+      "elapsedSeconds": 0.133,
+      "stdout": {
+        "path": "module/validation/epic-16-entry-2026-10-26/AC-16.1-05.stdout.txt",
+        "sha256": "de6c23dc826836e497eb840e2677899087f49034b2aa9fdd8d78ecfe2d00d19e",
+        "bytes": 883
+      },
+      "stderr": {
+        "path": "module/validation/epic-16-entry-2026-10-26/AC-16.1-05.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "id": "AC-16.1-06",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json --format bundle --output-json docs/release-evidence/story-16.1-final-record-v2.json --output-markdown docs/release-evidence/story-16.1-final-record-v2.md",
+      "exitCode": 2,
+      "elapsedSeconds": 0.325,
+      "stdout": {
+        "path": "module/validation/epic-16-entry-2026-10-26/AC-16.1-06.stdout.txt",
+        "sha256": "3d3fbd9fd81253e9dc957e309f7366f02c73babc56e98fd6560da48dbad8832e",
+        "bytes": 883
+      },
+      "stderr": {
+        "path": "module/validation/epic-16-entry-2026-10-26/AC-16.1-06.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    }
+  ]
+}
