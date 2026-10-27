@@ -18,10 +18,22 @@ namespace Hexalith.Conversations.Server.Queries;
 /// <summary>Reads only committed isolated metadata between two ordinary owner Read decisions.</summary>
 /// <param name="access">The ordinary owner authorization service.</param>
 /// <param name="accessor">The SDK-verified exact caller and request.</param>
+/// <param name="storeOptions">The provider-local component binding; legacy direct callers use the SDK default.</param>
 /// <param name="store">The SDK compacted read-model store.</param>
 public sealed class GetConversationAdvisoryMetadataDomainQueryHandler(
-    IConversationTenantAccessService access, IHttpContextAccessor accessor, IReadModelStore store) : IDomainQueryHandler
+    IConversationTenantAccessService access, IHttpContextAccessor accessor, IReadModelStore store, ConversationProjectionStoreOptions storeOptions) : IDomainQueryHandler
 {
+    private readonly ConversationProjectionStoreOptions _storeOptions = storeOptions ?? throw new ArgumentNullException(nameof(storeOptions));
+
+    /// <summary>Preserves the existing direct-construction API using the SDK default.</summary>
+    /// <param name="access">The owner authorization service.</param>
+    /// <param name="accessor">The SDK-verified caller context.</param>
+    /// <param name="store">The SDK read-model store.</param>
+    public GetConversationAdvisoryMetadataDomainQueryHandler(IConversationTenantAccessService access, IHttpContextAccessor accessor, IReadModelStore store)
+        : this(access, accessor, store, ConversationProjectionStoreOptions.Legacy)
+    {
+    }
+
     /// <inheritdoc/>
     public string Domain => "conversations";
 
@@ -44,15 +56,15 @@ public sealed class GetConversationAdvisoryMetadataDomainQueryHandler(
             // The optional isolated fence rejects known pending rebuilds without requiring native-head proof.
             string proofKey = ConversationProjectionReadModelKeys.ResolutionProofKey(tenant, resource);
             var before = await store.GetCompactedAsync<ConversationResolutionMetadataProof>(
-                ConversationProjectionReadModelKeys.StateStoreName, proofKey, cancellationToken).ConfigureAwait(false);
+                _storeOptions.StateStoreName, proofKey, cancellationToken).ConfigureAwait(false);
             if (Pending(before)) return Unavailable();
             var entry = await store.GetCompactedAsync<ConversationResolutionMetadataReadModel>(
-                ConversationProjectionReadModelKeys.StateStoreName,
+                _storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.ResolutionMetadataKey(tenant, resource), cancellationToken).ConfigureAwait(false);
             if (entry.Value is null)
             {
                 var summaries = await store.GetCompactedAsync<ConversationProjectionIndexReadModel>(
-                    ConversationProjectionReadModelKeys.StateStoreName,
+                    _storeOptions.StateStoreName,
                     ConversationProjectionReadModelKeys.TenantIndexKey(tenant), cancellationToken).ConfigureAwait(false);
                 return summaries.Value?.Summaries?.Any(summary => summary.TenantId == tenant && summary.ConversationId == resource) == true
                     ? Unavailable() : QueryResult.Failure("safe-denial");
@@ -67,7 +79,7 @@ public sealed class GetConversationAdvisoryMetadataDomainQueryHandler(
                 || value.Metadata.LifecycleState is not ("Initializing" or "Open" or "Closed" or "Archived")
                 || value.Metadata.ProjectId is not null && !Canonical(value.Metadata.ProjectId)) return Unavailable();
             var after = await store.GetCompactedAsync<ConversationResolutionMetadataProof>(
-                ConversationProjectionReadModelKeys.StateStoreName, proofKey, cancellationToken).ConfigureAwait(false);
+                _storeOptions.StateStoreName, proofKey, cancellationToken).ConfigureAwait(false);
             if (Pending(after) || before.ETag != after.ETag || before.Value != after.Value) return Unavailable();
 
             bool classified = value.IsLabelComplete

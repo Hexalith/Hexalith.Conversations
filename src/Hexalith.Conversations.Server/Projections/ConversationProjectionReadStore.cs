@@ -41,13 +41,25 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
     private const int BulkReadParallelism = 8;
     private static readonly JsonSerializerOptions ComparisonJsonOptions = new(JsonSerializerDefaults.Web);
     private readonly IReadModelStore _store;
+    private readonly ConversationProjectionStoreOptions _storeOptions;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ConversationProjectionReadStore"/> class.
     /// </summary>
     /// <param name="store">The shared read-model store.</param>
     public ConversationProjectionReadStore(IReadModelStore store)
-        => _store = store ?? throw new ArgumentNullException(nameof(store));
+        : this(store, ConversationProjectionStoreOptions.Legacy)
+    {
+    }
+
+    /// <summary>Initializes a reader with the provider's enrolled component binding.</summary>
+    /// <param name="store">The SDK store.</param>
+    /// <param name="storeOptions">The immutable enrolled component binding.</param>
+    public ConversationProjectionReadStore(IReadModelStore store, ConversationProjectionStoreOptions storeOptions)
+    {
+        _store = store ?? throw new ArgumentNullException(nameof(store));
+        _storeOptions = storeOptions ?? throw new ArgumentNullException(nameof(storeOptions));
+    }
 
     /// <inheritdoc/>
     public async ValueTask<ConversationResolutionMetadataReadModel?> ReadResolutionMetadataAsync(
@@ -70,7 +82,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
         ArgumentNullException.ThrowIfNull(conversationId);
         string proofKey = ConversationProjectionReadModelKeys.ResolutionProofKey(tenantId, conversationId);
         ReadModelEntry<ConversationResolutionMetadataProof> before = await _store
-            .GetCompactedAsync<ConversationResolutionMetadataProof>(ConversationProjectionReadModelKeys.StateStoreName,
+            .GetCompactedAsync<ConversationResolutionMetadataProof>(_storeOptions.StateStoreName,
                 proofKey, cancellationToken).ConfigureAwait(false);
         // The outer proof rejects pending/invalidated observations before touching an envelope-wrapped
         // metadata key. Retained live manifests contain only this bounded subset and a content-free fence.
@@ -81,7 +93,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
         }
 
         ReadModelEntry<ConversationResolutionMetadataReadModel> metadata = await _store
-            .GetCompactedAsync<ConversationResolutionMetadataReadModel>(ConversationProjectionReadModelKeys.StateStoreName,
+            .GetCompactedAsync<ConversationResolutionMetadataReadModel>(_storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.ResolutionMetadataKey(tenantId, conversationId), cancellationToken)
             .ConfigureAwait(false);
         ReadModelEntry<ConversationResolutionMetadataProof> after;
@@ -89,7 +101,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
         if (generation is null && metadata.Value is null)
         {
             after = await _store.GetCompactedAsync<ConversationResolutionMetadataProof>(
-                ConversationProjectionReadModelKeys.StateStoreName, proofKey, cancellationToken).ConfigureAwait(false);
+                _storeOptions.StateStoreName, proofKey, cancellationToken).ConfigureAwait(false);
             if (after.Value is null && after.ETag == before.ETag)
             {
                 return null;
@@ -106,7 +118,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
         }
 
         ReadModelEntry<ConversationProjectionDispatchLedger> ledger = await _store
-            .GetCompactedAsync<ConversationProjectionDispatchLedger>(ConversationProjectionReadModelKeys.StateStoreName,
+            .GetCompactedAsync<ConversationProjectionDispatchLedger>(_storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.DispatchLedgerKey(generation.DispatchId), cancellationToken)
             .ConfigureAwait(false);
         if (ledger.Value is not null && (ledger.Value.Status != ConversationProjectionDispatchStatus.Completed
@@ -119,7 +131,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
         }
 
         after = await _store.GetCompactedAsync<ConversationResolutionMetadataProof>(
-            ConversationProjectionReadModelKeys.StateStoreName, proofKey, cancellationToken).ConfigureAwait(false);
+            _storeOptions.StateStoreName, proofKey, cancellationToken).ConfigureAwait(false);
         if (string.IsNullOrEmpty(after.ETag) || before.ETag != after.ETag || before.Value != after.Value)
         {
             throw new ConversationProjectionConsistencyException();
@@ -139,7 +151,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
 
         ReadModelEntry<ConversationProjectedReadModels> entry = await _store
             .GetAsync<ConversationProjectedReadModels>(
-                ConversationProjectionReadModelKeys.StateStoreName,
+                _storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.ConversationKey(tenantId, conversationId),
                 cancellationToken)
             .ConfigureAwait(false);
@@ -160,7 +172,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
 
         ReadModelEntry<ConversationProjectionIndexReadModel> indexEntry = await _store
             .GetAsync<ConversationProjectionIndexReadModel>(
-                ConversationProjectionReadModelKeys.StateStoreName,
+                _storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.TenantIndexKey(tenantId),
                 cancellationToken)
             .ConfigureAwait(false);
@@ -217,7 +229,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
 
         ReadModelEntry<ConversationProjectionIndexReadModel> entry = await _store
             .GetAsync<ConversationProjectionIndexReadModel>(
-                ConversationProjectionReadModelKeys.StateStoreName,
+                _storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.TenantIndexKey(tenantId),
                 cancellationToken)
             .ConfigureAwait(false);
@@ -373,7 +385,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
             HashSet<string> requested = new(chunk, StringComparer.Ordinal);
             IReadOnlyList<ReadModelBulkEntry<TValue>> entries = await bulkStore
                 .GetManyAsync<TValue>(
-                    ConversationProjectionReadModelKeys.StateStoreName,
+                    _storeOptions.StateStoreName,
                     chunk,
                     BulkReadParallelism,
                     cancellationToken)
@@ -411,7 +423,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
     {
         ReadModelEntry<ConversationProjectionDispatchLedger> entry = await _store
             .GetAsync<ConversationProjectionDispatchLedger>(
-                ConversationProjectionReadModelKeys.StateStoreName,
+                _storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.DispatchLedgerKey(reference.DispatchId),
                 cancellationToken)
             .ConfigureAwait(false);

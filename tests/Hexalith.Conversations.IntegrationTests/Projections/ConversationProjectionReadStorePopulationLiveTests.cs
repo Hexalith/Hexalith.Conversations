@@ -23,6 +23,7 @@ using Hexalith.EventStore.DomainService;
 using Hexalith.EventStore.Testing.Fakes;
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Hexalith.Conversations.IntegrationTests.Projections;
@@ -35,7 +36,13 @@ public sealed class ConversationProjectionReadStorePopulationLiveTests
 {
     private const string AppId = "conversations-live-proof";
     private const string ServiceVersion = "v1";
-    private const string StateStoreName = "statestore";
+    private static string StateStoreName => ConversationProjectionStoreOptions.FromConfiguration(ComponentConfiguration).StateStoreName;
+
+    private static IConfiguration ComponentConfiguration { get; } = new ConfigurationBuilder().AddInMemoryCollection(
+        new Dictionary<string, string?>
+        {
+            [ConversationProjectionStoreOptions.ConfigurationKey] = "conversations-population-test-state",
+        }).Build();
     private const string ProjectionType = "conversation-read-model";
 
     private static readonly TenantId Tenant = new("tenant-live-001");
@@ -316,6 +323,10 @@ public sealed class ConversationProjectionReadStorePopulationLiveTests
     private static WebApplication ComposeProductionBoundary(InMemoryReadModelStore store)
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder();
+        builder.Configuration.AddConfiguration(ComponentConfiguration);
+        builder.Configuration["EventStore:DataProtection:StateStoreName"] = StateStoreName;
+        builder.Configuration["EventStore:DataProtection:PersistToStateStore"] = "false";
+        builder.Configuration["Hexalith:Conversations:Queries:Cursor:MaxOffset"] = "100000";
         builder.AddEventStoreDomainService(
             typeof(ConversationsAssemblyMarker).Assembly,
             typeof(ServerAssemblyMarker).Assembly);
@@ -323,7 +334,7 @@ public sealed class ConversationProjectionReadStorePopulationLiveTests
         builder.Services.AddSingleton<IReadModelBatchStore>(store);
         builder.Services.AddSingleton<IReadModelBatchStagingStore>(store);
         builder.Services.AddSingleton<IConversationTenantAccessService>(new AllowTenantAccessService());
-        builder.Services.AddConversationQueries(options => options.MaxOffset = 100_000);
+        builder.Services.AddConversationQueries(builder.Configuration);
         return builder.Build();
     }
 

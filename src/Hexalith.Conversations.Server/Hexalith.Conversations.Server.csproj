@@ -8,26 +8,17 @@
     <ProjectReference Include="..\Hexalith.Conversations\Hexalith.Conversations.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(UseHexalithProjectReferences)' == 'true'">
-    <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Contracts\Hexalith.EventStore.Contracts.csproj" Condition="'$(HexalithEventStoreRoot)' != ''" />
-    <ProjectReference Include="..\..\references\Hexalith.EventStore\src\Hexalith.EventStore.Contracts\Hexalith.EventStore.Contracts.csproj" Condition="'$(HexalithEventStoreRoot)' == ''" />
-    <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Client\Hexalith.EventStore.Client.csproj" Condition="'$(HexalithEventStoreRoot)' != ''" />
-    <ProjectReference Include="..\..\references\Hexalith.EventStore\src\Hexalith.EventStore.Client\Hexalith.EventStore.Client.csproj" Condition="'$(HexalithEventStoreRoot)' == ''" />
-    <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.DomainService\Hexalith.EventStore.DomainService.csproj" Condition="'$(HexalithEventStoreRoot)' != ''" />
-    <ProjectReference Include="..\..\references\Hexalith.EventStore\src\Hexalith.EventStore.DomainService\Hexalith.EventStore.DomainService.csproj" Condition="'$(HexalithEventStoreRoot)' == ''" />
-    <ProjectReference Include="$(HexalithTenantsRoot)\src\Hexalith.Tenants.Client\Hexalith.Tenants.Client.csproj" Condition="'$(HexalithTenantsRoot)' != ''" />
-    <ProjectReference Include="$(HexalithTenantsRoot)\src\Hexalith.Tenants.Contracts\Hexalith.Tenants.Contracts.csproj" Condition="'$(HexalithTenantsRoot)' != ''" />
-    <ProjectReference Include="..\..\references\Hexalith.Tenants\src\Hexalith.Tenants.Client\Hexalith.Tenants.Client.csproj" Condition="'$(HexalithTenantsRoot)' == ''" />
-    <ProjectReference Include="..\..\references\Hexalith.Tenants\src\Hexalith.Tenants.Contracts\Hexalith.Tenants.Contracts.csproj" Condition="'$(HexalithTenantsRoot)' == ''" />
-    <ProjectReference Include="$(HexalithCommonsRoot)\src\libraries\Hexalith.Commons.TenantAccess\Hexalith.Commons.TenantAccess.csproj" Condition="'$(HexalithCommonsRoot)' != ''" />
-    <ProjectReference Include="..\..\references\Hexalith.Commons\src\libraries\Hexalith.Commons.TenantAccess\Hexalith.Commons.TenantAccess.csproj" Condition="'$(HexalithCommonsRoot)' == ''" />
-    <ProjectReference Include="$(HexalithCommonsRoot)\src\libraries\Hexalith.Commons.Diagnostics\Hexalith.Commons.Diagnostics.csproj" Condition="'$(HexalithCommonsRoot)' != ''" />
-    <ProjectReference Include="..\..\references\Hexalith.Commons\src\libraries\Hexalith.Commons.Diagnostics\Hexalith.Commons.Diagnostics.csproj" Condition="'$(HexalithCommonsRoot)' == ''" />
-    <ProjectReference Include="$(HexalithCommonsRoot)\src\libraries\Hexalith.Commons.Publication\Hexalith.Commons.Publication.csproj" Condition="'$(HexalithCommonsRoot)' != ''" />
-    <ProjectReference Include="..\..\references\Hexalith.Commons\src\libraries\Hexalith.Commons.Publication\Hexalith.Commons.Publication.csproj" Condition="'$(HexalithCommonsRoot)' == ''" />
-    <ProjectReference Include="$(HexalithCommonsRoot)\src\libraries\Hexalith.Commons.Serialization\Hexalith.Commons.Serialization.csproj" Condition="'$(HexalithCommonsRoot)' != ''" />
-    <ProjectReference Include="..\..\references\Hexalith.Commons\src\libraries\Hexalith.Commons.Serialization\Hexalith.Commons.Serialization.csproj" Condition="'$(HexalithCommonsRoot)' == ''" />
+    <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Contracts\Hexalith.EventStore.Contracts.csproj" />
+    <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Client\Hexalith.EventStore.Client.csproj" />
+    <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.DomainService\Hexalith.EventStore.DomainService.csproj" />
+    <ProjectReference Include="$(HexalithTenantsRoot)\src\Hexalith.Tenants.Client\Hexalith.Tenants.Client.csproj" />
+    <ProjectReference Include="$(HexalithTenantsRoot)\src\Hexalith.Tenants.Contracts\Hexalith.Tenants.Contracts.csproj" />
+    <ProjectReference Include="$(HexalithCommonsRoot)\src\libraries\Hexalith.Commons.TenantAccess\Hexalith.Commons.TenantAccess.csproj" />
+    <ProjectReference Include="$(HexalithCommonsRoot)\src\libraries\Hexalith.Commons.Diagnostics\Hexalith.Commons.Diagnostics.csproj" />
+    <ProjectReference Include="$(HexalithCommonsRoot)\src\libraries\Hexalith.Commons.Publication\Hexalith.Commons.Publication.csproj" />
+    <ProjectReference Include="$(HexalithCommonsRoot)\src\libraries\Hexalith.Commons.Serialization\Hexalith.Commons.Serialization.csproj" />
   </ItemGroup>
-  <ItemGroup Condition="'$(UseHexalithProjectReferences)' != 'true'">
+  <ItemGroup Condition="'$(UseHexalithProjectReferences)' == 'false'">
     <PackageReference Include="Hexalith.Commons.Diagnostics" />
     <PackageReference Include="Hexalith.Commons.Publication" />
     <PackageReference Include="Hexalith.Commons.Serialization" />

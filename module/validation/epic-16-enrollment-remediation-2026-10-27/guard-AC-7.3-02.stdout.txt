@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "hexalith.conversations.story-completion-workflow-verifier-failure.v1",
+  "result": "BLOCKED",
+  "exitCode": 2,
+  "blockers": [
+    "ARGUMENT_INVALID"
+  ],
+  "diagnostics": [
+    {
+      "code": "ARGUMENT_INVALID",
+      "subject": "--output",
+      "message": "--output differs from the contract's declared command for AC-7.3-02"
+    }
+  ]
+}

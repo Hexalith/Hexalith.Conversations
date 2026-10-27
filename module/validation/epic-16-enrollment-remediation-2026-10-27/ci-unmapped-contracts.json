@@ -1,0 +1,16 @@
+{
+  "command": [
+    "dotnet",
+    "msbuild",
+    "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj",
+    "-target:ValidateConversationsEnrollmentMapping"
+  ],
+  "workingDirectory": "/home/administrator/projects/hexalith/conversations",
+  "startedUtc": "2026-10-27T10:41:44.803062+00:00",
+  "durationSeconds": 0.434,
+  "exitCode": 1,
+  "sourceHead": "dc5793db17fd6974200e80eb2b853187bc5f1669",
+  "mappingEnvironment": {},
+  "stdoutSha256": "203457ac0d7331152cdeeca45a017f488ee9f6d63f59aa433ad5509ca68fe1e4",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

@@ -1,0 +1,36 @@
+{
+  "sourceHead": "dc5793db17fd6974200e80eb2b853187bc5f1669",
+  "focusedTests": {
+    "mapping": {
+      "total": 10,
+      "passed": 10,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "not-run": 0
+    },
+    "projections": {
+      "total": 41,
+      "passed": 40,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "not-run": 0
+    },
+    "projections-verified": {
+      "total": 41,
+      "passed": 41,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "not-run": 0
+    }
+  },
+  "sourceFilesDigested": 801,
+  "allThreeNewCSharpFilesIncluded": true,
+  "rawAttributes": "raw-byte-attributes.txt",
+  "toolingSourceBindingRefresh": "pending-tooling-source-binding-refresh.json",
+  "broadVerification": "not run in this correction pass; parent verification pending",
+  "nativeScannerScopeChanged": false,
+  "stagingOrGitMutation": false
+}

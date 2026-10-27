@@ -7,13 +7,26 @@
     <ProjectReference Include="..\..\src\Hexalith.Conversations.Client\Hexalith.Conversations.Client.csproj" />
     <ProjectReference Include="..\..\src\Hexalith.Conversations.Contracts\Hexalith.Conversations.Contracts.csproj" />
   </ItemGroup>
-  <ItemGroup Condition="'$(UseHexalithProjectReferences)' == 'true'">
-    <ProjectReference Include="..\..\references\Hexalith.Commons\src\libraries\Hexalith.Commons.Serialization\Hexalith.Commons.Serialization.csproj" />
+  <!-- Builds' public materializer is non-packable. Its source-only tests evaluate package references
+       from Debug; existing package inventory tests remain compiled and active in Release. -->
+  <PropertyGroup Condition="'$(UseHexalithProjectReferences)' == 'true'">
+    <DefineConstants>$(DefineConstants);CONVERSATIONS_SOURCE_MAPPING_TESTS</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(UseHexalithProjectReferences)' == 'false'">
+    <Compile Remove="PlatformEnrollmentMappingTest.cs" />
   </ItemGroup>
-  <ItemGroup Condition="'$(UseHexalithProjectReferences)' != 'true'">
+  <ItemGroup Condition="'$(UseHexalithProjectReferences)' == 'true'">
+    <ProjectReference Include="$(HexalithCommonsRoot)/src/libraries/Hexalith.Commons.Serialization/Hexalith.Commons.Serialization.csproj" />
+    <ProjectReference Include="$(HexalithBuildsRoot)/src/libraries/Hexalith.Builds.Tooling/Hexalith.Builds.Tooling.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseHexalithProjectReferences)' == 'false'">
     <PackageReference Include="Hexalith.Commons.Serialization" />
   </ItemGroup>
   <ItemGroup>
+    <AssemblyMetadata Include="EnrolledCommonsRoot" Value="$(HexalithCommonsRoot)" />
+    <AssemblyMetadata Include="EnrolledBuildsRoot" Value="$(HexalithBuildsRoot)" />
+    <AssemblyMetadata Include="EnrolledEventStoreRoot" Value="$(HexalithEventStoreRoot)" />
+    <AssemblyMetadata Include="EnrolledTenantsRoot" Value="$(HexalithTenantsRoot)" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Shouldly" />
     <PackageReference Include="xunit.v3" />

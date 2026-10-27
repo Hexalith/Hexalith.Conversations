@@ -1,0 +1,1 @@
+ARGUMENT_INVALID --output: --output differs from the contract's declared command for AC-7.3-01

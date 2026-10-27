@@ -1098,3 +1098,7 @@ Review strengthens the same solution-context scope with native implicit Platform
 - source_spec: `_bmad-output/implementation-artifacts/spec-epic-16-prerequisite-implementation.md`
   summary: Reconcile the existing default Python and CI test selection with the tracked current-change validation policy.
   evidence: R9B1: pyproject.toml defaults to tests/tooling and the npm/CI unittest list omits _bmad/scripts/tests, although docs/runbooks/current-change-validation.md says that lane runs. Those three configuration files are byte-identical to original baseline 8039d2abcf41bcd2c01fa3dbe618cbec2f4f6da3; the retained broad-lane REFRESH_UV_DRIFT baseline and this task's explicit 1,750/72 local runs remain separate.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-epic-16-enrollment-adoption-remediation.md`
+  summary: Bound and cancel the pre-existing package/Release Contracts inventory child process and terminate its process tree on cancellation.
+  evidence: Both the baseline RunDotNet helper and retained Release branch use unbounded Process.WaitForExit without killing the child; a stalled dotnet pack can block cancellation. The new source/Debug path uses the producer bounded runner, but the Release limitation predates this source slice.

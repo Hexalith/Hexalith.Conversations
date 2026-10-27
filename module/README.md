@@ -1,15 +1,69 @@
-# Conversations Platform enrollment preparation
+# Conversations Platform enrollment prerequisite source slice
 
-This declaration prepares owner review. It changes no server behavior and grants
-no runtime entry, approval, deployment, host retirement, release or push authority.
-The Epic 16 implementation hold remains ACTIVE. The existing single-replica
-warning, Story 16.1 draft status, sprint state and historical evidence remain
-unchanged by this preparation. Pre-existing edits to the draft are preserved.
+The approved 2026-10-27 remediation corrects active source/build/configuration
+consumers and prepares the pending [Platform owner handoff](platform-handoff.md).
+It uses only mapped Debug builds and isolated composition/test stores under the
+user-approved pre-edit AppHost exception. No product runtime was launched.
+The Epic 16 hold remains ACTIVE; Story 16.1 stays draft/backlog, entry null and
+trust empty. Source corrections confer no owner acceptance, live qualification,
+deployment, host retirement, release or push authority.
+
+Fresh observations are retained in
+[the remediation validation directory](validation/epic-16-enrollment-remediation-2026-10-27/).
+The native scanner reads tracked sources from the working checkout at baseline
+`dc5793db17fd6974200e80eb2b853187bc5f1669`; new untracked source remains outside
+its inventory. Owner integration must rerun both formats on the intended reviewed
+tracked candidate. The historical observations below keep their original
+candidate and scope; they do not describe a newly qualified runtime.
 
 The accepted direct Platform tool is `hexalith.builds.module.cli` **4.35.2**, with
 roll-forward disabled. Its restored identity is
 `4.35.2+4248b8c70cb35ba79fdd7e4dd63049d4c73211a0`. The root tool manifest copies
 only that accepted entry. No dependency or gitlink was updated.
+
+Retained first-implementation [source-check summary](validation/epic-16-enrollment-remediation-2026-10-27/summary.json):
+all fourteen targeted finding identities are absent from both native reports;
+the reports remain FAIL with 6 PASS and 10 excluded FAIL rows, and no unexpected
+findings. Full offline Server tests pass 1369/1369; both in-process population
+checks pass. These results do not close the pending CI mapping integration gate
+or any owner/live qualification gate.
+
+Review corrections and focused checks are recorded in
+[the additive review observation](validation/epic-16-enrollment-remediation-2026-10-27/review-fix-1/README.md).
+The earlier observations retain their original bytes and source scope. A separate
+complete implementation-source digest snapshot includes the three untracked C#
+additions; it does not change native scanner coverage or claim tracked-candidate
+qualification. The later [attribute-placement correction](validation/epic-16-enrollment-remediation-2026-10-27/review-fix-2/README.md)
+restores the accepted root attributes bytes and scopes raw-byte protection inside
+the observation directory; no root-binding refresh is required for that rule.
+Current parent verification remains pending.
+
+## Mapped validation workflow
+
+1. A qualified Platform/Builds caller must select the workspace/dependencies and
+   mode and materialize its mapping with Builds'
+   `SourceMappingMaterializer.WriteAsync`. It must pass the complete generated
+   `SourceMappingMaterializer.Environment` to every restore/build/test child.
+   `validate` does not resolve mappings, and no public map-only CLI is available.
+   Do not set dependency roots/modes by hand or probe sibling layouts.
+2. In source mode, build the affected test projects individually in Debug under
+   that environment, then invoke their built native xUnit assemblies with
+   `-class`/`-method`. The prerequisite slice used the public materializer with a
+   synthetic direct-root mapping, not an ordinary accepted Platform run.
+   `PlatformEnrollmentMappingTest` also evaluates all eight consumer project
+   files in source/Debug and package/Release, rejects missing/mismatched inputs,
+   and checks competing layouts. Package evaluation compiles no Release assets.
+3. Keep package/Release and deployed acceptance separate, with exact tool,
+   mapping/catalog, source/package/image and provider identities. The pending
+   [Platform handoff](platform-handoff.md) lists those owner gates.
+4. The current root `.github/workflows/ci.yml` and the selected Builds
+   `.github/workflows/domain-ci.yml` still invoke plain restore/build without
+   generated mapping imports. Their initialization action only initializes root
+   dependencies; it does not materialize a mapping. Those CI invocations will
+   fail the mandatory mapping gate until owners implement and qualify the
+   producer mapping path. This slice changes no workflow/upstream source and
+   does not weaken the gate. Standalone package/property evaluation is source
+   evidence, not a successful CI build.
 
 ## Declaration and runtime ownership
 
@@ -41,9 +95,11 @@ The Tenants feed is declarative at `/tenants/events`, with logical
 `tenants-events` and `tenants-dead-letter` topics. Its physical feed topic is
 `system.tenants.events`, following Platform's enrolled Parties pattern;
 Platform must inject the matching `Tenants:PubSubName` and `Tenants:TopicName`.
-The current `AddHexalithTenants()` call does not bind either configuration key:
-it retains SDK defaults. Adoption must pass the SDK's `configureOptions` delegate
-and assign `options.PubSubName` and `options.TopicName` from those injected keys.
+The enrolled `AddConversationTenantAccess(builder.Configuration)` path passes the
+SDK's `configureOptions` delegate and binds both options from those required
+inputs. Missing/blank delivery inputs or a declarative-subscription value other
+than true fail composition. The parameterless compatibility overload retains SDK
+defaults for existing direct callers; production uses the configuration overload.
 Unsupported `Tenants:Enabled`, `Tenants:ServiceName` and `Tenants:CommandApiAppId`
 knobs have no current consumer and are not declared.
 
@@ -51,21 +107,30 @@ The declaration also names `Dapr:DeclarativeSubscriptions` through the
 `dapr-declarative-subscriptions-true` configuration reference. Platform must
 resolve this input to **true**. In the current SDK that exact boolean switch
 suppresses `/dapr/subscribe` discovery while retaining the configured event
-POST route. This preparation sets no runtime configuration. Future qualification
+POST route. Enrolled composition requires that injected true value; this source
+slice provides no deployed runtime configuration. Future qualification
 must prove protected `/tenants/events` delivery at the injected pub/sub/topic,
 dead-letter routing and absent discovery, plus the production reconciliation
 route; source declarations alone do not prove those effects.
 
-Data Protection is another explicit adoption blocker. Injecting
-`EventStore:DataProtection:PersistToStateStore` and its state-store key does not
-call `AddEventStoreDataProtection`. Conversations currently uses its existing
-Data Protection registration. Future adoption must invoke the SDK registration
-with `IConfiguration` and a stable application name, then qualify persisted key
-ring/restart behavior. Tenants delegate binding, SDK Data Protection registration
-and declarative-subscription route qualification all remain **BLOCKED**, separate
-from static scanner findings. No runtime source is changed here.
+The enrolled source composition now binds Tenants pub/sub/topic inputs via the
+existing SDK delegate, requires `Dapr:DeclarativeSubscriptions=true`, and calls
+SDK `AddEventStoreDataProtection(IConfiguration, "Hexalith.Conversations")`.
+Read-model reads/writes, batch/recovery scopes and native proof binding share one
+immutable configured component name. Required missing/blank enrollment inputs
+fail before store/delivery use. Legacy direct-construction APIs retain the SDK
+component default for compatibility; the configured production path cannot select
+it when required configuration is absent. The cursor purpose is unchanged.
 
-## Current additive refresh (2026-10-25)
+Isolated tests inspect protected POST route metadata and absent discovery,
+execute SDK key-ring persistence and cursor operations against a bounded SDK
+Dapr fake, and assert configured projection-store contents. They do not
+qualify live delivery, persistent key-ring restart behavior, workload middleware,
+provider parity or multi-replica tenant access. Explicit ephemeral SDK test mode
+is not production restart evidence. Those owner gates remain pending in the
+handoff, and the single-replica/restart warning remains unchanged.
+
+## Retained additive refresh (2026-10-25)
 
 The [v2 review package](../_bmad-output/planning-artifacts/epic-16-adoption-v2/README.md)
 independently binds current sources and the exact preserved v1 predecessor.
@@ -171,10 +236,11 @@ they do not make the package structurally inconsistent merely by being recorded.
 
 1. Conversations and Platform owners review the declaration against source,
    agree executable/image/gateway mappings, physical topic injection and scoped
-   state/configuration/identity inputs. Review each scanner failure. A separate
-   migration must remove dependency-root discovery and module-owned mode/root
-   assignments, consume tool mappings, inject literal Dapr names and replace
-   SDK subscription discovery through producer-supported declarative hosting.
+   state/configuration/identity inputs. Active source consumers now use mapped
+   project/package pairs and required configured Dapr names; enrolled Tenants,
+   declarative delivery and SDK Data Protection wiring are implemented. Review
+   the ten retained excluded scanner failures and new/untracked source, qualify
+   the producer CI mapping path, and resolve those owner gates separately.
    Preserve public contracts, receiver authorization and durable semantics.
 2. Qualify source/Debug, package/Release and hosted operation with exact runtime,
    provider, catalog, tool and mapping identities. Establish the AD-5 operational
@@ -184,11 +250,15 @@ they do not make the package structurally inconsistent merely by being recorded.
 3. Complete [sm-2-checklist.md](sm-2-checklist.md) through observed human evidence:
    real active-checkout breakpoint and edit, direct-only dependency checks,
    readiness, stop/cleanup and Story 3.11 owner acceptance. It remains unverified.
-4. Adopt the Epic 16 successor schema/generator and measured scenario verifiers;
-   all are explicitly unavailable for execution today. Keep all eighteen
-   scenarios, thirty-two requirements, graph edges and rollback/final-record
-   obligations. Release with Architecture, Quality and Planning Tooling must
-   record a separate entry decision after prerequisites pass.
+4. The Epic 16 successor schema, generator and measured scenario verifiers exist;
+   the six Story 16.1 contract commands currently return BLOCKED with
+   ENTRY_QUALIFICATION_PENDING. Runtime execution and publication require the
+   separate trusted owner entry decision after prerequisites pass. Keep all
+   eighteen scenarios, thirty-two requirements, graph edges and rollback/final-
+   record obligations. The raw-byte rule now lives in the observation directory's
+   own `.gitattributes`; the accepted root attributes and tooling bindings remain
+   unchanged. The superseded review-fix-1 root-binding refresh note is retained
+   as historical observation, not current required work.
 5. Keep both AppHosts in [hosting-inventory.json](hosting-inventory.json) frozen.
    The inventory names tracked consumers, including solution/test/CI and fixture
    tooling; immutable evidence also records these paths as historical references.

@@ -1,0 +1,76 @@
+{
+  "Mode": "package",
+  "Root": "/home/administrator/projects/hexalith/conversations",
+  "ActiveModule": "Hexalith.Conversations",
+  "Entries": [
+    {
+      "Identity": "Hexalith.Conversations",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations"
+    },
+    {
+      "Identity": "Hexalith.AI.Tools",
+      "Origin": "package",
+      "Path": null
+    },
+    {
+      "Identity": "Hexalith.EventStore",
+      "Origin": "package",
+      "Path": null
+    },
+    {
+      "Identity": "Hexalith.Projects",
+      "Origin": "package",
+      "Path": null
+    },
+    {
+      "Identity": "Hexalith.Folders",
+      "Origin": "package",
+      "Path": null
+    },
+    {
+      "Identity": "Hexalith.Tenants",
+      "Origin": "package",
+      "Path": null
+    },
+    {
+      "Identity": "Hexalith.FrontComposer",
+      "Origin": "package",
+      "Path": null
+    },
+    {
+      "Identity": "Hexalith.Parties",
+      "Origin": "package",
+      "Path": null
+    },
+    {
+      "Identity": "Hexalith.Memories",
+      "Origin": "package",
+      "Path": null
+    },
+    {
+      "Identity": "Hexalith.Commons",
+      "Origin": "package",
+      "Path": null
+    },
+    {
+      "Identity": "Hexalith.Builds",
+      "Origin": "package",
+      "Path": null
+    },
+    {
+      "Identity": "Hexalith.Platform",
+      "Origin": "package",
+      "Path": null
+    },
+    {
+      "Identity": "Hexalith.McpCli",
+      "Origin": "package",
+      "Path": null
+    }
+  ],
+  "HasGit": true,
+  "PlatformIdentity": null,
+  "IdentityFindings": [],
+  "ContentHash": "9c90dba2aa09848433b1f1163638e511eb94963e33016d20e4b88c95f40fca6f"
+}

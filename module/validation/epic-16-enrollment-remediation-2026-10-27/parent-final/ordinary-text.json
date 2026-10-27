@@ -1,0 +1,23 @@
+{
+  "id": "ordinary-text",
+  "command": [
+    "dotnet",
+    "tool",
+    "run",
+    "hexalith-module",
+    "--",
+    "validate",
+    "--manifest",
+    "module/hexalith.module-manifest.v2.json"
+  ],
+  "workingDirectory": "/home/administrator/projects/hexalith/conversations",
+  "mappingEnvironment": {},
+  "sourceHead": "dc5793db17fd6974200e80eb2b853187bc5f1669",
+  "implementationSourceSnapshotSha256": "0a1e5de3367094ef3da8183c67034d928fae9736d3aa1b1bf9924a0849c02ebb",
+  "startedUtc": "2026-10-27T11:28:27.852845+00:00",
+  "durationSeconds": 0.389,
+  "exitCode": 1,
+  "expectedExitCode": 1,
+  "stdoutSha256": "bc037e128cae9965e41ebb9c79ae42d51a432e95acf1102acaa7ef5fe498bdf0",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

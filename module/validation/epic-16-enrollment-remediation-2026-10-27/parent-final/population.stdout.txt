@@ -1,0 +1,9 @@
+xUnit.net v3 In-Process Runner v4.0.2+0c7aa4991f (64-bit .NET 10.0.13)
+  Discovering: Hexalith.Conversations.IntegrationTests
+  Discovered:  Hexalith.Conversations.IntegrationTests
+  Starting:    Hexalith.Conversations.IntegrationTests
+{"EventId":45,"LogLevel":"Information","Category":"Microsoft.AspNetCore.DataProtection.EphemeralDataProtectionProvider","Message":"Using ephemeral data protection provider. Payloads will be undecipherable upon application shutdown.","State":{"{OriginalFormat}":"Using ephemeral data protection provider. Payloads will be undecipherable upon application shutdown."}}
+{"EventId":45,"LogLevel":"Information","Category":"Microsoft.AspNetCore.DataProtection.EphemeralDataProtectionProvider","Message":"Using ephemeral data protection provider. Payloads will be undecipherable upon application shutdown.","State":{"{OriginalFormat}":"Using ephemeral data protection provider. Payloads will be undecipherable upon application shutdown."}}
+  Finished:    Hexalith.Conversations.IntegrationTests (ID = '31a875f3f3db460eb2e66d9155809220e316e1b43177e35b3f584914d9e1ca6a')
+=== TEST EXECUTION SUMMARY ===
+   Hexalith.Conversations.IntegrationTests  Total: 2, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 0.527s

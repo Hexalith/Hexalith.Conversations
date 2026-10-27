@@ -1,0 +1,9 @@
+{
+  "state": "pending",
+  "subject": ".gitattributes",
+  "acceptedToolingSourceBinding": "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+  "declaredSha256": "d743202ab8c0bdf3dcd000a4a101acde352b6e6cf305a49b708b23c6e7029d7d",
+  "currentSha256": "ef44d05e9a5d92a743635cf1d82bab4ec44a6bba01bc9082198d761ec6fbc64e",
+  "matches": false,
+  "disposition": "The additive scoped raw-byte rule changes an accepted tooling-source binding input. Owner-scoped current/successor binding refresh remains required. No accepted historical package, binding, receipt, trust entry or lifecycle authority was edited."
+}

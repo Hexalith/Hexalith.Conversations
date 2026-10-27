@@ -1,0 +1,2 @@
+MSBuild version 18.9.15+a8dd0577c for .NET
+/home/administrator/projects/hexalith/conversations/Directory.Build.props(8,5): error : Conversations requires the Platform tool-selected source mapping; validation does not resolve dependency mappings. [/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj]

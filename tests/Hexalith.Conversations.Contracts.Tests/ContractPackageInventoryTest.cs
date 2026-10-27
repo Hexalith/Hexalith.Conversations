@@ -21,8 +21,7 @@ namespace Hexalith.Conversations.Contracts.Tests;
 public sealed class ContractPackageInventoryTest
 {
     private const string CommonsSerializationPackageId = "Hexalith.Commons.Serialization";
-    private const string CommonsVersion = "2.30.3";
-    private const string PackageModeCondition = "'$(UseHexalithProjectReferences)' != 'true'";
+    private const string PackageModeCondition = "'$(UseHexalithProjectReferences)' == 'false'";
     private const string SourceModeCondition = "'$(UseHexalithProjectReferences)' == 'true'";
 
     private static readonly string[] ForbiddenInventoryFragments =
@@ -59,11 +58,11 @@ public sealed class ContractPackageInventoryTest
         GetProjectProperty(project, "PackageVersion").ShouldBeNull("Package versions are inherited from the root build configuration.");
 
         XElement[] projectReferences = project.Descendants().Where(e => e.Name.LocalName == "ProjectReference").ToArray();
-        projectReferences.Length.ShouldBe(2, "both supported source layouts must remain available in Debug source mode");
-        projectReferences.ShouldAllBe(reference => GetItemGroupCondition(reference) == SourceModeCondition);
-        projectReferences.Select(GetDependencyCondition).ShouldBe(
-            ["'$(HexalithCommonsRoot)' != ''", "'$(HexalithCommonsRoot)' == ''"],
-            ignoreOrder: true);
+        XElement mappedReference = projectReferences.Single();
+        GetItemGroupCondition(mappedReference).ShouldBe(SourceModeCondition);
+        mappedReference.Attribute("Include")?.Value.ShouldBe(
+            @"$(HexalithCommonsRoot)\src\libraries\Hexalith.Commons.Serialization\Hexalith.Commons.Serialization.csproj");
+        GetDependencyCondition(mappedReference).ShouldBeNull("the tool mapping supplies the sole selected dependency");
 
         XElement packageReference = project.Descendants()
             .Single(e => e.Name.LocalName == "PackageReference"
@@ -114,7 +113,7 @@ public sealed class ContractPackageInventoryTest
 
         try
         {
-            RunDotNetPack(repositoryRoot, packageOutput);
+            string sourceDependencyVersion = RunDotNetPack(repositoryRoot, packageOutput);
 
             string packagePath = Directory.GetFiles(packageOutput, "Hexalith.Conversations.Contracts.*.nupkg").Single();
             using ZipArchive package = ZipFile.OpenRead(packagePath);
@@ -146,7 +145,7 @@ public sealed class ContractPackageInventoryTest
             XElement commonsDependency = metadata.Descendants()
                 .Single(e => e.Name.LocalName == "dependency"
                     && e.Attribute("id")?.Value == CommonsSerializationPackageId);
-            commonsDependency.Attribute("version")?.Value.ShouldBe(CommonsVersion);
+            commonsDependency.Attribute("version")?.Value.ShouldBe(sourceDependencyVersion);
 
             string nuspecText = nuspec.ToString(SaveOptions.DisableFormatting);
             foreach (string forbidden in ForbiddenInventoryFragments)
@@ -163,60 +162,27 @@ public sealed class ContractPackageInventoryTest
         }
     }
 
-    private static void RunDotNetPack(string repositoryRoot, string packageOutput)
+    private static string RunDotNetPack(string repositoryRoot, string packageOutput)
     {
-        string commonsRoot = ResolveCommonsRoot(repositoryRoot);
-        string commonsProjectPath = Path.Combine(
-            commonsRoot,
-            "src",
-            "libraries",
-            CommonsSerializationPackageId,
-            $"{CommonsSerializationPackageId}.csproj");
-        RunDotNet(
-            repositoryRoot,
-            $"pack \"{commonsProjectPath}\" -c Release -o \"{packageOutput}\" "
-            + $"-p:GeneratePackageOnBuild=false -p:Version={CommonsVersion} -p:PackageVersion={CommonsVersion}");
-
+#if CONVERSATIONS_SOURCE_MAPPING_TESTS
+        return PlatformEnrollmentMappingTest.PackSourceInventory(repositoryRoot, packageOutput);
+#else
+        // The package/Release runner must already supply the tool-selected imports and published packages.
         string projectPath = Path.Combine(repositoryRoot, "src", "Hexalith.Conversations.Contracts", "Hexalith.Conversations.Contracts.csproj");
-        RunDotNet(
-            repositoryRoot,
-            $"pack \"{projectPath}\" -c Release -o \"{packageOutput}\" "
-            + $"-p:RestoreAdditionalProjectSources=\"{packageOutput}\"");
-    }
-
-    private static void RunDotNet(string repositoryRoot, string arguments)
-    {
-        using Process process = Process.Start(new ProcessStartInfo
+        using Process process = Process.Start(new ProcessStartInfo("dotnet")
         {
-            FileName = "dotnet",
-            Arguments = arguments,
+            ArgumentList = { "pack", projectPath, "-c", "Release", "-o", packageOutput, "-p:GeneratePackageOnBuild=false" },
             WorkingDirectory = repositoryRoot,
             RedirectStandardError = true,
             RedirectStandardOutput = true,
             UseShellExecute = false,
         }) ?? throw new InvalidOperationException("Unable to start dotnet pack.");
-
-        string output = process.StandardOutput.ReadToEnd();
-        string error = process.StandardError.ReadToEnd();
+        Task<string> output = process.StandardOutput.ReadToEndAsync(TestContext.Current.CancellationToken);
+        Task<string> error = process.StandardError.ReadToEndAsync(TestContext.Current.CancellationToken);
         process.WaitForExit();
-
-        process.ExitCode.ShouldBe(0, $"dotnet pack failed.{Environment.NewLine}{output}{Environment.NewLine}{error}");
-    }
-
-    private static string ResolveCommonsRoot(string repositoryRoot)
-    {
-        string[] candidates =
-        [
-            Path.Combine(repositoryRoot, "references", "Hexalith.Commons"),
-            Path.GetFullPath(Path.Combine(repositoryRoot, "..", "Hexalith.Commons")),
-        ];
-
-        return candidates.Single(candidate => File.Exists(Path.Combine(
-            candidate,
-            "src",
-            "libraries",
-            CommonsSerializationPackageId,
-            $"{CommonsSerializationPackageId}.csproj")));
+        process.ExitCode.ShouldBe(0, output.GetAwaiter().GetResult() + error.GetAwaiter().GetResult());
+        return "2.30.3";
+#endif
     }
 
     private static string FindRepositoryRoot()

@@ -6,6 +6,7 @@
 using Hexalith.Conversations;
 using Hexalith.Conversations.Server;
 using Hexalith.Conversations.Server.Queries;
+using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.EventStore.DomainService;
 using Hexalith.EventStore.ServiceDefaults;
@@ -51,7 +52,8 @@ public sealed class ConversationsDomainServiceHostCompositionTest
         builder.AddEventStoreDomainService(
             typeof(ConversationsAssemblyMarker).Assembly,
             typeof(ServerAssemblyMarker).Assembly);
-        builder.Services.AddConversationTenantAccess();
+        ConfigureEnrollment(builder);
+        builder.Services.AddConversationTenantAccess(builder.Configuration);
         builder.Services.AddConversationQueries(builder.Configuration);
 
         WebApplication app = builder.Build();
@@ -127,21 +129,18 @@ public sealed class ConversationsDomainServiceHostCompositionTest
         MappedRoutes(app).ShouldContain(route);
     }
 
-    /// <summary>
-    /// The consumed Tenants subscription surface is mapped. Without <c>/tenants/events</c> the registered
-    /// tenants consumer is unreachable, and without <c>/dapr/subscribe</c> the sidecar never learns the topic
-    /// exists — either way the tenant access projection stays empty and every authorized read fails closed
-    /// forever. Neither route was asserted anywhere before pass 10.
-    /// </summary>
-    /// <param name="route">The subscription route that must resolve.</param>
-    [Theory]
-    [InlineData("/tenants/events")]
-    [InlineData("/dapr/subscribe")]
-    public async Task TenantSubscriptionEndpointShouldResolve(string route)
+    /// <summary>The enrolled SDK maps protected event delivery while declarative subscriptions suppress discovery.</summary>
+    [Fact]
+    public async Task TenantSubscriptionEndpointShouldResolve()
     {
         await using WebApplication app = ComposeHost();
-
-        MappedRoutes(app).ShouldContain(route);
+        MappedRoutes(app).ShouldContain("/tenants/events");
+        MappedRoutes(app).ShouldNotContain("/dapr/subscribe");
+        RouteEndpoint endpoint = ((IEndpointRouteBuilder)app).DataSources.SelectMany(source => source.Endpoints)
+            .OfType<RouteEndpoint>().Single(endpoint => endpoint.RoutePattern.RawText == "/tenants/events");
+        endpoint.Metadata.GetMetadata<Microsoft.AspNetCore.Authorization.IAuthorizeData>()!.Policy
+            .ShouldBe(EventStoreDomainServicePolicies.SidecarChannel);
+        endpoint.Metadata.GetMetadata<HttpMethodMetadata>()!.HttpMethods.ShouldBe(["POST"]);
     }
 
     /// <summary>
@@ -168,7 +167,7 @@ public sealed class ConversationsDomainServiceHostCompositionTest
         string[] expected =
         [
             "builder.AddEventStoreDomainService(",
-            "builder.Services.AddConversationTenantAccess();",
+            "builder.Services.AddConversationTenantAccess(builder.Configuration);",
             "builder.Services.AddConversationQueries(builder.Configuration);",
             "app.UseEventStoreDomainService();",
             "app.Run();",
@@ -348,16 +347,30 @@ public sealed class ConversationsDomainServiceHostCompositionTest
     /// Conversations' own query registration must not re-register the generic provider it consumes.
     /// </summary>
     [Fact]
-    public void ConversationQueryRegistrationShouldNotOwnDataProtection()
+    public void ConversationQueryRegistrationShouldUseSdkDataProtection()
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder();
 
-        builder.Services.AddConversationTenantAccess();
+        ConfigureEnrollment(builder);
+        builder.Services.AddConversationTenantAccess(builder.Configuration);
         builder.Services.AddConversationQueries(builder.Configuration);
 
         builder.Services
             .Any(static descriptor => descriptor.ServiceType == typeof(IDataProtectionProvider))
-            .ShouldBeFalse(
-                "the Conversations module must consume the platform's Data Protection provider, never introduce one.");
+            .ShouldBeTrue("enrolled configuration consumes the SDK Data Protection registration");
+        using ServiceProvider provider = builder.Services.BuildServiceProvider();
+        provider.GetRequiredService<IOptions<DataProtectionOptions>>().Value.ApplicationDiscriminator
+            .ShouldBe(ConversationQueryServiceCollectionExtensions.DataProtectionApplicationName);
     }
+
+    private static void ConfigureEnrollment(WebApplicationBuilder builder)
+    {
+        builder.Configuration[ConversationProjectionStoreOptions.ConfigurationKey] = "host-composition-state";
+        builder.Configuration["EventStore:DataProtection:StateStoreName"] = "host-composition-keys";
+        builder.Configuration["EventStore:DataProtection:PersistToStateStore"] = "false";
+        builder.Configuration["Tenants:PubSubName"] = "host-composition-events";
+        builder.Configuration["Tenants:TopicName"] = "host-composition-tenants";
+        builder.Configuration["Dapr:DeclarativeSubscriptions"] = "true";
+    }
+
 }

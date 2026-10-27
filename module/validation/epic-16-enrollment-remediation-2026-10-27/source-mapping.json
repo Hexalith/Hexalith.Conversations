@@ -1,0 +1,76 @@
+{
+  "Mode": "source",
+  "Root": "/home/administrator/projects/hexalith/conversations",
+  "ActiveModule": "Hexalith.Conversations",
+  "Entries": [
+    {
+      "Identity": "Hexalith.Conversations",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations"
+    },
+    {
+      "Identity": "Hexalith.AI.Tools",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.AI.Tools"
+    },
+    {
+      "Identity": "Hexalith.EventStore",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore"
+    },
+    {
+      "Identity": "Hexalith.Projects",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Projects"
+    },
+    {
+      "Identity": "Hexalith.Folders",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Folders"
+    },
+    {
+      "Identity": "Hexalith.Tenants",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Tenants"
+    },
+    {
+      "Identity": "Hexalith.FrontComposer",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.FrontComposer"
+    },
+    {
+      "Identity": "Hexalith.Parties",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Parties"
+    },
+    {
+      "Identity": "Hexalith.Memories",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Memories"
+    },
+    {
+      "Identity": "Hexalith.Commons",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons"
+    },
+    {
+      "Identity": "Hexalith.Builds",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds"
+    },
+    {
+      "Identity": "Hexalith.Platform",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform"
+    },
+    {
+      "Identity": "Hexalith.McpCli",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.McpCli"
+    }
+  ],
+  "HasGit": true,
+  "PlatformIdentity": null,
+  "IdentityFindings": [],
+  "ContentHash": "bb1f7bf3083cfa0889bd756adc5919e84ea48762b72f4625e6248a8a10cf37a9"
+}

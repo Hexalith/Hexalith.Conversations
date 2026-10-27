@@ -38,20 +38,26 @@ public sealed class ConversationNativeCurrentQueryTests
     }
 
     [Theory]
-    [InlineData("matching")]
-    [InlineData("selection")]
-    [InlineData("incarnation")]
-    [InlineData("prefix")]
-    [InlineData("head")]
-    [InlineData("retention")]
-    [InlineData("erased")]
-    public async Task ProductionAdapterChecksExactProofThroughDelegatedSignedTransportAndIsolatedSelection(string change)
+    [InlineData("matching", false)]
+    [InlineData("matching", true)]
+    [InlineData("selection", false)]
+    [InlineData("incarnation", false)]
+    [InlineData("prefix", false)]
+    [InlineData("head", false)]
+    [InlineData("retention", false)]
+    [InlineData("erased", false)]
+    public async Task ProductionAdapterChecksExactProofThroughDelegatedSignedTransportAndIsolatedSelection(string change, bool enrolledComponent)
     {
         var fixture = new ResolutionMetadataFixture();
-        await fixture.ProjectAsync();
-        var metadata = fixture.Metadata;
+        var binding = new ConversationProjectionStoreOptions(enrolledComponent ? "enrolled-native-evidence-state" : ConversationProjectionReadModelKeys.StateStoreName);
+        var handler = new Hexalith.Conversations.Server.Projections.ConversationAsyncProjectionHandler(new(),
+            new(binding, fixture.Store, null), fixture.Store, fixture.Time);
+        (await handler.ProjectAsync(ResolutionMetadataFixture.Request(), "dispatch-a", TestContext.Current.CancellationToken)).Status
+            .ShouldBe(Hexalith.EventStore.Contracts.Projections.ProjectionDispatchStatus.Completed);
+        var metadata = fixture.Store.Snapshot<ConversationResolutionMetadataReadModel>(binding.StateStoreName,
+            ConversationProjectionReadModelKeys.ResolutionMetadataKey(ResolutionMetadataFixture.Tenant, ResolutionMetadataFixture.Conversation))!;
         string selectedKey = ConversationProjectionReadModelKeys.ResolutionSelectionKey(metadata.TenantId, metadata.ConversationId);
-        var selected = fixture.Store.Snapshot<ConversationResolutionNativeSelection>("statestore", selectedKey)!;
+        var selected = fixture.Store.Snapshot<ConversationResolutionNativeSelection>(binding.StateStoreName, selectedKey)!;
         var source = metadata.NativeSourceProof!;
         source = change switch
         {
@@ -64,7 +70,7 @@ public sealed class ConversationNativeCurrentQueryTests
         };
         var proof = new Hexalith.EventStore.Contracts.Projections.ProjectionCurrentProof(source,
             new(selected.ProjectionOwner, "receipt", metadata.RequestFingerprint), "catalog");
-        if (change == "selection") fixture.Store.SeedRaw("statestore", selectedKey,
+        if (change == "selection") fixture.Store.SeedRaw(binding.StateStoreName, selectedKey,
             selected with { ProjectionOwner = selected.ProjectionOwner with { OwnerGeneration = new('d', 64) } });
         using var key = System.Security.Cryptography.RSA.Create(2048);
         var configuration = new Microsoft.Extensions.Configuration.ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
@@ -86,7 +92,7 @@ public sealed class ConversationNativeCurrentQueryTests
         using var dapr = new Dapr.Client.DaprClientBuilder().Build();
         var client = new Hexalith.EventStore.DomainService.DelegatedOwnerQueryClient(dapr, transport, transport, accessor, configuration, fixture.Time);
         var guard = new ResolutionGuardedStore(fixture.Store) { ForbidLegacyReads = true, ForbidWrites = true };
-        var evidence = new ConversationResolutionNativeEvidence(client, guard);
+        var evidence = new ConversationResolutionNativeEvidence(client, guard, binding);
         using var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection().AddSingleton<Microsoft.AspNetCore.Http.IHttpContextAccessor>(accessor)
             .AddSingleton<Hexalith.EventStore.DomainService.IDomainQueryHandler>(new ResolutionDelegatedEvidenceHandler(evidence, metadata)).BuildServiceProvider();
         var result = await Hexalith.EventStore.DomainService.DomainQueryDispatcher.ExecuteAsync(services, query, TestContext.Current.CancellationToken);

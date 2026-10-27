@@ -48,6 +48,7 @@ public sealed class ConversationAsyncProjectionHandler :
     private readonly IReadModelExpiringStore? _expiringStore;
     private readonly TimeSpan _ledgerTimeToLive;
     private readonly IReadModelStore _store;
+    private readonly ConversationProjectionStoreOptions _storeOptions;
     private readonly ConversationResolutionMetadataPersistence _resolution;
     private readonly TimeProvider _timeProvider;
     private readonly ConversationProjectionReadModelWriter _writer;
@@ -64,7 +65,8 @@ public sealed class ConversationAsyncProjectionHandler :
         _materializer = materializer ?? throw new ArgumentNullException(nameof(materializer));
         _writer = writer ?? throw new ArgumentNullException(nameof(writer));
         _store = store ?? throw new ArgumentNullException(nameof(store));
-        _resolution = new(_store);
+        _storeOptions = writer.StoreOptions;
+        _resolution = new(_store, _storeOptions);
         _timeProvider = timeProvider ?? TimeProvider.System;
         _expiringStore = expiringStore ?? store as IReadModelExpiringStore;
         ProjectionDispatchOptions options = dispatchOptions?.Value ?? new ProjectionDispatchOptions();
@@ -97,12 +99,12 @@ public sealed class ConversationAsyncProjectionHandler :
         if (retried.Status == ProjectionDispatchStatus.Failed)
         {
             if (request.NativeSourceProof is not null) return retried;
-            var ledger = await _store.GetAsync<ConversationProjectionDispatchLedger>(ConversationProjectionReadModelKeys.StateStoreName,
+            var ledger = await _store.GetAsync<ConversationProjectionDispatchLedger>(_storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.DispatchLedgerKey(dispatchId), cancellationToken).ConfigureAwait(false);
-            var proof = await _store.GetAsync<ConversationResolutionMetadataProof>(ConversationProjectionReadModelKeys.StateStoreName,
+            var proof = await _store.GetAsync<ConversationResolutionMetadataProof>(_storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.ResolutionProofKey(new TenantId(request.TenantId), new ConversationId(request.AggregateId)),
                 cancellationToken).ConfigureAwait(false);
-            var fence = await _store.GetAsync<ConversationResolutionMetadataProof>(ConversationProjectionReadModelKeys.StateStoreName,
+            var fence = await _store.GetAsync<ConversationResolutionMetadataProof>(_storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.ResolutionFenceKey(new TenantId(request.TenantId), new ConversationId(request.AggregateId)),
                 cancellationToken).ConfigureAwait(false);
             bool IsNative(ConversationResolutionGeneration? generation) => generation?.DispatchId == dispatchId
@@ -321,7 +323,7 @@ public sealed class ConversationAsyncProjectionHandler :
         }
         ReadModelEntry<ConversationProjectionDispatchLedger> persistedLedger = await _store
             .GetAsync<ConversationProjectionDispatchLedger>(
-                ConversationProjectionReadModelKeys.StateStoreName,
+                _storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.DispatchLedgerKey(operationId),
                 cancellationToken)
             .ConfigureAwait(false);
@@ -361,13 +363,13 @@ public sealed class ConversationAsyncProjectionHandler :
 
         ReadModelEntry<ConversationProjectedReadModels> persistedDetail = await _store
             .GetAsync<ConversationProjectedReadModels>(
-                ConversationProjectionReadModelKeys.StateStoreName,
+                _storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.ConversationKey(models.Summary.TenantId, models.Summary.ConversationId),
                 cancellationToken)
             .ConfigureAwait(false);
         ReadModelEntry<ConversationProjectionIndexReadModel> persistedIndex = await _store
             .GetAsync<ConversationProjectionIndexReadModel>(
-                ConversationProjectionReadModelKeys.StateStoreName,
+                _storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.TenantIndexKey(models.Summary.TenantId),
                 cancellationToken)
             .ConfigureAwait(false);
@@ -376,15 +378,15 @@ public sealed class ConversationAsyncProjectionHandler :
         // the read proof may participate in this content-free atomic visibility protocol only.
         ConversationResolutionMetadataReadModel metadata = ConversationResolutionMetadataReadModel.From(models, requestFingerprint);
         ReadModelEntry<ConversationResolutionMetadataReadModel> persistedMetadata = await _store
-            .GetAsync<ConversationResolutionMetadataReadModel>(ConversationProjectionReadModelKeys.StateStoreName,
+            .GetAsync<ConversationResolutionMetadataReadModel>(_storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.ResolutionMetadataKey(metadata.TenantId, metadata.ConversationId), cancellationToken)
             .ConfigureAwait(false);
         ReadModelEntry<ConversationResolutionMetadataProof> persistedProof = await _store
-            .GetAsync<ConversationResolutionMetadataProof>(ConversationProjectionReadModelKeys.StateStoreName,
+            .GetAsync<ConversationResolutionMetadataProof>(_storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.ResolutionProofKey(metadata.TenantId, metadata.ConversationId), cancellationToken)
             .ConfigureAwait(false);
         var persistedFence = await _store.GetAsync<ConversationResolutionMetadataProof>(
-            ConversationProjectionReadModelKeys.StateStoreName,
+            _storeOptions.StateStoreName,
             ConversationProjectionReadModelKeys.ResolutionFenceKey(metadata.TenantId, metadata.ConversationId), cancellationToken).ConfigureAwait(false);
         ConversationResolutionGeneration generation = ConversationResolutionGeneration.From(metadata, false);
         if ((persistedProof.Value?.Barrier is { } barrier && ConversationProjectionReadModelWriter.CompareGeneration(
@@ -477,13 +479,13 @@ public sealed class ConversationAsyncProjectionHandler :
 
         ConversationResolutionNativeSelection? nativeSelection = ConversationResolutionNativeSelection.From(metadata, operationId, rebuild: true);
         var priorSelection = await _store.GetAsync<ConversationResolutionNativeSelection>(
-            ConversationProjectionReadModelKeys.StateStoreName,
+            _storeOptions.StateStoreName,
             ConversationProjectionReadModelKeys.ResolutionSelectionKey(metadata.TenantId, metadata.ConversationId), cancellationToken).ConfigureAwait(false);
         List<ReadModelBatchOperation> nativeOperations = nativeSelection is null ? [] :
             [ReadModelBatchOperation.Write(ConversationProjectionReadModelKeys.ResolutionSelectionKey(metadata.TenantId, metadata.ConversationId),
                 nativeSelection, WriteConcurrency(priorSelection))];
         return new DomainProjectionRebuildPlan(
-            ConversationProjectionReadModelKeys.StateStoreName,
+            _storeOptions.StateStoreName,
             [
                 // Install the outer gate first. The native SDK exposes no ETag for an envelope, so the
                 // narrow reader withholds from the first install until this generation is compacted.
@@ -540,7 +542,7 @@ public sealed class ConversationAsyncProjectionHandler :
         {
             ReadModelEntry<ConversationProjectionDispatchLedger> entry = await _store
                 .GetAsync<ConversationProjectionDispatchLedger>(
-                    ConversationProjectionReadModelKeys.StateStoreName,
+                    _storeOptions.StateStoreName,
                     ledgerKey,
                     cancellationToken)
                 .ConfigureAwait(false);
@@ -561,7 +563,7 @@ public sealed class ConversationAsyncProjectionHandler :
             IReadModelExpiringStore expiringStore = _expiringStore
                 ?? throw new InvalidOperationException("The read-model store does not support expiring dispatch ledgers.");
             if (await expiringStore.TrySaveWithTimeToLiveAsync(
-                    ConversationProjectionReadModelKeys.StateStoreName,
+                    _storeOptions.StateStoreName,
                     ledgerKey,
                     pending,
                     string.Empty,
@@ -589,7 +591,7 @@ public sealed class ConversationAsyncProjectionHandler :
         {
             ReadModelEntry<ConversationProjectionDispatchLedger> entry = await _store
                 .GetAsync<ConversationProjectionDispatchLedger>(
-                    ConversationProjectionReadModelKeys.StateStoreName,
+                    _storeOptions.StateStoreName,
                     ledgerKey,
                     cancellationToken)
                 .ConfigureAwait(false);
@@ -608,7 +610,7 @@ public sealed class ConversationAsyncProjectionHandler :
             IReadModelExpiringStore expiringStore = _expiringStore
                 ?? throw new InvalidOperationException("The read-model store does not support expiring dispatch ledgers.");
             if (await expiringStore.TrySaveWithTimeToLiveAsync(
-                    ConversationProjectionReadModelKeys.StateStoreName,
+                    _storeOptions.StateStoreName,
                     ledgerKey,
                     completed,
                     entry.ETag ?? string.Empty,
@@ -648,7 +650,7 @@ public sealed class ConversationAsyncProjectionHandler :
             HashSet<string> requested = new(chunk, StringComparer.Ordinal);
             IReadOnlyList<ReadModelBulkEntry<ConversationProjectionDispatchLedger>> entries = await bulkStore
                 .GetManyAsync<ConversationProjectionDispatchLedger>(
-                    ConversationProjectionReadModelKeys.StateStoreName,
+                    _storeOptions.StateStoreName,
                     chunk,
                     BulkReadParallelism,
                     cancellationToken)
@@ -812,7 +814,7 @@ public sealed class ConversationAsyncProjectionHandler :
         ProjectionRequest request, string dispatchId, CancellationToken cancellationToken)
     {
         var existing = await _store.GetAsync<ConversationResolutionMetadataReadModel>(
-            ConversationProjectionReadModelKeys.StateStoreName,
+            _storeOptions.StateStoreName,
             ConversationProjectionReadModelKeys.ResolutionMetadataKey(new TenantId(request.TenantId),
                 new ConversationId(request.AggregateId)), cancellationToken).ConfigureAwait(false);
         return existing.Value is { IsLabelComplete: true, LabelPurpose: null } generation
@@ -829,13 +831,13 @@ public sealed class ConversationAsyncProjectionHandler :
         ConversationId conversationId = expected.Summary.ConversationId;
         ConversationResolutionMetadataReadModel metadata = ConversationResolutionMetadataReadModel.From(expected, ledger.RequestFingerprint);
         var proof = await _store.GetAsync<ConversationResolutionMetadataProof>(
-            ConversationProjectionReadModelKeys.StateStoreName,
+            _storeOptions.StateStoreName,
             ConversationProjectionReadModelKeys.ResolutionProofKey(tenantId, conversationId), cancellationToken).ConfigureAwait(false);
         var fence = await _store.GetAsync<ConversationResolutionMetadataProof>(
-            ConversationProjectionReadModelKeys.StateStoreName,
+            _storeOptions.StateStoreName,
             ConversationProjectionReadModelKeys.ResolutionFenceKey(tenantId, conversationId), cancellationToken).ConfigureAwait(false);
         var storedMetadata = await _store.GetAsync<ConversationResolutionMetadataReadModel>(
-            ConversationProjectionReadModelKeys.StateStoreName,
+            _storeOptions.StateStoreName,
             ConversationProjectionReadModelKeys.ResolutionMetadataKey(tenantId, conversationId), cancellationToken).ConfigureAwait(false);
         if (string.IsNullOrEmpty(proof.ETag) || string.IsNullOrEmpty(fence.ETag) || string.IsNullOrEmpty(storedMetadata.ETag)
             || proof.Value?.Barrier is not null || fence.Value?.Barrier is not null
@@ -853,7 +855,7 @@ public sealed class ConversationAsyncProjectionHandler :
         if (expectedSelection is not null)
         {
             selected = await _store.GetAsync<ConversationResolutionNativeSelection>(
-                ConversationProjectionReadModelKeys.StateStoreName,
+                _storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.ResolutionSelectionKey(tenantId, conversationId), cancellationToken).ConfigureAwait(false);
             if (string.IsNullOrEmpty(selected.ETag) || selected.Value?.ProjectionOwner is not { } owner
                 || string.IsNullOrWhiteSpace(owner.BatchId)
@@ -881,7 +883,7 @@ public sealed class ConversationAsyncProjectionHandler :
                 // to the dispatcher. The SDK checks the original batch identity and completed receipt.
                 ProjectionOwnerProofResult ownerProof = await ownerProofStore.ReadOwnerProofAsync(
                     new(tenantId.Value, Domain, conversationId.Value, ProjectionType, string.Empty),
-                    ConversationResolutionNativeProofRegistration.OwnerProofBinding, cancellationToken).ConfigureAwait(false);
+                    ConversationResolutionNativeProofRegistration.CreateBinding(_storeOptions), cancellationToken).ConfigureAwait(false);
                 if (ownerProof.Proof?.Selection != owner)
                 {
                     return false;
@@ -891,7 +893,7 @@ public sealed class ConversationAsyncProjectionHandler :
 
         ReadModelEntry<ConversationProjectedReadModels> detail = await _store
             .GetAsync<ConversationProjectedReadModels>(
-                ConversationProjectionReadModelKeys.StateStoreName,
+                _storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.ConversationKey(tenantId, conversationId),
                 cancellationToken)
             .ConfigureAwait(false);
@@ -918,14 +920,14 @@ public sealed class ConversationAsyncProjectionHandler :
 
         ReadModelEntry<ConversationProjectionIndexReadModel> index = await _store
             .GetAsync<ConversationProjectionIndexReadModel>(
-                ConversationProjectionReadModelKeys.StateStoreName,
+                _storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.TenantIndexKey(tenantId),
                 cancellationToken)
             .ConfigureAwait(false);
         if (requireCompletedProof)
         {
             var actualLedger = await _store.GetAsync<ConversationProjectionDispatchLedger>(
-                ConversationProjectionReadModelKeys.StateStoreName,
+                _storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.DispatchLedgerKey(ledger.DispatchId), cancellationToken).ConfigureAwait(false);
             if (actualLedger.Value is not null && (string.IsNullOrEmpty(actualLedger.ETag)
                 || actualLedger.Value.Status != ConversationProjectionDispatchStatus.Completed
@@ -939,10 +941,10 @@ public sealed class ConversationAsyncProjectionHandler :
         }
 
         var confirmedProof = await _store.GetAsync<ConversationResolutionMetadataProof>(
-            ConversationProjectionReadModelKeys.StateStoreName,
+            _storeOptions.StateStoreName,
             ConversationProjectionReadModelKeys.ResolutionProofKey(tenantId, conversationId), cancellationToken).ConfigureAwait(false);
         ReadModelEntry<ConversationResolutionNativeSelection>? confirmedSelection = selected is null ? null
-            : await _store.GetAsync<ConversationResolutionNativeSelection>(ConversationProjectionReadModelKeys.StateStoreName,
+            : await _store.GetAsync<ConversationResolutionNativeSelection>(_storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.ResolutionSelectionKey(tenantId, conversationId), cancellationToken).ConfigureAwait(false);
         return confirmedProof.Value == proof.Value && confirmedProof.ETag == proof.ETag
             && (selected is null || confirmedSelection == selected)
@@ -970,7 +972,7 @@ public sealed class ConversationAsyncProjectionHandler :
 
         // An old delivery may finish behind a newer completed winner, but cannot complete a partial winner.
         var proof = await _store.GetAsync<ConversationResolutionMetadataProof>(
-            ConversationProjectionReadModelKeys.StateStoreName,
+            _storeOptions.StateStoreName,
             ConversationProjectionReadModelKeys.ResolutionProofKey(metadata.TenantId, metadata.ConversationId), cancellationToken).ConfigureAwait(false);
         if (string.IsNullOrEmpty(proof.ETag) || proof.Value?.Barrier is not null || proof.Value?.Current is not { IsPending: false } winner
             || winner.CompareTo(ConversationResolutionGeneration.From(metadata, false)) <= 0)
@@ -979,7 +981,7 @@ public sealed class ConversationAsyncProjectionHandler :
         }
 
         var detail = await _store.GetAsync<ConversationProjectedReadModels>(
-            ConversationProjectionReadModelKeys.StateStoreName,
+            _storeOptions.StateStoreName,
             ConversationProjectionReadModelKeys.ConversationKey(metadata.TenantId, metadata.ConversationId), cancellationToken).ConfigureAwait(false);
         if (detail.Value is null)
         {

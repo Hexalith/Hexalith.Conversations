@@ -1,0 +1,77 @@
+{
+  "sourceHead": "dc5793db17fd6974200e80eb2b853187bc5f1669",
+  "correction": "Move only the additive observation raw-byte rule from root .gitattributes to the observation directory local .gitattributes; restore original accepted root bytes.",
+  "rootGitattributesEqualsCommittedBytes": true,
+  "rootGitattributesSha256": "d743202ab8c0bdf3dcd000a4a101acde352b6e6cf305a49b708b23c6e7029d7d",
+  "rootAttributeBindingMatches": true,
+  "acceptedBinding": "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+  "localAttributesPath": "module/validation/epic-16-enrollment-remediation-2026-10-27/.gitattributes",
+  "localAttributesSha256": "c879e6719659fa505edfe5fc0a5c1f18dc2058c6319128ca3bb27e260c434e99",
+  "priorObservationFileCount": 270,
+  "changedPriorObservationFiles": [],
+  "csharpSourceCount": 755,
+  "changedCSharpSources": [],
+  "changedAcceptedBindingsAndPackages": [],
+  "implementationSourceFilesDigested": 802,
+  "requiredNewSourcesIncluded": true,
+  "actualStoryCommandResults": [
+    {
+      "scenario": "AC-16.1-01",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ]
+    },
+    {
+      "scenario": "AC-16.1-02",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ]
+    },
+    {
+      "scenario": "AC-16.1-03",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ]
+    },
+    {
+      "scenario": "AC-16.1-04",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ]
+    },
+    {
+      "scenario": "AC-16.1-05",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ]
+    },
+    {
+      "scenario": "AC-16.1-06",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ]
+    }
+  ],
+  "effectiveRawAttributes": "effective-raw-attributes.json",
+  "rootBindingRefreshRequiredForObservationRule": false,
+  "supersededHistoricalRefreshNote": "../review-fix-1/pending-tooling-source-binding-refresh.json",
+  "entry": null,
+  "trustedEntries": {},
+  "hold": "ACTIVE",
+  "runtimePublicationFilesPresent": [],
+  "csharpOrBroadTestsRun": false,
+  "validatorsBindingsPinsOrScannerScopeChanged": false,
+  "stagingPerformed": false
+}

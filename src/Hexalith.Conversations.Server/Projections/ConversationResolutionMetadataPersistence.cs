@@ -7,8 +7,13 @@ using Hexalith.EventStore.Client.Projections;
 namespace Hexalith.Conversations.Server.Projections;
 
 /// <summary>Maintains lasting, content-free generation proof through the platform write policy.</summary>
-internal sealed class ConversationResolutionMetadataPersistence(IReadModelStore store)
+internal sealed class ConversationResolutionMetadataPersistence(IReadModelStore store, ConversationProjectionStoreOptions storeOptions)
 {
+    /// <summary>Preserves the legacy direct-construction API using the existing SDK default.</summary>
+    internal ConversationResolutionMetadataPersistence(IReadModelStore store) : this(store, ConversationProjectionStoreOptions.Legacy)
+    {
+    }
+
     /// <summary>Resumes SDK-owned interrupted batches before accepting another projection write.</summary>
     internal async Task RecoverWritesAsync(TenantId tenantId, ConversationId conversationId, CancellationToken cancellationToken)
     {
@@ -28,14 +33,14 @@ internal sealed class ConversationResolutionMetadataPersistence(IReadModelStore 
         foreach (string key in participants)
         {
             ReadModelPendingBatchRecoveryResult result = await recovery.RecoverPendingAsync(new(
-                ConversationProjectionReadModelKeys.StateStoreName, ConversationProjectionReadModelKeys.ResolutionStorageToken(tenantId.Value),
+                storeOptions.StateStoreName, ConversationProjectionReadModelKeys.ResolutionStorageToken(tenantId.Value),
                 ConversationProjectionHandler.ConversationDomain, ConversationProjectionReadModelKeys.ResolutionStorageToken(conversationId.Value), "resolution-metadata", "pending-discovery"),
                 key, cancellationToken).ConfigureAwait(false);
             if (!result.IsResolved)
             {
                 // Historical metadata batches used explicitly hashed private scope tokens. Recover only that
                 // exact old protocol; it never supplies a native selected owner or current authority.
-                result = await recovery.RecoverPendingAsync(new(ConversationProjectionReadModelKeys.StateStoreName,
+                result = await recovery.RecoverPendingAsync(new(storeOptions.StateStoreName,
                     tenantId.Value, ConversationProjectionHandler.ConversationDomain,
                     conversationId.Value, ConversationAsyncProjectionHandler.ConversationReadModelProjectionType, "pending-discovery"),
                     key, cancellationToken).ConfigureAwait(false);
@@ -58,12 +63,12 @@ internal sealed class ConversationResolutionMetadataPersistence(IReadModelStore 
     private async Task ClaimAsync(string key, ConversationResolutionGeneration incoming, bool forceWrite, CancellationToken cancellationToken)
     {
         var observed = await store.GetAsync<ConversationResolutionMetadataProof>(
-            ConversationProjectionReadModelKeys.StateStoreName, key, cancellationToken).ConfigureAwait(false);
+            storeOptions.StateStoreName, key, cancellationToken).ConfigureAwait(false);
         // Repairing a completed same-generation dispatch must first reopen the outer pending proof.
         // Private unchanged claims can retain their ETag until a metadata batch needs to advance them.
         if (!forceWrite && observed.Value == MergePending(observed.Value, incoming)) return;
         _ = await ReadModelWritePolicy.UpdateAsync<ConversationResolutionMetadataProof>(store,
-            ConversationProjectionReadModelKeys.StateStoreName, key,
+            storeOptions.StateStoreName, key,
             existing => MergePending(existing, incoming), cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 
@@ -77,7 +82,7 @@ internal sealed class ConversationResolutionMetadataPersistence(IReadModelStore 
 
         string proofKey = ConversationProjectionReadModelKeys.ResolutionFenceKey(model.TenantId, model.ConversationId);
         var proof = await store.GetAsync<ConversationResolutionMetadataProof>(
-            ConversationProjectionReadModelKeys.StateStoreName, proofKey, cancellationToken).ConfigureAwait(false);
+            storeOptions.StateStoreName, proofKey, cancellationToken).ConfigureAwait(false);
         if (proof.Value?.Current is not { } current)
         {
             throw new InvalidOperationException("The pending generation proof disappeared.");
@@ -102,7 +107,7 @@ internal sealed class ConversationResolutionMetadataPersistence(IReadModelStore 
         // can retrieve no detail/index values through the SDK's retained recovery marker.
         string metadataKey = ConversationProjectionReadModelKeys.ResolutionMetadataKey(model.TenantId, model.ConversationId);
         var metadata = await store.GetAsync<ConversationResolutionMetadataReadModel>(
-            ConversationProjectionReadModelKeys.StateStoreName, metadataKey, cancellationToken).ConfigureAwait(false);
+            storeOptions.StateStoreName, metadataKey, cancellationToken).ConfigureAwait(false);
         if (metadata.Value is not null && ConversationResolutionGeneration.From(metadata.Value, false)
             .CompareTo(ConversationResolutionGeneration.From(model, false)) > 0)
         {
@@ -115,7 +120,7 @@ internal sealed class ConversationResolutionMetadataPersistence(IReadModelStore 
         // optimistic conflict gets a new manifest; interrupted identical work resumes the same SDK batch.
         string selectionKey = ConversationProjectionReadModelKeys.ResolutionSelectionKey(model.TenantId, model.ConversationId);
         var priorSelection = await store.GetAsync<ConversationResolutionNativeSelection>(
-            ConversationProjectionReadModelKeys.StateStoreName, selectionKey, cancellationToken).ConfigureAwait(false);
+            storeOptions.StateStoreName, selectionKey, cancellationToken).ConfigureAwait(false);
         string batchId = Convert.ToHexStringLower(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(new
         {
             Operations = operations.Select(operation => new { operation.Key, operation.Concurrency,
@@ -129,7 +134,7 @@ internal sealed class ConversationResolutionMetadataPersistence(IReadModelStore 
             operations.Add(ReadModelBatchOperation.Write(selectionKey, selected, Concurrency(priorSelection)));
         }
         ReadModelBatchResult result = await batches.ExecuteAsync(new(new(
-            ConversationProjectionReadModelKeys.StateStoreName,
+            storeOptions.StateStoreName,
             selected is null ? ConversationProjectionReadModelKeys.ResolutionStorageToken(model.TenantId.Value) : model.TenantId.Value,
             ConversationProjectionHandler.ConversationDomain,
             selected is null ? ConversationProjectionReadModelKeys.ResolutionStorageToken(model.ConversationId.Value) : model.ConversationId.Value,
@@ -152,14 +157,14 @@ internal sealed class ConversationResolutionMetadataPersistence(IReadModelStore 
     internal async Task CompleteAsync(ConversationResolutionMetadataReadModel model, CancellationToken cancellationToken)
     {
         _ = await ReadModelWritePolicy.UpdateAsync<ConversationResolutionMetadataProof>(store,
-            ConversationProjectionReadModelKeys.StateStoreName,
+            storeOptions.StateStoreName,
             ConversationProjectionReadModelKeys.ResolutionFenceKey(model.TenantId, model.ConversationId),
             existing => existing is not null && existing.Barrier is null && existing.Current is { } generation && generation.Matches(model)
                 ? existing with { Current = generation with { IsPending = false } }
                 : throw new InvalidOperationException("The metadata generation advanced before completion."),
             cancellationToken: cancellationToken).ConfigureAwait(false);
         _ = await ReadModelWritePolicy.UpdateAsync<ConversationResolutionMetadataProof>(store,
-            ConversationProjectionReadModelKeys.StateStoreName,
+            storeOptions.StateStoreName,
             ConversationProjectionReadModelKeys.ResolutionProofKey(model.TenantId, model.ConversationId),
             existing => existing is not null && existing.Barrier is null && existing.Current is { } generation && generation.Matches(model)
                 ? existing with { Current = generation with { IsPending = false } }
@@ -173,10 +178,10 @@ internal sealed class ConversationResolutionMetadataPersistence(IReadModelStore 
         CancellationToken cancellationToken)
     {
         var entry = await store.GetAsync<ConversationResolutionMetadataProof>(
-            ConversationProjectionReadModelKeys.StateStoreName,
+            storeOptions.StateStoreName,
             ConversationProjectionReadModelKeys.ResolutionProofKey(tenantId, conversationId), cancellationToken).ConfigureAwait(false);
         var fence = await store.GetAsync<ConversationResolutionMetadataProof>(
-            ConversationProjectionReadModelKeys.StateStoreName,
+            storeOptions.StateStoreName,
             ConversationProjectionReadModelKeys.ResolutionFenceKey(tenantId, conversationId), cancellationToken).ConfigureAwait(false);
         ConversationResolutionGeneration?[] candidates =
         [entry.Value?.Current, entry.Value?.PreviousCompleted, fence.Value?.Current, fence.Value?.PreviousCompleted];
@@ -206,7 +211,7 @@ internal sealed class ConversationResolutionMetadataPersistence(IReadModelStore 
     {
         await RecoverWritesAsync(tenantId, conversationId, cancellationToken).ConfigureAwait(false);
         var proof = await store.GetAsync<ConversationResolutionMetadataProof>(
-            ConversationProjectionReadModelKeys.StateStoreName,
+            storeOptions.StateStoreName,
             ConversationProjectionReadModelKeys.ResolutionProofKey(tenantId, conversationId), cancellationToken).ConfigureAwait(false);
         // Legacy index compensation does not stop a paused CAS detail writer. Keep the outer proof
         // unavailable until a supported retry/rebuild verifies the winning components and completes it.
@@ -220,7 +225,7 @@ internal sealed class ConversationResolutionMetadataPersistence(IReadModelStore 
     {
         if (position < 1) return;
         _ = await ReadModelWritePolicy.UpdateAsync<ConversationResolutionMetadataProof>(store,
-            ConversationProjectionReadModelKeys.StateStoreName,
+            storeOptions.StateStoreName,
             ConversationProjectionReadModelKeys.ResolutionProofKey(tenant, conversation),
             existing =>
             {

@@ -1,0 +1,17 @@
+{
+  "sourceHead": "dc5793db17fd6974200e80eb2b853187bc5f1669",
+  "result": "BLOCKED",
+  "scope": "Inspected producer CI mapping closure; no CI run or Release compilation. Approved missing-mapping matrix preserved.",
+  "inspectedFiles": [
+    ".github/workflows/ci.yml",
+    "references/Hexalith.Builds/.github/workflows/domain-ci.yml",
+    "references/Hexalith.Builds/Github/initialize-build/action.yml"
+  ],
+  "finding": "Current plain restore/build invocations provide no generated mapping imports; initialization only initializes root dependencies. They will fail mandatory mapping validation. A producer CI mapping path needs separate owner implementation/qualification.",
+  "demonstration": "ci-unmapped-contracts.json",
+  "inspectedFileHashes": {
+    ".github/workflows/ci.yml": "83d426cfd36de8eff90a44931612bc385087cc660bc63e56eb10dc96689cafe6",
+    "references/Hexalith.Builds/.github/workflows/domain-ci.yml": "8e19e03ec76a89cc1bd733053ef841e2f24be1b09d37eae0c3ce5820292bb651",
+    "references/Hexalith.Builds/Github/initialize-build/action.yml": "1b249e2dee86cbdc10cb517aea810566903ac7e5a443c348ff2e58fc9686cad0"
+  }
+}

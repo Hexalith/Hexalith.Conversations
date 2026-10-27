@@ -20,8 +20,8 @@ namespace Hexalith.Conversations.Server.Projections;
 /// </remarks>
 internal static class ConversationProjectionReadModelKeys
 {
-    /// <summary>The DAPR state-store component name (sibling convention).</summary>
-    internal const string StateStoreName = "statestore";
+    /// <summary>Gets the SDK default retained for legacy direct-construction callers.</summary>
+    internal static string StateStoreName => ConversationProjectionStoreOptions.Legacy.StateStoreName;
 
     /// <summary>The diagnostic category for the per-conversation summary/detail read model.</summary>
     internal const string ConversationKeyCategory = "conversation read-model";

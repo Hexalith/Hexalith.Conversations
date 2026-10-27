@@ -130,15 +130,19 @@ against an estimated reference with low comparison confidence.
 
 ## Local Validation
 
-Use the repository-pinned .NET SDK from `global.json`:
+Use the repository-pinned .NET SDK from `global.json` with the
+[Platform-mapped validation workflow](module/README.md#mapped-validation-workflow).
+Builds' generated imports must supply the selected roots, source/package mode,
+configuration and mapping hash before restore/build. Ordinary unmapped commands
+now fail explicitly. The accepted CLI's `validate` command does not materialize a
+mapping; the current CI mapping handoff is still pending.
 
-```powershell
-dotnet restore Hexalith.Conversations.slnx
-dotnet build Hexalith.Conversations.slnx
-dotnet test Hexalith.Conversations.slnx
-```
-
-If the local sandbox blocks VSTest socket creation, build the affected test project and run its compiled xUnit v3 executable directly. See [test framework guidance](tests/README.md#vstest-socket-fallback).
+Local compilation uses individual Debug test projects; run focused built xUnit
+v3 assemblies with `-class` or `-method`. The
+[prerequisite observations](module/validation/epic-16-enrollment-remediation-2026-10-27/)
+record the isolated public-materializer checks and their exact commands.
+Release/package runtime qualification and the held product runtime require
+separate owner acceptance; these source checks grant neither.
 
 The scaffold smoke checks must not require Aspire runtime launch, Dapr sidecars, tenant seed data, production secrets, provider credentials, external cloud resources, or nested submodule initialization.
 

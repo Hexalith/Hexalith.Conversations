@@ -1,0 +1,24 @@
+{
+  "id": "adoption-text",
+  "command": [
+    "dotnet",
+    "tool",
+    "run",
+    "hexalith-module",
+    "--",
+    "validate",
+    "--manifest",
+    "module/hexalith.module-manifest.v2.json",
+    "--adoption"
+  ],
+  "workingDirectory": "/home/administrator/projects/hexalith/conversations",
+  "mappingEnvironment": {},
+  "sourceHead": "dc5793db17fd6974200e80eb2b853187bc5f1669",
+  "implementationSourceSnapshotSha256": "0a1e5de3367094ef3da8183c67034d928fae9736d3aa1b1bf9924a0849c02ebb",
+  "startedUtc": "2026-10-27T11:28:28.647374+00:00",
+  "durationSeconds": 11.819,
+  "exitCode": 1,
+  "expectedExitCode": 1,
+  "stdoutSha256": "446c038fcefab2a958c1befea1bcc29052bfc4af0eefd7e91d37a676d0ac5008",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

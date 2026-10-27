@@ -1,0 +1,29 @@
+{
+  "id": "population",
+  "command": [
+    "dotnet",
+    "tests/Hexalith.Conversations.IntegrationTests/bin/Debug/net10.0/Hexalith.Conversations.IntegrationTests.dll",
+    "-class",
+    "Hexalith.Conversations.IntegrationTests.Projections.ConversationProjectionReadStorePopulationLiveTests",
+    "-result-xml",
+    "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-enrollment-remediation-2026-10-27/parent-final/population.xml"
+  ],
+  "workingDirectory": "/home/administrator/projects/hexalith/conversations",
+  "mappingEnvironment": {
+    "CustomBeforeDirectoryBuildProps": "/tmp/conversations-enrollment-source/source-mapping/SourceMapping.targets",
+    "CustomAfterMicrosoftCommonProps": "/tmp/conversations-enrollment-source/source-mapping/SourceMapping.props",
+    "CustomBeforeDirectoryBuildTargets": "/tmp/conversations-enrollment-source/source-mapping/SourceMapping.before-targets.props",
+    "CustomAfterDirectoryBuildTargets": "/tmp/conversations-enrollment-source/source-mapping/SourceMapping.late.props",
+    "AfterMicrosoftNETSdkTargets": "/tmp/conversations-enrollment-source/source-mapping/SourceMapping.final.targets",
+    "HEXALITH_SOURCE_MAPPING_HASH": "bb1f7bf3083cfa0889bd756adc5919e84ea48762b72f4625e6248a8a10cf37a9",
+    "Configuration": "Debug"
+  },
+  "sourceHead": "dc5793db17fd6974200e80eb2b853187bc5f1669",
+  "implementationSourceSnapshotSha256": "0a1e5de3367094ef3da8183c67034d928fae9736d3aa1b1bf9924a0849c02ebb",
+  "startedUtc": "2026-10-27T11:28:23.505323+00:00",
+  "durationSeconds": 0.733,
+  "exitCode": 0,
+  "expectedExitCode": 0,
+  "stdoutSha256": "cc7132329a6e7cf922cbb028027e7d5aa39c915a631532eb6e9ac43ef3519c77",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

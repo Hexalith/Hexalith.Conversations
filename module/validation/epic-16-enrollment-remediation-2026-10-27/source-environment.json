@@ -1,0 +1,9 @@
+{
+  "CustomBeforeDirectoryBuildProps": "/tmp/conversations-enrollment-source/source-mapping/SourceMapping.targets",
+  "CustomAfterMicrosoftCommonProps": "/tmp/conversations-enrollment-source/source-mapping/SourceMapping.props",
+  "CustomBeforeDirectoryBuildTargets": "/tmp/conversations-enrollment-source/source-mapping/SourceMapping.before-targets.props",
+  "CustomAfterDirectoryBuildTargets": "/tmp/conversations-enrollment-source/source-mapping/SourceMapping.late.props",
+  "AfterMicrosoftNETSdkTargets": "/tmp/conversations-enrollment-source/source-mapping/SourceMapping.final.targets",
+  "HEXALITH_SOURCE_MAPPING_HASH": "bb1f7bf3083cfa0889bd756adc5919e84ea48762b72f4625e6248a8a10cf37a9",
+  "Configuration": "Debug"
+}

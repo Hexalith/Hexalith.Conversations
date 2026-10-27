@@ -1,0 +1,22 @@
+{
+  "command": [
+    "python3",
+    "_bmad/scripts/verify_story_completion_workflows.py",
+    "--repository",
+    ".",
+    "--contract",
+    "_bmad-output/planning-artifacts/v9/story-contracts/7.3.json",
+    "--scenario",
+    "AC-7.3-02",
+    "--output",
+    "module/validation/epic-16-enrollment-remediation-2026-10-27/AC-7.3-02.result.json"
+  ],
+  "workingDirectory": "/home/administrator/projects/hexalith/conversations",
+  "startedUtc": "2026-10-27T10:29:12.168051+00:00",
+  "durationSeconds": 0.11,
+  "exitCode": 2,
+  "sourceHead": "dc5793db17fd6974200e80eb2b853187bc5f1669",
+  "mappingEnvironment": {},
+  "stdoutSha256": "1b044839551c5aaa7d72d6a69e24be4854740fc9a19ffa94063c7e21220fcce9",
+  "stderrSha256": "2306a89fc63613631b45664be38f779186e51b9ae332074bb3bdd7906f57a371"
+}

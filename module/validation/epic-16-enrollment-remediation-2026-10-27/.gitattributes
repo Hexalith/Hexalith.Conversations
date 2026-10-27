@@ -1,0 +1,2 @@
+# Preserve exact raw enrollment observations at this directory and every nested level.
+** -text diff -whitespace

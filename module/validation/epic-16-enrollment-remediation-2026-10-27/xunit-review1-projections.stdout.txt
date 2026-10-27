@@ -1,0 +1,23 @@
+xUnit.net v3 In-Process Runner v4.0.2+0c7aa4991f (64-bit .NET 10.0.13)
+  Discovering: Hexalith.Conversations.Server.Tests
+  Discovered:  Hexalith.Conversations.Server.Tests
+  Starting:    Hexalith.Conversations.Server.Tests
+    Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.ConfiguredPublicWritesInvalidateProofAndReconcileOnlyTheirTerminalState(pendingOnly: False) [FAIL]
+      Shouldly.ShouldAssertException : store.Snapshot<ConversationProjectionIndexReadModel>(component, indexKey)!.Dispatches[ResolutionMetadataFixture.Conversation.Value]
+                  .IsPending
+          should be
+      True
+          but was
+      False
+      Stack Trace:
+        tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionConfigurationTest.cs(181,0): at Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.ConfiguredPublicWritesInvalidateProofAndReconcileOnlyTheirTerminalState(Boolean pendingOnly)
+           at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+           at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+           at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task, ConfigureAwaitOptions options)
+        --- End of stack trace from previous location ---
+           at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+           at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+           at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task, ConfigureAwaitOptions options)
+  Finished:    Hexalith.Conversations.Server.Tests (ID = 'c38ef556a898519e42c8fb49bd82e177f93c8a707fe2e73596fab6919db071a3')
+=== TEST EXECUTION SUMMARY ===
+   Hexalith.Conversations.Server.Tests  Total: 41, Errors: 0, Failed: 1, Skipped: 0, Not Run: 0, Time: 0.492s

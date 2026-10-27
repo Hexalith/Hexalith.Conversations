@@ -577,6 +577,56 @@ public sealed class ConversationAsyncProjectionHandlerTest
         rebuilt.Summaries.ShouldNotContain(summary => summary.ConversationId == ConversationB());
     }
 
+    /// <summary>Configured rebuild promotion retains summaryless sibling evidence in the intended component.</summary>
+    [Fact]
+    public async Task ConfiguredRebuildPreservesSummarylessPendingSiblingAfterSdkBatchCommit()
+    {
+        const string component = "configured-sibling-rebuild-state";
+        const string alternate = "alternate-sibling-rebuild-state";
+        const string siblingDispatch = "dispatch-configured-pending";
+        const string operation = "rebuild-configured-sibling";
+        InMemoryReadModelStore store = new();
+        ConversationProjectionIndexReadModel pending = new()
+        {
+            Dispatches = new Dictionary<string, ConversationProjectionDispatchReference>(StringComparer.Ordinal)
+            {
+                [ConversationB().Value] = new(siblingDispatch, 1, IsPending: true),
+            },
+        };
+        ConversationProjectionDispatchLedger ledger = new(siblingDispatch, "sibling-fingerprint", Tenant,
+            ConversationB(), Started, ConversationProjectionDispatchStatus.Pending);
+        string indexKey = ConversationProjectionReadModelKeys.TenantIndexKey(Tenant);
+        string ledgerKey = ConversationProjectionReadModelKeys.DispatchLedgerKey(siblingDispatch);
+        store.SeedRaw(component, indexKey, pending);
+        store.SeedRaw(component, ledgerKey, ledger);
+        store.SeedRaw(alternate, indexKey, pending);
+        store.SeedRaw(alternate, ledgerKey, ledger);
+        IReadOnlyDictionary<string, byte[]> alternateBefore = store.SnapshotRawEntries(alternate);
+        byte[] siblingBefore = store.SnapshotRaw(component, ledgerKey)!;
+        ConversationProjectionStoreOptions binding = new(component);
+        ConversationAsyncProjectionHandler handler = new(new(), new(binding, store, null), store,
+            new FixedTimeProvider(Started.AddSeconds(3)));
+
+        DomainProjectionRebuildPlan plan = await handler.PrepareRebuildAsync(Request(Tenant, Conversation), operation,
+            TestContext.Current.CancellationToken);
+        plan.StoreName.ShouldBe(component);
+        ReadModelBatchResult committed = await store.ExecuteAsync(new(new(plan.StoreName, Tenant.Value,
+            ConversationProjectionHandler.ConversationDomain, Conversation.Value,
+            ConversationAsyncProjectionHandler.ConversationReadModelProjectionType, operation), plan.Operations), TestContext.Current.CancellationToken);
+        committed.IsSuccess.ShouldBeTrue();
+        ConversationProjectionIndexReadModel actual = store.Snapshot<ConversationProjectionIndexReadModel>(component, indexKey)!;
+        actual.Dispatches[ConversationB().Value].DispatchId.ShouldBe(siblingDispatch);
+        actual.Dispatches[ConversationB().Value].IsPending.ShouldBeTrue();
+        actual.Summaries.ShouldNotContain(summary => summary.ConversationId == ConversationB());
+        actual.Summaries.ShouldHaveSingleItem().ConversationId.ShouldBe(Conversation);
+        store.Snapshot<ConversationProjectedReadModels>(component,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation))!.DispatchId.ShouldBe(operation);
+        store.SnapshotRaw(component, ledgerKey).ShouldBe(siblingBefore);
+        store.SnapshotRawEntries(alternate).Keys.ShouldBe(alternateBefore.Keys, ignoreOrder: true);
+        foreach ((string key, byte[] value) in alternateBefore) store.SnapshotRaw(alternate, key).ShouldBe(value);
+        store.SnapshotRawEntries(ConversationProjectionReadModelKeys.StateStoreName).ShouldBeEmpty();
+    }
+
     [Fact]
     public async Task RebuildShouldBulkReadSummarylessSiblingLedgers()
     {

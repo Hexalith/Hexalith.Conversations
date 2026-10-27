@@ -1,0 +1,150 @@
+{
+  "sourceHead": "dc5793db17fd6974200e80eb2b853187bc5f1669",
+  "scope": "Approved source prerequisite slice only. No final tracked-candidate qualification or owner acceptance.",
+  "nativeTests": {
+    "mapping": {
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "not-run": 0,
+      "errors": 0
+    },
+    "contracts-inventory": {
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "not-run": 0,
+      "errors": 0
+    },
+    "configuration": {
+      "total": 11,
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "not-run": 0,
+      "errors": 0
+    },
+    "tenant-enrollment": {
+      "total": 11,
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "not-run": 0,
+      "errors": 0
+    },
+    "server-affected-verified": {
+      "total": 753,
+      "passed": 753,
+      "failed": 0,
+      "skipped": 0,
+      "not-run": 0,
+      "errors": 0
+    },
+    "server-all": {
+      "total": 1369,
+      "passed": 1369,
+      "failed": 0,
+      "skipped": 0,
+      "not-run": 0,
+      "errors": 0
+    },
+    "integration-population": {
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "not-run": 0,
+      "errors": 0
+    }
+  },
+  "packageModeEvaluatedProjects": 8,
+  "contractsPackageModeInventoryAssertionsRemainCompiled": true,
+  "sourceMaterializerOnlyTestsExcludedFromPackageCompilation": true,
+  "nativeAdoption": {
+    "result": "FAIL",
+    "passed": 6,
+    "failed": 10,
+    "targetedRemainingFailures": 0,
+    "unexpectedFailures": 0,
+    "detail": "adoption-delta.json"
+  },
+  "ordinaryValidation": {
+    "result": "FAIL",
+    "textExitCode": 1,
+    "jsonExitCode": 1,
+    "reason": "Accepted 4.35.2 rejects real SDK APP_API_TOKEN key; unchanged."
+  },
+  "story73Guards": {
+    "AC-7.3-01": "PASS",
+    "AC-7.3-02": "PASS",
+    "scope": "byte-verified-current-governance-mirror",
+    "provenance": "governance-mirror.json"
+  },
+  "story161Commands": [
+    {
+      "commandId": "AC-16.1-01",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "responseScenarioId": "AC-16.1-01",
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ]
+    },
+    {
+      "commandId": "AC-16.1-02",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "responseScenarioId": "AC-16.1-02",
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ]
+    },
+    {
+      "commandId": "AC-16.1-03",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "responseScenarioId": "AC-16.1-03",
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ]
+    },
+    {
+      "commandId": "AC-16.1-04",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "responseScenarioId": "AC-16.1-04",
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ]
+    },
+    {
+      "commandId": "AC-16.1-05",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "responseScenarioId": "AC-16.1-05",
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ]
+    },
+    {
+      "commandId": "AC-16.1-06",
+      "exitCode": 2,
+      "result": "BLOCKED",
+      "responseScenarioId": "AC-16.1-01",
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ]
+    }
+  ],
+  "ciIntegrationGate": {
+    "state": "pending",
+    "detail": "ci-mapping-gate.json",
+    "unmappedDemonstrationExit": 1,
+    "ciExecuted": false
+  },
+  "runtimePublication": "not-applicable",
+  "ownerAcceptance": "pending",
+  "preservation": "preservation-result.json"
+}

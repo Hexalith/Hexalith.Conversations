@@ -1,0 +1,22 @@
+{
+  "command": [
+    "python3",
+    "_bmad/scripts/verify_story_completion_workflows.py",
+    "--repository",
+    ".",
+    "--contract",
+    "_bmad-output/planning-artifacts/v9/story-contracts/7.3.json",
+    "--scenario",
+    "AC-7.3-02",
+    "--output",
+    "artifacts/v9/7.3/AC-7.3-02.json"
+  ],
+  "workingDirectory": "/tmp/conversations-governance-wwzcpy4v/source",
+  "startedUtc": "2026-10-27T10:32:40.377376+00:00",
+  "durationSeconds": 0.102,
+  "exitCode": 0,
+  "sourceHead": "dc5793db17fd6974200e80eb2b853187bc5f1669",
+  "stdoutSha256": "a2cea7737ebcb4e5785b696abc811f6b5b3be33598622817ef4aac051567ff30",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "scope": "byte-verified-governance-mirror"
+}

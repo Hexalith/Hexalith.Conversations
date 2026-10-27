@@ -1,0 +1,24 @@
+{
+  "command": [
+    "python3",
+    "_bmad/scripts/verify_story_16_1.py",
+    "--repository",
+    ".",
+    "--contract",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+    "--scenario",
+    "AC-16.1-05",
+    "--candidate",
+    "HEAD",
+    "--output",
+    "artifacts/epic16-runtime/16.1/AC-16.1-05.json"
+  ],
+  "workingDirectory": "/home/administrator/projects/hexalith/conversations",
+  "startedUtc": "2026-10-27T10:29:11.173826+00:00",
+  "durationSeconds": 0.148,
+  "exitCode": 2,
+  "sourceHead": "dc5793db17fd6974200e80eb2b853187bc5f1669",
+  "mappingEnvironment": {},
+  "stdoutSha256": "de6c23dc826836e497eb840e2677899087f49034b2aa9fdd8d78ecfe2d00d19e",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

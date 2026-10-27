@@ -10,10 +10,21 @@ namespace Hexalith.Conversations.Server.Queries;
 
 /// <summary>Uses only the existing signed bound-owner SDK and isolated content-free selected-owner key.</summary>
 /// <param name="client">The existing delegated SDK transport.</param>
+/// <param name="storeOptions">The provider-local component binding; legacy direct callers use the SDK default.</param>
 /// <param name="store">The supported read-model store.</param>
-public sealed class ConversationResolutionNativeEvidence(DelegatedOwnerQueryClient client, IReadModelStore store)
+public sealed class ConversationResolutionNativeEvidence(DelegatedOwnerQueryClient client, IReadModelStore store, ConversationProjectionStoreOptions storeOptions)
     : IConversationResolutionNativeEvidence
 {
+    private readonly ConversationProjectionStoreOptions _storeOptions = storeOptions ?? throw new ArgumentNullException(nameof(storeOptions));
+
+    /// <summary>Preserves the existing direct-construction API using the SDK default.</summary>
+    /// <param name="client">The SDK delegated transport.</param>
+    /// <param name="store">The SDK read-model store.</param>
+    public ConversationResolutionNativeEvidence(DelegatedOwnerQueryClient client, IReadModelStore store)
+        : this(client, store, ConversationProjectionStoreOptions.Legacy)
+    {
+    }
+
     /// <inheritdoc/>
     public async Task<TenantReadAuthorityResult?> ReadTenantAsync(QueryEnvelope query, CancellationToken cancellationToken)
     {
@@ -35,7 +46,7 @@ public sealed class ConversationResolutionNativeEvidence(DelegatedOwnerQueryClie
         ReadModelEntry<ConversationResolutionNativeSelection> selected;
         try
         {
-            selected = await store.GetCompactedAsync<ConversationResolutionNativeSelection>(ConversationProjectionReadModelKeys.StateStoreName,
+            selected = await store.GetCompactedAsync<ConversationResolutionNativeSelection>(_storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.ResolutionSelectionKey(metadata.TenantId, metadata.ConversationId), cancellationToken).ConfigureAwait(false);
         }
         catch (Exception exception) when (exception is InvalidOperationException or NotSupportedException)

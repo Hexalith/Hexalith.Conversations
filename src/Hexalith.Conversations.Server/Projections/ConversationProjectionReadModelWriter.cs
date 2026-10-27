@@ -34,6 +34,7 @@ namespace Hexalith.Conversations.Server.Projections;
 public sealed class ConversationProjectionReadModelWriter
 {
     private readonly IReadModelStore _store;
+    private readonly ConversationProjectionStoreOptions _storeOptions;
     private readonly ILogger<ConversationProjectionReadModelWriter> _logger;
 
     /// <summary>
@@ -44,10 +45,24 @@ public sealed class ConversationProjectionReadModelWriter
     public ConversationProjectionReadModelWriter(
         IReadModelStore store,
         ILogger<ConversationProjectionReadModelWriter>? logger = null)
+        : this(ConversationProjectionStoreOptions.Legacy, store, logger)
     {
+    }
+
+    /// <summary>Initializes a writer with the provider's enrolled component binding.</summary>
+    /// <param name="store">The SDK store.</param>
+    /// <param name="storeOptions">The immutable enrolled component binding.</param>
+    /// <param name="logger">An optional diagnostic logger.</param>
+    public ConversationProjectionReadModelWriter(ConversationProjectionStoreOptions storeOptions, IReadModelStore store,
+        ILogger<ConversationProjectionReadModelWriter>? logger)
+    {
+        _storeOptions = storeOptions ?? throw new ArgumentNullException(nameof(storeOptions));
         _store = store ?? throw new ArgumentNullException(nameof(store));
         _logger = logger ?? NullLogger<ConversationProjectionReadModelWriter>.Instance;
     }
+
+    /// <summary>Gets the immutable binding shared with its projection handler.</summary>
+    internal ConversationProjectionStoreOptions StoreOptions => _storeOptions;
 
     /// <summary>
     /// Persists a materialized summary/detail pair and merges its summary into the tenant index, retrying
@@ -62,7 +77,7 @@ public sealed class ConversationProjectionReadModelWriter
         ArgumentNullException.ThrowIfNull(models);
         ArgumentException.ThrowIfNullOrWhiteSpace(models.DispatchId);
 
-        await new ConversationResolutionMetadataPersistence(_store).InvalidateAsync(
+        await new ConversationResolutionMetadataPersistence(_store, _storeOptions).InvalidateAsync(
             models.Summary.TenantId, models.Summary.ConversationId, models.Summary.Freshness.LastAppliedEventPosition,
             models.DispatchId, cancellationToken, requiresNewerGeneration: true).ConfigureAwait(false);
         await PersistGenerationAsync(models, cancellationToken).ConfigureAwait(false);
@@ -83,7 +98,7 @@ public sealed class ConversationProjectionReadModelWriter
         _ = await ReadModelWritePolicy
             .UpdateAsync<ConversationProjectedReadModels>(
                 _store,
-                ConversationProjectionReadModelKeys.StateStoreName,
+                _storeOptions.StateStoreName,
                 conversationKey,
                 existing => existing is not null
                     && CompareGeneration(
@@ -118,7 +133,7 @@ public sealed class ConversationProjectionReadModelWriter
         _ = await ReadModelWritePolicy
             .MergeAsync(
                 _store,
-                ConversationProjectionReadModelKeys.StateStoreName,
+                _storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.TenantIndexKey(summary.TenantId),
                 incoming,
                 static () => new ConversationProjectionIndexReadModel(),
@@ -145,7 +160,7 @@ public sealed class ConversationProjectionReadModelWriter
         ArgumentNullException.ThrowIfNull(models);
         ArgumentException.ThrowIfNullOrWhiteSpace(models.DispatchId);
 
-        await new ConversationResolutionMetadataPersistence(_store).InvalidateAsync(
+        await new ConversationResolutionMetadataPersistence(_store, _storeOptions).InvalidateAsync(
             models.Summary.TenantId, models.Summary.ConversationId, models.Summary.Freshness.LastAppliedEventPosition,
             models.DispatchId, cancellationToken, requiresNewerGeneration: true).ConfigureAwait(false);
         await MarkGenerationPendingAsync(models, cancellationToken).ConfigureAwait(false);
@@ -168,7 +183,7 @@ public sealed class ConversationProjectionReadModelWriter
         _ = await ReadModelWritePolicy
             .MergeAsync(
                 _store,
-                ConversationProjectionReadModelKeys.StateStoreName,
+                _storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.TenantIndexKey(summary.TenantId),
                 incoming,
                 static () => new ConversationProjectionIndexReadModel(),
@@ -273,12 +288,12 @@ public sealed class ConversationProjectionReadModelWriter
 
         ReadModelEntry<ConversationProjectedReadModels> detail = await _store
             .GetAsync<ConversationProjectedReadModels>(
-                ConversationProjectionReadModelKeys.StateStoreName,
+                _storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.ConversationKey(tenantId, conversationId),
                 cancellationToken)
             .ConfigureAwait(false);
         ReadModelEntry<ConversationResolutionMetadataReadModel> metadata = await _store
-            .GetAsync<ConversationResolutionMetadataReadModel>(ConversationProjectionReadModelKeys.StateStoreName,
+            .GetAsync<ConversationResolutionMetadataReadModel>(_storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.ResolutionMetadataKey(tenantId, conversationId), cancellationToken)
             .ConfigureAwait(false);
         if (metadata.Value?.DispatchId == dispatchId)
@@ -288,7 +303,7 @@ public sealed class ConversationProjectionReadModelWriter
 
         ReadModelEntry<ConversationProjectionIndexReadModel> current = await _store
             .GetAsync<ConversationProjectionIndexReadModel>(
-                ConversationProjectionReadModelKeys.StateStoreName,
+                _storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.TenantIndexKey(tenantId),
                 cancellationToken)
             .ConfigureAwait(false);
@@ -312,7 +327,7 @@ public sealed class ConversationProjectionReadModelWriter
         ConversationProjectionIndexReadModel reconciled = await ReadModelWritePolicy
             .UpdateAsync<ConversationProjectionIndexReadModel>(
                 _store,
-                ConversationProjectionReadModelKeys.StateStoreName,
+                _storeOptions.StateStoreName,
                 ConversationProjectionReadModelKeys.TenantIndexKey(tenantId),
                 existing => ReconcilePendingReference(existing, conversationId.Value, dispatchId),
                 new ReadModelWriteContext(

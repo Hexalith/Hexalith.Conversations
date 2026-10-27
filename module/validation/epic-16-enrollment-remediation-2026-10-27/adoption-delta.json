@@ -1,0 +1,155 @@
+{
+  "baselineObservation": "module/validation/epic-16-entry-2026-10-26/adoption-json.stdout.txt",
+  "baselineObservationSource": "109ef750a1ed0d1b02ba7efee8807d611fbad130",
+  "workingCheckoutHead": "dc5793db17fd6974200e80eb2b853187bc5f1669",
+  "result": "FAIL",
+  "nativeTextAndJsonIdentitiesAgree": true,
+  "passRows": 6,
+  "failRows": 10,
+  "targetedIdentities": [
+    [
+      "dependency-selectors",
+      "Directory.Build.props"
+    ],
+    [
+      "dependency-selectors",
+      "Directory.Packages.props"
+    ],
+    [
+      "dependency-selectors",
+      "src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj"
+    ],
+    [
+      "dependency-selectors",
+      "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj"
+    ],
+    [
+      "dependency-selectors",
+      "src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj"
+    ],
+    [
+      "dependency-selectors",
+      "src/Hexalith.Conversations/Hexalith.Conversations.csproj"
+    ],
+    [
+      "dependency-selectors",
+      "tests/Hexalith.Conversations.Contracts.Tests/ContractPackageInventoryTest.cs"
+    ],
+    [
+      "dependency-selectors",
+      "tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj"
+    ],
+    [
+      "dependency-selectors",
+      "tests/Hexalith.Conversations.IntegrationTests/Hexalith.Conversations.IntegrationTests.csproj"
+    ],
+    [
+      "dependency-selectors",
+      "tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj"
+    ],
+    [
+      "dependency-selectors",
+      "tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj"
+    ],
+    [
+      "dapr-subscriptions",
+      "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelKeys.cs"
+    ],
+    [
+      "dapr-subscriptions",
+      "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs"
+    ],
+    [
+      "dapr-subscriptions",
+      "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs"
+    ]
+  ],
+  "remainingTargetedFailures": [],
+  "outsideSliceIdentities": [
+    [
+      "declaration",
+      "module/hexalith.module-manifest.v2.json"
+    ],
+    [
+      "dependency-selectors",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/source-conventions/Directory.Build.props"
+    ],
+    [
+      "dependency-selectors",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/source-conventions/references/Hexalith.EventStore/Directory.Build.props"
+    ],
+    [
+      "dependency-selectors",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/source-conventions/references/Hexalith.Tenants/Directory.Build.props"
+    ],
+    [
+      "dependency-selectors",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj"
+    ],
+    [
+      "dependency-selectors",
+      "tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj"
+    ],
+    [
+      "dependency-selectors",
+      "tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props"
+    ],
+    [
+      "dapr-subscriptions",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-4/implementation/protocol-goldens-final/ConversationProjectionReadModelKeys.cs"
+    ],
+    [
+      "dapr-subscriptions",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-4/implementation/protocol-goldens/ConversationProjectionReadModelKeys.cs"
+    ],
+    [
+      "dapr-subscriptions",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/source-conventions/references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceExtensions.cs"
+    ]
+  ],
+  "remainingOutsideSliceFailures": [
+    [
+      "dapr-subscriptions",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-4/implementation/protocol-goldens-final/ConversationProjectionReadModelKeys.cs"
+    ],
+    [
+      "dapr-subscriptions",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-4/implementation/protocol-goldens/ConversationProjectionReadModelKeys.cs"
+    ],
+    [
+      "dapr-subscriptions",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/source-conventions/references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceExtensions.cs"
+    ],
+    [
+      "declaration",
+      "module/hexalith.module-manifest.v2.json"
+    ],
+    [
+      "dependency-selectors",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/source-conventions/Directory.Build.props"
+    ],
+    [
+      "dependency-selectors",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/source-conventions/references/Hexalith.EventStore/Directory.Build.props"
+    ],
+    [
+      "dependency-selectors",
+      "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/source-conventions/references/Hexalith.Tenants/Directory.Build.props"
+    ],
+    [
+      "dependency-selectors",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj"
+    ],
+    [
+      "dependency-selectors",
+      "tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj"
+    ],
+    [
+      "dependency-selectors",
+      "tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props"
+    ]
+  ],
+  "missingOutsideSliceFailures": [],
+  "unexpectedFailures": [],
+  "qualification": "Working-tree tracked-source observation only. New untracked files remain outside native scanner; owner rerun on intended reviewed/tracked candidate remains required."
+}

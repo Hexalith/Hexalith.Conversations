@@ -1,8 +1,10 @@
 # Epic 16 enrollment/adoption remediation plan
 
 Prepared 2026-10-27 from source `109ef750a1ed0d1b02ba7efee8807d611fbad130`.
-The user selected preparation of a separate remediation plan. This document
-authorizes no implementation, runtime launch, pin change or owner acceptance.
+The user selected preparation of a separate remediation plan. This document initially authorized planning only. The user subsequently approved
+implementation of the separate spec and its scoped offline baseline exception.
+The approved spec controls execution; runtime launch, pin changes and owner
+acceptance remain outside its scope.
 
 ## Goal and first implementation slice
 
@@ -190,9 +192,10 @@ This slice needs no deployment, secret or live-provider operation. No product
 runtime launch, operator drill, debugger session or real workload subscription
 delivery is authorized. Bounded unit-test/in-process host construction and
 disposable test stores may verify composition; they cannot claim live parity.
-Before any later source edit that requires the Hexalith AppHost baseline,
-resolve its currently held launch through a separately scoped decision; do not
-silently ignore the baseline requirement or start the held runtime.
+The user approved the separate spec with an explicit exception to the pre-edit
+AppHost launch: mapped Debug builds and isolated composition tests are the
+baseline for this prerequisite slice. Do not launch the held runtime or infer
+live qualification from that exception.
 
 ## Completion meaning
 

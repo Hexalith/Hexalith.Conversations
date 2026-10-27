@@ -1,0 +1,83 @@
+{
+  "protectedFilesRehashed": 28496,
+  "rootGitlinksCompared": 12,
+  "commandRawStreamsVerified": 98,
+  "matrixCaseNamesVerified": [
+    "EvaluatedReferencesUseOnlyMappedIdentities",
+    "MissingDependencyMappingFailsExplicitly",
+    "MismatchedDependencyMappingFailsExplicitly",
+    "AbsentMappingDoesNotFallBackToPackages",
+    "TwoProvidersKeepIndependentBindingsAcrossAllProjectionPaths",
+    "PendingRecoveryUsesTheConfiguredStore",
+    "MissingEnrolledStorageInputsFailBeforeAnyStoreUse",
+    "MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration",
+    "EnrolledTenantConsumerUsesConfiguredDeliveryAndUpdatesItsProjection",
+    "NativeProofRegistrationPreservesOtherOwners",
+    "LegacyDirectConstructionRetainsSdkDefaultCompatibility"
+  ],
+  "nativeAdoption": {
+    "targetedCleared": 14,
+    "retainedFailures": 10
+  },
+  "nativeTestCountsIndependentlyParsed": {
+    "mapping": {
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "not-run": 0,
+      "errors": 0
+    },
+    "contracts-inventory": {
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "not-run": 0,
+      "errors": 0
+    },
+    "configuration": {
+      "total": 11,
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "not-run": 0,
+      "errors": 0
+    },
+    "tenant-enrollment": {
+      "total": 11,
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "not-run": 0,
+      "errors": 0
+    },
+    "server-affected-verified": {
+      "total": 753,
+      "passed": 753,
+      "failed": 0,
+      "skipped": 0,
+      "not-run": 0,
+      "errors": 0
+    },
+    "server-all": {
+      "total": 1369,
+      "passed": 1369,
+      "failed": 0,
+      "skipped": 0,
+      "not-run": 0,
+      "errors": 0
+    },
+    "integration-population": {
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "not-run": 0,
+      "errors": 0
+    }
+  },
+  "indexUnchanged": true,
+  "runtimePublication": "not-applicable",
+  "ciIntegration": "BLOCKED: producer mappings absent; source slice only"
+}

@@ -1,0 +1,17 @@
+The '-xml' switch has been deprecated in favor of '-result-xml' and will be removed in the next major version
+
+xUnit.net v3 In-Process Runner v4.0.2+0c7aa4991f (64-bit .NET 10.0.13)
+  Discovering: Hexalith.Conversations.Server.Tests
+  Discovered:  Hexalith.Conversations.Server.Tests
+  Starting:    Hexalith.Conversations.Server.Tests
+    Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.NativeProofRegistrationPreservesOtherOwners [FAIL]
+      System.InvalidOperationException : Sequence contains no matching element
+      Stack Trace:
+           at System.Linq.ThrowHelper.ThrowNoMatchException()
+           at System.Linq.Enumerable.Single[TSource](IEnumerable`1 source, Func`2 predicate)
+        tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionConfigurationTest.cs(163,0): at Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.NativeProofRegistrationPreservesOtherOwners()
+           at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+           at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Finished:    Hexalith.Conversations.Server.Tests (ID = 'c38ef556a898519e42c8fb49bd82e177f93c8a707fe2e73596fab6919db071a3')
+=== TEST EXECUTION SUMMARY ===
+   Hexalith.Conversations.Server.Tests  Total: 11, Errors: 0, Failed: 1, Skipped: 0, Not Run: 0, Time: 1.040s

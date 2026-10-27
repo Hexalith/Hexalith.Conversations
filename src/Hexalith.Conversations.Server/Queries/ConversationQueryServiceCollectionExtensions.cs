@@ -12,6 +12,7 @@ using Hexalith.EventStore.DomainService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Hexalith.Conversations.Server.Queries;
 
@@ -25,6 +26,9 @@ public static class ConversationQueryServiceCollectionExtensions
     /// every other domain's cursors. Changing it invalidates outstanding cursors, which is a safe failure.
     /// </summary>
     public const string CursorCodecPurpose = "Hexalith.Conversations.QueryCursor.v1";
+
+    /// <summary>The stable application identity of the SDK Data Protection key ring.</summary>
+    public const string DataProtectionApplicationName = "Hexalith.Conversations";
 
     /// <summary>
     /// The configuration section that holds the cursor domain-policy bounds (max age, max offset).
@@ -48,6 +52,18 @@ public static class ConversationQueryServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
+        ConversationProjectionStoreOptions binding = ConversationProjectionStoreOptions.FromConfiguration(configuration);
+        const string protectionStoreKey = "EventStore:DataProtection:StateStoreName";
+        const string protectionPersistenceKey = "EventStore:DataProtection:PersistToStateStore";
+        if (string.IsNullOrWhiteSpace(configuration[protectionStoreKey])
+            || !bool.TryParse(configuration[protectionPersistenceKey], out _))
+        {
+            throw new InvalidOperationException($"Enrollment requires '{protectionStoreKey}' and '{protectionPersistenceKey}'.");
+        }
+
+        services.AddSingleton(binding);
+        services.AddEventStoreDataProtection(configuration, DataProtectionApplicationName);
+
         services.Configure<ConversationQueryCursorOptions>(options =>
         {
             IConfigurationSection section = configuration.GetSection(CursorOptionsSectionName);
@@ -65,7 +81,7 @@ public static class ConversationQueryServiceCollectionExtensions
             }
         });
 
-        return services.AddConversationQueriesCore();
+        return services.AddConversationQueriesCore(binding);
     }
 
     /// <summary>
@@ -77,16 +93,27 @@ public static class ConversationQueryServiceCollectionExtensions
     public static IServiceCollection AddConversationQueries(
         this IServiceCollection services,
         Action<ConversationQueryCursorOptions> configureCursor)
+        => services.AddConversationQueries(configureCursor, ConversationProjectionStoreOptions.Legacy);
+
+    /// <summary>Adds query handlers with explicit cursor bounds and an immutable component binding.</summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configureCursor">The cursor bounds.</param>
+    /// <param name="storeOptions">The required component binding.</param>
+    /// <returns>The service collection.</returns>
+    public static IServiceCollection AddConversationQueries(this IServiceCollection services,
+        Action<ConversationQueryCursorOptions> configureCursor, ConversationProjectionStoreOptions storeOptions)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configureCursor);
+        ArgumentNullException.ThrowIfNull(storeOptions);
 
         services.Configure(configureCursor);
-        return services.AddConversationQueriesCore();
+        return services.AddConversationQueriesCore(storeOptions);
     }
 
-    private static IServiceCollection AddConversationQueriesCore(this IServiceCollection services)
+    private static IServiceCollection AddConversationQueriesCore(this IServiceCollection services, ConversationProjectionStoreOptions binding)
     {
+        services.TryAddSingleton(binding);
         services.AddConversationAgentServices();
         // Platform protected-cursor codec (Data Protection backed). TryAddSingleton-keyed by the codec so a
         // host that already registered it (or a test composition) is not overwritten.
@@ -98,7 +125,10 @@ public static class ConversationQueryServiceCollectionExtensions
         // IReadModelStore or IConversationProjectionReadStore with a fake.
         services.AddEventStoreReadModelStore();
         services.TryAddSingleton<IConversationProjectionReadStore, ConversationProjectionReadStore>();
-        services.TryAddSingleton<ConversationProjectionReadModelWriter>();
+        services.TryAddSingleton(provider => new ConversationProjectionReadModelWriter(
+            provider.GetRequiredService<ConversationProjectionStoreOptions>(),
+            provider.GetRequiredService<Hexalith.EventStore.Client.Projections.IReadModelStore>(),
+            provider.GetService<ILogger<ConversationProjectionReadModelWriter>>()));
 
         // The conversation-specific materialization logic shared by the read/rebuild path and the platform
         // projection seam handler (ConversationProjectionHandler, FR-6). Stateless, so a singleton; TryAdd keeps

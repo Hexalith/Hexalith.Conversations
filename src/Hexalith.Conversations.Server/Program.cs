@@ -27,15 +27,15 @@ builder.AddEventStoreDomainService(
 // can resolve the ConversationQueryHandler, its tenant-access gate, and the protected list-cursor codec
 // (IQueryCursorCodec, Data Protection backed) the /query dispatch path constructs. The SDK assembly scan
 // discovers the adapter type itself; this registers its dependency graph.
-builder.Services.AddConversationTenantAccess();
+builder.Services.AddConversationTenantAccess(builder.Configuration);
 builder.Services.AddConversationQueries(builder.Configuration);
 
 WebApplication app = builder.Build();
 
 // DAPR pub/sub delivery for the consumed Tenants domain events is platform-owned: because
 // AddConversationTenantAccess registers a consumer, UseEventStoreDomainService wires CloudEvents
-// unwrapping, the /tenants/events route, and /dapr/subscribe. This module previously re-typed those three
-// calls itself, which AC3 forbids; pass-10 decision D1 promoted them into the SDK.
+// unwrapping and the protected /tenants/events POST route. The required enrolled declarative switch
+// suppresses subscription discovery; Platform owns subscription/dead-letter/ACL configuration.
 //
 // DISCLOSED (pass-10 decision D2): having that projection fed does not make it durable. It resolves to the
 // platform default InMemoryTenantProjectionStore, so it is per-replica and lost on restart, and DAPR does

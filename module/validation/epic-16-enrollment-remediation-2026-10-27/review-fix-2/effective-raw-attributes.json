@@ -1,0 +1,93 @@
+{
+  "command": [
+    "git",
+    "check-attr",
+    "-z",
+    "text",
+    "diff",
+    "whitespace",
+    "--",
+    "module/validation/epic-16-enrollment-remediation-2026-10-27/adoption-json-complete.stdout.txt",
+    "module/validation/epic-16-enrollment-remediation-2026-10-27/summary.json",
+    "module/validation/epic-16-enrollment-remediation-2026-10-27/review-fix-1/xunit-projections-verified.xml",
+    "module/validation/epic-16-enrollment-remediation-2026-10-27/parent-final/AC-16.1-01.stdout.txt",
+    "module/validation/epic-16-enrollment-remediation-2026-10-27/review-fix-2/story-commands.json"
+  ],
+  "entries": [
+    {
+      "path": "module/validation/epic-16-enrollment-remediation-2026-10-27/adoption-json-complete.stdout.txt",
+      "attribute": "text",
+      "value": "unset"
+    },
+    {
+      "path": "module/validation/epic-16-enrollment-remediation-2026-10-27/adoption-json-complete.stdout.txt",
+      "attribute": "diff",
+      "value": "set"
+    },
+    {
+      "path": "module/validation/epic-16-enrollment-remediation-2026-10-27/adoption-json-complete.stdout.txt",
+      "attribute": "whitespace",
+      "value": "unset"
+    },
+    {
+      "path": "module/validation/epic-16-enrollment-remediation-2026-10-27/summary.json",
+      "attribute": "text",
+      "value": "unset"
+    },
+    {
+      "path": "module/validation/epic-16-enrollment-remediation-2026-10-27/summary.json",
+      "attribute": "diff",
+      "value": "set"
+    },
+    {
+      "path": "module/validation/epic-16-enrollment-remediation-2026-10-27/summary.json",
+      "attribute": "whitespace",
+      "value": "unset"
+    },
+    {
+      "path": "module/validation/epic-16-enrollment-remediation-2026-10-27/review-fix-1/xunit-projections-verified.xml",
+      "attribute": "text",
+      "value": "unset"
+    },
+    {
+      "path": "module/validation/epic-16-enrollment-remediation-2026-10-27/review-fix-1/xunit-projections-verified.xml",
+      "attribute": "diff",
+      "value": "set"
+    },
+    {
+      "path": "module/validation/epic-16-enrollment-remediation-2026-10-27/review-fix-1/xunit-projections-verified.xml",
+      "attribute": "whitespace",
+      "value": "unset"
+    },
+    {
+      "path": "module/validation/epic-16-enrollment-remediation-2026-10-27/parent-final/AC-16.1-01.stdout.txt",
+      "attribute": "text",
+      "value": "unset"
+    },
+    {
+      "path": "module/validation/epic-16-enrollment-remediation-2026-10-27/parent-final/AC-16.1-01.stdout.txt",
+      "attribute": "diff",
+      "value": "set"
+    },
+    {
+      "path": "module/validation/epic-16-enrollment-remediation-2026-10-27/parent-final/AC-16.1-01.stdout.txt",
+      "attribute": "whitespace",
+      "value": "unset"
+    },
+    {
+      "path": "module/validation/epic-16-enrollment-remediation-2026-10-27/review-fix-2/story-commands.json",
+      "attribute": "text",
+      "value": "unset"
+    },
+    {
+      "path": "module/validation/epic-16-enrollment-remediation-2026-10-27/review-fix-2/story-commands.json",
+      "attribute": "diff",
+      "value": "set"
+    },
+    {
+      "path": "module/validation/epic-16-enrollment-remediation-2026-10-27/review-fix-2/story-commands.json",
+      "attribute": "whitespace",
+      "value": "unset"
+    }
+  ]
+}

@@ -36,6 +36,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -62,7 +63,18 @@ namespace Hexalith.Conversations.IntegrationTests.Projections;
 public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
 {
     /// <summary>The DAPR state-store component the Conversations read models are keyed into.</summary>
-    public const string StateStoreName = "statestore";
+    public static string StateStoreName => ConversationProjectionStoreOptions.FromConfiguration(ComponentConfiguration).StateStoreName;
+
+    private static string PubSubName => ComponentConfiguration["EventStore:ProjectionChanges:PubSubName"]!;
+
+    // Fixture inputs deliberately differ from the SDK defaults. YAML, host registration, SDK calls and
+    // persisted-state assertions all consume this configuration instead of choosing their own component.
+    private static IConfiguration ComponentConfiguration { get; } = new ConfigurationBuilder().AddInMemoryCollection(
+        new Dictionary<string, string?>
+        {
+            [ConversationProjectionStoreOptions.ConfigurationKey] = "conversations-gateway-test-state",
+            ["EventStore:ProjectionChanges:PubSubName"] = "conversations-gateway-test-events",
+        }).Build();
 
     /// <summary>The domain-service version used by the static registration and the route catalog.</summary>
     public const string ServiceVersion = "v1";
@@ -337,7 +349,7 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
             apiVersion: dapr.io/v1alpha1
             kind: Component
             metadata:
-              name: pubsub
+              name: {PubSubName}
             spec:
               type: pubsub.redis
               version: v1
@@ -352,8 +364,8 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
               - {AppId}
             """;
 
-        File.WriteAllText(Path.Combine(directory, "statestore.yaml"), stateStore);
-        File.WriteAllText(Path.Combine(directory, "pubsub.yaml"), pubSub);
+        File.WriteAllText(Path.Combine(directory, StateStoreName + ".yaml"), stateStore);
+        File.WriteAllText(Path.Combine(directory, PubSubName + ".yaml"), pubSub);
         return directory;
     }
 
@@ -373,6 +385,15 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
         builder.Configuration["EventStore:Actors:AggregateActorTypeName"] = AggregateActorTypeName;
         builder.Configuration["EventStore:DomainService:AppId"] = AppId;
         builder.Configuration["EventStore:DomainService:ServiceVersion"] = ServiceVersion;
+        builder.Configuration.AddConfiguration(ComponentConfiguration);
+        builder.Configuration["EventStore:Projections:CheckpointStateStoreName"] = StateStoreName;
+        builder.Configuration["EventStore:CommandStatus:StateStoreName"] = StateStoreName;
+        builder.Configuration["EventStore:CommandCorrelationIndex:StateStoreName"] = StateStoreName;
+        builder.Configuration["EventStore:DataProtection:StateStoreName"] = StateStoreName;
+        builder.Configuration["EventStore:DataProtection:PersistToStateStore"] = "false";
+        builder.Configuration["EventStore:Publisher:PubSubName"] = PubSubName;
+        builder.Configuration["EventStore:ProjectionChanges:PubSubName"] = PubSubName;
+        builder.Configuration["Hexalith:Conversations:Queries:Cursor:MaxOffset"] = "100000";
 
         // The retry worker is driven explicitly by the tests; a background tick would race the assertions.
         builder.Configuration["EventStore:ProjectionDispatch:RetryWorkerInterval"] = "00:10:00";
@@ -413,7 +434,7 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
         // Supply the external command authority before the fail-closed default registration. Every append
         // still passes the production admission stage, with its exact enrolled tenant/conversation identity.
         _ = builder.Services.AddSingleton<IConversationAgentAuthority>(_commandAuthority);
-        _ = builder.Services.AddConversationQueries(options => options.MaxOffset = 100_000);
+        _ = builder.Services.AddConversationQueries(builder.Configuration);
 
         // Read-side tenant admission is the other external authority seam: it needs a live Tenants projection, is
         // orthogonal to projection delivery, and gates only the read side. Recorded in the v2 proof evidence.
