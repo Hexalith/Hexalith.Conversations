@@ -108,6 +108,7 @@ public sealed class ConversationTenantAccessRegistrationTest
     [InlineData("Dapr:DeclarativeSubscriptions", "false")]
     public void MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(string key, string? value)
     {
+        ArgumentNullException.ThrowIfNull(key);
         ServiceCollection services = new();
         Should.Throw<InvalidOperationException>(() => services.AddConversationTenantAccess(EnrolledConfiguration(key, value)))
             .Message.ShouldContain(key.Split(':')[0]);
