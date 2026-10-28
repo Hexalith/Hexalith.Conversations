@@ -53,8 +53,8 @@
       },
       "Hexalith.EventStore.Aspire": {
         "type": "Direct",
-        "requested": "[3.128.0, )",
-        "resolved": "3.128.0",
+        "requested": "[3.128.3, )",
+        "resolved": "3.128.3",
         "contentHash": "WAuhuYwtpjgRy+DZSd2W6t7s4+nS++n7cBbkdQxcBePe2MMsMTPKTv6UWzOMd+RLLKNcsfsUgnMjsA8o0CdY7w==",
         "dependencies": {
           "Aspire.Hosting": "13.6.3",

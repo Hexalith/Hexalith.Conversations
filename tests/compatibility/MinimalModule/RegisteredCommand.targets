@@ -5,7 +5,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(MinimalModuleCompatibilityMode)' == 'package'">
     <!-- Qualified dependency selection for this external compatibility graph, independent of product imports. -->
-    <MinimalModuleCompatibilityEventStoreVersion>3.128.0</MinimalModuleCompatibilityEventStoreVersion>
+    <MinimalModuleCompatibilityEventStoreVersion>3.128.3</MinimalModuleCompatibilityEventStoreVersion>
   </PropertyGroup>
   <Target Name="MinimalModuleCompatibilitySelectPackages" BeforeTargets="CollectPackageReferences;_GenerateRestoreGraphProjectEntry;_GetProjectReferenceTargetFrameworkProperties;AssignProjectConfiguration" Condition="'$(MinimalModuleCompatibilityMode)' == 'package'">
     <MSBuild Projects="$(MSBuildThisFileDirectory)CatalogVersion.proj" Targets="ReadMinimalModuleCompatibilityCatalog" RemoveProperties="HexalithEventStoreVersion;UseHexalithProjectReferences">
