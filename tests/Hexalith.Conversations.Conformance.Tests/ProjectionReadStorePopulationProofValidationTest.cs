@@ -22,8 +22,8 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
 {
     private const string ProofJsonFileName = "projection-read-store-population-proof-v2.json";
     private const string ProofMarkdownFileName = "projection-read-store-population-proof-v2.md";
-    private const string CurrentCrossTenantSuccessorFileName = "projection-read-store-population-story-6.4-v3.json";
-    private const string CurrentCrossTenantSuccessorSha256 = "1fb37a601b8b682420a6e1a2039126cb8fb92f1e6f5ff83b1b34b4afa7a6f31a";
+    private const string CurrentCrossTenantSuccessorFileName = "projection-read-store-population-story-6.4-v4.json";
+    private const string CurrentCrossTenantSuccessorSha256 = "07adc5a15a7d4e0a1108a007d5ca65bfd4e17c0272c1f23a8fc83b0405245319";
     private const string HistoricalCrossTenantTest = "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.CrossTenantEventShouldFailWithoutWritingEitherTenantScope";
     private const string CurrentCrossTenantTest = "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.CrossTenantEventShouldFailWithOnlyAnAcceptedRoutePositionBarrier";
     private const string BaselineFileName = "sm-c2-hot-path-baseline-v1.json";
@@ -1169,16 +1169,21 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         ComputeSha256(path).ShouldBe(CurrentCrossTenantSuccessorSha256);
         using JsonDocument document = LoadEvidence(CurrentCrossTenantSuccessorFileName);
         JsonElement successor = document.RootElement;
-        successor.GetProperty("artifactVersion").GetString().ShouldBe("projection-read-store-population-story-6.4-v3");
+        successor.GetProperty("artifactVersion").GetString().ShouldBe("projection-read-store-population-story-6.4-v4");
         successor.GetProperty("authorityEffect").GetString().ShouldBe("none");
         successor.GetProperty("currentReadiness").GetString().ShouldBe("not-established");
-        successor.GetProperty("sourceRevision").GetString().ShouldBe("591ee3b3fa09cee761f6d56b7f82fa0d16cd04ed");
+        successor.GetProperty("sourceRevision").GetString().ShouldBe("0471c46e296658f2308175eac9e7c7a76596da9c");
+        JsonElement predecessor = successor.GetProperty("predecessor");
+        predecessor.GetProperty("path").GetString().ShouldBe("docs/release-evidence/projection-read-store-population-story-6.4-v3.json");
+        predecessor.GetProperty("sha256").GetString().ShouldBe("1fb37a601b8b682420a6e1a2039126cb8fb92f1e6f5ff83b1b34b4afa7a6f31a");
+        successor.GetProperty("execution").GetProperty("configuration").GetString().ShouldBe("Debug");
+        successor.GetProperty("execution").GetProperty("dependencyMode").GetString().ShouldBe("source");
         successor.GetProperty("historicalTestCase").GetString().ShouldBe(HistoricalCrossTenantTest);
         successor.GetProperty("currentTestCase").GetString().ShouldBe(CurrentCrossTenantTest);
         successor.GetProperty("historicalProof").GetProperty("path").GetString().ShouldBe(ProofRepositoryPath);
         successor.GetProperty("historicalRun").GetProperty("path").GetString()
             .ShouldBe("docs/release-evidence/projection-read-store-population-proof-v2-deterministic.xunit.xml");
-        foreach (string field in new[] { "historicalProof", "historicalRun", "currentSource", "currentRun" })
+        foreach (string field in new[] { "predecessor", "historicalProof", "historicalRun", "currentSource", "currentRun" })
             ValidateBinding(successor.GetProperty(field));
         successor.GetProperty("historicalClaim").GetProperty("writes").GetInt32().ShouldBe(0);
         JsonElement claim = successor.GetProperty("currentClaim");
@@ -1198,6 +1203,9 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         assembly.Attribute("passed")!.Value.ShouldBe("1");
         assembly.Attribute("failed")!.Value.ShouldBe("0");
         assembly.Attribute("skipped")!.Value.ShouldBe("0");
+        assembly.Attribute("errors")!.Value.ShouldBe("0");
+        assembly.Attribute("not-run")!.Value.ShouldBe("0");
+        assembly.Attribute("total")!.Value.ShouldBe("1");
         XElement test = assembly.Descendants("test").Single();
         test.Attribute("name")!.Value.ShouldBe(CurrentCrossTenantTest);
         test.Attribute("result")!.Value.ShouldBe("Pass");

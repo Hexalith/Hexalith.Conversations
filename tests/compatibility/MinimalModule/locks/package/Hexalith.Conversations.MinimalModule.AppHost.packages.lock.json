@@ -55,7 +55,7 @@
         "type": "Direct",
         "requested": "[3.128.3, )",
         "resolved": "3.128.3",
-        "contentHash": "WAuhuYwtpjgRy+DZSd2W6t7s4+nS++n7cBbkdQxcBePe2MMsMTPKTv6UWzOMd+RLLKNcsfsUgnMjsA8o0CdY7w==",
+        "contentHash": "r1AGXdyLlV7qLixbWtoTPABh9PvnNYlNvSi0NJee7b33oNMH82mXy8XJM8Y1qzVX9+8mwTT6WuRJ0F5Lx8IwdQ==",
         "dependencies": {
           "Aspire.Hosting": "13.6.3",
           "Aspire.Hosting.Keycloak": "13.6.3-preview.1.26521.2",

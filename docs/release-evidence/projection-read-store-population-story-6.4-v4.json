@@ -1,0 +1,48 @@
+{
+  "artifactVersion": "projection-read-store-population-story-6.4-v4",
+  "sourceRevision": "0471c46e296658f2308175eac9e7c7a76596da9c",
+  "authorityEffect": "none",
+  "currentReadiness": "not-established",
+  "historicalProof": {
+    "path": "docs/release-evidence/projection-read-store-population-proof-v2.json",
+    "sha256": "b4bcdb5b181be66780f251ad8a3b563b7554e34e0fb4d255d46a3a17addfaf7c"
+  },
+  "historicalRun": {
+    "path": "docs/release-evidence/projection-read-store-population-proof-v2-deterministic.xunit.xml",
+    "sha256": "c8cbdb09e25548652735535d1b55e86d0f2ccc1c424747c305b339f6068d8f0d"
+  },
+  "historicalTestCase": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.CrossTenantEventShouldFailWithoutWritingEitherTenantScope",
+  "historicalClaim": {
+    "writes": 0,
+    "status": "Failed",
+    "reason": "HandlerFailure"
+  },
+  "currentTestCase": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.CrossTenantEventShouldFailWithOnlyAnAcceptedRoutePositionBarrier",
+  "currentSource": {
+    "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs",
+    "sha256": "50fbe717a4bf21b6671997dbd4a42021f81307815e9a81dcee1df12b08536c16"
+  },
+  "currentRun": {
+    "path": "docs/release-evidence/projection-read-store-population-story-6.4-v4-cross-tenant.xunit.xml",
+    "sha256": "c2cb786d40ca895abde852551c10242b11ab1acd42f53f1730b3974aebc38744"
+  },
+  "currentClaim": {
+    "persistedKeyCount": 1,
+    "conversationViewWrites": 0,
+    "tenantIndexWrites": 0,
+    "onlyAcceptedRoutePositionBarrier": true,
+    "status": "Failed",
+    "reason": "HandlerFailure"
+  },
+  "rationale": "The v2 historical proof and v3 successor remain unchanged. A fresh native execution at this source revision verifies the same accepted-route position barrier rejection after the test source gained additional configured-store coverage. The measured source/Debug result grants no package parity, release or production authority.",
+  "predecessor": {
+    "path": "docs/release-evidence/projection-read-store-population-story-6.4-v3.json",
+    "sha256": "1fb37a601b8b682420a6e1a2039126cb8fb92f1e6f5ff83b1b34b4afa7a6f31a"
+  },
+  "execution": {
+    "configuration": "Debug",
+    "dependencyMode": "source",
+    "tool": "Hexalith.Builds.Module.Cli/4.38.1",
+    "mappingHash": "632125d193d5ed52c3d6bd9d74e59326f6d0339aad51ef0e0f4664d557f14215"
+  }
+}

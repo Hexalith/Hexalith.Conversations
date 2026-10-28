@@ -162,3 +162,9 @@ module/validation/epic-16-prerequisite-implementation/**/Goldens -text -diff
 
 # Preserve the existing authored CRLF mapping test without whitespace false positives.
 tests/Hexalith.Conversations.Contracts.Tests/PlatformEnrollmentMappingTest.cs -text diff whitespace=cr-at-eol
+
+# Fresh Story 6.4 successor execution retains its native hash-bound bytes.
+docs/release-evidence/projection-read-store-population-story-6.4-v4-cross-tenant.xunit.xml -text diff
+
+# Preserve the existing C# CRLF convention when checking the refreshed proof validator.
+tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs whitespace=cr-at-eol

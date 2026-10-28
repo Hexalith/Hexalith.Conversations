@@ -2,7 +2,7 @@
 
 This CI-only compatibility suite compiles and runs the frozen Story 11.2 fixture against
 the external package compatibility selection in `RegisteredCommand.targets` (EventStore
-3.128.0, matching the selected Builds catalog). It runs the original six tests and
+3.128.3, matching the selected Builds catalog). It runs the original six tests and
 adds one registered-command assertion through the public in-process domain router.
 The assertion resolves the keyed processor, checks the serialized creation event,
 replays it through the public in-process router in a fresh service scope, and checks
@@ -51,3 +51,21 @@ source graph; its historical locks are frozen and may refuse current dependencie
 An umbrella's ancestor `.editorconfig` can add diagnostics absent in a standalone
 Conversations checkout; qualification evidence records that failure separately and
 verifies the identical fixture bytes in the standalone CI layout without suppressions.
+
+## Published-package hash refresh (2026-10-28)
+
+The broad SDK update changed the frozen fixture AppHost by accident. Its exact
+checkpoint-B bytes and SDK 13.6.1 are restored; the historical SM-2 evidence and
+all original fixture lock files remain unchanged.
+
+The four external compatibility locks were regenerated with the normal NuGet
+`--force-evaluate` producer in an isolated copy, using an empty package/HTTP cache
+and a cleared configuration containing only nuget.org. A second independent empty
+cache passed `--locked-mode`; the downloaded EventStore 3.128.3 package metadata
+identifies nuget.org as its source. Only the published EventStore content hashes
+changed. No local staged package supplied these identities.
+
+The locked package graph built in Release with zero warnings or errors, and the
+native result verifier required all original six assertions plus the registered
+command assertion: seven passed, with zero failures, skips, or errors. CI retains
+locked mode and package content-hash validation.
