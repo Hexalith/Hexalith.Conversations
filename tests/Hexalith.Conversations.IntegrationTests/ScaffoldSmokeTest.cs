@@ -356,7 +356,8 @@ public sealed class ScaffoldSmokeTest
                 continue;
             }
 
-            if (string.Equals(condition, "'$(UseHexalithProjectReferences)' != 'true'", StringComparison.Ordinal))
+            if (string.Equals(condition, "'$(UseHexalithProjectReferences)' != 'true'", StringComparison.Ordinal)
+                || string.Equals(condition, "'$(UseHexalithProjectReferences)' == 'false'", StringComparison.Ordinal))
             {
                 return false;
             }
