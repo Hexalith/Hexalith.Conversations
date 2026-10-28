@@ -1,0 +1,17 @@
+using NuGet.Packaging.Signing;
+
+/// <summary>Removes NuGet signing metadata into a fresh, separate archive.</summary>
+internal static class Program
+{
+    /// <summary>Retains the signed input and creates one unsigned reconstruction.</summary>
+    /// <param name="args">The signed input and fresh unsigned output paths.</param>
+    /// <returns>The asynchronous completion.</returns>
+    internal static async Task Main(string[] args)
+    {
+        using FileStream input = new(args[0], FileMode.Open, FileAccess.Read, FileShare.Read);
+        using FileStream output = new(args[1], FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
+        using SignedPackageArchive archive = new(input, output);
+        await archive.RemoveSignatureAsync(CancellationToken.None);
+        await output.FlushAsync();
+    }
+}

@@ -1,0 +1,37 @@
+{
+  "revision": "5889400b50e6e2cefb4ed6976ca53d086d3989e2",
+  "tags": [],
+  "pin": {
+    "version": "4.35.2",
+    "commands": [
+      "hexalith-module"
+    ],
+    "rollForward": false
+  },
+  "range": {
+    "schemaVersion": 1,
+    "toolVersionRange": "[4.35.2, 5.0.0-0)"
+  },
+  "recordedBuildsGitlink": "160000 commit 81ab049208678bd6616828824729c0ddac02f7d1\treferences/Hexalith.Builds",
+  "documentedCatalogCommit": "4248b8c70cb35ba79fdd7e4dd63049d4c73211a0",
+  "acceptedBuildsTagCommit": "4248b8c70cb35ba79fdd7e4dd63049d4c73211a0",
+  "candidateRangeEligible": true,
+  "candidateVersion": "4.38.1",
+  "candidateSource": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+  "candidateCatalog": {
+    "schemaVersion": "1",
+    "eventStoreVersion": "3.128.3",
+    "frontComposerVersion": "4.7.0",
+    "daprSdkVersion": "1.18.10",
+    "aspireHostingVersion": "13.6.3",
+    "aspireHostingDaprVersion": "13.6.1-beta.935",
+    "aspireAppHostSdkVersion": "13.6.3",
+    "daprRuntimeVersion": "1.18.7",
+    "daprCliVersion": "1.18.2",
+    "redisImage": "docker.io/library/redis",
+    "redisImageTag": "7.4-alpine",
+    "redisImageDigest": "sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf",
+    "eventStoreHostingDaprRange": "13.6.1-beta.935"
+  },
+  "registrationAcceptance": "pending"
+}

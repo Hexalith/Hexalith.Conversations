@@ -1,0 +1,27 @@
+{
+  "name": "producer-40595436967-artifacts",
+  "command": [
+    "gh",
+    "api",
+    "repos/Hexalith/Hexalith.Builds/actions/runs/40595436967/artifacts?per_page=100"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "environment": {},
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 0.306,
+  "exitCode": 0,
+  "termination": null,
+  "stdout": {
+    "path": "producer-40595436967-artifacts.stdout.txt",
+    "bytes": 32,
+    "sha256": "244563f989470892c537c9a4622920af0d228ee4528f7d00c64a06d6cd95856c",
+    "complete": true
+  },
+  "stderr": {
+    "path": "producer-40595436967-artifacts.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "complete": true
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "producer-40589495278-log-archive",
+  "command": [
+    "gh",
+    "api",
+    "repos/Hexalith/Hexalith.Builds/actions/runs/40589495278/logs"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "environment": {},
+  "timeoutSeconds": 300,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 1.741,
+  "exitCode": 0,
+  "termination": null,
+  "stdout": {
+    "path": "producer-40589495278-log-archive.stdout.txt",
+    "bytes": 72360,
+    "sha256": "7692e4f26bed2886779422f39931c02dcd1cc57eda37f4d47a5f42f35b7c1686",
+    "complete": true
+  },
+  "stderr": {
+    "path": "producer-40589495278-log-archive.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "complete": true
+  }
+}

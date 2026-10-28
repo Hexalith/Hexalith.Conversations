@@ -1,0 +1,249 @@
+{
+  "dependencies": [
+    {
+      "path": "references/Hexalith.AI.Tools",
+      "mode": "160000",
+      "revision": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+      "checkout": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+      "clean": true,
+      "nestedStatus": []
+    },
+    {
+      "path": "references/Hexalith.Builds",
+      "mode": "160000",
+      "revision": "81ab049208678bd6616828824729c0ddac02f7d1",
+      "checkout": "81ab049208678bd6616828824729c0ddac02f7d1",
+      "clean": true,
+      "nestedStatus": [
+        "-3f194e17174994d308ec84af9ee2b5aa68674d0d references/Hexalith.AI.Tools"
+      ]
+    },
+    {
+      "path": "references/Hexalith.Commons",
+      "mode": "160000",
+      "revision": "3edfbdafc7d4fa915286dce8a37dc4cc7c06085a",
+      "checkout": "3edfbdafc7d4fa915286dce8a37dc4cc7c06085a",
+      "clean": true,
+      "nestedStatus": [
+        "-3f194e17174994d308ec84af9ee2b5aa68674d0d references/Hexalith.AI.Tools",
+        "-332b2c144defba546fe0a09626a4a72f2340e22f references/Hexalith.Builds",
+        "-80ce5afd99216ce5f591d66c833feafaf371f171 references/Hexalith.PolymorphicSerializations"
+      ]
+    },
+    {
+      "path": "references/Hexalith.EventStore",
+      "mode": "160000",
+      "revision": "347d390e3a5c0da28874ae650ef202aefbea15ce",
+      "checkout": "347d390e3a5c0da28874ae650ef202aefbea15ce",
+      "clean": true,
+      "nestedStatus": [
+        "-3f194e17174994d308ec84af9ee2b5aa68674d0d references/Hexalith.AI.Tools",
+        "-b833f27520bb19668efa61facabb13e276542c8c references/Hexalith.Builds",
+        "-3edfbdafc7d4fa915286dce8a37dc4cc7c06085a references/Hexalith.Commons",
+        "-5f665c4d38afb2255a7dde4620330e09824a40a1 references/Hexalith.FrontComposer",
+        "-2d7311cbbcc592c0ea0348463037389251d1cb4b references/Hexalith.McpCli",
+        "-72c36c7113c750c8b809f9d72b945a2a8c2d4555 references/Hexalith.Memories",
+        "-8de90958bc41b7fd01b7ed22b8ab364447a800e4 references/Hexalith.Platform",
+        "-221ac4592ba908ae7661ba1fa9e2d1fcc23baee0 references/Hexalith.PolymorphicSerializations",
+        "-7ddb864cda5e942925b056391617eae4895c1253 references/Hexalith.Tenants"
+      ]
+    },
+    {
+      "path": "references/Hexalith.Folders",
+      "mode": "160000",
+      "revision": "d7e0b3f307e4cd7e740b9f38923c86f8b5c30847",
+      "checkout": "d7e0b3f307e4cd7e740b9f38923c86f8b5c30847",
+      "clean": true,
+      "nestedStatus": [
+        "-3f194e17174994d308ec84af9ee2b5aa68674d0d references/Hexalith.AI.Tools",
+        "-05ae0a23adfb516231b31da6d83989bdf229f2f9 references/Hexalith.Builds",
+        "-3edfbdafc7d4fa915286dce8a37dc4cc7c06085a references/Hexalith.Commons",
+        "-36c78f3435d2d492a73f1b0707cf865c8735d740 references/Hexalith.EventStore",
+        "-5f665c4d38afb2255a7dde4620330e09824a40a1 references/Hexalith.FrontComposer",
+        "-3a8fbf215d52a5573ea509f09bccf20a58c97993 references/Hexalith.McpCli",
+        "-86011d4dc1e16d0d8222e07e6a492faf8e2347c0 references/Hexalith.Memories",
+        "-3e1dd7cac6ee4db1db48d1bfb478e1b5848f7b8e references/Hexalith.Parties",
+        "-eee6ce27965b7c7108bbfcc02d447038e0553751 references/Hexalith.Platform",
+        "-221ac4592ba908ae7661ba1fa9e2d1fcc23baee0 references/Hexalith.PolymorphicSerializations",
+        "-0e45105476902fcfce1f8dbd8416d7234bb16b41 references/Hexalith.Projects",
+        "-750bdc2e8de77595a55bf595c335094cce0d580c references/Hexalith.Tenants"
+      ]
+    },
+    {
+      "path": "references/Hexalith.FrontComposer",
+      "mode": "160000",
+      "revision": "28d2c7f47849bcfba19501f7c18cd9f67f0fc61c",
+      "checkout": "28d2c7f47849bcfba19501f7c18cd9f67f0fc61c",
+      "clean": true,
+      "nestedStatus": [
+        "-3f194e17174994d308ec84af9ee2b5aa68674d0d references/Hexalith.AI.Tools",
+        "-3d7f49a5430294da5bcd437cbdace85c62c42027 references/Hexalith.Builds",
+        "-3edfbdafc7d4fa915286dce8a37dc4cc7c06085a references/Hexalith.Commons",
+        "-36c78f3435d2d492a73f1b0707cf865c8735d740 references/Hexalith.EventStore",
+        "-72c36c7113c750c8b809f9d72b945a2a8c2d4555 references/Hexalith.Memories",
+        "-9239c531f3b0cbb4a998c419e537463b597ff14b references/Hexalith.Parties",
+        "-221ac4592ba908ae7661ba1fa9e2d1fcc23baee0 references/Hexalith.PolymorphicSerializations",
+        "-7ddb864cda5e942925b056391617eae4895c1253 references/Hexalith.Tenants"
+      ]
+    },
+    {
+      "path": "references/Hexalith.McpCli",
+      "mode": "160000",
+      "revision": "2d7311cbbcc592c0ea0348463037389251d1cb4b",
+      "checkout": "2d7311cbbcc592c0ea0348463037389251d1cb4b",
+      "clean": true,
+      "nestedStatus": [
+        "-3f194e17174994d308ec84af9ee2b5aa68674d0d references/Hexalith.AI.Tools",
+        "-d2a486d5e94057cf43b88c3f1ace93b40f7f7d9a references/Hexalith.Agents",
+        "-abc0e1be8069d1c7a567515a13bb015adc407536 references/Hexalith.Builds",
+        "-ca2f2e132c66ff1c1e1558d20e0c3e590084c69f references/Hexalith.ChatBot",
+        "-3edfbdafc7d4fa915286dce8a37dc4cc7c06085a references/Hexalith.Commons",
+        "-986875bfcb5471953378b600710b5d859f3eaba4 references/Hexalith.Conversations",
+        "-903174461632e7bcabd6111092aa059f16e1b1c7 references/Hexalith.EventStore",
+        "-2c6eb8d230efc7720542f8d11a0af6348363e4bb references/Hexalith.Folders",
+        "-5f665c4d38afb2255a7dde4620330e09824a40a1 references/Hexalith.FrontComposer",
+        "-86011d4dc1e16d0d8222e07e6a492faf8e2347c0 references/Hexalith.Memories",
+        "-3e1dd7cac6ee4db1db48d1bfb478e1b5848f7b8e references/Hexalith.Parties",
+        "-eee6ce27965b7c7108bbfcc02d447038e0553751 references/Hexalith.Platform",
+        "-221ac4592ba908ae7661ba1fa9e2d1fcc23baee0 references/Hexalith.PolymorphicSerializations",
+        "-0e45105476902fcfce1f8dbd8416d7234bb16b41 references/Hexalith.Projects",
+        "-750bdc2e8de77595a55bf595c335094cce0d580c references/Hexalith.Tenants",
+        "-69f3622b17de70bf3e9043f96577f2b6d1a4cbd9 references/Hexalith.Timesheets",
+        "-c7f9ea6e25b38b0079cc447108fa5001c7184517 references/Hexalith.Works"
+      ]
+    },
+    {
+      "path": "references/Hexalith.Memories",
+      "mode": "160000",
+      "revision": "72c36c7113c750c8b809f9d72b945a2a8c2d4555",
+      "checkout": "72c36c7113c750c8b809f9d72b945a2a8c2d4555",
+      "clean": true,
+      "nestedStatus": [
+        "-3f194e17174994d308ec84af9ee2b5aa68674d0d references/Hexalith.AI.Tools",
+        "-abc0e1be8069d1c7a567515a13bb015adc407536 references/Hexalith.Builds",
+        "-3edfbdafc7d4fa915286dce8a37dc4cc7c06085a references/Hexalith.Commons",
+        "-36c78f3435d2d492a73f1b0707cf865c8735d740 references/Hexalith.EventStore",
+        "-5f665c4d38afb2255a7dde4620330e09824a40a1 references/Hexalith.FrontComposer",
+        "-3a8fbf215d52a5573ea509f09bccf20a58c97993 references/Hexalith.McpCli",
+        "-eee6ce27965b7c7108bbfcc02d447038e0553751 references/Hexalith.Platform",
+        "-221ac4592ba908ae7661ba1fa9e2d1fcc23baee0 references/Hexalith.PolymorphicSerializations",
+        "-750bdc2e8de77595a55bf595c335094cce0d580c references/Hexalith.Tenants"
+      ]
+    },
+    {
+      "path": "references/Hexalith.Parties",
+      "mode": "160000",
+      "revision": "9239c531f3b0cbb4a998c419e537463b597ff14b",
+      "checkout": "9239c531f3b0cbb4a998c419e537463b597ff14b",
+      "clean": true,
+      "nestedStatus": [
+        "-3f194e17174994d308ec84af9ee2b5aa68674d0d references/Hexalith.AI.Tools",
+        "-abc0e1be8069d1c7a567515a13bb015adc407536 references/Hexalith.Builds",
+        "-3edfbdafc7d4fa915286dce8a37dc4cc7c06085a references/Hexalith.Commons",
+        "-903174461632e7bcabd6111092aa059f16e1b1c7 references/Hexalith.EventStore",
+        "-1ccb4afc47ec8f1bb5379fd98452242546bbd06c references/Hexalith.FrontComposer",
+        "-3a8fbf215d52a5573ea509f09bccf20a58c97993 references/Hexalith.McpCli",
+        "-86011d4dc1e16d0d8222e07e6a492faf8e2347c0 references/Hexalith.Memories",
+        "-eee6ce27965b7c7108bbfcc02d447038e0553751 references/Hexalith.Platform",
+        "-221ac4592ba908ae7661ba1fa9e2d1fcc23baee0 references/Hexalith.PolymorphicSerializations",
+        "-750bdc2e8de77595a55bf595c335094cce0d580c references/Hexalith.Tenants"
+      ]
+    },
+    {
+      "path": "references/Hexalith.Platform",
+      "mode": "160000",
+      "revision": "5889400b50e6e2cefb4ed6976ca53d086d3989e2",
+      "checkout": "5889400b50e6e2cefb4ed6976ca53d086d3989e2",
+      "clean": true,
+      "nestedStatus": [
+        "-3f194e17174994d308ec84af9ee2b5aa68674d0d references/Hexalith.AI.Tools",
+        "-ca53daf6152f674de563576dcea0bce6e35fb53b references/Hexalith.Agents",
+        "-81ab049208678bd6616828824729c0ddac02f7d1 references/Hexalith.Builds",
+        "-3e1f6e10c57d8ef9ef9fed3d82d18049fa8e6557 references/Hexalith.ChatBot",
+        "-3edfbdafc7d4fa915286dce8a37dc4cc7c06085a references/Hexalith.Commons",
+        "-861f13a2e728c3847a191b0688070762b1bfa29e references/Hexalith.Conversations",
+        "-36c78f3435d2d492a73f1b0707cf865c8735d740 references/Hexalith.EventStore",
+        "-d7e0b3f307e4cd7e740b9f38923c86f8b5c30847 references/Hexalith.Folders",
+        "-5f665c4d38afb2255a7dde4620330e09824a40a1 references/Hexalith.FrontComposer",
+        "-2d7311cbbcc592c0ea0348463037389251d1cb4b references/Hexalith.McpCli",
+        "-72c36c7113c750c8b809f9d72b945a2a8c2d4555 references/Hexalith.Memories",
+        "-9239c531f3b0cbb4a998c419e537463b597ff14b references/Hexalith.Parties",
+        "-221ac4592ba908ae7661ba1fa9e2d1fcc23baee0 references/Hexalith.PolymorphicSerializations",
+        "-0e45105476902fcfce1f8dbd8416d7234bb16b41 references/Hexalith.Projects",
+        "-7ddb864cda5e942925b056391617eae4895c1253 references/Hexalith.Tenants",
+        "-69f3622b17de70bf3e9043f96577f2b6d1a4cbd9 references/Hexalith.Timesheets",
+        "-4dcd9cf3413444d205859dc2554844d29792dab6 references/Hexalith.Works"
+      ]
+    },
+    {
+      "path": "references/Hexalith.Projects",
+      "mode": "160000",
+      "revision": "0e45105476902fcfce1f8dbd8416d7234bb16b41",
+      "checkout": "0e45105476902fcfce1f8dbd8416d7234bb16b41",
+      "clean": true,
+      "nestedStatus": [
+        "-3f194e17174994d308ec84af9ee2b5aa68674d0d references/Hexalith.AI.Tools",
+        "-1745ea0f09df9e518aeea3eeb1a7df836f67e09d references/Hexalith.Builds",
+        "-1663028fb6d9f46a0bf17919edeb21bb99be1587 references/Hexalith.Commons",
+        "-31a76998b8f8489971c6dbcd3b8fa28d4adeeda5 references/Hexalith.Conversations",
+        "-eec6ed131a8959c85ae191dff75f88dd34a74832 references/Hexalith.EventStore",
+        "-c3e25ce75d6e78dd995287c13e915fecd7a6d6e3 references/Hexalith.Folders",
+        "-8f7c4906a91387c2caf8d46dddc4d3e6dd0af905 references/Hexalith.FrontComposer",
+        "-8a860ee409d0c6f87a82bfdb87d9a84a15c49018 references/Hexalith.McpCli",
+        "-c9d07c7cdbb93f4c0999b85bfca11a2ffc5d0cbe references/Hexalith.Memories",
+        "-96f16df3686e4f6a1373f43dcc73609f0e68d8d9 references/Hexalith.Parties",
+        "-a5e1389fe2c97b14e8c697a2e54f45631d07ef95 references/Hexalith.Platform",
+        "-2079f25448625cf7a6a4bc1417ff9889e11d5781 references/Hexalith.Tenants"
+      ]
+    },
+    {
+      "path": "references/Hexalith.Tenants",
+      "mode": "160000",
+      "revision": "7ddb864cda5e942925b056391617eae4895c1253",
+      "checkout": "7ddb864cda5e942925b056391617eae4895c1253",
+      "clean": true,
+      "nestedStatus": [
+        "-3f194e17174994d308ec84af9ee2b5aa68674d0d references/Hexalith.AI.Tools",
+        "-abc0e1be8069d1c7a567515a13bb015adc407536 references/Hexalith.Builds",
+        "-3edfbdafc7d4fa915286dce8a37dc4cc7c06085a references/Hexalith.Commons",
+        "-903174461632e7bcabd6111092aa059f16e1b1c7 references/Hexalith.EventStore",
+        "-5f665c4d38afb2255a7dde4620330e09824a40a1 references/Hexalith.FrontComposer",
+        "-3a8fbf215d52a5573ea509f09bccf20a58c97993 references/Hexalith.McpCli",
+        "-86011d4dc1e16d0d8222e07e6a492faf8e2347c0 references/Hexalith.Memories",
+        "-eee6ce27965b7c7108bbfcc02d447038e0553751 references/Hexalith.Platform",
+        "-221ac4592ba908ae7661ba1fa9e2d1fcc23baee0 references/Hexalith.PolymorphicSerializations"
+      ]
+    }
+  ],
+  "indexRowsSha256": "88ee766f53db0c1e246a96ab0309337b6bd0b511ef47b81a3a2ea7d662b34168",
+  "protectedInputs": {
+    "module/hexalith.module-manifest.v2.json": "0bed1c297c9c9d78fdb8f37197ac5f71d829191c0535fdd78e4034aaa017bdf0",
+    ".config/dotnet-tools.json": "5b826b67ce6520bba1fa80ef3982e56cc71b38d7ced437c0aaf5b1697339b411",
+    ".gitmodules": "f772e17bced54e00841b7e84c2e9e4e1624387883c129d2a851316cacab38987",
+    ".gitattributes": "d7b349e3620e883fcc66000a53e614c1ec331a45024cab5189d9943b51a5ef4c",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v2/binding.json": "ff457038fcb2fd1e00503407d49ead4d3d95cf3f56d247b0941d0cb653e0fb0d",
+    "_bmad/scripts/epic16_trust_v2.py": "2f6e077ac90c22a06346c0777dc07e12611cfa92e0c2e37f9cddcd4084b35dc2",
+    "_bmad/scripts/qualify_epic16_published_artifact.py": "a2fcbe52dd7bb6254bbc2e325473475266edd27a68d0190fa2736ac267c31cce",
+    "tests/tooling/test_epic16_published_artifact_qualification.py": "8482887c80f1a48a1947d2ea69579ca0d6cd90a07ba4a9ec3d800c76f85893a0",
+    "global.json": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652",
+    "Directory.Build.props": "6075e5149286cced92b0e1a3c594eab8cf8688c54432f76b4d935d5571e06a8f",
+    "Directory.Packages.props": "87559bfb23a9e906ba564350f4d051406dc3519e1a80f2bcb16d7e3f3fa9a19a",
+    "docs/runbooks/current-change-validation.md": "d5284f00b8c850d43cabfcd45d2a4cf94d76a04a0bf7d6761ead7f17e5947801",
+    "_bmad-output/planning-artifacts/architecture.md": "948d9c98d99d2453a1ff3904f4f05392b3a2959e379c5fd6e466dc20ed1f05be",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json": "eb67da125239bf7e533c21125de1c4569dd0f6cd2b0e914d0953c3da1b2a520a",
+    "_bmad-output/implementation-artifacts/sprint-status.yaml": "18744a7ddbf62ed1b02050fb644630f95ca1c80e6be497fa75cc00d3c73df500",
+    "_bmad-output/implementation-artifacts/spec-epic-16-tooling-qualification-and-binding-refresh.md": "94f24d4acf9dccbe5649933d41edc8f2796e3d5cff2340f3a67751f580e120de",
+    "module/platform-handoff.md": "1af5d8f0e936eb434d0231a00512f80931ed3a318c5f2c007eea5522d809bcf3",
+    "module/sm-2-checklist.md": "71fb1992ca38602e4cfba34d1b5471459aff986a1ac87b774fb887feafaeec37",
+    "module/validation/epic-16-entry-2026-10-28-post-tooling-01/results.json": "fdde59b57fcc1c317c0a7b7c785b50d55a040bc14240ac7c58b812136a2b3950",
+    "module/validation/epic-16-entry-2026-10-28-post-tooling-01/adoption.stdout.txt": "3bce922088b9d9fd87d479953ae8f378e70fb14c3d7cc497165110799e70646c",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/qualification-ledger.json": "cd051831eefd44f123844b11798d389d58ef44981d473049c35f4f8edb035159",
+    "references/Hexalith.Builds/docs/module-cli-configuration-key-released-artifact-handoff.md": "0d248a6559bfd0577b3ac87372ca6d7d425293fab34921c2e18f21fd66d51164",
+    "references/Hexalith.Builds/docs/module-cli-configuration-key-release-review.md": "50664b48bbf2de669a36b0c625283ceb6c4a750015919b86a59c496bc2325d8e",
+    "references/Hexalith.Builds/Tools/test-g4-tool-package-contracts.ps1": "6e83de03126a48a794053e644f0234c900638a405aab63a2e862868f4d13104c",
+    "references/Hexalith.Builds/.github/workflows/build-release.yml": "79d77f09426115a289e36ecf36dbfd38df8c7a3382158e986b7ca79243424b27",
+    "references/Hexalith.Platform/README.md": "a5218c3932ca0716c0bbbd7d946858cebeb490d69180221f2f60c9015b561314",
+    "references/Hexalith.Platform/docs/domain-module-enrollment.md": "f3871a49eb4a741a521ae02378f4fa494d7388313f6bbf22695b114173c4cb44",
+    "references/Hexalith.Platform/.config/dotnet-tools.json": "5d72a022a9416cb753da75cda1b0f1945fd938c065521fd9946aaa525fe048da"
+  }
+}

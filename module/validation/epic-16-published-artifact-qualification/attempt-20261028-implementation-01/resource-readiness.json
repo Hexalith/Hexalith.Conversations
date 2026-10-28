@@ -1,0 +1,116 @@
+[
+  {
+    "name": "aspire-dashboard-uqwzwrbs",
+    "type": "Executable",
+    "state": "Running",
+    "health": "Healthy"
+  },
+  {
+    "name": "conversations-admin-web-rebuilder-qctnjkaw",
+    "type": "Executable",
+    "state": "NotStarted",
+    "health": null
+  },
+  {
+    "name": "conversations-admin-web-upxtfcyp",
+    "type": "Project",
+    "state": "Running",
+    "health": "Healthy"
+  },
+  {
+    "name": "conversations-app-api-token",
+    "type": "Parameter",
+    "state": "Running",
+    "health": "Healthy"
+  },
+  {
+    "name": "conversations-dapr",
+    "type": "DaprSidecar",
+    "state": null,
+    "health": null
+  },
+  {
+    "name": "conversations-dapr-cli-cgufdpee",
+    "type": "Executable",
+    "state": "Running",
+    "health": "Healthy"
+  },
+  {
+    "name": "conversations-pmsdvzph",
+    "type": "Project",
+    "state": "Running",
+    "health": "Healthy"
+  },
+  {
+    "name": "conversations-rebuilder-watuqaya",
+    "type": "Executable",
+    "state": "NotStarted",
+    "health": null
+  },
+  {
+    "name": "eventstore-app-api-token",
+    "type": "Parameter",
+    "state": "Running",
+    "health": "Healthy"
+  },
+  {
+    "name": "eventstore-dapr",
+    "type": "DaprSidecar",
+    "state": null,
+    "health": null
+  },
+  {
+    "name": "eventstore-dapr-cli-nszsqchy",
+    "type": "Executable",
+    "state": "Running",
+    "health": "Healthy"
+  },
+  {
+    "name": "eventstore-pqvjzgmc",
+    "type": "Project",
+    "state": "Running",
+    "health": "Healthy"
+  },
+  {
+    "name": "eventstore-rebuilder-wrqxsfje",
+    "type": "Executable",
+    "state": "NotStarted",
+    "health": null
+  },
+  {
+    "name": "eventstore-workload-client-secret",
+    "type": "Parameter",
+    "state": "Running",
+    "health": "Healthy"
+  },
+  {
+    "name": "pubsub",
+    "type": "DaprComponent",
+    "state": "Running",
+    "health": "Healthy"
+  },
+  {
+    "name": "security-embnpfzy",
+    "type": "Container",
+    "state": "Running",
+    "health": "Healthy"
+  },
+  {
+    "name": "security-eventstore-client-password",
+    "type": "Parameter",
+    "state": "Running",
+    "health": "Healthy"
+  },
+  {
+    "name": "security-eventstore-client-username",
+    "type": "Parameter",
+    "state": "Running",
+    "health": "Healthy"
+  },
+  {
+    "name": "statestore",
+    "type": "DaprComponent",
+    "state": "Running",
+    "health": "Healthy"
+  }
+]

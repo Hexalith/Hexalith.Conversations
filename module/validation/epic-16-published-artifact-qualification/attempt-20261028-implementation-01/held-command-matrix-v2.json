@@ -1,0 +1,229 @@
+{
+  "rows": [
+    {
+      "version": "v1",
+      "scenarioId": "AC-16.1-01",
+      "result": "FAIL",
+      "exitCode": 1,
+      "blockers": [
+        "SOURCE_DRIFT"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0,
+        "total": 0
+      },
+      "assertions": 1
+    },
+    {
+      "version": "v1",
+      "scenarioId": "AC-16.1-02",
+      "result": "FAIL",
+      "exitCode": 1,
+      "blockers": [
+        "SOURCE_DRIFT"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0,
+        "total": 0
+      },
+      "assertions": 1
+    },
+    {
+      "version": "v1",
+      "scenarioId": "AC-16.1-03",
+      "result": "FAIL",
+      "exitCode": 1,
+      "blockers": [
+        "SOURCE_DRIFT"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0,
+        "total": 0
+      },
+      "assertions": 1
+    },
+    {
+      "version": "v1",
+      "scenarioId": "AC-16.1-04",
+      "result": "FAIL",
+      "exitCode": 1,
+      "blockers": [
+        "SOURCE_DRIFT"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0,
+        "total": 0
+      },
+      "assertions": 1
+    },
+    {
+      "version": "v1",
+      "scenarioId": "AC-16.1-05",
+      "result": "FAIL",
+      "exitCode": 1,
+      "blockers": [
+        "SOURCE_DRIFT"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0,
+        "total": 0
+      },
+      "assertions": 1
+    },
+    {
+      "version": "v1",
+      "scenarioId": "AC-16.1-06",
+      "result": "FAIL",
+      "exitCode": 1,
+      "blockers": [
+        "SOURCE_DRIFT"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0,
+        "total": 0
+      },
+      "assertions": 1
+    },
+    {
+      "version": "v2",
+      "scenarioId": "AC-16.1-01",
+      "result": "BLOCKED",
+      "exitCode": 2,
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0,
+        "total": 0
+      },
+      "assertions": 2
+    },
+    {
+      "version": "v2",
+      "scenarioId": "AC-16.1-02",
+      "result": "BLOCKED",
+      "exitCode": 2,
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0,
+        "total": 0
+      },
+      "assertions": 2
+    },
+    {
+      "version": "v2",
+      "scenarioId": "AC-16.1-03",
+      "result": "BLOCKED",
+      "exitCode": 2,
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0,
+        "total": 0
+      },
+      "assertions": 2
+    },
+    {
+      "version": "v2",
+      "scenarioId": "AC-16.1-04",
+      "result": "BLOCKED",
+      "exitCode": 2,
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0,
+        "total": 0
+      },
+      "assertions": 2
+    },
+    {
+      "version": "v2",
+      "scenarioId": "AC-16.1-05",
+      "result": "BLOCKED",
+      "exitCode": 2,
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0,
+        "total": 0
+      },
+      "assertions": 2
+    },
+    {
+      "version": "v2",
+      "scenarioId": "AC-16.1-06",
+      "result": "BLOCKED",
+      "exitCode": 2,
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0,
+        "total": 0
+      },
+      "assertions": 2
+    }
+  ],
+  "outputs": [
+    {
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-01.json",
+      "exists": false
+    },
+    {
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-02.json",
+      "exists": false
+    },
+    {
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-03.json",
+      "exists": false
+    },
+    {
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-04.json",
+      "exists": false
+    },
+    {
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-05.json",
+      "exists": false
+    },
+    {
+      "path": "docs/release-evidence/story-16.1-final-record-v2.json",
+      "exists": false
+    },
+    {
+      "path": "docs/release-evidence/story-16.1-final-record-v2.md",
+      "exists": false
+    }
+  ],
+  "runtimeTestsMeasured": 0,
+  "runtimeQualified": false,
+  "historicalAuthorityReplay": "not-applicable"
+}

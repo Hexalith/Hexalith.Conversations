@@ -1,0 +1,44 @@
+{
+  "name": "collector-execution-03",
+  "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "_bmad/scripts/qualify_epic16_published_artifact.py",
+    "--builds",
+    "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+    "--platform",
+    "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform",
+    "--conversations",
+    "/home/administrator/projects/hexalith/conversations",
+    "--version",
+    "4.38.1",
+    "--release-sha",
+    "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+    "--inventory",
+    "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/producer-inventory.json",
+    "--output",
+    "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/collection-03"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "environment": {},
+  "timeoutSeconds": 1800,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 63.67,
+  "exitCode": 1,
+  "termination": null,
+  "stdout": {
+    "path": "collector-execution-03.stdout.txt",
+    "bytes": 228,
+    "sha256": "2cf091b2dc3085fa94aa47da7b578416f8a4fe5bf78ab2ae60a1a6d5cc20adff",
+    "complete": true
+  },
+  "stderr": {
+    "path": "collector-execution-03.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "complete": true
+  }
+}

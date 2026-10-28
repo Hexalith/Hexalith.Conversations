@@ -1,0 +1,42 @@
+{
+  "name": "aspire-logs-final",
+  "command": [
+    "aspire",
+    "logs",
+    "--apphost",
+    "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+    "--include-hidden",
+    "--format",
+    "Json",
+    "--tail",
+    "80",
+    "--non-interactive"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "environment": {
+    "CustomBeforeDirectoryBuildProps": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.targets",
+    "CustomAfterMicrosoftCommonProps": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.props",
+    "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.before-targets.props",
+    "CustomAfterDirectoryBuildTargets": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.late.props",
+    "AfterMicrosoftNETSdkTargets": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.final.targets",
+    "HEXALITH_SOURCE_MAPPING_HASH": "d98f26e102043e758f5aad1c5736b4558e752c7a708aacbe9675ea2c7852648f",
+    "Configuration": "Debug"
+  },
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 1.033,
+  "exitCode": 0,
+  "termination": null,
+  "stdout": {
+    "path": "aspire-logs-final.stdout.txt",
+    "bytes": 45855,
+    "sha256": "03d4f5520d9927575e5d00d153777ae1d23ac81fbaacb8ef6a0b2378adfa4410",
+    "complete": true
+  },
+  "stderr": {
+    "path": "aspire-logs-final.stderr.txt",
+    "bytes": 16,
+    "sha256": "a396df1faa9367ab22afa4c3320053f0546088c84306e83946c347d3723a26c5",
+    "complete": true
+  }
+}

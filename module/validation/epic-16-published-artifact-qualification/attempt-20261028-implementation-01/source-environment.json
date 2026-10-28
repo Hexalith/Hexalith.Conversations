@@ -1,0 +1,9 @@
+{
+  "CustomBeforeDirectoryBuildProps": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.targets",
+  "CustomAfterMicrosoftCommonProps": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.props",
+  "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.before-targets.props",
+  "CustomAfterDirectoryBuildTargets": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.late.props",
+  "AfterMicrosoftNETSdkTargets": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.final.targets",
+  "HEXALITH_SOURCE_MAPPING_HASH": "d98f26e102043e758f5aad1c5736b4558e752c7a708aacbe9675ea2c7852648f",
+  "Configuration": "Debug"
+}

@@ -1,0 +1,311 @@
+{
+  "schemaVersion": "hexalith.conversations.epic16-artifact-qualification.v1",
+  "state": "FAIL",
+  "collectorExitCode": 1,
+  "candidateVersion": "4.38.1",
+  "candidateSource": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+  "limits": {
+    "collectionSeconds": 1800,
+    "networkSeconds": 300,
+    "restoreSeconds": 300,
+    "validationSeconds": 60,
+    "diagnosticSeconds": 600,
+    "streamBytes": 8388608,
+    "archiveBytes": 268435456,
+    "expandedBytes": 2147483648
+  },
+  "identity": {
+    "version": "4.38.1",
+    "releaseSha": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+    "inventorySha256": "5c11240a48feb2811620da1a23b81a7f82aad6dab61daa88f8d8cd10f73512a6",
+    "unsignedPackage": {
+      "file": "Hexalith.Builds.Module.Cli.4.38.1.nupkg",
+      "sha256": "D263C1F77C187A6F9B6EC11AF124B77976DB18E3884036FBA4BFDB107B2EDCDA",
+      "sizeBytes": 37548049
+    },
+    "releaseUrl": "https://github.com/Hexalith/Hexalith.Builds/releases/tag/v4.38.1",
+    "signedArchive": {
+      "sha256": "f5710df04af88744a48e73f51155dbe41c1e91489ca7cac92d2bb7f53948dff3",
+      "sha512Base64": "MDvnR1EBGkD4PbpWj+/gss4psE7KiSmPusscmp0nKHgf8vd+6owT6GdfYqMwpEMzAfa6/0DadOwPrL9MkrK5zQ==",
+      "sizeBytes": 37561135
+    },
+    "nuspec": {
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/Hexalith/Hexalith.Builds",
+        "branch": "refs/heads/main",
+        "commit": "16ff70a2321ad576faaac3fe53088c2f1bdacae3"
+      },
+      "archiveSha256": "a47458b4fe16afa03f796c48767d28d8afd1324a76dfc905ed95f6c6bb4e6538",
+      "feedSha256": "41f3ad8dbf33e912a28757127e65f1596047b0949aadab66375a75c0155a8da9",
+      "archiveBom": true,
+      "feedBom": false
+    },
+    "toolingAssemblySha256": "ea7485058f5db0afbc93cb93ae5c14661efabbf5552740a9163be26a34bb3e9e",
+    "embeddedCatalog": {
+      "schemaVersion": "1",
+      "eventStoreVersion": "3.128.3",
+      "frontComposerVersion": "4.7.0",
+      "daprSdkVersion": "1.18.10",
+      "aspireHostingVersion": "13.6.3",
+      "aspireHostingDaprVersion": "13.6.1-beta.935",
+      "aspireAppHostSdkVersion": "13.6.3",
+      "daprRuntimeVersion": "1.18.7",
+      "daprCliVersion": "1.18.2",
+      "redisImage": "docker.io/library/redis",
+      "redisImageTag": "7.4-alpine",
+      "redisImageDigest": "sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf",
+      "eventStoreHostingDaprRange": "13.6.1-beta.935"
+    },
+    "embeddedCatalogSha256": "d7e4d4ce088978b3a5dfc6d6d22036488d656dd38c19b742c67cba6fbbc00ad0",
+    "installedAndLoadedAssemblyEqual": true,
+    "sourceProps": {
+      "rawSha256": "95622edbc970beea37bf22c2fbd5bfe43cf6e69f2087a8a0f6fac0e0b3097ef6",
+      "filteredSha256": "f21a475235202dcc378b24f113c1cd53ca47e1c4355f821e4f8ef4c0e1aad01f",
+      "bytesEqual": false,
+      "catalogSelectionsEqual": {
+        "eventStoreVersion": "3.128.3",
+        "frontComposerVersion": "4.7.0",
+        "daprSdkVersion": "1.18.10",
+        "aspireHostingVersion": "13.6.3",
+        "aspireHostingDaprVersion": "13.6.1-beta.935",
+        "aspireAppHostSdkVersion": "13.6.3",
+        "daprRuntimeVersion": "1.18.7",
+        "daprCliVersion": "1.18.2",
+        "redisImage": "docker.io/library/redis",
+        "redisImageTag": "7.4-alpine",
+        "redisImageDigest": "sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf"
+      }
+    },
+    "qualifiedUnsignedArchive": {
+      "sha256": "d263c1f77c187a6f9b6ec11af124b77976db18e3884036fba4bfdb107b2edcda",
+      "sizeBytes": 37548049,
+      "exactCiArchiveEquality": true,
+      "uncompressedPayloadEqual": true
+    }
+  },
+  "ledger": [
+    {
+      "gate": "entry",
+      "state": "PASS",
+      "code": "INPUT_IDENTITIES_MEASURED",
+      "detail": "Root pin and clean direct dependency tuples measured independently"
+    },
+    {
+      "gate": "producer-provenance",
+      "state": "PASS",
+      "code": "PRODUCER_IDENTITY_MEASURED",
+      "detail": "Exact tag/source, successful CI/release and published inventory independently agree"
+    },
+    {
+      "gate": "producer-fixtures",
+      "state": "PASS",
+      "code": "FIXTURE_INVENTORY_MEASURED",
+      "detail": "Exact producer-selected fixture scope and filtered/raw source identities measured"
+    },
+    {
+      "gate": "isolated-restore",
+      "state": "PASS",
+      "code": "ISOLATED_ARTIFACT_RESTORED",
+      "detail": "Exact candidate restored into fresh explicit tool/cache/configuration directories"
+    },
+    {
+      "gate": "published-artifact",
+      "state": "PASS",
+      "code": "PUBLISHED_ARTIFACT_IDENTITY_MEASURED",
+      "detail": "Feed signature/hash/size, NuSpecs, CLI, packaged/loaded assembly and schemas independently agree"
+    },
+    {
+      "gate": "producer-native",
+      "state": "PASS",
+      "code": "PRODUCER_SIGNED_PAYLOAD_BOUND",
+      "detail": "Successful exact-source publisher independently bound the signed archive to its qualified unsigned payload; raw native logs retained"
+    },
+    {
+      "gate": "qualified-unsigned-archive",
+      "state": "PASS",
+      "code": "CI_ARCHIVE_AND_PAYLOAD_EQUAL",
+      "detail": "Unsigned reconstruction exactly equals CI archive hash/size and signed archive uncompressed payload"
+    },
+    {
+      "gate": "malformed-key-controls",
+      "state": "PASS",
+      "code": "ALL_36_CONTROLS_MEASURED",
+      "detail": "Both real-manifest positives and all exact-field malformed-key controls passed with unchanged inputs"
+    },
+    {
+      "gate": "adoption-delta",
+      "state": "PASS",
+      "code": "ADOPTION_INVENTORY_MEASURED",
+      "detail": "Fresh inventory exactly matches every ordered predecessor row"
+    },
+    {
+      "gate": "adoption-acceptance",
+      "state": "FAIL",
+      "code": "ADOPTION_FAILURES_RETAINED",
+      "detail": "6 passing / 16 failing rows; every failure remains unaccepted",
+      "nativeExits": {
+        "human": 1,
+        "json": 1
+      }
+    },
+    {
+      "gate": "package-preparation-action",
+      "state": "BLOCKED",
+      "code": "PACKAGE_PREPARATION_UNAVAILABLE",
+      "detail": "exact published package preparation native exit 2; action export remains unavailable"
+    },
+    {
+      "gate": "producer-review-B1",
+      "state": "BLOCKED",
+      "code": "OWNER_EVIDENCE_PENDING",
+      "detail": "Preparation does not execute the owner-check/launch versus completed cleanup interleaving. Exact source/artifact lifecycle proof remains required."
+    },
+    {
+      "gate": "producer-review-B2",
+      "state": "BLOCKED",
+      "code": "OWNER_EVIDENCE_PENDING",
+      "detail": "Preparation cancellation differs from first native timeout versus later owner cancellation. Retained callback-timeout source regression alone does not settle that race."
+    },
+    {
+      "gate": "producer-review-B3",
+      "state": "BLOCKED",
+      "code": "OWNER_EVIDENCE_PENDING",
+      "detail": "No Windows/macOS host available in this Linux attempt; process metadata uncertainty remains unqualified."
+    },
+    {
+      "gate": "producer-review-B4",
+      "state": "BLOCKED",
+      "code": "OWNER_EVIDENCE_PENDING",
+      "detail": "Preparation/source mapping does not execute incomplete Linux /proc native discovery; no verified-absence claim."
+    },
+    {
+      "gate": "producer-review-B5",
+      "state": "BLOCKED",
+      "code": "OWNER_EVIDENCE_PENDING",
+      "detail": "Manifest/schema and action exports do not exercise forged persisted run/resource identities in both formats."
+    },
+    {
+      "gate": "producer-review-B6",
+      "state": "BLOCKED",
+      "code": "OWNER_EVIDENCE_PENDING",
+      "detail": "Preparation cancellation coverage does not qualify public list cancellation, HXC130, cancelled category/exit or noncancelled output-token handling."
+    },
+    {
+      "gate": "producer-review-B7",
+      "state": "BLOCKED",
+      "code": "OWNER_EVIDENCE_PENDING",
+      "detail": "The preparation tests do not exercise the retained 67,001-byte claim-receipt admission/read mismatch; exact owner regression is still required."
+    },
+    {
+      "gate": "producer-review-B8",
+      "state": "not-applicable",
+      "code": "REJECTED_FINDING_PRESERVED",
+      "detail": "original rejected disposition preserved; no new evidence reopens this finding"
+    },
+    {
+      "gate": "producer-review-B9",
+      "state": "BLOCKED",
+      "code": "OWNER_EVIDENCE_PENDING",
+      "detail": "Atomic replacement is not an owner decision on machine/power-loss durability. Stable-storage policy and a fault-injected test remain required."
+    },
+    {
+      "gate": "producer-review-B10",
+      "state": "BLOCKED",
+      "code": "OWNER_EVIDENCE_PENDING",
+      "detail": "NativeTaggedChildRemovalPreservesIndependentPeerAsync requires actual Windows and macOS execution; Linux supplies no platform credit."
+    },
+    {
+      "gate": "producer-review-B11",
+      "state": "not-applicable",
+      "code": "REJECTED_FINDING_PRESERVED",
+      "detail": "original rejected disposition preserved; no new evidence reopens this finding"
+    },
+    {
+      "gate": "producer-review-E1",
+      "state": "BLOCKED",
+      "code": "OWNER_EVIDENCE_PENDING",
+      "detail": "Single preparation invocation does not cover later batch-descriptor refusal reusing first-entry execution/environment/catalog bindings."
+    },
+    {
+      "gate": "producer-review-G1",
+      "state": "BLOCKED",
+      "code": "OWNER_EVIDENCE_PENDING",
+      "detail": "Same native-host coverage group as B10; no independent platform acceptance from Linux or synthetic fixtures."
+    },
+    {
+      "gate": "platform-recorded-catalog",
+      "state": "FAIL",
+      "code": "PLATFORM_CATALOG_BINDING_MISMATCH",
+      "detail": "Recorded Platform Builds gitlink compared independently with its documented accepted catalog/tag source; no repair or acceptance inferred"
+    },
+    {
+      "gate": "platform-pair",
+      "state": "BLOCKED",
+      "code": "PLATFORM_IDENTITY_UNAVAILABLE",
+      "detail": "direct Platform checkout has no clean exact release tag; recorded tuple/pin remain separate"
+    },
+    {
+      "gate": "provider-source-package-deployed-parity",
+      "state": "BLOCKED",
+      "code": "OWNER_EVIDENCE_PENDING",
+      "detail": "Exact candidate-bound owner/native evidence unavailable; no source-only or synthetic qualification credit"
+    },
+    {
+      "gate": "ad5-envelope",
+      "state": "BLOCKED",
+      "code": "OWNER_EVIDENCE_PENDING",
+      "detail": "Exact candidate-bound owner/native evidence unavailable; no source-only or synthetic qualification credit"
+    },
+    {
+      "gate": "recovery-operator-capacity",
+      "state": "BLOCKED",
+      "code": "OWNER_EVIDENCE_PENDING",
+      "detail": "Exact candidate-bound owner/native evidence unavailable; no source-only or synthetic qualification credit"
+    },
+    {
+      "gate": "published-testing-helper-strategy",
+      "state": "BLOCKED",
+      "code": "OWNER_EVIDENCE_PENDING",
+      "detail": "Exact candidate-bound owner/native evidence unavailable; no source-only or synthetic qualification credit"
+    },
+    {
+      "gate": "native-windows-macos",
+      "state": "BLOCKED",
+      "code": "OWNER_EVIDENCE_PENDING",
+      "detail": "Exact candidate-bound owner/native evidence unavailable; no source-only or synthetic qualification credit"
+    },
+    {
+      "gate": "human-sm2",
+      "state": "BLOCKED",
+      "code": "OWNER_EVIDENCE_PENDING",
+      "detail": "Exact candidate-bound owner/native evidence unavailable; no source-only or synthetic qualification credit"
+    },
+    {
+      "gate": "registration-source-config-auth-gateway-dapr",
+      "state": "BLOCKED",
+      "code": "OWNER_EVIDENCE_PENDING",
+      "detail": "Exact candidate-bound owner/native evidence unavailable; no source-only or synthetic qualification credit"
+    },
+    {
+      "gate": "restoration",
+      "state": "PASS",
+      "code": "INPUTS_UNCHANGED",
+      "detail": "Protected inputs and exact raw index rows are unchanged"
+    }
+  ],
+  "authority": {
+    "hold": "ACTIVE",
+    "entry": null,
+    "trustedEntries": [],
+    "runtimeEntryAllowed": false,
+    "deploymentPerformed": false,
+    "platformAcceptanceClaimed": false,
+    "pinChanges": false,
+    "implementationHold": "ACTIVE",
+    "executionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  }
+}

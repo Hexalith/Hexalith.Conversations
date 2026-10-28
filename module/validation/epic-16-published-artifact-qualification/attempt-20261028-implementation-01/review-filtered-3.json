@@ -1,0 +1,28 @@
+{
+  "name": "review-filtered-3",
+  "command": [
+    "git",
+    "cat-file",
+    "--filters",
+    "16ff70a2321ad576faaac3fe53088c2f1bdacae3:src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionProcess.cs"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+  "environment": {},
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 0.002,
+  "exitCode": 0,
+  "termination": null,
+  "stdout": {
+    "path": "review-filtered-3.stdout.txt",
+    "bytes": 13800,
+    "sha256": "4be249c54ec9b51dea47f2c5db049146a5bac98fa9d548c6de5e3d1b2fecf009",
+    "complete": true
+  },
+  "stderr": {
+    "path": "review-filtered-3.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "complete": true
+  }
+}

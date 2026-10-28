@@ -1,0 +1,23 @@
+using NuGet.Packaging.Signing;
+using System.Security.Cryptography;
+using System.Text.Json;
+
+/// <summary>Compares an unsigned NuGet reconstruction with an independently recorded CI hash.</summary>
+internal static class Program
+{
+    /// <summary>Removes signing metadata into a fresh output without modifying the signed input.</summary>
+    /// <param name="args">The signed input and fresh unsigned output paths.</param>
+    /// <returns>A process exit code.</returns>
+    internal static async Task<int> Main(string[] args)
+    {
+        using FileStream input = new(args[0], FileMode.Open, FileAccess.Read, FileShare.Read);
+        using FileStream output = new(args[1], FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
+        using SignedPackageArchive archive = new(input, output);
+        await archive.RemoveSignatureAsync(CancellationToken.None);
+        await output.FlushAsync();
+        output.Position = 0;
+        string hash = Convert.ToHexString(await SHA256.HashDataAsync(output)).ToLowerInvariant();
+        Console.WriteLine(JsonSerializer.Serialize(new { sha256 = hash, bytes = output.Length }));
+        return 0;
+    }
+}

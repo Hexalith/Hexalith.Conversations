@@ -1,0 +1,11 @@
+{
+  "scope": "Fresh owned baseline observation only",
+  "redactedStreams": [
+    "aspire-describe-final.stdout.txt",
+    "aspire-describe-initial.stdout.txt"
+  ],
+  "rawNativeStreamHashes": "retained in each command metadata rawSha256",
+  "safeRetainedStreamHashes": "independently recorded in each command metadata sha256",
+  "generatedSecretCount": 5,
+  "runtimeAuthority": false
+}

@@ -1,0 +1,29 @@
+{
+  "name": "producer-inventory-download",
+  "command": [
+    "gh",
+    "api",
+    "-H",
+    "Accept: application/octet-stream",
+    "repos/Hexalith/Hexalith.Builds/releases/assets/683227521"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "environment": {},
+  "timeoutSeconds": 300,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 0.451,
+  "exitCode": 0,
+  "termination": null,
+  "stdout": {
+    "path": "producer-inventory-download.stdout.txt",
+    "bytes": 74432,
+    "sha256": "5c11240a48feb2811620da1a23b81a7f82aad6dab61daa88f8d8cd10f73512a6",
+    "complete": true
+  },
+  "stderr": {
+    "path": "producer-inventory-download.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "complete": true
+  }
+}

@@ -1,0 +1,617 @@
+{
+  "candidateSource": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+  "predecessorLedger": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/qualification-ledger.json",
+  "predecessorLedgerSha256": "cd051831eefd44f123844b11798d389d58ef44981d473049c35f4f8edb035159",
+  "findings": [
+    {
+      "id": "B1",
+      "verdict": "high",
+      "route": "defer",
+      "evidence": "Concurrent cleanup can pass the single EnsureIssuedStateAsync check and release its provisioning lease before ExecuteSelectedAsync writes/recreates the workspace and starts a child. The selected gate has no cleanup-marker/provisioning lease. Static interleaving confirmed; no new Platform qualification.",
+      "incomingOrigin": "0ade5ec2b4f9b81fcd3a4bbb1672c11b0131a274",
+      "group": "late-native-launch",
+      "state": "BLOCKED",
+      "qualificationBoundary": "Preparation does not execute the owner-check/launch versus completed cleanup interleaving. Exact source/artifact lifecycle proof remains required.",
+      "currentEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/ModuleCommandExecutionService.cs",
+          "sha256": "11af6eb4331f58d55ca7598d2a2e6b668cfdec2cd8b47520756495214b8118d5",
+          "bytes": 94292,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/LocalRunLifecycleTests.cs",
+          "sha256": "c0535674f2e9c4bfde092842649de2b41f346b3d601dbba6979bb5a99a148785",
+          "bytes": 82690,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/LocalRunFollowupTests.cs",
+          "sha256": "b8dddd273fa394f7d049a810800e4f877653ea54896fd7914887d0ef1b8f54fb",
+          "bytes": 18173,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ],
+      "candidateEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/ModuleCommandExecutionService.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "d07bcc8448cc38f5f8725602f8a5ffbb3c937f789cd7d9aa7a5a442d69fb8d4f",
+          "sizeBytes": 92572,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/LocalRunLifecycleTests.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "a9d79e7fe415d347c9ca5f7d0f331067be62af4ef396a538f2b98459b2687d1b",
+          "sizeBytes": 81586,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/LocalRunFollowupTests.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "697c9878c182f8fe623c04f24984a15fec0d20739ec3b589bbbd95f3094ec931",
+          "sizeBytes": 17938,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        }
+      ],
+      "ownerScope": "Hexalith.Builds runtime maintainer; native host/policy owner where applicable",
+      "acceptanceState": "pending exact finding/host owner acceptance"
+    },
+    {
+      "id": "B2",
+      "verdict": "medium",
+      "route": "defer",
+      "evidence": "RunCoreAsync records a first timestamp, kills/waits, then throws on the current caller cancellation token. NativeTestExecutor samples owner cancellation afterwards, so a later cancellation can replace the earlier timeout cause.",
+      "incomingOrigin": "0ade5ec2b4f9b81fcd3a4bbb1672c11b0131a274",
+      "group": "late-timeout-cause",
+      "state": "BLOCKED",
+      "qualificationBoundary": "Preparation cancellation differs from first native timeout versus later owner cancellation. Retained callback-timeout source regression alone does not settle that race.",
+      "currentEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionProcess.cs",
+          "sha256": "4be249c54ec9b51dea47f2c5db049146a5bac98fa9d548c6de5e3d1b2fecf009",
+          "bytes": 13800,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/LocalRunReviewCorrectionTests.cs",
+          "sha256": "92bba4d93ba1cde82c322a81fe0058ee04fe0e96fe5a7f189e821667e7d05a57",
+          "bytes": 19769,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ],
+      "candidateEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionProcess.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "6d5570052bab25c5f4eedad03bf0db18b92ea1aa99e09b29a904b0905b33068e",
+          "sizeBytes": 13459,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/LocalRunReviewCorrectionTests.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "501cd0c81878770595e87b09ce20e867b0642d4dc1b69097e186374ccb4313e4",
+          "sizeBytes": 19474,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        }
+      ],
+      "ownerScope": "Hexalith.Builds runtime maintainer; native host/policy owner where applicable",
+      "acceptanceState": "pending exact finding/host owner acceptance"
+    },
+    {
+      "id": "B3",
+      "verdict": "high",
+      "route": "defer",
+      "evidence": "Windows invalid OpenProcess and macOS errors1/13 return null without setting Verified=false. No independent ownership exclusion protects an owned process that becomes inaccessible. Actual-host behavior remains unqualified.",
+      "incomingOrigin": "6e40ea5f6243391bea80084b8ddd695df58fb1ff",
+      "group": "nonlinux-discovery-uncertainty",
+      "state": "BLOCKED",
+      "qualificationBoundary": "No Windows/macOS host available in this Linux attempt; process metadata uncertainty remains unqualified.",
+      "currentEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionRunResourceScanner.cs",
+          "sha256": "221f356680bd13611cb1df6ec6e8258188f2b4cd976884c4ecfbc10365517d50",
+          "bytes": 8142,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/CompositionNativeProcessDiscoveryTests.cs",
+          "sha256": "fb3eb23d806544979f91fe5cb150e21e1c6e9d74d01426d43cc918135869025a",
+          "bytes": 3837,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ],
+      "candidateEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionRunResourceScanner.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "95da0a67a144d6730812cdffa69b37074794a31b86266608b92568f3d667a371",
+          "sizeBytes": 7962,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/CompositionNativeProcessDiscoveryTests.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "75f113837be3f2c8733daa3e8635125a2ac39801a704f75b2362a252a32fe517",
+          "sizeBytes": 3762,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        }
+      ],
+      "ownerScope": "Hexalith.Builds runtime maintainer; native host/policy owner where applicable",
+      "acceptanceState": "pending exact finding/host owner acceptance"
+    },
+    {
+      "id": "B4",
+      "verdict": "high",
+      "route": "defer",
+      "evidence": "Linux scanner returns(FindProcesses(runId),true), while absent /proc and read exceptions yield no observed processes. The caller can treat this incomplete scan as verified absence and release claims.",
+      "incomingOrigin": "6e40ea5f6243391bea80084b8ddd695df58fb1ff",
+      "group": "linux-discovery-uncertainty",
+      "state": "BLOCKED",
+      "qualificationBoundary": "Preparation/source mapping does not execute incomplete Linux /proc native discovery; no verified-absence claim.",
+      "currentEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionRunResourceScanner.cs",
+          "sha256": "221f356680bd13611cb1df6ec6e8258188f2b4cd976884c4ecfbc10365517d50",
+          "bytes": 8142,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/CompositionNativeProcessDiscoveryTests.cs",
+          "sha256": "fb3eb23d806544979f91fe5cb150e21e1c6e9d74d01426d43cc918135869025a",
+          "bytes": 3837,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ],
+      "candidateEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionRunResourceScanner.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "95da0a67a144d6730812cdffa69b37074794a31b86266608b92568f3d667a371",
+          "sizeBytes": 7962,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/CompositionNativeProcessDiscoveryTests.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "75f113837be3f2c8733daa3e8635125a2ac39801a704f75b2362a252a32fe517",
+          "sizeBytes": 3762,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        }
+      ],
+      "ownerScope": "Hexalith.Builds runtime maintainer; native host/policy owner where applicable",
+      "acceptanceState": "pending exact finding/host owner acceptance"
+    },
+    {
+      "id": "B5",
+      "verdict": "medium",
+      "route": "defer",
+      "evidence": "ValidResources checks nonnull collections only; ResourceIds and listing serialize containerIds directly. Reviewer reported fake-secret echo on same-source Debug CLI; original stream capture was not retained, so source inspection and reviewer testimony are distinguished.",
+      "incomingOrigin": "0ade5ec2b4f9b81fcd3a4bbb1672c11b0131a274",
+      "group": "persisted-metadata-validation",
+      "state": "BLOCKED",
+      "qualificationBoundary": "Manifest/schema and action exports do not exercise forged persisted run/resource identities in both formats.",
+      "currentEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionRunListing.cs",
+          "sha256": "5de2181b8bd4e420b3631bdc7721dcd000682fd79b53beab1991179e06b23f86",
+          "bytes": 6235,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/CompositionRunListingTests.cs",
+          "sha256": "454215f5c1d678003c688193832541c7840d93e55ce573f63a353bcd0e01ba4b",
+          "bytes": 20455,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/LocalRunReviewCorrectionTests.cs",
+          "sha256": "92bba4d93ba1cde82c322a81fe0058ee04fe0e96fe5a7f189e821667e7d05a57",
+          "bytes": 19769,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ],
+      "candidateEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionRunListing.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "d09b88b0b39dae4e47b4a99895fda37141d258c8b9fac1f0884917f37a8658d2",
+          "sizeBytes": 6136,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/CompositionRunListingTests.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "aa693e89887b1e7f98289b3a37b3e04cf9b85d6b87b463abb7fd2e12f8dc34bc",
+          "sizeBytes": 20147,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/LocalRunReviewCorrectionTests.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "501cd0c81878770595e87b09ce20e867b0642d4dc1b69097e186374ccb4313e4",
+          "sizeBytes": 19474,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        }
+      ],
+      "ownerScope": "Hexalith.Builds runtime maintainer; native host/policy owner where applicable",
+      "acceptanceState": "pending exact finding/host owner acceptance"
+    },
+    {
+      "id": "B6",
+      "verdict": "medium",
+      "route": "defer",
+      "evidence": "CreateListCommand awaits ReadAsync without the OperationCanceledException mapping present in validation; enumeration checks cancellation per file. Reported SIGINT repro returned exit1 with empty streams.",
+      "incomingOrigin": "984c4d50205d00b5238c1cf19e93b232c3282c22",
+      "group": "list-cancellation",
+      "state": "BLOCKED",
+      "qualificationBoundary": "Preparation cancellation coverage does not qualify public list cancellation, HXC130, cancelled category/exit or noncancelled output-token handling.",
+      "currentEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Module.Cli/ModuleCommandApplication.cs",
+          "sha256": "d51ba7020712e24a40725c4deba51edcf2539546c3639b521959ab0b9e7a2a9c",
+          "bytes": 17674,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionRunListing.cs",
+          "sha256": "5de2181b8bd4e420b3631bdc7721dcd000682fd79b53beab1991179e06b23f86",
+          "bytes": 6235,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ],
+      "candidateEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Module.Cli/ModuleCommandApplication.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "568acf0379a399e981de17670fdddf083057cbc1c8f83e67e54130970f567b9e",
+          "sizeBytes": 17328,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        },
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionRunListing.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "d09b88b0b39dae4e47b4a99895fda37141d258c8b9fac1f0884917f37a8658d2",
+          "sizeBytes": 6136,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        }
+      ],
+      "ownerScope": "Hexalith.Builds runtime maintainer; native host/policy owner where applicable",
+      "acceptanceState": "pending exact finding/host owner acceptance"
+    },
+    {
+      "id": "B7",
+      "verdict": "medium",
+      "route": "defer",
+      "evidence": "Acquire has no receipt-length admission bound; ReadReceipt rejects over64KiB. Retained reviewer fixture is67,001 bytes and ReleaseOwned leaves the receipt. Public Acquire has no identity-count guard.",
+      "incomingOrigin": "0ade5ec2b4f9b81fcd3a4bbb1672c11b0131a274",
+      "group": "claim-receipt-bound",
+      "state": "BLOCKED",
+      "qualificationBoundary": "The preparation tests do not exercise the retained 67,001-byte claim-receipt admission/read mismatch; exact owner regression is still required.",
+      "currentEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionResourceClaimStore.cs",
+          "sha256": "4c450fe75fb376522f903ee494c96833ffa3385a2c59f3fdda2e2215c3ff701c",
+          "bytes": 13812,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/CompositionResourceClaimStoreTests.cs",
+          "sha256": "62f414d87919cbdd50634383a49e9f7ab4417339ac53212867fe6d369d82744e",
+          "bytes": 13906,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ],
+      "candidateEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionResourceClaimStore.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "48bc8cd22258c5b307f0352434351c36ac24f30b0f29c9c33d58d755990ed3fc",
+          "sizeBytes": 13485,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/CompositionResourceClaimStoreTests.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "8aa4f47a68fddd750484b1dde0da8981c78bcf93f52ec0b083baaa3ccb6b2bd2",
+          "sizeBytes": 13688,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        }
+      ],
+      "ownerScope": "Hexalith.Builds runtime maintainer; native host/policy owner where applicable",
+      "acceptanceState": "pending exact finding/host owner acceptance"
+    },
+    {
+      "id": "B8",
+      "verdict": "false",
+      "route": "reject",
+      "evidence": "Reviewer retracted the concrete lifecycle expansion claim after the1MiB validated-descriptor guard was identified. An unrestricted generic writer alone does not demonstrate the claimed reachable oversized lifecycle record. No new guard is justified.",
+      "incomingOrigin": "0ade5ec2b4f9b81fcd3a4bbb1672c11b0131a274",
+      "group": null,
+      "state": "not-applicable",
+      "scope": "original rejected disposition preserved; no new evidence reopens this finding",
+      "currentEvidence": [],
+      "candidateEvidence": [],
+      "ownerScope": "Hexalith.Builds runtime maintainer; native host/policy owner where applicable",
+      "acceptanceState": "rejected disposition retained"
+    },
+    {
+      "id": "B9",
+      "verdict": "maybe-false",
+      "route": "defer",
+      "evidence": "Atomic rename and absence of an explicit stable-storage barrier are confirmed; whether the current promise includes machine/power-loss durability and a reachable lost-terminal-record case were not established. If true impact is medium; settle with an explicit crash contract and fault-injected storage test.",
+      "incomingOrigin": "984c4d50205d00b5238c1cf19e93b232c3282c22",
+      "group": "storage-durability-unverified",
+      "state": "BLOCKED",
+      "qualificationBoundary": "Atomic replacement is not an owner decision on machine/power-loss durability. Stable-storage policy and a fault-injected test remain required.",
+      "currentEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionDocumentStore.cs",
+          "sha256": "56436be08eece80acd617a8ff71a3b7fb8fc29e6bd68c7c00883d0af742856e1",
+          "bytes": 6879,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionRunStateStore.cs",
+          "sha256": "f3f145831a52a72b9e179eeb4b297b7ef93e127f1b92287e96650ef3ff4ee112",
+          "bytes": 11659,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ],
+      "candidateEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionDocumentStore.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "b735cb0e272d0646a907bcec37a6bac2b5f2f62c18be5e88eba6e98a24aab37d",
+          "sizeBytes": 6728,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        },
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionRunStateStore.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "ee6f30730aba940f9fe3fc6c304a9ec77160a7796e04bffec598e36b08a1c7f2",
+          "sizeBytes": 11448,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        }
+      ],
+      "ownerScope": "Hexalith.Builds runtime maintainer; native host/policy owner where applicable",
+      "acceptanceState": "pending exact finding/host owner acceptance"
+    },
+    {
+      "id": "B10",
+      "verdict": "medium",
+      "route": "defer",
+      "evidence": "Native Windows/macOS discovery is exercised only through injected/synthetic tests in the Ubuntu lanes. Actual-host ownership/cleanup verification is missing; same root coverage gap as G1.",
+      "incomingOrigin": "6e40ea5f6243391bea80084b8ddd695df58fb1ff",
+      "group": "native-host-verification",
+      "state": "BLOCKED",
+      "qualificationBoundary": "NativeTaggedChildRemovalPreservesIndependentPeerAsync requires actual Windows and macOS execution; Linux supplies no platform credit.",
+      "currentEvidence": [
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/CompositionNativeProcessDiscoveryTests.cs",
+          "sha256": "fb3eb23d806544979f91fe5cb150e21e1c6e9d74d01426d43cc918135869025a",
+          "bytes": 3837,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ],
+      "candidateEvidence": [
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/CompositionNativeProcessDiscoveryTests.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "75f113837be3f2c8733daa3e8635125a2ac39801a704f75b2362a252a32fe517",
+          "sizeBytes": 3762,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        }
+      ],
+      "ownerScope": "Hexalith.Builds runtime maintainer; native host/policy owner where applicable",
+      "acceptanceState": "pending exact finding/host owner acceptance"
+    },
+    {
+      "id": "B11",
+      "verdict": "low",
+      "route": "reject",
+      "evidence": "The cited file is explicitly the failed historical collector attempt, with original temporary inputs preserved. No supported current replay calls it. Parameterizing/duplicating that capture adds a new helper interface for an uncommon archival replay; actual artifact probe03 already accepts explicit repository/version/output/inventory arguments. Clarify its historical status in the handoff without rewriting it.",
+      "incomingOrigin": null,
+      "group": null,
+      "state": "not-applicable",
+      "scope": "original rejected disposition preserved; no new evidence reopens this finding",
+      "currentEvidence": [],
+      "candidateEvidence": [],
+      "ownerScope": "Hexalith.Builds runtime maintainer; native host/policy owner where applicable",
+      "acceptanceState": "rejected disposition retained"
+    },
+    {
+      "id": "E1",
+      "verdict": "medium",
+      "route": "defer",
+      "evidence": "Batch loop resets ExecutionTiming but not EnvironmentBindings; a descriptor refusal returns before assigning new bindings. TestResultWriter checks owner/attempt/environment only. Retained same-source unit repro contains second selection with first execution/catalog bindings.",
+      "incomingOrigin": "0ade5ec2b4f9b81fcd3a4bbb1672c11b0131a274",
+      "group": "batch-stale-bindings",
+      "state": "BLOCKED",
+      "qualificationBoundary": "Single preparation invocation does not cover later batch-descriptor refusal reusing first-entry execution/environment/catalog bindings.",
+      "currentEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/ModuleCommandExecutionService.cs",
+          "sha256": "11af6eb4331f58d55ca7598d2a2e6b668cfdec2cd8b47520756495214b8118d5",
+          "bytes": 94292,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/TestEnvironmentProvisioningReviewTests.cs",
+          "sha256": "e8739790481a707a9667587f24db64ee82e3324c0ed34d3a6d805cc6ac4129eb",
+          "bytes": 29173,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ],
+      "candidateEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/ModuleCommandExecutionService.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "d07bcc8448cc38f5f8725602f8a5ffbb3c937f789cd7d9aa7a5a442d69fb8d4f",
+          "sizeBytes": 92572,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/TestEnvironmentProvisioningReviewTests.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "dd527e69325a7efc5e8175fe7634e154eaabc18e097bf2df13a21520249e3079",
+          "sizeBytes": 28770,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        }
+      ],
+      "ownerScope": "Hexalith.Builds runtime maintainer; native host/policy owner where applicable",
+      "acceptanceState": "pending exact finding/host owner acceptance"
+    },
+    {
+      "id": "G1",
+      "verdict": "medium",
+      "route": "defer",
+      "evidence": "Pre-verified gap: source/reference searches and actual CI platforms show no native Windows/macOS reader exercise; override/ContainsEntry tests do not cover discovery or cleanup. Same coverage root cause as B10.",
+      "incomingOrigin": "6e40ea5f6243391bea80084b8ddd695df58fb1ff",
+      "group": "native-host-verification",
+      "state": "BLOCKED",
+      "qualificationBoundary": "Same native-host coverage group as B10; no independent platform acceptance from Linux or synthetic fixtures.",
+      "currentEvidence": [
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/CompositionNativeProcessDiscoveryTests.cs",
+          "sha256": "fb3eb23d806544979f91fe5cb150e21e1c6e9d74d01426d43cc918135869025a",
+          "bytes": 3837,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ],
+      "candidateEvidence": [
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/CompositionNativeProcessDiscoveryTests.cs",
+          "sourceRevision": "16ff70a2321ad576faaac3fe53088c2f1bdacae3",
+          "sha256": "75f113837be3f2c8733daa3e8635125a2ac39801a704f75b2362a252a32fe517",
+          "sizeBytes": 3762,
+          "matchesPreviousInspectedSource": false,
+          "scope": "Actual published artifact source; producer native lane does not individually close this retained finding"
+        }
+      ],
+      "ownerScope": "Hexalith.Builds runtime maintainer; native host/policy owner where applicable",
+      "acceptanceState": "pending exact finding/host owner acceptance"
+    }
+  ],
+  "groups": [
+    {
+      "id": "late-native-launch",
+      "findings": [
+        "B1"
+      ],
+      "route": "defer",
+      "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "late-timeout-cause",
+      "findings": [
+        "B2"
+      ],
+      "route": "defer",
+      "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "nonlinux-discovery-uncertainty",
+      "findings": [
+        "B3"
+      ],
+      "route": "defer",
+      "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "linux-discovery-uncertainty",
+      "findings": [
+        "B4"
+      ],
+      "route": "defer",
+      "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "persisted-metadata-validation",
+      "findings": [
+        "B5"
+      ],
+      "route": "defer",
+      "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "list-cancellation",
+      "findings": [
+        "B6"
+      ],
+      "route": "defer",
+      "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "claim-receipt-bound",
+      "findings": [
+        "B7"
+      ],
+      "route": "defer",
+      "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "storage-durability-unverified",
+      "findings": [
+        "B9"
+      ],
+      "route": "defer",
+      "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "native-host-verification",
+      "findings": [
+        "B10",
+        "G1"
+      ],
+      "route": "defer",
+      "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "batch-stale-bindings",
+      "findings": [
+        "E1"
+      ],
+      "route": "defer",
+      "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+      "state": "BLOCKED"
+    }
+  ],
+  "rejected": [
+    "B8",
+    "B11"
+  ],
+  "qualificationCredit": "No blanket closure from preparation, broad CI success or Linux execution; exact finding and native-host gates remain separate"
+}

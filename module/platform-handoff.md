@@ -1,5 +1,59 @@
 # Conversations Platform registration handoff — pending
 
+## Published 4.38.1 qualification observation — 2026-10-28
+
+[The fresh artifact attempt](validation/epic-16-published-artifact-qualification/parent-review-20261028/README.md)
+measures **4.38.1** from Builds tag/source
+`16ff70a2321ad576faaac3fe53088c2f1bdacae3`. Its
+[final ledger](validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/collection-05/qualification-ledger.json)
+is **FAIL**: adoption remains exactly **six PASS / sixteen FAIL**. The
+[ordered comparison and dispositions](validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/collection-05/adoption-dispositions.json)
+preserve every entry failure, including all four newly scanned implementation-03
+imports, with no additions, removals, reason changes or owner acceptance.
+
+The reviewed collector passes 71 focused tests. Missing declared producer
+qualificationEvidence files remain separately BLOCKED; publisher payload binding
+and nonempty native summaries provide no acceptance of those missing files.
+
+The actual signed feed archive, its signature/SHA-512/size, NuSpec source,
+successful exact-source CI/Release, packaged/loaded Tooling identity, three
+loose/embedded/source schemas and embedded catalog versus source Props pass.
+Signature removal into a separate archive reproduces the qualified producer CI
+archive's full SHA-256 and 37,548,049-byte size; every uncompressed payload entry
+also agrees. Signed and unsigned ZIP identities remain distinct. Both ordinary
+real-manifest formats and **all 36 malformed-key controls** pass with unchanged
+inputs. The producer's Linux Release native results and skips, all 289 selected
+fixtures, the hidden exclusion and raw/filtered byte differences remain explicit.
+
+Actual published `prepare-build --mode package` returns **HXW011 / exit 2**:
+direct Platform `5889400b50e6e2cefb4ed6976ca53d086d3989e2` has no local release
+tag. Complete package preparation and action export therefore remain **BLOCKED**.
+Platform's exact 4.35.2 pin and documented catalog source remain separate from
+4.38.1's range eligibility and embedded catalog; no integration-qualified pair or
+reviewed registration is accepted.
+
+The available recorded Platform Builds gitlink
+`81ab049208678bd6616828824729c0ddac02f7d1` also differs from its documented
+accepted 4.35.2 catalog/tag source
+`4248b8c70cb35ba79fdd7e4dd63049d4c73211a0`. The ledger records that measured
+identity disagreement as **FAIL/PLATFORM_CATALOG_BINDING_MISMATCH**, separately
+from the missing Platform tag's BLOCKED gate.
+
+All thirteen producer review findings and ten deferred groups are bound to the
+actual artifact source; B8/B11 retain their rejected dispositions. Linux skips, broad source/native success and byte equality close none of the exact launch,
+timeout, discovery, listing, claim-bound, crash-policy or batch gates. Native
+Windows/macOS, supported published testing helpers, provider parity, AD-5,
+recovery/operator/capacity, registration and human SM-2 remain owner inputs.
+
+The fresh normal mapped Debug AppHost baseline was healthy and its exact isolated
+instance was stopped. It supplies no runtime-entry credit. The twelve held
+commands still produce v1 **FAIL/SOURCE_DRIFT** and v2
+**BLOCKED/ENTRY_QUALIFICATION_PENDING**, zero runtime measurements and seven absent
+outputs. Entry stays null, independent trust empty, Story 16.1 draft/backlog and
+the hold ACTIVE with all four authority flags false. Pins, dependencies, accepted
+bindings/fixtures and frozen hosts are preserved. The following records retain
+their earlier observation-time claims and inventories.
+
 ## Current bounded tooling disposition — 2026-10-28
 
 [The fresh source qualification attempt](validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/)

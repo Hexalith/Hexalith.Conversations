@@ -1,0 +1,126 @@
+{
+  "rows": [
+    {
+      "version": "v1",
+      "scenarioId": "AC-16.1-01",
+      "result": "FAIL",
+      "exitCode": 1,
+      "blockers": [
+        "SOURCE_DRIFT"
+      ],
+      "outputsAbsent": true
+    },
+    {
+      "version": "v1",
+      "scenarioId": "AC-16.1-02",
+      "result": "FAIL",
+      "exitCode": 1,
+      "blockers": [
+        "SOURCE_DRIFT"
+      ],
+      "outputsAbsent": true
+    },
+    {
+      "version": "v1",
+      "scenarioId": "AC-16.1-03",
+      "result": "FAIL",
+      "exitCode": 1,
+      "blockers": [
+        "SOURCE_DRIFT"
+      ],
+      "outputsAbsent": true
+    },
+    {
+      "version": "v1",
+      "scenarioId": "AC-16.1-04",
+      "result": "FAIL",
+      "exitCode": 1,
+      "blockers": [
+        "SOURCE_DRIFT"
+      ],
+      "outputsAbsent": true
+    },
+    {
+      "version": "v1",
+      "scenarioId": "AC-16.1-05",
+      "result": "FAIL",
+      "exitCode": 1,
+      "blockers": [
+        "SOURCE_DRIFT"
+      ],
+      "outputsAbsent": true
+    },
+    {
+      "version": "v1",
+      "scenarioId": "AC-16.1-06",
+      "result": "FAIL",
+      "exitCode": 1,
+      "blockers": [
+        "SOURCE_DRIFT"
+      ],
+      "outputsAbsent": true
+    },
+    {
+      "version": "v2",
+      "scenarioId": "AC-16.1-01",
+      "result": "BLOCKED",
+      "exitCode": 2,
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "outputsAbsent": true
+    },
+    {
+      "version": "v2",
+      "scenarioId": "AC-16.1-02",
+      "result": "BLOCKED",
+      "exitCode": 2,
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "outputsAbsent": true
+    },
+    {
+      "version": "v2",
+      "scenarioId": "AC-16.1-03",
+      "result": "BLOCKED",
+      "exitCode": 2,
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "outputsAbsent": true
+    },
+    {
+      "version": "v2",
+      "scenarioId": "AC-16.1-04",
+      "result": "BLOCKED",
+      "exitCode": 2,
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "outputsAbsent": true
+    },
+    {
+      "version": "v2",
+      "scenarioId": "AC-16.1-05",
+      "result": "BLOCKED",
+      "exitCode": 2,
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "outputsAbsent": true
+    },
+    {
+      "version": "v2",
+      "scenarioId": "AC-16.1-06",
+      "result": "BLOCKED",
+      "exitCode": 2,
+      "blockers": [
+        "ENTRY_QUALIFICATION_PENDING"
+      ],
+      "outputsAbsent": true
+    }
+  ],
+  "runtimeMeasuredTests": 0,
+  "allSevenOutputsAbsent": true
+}

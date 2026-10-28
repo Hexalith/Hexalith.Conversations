@@ -1,0 +1,27 @@
+{
+  "passed": 6,
+  "failed": 16,
+  "addedFailures": [
+    {
+      "requirement": "dependency-selectors",
+      "file": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/prepared-imports/source-mapping/SourceMapping.late.props",
+      "reason": "Module build files assign a tool-owned dependency root or mode property; leave selection to the pinned tool."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "file": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/prepared-imports/source-mapping/SourceMapping.values.props",
+      "reason": "Module build files assign a tool-owned dependency root or mode property; leave selection to the pinned tool."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "file": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/qualification-prepared-imports/source-mapping/SourceMapping.late.props",
+      "reason": "Module build files assign a tool-owned dependency root or mode property; leave selection to the pinned tool."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "file": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/qualification-prepared-imports/source-mapping/SourceMapping.values.props",
+      "reason": "Module build files assign a tool-owned dependency root or mode property; leave selection to the pinned tool."
+    }
+  ],
+  "removedFailures": []
+}

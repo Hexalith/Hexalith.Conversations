@@ -1,0 +1,458 @@
+[
+  {
+    "name": "v1-AC-16.1-01",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-01",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-01.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 1,
+    "termination": null,
+    "processId": 3059212,
+    "processGroup": 3059212,
+    "durationSeconds": 0.129075,
+    "stdout": {
+      "path": "v1-AC-16.1-01.stdout.txt",
+      "bytes": 708,
+      "sha256": "dae54ea690bcc5332ab62076d9f7360df162595929df42c24f1d75eccde8b5ed",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v1-AC-16.1-01.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v1-AC-16.1-02",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-02",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-02.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 1,
+    "termination": null,
+    "processId": 3059214,
+    "processGroup": 3059214,
+    "durationSeconds": 0.107302,
+    "stdout": {
+      "path": "v1-AC-16.1-02.stdout.txt",
+      "bytes": 708,
+      "sha256": "06691bfac52d6759e98d51f2754684bd88de4020dd0c8a52887c35df41806dd0",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v1-AC-16.1-02.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v1-AC-16.1-03",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-03",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-03.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 1,
+    "termination": null,
+    "processId": 3059215,
+    "processGroup": 3059215,
+    "durationSeconds": 0.107157,
+    "stdout": {
+      "path": "v1-AC-16.1-03.stdout.txt",
+      "bytes": 708,
+      "sha256": "ed7f21217e7b2b703756cd9bab69eb1fab48761a2545f78f8f1be97c4918b896",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v1-AC-16.1-03.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v1-AC-16.1-04",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-04",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-04.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 1,
+    "termination": null,
+    "processId": 3059216,
+    "processGroup": 3059216,
+    "durationSeconds": 0.107534,
+    "stdout": {
+      "path": "v1-AC-16.1-04.stdout.txt",
+      "bytes": 708,
+      "sha256": "c3a1da9a7e03b4a435d1e503317a6c5f66cffed5aef130c949e11ce803fd5f15",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v1-AC-16.1-04.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v1-AC-16.1-05",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-05",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-05.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 1,
+    "termination": null,
+    "processId": 3059217,
+    "processGroup": 3059217,
+    "durationSeconds": 0.112785,
+    "stdout": {
+      "path": "v1-AC-16.1-05.stdout.txt",
+      "bytes": 708,
+      "sha256": "3780ef2c7b86b5604d0b1689245291ef03ce831a3aaa025ac3222cc80ee0bd30",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v1-AC-16.1-05.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v1-AC-16.1-06",
+    "command": [
+      "python3",
+      "_bmad/scripts/generate_story_record.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "--format",
+      "bundle",
+      "--output-json",
+      "docs/release-evidence/story-16.1-final-record-v2.json",
+      "--output-markdown",
+      "docs/release-evidence/story-16.1-final-record-v2.md"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 1,
+    "termination": null,
+    "processId": 3059218,
+    "processGroup": 3059218,
+    "durationSeconds": 0.195169,
+    "stdout": {
+      "path": "v1-AC-16.1-06.stdout.txt",
+      "bytes": 708,
+      "sha256": "76f614cc6ba66ef1326c17d6404f06e345b66ef1d4385c4e0bf60eda3411b6b4",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v1-AC-16.1-06.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v2-AC-16.1-01",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-01",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-01.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 2,
+    "termination": null,
+    "processId": 3059359,
+    "processGroup": 3059359,
+    "durationSeconds": 0.129821,
+    "stdout": {
+      "path": "v2-AC-16.1-01.stdout.txt",
+      "bytes": 883,
+      "sha256": "90790c6062f91e5cfa557ecdf446c82f568678f3d540e38a98ee8efeca0032f3",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v2-AC-16.1-01.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v2-AC-16.1-02",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-02",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-02.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 2,
+    "termination": null,
+    "processId": 3059467,
+    "processGroup": 3059467,
+    "durationSeconds": 0.12854,
+    "stdout": {
+      "path": "v2-AC-16.1-02.stdout.txt",
+      "bytes": 883,
+      "sha256": "be2d519756dbb564296c0c4afff29070083daefa020b2a35a66f168daa4f5da0",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v2-AC-16.1-02.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v2-AC-16.1-03",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-03",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-03.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 2,
+    "termination": null,
+    "processId": 3059470,
+    "processGroup": 3059470,
+    "durationSeconds": 0.131756,
+    "stdout": {
+      "path": "v2-AC-16.1-03.stdout.txt",
+      "bytes": 883,
+      "sha256": "36ccf207b6a5add0fd590e93dafa18a65a71c65b86f246ff8faa46a5dd763447",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v2-AC-16.1-03.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v2-AC-16.1-04",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-04",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-04.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 2,
+    "termination": null,
+    "processId": 3059473,
+    "processGroup": 3059473,
+    "durationSeconds": 0.130717,
+    "stdout": {
+      "path": "v2-AC-16.1-04.stdout.txt",
+      "bytes": 883,
+      "sha256": "f10ac30b4a8b580475b50ecde35e360d7091967fa90eb2f0eb7183e249381847",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v2-AC-16.1-04.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v2-AC-16.1-05",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-05",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-05.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 2,
+    "termination": null,
+    "processId": 3059476,
+    "processGroup": 3059476,
+    "durationSeconds": 0.126036,
+    "stdout": {
+      "path": "v2-AC-16.1-05.stdout.txt",
+      "bytes": 883,
+      "sha256": "97fd0ddb5eb239865fa85b7b1b7c348dbe5fe0a8eea941c41daa268362cd8b18",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v2-AC-16.1-05.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v2-AC-16.1-06",
+    "command": [
+      "python3",
+      "_bmad/scripts/generate_story_record.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "--format",
+      "bundle",
+      "--output-json",
+      "docs/release-evidence/story-16.1-final-record-v2.json",
+      "--output-markdown",
+      "docs/release-evidence/story-16.1-final-record-v2.md"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 2,
+    "termination": null,
+    "processId": 3059594,
+    "processGroup": 3059594,
+    "durationSeconds": 0.348106,
+    "stdout": {
+      "path": "v2-AC-16.1-06.stdout.txt",
+      "bytes": 883,
+      "sha256": "90790c6062f91e5cfa557ecdf446c82f568678f3d540e38a98ee8efeca0032f3",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v2-AC-16.1-06.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  }
+]

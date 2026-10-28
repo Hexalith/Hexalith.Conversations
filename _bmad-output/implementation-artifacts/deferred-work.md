@@ -1115,3 +1115,7 @@ Review strengthens the same solution-context scope with native implicit Platform
 - source_spec: `_bmad-output/implementation-artifacts/spec-epic-16-tooling-qualification-and-binding-refresh.md`
   summary: Qualify an installed declarative tenant subscription for the retained clean AppHost topology.
   evidence: EC-01: discovery is disabled while no tenant subscription is supplied to the sidecar by the current topology. It predates this prerequisite; readiness-only observations do not qualify tenant delivery, which remains an owner/runtime gate.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md`
+  summary: Prepare published-artifact/Platform qualification and exact adoption-failure dispositions in the separate spec-epic-16-published-artifact-platform-qualification.md prerequisite.
+  evidence: The user selected option 1 on 2026-10-28 to split this prerequisite from the long runtime draft; tooling v2 source checks pass, sixteen adoption failures and qualified-entry gates remain, and runtime stays held.

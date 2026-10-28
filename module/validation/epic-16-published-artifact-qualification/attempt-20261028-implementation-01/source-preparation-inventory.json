@@ -1,0 +1,125 @@
+{
+  "mode": "source",
+  "mappingHash": "d98f26e102043e758f5aad1c5736b4558e752c7a708aacbe9675ea2c7852648f",
+  "environment": {
+    "CustomBeforeDirectoryBuildProps": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.targets",
+    "CustomAfterMicrosoftCommonProps": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.props",
+    "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.before-targets.props",
+    "CustomAfterDirectoryBuildTargets": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.late.props",
+    "AfterMicrosoftNETSdkTargets": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.final.targets",
+    "HEXALITH_SOURCE_MAPPING_HASH": "d98f26e102043e758f5aad1c5736b4558e752c7a708aacbe9675ea2c7852648f",
+    "Configuration": "Debug"
+  },
+  "generatedFiles": [
+    {
+      "path": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/Hexalith.EventStore.CatalogConstruction.proj",
+      "sha256": "572652a64563b8acc94e6fe233687cc35b761057f394fa41a9e8f931f7750d8c",
+      "bytes": 145
+    },
+    {
+      "path": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.final.targets",
+      "sha256": "cc5186db866e5b28b23bf16b42199b7e58a70f1e6c30a35dc82e5b5c1b42500d",
+      "bytes": 9618
+    },
+    {
+      "path": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.before-targets.props",
+      "sha256": "7f9a5746257798a5cbbe9729f49d03681999217cb4280917356e465617f7a64b",
+      "bytes": 3598
+    },
+    {
+      "path": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/mapping.json",
+      "sha256": "1296e02c340e083982cef7fb537cace3ed55022374c0226a3a53cbc01abb9029",
+      "bytes": 3857
+    },
+    {
+      "path": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.values.props",
+      "sha256": "053bef727bd3d75de527d98fd4ffa17cf69610b002493b76d7dce3bf0eda5006",
+      "bytes": 5896
+    },
+    {
+      "path": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.late.props",
+      "sha256": "e7ee3a6509e2971efb28f3d63cecd2308481d9061754e77a76cfd17c554e6e26",
+      "bytes": 7293
+    },
+    {
+      "path": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/Hexalith.EventStore.Server.LiveSidecar.Tests.proj",
+      "sha256": "572652a64563b8acc94e6fe233687cc35b761057f394fa41a9e8f931f7750d8c",
+      "bytes": 145
+    },
+    {
+      "path": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/Hexalith.EventStore.QueryRouting.Tests.proj",
+      "sha256": "572652a64563b8acc94e6fe233687cc35b761057f394fa41a9e8f931f7750d8c",
+      "bytes": 145
+    },
+    {
+      "path": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/catalog-versions.json",
+      "sha256": "f7c51af67dc42c9ee5c8a3e2e61391f5f59ed8e79c6d84c22d1818d263badbb5",
+      "bytes": 83551
+    },
+    {
+      "path": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.targets",
+      "sha256": "727dd208cecd59a3295d102fdcb8f0719c0f05b36dd8f30df0da1a14a689a1b2",
+      "bytes": 915
+    },
+    {
+      "path": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/Hexalith.EventStore.Server.Tests.proj",
+      "sha256": "572652a64563b8acc94e6fe233687cc35b761057f394fa41a9e8f931f7750d8c",
+      "bytes": 145
+    },
+    {
+      "path": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/routing-catalog.cs.proj",
+      "sha256": "572652a64563b8acc94e6fe233687cc35b761057f394fa41a9e8f931f7750d8c",
+      "bytes": 145
+    },
+    {
+      "path": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.values.targets",
+      "sha256": "31ca37660f86b6b03dd1f4c1c05c138be27089d9ea9b811d104933e8168963cd",
+      "bytes": 104194
+    },
+    {
+      "path": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/__HXW_DefaultCatalog__.proj",
+      "sha256": "572652a64563b8acc94e6fe233687cc35b761057f394fa41a9e8f931f7750d8c",
+      "bytes": 145
+    },
+    {
+      "path": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/Hexalith.Folders.Aspire.proj",
+      "sha256": "572652a64563b8acc94e6fe233687cc35b761057f394fa41a9e8f931f7750d8c",
+      "bytes": 145
+    },
+    {
+      "path": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/SourceMapping.props",
+      "sha256": "0363694f252736cdfd0bcf6a567bb077940df16cc966e410153718a552769e82",
+      "bytes": 98
+    },
+    {
+      "path": "/tmp/epic16-artifact-baseline-391hyz3j/prepared/source-mapping/pinned-tree/Props/Directory.Packages.props",
+      "sha256": "a09050d807c86e0646775836500c040a2e52b74553b04d52a98c2102a7fa9f12",
+      "bytes": 30710
+    }
+  ],
+  "diagnostics": [
+    {
+      "ruleId": "HXW011",
+      "phase": "Prerequisite",
+      "category": "None",
+      "message": "Platform identity 5889400b50e6e2cefb4ed6976ca53d086d3989e2 has no local v<SemVer> release tag.",
+      "field": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform",
+      "hint": "Fetch Platform tags, then retry.",
+      "source": null,
+      "location": null,
+      "row": null
+    },
+    {
+      "ruleId": "HXW010",
+      "phase": "Prerequisite",
+      "category": "None",
+      "message": "Tool version 1.0.0-20261028192224 is outside Platform range [4.35.2, 5.0.0-0) at '/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform/hexalith-platform.json'.",
+      "field": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform/hexalith-platform.json",
+      "hint": null,
+      "source": null,
+      "location": null,
+      "row": null
+    }
+  ],
+  "scope": "source-only Debug readiness observation; no published artifact qualification"
+}

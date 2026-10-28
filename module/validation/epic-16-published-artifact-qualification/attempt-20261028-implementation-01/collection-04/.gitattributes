@@ -1,0 +1,14 @@
+# Keep retained binary evidence out of text diffs without changing its bytes.
+*.nupkg -diff
+*.snupkg -diff
+*.dll -diff
+*.pdb -diff
+*.zip -diff
+*.dll.bytes -diff
+*.pdb.bytes -diff
+*.snk -diff
+*.cache -diff
+*.dat -diff
+hexalith-module -diff
+Hexalith.Builds.*.Cli -diff
+UnsignedProof -diff

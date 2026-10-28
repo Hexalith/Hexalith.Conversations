@@ -1,0 +1,33 @@
+{
+  "name": "collector-fault-tests-04",
+  "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/tooling/test_epic16_published_artifact_qualification.py"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "environment": {},
+  "timeoutSeconds": 600,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 1.283,
+  "exitCode": 0,
+  "termination": null,
+  "stdout": {
+    "path": "collector-fault-tests-04.stdout.txt",
+    "bytes": 99,
+    "sha256": "42fa8098c2d7886e19bde984c8719abfe2aef6d4a3e7a2f8171837f251098d74",
+    "complete": true
+  },
+  "stderr": {
+    "path": "collector-fault-tests-04.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "complete": true
+  }
+}

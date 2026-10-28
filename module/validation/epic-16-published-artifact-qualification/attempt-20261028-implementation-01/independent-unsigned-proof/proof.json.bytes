@@ -1,0 +1,43 @@
+{
+  "argv": [
+    "dotnet",
+    "/tmp/epic16-unsigned-proof-hlipicey/bin/Debug/net10.0/UnsignedProof.dll",
+    "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/collection-01/published-signed.nupkg",
+    "/tmp/epic16-unsigned-proof-hlipicey/reconstructed-unsigned.nupkg"
+  ],
+  "cwd": "/tmp/epic16-unsigned-proof-hlipicey",
+  "exit": 0,
+  "signedInputSha256": "f5710df04af88744a48e73f51155dbe41c1e91489ca7cac92d2bb7f53948dff3",
+  "signedInputUnchanged": true,
+  "unsignedActual": {
+    "sha256": "d263c1f77c187a6f9b6ec11af124b77976db18e3884036fba4bfdb107b2edcda",
+    "bytes": 37548049
+  },
+  "unsignedExpected": {
+    "sha256": "d263c1f77c187a6f9b6ec11af124b77976db18e3884036fba4bfdb107b2edcda",
+    "bytes": 37548049
+  },
+  "exactMatch": true,
+  "helperInputs": [
+    {
+      "path": "/tmp/epic16-unsigned-proof-hlipicey/Program.cs",
+      "sha256": "caf8bf366f2880ae4771adf0edc03a4a5cf0e979291ce3a0a8d85a1ec31a43bc"
+    },
+    {
+      "path": "/tmp/epic16-unsigned-proof-hlipicey/UnsignedProof.csproj",
+      "sha256": "9adb556981c56ec181e0d4a42eabf50b59e573832b6dbb944e96c8f21c0a0a7f"
+    },
+    {
+      "path": "/tmp/epic16-unsigned-proof-hlipicey/global.json",
+      "sha256": "b600d77db8be5da222f2c09ee3f95307753fd87a5ecb83cfdbccf09fcb75fda3"
+    },
+    {
+      "path": "/tmp/epic16-unsigned-proof-hlipicey/bin/Debug/net10.0/UnsignedProof.dll",
+      "sha256": "af3d64084a3d8dc70113b74736397ee4626c47bd669cff004996c1e78f29a27d"
+    },
+    {
+      "path": "/home/administrator/.dotnet/sdk/10.0.402/NuGet.Packaging.dll",
+      "sha256": "6e1180b6320995c5a25f42b6d50da3f4eab10d43750a82320192274c0ea6e284"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "command": [
+    "node_modules/.bin/commitlint",
+    "--config",
+    "commitlint.config.mjs",
+    "--edit",
+    "/tmp/epic16-parent-audit-j6nikqd0/commit-message.txt",
+    "--verbose"
+  ],
+  "exitCode": 0,
+  "problems": 0,
+  "warnings": 0,
+  "pinnedCliVersion": "21.2.3",
+  "candidate": "feat(tooling): add published artifact qualification collector\n\nMeasure the exact 4.38.1 artifact and controls with bounded, isolated collection.\nPreserve adoption and Platform failures, pending owner gates, and the runtime hold.\n",
+  "candidateSha256": "882cbc5942c4bbb837458650933f12de5a1f040745f81eec598e918b7a79c655"
+}

@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Hexalith.Builds.Module.UiHost</name>
+    </assembly>
+    <members>
+        <member name="T:Program">
+            <summary>
+            Auto-generated public partial Program class for top-level statement apps.
+            </summary>
+        </member>
+        <member name="T:Hexalith.Builds.ModuleHosts.UiHost.UiMarkerRegistrar">
+            <summary>
+            Registers run-plan-named module UI markers through the FrontComposer <c>AddHexalithDomain&lt;T&gt;</c> seam.
+            </summary>
+        </member>
+        <member name="F:Hexalith.Builds.ModuleHosts.UiHost.UiMarkerRegistrar.SectionName">
+            <summary>
+            The configuration section that lists the marker bindings.
+            </summary>
+        </member>
+        <member name="M:Hexalith.Builds.ModuleHosts.UiHost.UiMarkerRegistrar.RegisterConfiguredMarkers(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Loads every configured marker type and registers it with FrontComposer.
+            </summary>
+            <param name="services">The service collection.</param>
+            <param name="configuration">The host configuration.</param>
+            <returns>The registered marker types.</returns>
+            <exception cref="T:System.InvalidOperationException">A binding is invalid or no marker is named.</exception>
+        </member>
+        <member name="M:Hexalith.Builds.ModuleHosts.UiHost.UiMarkerRegistrar.ResolveMarker(System.String,System.String)">
+            <summary>
+            Loads one marker type from a validated, built assembly.
+            </summary>
+            <param name="assemblyPath">The absolute path of the built marker assembly.</param>
+            <param name="typeName">The full CLR name of the marker type.</param>
+            <returns>The public, non-generic marker class.</returns>
+            <exception cref="T:System.InvalidOperationException">The binding does not name a built assembly and public marker class.</exception>
+        </member>
+        <member name="M:Hexalith.Builds.ModuleHosts.UiHost.UiMarkerRegistrar.RegisterDependencyResolution(System.String)">
+            <summary>
+            Resolves the private dependencies of a marker assembly from its own build output (its <c>.deps.json</c>
+            and directory), so a marker whose dependencies the host does not ship still loads.
+            </summary>
+            <param name="assemblyPath">The absolute marker assembly path.</param>
+        </member>
+    </members>
+</doc>

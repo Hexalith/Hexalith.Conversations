@@ -1,0 +1,8 @@
+{
+  "result": "FAIL",
+  "scope": "observation wrapper only",
+  "command": "final held-route integrity orchestration",
+  "error": "KeyError: assertions",
+  "reason": "The native report exposes ledger, rather than assertions; native v1 command returned expected FAIL/SOURCE_DRIFT/exit1 and its original streams are preserved.",
+  "qualifiedRuntime": false
+}

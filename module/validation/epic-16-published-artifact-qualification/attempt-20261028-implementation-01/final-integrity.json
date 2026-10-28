@@ -1,0 +1,60 @@
+{
+  "result": "PASS",
+  "checks": {
+    "faultTestsPassed": 27,
+    "nativeStreamsRehashed": 4474,
+    "headUnchanged": true,
+    "indexRowsUnchanged": true,
+    "all12DependencyTuplesUnchanged": true,
+    "all81BoundSourcesUnchanged": true,
+    "rootAndPlatformPinsUnchanged": true,
+    "entryNull": true,
+    "independentTrustEmpty": true,
+    "authorityFlagsFalse": true,
+    "sevenRuntimeOutputsAbsent": true,
+    "gitDiffCheck": true,
+    "exactChangedPathSet": true
+  },
+  "artifactIndexSha256": "273cf54c9c89da0555bd443eb4849f176ea0997e2e0fa73df72cb2f70305a851",
+  "safeBaselineStreamHashBoundaries": [
+    {
+      "command": "aspire-describe-final",
+      "stream": "stdout",
+      "rawSha256": "cfd0cf9b0db2bd1c30446d9bb7c95543b0da5c3ec6c1a6ea7a0e7297a61063ad",
+      "retainedSha256": "eb88378ca8b8a2d7430fb470c65ed542c4b9a9d7a81bd00f8edecf6095ccd012"
+    },
+    {
+      "command": "aspire-describe-initial",
+      "stream": "stdout",
+      "rawSha256": "e346519150fa103b2ea390ee5cfb680b97fa16746def8ca4292d34f2e7587fb6",
+      "retainedSha256": "0db92bb55e6d1bfa105af544093066c727313912b59c3d505793306950cf2266"
+    },
+    {
+      "command": "aspire-ps-created",
+      "stream": "stdout",
+      "rawSha256": "f1837bd1b7db2a7ded90cae5780dc16bcddcf5674b7abe6354848332c5f74727",
+      "retainedSha256": "bbfb60ed49740ca29bfc0cad3921d1f7e69a7bf5da02e2df6469e7c64d311f1e"
+    },
+    {
+      "command": "aspire-ps-ownership",
+      "stream": "stdout",
+      "rawSha256": "f1837bd1b7db2a7ded90cae5780dc16bcddcf5674b7abe6354848332c5f74727",
+      "retainedSha256": "bbfb60ed49740ca29bfc0cad3921d1f7e69a7bf5da02e2df6469e7c64d311f1e"
+    },
+    {
+      "command": "aspire-run",
+      "stream": "stdout",
+      "rawSha256": "a17ce404149e8043be48d0f9bde998e890743775426cbbad3d62debfa6d0bb3f",
+      "retainedSha256": "e5c527afe8af5c6f36f444431f0840ebf8838ac88b4afef6aefbed6d9e4a1ba4"
+    }
+  ],
+  "permittedObservedSourceChanges": [
+    "module/platform-handoff.md"
+  ],
+  "collectorSha256": "2731b457f1fd8842c2395ab51aacf74d7128aaebde029cab094c859e4bf44dfc",
+  "collectorTestsSha256": "981c872053836e6514c33cc1301bdc86a389dd2c7d35bb6d35554578c5ed532d",
+  "qualificationResult": "FAIL: adoption16fail and Platform catalog binding mismatch; owner/preparation gates BLOCKED",
+  "historicalAuthorityReplay": "not-applicable",
+  "nativeSourceDiagnosticCredit": "Producer exact-source Release native lanes retained; no new local source diagnostic replaces artifact/owner qualification",
+  "implementationSpecLifecycle": "left to parent verification; runtime remains draft/backlog"
+}

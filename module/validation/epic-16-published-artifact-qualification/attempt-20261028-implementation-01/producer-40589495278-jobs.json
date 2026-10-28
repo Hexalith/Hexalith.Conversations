@@ -1,0 +1,27 @@
+{
+  "name": "producer-40589495278-jobs",
+  "command": [
+    "gh",
+    "api",
+    "repos/Hexalith/Hexalith.Builds/actions/runs/40589495278/jobs?per_page=100"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "environment": {},
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 0.857,
+  "exitCode": 0,
+  "termination": null,
+  "stdout": {
+    "path": "producer-40589495278-jobs.stdout.txt",
+    "bytes": 14396,
+    "sha256": "b67705d7109ad7ca4ea7182c846ba6f36a11d8ddd5e8544d6657f5d2a0e5baa5",
+    "complete": true
+  },
+  "stderr": {
+    "path": "producer-40589495278-jobs.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "complete": true
+  }
+}

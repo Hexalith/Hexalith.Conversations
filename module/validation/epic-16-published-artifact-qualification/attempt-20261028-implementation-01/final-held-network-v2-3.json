@@ -1,0 +1,36 @@
+{
+  "name": "final-held-network-v2-3",
+  "command": [
+    "python3",
+    "_bmad/scripts/verify_story_16_1.py",
+    "--repository",
+    ".",
+    "--contract",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+    "--scenario",
+    "AC-16.1-03",
+    "--candidate",
+    "HEAD",
+    "--output",
+    "artifacts/epic16-runtime/16.1/AC-16.1-03.json"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "environment": {},
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 0.153,
+  "exitCode": 2,
+  "termination": null,
+  "stdout": {
+    "path": "final-held-network-v2-3.stdout.txt",
+    "bytes": 883,
+    "sha256": "36ccf207b6a5add0fd590e93dafa18a65a71c65b86f246ff8faa46a5dd763447",
+    "complete": true
+  },
+  "stderr": {
+    "path": "final-held-network-v2-3.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "complete": true
+  }
+}

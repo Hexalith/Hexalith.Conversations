@@ -1,0 +1,27 @@
+{
+  "name": "producer-source-runs",
+  "command": [
+    "gh",
+    "api",
+    "repos/Hexalith/Hexalith.Builds/actions/runs?head_sha=16ff70a2321ad576faaac3fe53088c2f1bdacae3&per_page=100"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "environment": {},
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 0.544,
+  "exitCode": 0,
+  "termination": null,
+  "stdout": {
+    "path": "producer-source-runs.stdout.txt",
+    "bytes": 50990,
+    "sha256": "8ec4e4b2a2cdec056db3e7667dcd8b8fa06ed4ddcb72cef03bae82e0d21465dd",
+    "complete": true
+  },
+  "stderr": {
+    "path": "producer-source-runs.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "complete": true
+  }
+}

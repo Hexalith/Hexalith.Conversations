@@ -1,0 +1,55 @@
+{
+  "result": "PASS",
+  "checks": {
+    "faultTestsPassed": 31,
+    "realLocalTrickleNetworkAndOverallDeadlines": true,
+    "positiveTransferAndByteCap": true,
+    "networkCancellationAndWorkerReaping": true,
+    "preservedPreviousCollectionFiles": 5387,
+    "nativeStreamsRehashed": 6020,
+    "headUnchanged": true,
+    "indexRowsUnchanged": true,
+    "all12DependencyTuplesUnchanged": true,
+    "all81BoundSourcesUnchanged": true,
+    "rootAndPlatformPinsUnchanged": true,
+    "entryNull": true,
+    "independentTrustEmpty": true,
+    "authorityFlagsFalse": true,
+    "sevenRuntimeOutputsAbsent": true,
+    "gitDiffCheck": true,
+    "exactChangedPathSet": true
+  },
+  "actualFinalCodeNetworkTransfers": [
+    {
+      "body": "feed-registration.json",
+      "bytes": 795,
+      "sha256": "f0e8304642a7d207530a4439374986440a4433ea1e94892058c38b13d3443e44",
+      "workerProcessId": 2447683,
+      "timeoutSeconds": 300,
+      "durationSeconds": 0.204629
+    },
+    {
+      "body": "feed-catalog.json",
+      "bytes": 121926,
+      "sha256": "14486e0a5aa627ae7d9921f827ebdf801fa8c0c816aabca37e19b7799d2444b9",
+      "workerProcessId": 2447684,
+      "timeoutSeconds": 300,
+      "durationSeconds": 0.106737
+    },
+    {
+      "body": "feed.nuspec",
+      "bytes": 896,
+      "sha256": "41f3ad8dbf33e912a28757127e65f1596047b0949aadab66375a75c0155a8da9",
+      "workerProcessId": 2447687,
+      "timeoutSeconds": 300,
+      "durationSeconds": 0.069285
+    }
+  ],
+  "artifactIndexSha256": "6e95d86c731a40634291c1fe630aa424d6264f4a2b84206f755d029fa69e34d4",
+  "collectorSha256": "83e99a87eb19fe4cd08f4c6f3729e06fcae6b9c1785fab774e2ffed841c870bf",
+  "collectorTestsSha256": "05d9616421836dc07ec544595ddfa128a7b7397c4503ac9073ca90bf6b0c4ed2",
+  "qualificationResult": "FAIL: adoption16fail and Platform catalog binding mismatch; owner/preparation gates BLOCKED",
+  "remainingImplementationGaps": [],
+  "historicalAuthorityReplay": "not-applicable",
+  "implementationSpecLifecycle": "left to parent verification; runtime remains draft/backlog"
+}

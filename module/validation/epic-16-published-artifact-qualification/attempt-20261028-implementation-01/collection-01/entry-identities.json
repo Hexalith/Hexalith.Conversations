@@ -1,0 +1,97 @@
+{
+  "dependencies": [
+    {
+      "path": "references/Hexalith.AI.Tools",
+      "mode": "160000",
+      "revision": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+      "checkout": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+      "clean": true
+    },
+    {
+      "path": "references/Hexalith.Builds",
+      "mode": "160000",
+      "revision": "81ab049208678bd6616828824729c0ddac02f7d1",
+      "checkout": "81ab049208678bd6616828824729c0ddac02f7d1",
+      "clean": true
+    },
+    {
+      "path": "references/Hexalith.Commons",
+      "mode": "160000",
+      "revision": "3edfbdafc7d4fa915286dce8a37dc4cc7c06085a",
+      "checkout": "3edfbdafc7d4fa915286dce8a37dc4cc7c06085a",
+      "clean": true
+    },
+    {
+      "path": "references/Hexalith.EventStore",
+      "mode": "160000",
+      "revision": "347d390e3a5c0da28874ae650ef202aefbea15ce",
+      "checkout": "347d390e3a5c0da28874ae650ef202aefbea15ce",
+      "clean": true
+    },
+    {
+      "path": "references/Hexalith.Folders",
+      "mode": "160000",
+      "revision": "d7e0b3f307e4cd7e740b9f38923c86f8b5c30847",
+      "checkout": "d7e0b3f307e4cd7e740b9f38923c86f8b5c30847",
+      "clean": true
+    },
+    {
+      "path": "references/Hexalith.FrontComposer",
+      "mode": "160000",
+      "revision": "28d2c7f47849bcfba19501f7c18cd9f67f0fc61c",
+      "checkout": "28d2c7f47849bcfba19501f7c18cd9f67f0fc61c",
+      "clean": true
+    },
+    {
+      "path": "references/Hexalith.McpCli",
+      "mode": "160000",
+      "revision": "2d7311cbbcc592c0ea0348463037389251d1cb4b",
+      "checkout": "2d7311cbbcc592c0ea0348463037389251d1cb4b",
+      "clean": true
+    },
+    {
+      "path": "references/Hexalith.Memories",
+      "mode": "160000",
+      "revision": "72c36c7113c750c8b809f9d72b945a2a8c2d4555",
+      "checkout": "72c36c7113c750c8b809f9d72b945a2a8c2d4555",
+      "clean": true
+    },
+    {
+      "path": "references/Hexalith.Parties",
+      "mode": "160000",
+      "revision": "9239c531f3b0cbb4a998c419e537463b597ff14b",
+      "checkout": "9239c531f3b0cbb4a998c419e537463b597ff14b",
+      "clean": true
+    },
+    {
+      "path": "references/Hexalith.Platform",
+      "mode": "160000",
+      "revision": "5889400b50e6e2cefb4ed6976ca53d086d3989e2",
+      "checkout": "5889400b50e6e2cefb4ed6976ca53d086d3989e2",
+      "clean": true
+    },
+    {
+      "path": "references/Hexalith.Projects",
+      "mode": "160000",
+      "revision": "0e45105476902fcfce1f8dbd8416d7234bb16b41",
+      "checkout": "0e45105476902fcfce1f8dbd8416d7234bb16b41",
+      "clean": true
+    },
+    {
+      "path": "references/Hexalith.Tenants",
+      "mode": "160000",
+      "revision": "7ddb864cda5e942925b056391617eae4895c1253",
+      "checkout": "7ddb864cda5e942925b056391617eae4895c1253",
+      "clean": true
+    }
+  ],
+  "indexRowsSha256": "88ee766f53db0c1e246a96ab0309337b6bd0b511ef47b81a3a2ea7d662b34168",
+  "protectedInputs": {
+    "module/hexalith.module-manifest.v2.json": "0bed1c297c9c9d78fdb8f37197ac5f71d829191c0535fdd78e4034aaa017bdf0",
+    ".config/dotnet-tools.json": "5b826b67ce6520bba1fa80ef3982e56cc71b38d7ced437c0aaf5b1697339b411",
+    ".gitmodules": "f772e17bced54e00841b7e84c2e9e4e1624387883c129d2a851316cacab38987",
+    ".gitattributes": "d7b349e3620e883fcc66000a53e614c1ec331a45024cab5189d9943b51a5ef4c",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v2/binding.json": "ff457038fcb2fd1e00503407d49ead4d3d95cf3f56d247b0941d0cb653e0fb0d",
+    "_bmad/scripts/epic16_trust_v2.py": "2f6e077ac90c22a06346c0777dc07e12611cfa92e0c2e37f9cddcd4084b35dc2"
+  }
+}

@@ -1,0 +1,244 @@
+"""Fault controls for the published artifact collector's evidence boundaries."""
+from __future__ import annotations
+
+from argparse import Namespace
+from collections import Counter
+import copy
+import importlib.util
+import json
+import os
+from pathlib import Path
+import signal
+import subprocess
+import sys
+import time
+import zipfile
+
+import pytest
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "_bmad/scripts"))
+import qualify_epic16_published_artifact as qualification
+
+
+def inventory():
+    """A complete minimal producer inventory for independent identity faults."""
+    return dict(schema="hexalith.g4-tool-package-inventory.v1", version="4.38.1", configuration="Release",
+                packages=[dict(id=name, version="4.38.1", **{role: dict(file=f"{name}.4.38.1.{role}", sha256="a" * 64, sizeBytes=1)
+                           for role in ("nupkg", "snupkg")}) for name in ("Hexalith.Builds.Module.Cli", "Hexalith.Builds.Evidence.Cli")],
+                qualificationEvidence=[dict(file="qualification-evidence/positive.json", sha256="a" * 64, sizeBytes=1)],
+                qualification=dict(sourceTree=dict(clean=True, revision="b" * 40), releaseEligible=True,
+                                   ineligibilityReasons=[], packageBuild=dict(mode="official", result="passed"),
+                                   sourceValidation=dict(mode="executed", result="passed"), controls=dict(mode="executed", result="passed"),
+                                   fixtures=dict(files=[dict(file="positive.json", sha256="a" * 64, sizeBytes=1)])))
+
+
+@pytest.fixture
+def fresh(tmp_path):
+    return qualification.FreshOutput(tmp_path, tmp_path / qualification.OBSERVATIONS / "attempt" / "collection")
+
+
+def error_code(code, action):
+    with pytest.raises(qualification.QualificationError) as caught:
+        action()
+    assert caught.value.code == code
+
+
+def test_inventory_positive_and_exact_identity_substitutions():
+    original = inventory()
+    result = qualification.validate_inventory(original, "4.38.1", "b" * 40)
+    assert result["id"] == "Hexalith.Builds.Module.Cli"
+    for field, value in (("version", "4.38.0"), ("configuration", "Debug")):
+        faulty = copy.deepcopy(original)
+        faulty[field] = value
+        error_code("IDENTITY_MISMATCH", lambda: qualification.validate_inventory(faulty, "4.38.1", "b" * 40))
+    faulty = copy.deepcopy(original)
+    faulty["qualification"]["sourceTree"]["revision"] = "c" * 40
+    error_code("IDENTITY_MISMATCH", lambda: qualification.validate_inventory(faulty, "4.38.1", "b" * 40))
+    faulty = copy.deepcopy(original)
+    faulty["packages"][0]["nupkg"]["sha256"] = "substituted"
+    error_code("IDENTITY_MISMATCH", lambda: qualification.validate_inventory(faulty, "4.38.1", "b" * 40))
+
+
+@pytest.mark.parametrize("fault", ["missing", "extra", "duplicate", "skip"])
+def test_producer_controls_cannot_be_vacuous(fault):
+    data = inventory()
+    qualification.validate_inventory(data, "4.38.1", "b" * 40)
+    if fault == "missing":
+        data["qualificationEvidence"] = []
+    elif fault == "duplicate":
+        data["qualificationEvidence"] *= 2
+    elif fault == "extra":
+        data["packages"].append(copy.deepcopy(data["packages"][0]))
+    else:
+        data["qualification"]["controls"] = dict(mode="not-run", result="not-run")
+    with pytest.raises(qualification.QualificationError):
+        qualification.validate_inventory(data, "4.38.1", "b" * 40)
+
+
+def test_configuration_fields_relocate_semantically_and_preserve_input():
+    document = json.loads((ROOT / qualification.MANIFEST).read_bytes())
+    original = copy.deepcopy(document)
+    fields = qualification.configuration_fields(document)
+    secret_fields = document["modules"][0]["integration"]["secrets"]
+    input_fields = document["modules"][0]["runtime"]["extensions"][0]["configurationInputs"]
+    secret_fields.reverse()
+    input_fields.reverse()
+    moved = qualification.configuration_fields(document)
+    assert [field for _, field in moved] != [field for _, field in fields]
+    assert all("[0]" in field for _, field in moved)
+    mutated = qualification.mutate(original, fields[0][0], "1TOKEN")
+    assert original == json.loads((ROOT / qualification.MANIFEST).read_bytes())
+    assert mutated != original
+    document["modules"].append(copy.deepcopy(document["modules"][0]))
+    error_code("CONTROLS_INCOMPLETE", lambda: qualification.configuration_fields(document))
+
+
+def control_rows():
+    return [dict(field=field, value=value, format=format_name, nativeExitCode=1, ruleId="HXP002", passed=True)
+            for field in ("secret.configurationKey", "input.key") for value in qualification.INVALID_KEYS
+            for format_name in ("human", "json")]
+
+
+@pytest.mark.parametrize("fault", ["missing", "extra", "duplicate", "wrong-exit", "wrong-field", "wrong-rule"])
+def test_exact_36_control_inventory_rejects_substitutions(fault):
+    rows = control_rows()
+    qualification.check_control_inventory(rows, ["secret.configurationKey", "input.key"])
+    if fault == "missing":
+        rows.pop()
+    elif fault == "extra":
+        rows.append(dict(rows[0], value="unexpected"))
+    elif fault == "duplicate":
+        rows[-1] = rows[0]
+    elif fault == "wrong-exit":
+        rows[0]["nativeExitCode"] = 0
+    elif fault == "wrong-field":
+        rows[0]["field"] = "wrong.key"
+    else:
+        rows[0]["ruleId"] = "HXP003"
+    error_code("CONTROLS_INCOMPLETE", lambda: qualification.check_control_inventory(rows, ["secret.configurationKey", "input.key"]))
+
+
+@pytest.mark.parametrize("format_name", ["human", "json"])
+def test_negative_requires_exact_field_source_and_one_diagnostic(tmp_path, format_name):
+    source = tmp_path / "input.json"
+    source.write_bytes(b"{}")
+    row = dict(ruleId="HXP002", field="actual.key", source=str(source))
+    def output(rows):
+        if format_name == "json":
+            return json.dumps(dict(status="failed", diagnostics=rows)).encode()
+        return "\n".join(f"{item['ruleId']} Manifest Manifest source={item['source']} field={item['field']}: invalid" for item in rows).encode()
+    native = dict(exitCode=1, termination=None)
+    qualification.check_negative(native, output([row]), "actual.key", source, tmp_path, format_name)
+    for rows in ([dict(row, field="wrong.key")], [dict(row, source="wrong.json")], [row, row], [dict(row, ruleId="HXP003")]):
+        error_code("CONTROL_MISMATCH", lambda: qualification.check_negative(native, output(rows), "actual.key", source, tmp_path, format_name))
+    error_code("CONTROL_MISMATCH", lambda: qualification.check_negative(dict(exitCode=0, termination=None), output([row]), "actual.key", source, tmp_path, format_name))
+    assert source.read_bytes() == b"{}"
+
+
+def test_adoption_exact_identity_delta_and_owner_disposition():
+    before = [dict(requirement="tool-pin", passed=False, file=".config/dotnet-tools.json", reason="pin"),
+              dict(requirement="dependency-selectors", passed=False, file="module/validation/earlier/prepared-imports/SourceMapping.props", reason="root")]
+    assert qualification.adoption_delta(before, before)["orderedEqual"] is True
+    after = [dict(before[0], reason="changed"), dict(requirement="dapr-subscriptions", passed=False, file="src/File.cs", reason="literal")]
+    delta = qualification.adoption_delta(before, after)
+    assert delta["orderedEqual"] is False
+    assert len(delta["added"]) == len(delta["removed"]) == 2
+    assert len(delta["reasonChanges"]) == 1
+    for row in before + after:
+        result = qualification.disposition(row)
+        assert result["acceptanceState"] == "pending" and result["ownerScope"] and result["nextAction"]
+    assert qualification.disposition(before[1])["classification"] == "generated import"
+    assert qualification.disposition(dict(before[0], file="tests/fixtures/Frozen.cs"))["classification"] == "accepted fixture"
+    for faulty in ([], before + before[:1]):
+        error_code("ADOPTION_INVENTORY_DRIFT", lambda: qualification.adoption_delta(before, faulty))
+    parsed = qualification.human_adoption(b"FAIL tool-pin file=.config/dotnet-tools.json: pin\n")
+    assert parsed == before[:1]
+
+
+def test_output_ownership_rejects_existing_source_and_aliases(tmp_path, fresh):
+    fresh.write("retained.txt", b"unchanged")
+    error_code("OUTPUT_FORBIDDEN", lambda: fresh.write("retained.txt", b"replacement"))
+    assert (fresh.path / "retained.txt").read_bytes() == b"unchanged"
+    error_code("OUTPUT_FORBIDDEN", lambda: qualification.FreshOutput(tmp_path, fresh.path))
+    error_code("OUTPUT_FORBIDDEN", lambda: qualification.FreshOutput(tmp_path, tmp_path / "src/overwrite"))
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    alias = tmp_path / qualification.OBSERVATIONS / "alias"
+    alias.symlink_to(outside, target_is_directory=True)
+    error_code("OUTPUT_FORBIDDEN", lambda: qualification.FreshOutput(tmp_path, alias / "collection"))
+    leaf = fresh.path / "leaf"
+    leaf.symlink_to(tmp_path / "outside-file")
+    error_code("OUTPUT_FORBIDDEN", lambda: fresh.write("leaf", b"replacement"))
+    assert not (tmp_path / "outside-file").exists()
+
+
+def test_native_capture_positive_timeout_and_descendant_cleanup(tmp_path, fresh):
+    runner = qualification.Runner(fresh, qualification.Deadline(10))
+    result, data = runner.run("positive", [sys.executable, "-c", "print('complete')"], tmp_path, maximum=2)
+    assert result["exitCode"] == 0 and data == b"complete\n"
+    child_pid = fresh.path / "child.pid"
+    script = "import subprocess,sys,time,pathlib; p=subprocess.Popen([sys.executable,'-c','import time; time.sleep(60)']); pathlib.Path(sys.argv[1]).write_text(str(p.pid)); time.sleep(60)"
+    result, _ = runner.run("timeout", [sys.executable, "-c", script, str(child_pid)], tmp_path, maximum=.2)
+    assert result["termination"] == "PROCESS_TIMEOUT" and result["exitCode"] == -signal.SIGKILL
+    assert result["durationSeconds"] < 3 and result["stdout"]["complete"] is False
+    pid = int(child_pid.read_text())
+    status = Path(f"/proc/{pid}/stat")
+    for _ in range(100):
+        if not status.exists() or status.read_text().split(") ", 1)[1].startswith("Z"):
+            break
+        time.sleep(.01)
+    else:
+        pytest.fail("owned child remains running after timeout")
+
+
+def test_stream_limit_and_caller_cancellation_are_bounded(tmp_path, fresh, monkeypatch):
+    monkeypatch.setitem(qualification.LIMITS, "streamBytes", 128)
+    runner = qualification.Runner(fresh, qualification.Deadline(10))
+    result, data = runner.run("overflow", [sys.executable, "-c", "import sys,time;sys.stdout.write('x'*1024);sys.stdout.flush();time.sleep(60)"], tmp_path, maximum=2)
+    assert result["termination"] == "CAPTURE_LIMIT" and len(data) <= 128
+    original = qualification.selectors.DefaultSelector.select
+    def cancel(self, *args):
+        raise KeyboardInterrupt()
+    monkeypatch.setattr(qualification.selectors.DefaultSelector, "select", cancel)
+    with pytest.raises(KeyboardInterrupt):
+        runner.run("cancel", [sys.executable, "-c", "import time;time.sleep(60)"], tmp_path, maximum=2)
+    assert runner.commands[-1]["termination"] == "COLLECTION_CANCELLED"
+    assert runner.commands[-1]["exitCode"] == -signal.SIGKILL
+
+
+def test_archive_hash_substitution_and_expansion_bound(tmp_path, monkeypatch):
+    package = tmp_path / "package.nupkg"
+    with zipfile.ZipFile(package, "w") as archive:
+        archive.writestr("payload.dll", b"actual")
+        archive.writestr(".signature.p7s", b"signature")
+    rows = qualification.package_payload(package, qualification.Deadline(2))
+    assert next(row for row in rows if row["file"] == "payload.dll")["sha256"] == qualification.sha(b"actual")
+    monkeypatch.setitem(qualification.LIMITS, "expandedBytes", 2)
+    error_code("ARCHIVE_LIMIT", lambda: qualification.package_payload(package, qualification.Deadline(2)))
+
+
+def test_verdict_preserves_failure_blocker_and_non_vacuity():
+    assert qualification.verdict([dict(state="PASS")]) == ("PASS", 0)
+    assert qualification.verdict([dict(state="PASS"), dict(state="BLOCKED")]) == ("BLOCKED", 2)
+    assert qualification.verdict([dict(state="FAIL"), dict(state="BLOCKED")]) == ("FAIL", 1)
+    error_code("EMPTY_LEDGER", lambda: qualification.verdict([]))
+    error_code("EMPTY_LEDGER", lambda: qualification.verdict([dict(state="not-applicable")]))
+    error_code("IDENTITY_MISMATCH", lambda: qualification.load_json(b'{"hash":"original","hash":"substitution"}'))
+
+
+def test_restoration_fault_is_fail_with_a_nonempty_ledger(tmp_path):
+    protected = tmp_path / "manifest.json"
+    protected.write_bytes(b"original")
+    collector = object.__new__(qualification.Collector)
+    collector.ledger, collector.originals = [], {"manifest.json": qualification.sha(b"original")}
+    with qualification.ContainedReader(tmp_path) as reader:
+        collector.reader = reader
+        protected.write_bytes(b"changed")
+        try:
+            collector.gate("restoration", collector.restoration)
+            assert collector.ledger[0]["code"] == "INPUT_RESTORATION_MISMATCH"
+            assert qualification.verdict(collector.ledger) == ("FAIL", 1)
+        finally:
+            protected.write_bytes(b"original")
+    assert protected.read_bytes() == b"original"

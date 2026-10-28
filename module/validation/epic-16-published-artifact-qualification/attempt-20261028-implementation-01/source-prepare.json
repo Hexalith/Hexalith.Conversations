@@ -1,0 +1,35 @@
+{
+  "name": "source-prepare",
+  "command": [
+    "dotnet",
+    "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds/src/libraries/Hexalith.Builds.Module.Cli/bin/Debug/net10.0/Hexalith.Builds.Module.Cli.dll",
+    "prepare-build",
+    "--manifest",
+    "module/hexalith.module-manifest.v2.json",
+    "--mode",
+    "source",
+    "--output",
+    "json",
+    "--workspace",
+    "/tmp/epic16-artifact-baseline-391hyz3j/prepared"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "environment": {},
+  "timeoutSeconds": 120,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 4.866,
+  "exitCode": 0,
+  "termination": null,
+  "stdout": {
+    "path": "source-prepare.stdout.txt",
+    "bytes": 1850,
+    "sha256": "8b181c999d8712a86e34037e36030a3ea524117ad35bacf8035ed04bd6af9c97",
+    "complete": true
+  },
+  "stderr": {
+    "path": "source-prepare.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "complete": true
+  }
+}

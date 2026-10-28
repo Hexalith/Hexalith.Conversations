@@ -1,0 +1,35 @@
+{
+  "name": "final-collector-fault-tests-v2",
+  "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/tooling/test_epic16_published_artifact_qualification.py",
+    "--junitxml",
+    "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/final-fault-tests-v2.xml"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "environment": {},
+  "timeoutSeconds": 600,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 1.301,
+  "exitCode": 0,
+  "termination": null,
+  "stdout": {
+    "path": "final-collector-fault-tests-v2.stdout.txt",
+    "bytes": 99,
+    "sha256": "2175a95070cc68fcfda165cf368b596b992af62816cac50f1862d46633d8b78a",
+    "complete": true
+  },
+  "stderr": {
+    "path": "final-collector-fault-tests-v2.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "complete": true
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "producer-release",
+  "command": [
+    "gh",
+    "api",
+    "repos/Hexalith/Hexalith.Builds/releases/tags/v4.38.1"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "environment": {},
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 0.484,
+  "exitCode": 0,
+  "termination": null,
+  "stdout": {
+    "path": "producer-release.stdout.txt",
+    "bytes": 6838,
+    "sha256": "f31f0ad5cccf5004a36979f37c9871c3fe39980399b59f03274dcb1f267d310c",
+    "complete": true
+  },
+  "stderr": {
+    "path": "producer-release.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "complete": true
+  }
+}

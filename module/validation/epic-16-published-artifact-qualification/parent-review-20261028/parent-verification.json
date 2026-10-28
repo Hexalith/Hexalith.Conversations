@@ -1,0 +1,13 @@
+{
+  "artifactFilesRehashed": 7540,
+  "parentFocusedTests": 31,
+  "all81SourcesMatch": true,
+  "all12DependenciesAndIndexUnchanged": true,
+  "artifactAndControlGatesPass": true,
+  "adoptionAndPlatformFailuresRetained": true,
+  "packagePreparationBlocked": true,
+  "heldCommands": 12,
+  "runtimeMeasuredTests": 0,
+  "outputsAbsent": 7,
+  "historicalEvidenceBoundary": "not-applicable"
+}

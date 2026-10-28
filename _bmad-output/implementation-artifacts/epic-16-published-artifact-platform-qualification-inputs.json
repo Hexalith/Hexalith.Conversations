@@ -1,0 +1,196 @@
+{
+  "schemaVersion": "hexalith.conversations.epic16-artifact-qualification-planning-inputs.v1",
+  "scope": "planning-only; not runtime authority",
+  "rootCommit": "c9c55d5a4033bfd7b22a4cf2298467b8e3549dac",
+  "rootTree": "56a572699adbcdc850e92a3ecfe626ecb09e87aa",
+  "candidateVersion": "4.38.1",
+  "qualification": "BLOCKED; no new artifact or owner qualification performed",
+  "rootGitlinks": [
+    {
+      "path": "references/Hexalith.AI.Tools",
+      "mode": "160000",
+      "recordedCommit": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+      "checkoutCommit": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+      "checkoutStatus": ""
+    },
+    {
+      "path": "references/Hexalith.Builds",
+      "mode": "160000",
+      "recordedCommit": "81ab049208678bd6616828824729c0ddac02f7d1",
+      "checkoutCommit": "81ab049208678bd6616828824729c0ddac02f7d1",
+      "checkoutStatus": ""
+    },
+    {
+      "path": "references/Hexalith.Commons",
+      "mode": "160000",
+      "recordedCommit": "3edfbdafc7d4fa915286dce8a37dc4cc7c06085a",
+      "checkoutCommit": "3edfbdafc7d4fa915286dce8a37dc4cc7c06085a",
+      "checkoutStatus": ""
+    },
+    {
+      "path": "references/Hexalith.EventStore",
+      "mode": "160000",
+      "recordedCommit": "347d390e3a5c0da28874ae650ef202aefbea15ce",
+      "checkoutCommit": "347d390e3a5c0da28874ae650ef202aefbea15ce",
+      "checkoutStatus": ""
+    },
+    {
+      "path": "references/Hexalith.Folders",
+      "mode": "160000",
+      "recordedCommit": "d7e0b3f307e4cd7e740b9f38923c86f8b5c30847",
+      "checkoutCommit": "d7e0b3f307e4cd7e740b9f38923c86f8b5c30847",
+      "checkoutStatus": ""
+    },
+    {
+      "path": "references/Hexalith.FrontComposer",
+      "mode": "160000",
+      "recordedCommit": "28d2c7f47849bcfba19501f7c18cd9f67f0fc61c",
+      "checkoutCommit": "28d2c7f47849bcfba19501f7c18cd9f67f0fc61c",
+      "checkoutStatus": ""
+    },
+    {
+      "path": "references/Hexalith.McpCli",
+      "mode": "160000",
+      "recordedCommit": "2d7311cbbcc592c0ea0348463037389251d1cb4b",
+      "checkoutCommit": "2d7311cbbcc592c0ea0348463037389251d1cb4b",
+      "checkoutStatus": ""
+    },
+    {
+      "path": "references/Hexalith.Memories",
+      "mode": "160000",
+      "recordedCommit": "72c36c7113c750c8b809f9d72b945a2a8c2d4555",
+      "checkoutCommit": "72c36c7113c750c8b809f9d72b945a2a8c2d4555",
+      "checkoutStatus": ""
+    },
+    {
+      "path": "references/Hexalith.Parties",
+      "mode": "160000",
+      "recordedCommit": "9239c531f3b0cbb4a998c419e537463b597ff14b",
+      "checkoutCommit": "9239c531f3b0cbb4a998c419e537463b597ff14b",
+      "checkoutStatus": ""
+    },
+    {
+      "path": "references/Hexalith.Platform",
+      "mode": "160000",
+      "recordedCommit": "5889400b50e6e2cefb4ed6976ca53d086d3989e2",
+      "checkoutCommit": "5889400b50e6e2cefb4ed6976ca53d086d3989e2",
+      "checkoutStatus": ""
+    },
+    {
+      "path": "references/Hexalith.Projects",
+      "mode": "160000",
+      "recordedCommit": "0e45105476902fcfce1f8dbd8416d7234bb16b41",
+      "checkoutCommit": "0e45105476902fcfce1f8dbd8416d7234bb16b41",
+      "checkoutStatus": ""
+    },
+    {
+      "path": "references/Hexalith.Tenants",
+      "mode": "160000",
+      "recordedCommit": "7ddb864cda5e942925b056391617eae4895c1253",
+      "checkoutCommit": "7ddb864cda5e942925b056391617eae4895c1253",
+      "checkoutStatus": ""
+    }
+  ],
+  "sources": [
+    {
+      "path": ".config/dotnet-tools.json",
+      "sha256": "5b826b67ce6520bba1fa80ef3982e56cc71b38d7ced437c0aaf5b1697339b411"
+    },
+    {
+      "path": ".gitattributes",
+      "sha256": "d7b349e3620e883fcc66000a53e614c1ec331a45024cab5189d9943b51a5ef4c"
+    },
+    {
+      "path": ".gitmodules",
+      "sha256": "f772e17bced54e00841b7e84c2e9e4e1624387883c129d2a851316cacab38987"
+    },
+    {
+      "path": "global.json",
+      "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+    },
+    {
+      "path": "Directory.Build.props",
+      "sha256": "6075e5149286cced92b0e1a3c594eab8cf8688c54432f76b4d935d5571e06a8f"
+    },
+    {
+      "path": "Directory.Packages.props",
+      "sha256": "87559bfb23a9e906ba564350f4d051406dc3519e1a80f2bcb16d7e3f3fa9a19a"
+    },
+    {
+      "path": "docs/runbooks/current-change-validation.md",
+      "sha256": "d5284f00b8c850d43cabfcd45d2a4cf94d76a04a0bf7d6761ead7f17e5947801"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/architecture.md",
+      "sha256": "948d9c98d99d2453a1ff3904f4f05392b3a2959e379c5fd6e466dc20ed1f05be"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+      "sha256": "eb67da125239bf7e533c21125de1c4569dd0f6cd2b0e914d0953c3da1b2a520a"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/binding.json",
+      "sha256": "ff457038fcb2fd1e00503407d49ead4d3d95cf3f56d247b0941d0cb653e0fb0d"
+    },
+    {
+      "path": "_bmad/scripts/epic16_trust_v2.py",
+      "sha256": "2f6e077ac90c22a06346c0777dc07e12611cfa92e0c2e37f9cddcd4084b35dc2"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/sprint-status.yaml",
+      "sha256": "18744a7ddbf62ed1b02050fb644630f95ca1c80e6be497fa75cc00d3c73df500"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-epic-16-tooling-qualification-and-binding-refresh.md",
+      "sha256": "94f24d4acf9dccbe5649933d41edc8f2796e3d5cff2340f3a67751f580e120de"
+    },
+    {
+      "path": "module/platform-handoff.md",
+      "sha256": "6a0e9df7f002921dd5d9d443f5622e4946ff9929ed64761cb75fe2fa28789f8a"
+    },
+    {
+      "path": "module/sm-2-checklist.md",
+      "sha256": "71fb1992ca38602e4cfba34d1b5471459aff986a1ac87b774fb887feafaeec37"
+    },
+    {
+      "path": "module/validation/epic-16-entry-2026-10-28-post-tooling-01/results.json",
+      "sha256": "fdde59b57fcc1c317c0a7b7c785b50d55a040bc14240ac7c58b812136a2b3950"
+    },
+    {
+      "path": "module/validation/epic-16-entry-2026-10-28-post-tooling-01/adoption.stdout.txt",
+      "sha256": "3bce922088b9d9fd87d479953ae8f378e70fb14c3d7cc497165110799e70646c"
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/qualification-ledger.json",
+      "sha256": "cd051831eefd44f123844b11798d389d58ef44981d473049c35f4f8edb035159"
+    },
+    {
+      "path": "references/Hexalith.Builds/docs/module-cli-configuration-key-released-artifact-handoff.md",
+      "sha256": "0d248a6559bfd0577b3ac87372ca6d7d425293fab34921c2e18f21fd66d51164"
+    },
+    {
+      "path": "references/Hexalith.Builds/docs/module-cli-configuration-key-release-review.md",
+      "sha256": "50664b48bbf2de669a36b0c625283ceb6c4a750015919b86a59c496bc2325d8e"
+    },
+    {
+      "path": "references/Hexalith.Builds/Tools/test-g4-tool-package-contracts.ps1",
+      "sha256": "6e83de03126a48a794053e644f0234c900638a405aab63a2e862868f4d13104c"
+    },
+    {
+      "path": "references/Hexalith.Builds/.github/workflows/build-release.yml",
+      "sha256": "79d77f09426115a289e36ecf36dbfd38df8c7a3382158e986b7ca79243424b27"
+    },
+    {
+      "path": "references/Hexalith.Platform/README.md",
+      "sha256": "a5218c3932ca0716c0bbbd7d946858cebeb490d69180221f2f60c9015b561314"
+    },
+    {
+      "path": "references/Hexalith.Platform/docs/domain-module-enrollment.md",
+      "sha256": "f3871a49eb4a741a521ae02378f4fa494d7388313f6bbf22695b114173c4cb44"
+    },
+    {
+      "path": "references/Hexalith.Platform/.config/dotnet-tools.json",
+      "sha256": "5d72a022a9416cb753da75cda1b0f1945fd938c065521fd9946aaa525fe048da"
+    }
+  ]
+}

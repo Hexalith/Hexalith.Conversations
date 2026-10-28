@@ -1,0 +1,32 @@
+{
+  "scope": "separate prerequisite implementation; not runtime entry",
+  "focusedTestsPassed": 71,
+  "reviewFindings": 18,
+  "patchGroups": 13,
+  "reviewFindingsDeferred": 0,
+  "preservedPriorFilesRehashed": 7540,
+  "freshNativeStreamsRehashed": 1512,
+  "artifactIdentityAnd36Controls": "PASS",
+  "overallQualification": "FAIL",
+  "qualificationFailures": [
+    "ADOPTION_FAILURES_RETAINED",
+    "PLATFORM_CATALOG_BINDING_MISMATCH"
+  ],
+  "qualificationBlocked": [
+    "QUALIFICATION_EVIDENCE_UNAVAILABLE",
+    "PACKAGE_PREPARATION_UNAVAILABLE",
+    "PLATFORM_IDENTITY_UNAVAILABLE",
+    "OWNER_EVIDENCE_PENDING"
+  ],
+  "all81BindingsUnchanged": true,
+  "all12DependenciesUnchanged": true,
+  "indexRowsUnchangedBeforeWorkflowCommit": true,
+  "heldCommands": 12,
+  "runtimeTests": 0,
+  "absentRuntimeOutputs": 7,
+  "runtimeStatus": "draft/backlog",
+  "historicalEvidenceBoundary": "not-applicable",
+  "runtimeFinalRecord": "not-applicable",
+  "collectorSha256": "a2fcbe52dd7bb6254bbc2e325473475266edd27a68d0190fa2736ac267c31cce",
+  "testsSha256": "8482887c80f1a48a1947d2ea69579ca0d6cd90a07ba4a9ec3d800c76f85893a0"
+}

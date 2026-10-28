@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored /tmp/epic16-unsigned-helper-4l8zqpxx/UnsignedProof.csproj (in 45 ms).
+  UnsignedProof -> /tmp/epic16-unsigned-helper-4l8zqpxx/bin/Debug/net10.0/UnsignedProof.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.75
