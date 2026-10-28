@@ -76,6 +76,15 @@ public static class ConversationsAppHostTopology
         IResourceBuilder<ProjectResource> conversationsServer = builder
             .AddProject<Projects.Hexalith_Conversations_Server>(ConversationsResourceName)
             .WithEnvironment("DOTNET_ENVIRONMENT", builder.Environment.EnvironmentName)
+            .WithEnvironment("EventStore__CommandStatus__StateStoreName", StateStoreComponentName)
+            .WithEnvironment("EventStore__DataProtection__StateStoreName", StateStoreComponentName)
+            .WithEnvironment("EventStore__DataProtection__PersistToStateStore", "true")
+            .WithEnvironment("EventStore__Projections__ReadModelStateStoreName", StateStoreComponentName)
+            .WithEnvironment("EventStore__Projections__CheckpointStateStoreName", StateStoreComponentName)
+            .WithEnvironment("EventStore__ProjectionChanges__PubSubName", PubSubComponentName)
+            .WithEnvironment("Tenants__PubSubName", PubSubComponentName)
+            .WithEnvironment("Tenants__TopicName", "tenants.events")
+            .WithEnvironment("Dapr__DeclarativeSubscriptions", "true")
             .WithHttpEndpoint();
         _ = conversationsServer.AddEventStoreDomainModule(eventStoreResources, ConversationsDaprAppId);
         _ = eventStoreResources.EventStore.WithGeneratedEventStoreAppChannelToken();

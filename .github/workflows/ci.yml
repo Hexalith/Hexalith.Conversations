@@ -74,7 +74,7 @@ jobs:
             "-p:CustomAfterMicrosoftCommonTargets=$compatibility" \
             -p:MinimalModuleCompatibilityMode=package -p:MinimalModuleCompatibilityUseSuccessorLocks=true \
             2>&1 | tee TestResults/minimal-module/restore.log
-          dotnet build "$fixture" --configuration Release --no-restore \
+          dotnet build "$fixture" --configuration Release --no-restore -m:1 \
             "-p:CustomAfterMicrosoftCommonTargets=$compatibility" \
             -p:MinimalModuleCompatibilityMode=package -p:MinimalModuleCompatibilityUseSuccessorLocks=true \
             2>&1 | tee TestResults/minimal-module/build.log

@@ -227,6 +227,15 @@ public sealed class ConversationsAppHostTopologyTest
 
         environment["EventStore__DomainService__AppId"].ShouldBe(ConversationsAppHostTopology.ConversationsDaprAppId);
         environment["EventStore__DomainService__ServiceVersion"].ShouldBe("v1");
+        environment["EventStore__CommandStatus__StateStoreName"].ShouldBe(ConversationsAppHostTopology.StateStoreComponentName);
+        environment["EventStore__DataProtection__StateStoreName"].ShouldBe(ConversationsAppHostTopology.StateStoreComponentName);
+        environment["EventStore__DataProtection__PersistToStateStore"].ShouldBe("true");
+        environment["EventStore__Projections__ReadModelStateStoreName"].ShouldBe(ConversationsAppHostTopology.StateStoreComponentName);
+        environment["EventStore__Projections__CheckpointStateStoreName"].ShouldBe(ConversationsAppHostTopology.StateStoreComponentName);
+        environment["EventStore__ProjectionChanges__PubSubName"].ShouldBe(ConversationsAppHostTopology.PubSubComponentName);
+        environment["Tenants__PubSubName"].ShouldBe(ConversationsAppHostTopology.PubSubComponentName);
+        environment["Tenants__TopicName"].ShouldBe("tenants.events");
+        environment["Dapr__DeclarativeSubscriptions"].ShouldBe("true");
 
         ResourceNamesReferencedBySidecar(resources.ConversationsServer.Resource).ShouldContain(ConversationsAppHostTopology.StateStoreComponentName);
         ResourceNamesReferencedBySidecar(resources.ConversationsServer.Resource).ShouldContain(ConversationsAppHostTopology.PubSubComponentName);
