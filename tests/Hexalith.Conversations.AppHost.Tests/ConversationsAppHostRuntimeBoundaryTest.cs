@@ -584,10 +584,18 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
         // Aspire launches with --no-build (SuppressBuild, asserted at the call site) and dotnet run resolves
         // its own configuration, so the stamp must exist in EVERY configuration a launch could resolve —
         // stamping only the test's configuration would let a stale, unstamped binary from the other one run
-        // while the assertion below stays green.
-        foreach (string configuration in new HashSet<string>(
-                     [FindTestBuildConfiguration(), "Debug", "Release"],
-                     StringComparer.OrdinalIgnoreCase))
+        // while the assertion below stays green. An active source mapping fixes Configuration and rejects
+        // the other one, and the same environment reaches Aspire, so only the mapped configuration can launch.
+        string? mappedConfiguration = string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("HEXALITH_SOURCE_MAPPING_HASH"))
+            ? null
+            : Environment.GetEnvironmentVariable("Configuration");
+        HashSet<string> configurations = new([FindTestBuildConfiguration(), "Debug", "Release"], StringComparer.OrdinalIgnoreCase);
+        if (!string.IsNullOrWhiteSpace(mappedConfiguration))
+        {
+            configurations.RemoveWhere(configuration => !string.Equals(configuration, mappedConfiguration, StringComparison.OrdinalIgnoreCase));
+        }
+
+        foreach (string configuration in configurations)
         {
             ProcessResult build = await RunProcessAsync(
                 "dotnet",
