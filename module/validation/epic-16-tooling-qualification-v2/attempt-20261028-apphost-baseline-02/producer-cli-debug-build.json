@@ -1,0 +1,31 @@
+{
+  "name": "producer-cli-debug-build",
+  "command": [
+    "dotnet",
+    "build",
+    "src/libraries/Hexalith.Builds.Module.Cli/Hexalith.Builds.Module.Cli.csproj",
+    "--configuration",
+    "Debug",
+    "--nologo",
+    "-m:1"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+  "pid": 1822578,
+  "startedAtUtc": "2026-10-28T07:31:30.477009+00:00",
+  "durationSeconds": 28.016,
+  "timeoutSeconds": 180,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {},
+  "stdout": {
+    "path": "producer-cli-debug-build.stdout.txt",
+    "bytes": 1028,
+    "sha256": "6624c53f2a714ea3c9f320a96a9ddf79ff2765563f9cc1929ece4b39de98158d"
+  },
+  "stderr": {
+    "path": "producer-cli-debug-build.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

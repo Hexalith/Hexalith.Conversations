@@ -1,0 +1,26 @@
+Description:
+  View structured logs from the Dashboard telemetry API
+
+Usage:
+  aspire otel logs [<resource>] [options]
+
+Arguments:
+  <resource>  Filter by resource name
+
+Options:
+  --apphost <apphost>                                                    The path to the Aspire AppHost project file or a directory to search
+  -f, --follow                                                           Stream telemetry in real-time as it arrives
+  --format <Json|Table>                                                  Output format (Table or Json)
+  -n, --limit <limit>                                                    Maximum number of items to return
+  --trace-id <trace-id>                                                  Filter by trace ID
+  --dashboard-url <dashboard-url>                                        Base URL of a standalone Aspire Dashboard (e.g. http://localhost:18888). Login URLs are also accepted and automatically normalized.
+  --api-key <api-key>                                                    API key for authenticating with the dashboard (optional, for dashboards with API key authentication)
+  --severity <severity>                                                  Filter logs by minimum severity (Trace, Debug, Information, Warning, Error, Critical)
+  --search <search>                                                      Search and filter telemetry fields such as log messages, attribute values, names, source, and IDs. Supports full-text search and field filters. See https://aka.ms/aspire/cli-search for more details
+  -?, -h, --help                                                         Show help and usage information
+  -l, --log-level <Critical|Debug|Error|Information|None|Trace|Warning>  Set the minimum log level for console output (Trace, Debug, Information, Warning, Error, Critical)
+  --non-interactive                                                      Run the command in non-interactive mode, disabling all interactive prompts and spinners
+  --nologo                                                               Suppress the startup banner and telemetry notice
+  --banner                                                               Display the animated Aspire CLI welcome banner
+  --wait-for-debugger                                                    Wait for a debugger to attach before executing the command
+

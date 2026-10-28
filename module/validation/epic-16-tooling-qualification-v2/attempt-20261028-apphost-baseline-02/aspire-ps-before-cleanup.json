@@ -1,0 +1,42 @@
+{
+  "name": "aspire-ps-before-cleanup",
+  "command": [
+    "aspire",
+    "ps",
+    "--format",
+    "Json",
+    "--non-interactive"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 1891904,
+  "startedAtUtc": "2026-10-28T07:34:04.589038+00:00",
+  "durationSeconds": 0.301,
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "CustomBeforeDirectoryBuildProps": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/SourceMapping.targets",
+    "CustomAfterMicrosoftCommonProps": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/SourceMapping.props",
+    "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/SourceMapping.before-targets.props",
+    "CustomAfterDirectoryBuildTargets": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/SourceMapping.late.props",
+    "AfterMicrosoftNETSdkTargets": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/SourceMapping.final.targets",
+    "HEXALITH_SOURCE_MAPPING_HASH": "03b58560419fa30037c36554166fd04b98a207c4cba52495806e111640f3beb1",
+    "Configuration": "Debug"
+  },
+  "stdout": {
+    "path": "aspire-ps-before-cleanup.stdout.txt",
+    "bytes": 476,
+    "sha256": "3850acefaa0fef008933892cccceeab5b61aa43cfaf9a12cf924e6d59b7ab813",
+    "capturedRaw": {
+      "sha256": "cec4f95454ef0f3fa1ae66127d257915e8c192fd4fcab64c39b71e03a6fc4f9d",
+      "bytes": 477
+    },
+    "ephemeralCredentialReplacements": 1
+  },
+  "stderr": {
+    "path": "aspire-ps-before-cleanup.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,3 @@
+Waiting for resource 'security-sqezdwhy' to be healthy...
+
+✅ Resource 'security-sqezdwhy' is healthy. (0.0s)

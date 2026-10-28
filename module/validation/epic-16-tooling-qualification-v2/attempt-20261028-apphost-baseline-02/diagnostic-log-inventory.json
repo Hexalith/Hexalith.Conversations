@@ -1,0 +1,11 @@
+{
+  "source": "/home/administrator/.aspire/logs/cli_20261028T073246509_detach-child_b6d6ca1db08b47cea3feda89a06bcf69.log",
+  "path": "aspire-owned-child.log",
+  "capturedRaw": {
+    "sha256": "1b2a9efcd515fee6a2ac8c1e62f07715a1c231a6b032e9359fa84d560cf820ab",
+    "bytes": 385598
+  },
+  "sha256": "d925c63badabbf233c88f199be7312ec91972f8895c9c57e7e994321151ddf66",
+  "bytes": 385589,
+  "ephemeralCredentialReplacements": 4
+}

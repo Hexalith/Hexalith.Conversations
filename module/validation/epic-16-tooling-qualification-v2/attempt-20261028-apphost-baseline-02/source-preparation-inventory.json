@@ -1,0 +1,167 @@
+{
+  "mappingHash": "03b58560419fa30037c36554166fd04b98a207c4cba52495806e111640f3beb1",
+  "mode": "source",
+  "diagnostics": [
+    {
+      "ruleId": "HXW008",
+      "phase": "Prerequisite",
+      "category": "None",
+      "message": "Platform composition gitlink is 5889400b50e6e2cefb4ed6976ca53d086d3989e2; committed identity is 8de90958bc41b7fd01b7ed22b8ab364447a800e4.",
+      "field": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform",
+      "hint": null,
+      "source": null,
+      "location": null,
+      "row": null
+    },
+    {
+      "ruleId": "HXW011",
+      "phase": "Prerequisite",
+      "category": "None",
+      "message": "Platform identity 8de90958bc41b7fd01b7ed22b8ab364447a800e4 has no local v<SemVer> release tag.",
+      "field": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform",
+      "hint": "Fetch Platform tags, then retry.",
+      "source": null,
+      "location": null,
+      "row": null
+    },
+    {
+      "ruleId": "HXW009",
+      "phase": "Prerequisite",
+      "category": "None",
+      "message": "Builds catalog '/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds' is staged 81ab049208678bd6616828824729c0ddac02f7d1, checked out 81ab049208678bd6616828824729c0ddac02f7d1; Platform 8de90958bc41b7fd01b7ed22b8ab364447a800e4 pins 9f85d8e66e5c16675cee8c224f1fd88430d96007.",
+      "field": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+      "hint": null,
+      "source": null,
+      "location": null,
+      "row": null
+    },
+    {
+      "ruleId": "HXW010",
+      "phase": "Prerequisite",
+      "category": "None",
+      "message": "Tool version 1.0.0-20261028073131 is outside Platform range [4.35.2, 5.0.0-0) at '/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform/hexalith-platform.json'.",
+      "field": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform/hexalith-platform.json",
+      "hint": null,
+      "source": null,
+      "location": null,
+      "row": null
+    }
+  ],
+  "generatedFiles": [
+    {
+      "source": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/Hexalith.EventStore.CatalogConstruction.proj",
+      "retained": "prepared-imports/source-mapping/Hexalith.EventStore.CatalogConstruction.proj",
+      "sha256": "6761bb8702ea703b94f86364e112f8cdc08920d7e5392e0eb489817658e2f52c",
+      "bytes": 149
+    },
+    {
+      "source": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/Hexalith.EventStore.QueryRouting.Tests.proj",
+      "retained": "prepared-imports/source-mapping/Hexalith.EventStore.QueryRouting.Tests.proj",
+      "sha256": "6761bb8702ea703b94f86364e112f8cdc08920d7e5392e0eb489817658e2f52c",
+      "bytes": 149
+    },
+    {
+      "source": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/Hexalith.EventStore.Server.LiveSidecar.Tests.proj",
+      "retained": "prepared-imports/source-mapping/Hexalith.EventStore.Server.LiveSidecar.Tests.proj",
+      "sha256": "6761bb8702ea703b94f86364e112f8cdc08920d7e5392e0eb489817658e2f52c",
+      "bytes": 149
+    },
+    {
+      "source": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/Hexalith.EventStore.Server.Tests.proj",
+      "retained": "prepared-imports/source-mapping/Hexalith.EventStore.Server.Tests.proj",
+      "sha256": "6761bb8702ea703b94f86364e112f8cdc08920d7e5392e0eb489817658e2f52c",
+      "bytes": 149
+    },
+    {
+      "source": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/Hexalith.Folders.Aspire.proj",
+      "retained": "prepared-imports/source-mapping/Hexalith.Folders.Aspire.proj",
+      "sha256": "6761bb8702ea703b94f86364e112f8cdc08920d7e5392e0eb489817658e2f52c",
+      "bytes": 149
+    },
+    {
+      "source": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "retained": "prepared-imports/source-mapping/SourceMapping.before-targets.props",
+      "sha256": "482b6a6693948badfed5acf424abc38147bcfb68cecfca66cc93b647209d9257",
+      "bytes": 3602
+    },
+    {
+      "source": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/SourceMapping.final.targets",
+      "retained": "prepared-imports/source-mapping/SourceMapping.final.targets",
+      "sha256": "37af3456d05f6b729a7cfe27958c099aa3ac883be658d001bf1aedacde134742",
+      "bytes": 9622
+    },
+    {
+      "source": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/SourceMapping.late.props",
+      "retained": "prepared-imports/source-mapping/SourceMapping.late.props",
+      "sha256": "1b3dcc458de58e22a77ee633403247ec312a9e9cf1fbabe3eca378b30bd1ccf2",
+      "bytes": 7301
+    },
+    {
+      "source": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/SourceMapping.props",
+      "retained": "prepared-imports/source-mapping/SourceMapping.props",
+      "sha256": "0363694f252736cdfd0bcf6a567bb077940df16cc966e410153718a552769e82",
+      "bytes": 98
+    },
+    {
+      "source": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/SourceMapping.targets",
+      "retained": "prepared-imports/source-mapping/SourceMapping.targets",
+      "sha256": "727dd208cecd59a3295d102fdcb8f0719c0f05b36dd8f30df0da1a14a689a1b2",
+      "bytes": 915
+    },
+    {
+      "source": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/SourceMapping.values.props",
+      "retained": "prepared-imports/source-mapping/SourceMapping.values.props",
+      "sha256": "c7bfb8bedf9c814bd1c4bee7882be9aac9c8b5572f4ea1f756ebc91abb8aeb58",
+      "bytes": 5900
+    },
+    {
+      "source": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/SourceMapping.values.targets",
+      "retained": "prepared-imports/source-mapping/SourceMapping.values.targets",
+      "sha256": "1fa171864cca31204888ef6fa9554ec82e7f090776996316546155f69a4af3e4",
+      "bytes": 104346
+    },
+    {
+      "source": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/__HXW_DefaultCatalog__.proj",
+      "retained": "prepared-imports/source-mapping/__HXW_DefaultCatalog__.proj",
+      "sha256": "6761bb8702ea703b94f86364e112f8cdc08920d7e5392e0eb489817658e2f52c",
+      "bytes": 149
+    },
+    {
+      "source": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/catalog-versions.json",
+      "retained": "prepared-imports/source-mapping/catalog-versions.json",
+      "sha256": "612f471344e68d8f5d3cfce5b7ff0997482a08786f47468002270dd9cf3c17c4",
+      "bytes": 83621
+    },
+    {
+      "source": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/mapping.json",
+      "retained": "prepared-imports/source-mapping/mapping.json",
+      "sha256": "442cccc04f68ca1c175ca43163e2c1ec24cc1214d4bb9377697b8a9a7b785a9a",
+      "bytes": 4654
+    },
+    {
+      "source": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/pinned-tree/Props/Directory.Packages.props",
+      "retained": "prepared-imports/source-mapping/pinned-tree/Props/Directory.Packages.props",
+      "sha256": "ab4e8a7519abfcfbb8bc101756a8ee6fac78973d7468fa82742c75456526b1c7",
+      "bytes": 30718
+    },
+    {
+      "source": "/tmp/epic16-baseline-02-zd336wm1/source-preparation/source-mapping/routing-catalog.cs.proj",
+      "retained": "prepared-imports/source-mapping/routing-catalog.cs.proj",
+      "sha256": "6761bb8702ea703b94f86364e112f8cdc08920d7e5392e0eb489817658e2f52c",
+      "bytes": 149
+    }
+  ],
+  "producerAssemblies": [
+    {
+      "path": "references/Hexalith.Builds/src/libraries/Hexalith.Builds.Module.Cli/bin/Debug/net10.0/Hexalith.Builds.Module.Cli.dll",
+      "sha256": "fa237c48f1e77194f1c4d18e206670c1d0c13b8037e779cc7ce089148c70810c",
+      "bytes": 31232
+    },
+    {
+      "path": "references/Hexalith.Builds/src/libraries/Hexalith.Builds.Tooling/bin/Debug/net10.0/Hexalith.Builds.Tooling.dll",
+      "sha256": "d72aafa2e5bd82cd3b68f65914420d0418e5d952aad5c72595c59adcef5aa335",
+      "bytes": 1597952
+    }
+  ],
+  "buildsSource": "81ab049208678bd6616828824729c0ddac02f7d1"
+}

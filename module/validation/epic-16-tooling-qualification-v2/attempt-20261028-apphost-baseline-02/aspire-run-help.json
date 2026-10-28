@@ -1,0 +1,27 @@
+{
+  "name": "aspire-run-help",
+  "command": [
+    "aspire",
+    "run",
+    "--help"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 1817184,
+  "startedAtUtc": "2026-10-28T07:31:20.615637+00:00",
+  "durationSeconds": 0.101,
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {},
+  "stdout": {
+    "path": "aspire-run-help.stdout.txt",
+    "bytes": 1872,
+    "sha256": "3d5a55a5a522776cecc4ad90a8f784399fe6ab2bb0107bb876dae95f96da1ee6"
+  },
+  "stderr": {
+    "path": "aspire-run-help.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

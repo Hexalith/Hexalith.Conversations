@@ -1,0 +1,367 @@
+{
+  "result": "PASS",
+  "requiredResources": [
+    {
+      "name": "conversations-mcysaezt",
+      "displayName": "conversations",
+      "state": "Running",
+      "healthStatus": "Healthy"
+    },
+    {
+      "name": "eventstore-grewwpar",
+      "displayName": "eventstore",
+      "state": "Running",
+      "healthStatus": "Healthy"
+    },
+    {
+      "name": "conversations-admin-web-cfyvjzqf",
+      "displayName": "conversations-admin-web",
+      "state": "Running",
+      "healthStatus": "Healthy"
+    },
+    {
+      "name": "security-sqezdwhy",
+      "displayName": "security",
+      "state": "Running",
+      "healthStatus": "Healthy"
+    },
+    {
+      "name": "conversations-dapr-cli-fpxevkam",
+      "displayName": "conversations-dapr-cli",
+      "state": "Running",
+      "healthStatus": "Healthy"
+    },
+    {
+      "name": "eventstore-dapr-cli-ptkcxuca",
+      "displayName": "eventstore-dapr-cli",
+      "state": "Running",
+      "healthStatus": "Healthy"
+    },
+    {
+      "name": "pubsub",
+      "displayName": "pubsub",
+      "state": "Running",
+      "healthStatus": "Healthy"
+    },
+    {
+      "name": "statestore",
+      "displayName": "statestore",
+      "state": "Running",
+      "healthStatus": "Healthy"
+    }
+  ],
+  "resources": [
+    {
+      "name": "aspire-dashboard-frascbjb",
+      "displayName": "aspire-dashboard",
+      "resourceType": "Executable",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "creationTimestamp": "2026-10-28T07:32:58+00:00",
+      "startTimestamp": "2026-10-28T07:32:58.63+00:00",
+      "urls": [
+        {
+          "name": "otlp-grpc",
+          "displayName": "otlp-grpc",
+          "url": "https://localhost:38637"
+        },
+        {
+          "name": "http",
+          "displayName": "Dashboard (http)",
+          "url": "http://localhost:39897/login?t=[REDACTED-EPHEMERAL-CREDENTIAL]"
+        },
+        {
+          "name": "https",
+          "displayName": "Dashboard (https)",
+          "url": "https://localhost:38181/login?t=[REDACTED-EPHEMERAL-CREDENTIAL]"
+        }
+      ],
+      "healthReports": {}
+    },
+    {
+      "name": "conversations-admin-web-cfyvjzqf",
+      "displayName": "conversations-admin-web",
+      "resourceType": "Project",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "creationTimestamp": "2026-10-28T07:33:29+00:00",
+      "startTimestamp": "2026-10-28T07:33:29.12+00:00",
+      "urls": [],
+      "healthReports": {}
+    },
+    {
+      "name": "conversations-admin-web-rebuilder-ukxtdysw",
+      "displayName": "conversations-admin-web-rebuilder",
+      "resourceType": "Executable",
+      "state": "NotStarted",
+      "healthStatus": null,
+      "creationTimestamp": null,
+      "startTimestamp": null,
+      "urls": [],
+      "healthReports": {}
+    },
+    {
+      "name": "conversations-app-api-token",
+      "displayName": "conversations-app-api-token",
+      "resourceType": "Parameter",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "creationTimestamp": null,
+      "startTimestamp": null,
+      "urls": [],
+      "healthReports": {}
+    },
+    {
+      "name": "conversations-dapr",
+      "displayName": "conversations-dapr",
+      "resourceType": "DaprSidecar",
+      "state": null,
+      "healthStatus": null,
+      "creationTimestamp": null,
+      "startTimestamp": null,
+      "urls": [],
+      "healthReports": {}
+    },
+    {
+      "name": "conversations-dapr-cli-fpxevkam",
+      "displayName": "conversations-dapr-cli",
+      "resourceType": "Executable",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "creationTimestamp": "2026-10-28T07:33:29+00:00",
+      "startTimestamp": "2026-10-28T07:33:29.09+00:00",
+      "urls": [
+        {
+          "name": "metrics",
+          "url": "http://localhost:44627"
+        },
+        {
+          "name": "http",
+          "url": "http://localhost:34947"
+        },
+        {
+          "name": "grpc",
+          "url": "http://localhost:39985"
+        }
+      ],
+      "healthReports": {}
+    },
+    {
+      "name": "conversations-mcysaezt",
+      "displayName": "conversations",
+      "resourceType": "Project",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "creationTimestamp": "2026-10-28T07:33:29+00:00",
+      "startTimestamp": "2026-10-28T07:33:29.1+00:00",
+      "urls": [
+        {
+          "name": "http",
+          "url": "http://localhost:39911"
+        }
+      ],
+      "healthReports": {}
+    },
+    {
+      "name": "conversations-rebuilder-swcgekvv",
+      "displayName": "conversations-rebuilder",
+      "resourceType": "Executable",
+      "state": "NotStarted",
+      "healthStatus": null,
+      "creationTimestamp": null,
+      "startTimestamp": null,
+      "urls": [],
+      "healthReports": {}
+    },
+    {
+      "name": "eventstore-app-api-token",
+      "displayName": "eventstore-app-api-token",
+      "resourceType": "Parameter",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "creationTimestamp": null,
+      "startTimestamp": null,
+      "urls": [],
+      "healthReports": {}
+    },
+    {
+      "name": "eventstore-dapr",
+      "displayName": "eventstore-dapr",
+      "resourceType": "DaprSidecar",
+      "state": null,
+      "healthStatus": null,
+      "creationTimestamp": null,
+      "startTimestamp": null,
+      "urls": [],
+      "healthReports": {}
+    },
+    {
+      "name": "eventstore-dapr-cli-ptkcxuca",
+      "displayName": "eventstore-dapr-cli",
+      "resourceType": "Executable",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "creationTimestamp": "2026-10-28T07:33:29+00:00",
+      "startTimestamp": "2026-10-28T07:33:29.07+00:00",
+      "urls": [
+        {
+          "name": "metrics",
+          "url": "http://localhost:39763"
+        },
+        {
+          "name": "http",
+          "url": "http://localhost:38381"
+        },
+        {
+          "name": "grpc",
+          "url": "http://localhost:35957"
+        }
+      ],
+      "healthReports": {}
+    },
+    {
+      "name": "eventstore-grewwpar",
+      "displayName": "eventstore",
+      "resourceType": "Project",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "creationTimestamp": "2026-10-28T07:33:29+00:00",
+      "startTimestamp": "2026-10-28T07:33:29.08+00:00",
+      "urls": [
+        {
+          "name": "http",
+          "url": "http://localhost:35703"
+        },
+        {
+          "name": "https",
+          "url": "https://localhost:40379"
+        }
+      ],
+      "healthReports": {}
+    },
+    {
+      "name": "eventstore-rebuilder-pwymhacd",
+      "displayName": "eventstore-rebuilder",
+      "resourceType": "Executable",
+      "state": "NotStarted",
+      "healthStatus": null,
+      "creationTimestamp": null,
+      "startTimestamp": null,
+      "urls": [],
+      "healthReports": {}
+    },
+    {
+      "name": "eventstore-workload-client-secret",
+      "displayName": "eventstore-workload-client-secret",
+      "resourceType": "Parameter",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "creationTimestamp": null,
+      "startTimestamp": null,
+      "urls": [],
+      "healthReports": {}
+    },
+    {
+      "name": "pubsub",
+      "displayName": "pubsub",
+      "resourceType": "DaprComponent",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "creationTimestamp": null,
+      "startTimestamp": null,
+      "urls": [],
+      "healthReports": {}
+    },
+    {
+      "name": "security-eventstore-client-password",
+      "displayName": "security-eventstore-client-password",
+      "resourceType": "Parameter",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "creationTimestamp": null,
+      "startTimestamp": null,
+      "urls": [],
+      "healthReports": {}
+    },
+    {
+      "name": "security-eventstore-client-username",
+      "displayName": "security-eventstore-client-username",
+      "resourceType": "Parameter",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "creationTimestamp": null,
+      "startTimestamp": null,
+      "urls": [],
+      "healthReports": {}
+    },
+    {
+      "name": "security-sqezdwhy",
+      "displayName": "security",
+      "resourceType": "Container",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "creationTimestamp": "2026-10-28T07:33:02+00:00",
+      "startTimestamp": "2026-10-28T07:33:03.339567+00:00",
+      "urls": [
+        {
+          "name": "management",
+          "url": "https://localhost:8543",
+          "isInternal": true
+        },
+        {
+          "name": "http",
+          "url": "https://localhost:8180"
+        }
+      ],
+      "healthReports": {
+        "security_management_/health/ready_200_check": {
+          "status": "Healthy"
+        }
+      }
+    },
+    {
+      "name": "statestore",
+      "displayName": "statestore",
+      "resourceType": "DaprComponent",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "creationTimestamp": null,
+      "startTimestamp": null,
+      "urls": [],
+      "healthReports": {}
+    }
+  ],
+  "nonrunningHiddenResources": [
+    {
+      "name": "conversations-admin-web-rebuilder-ukxtdysw",
+      "state": "NotStarted",
+      "reason": "idle rebuilder or Dapr model resource; execution is separately represented by the healthy project/sidecar CLI"
+    },
+    {
+      "name": "conversations-dapr",
+      "state": null,
+      "reason": "idle rebuilder or Dapr model resource; execution is separately represented by the healthy project/sidecar CLI"
+    },
+    {
+      "name": "conversations-rebuilder-swcgekvv",
+      "state": "NotStarted",
+      "reason": "idle rebuilder or Dapr model resource; execution is separately represented by the healthy project/sidecar CLI"
+    },
+    {
+      "name": "eventstore-dapr",
+      "state": null,
+      "reason": "idle rebuilder or Dapr model resource; execution is separately represented by the healthy project/sidecar CLI"
+    },
+    {
+      "name": "eventstore-rebuilder-pwymhacd",
+      "state": "NotStarted",
+      "reason": "idle rebuilder or Dapr model resource; execution is separately represented by the healthy project/sidecar CLI"
+    }
+  ],
+  "initialSecurityHealth": "Unhealthy",
+  "initialWaitingProjects": [
+    "conversations-admin-web",
+    "conversations",
+    "eventstore"
+  ]
+}

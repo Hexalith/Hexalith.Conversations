@@ -1,0 +1,404 @@
+{
+  "logs": [
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"Start processing HTTP request POST https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"{OriginalFormat}\":\"Start processing HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Sending HTTP request POST https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-28 07:33:45,471 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"68a46a5c-c7c8-4439-b808-23d6445ea879\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"187626f8-da0b-4086-9c69-d5e9b73fbf1f\", ipAddress=\"172.18.0.1\", error=\"invalid_request\", reason=\"Invalid scopes: eventstore-audience.sample eventstore-operation.domain-service.metadata\", grant_type=\"client_credentials\", client_auth_method=\"client-secret\", username=\"service-account-eventstore\"",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Received HTTP response headers after 6.1556ms - 400\",\"State\":{\"ElapsedMilliseconds\":6.1556,\"StatusCode\":400,\"{OriginalFormat}\":\"Received HTTP response headers after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":3,\"LogLevel\":\"Information\",\"Category\":\"Polly\",\"Message\":\"Execution attempt. Source: \\u0027-standard/https://localhost:8180/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027400\\u0027, Handled: \\u0027False\\u0027, Attempt: \\u00270\\u0027, Execution Time: 6.3094ms\",\"State\":{\"PipelineName\":\"-standard\",\"PipelineInstance\":\"https://localhost:8180\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":400,\"Handled\":false,\"Attempt\":0,\"ExecutionTimeMs\":6.3094,\"{OriginalFormat}\":\"Execution attempt. Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027, Handled: \\u0027{Handled}\\u0027, Attempt: \\u0027{Attempt}\\u0027, Execution Time: {ExecutionTimeMs}ms\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"End processing HTTP request after 6.472ms - 400\",\"State\":{\"ElapsedMilliseconds\":6.472,\"StatusCode\":400,\"{OriginalFormat}\":\"End processing HTTP request after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":5512,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.ServiceDefaults.Authentication.JwtWorkloadAssertionIssuer\",\"Message\":\"Workload assertion token request failed: StatusCode=400.\",\"State\":{\"Message\":\"StatusCode=400,{OriginalFormat}=Workload assertion token request failed: StatusCode={StatusCode}.\",\"StatusCode\":400,\"{OriginalFormat}\":\"Workload assertion token request failed: StatusCode={StatusCode}.\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":5541,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.Server.DomainServices.DomainServiceWorkloadAssertionHandler\",\"Message\":\"Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation=domain-service:metadata\",\"State\":{\"Message\":\"Operation=domain-service:metadata,{OriginalFormat}=Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation={Operation}\",\"Operation\":\"domain-service:metadata\",\"{OriginalFormat}\":\"Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation={Operation}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-domain-metadata:sample.ClientHandler\",\"Message\":\"Sending HTTP request POST http://localhost:38381/v1.0/invoke/sample/method/admin/operational-index-metadata\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"http://localhost:38381/v1.0/invoke/sample/method/admin/operational-index-metadata\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-domain-metadata:sample.ClientHandler\",\"Message\":\"Received HTTP response headers after 2002.1286ms - 500\",\"State\":{\"ElapsedMilliseconds\":2002.1286,\"StatusCode\":500,\"{OriginalFormat}\":\"Received HTTP response headers after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":3,\"LogLevel\":\"Warning\",\"Category\":\"Polly\",\"Message\":\"Execution attempt. Source: \\u0027-standard/http://localhost:38381/v1.0/invoke/sample/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027500\\u0027, Handled: \\u0027True\\u0027, Attempt: \\u00270\\u0027, Execution Time: 2009.3149ms\",\"State\":{\"PipelineName\":\"-standard\",\"PipelineInstance\":\"http://localhost:38381/v1.0/invoke/sample\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":500,\"Handled\":true,\"Attempt\":0,\"ExecutionTimeMs\":2009.3149,\"{OriginalFormat}\":\"Execution attempt. Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027, Handled: \\u0027{Handled}\\u0027, Attempt: \\u0027{Attempt}\\u0027, Execution Time: {ExecutionTimeMs}ms\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":0,\"LogLevel\":\"Warning\",\"Category\":\"Polly\",\"Message\":\"Resilience event occurred. EventName: \\u0027OnRetry\\u0027, Source: \\u0027-standard/http://localhost:38381/v1.0/invoke/sample/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027500\\u0027\",\"State\":{\"EventName\":\"OnRetry\",\"PipelineName\":\"-standard\",\"PipelineInstance\":\"http://localhost:38381/v1.0/invoke/sample\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":500,\"{OriginalFormat}\":\"Resilience event occurred. EventName: \\u0027{EventName}\\u0027, Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"Start processing HTTP request POST https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"{OriginalFormat}\":\"Start processing HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Sending HTTP request POST https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-28 07:33:48,347 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"68a46a5c-c7c8-4439-b808-23d6445ea879\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"187626f8-da0b-4086-9c69-d5e9b73fbf1f\", ipAddress=\"172.18.0.1\", error=\"invalid_request\", reason=\"Invalid scopes: eventstore-audience.sample eventstore-operation.domain-service.metadata\", grant_type=\"client_credentials\", client_auth_method=\"client-secret\", username=\"service-account-eventstore\"",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Received HTTP response headers after 7.2803ms - 400\",\"State\":{\"ElapsedMilliseconds\":7.2803,\"StatusCode\":400,\"{OriginalFormat}\":\"Received HTTP response headers after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":3,\"LogLevel\":\"Information\",\"Category\":\"Polly\",\"Message\":\"Execution attempt. Source: \\u0027-standard/https://localhost:8180/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027400\\u0027, Handled: \\u0027False\\u0027, Attempt: \\u00270\\u0027, Execution Time: 7.4743ms\",\"State\":{\"PipelineName\":\"-standard\",\"PipelineInstance\":\"https://localhost:8180\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":400,\"Handled\":false,\"Attempt\":0,\"ExecutionTimeMs\":7.4743,\"{OriginalFormat}\":\"Execution attempt. Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027, Handled: \\u0027{Handled}\\u0027, Attempt: \\u0027{Attempt}\\u0027, Execution Time: {ExecutionTimeMs}ms\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"End processing HTTP request after 7.7433ms - 400\",\"State\":{\"ElapsedMilliseconds\":7.7433,\"StatusCode\":400,\"{OriginalFormat}\":\"End processing HTTP request after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":5512,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.ServiceDefaults.Authentication.JwtWorkloadAssertionIssuer\",\"Message\":\"Workload assertion token request failed: StatusCode=400.\",\"State\":{\"Message\":\"StatusCode=400,{OriginalFormat}=Workload assertion token request failed: StatusCode={StatusCode}.\",\"StatusCode\":400,\"{OriginalFormat}\":\"Workload assertion token request failed: StatusCode={StatusCode}.\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":5541,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.Server.DomainServices.DomainServiceWorkloadAssertionHandler\",\"Message\":\"Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation=domain-service:metadata\",\"State\":{\"Message\":\"Operation=domain-service:metadata,{OriginalFormat}=Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation={Operation}\",\"Operation\":\"domain-service:metadata\",\"{OriginalFormat}\":\"Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation={Operation}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-domain-metadata:sample.ClientHandler\",\"Message\":\"Sending HTTP request POST http://localhost:38381/v1.0/invoke/sample/method/admin/operational-index-metadata\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"http://localhost:38381/v1.0/invoke/sample/method/admin/operational-index-metadata\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-domain-metadata:sample.ClientHandler\",\"Message\":\"Received HTTP response headers after 1001.5144ms - 500\",\"State\":{\"ElapsedMilliseconds\":1001.5144,\"StatusCode\":500,\"{OriginalFormat}\":\"Received HTTP response headers after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":3,\"LogLevel\":\"Warning\",\"Category\":\"Polly\",\"Message\":\"Execution attempt. Source: \\u0027-standard/http://localhost:38381/v1.0/invoke/sample/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027500\\u0027, Handled: \\u0027True\\u0027, Attempt: \\u00271\\u0027, Execution Time: 1010.1516ms\",\"State\":{\"PipelineName\":\"-standard\",\"PipelineInstance\":\"http://localhost:38381/v1.0/invoke/sample\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":500,\"Handled\":true,\"Attempt\":1,\"ExecutionTimeMs\":1010.1516,\"{OriginalFormat}\":\"Execution attempt. Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027, Handled: \\u0027{Handled}\\u0027, Attempt: \\u0027{Attempt}\\u0027, Execution Time: {ExecutionTimeMs}ms\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":0,\"LogLevel\":\"Warning\",\"Category\":\"Polly\",\"Message\":\"Resilience event occurred. EventName: \\u0027OnRetry\\u0027, Source: \\u0027-standard/http://localhost:38381/v1.0/invoke/sample/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027500\\u0027\",\"State\":{\"EventName\":\"OnRetry\",\"PipelineName\":\"-standard\",\"PipelineInstance\":\"http://localhost:38381/v1.0/invoke/sample\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":500,\"{OriginalFormat}\":\"Resilience event occurred. EventName: \\u0027{EventName}\\u0027, Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":7,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler\",\"Message\":\"EventStoreWorkload was not authenticated. Failure message: channel-token-missing\",\"State\":{\"AuthenticationScheme\":\"EventStoreWorkload\",\"FailureMessage\":\"channel-token-missing\",\"{OriginalFormat}\":\"{AuthenticationScheme} was not authenticated. Failure message: {FailureMessage}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":0,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.AspNetCore.Routing.EndpointMiddleware\",\"Message\":\"Executing endpoint \\u0027Health checks\\u0027\",\"State\":{\"EndpointName\":\"Health checks\",\"{OriginalFormat}\":\"Executing endpoint \\u0027{EndpointName}\\u0027\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":1,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.AspNetCore.Routing.EndpointMiddleware\",\"Message\":\"Executed endpoint \\u0027Health checks\\u0027\",\"State\":{\"EndpointName\":\"Health checks\",\"{OriginalFormat}\":\"Executed endpoint \\u0027{EndpointName}\\u0027\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"Start processing HTTP request POST https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"{OriginalFormat}\":\"Start processing HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Sending HTTP request POST https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-28 07:33:51,586 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"68a46a5c-c7c8-4439-b808-23d6445ea879\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"187626f8-da0b-4086-9c69-d5e9b73fbf1f\", ipAddress=\"172.18.0.1\", error=\"invalid_request\", reason=\"Invalid scopes: eventstore-audience.sample eventstore-operation.domain-service.metadata\", grant_type=\"client_credentials\", client_auth_method=\"client-secret\", username=\"service-account-eventstore\"",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Received HTTP response headers after 10.548ms - 400\",\"State\":{\"ElapsedMilliseconds\":10.548,\"StatusCode\":400,\"{OriginalFormat}\":\"Received HTTP response headers after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":3,\"LogLevel\":\"Information\",\"Category\":\"Polly\",\"Message\":\"Execution attempt. Source: \\u0027-standard/https://localhost:8180/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027400\\u0027, Handled: \\u0027False\\u0027, Attempt: \\u00270\\u0027, Execution Time: 10.7056ms\",\"State\":{\"PipelineName\":\"-standard\",\"PipelineInstance\":\"https://localhost:8180\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":400,\"Handled\":false,\"Attempt\":0,\"ExecutionTimeMs\":10.7056,\"{OriginalFormat}\":\"Execution attempt. Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027, Handled: \\u0027{Handled}\\u0027, Attempt: \\u0027{Attempt}\\u0027, Execution Time: {ExecutionTimeMs}ms\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"End processing HTTP request after 10.9553ms - 400\",\"State\":{\"ElapsedMilliseconds\":10.9553,\"StatusCode\":400,\"{OriginalFormat}\":\"End processing HTTP request after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":5512,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.ServiceDefaults.Authentication.JwtWorkloadAssertionIssuer\",\"Message\":\"Workload assertion token request failed: StatusCode=400.\",\"State\":{\"Message\":\"StatusCode=400,{OriginalFormat}=Workload assertion token request failed: StatusCode={StatusCode}.\",\"StatusCode\":400,\"{OriginalFormat}\":\"Workload assertion token request failed: StatusCode={StatusCode}.\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":5541,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.Server.DomainServices.DomainServiceWorkloadAssertionHandler\",\"Message\":\"Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation=domain-service:metadata\",\"State\":{\"Message\":\"Operation=domain-service:metadata,{OriginalFormat}=Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation={Operation}\",\"Operation\":\"domain-service:metadata\",\"{OriginalFormat}\":\"Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation={Operation}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-domain-metadata:sample.ClientHandler\",\"Message\":\"Sending HTTP request POST http://localhost:38381/v1.0/invoke/sample/method/admin/operational-index-metadata\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"http://localhost:38381/v1.0/invoke/sample/method/admin/operational-index-metadata\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-domain-metadata:sample.ClientHandler\",\"Message\":\"Received HTTP response headers after 2001.7481ms - 500\",\"State\":{\"ElapsedMilliseconds\":2001.7481,\"StatusCode\":500,\"{OriginalFormat}\":\"Received HTTP response headers after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":3,\"LogLevel\":\"Warning\",\"Category\":\"Polly\",\"Message\":\"Execution attempt. Source: \\u0027-standard/http://localhost:38381/v1.0/invoke/sample/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027500\\u0027, Handled: \\u0027True\\u0027, Attempt: \\u00272\\u0027, Execution Time: 2013.4733ms\",\"State\":{\"PipelineName\":\"-standard\",\"PipelineInstance\":\"http://localhost:38381/v1.0/invoke/sample\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":500,\"Handled\":true,\"Attempt\":2,\"ExecutionTimeMs\":2013.4733,\"{OriginalFormat}\":\"Execution attempt. Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027, Handled: \\u0027{Handled}\\u0027, Attempt: \\u0027{Attempt}\\u0027, Execution Time: {ExecutionTimeMs}ms\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":0,\"LogLevel\":\"Warning\",\"Category\":\"Polly\",\"Message\":\"Resilience event occurred. EventName: \\u0027OnRetry\\u0027, Source: \\u0027-standard/http://localhost:38381/v1.0/invoke/sample/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027500\\u0027\",\"State\":{\"EventName\":\"OnRetry\",\"PipelineName\":\"-standard\",\"PipelineInstance\":\"http://localhost:38381/v1.0/invoke/sample\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":500,\"{OriginalFormat}\":\"Resilience event occurred. EventName: \\u0027{EventName}\\u0027, Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":7,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler\",\"Message\":\"EventStoreWorkload was not authenticated. Failure message: channel-token-missing\",\"State\":{\"AuthenticationScheme\":\"EventStoreWorkload\",\"FailureMessage\":\"channel-token-missing\",\"{OriginalFormat}\":\"{AuthenticationScheme} was not authenticated. Failure message: {FailureMessage}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":0,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.AspNetCore.Routing.EndpointMiddleware\",\"Message\":\"Executing endpoint \\u0027Health checks\\u0027\",\"State\":{\"EndpointName\":\"Health checks\",\"{OriginalFormat}\":\"Executing endpoint \\u0027{EndpointName}\\u0027\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":1,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.AspNetCore.Routing.EndpointMiddleware\",\"Message\":\"Executed endpoint \\u0027Health checks\\u0027\",\"State\":{\"EndpointName\":\"Health checks\",\"{OriginalFormat}\":\"Executed endpoint \\u0027{EndpointName}\\u0027\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"Start processing HTTP request POST https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"{OriginalFormat}\":\"Start processing HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Sending HTTP request POST https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-28 07:33:58,213 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"68a46a5c-c7c8-4439-b808-23d6445ea879\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"187626f8-da0b-4086-9c69-d5e9b73fbf1f\", ipAddress=\"172.18.0.1\", error=\"invalid_request\", reason=\"Invalid scopes: eventstore-audience.sample eventstore-operation.domain-service.metadata\", grant_type=\"client_credentials\", client_auth_method=\"client-secret\", username=\"service-account-eventstore\"",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Received HTTP response headers after 6.8145ms - 400\",\"State\":{\"ElapsedMilliseconds\":6.8145,\"StatusCode\":400,\"{OriginalFormat}\":\"Received HTTP response headers after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":3,\"LogLevel\":\"Information\",\"Category\":\"Polly\",\"Message\":\"Execution attempt. Source: \\u0027-standard/https://localhost:8180/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027400\\u0027, Handled: \\u0027False\\u0027, Attempt: \\u00270\\u0027, Execution Time: 7.0096ms\",\"State\":{\"PipelineName\":\"-standard\",\"PipelineInstance\":\"https://localhost:8180\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":400,\"Handled\":false,\"Attempt\":0,\"ExecutionTimeMs\":7.0096,\"{OriginalFormat}\":\"Execution attempt. Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027, Handled: \\u0027{Handled}\\u0027, Attempt: \\u0027{Attempt}\\u0027, Execution Time: {ExecutionTimeMs}ms\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"End processing HTTP request after 7.2799ms - 400\",\"State\":{\"ElapsedMilliseconds\":7.2799,\"StatusCode\":400,\"{OriginalFormat}\":\"End processing HTTP request after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":5512,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.ServiceDefaults.Authentication.JwtWorkloadAssertionIssuer\",\"Message\":\"Workload assertion token request failed: StatusCode=400.\",\"State\":{\"Message\":\"StatusCode=400,{OriginalFormat}=Workload assertion token request failed: StatusCode={StatusCode}.\",\"StatusCode\":400,\"{OriginalFormat}\":\"Workload assertion token request failed: StatusCode={StatusCode}.\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":5541,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.Server.DomainServices.DomainServiceWorkloadAssertionHandler\",\"Message\":\"Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation=domain-service:metadata\",\"State\":{\"Message\":\"Operation=domain-service:metadata,{OriginalFormat}=Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation={Operation}\",\"Operation\":\"domain-service:metadata\",\"{OriginalFormat}\":\"Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation={Operation}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-domain-metadata:sample.ClientHandler\",\"Message\":\"Sending HTTP request POST http://localhost:38381/v1.0/invoke/sample/method/admin/operational-index-metadata\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"http://localhost:38381/v1.0/invoke/sample/method/admin/operational-index-metadata\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-domain-metadata:sample.ClientHandler\",\"Message\":\"Received HTTP response headers after 1003.9671ms - 500\",\"State\":{\"ElapsedMilliseconds\":1003.9671,\"StatusCode\":500,\"{OriginalFormat}\":\"Received HTTP response headers after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":3,\"LogLevel\":\"Error\",\"Category\":\"Polly\",\"Message\":\"Execution attempt. Source: \\u0027-standard/http://localhost:38381/v1.0/invoke/sample/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027500\\u0027, Handled: \\u0027True\\u0027, Attempt: \\u00273\\u0027, Execution Time: 1013.8377ms\",\"State\":{\"PipelineName\":\"-standard\",\"PipelineInstance\":\"http://localhost:38381/v1.0/invoke/sample\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":500,\"Handled\":true,\"Attempt\":3,\"ExecutionTimeMs\":1013.8377,\"{OriginalFormat}\":\"Execution attempt. Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027, Handled: \\u0027{Handled}\\u0027, Attempt: \\u0027{Attempt}\\u0027, Execution Time: {ExecutionTimeMs}ms\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-domain-metadata:sample.LogicalHandler\",\"Message\":\"End processing HTTP request after 13756.5161ms - 500\",\"State\":{\"ElapsedMilliseconds\":13756.5161,\"StatusCode\":500,\"{OriginalFormat}\":\"End processing HTTP request after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":6100,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.Indexes.AdminOperationalIndexHostedService\",\"Message\":\"Operational index metadata unavailable from domain service AppId=sample; type catalog entries for that app may be incomplete. ExceptionType=HttpRequestException\",\"State\":{\"Message\":\"ExceptionType=HttpRequestException,AppId=sample,{OriginalFormat}=Operational index metadata unavailable from domain service AppId={AppId}; type catalog entries for that app may be incomplete. ExceptionType={ExceptionType}\",\"ExceptionType\":\"HttpRequestException\",\"AppId\":\"sample\",\"{OriginalFormat}\":\"Operational index metadata unavailable from domain service AppId={AppId}; type catalog entries for that app may be incomplete. ExceptionType={ExceptionType}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-domain-metadata:tenants.LogicalHandler\",\"Message\":\"Start processing HTTP request POST http://localhost:38381/v1.0/invoke/tenants/method/admin/operational-index-metadata\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"http://localhost:38381/v1.0/invoke/tenants/method/admin/operational-index-metadata\",\"{OriginalFormat}\":\"Start processing HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"Start processing HTTP request POST https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"{OriginalFormat}\":\"Start processing HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Sending HTTP request POST https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-28 07:33:59,235 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"68a46a5c-c7c8-4439-b808-23d6445ea879\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"187626f8-da0b-4086-9c69-d5e9b73fbf1f\", ipAddress=\"172.18.0.1\", error=\"invalid_request\", reason=\"Invalid scopes: eventstore-audience.tenants eventstore-operation.domain-service.metadata\", grant_type=\"client_credentials\", client_auth_method=\"client-secret\", username=\"service-account-eventstore\"",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Received HTTP response headers after 7.9671ms - 400\",\"State\":{\"ElapsedMilliseconds\":7.9671,\"StatusCode\":400,\"{OriginalFormat}\":\"Received HTTP response headers after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":3,\"LogLevel\":\"Information\",\"Category\":\"Polly\",\"Message\":\"Execution attempt. Source: \\u0027-standard/https://localhost:8180/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027400\\u0027, Handled: \\u0027False\\u0027, Attempt: \\u00270\\u0027, Execution Time: 8.1193ms\",\"State\":{\"PipelineName\":\"-standard\",\"PipelineInstance\":\"https://localhost:8180\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":400,\"Handled\":false,\"Attempt\":0,\"ExecutionTimeMs\":8.1193,\"{OriginalFormat}\":\"Execution attempt. Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027, Handled: \\u0027{Handled}\\u0027, Attempt: \\u0027{Attempt}\\u0027, Execution Time: {ExecutionTimeMs}ms\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"End processing HTTP request after 8.3192ms - 400\",\"State\":{\"ElapsedMilliseconds\":8.3192,\"StatusCode\":400,\"{OriginalFormat}\":\"End processing HTTP request after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":5512,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.ServiceDefaults.Authentication.JwtWorkloadAssertionIssuer\",\"Message\":\"Workload assertion token request failed: StatusCode=400.\",\"State\":{\"Message\":\"StatusCode=400,{OriginalFormat}=Workload assertion token request failed: StatusCode={StatusCode}.\",\"StatusCode\":400,\"{OriginalFormat}\":\"Workload assertion token request failed: StatusCode={StatusCode}.\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":5541,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.Server.DomainServices.DomainServiceWorkloadAssertionHandler\",\"Message\":\"Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation=domain-service:metadata\",\"State\":{\"Message\":\"Operation=domain-service:metadata,{OriginalFormat}=Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation={Operation}\",\"Operation\":\"domain-service:metadata\",\"{OriginalFormat}\":\"Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation={Operation}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-domain-metadata:tenants.ClientHandler\",\"Message\":\"Sending HTTP request POST http://localhost:38381/v1.0/invoke/tenants/method/admin/operational-index-metadata\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"http://localhost:38381/v1.0/invoke/tenants/method/admin/operational-index-metadata\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":7,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler\",\"Message\":\"EventStoreWorkload was not authenticated. Failure message: channel-token-missing\",\"State\":{\"AuthenticationScheme\":\"EventStoreWorkload\",\"FailureMessage\":\"channel-token-missing\",\"{OriginalFormat}\":\"{AuthenticationScheme} was not authenticated. Failure message: {FailureMessage}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":0,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.AspNetCore.Routing.EndpointMiddleware\",\"Message\":\"Executing endpoint \\u0027Health checks\\u0027\",\"State\":{\"EndpointName\":\"Health checks\",\"{OriginalFormat}\":\"Executing endpoint \\u0027{EndpointName}\\u0027\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":1,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.AspNetCore.Routing.EndpointMiddleware\",\"Message\":\"Executed endpoint \\u0027Health checks\\u0027\",\"State\":{\"EndpointName\":\"Health checks\",\"{OriginalFormat}\":\"Executed endpoint \\u0027{EndpointName}\\u0027\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-domain-metadata:tenants.ClientHandler\",\"Message\":\"Received HTTP response headers after 1004.2273ms - 500\",\"State\":{\"ElapsedMilliseconds\":1004.2273,\"StatusCode\":500,\"{OriginalFormat}\":\"Received HTTP response headers after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":3,\"LogLevel\":\"Warning\",\"Category\":\"Polly\",\"Message\":\"Execution attempt. Source: \\u0027-standard/http://localhost:38381/v1.0/invoke/tenants/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027500\\u0027, Handled: \\u0027True\\u0027, Attempt: \\u00270\\u0027, Execution Time: 1013.6152ms\",\"State\":{\"PipelineName\":\"-standard\",\"PipelineInstance\":\"http://localhost:38381/v1.0/invoke/tenants\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":500,\"Handled\":true,\"Attempt\":0,\"ExecutionTimeMs\":1013.6152,\"{OriginalFormat}\":\"Execution attempt. Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027, Handled: \\u0027{Handled}\\u0027, Attempt: \\u0027{Attempt}\\u0027, Execution Time: {ExecutionTimeMs}ms\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":0,\"LogLevel\":\"Warning\",\"Category\":\"Polly\",\"Message\":\"Resilience event occurred. EventName: \\u0027OnRetry\\u0027, Source: \\u0027-standard/http://localhost:38381/v1.0/invoke/tenants/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027500\\u0027\",\"State\":{\"EventName\":\"OnRetry\",\"PipelineName\":\"-standard\",\"PipelineInstance\":\"http://localhost:38381/v1.0/invoke/tenants\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":500,\"{OriginalFormat}\":\"Resilience event occurred. EventName: \\u0027{EventName}\\u0027, Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"Start processing HTTP request POST https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"{OriginalFormat}\":\"Start processing HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Sending HTTP request POST https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-28 07:34:02,555 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"68a46a5c-c7c8-4439-b808-23d6445ea879\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"187626f8-da0b-4086-9c69-d5e9b73fbf1f\", ipAddress=\"172.18.0.1\", error=\"invalid_request\", reason=\"Invalid scopes: eventstore-audience.tenants eventstore-operation.domain-service.metadata\", grant_type=\"client_credentials\", client_auth_method=\"client-secret\", username=\"service-account-eventstore\"",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Received HTTP response headers after 6.2433ms - 400\",\"State\":{\"ElapsedMilliseconds\":6.2433,\"StatusCode\":400,\"{OriginalFormat}\":\"Received HTTP response headers after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":3,\"LogLevel\":\"Information\",\"Category\":\"Polly\",\"Message\":\"Execution attempt. Source: \\u0027-standard/https://localhost:8180/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027400\\u0027, Handled: \\u0027False\\u0027, Attempt: \\u00270\\u0027, Execution Time: 6.4131ms\",\"State\":{\"PipelineName\":\"-standard\",\"PipelineInstance\":\"https://localhost:8180\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":400,\"Handled\":false,\"Attempt\":0,\"ExecutionTimeMs\":6.4131,\"{OriginalFormat}\":\"Execution attempt. Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027, Handled: \\u0027{Handled}\\u0027, Attempt: \\u0027{Attempt}\\u0027, Execution Time: {ExecutionTimeMs}ms\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"End processing HTTP request after 6.668ms - 400\",\"State\":{\"ElapsedMilliseconds\":6.668,\"StatusCode\":400,\"{OriginalFormat}\":\"End processing HTTP request after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":5512,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.ServiceDefaults.Authentication.JwtWorkloadAssertionIssuer\",\"Message\":\"Workload assertion token request failed: StatusCode=400.\",\"State\":{\"Message\":\"StatusCode=400,{OriginalFormat}=Workload assertion token request failed: StatusCode={StatusCode}.\",\"StatusCode\":400,\"{OriginalFormat}\":\"Workload assertion token request failed: StatusCode={StatusCode}.\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":5541,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.Server.DomainServices.DomainServiceWorkloadAssertionHandler\",\"Message\":\"Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation=domain-service:metadata\",\"State\":{\"Message\":\"Operation=domain-service:metadata,{OriginalFormat}=Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation={Operation}\",\"Operation\":\"domain-service:metadata\",\"{OriginalFormat}\":\"Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation={Operation}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-domain-metadata:tenants.ClientHandler\",\"Message\":\"Sending HTTP request POST http://localhost:38381/v1.0/invoke/tenants/method/admin/operational-index-metadata\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"http://localhost:38381/v1.0/invoke/tenants/method/admin/operational-index-metadata\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    }
+  ]
+}

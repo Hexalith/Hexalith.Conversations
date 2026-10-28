@@ -1,0 +1,23 @@
+{
+  "result": "PASS",
+  "properties": {
+    "Configuration": "Debug",
+    "UseHexalithProjectReferences": "true",
+    "HexalithSourceMappingMode": "source",
+    "HexalithSourceMappingHash": "03b58560419fa30037c36554166fd04b98a207c4cba52495806e111640f3beb1",
+    "HexalithSourceMappingApplies": "true",
+    "HexalithSourceMappingRoot": "/home/administrator/projects/hexalith/conversations",
+    "HexalithSourceMappingActiveModule": "Hexalith.Conversations",
+    "HexalithBuildsRoot": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+    "HexalithEventStoreRoot": "/home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore",
+    "HexalithTenantsRoot": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Tenants"
+  },
+  "projectReferences": [
+    "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Admin.Web/Hexalith.Conversations.Admin.Web.csproj",
+    "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj",
+    "/home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.Aspire/Hexalith.EventStore.Aspire.csproj",
+    "/home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore/Hexalith.EventStore.csproj"
+  ],
+  "configuration": "Debug",
+  "completeProducerEnvironment": true
+}

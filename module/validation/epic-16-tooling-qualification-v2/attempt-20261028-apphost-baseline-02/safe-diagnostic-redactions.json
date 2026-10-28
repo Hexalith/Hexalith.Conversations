@@ -1,0 +1,29 @@
+{
+  "purpose": "retain safe diagnostics without dashboard login or telemetry ingestion credentials",
+  "distinctCredentialValues": 5,
+  "streams": [
+    {
+      "path": "aspire-describe-initial.stdout.txt",
+      "replacementCount": 7
+    },
+    {
+      "path": "aspire-describe-ready.stdout.txt",
+      "replacementCount": 12
+    },
+    {
+      "path": "aspire-ps-before-cleanup.stdout.txt",
+      "replacementCount": 1
+    },
+    {
+      "path": "aspire-ps-ownership-check.stdout.txt",
+      "replacementCount": 1
+    },
+    {
+      "path": "aspire-run.stdout.txt",
+      "replacementCount": 1
+    }
+  ],
+  "childLogReplacementCount": 4,
+  "capturedRawHashesRetained": true,
+  "retainedHashesDescribeSanitizedBytes": true
+}

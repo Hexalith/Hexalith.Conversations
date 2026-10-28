@@ -1,0 +1,112 @@
+{
+  "telemetryItemsCaptured": 41,
+  "severityCounts": {
+    "Warning": 39,
+    "Error": 2
+  },
+  "messages": [
+    {
+      "resource": "conversations",
+      "severity": "Warning",
+      "message": "No XML encryptor configured. Key {4d7ea7ce-b0f2-47ad-bdb0-5ff967c98745} may be persisted to storage in unencrypted form.",
+      "count": 1
+    },
+    {
+      "resource": "conversations",
+      "severity": "Warning",
+      "message": "Internal credential denied: SecurityEvent=InternalAuthenticationDenied, Scheme=EventStoreWorkload, Reason=assertion-missing, StatusCode=401, Path=/dapr/config, CorrelationId=aa88b96c2d74e03a2557b7baa38d4398",
+      "count": 1
+    },
+    {
+      "resource": "conversations",
+      "severity": "Warning",
+      "message": "Internal credential denied: SecurityEvent=InternalAuthenticationDenied, Scheme=EventStoreWorkload, Reason=assertion-missing, StatusCode=401, Path=/dapr/subscribe, CorrelationId=63b146f276c10c8beaddd1bc88532655",
+      "count": 1
+    },
+    {
+      "resource": "eventstore",
+      "severity": "Warning",
+      "message": "Workload assertion token request failed: StatusCode=400.",
+      "count": 10
+    },
+    {
+      "resource": "eventstore",
+      "severity": "Warning",
+      "message": "Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation=domain-service:metadata",
+      "count": 10
+    },
+    {
+      "resource": "eventstore",
+      "severity": "Warning",
+      "message": "Execution attempt. Source: '-standard/http://localhost:38381/v1.0/invoke/sample/Standard-Retry', Operation Key: '', Result: '500', Handled: 'True', Attempt: '0', Execution Time: 1531.4111ms",
+      "count": 1
+    },
+    {
+      "resource": "eventstore",
+      "severity": "Warning",
+      "message": "Resilience event occurred. EventName: 'OnRetry', Source: '-standard/http://localhost:38381/v1.0/invoke/sample/Standard-Retry', Operation Key: '', Result: '500'",
+      "count": 6
+    },
+    {
+      "resource": "eventstore",
+      "severity": "Warning",
+      "message": "Execution attempt. Source: '-standard/http://localhost:38381/v1.0/invoke/sample/Standard-Retry', Operation Key: '', Result: '500', Handled: 'True', Attempt: '1', Execution Time: 2040.7318ms",
+      "count": 1
+    },
+    {
+      "resource": "eventstore",
+      "severity": "Warning",
+      "message": "Execution attempt. Source: '-standard/http://localhost:38381/v1.0/invoke/sample/Standard-Retry', Operation Key: '', Result: '500', Handled: 'True', Attempt: '2', Execution Time: 1022.2151ms",
+      "count": 1
+    },
+    {
+      "resource": "eventstore",
+      "severity": "Error",
+      "message": "Execution attempt. Source: '-standard/http://localhost:38381/v1.0/invoke/sample/Standard-Retry', Operation Key: '', Result: '500', Handled: 'True', Attempt: '3', Execution Time: 1012.8674ms",
+      "count": 1
+    },
+    {
+      "resource": "eventstore",
+      "severity": "Warning",
+      "message": "Execution attempt. Source: '-standard/http://localhost:38381/v1.0/invoke/sample/Standard-Retry', Operation Key: '', Result: '500', Handled: 'True', Attempt: '0', Execution Time: 2009.3149ms",
+      "count": 1
+    },
+    {
+      "resource": "eventstore",
+      "severity": "Warning",
+      "message": "Execution attempt. Source: '-standard/http://localhost:38381/v1.0/invoke/sample/Standard-Retry', Operation Key: '', Result: '500', Handled: 'True', Attempt: '1', Execution Time: 1010.1516ms",
+      "count": 1
+    },
+    {
+      "resource": "eventstore",
+      "severity": "Warning",
+      "message": "Execution attempt. Source: '-standard/http://localhost:38381/v1.0/invoke/sample/Standard-Retry', Operation Key: '', Result: '500', Handled: 'True', Attempt: '2', Execution Time: 2013.4733ms",
+      "count": 1
+    },
+    {
+      "resource": "eventstore",
+      "severity": "Error",
+      "message": "Execution attempt. Source: '-standard/http://localhost:38381/v1.0/invoke/sample/Standard-Retry', Operation Key: '', Result: '500', Handled: 'True', Attempt: '3', Execution Time: 1013.8377ms",
+      "count": 1
+    },
+    {
+      "resource": "eventstore",
+      "severity": "Warning",
+      "message": "Execution attempt. Source: '-standard/http://localhost:38381/v1.0/invoke/tenants/Standard-Retry', Operation Key: '', Result: '500', Handled: 'True', Attempt: '0', Execution Time: 1013.6152ms",
+      "count": 1
+    },
+    {
+      "resource": "eventstore",
+      "severity": "Warning",
+      "message": "Resilience event occurred. EventName: 'OnRetry', Source: '-standard/http://localhost:38381/v1.0/invoke/tenants/Standard-Retry', Operation Key: '', Result: '500'",
+      "count": 1
+    },
+    {
+      "resource": "eventstore",
+      "severity": "Warning",
+      "message": "Operational index metadata unavailable from domain service AppId=sample; type catalog entries for that app may be incomplete. ExceptionType=HttpRequestException",
+      "count": 2
+    }
+  ],
+  "interpretation": "Resource readiness passed. Workload assertion, denied internal discovery, retries and unavailable metadata remain observed limitations; no functional, durable authorization, package, production parity or owner acceptance is inferred."
+}

@@ -1,0 +1,70 @@
+import ast,collections,datetime,hashlib,json,pathlib,re,runpy,shutil,sys
+sys.argv=['/tmp/epic16_apphost_retry.py','library'];m=runpy.run_path(sys.argv[0]);p=m['ATTEMPT'];r=m['ROOT']
+def sha(f):return hashlib.sha256(f.read_bytes()).hexdigest()
+def write(name,obj):m['write'](name,obj)
+launch=json.loads((p/'aspire-run.stdout.txt').read_text());child=pathlib.Path(launch['logFile']);shutil.copyfile(child,p/'aspire-owned-child.log')
+logmeta={'source':str(child),'path':'aspire-owned-child.log','capturedRaw':{'sha256':sha(child),'bytes':child.stat().st_size}}
+# Retain stream capture hashes while replacing only ephemeral authentication values.
+secrets=set()
+def discover(obj):
+ if isinstance(obj,dict):
+  for k,v in obj.items():
+   if isinstance(v,str) and len(v)>=12 and re.search(r'password|secret|token|api.?key|headers',k,re.I):
+    if not v.startswith(('http:','https:','/')):
+     secrets.add(v)
+     if '=' in v:secrets.add(v.split('=',1)[1])
+   discover(v)
+ elif isinstance(obj,list):
+  for v in obj:discover(v)
+for f in p.glob('*.stdout.txt'):
+ text=f.read_text(errors='replace')
+ try:discover(json.loads(text))
+ except json.JSONDecodeError:pass
+ secrets.update(re.findall(r'[?&]t=([A-Za-z0-9_-]{16,})',text))
+ secrets.update(re.findall(r'x-otlp-api-key=([A-Za-z0-9_-]{16,})',text,re.I))
+commands=[];redactions=[]
+for f in sorted(p.glob('*.json')):
+ row=json.loads(f.read_text())
+ if not isinstance(row,dict) or 'command' not in row or 'stdout' not in row:continue
+ for channel in ['stdout','stderr']:
+  item=row[channel];stream=p/item['path'];raw=stream.read_bytes();text=raw.decode('utf-8');count=0
+  for value in sorted(secrets,key=len,reverse=True):
+   n=text.count(value)
+   if n:count+=n;text=text.replace(value,'[REDACTED-EPHEMERAL-CREDENTIAL]')
+  if count:
+   item['capturedRaw']={'sha256':item['sha256'],'bytes':item['bytes']};stream.write_bytes(text.encode());item.update({'sha256':sha(stream),'bytes':stream.stat().st_size,'ephemeralCredentialReplacements':count});redactions.append({'path':item['path'],'replacementCount':count})
+ f.write_text(json.dumps(row,indent=2)+'\n');commands.append(row)
+raw=(p/'aspire-owned-child.log').read_text(encoding='utf-8-sig');count=0
+for value in sorted(secrets,key=len,reverse=True):
+ n=raw.count(value)
+ if n:count+=n;raw=raw.replace(value,'[REDACTED-EPHEMERAL-CREDENTIAL]')
+(p/'aspire-owned-child.log').write_text(raw)
+logmeta.update({'sha256':sha(p/'aspire-owned-child.log'),'bytes':(p/'aspire-owned-child.log').stat().st_size,'ephemeralCredentialReplacements':count})
+write('safe-diagnostic-redactions.json',{'purpose':'retain safe diagnostics without dashboard login or telemetry ingestion credentials','distinctCredentialValues':len(secrets),'streams':redactions,'childLogReplacementCount':count,'capturedRawHashesRetained':True,'retainedHashesDescribeSanitizedBytes':True})
+write('diagnostic-log-inventory.json',logmeta)
+# Record exactly what readiness observed. Do not infer runtime or owner acceptance.
+initial=json.loads((p/'aspire-describe-initial.stdout.txt').read_text());ready=json.loads((p/'aspire-describe-ready.stdout.txt').read_text());otel=json.loads((p/'aspire-otel-warnings.stdout.txt').read_text())
+summary=[]
+for x in ready['resources']:
+ summary.append({k:x.get(k) for k in ['name','displayName','resourceType','state','healthStatus','creationTimestamp','startTimestamp','urls','healthReports']})
+required=['conversations','eventstore','conversations-admin-web','security','conversations-dapr-cli','eventstore-dapr-cli','pubsub','statestore']
+byname={x['displayName']:x for x in ready['resources']}
+assert all(byname[name]['state']=='Running' and byname[name]['healthStatus']=='Healthy' for name in required)
+required_checks=[{'name':byname[name]['name'],'displayName':name,'state':byname[name]['state'],'healthStatus':byname[name]['healthStatus']} for name in required]
+write('resource-readiness.json',{'result':'PASS','requiredResources':required_checks,'resources':summary,'nonrunningHiddenResources':[{'name':x['name'],'state':x.get('state'),'reason':'idle rebuilder or Dapr model resource; execution is separately represented by the healthy project/sidecar CLI'} for x in ready['resources'] if x.get('state')!='Running'],'initialSecurityHealth':next(x['healthStatus'] for x in initial['resources'] if x['displayName']=='security'),'initialWaitingProjects':[x['displayName'] for x in initial['resources'] if x['resourceType']=='Project' and x.get('state')=='Waiting']})
+warning_counts=collections.Counter((x['resourceName'],x['severity'],x['message']) for x in otel)
+write('diagnostic-summary.json',{'telemetryItemsCaptured':len(otel),'severityCounts':dict(collections.Counter(x['severity'] for x in otel)),'messages':[{'resource':resource,'severity':severity,'message':message,'count':count} for (resource,severity,message),count in warning_counts.items()],'interpretation':'Resource readiness passed. Workload assertion, denied internal discovery, retries and unavailable metadata remain observed limitations; no functional, durable authorization, package, production parity or owner acceptance is inferred.'})
+a=json.loads((p/'entry-state.json').read_text());b=json.loads((p/'exit-state.json').read_text());preservation={key:a[key]==b[key] for key in ['head','tree','indexSha256','indexEntriesSha256','stagedDiff','rootGitlinks','protectedFiles']}
+assert all(preservation.values()),preservation
+old=json.loads((r/'module/validation/epic-16-entry-2026-10-27/results.json').read_text());outputs=[{'path':x['path'],'exists':(r/x['path']).exists()} for x in old['runtimeOutputs']];assert len(outputs)==7 and all(not x['exists'] for x in outputs)
+binding=json.loads((r/'_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json').read_text());module=ast.parse((r/'_bmad/scripts/epic16_tooling.py').read_text());trust=next(ast.literal_eval(n.value) for n in module.body if isinstance(n,ast.AnnAssign) and isinstance(n.target,ast.Name) and n.target.id=='TRUSTED_ENTRIES')
+assert binding['entry'] is None and trust=={}
+allrows={x['name']:x for x in commands}
+assert all(x['exitCode']==0 and x['termination'] is None for x in commands)
+assert json.loads((p/'aspire-ps-before.stdout.txt').read_text())==[] and json.loads((p/'aspire-ps-after.stdout.txt').read_text())==[]
+preparation=json.loads((p/'source-preparation-inventory.json').read_text());sourceenv=json.loads((p/'source-environment.json').read_text())
+for name in ['mapped-apphost-evaluation','aspire-run','aspire-wait-conversations','aspire-wait-eventstore','aspire-wait-admin-web','aspire-wait-security']:assert allrows[name]['mappingEnvironment']==sourceenv
+result={'purpose':'baseline-retry-only-after-authorized-root-gitlink-refresh','recordedAtUtc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'result':'PASS','scope':'normal mapped Development/Debug resource-readiness baseline only','baseline':{'mappedBaselineEstablished':True,'mappedEvaluation':'PASS','launch':'PASS','requiredResourceReadiness':'PASS','run':{k:launch[k] for k in ['appHostPath','appHostPid','cliPid','logFile']},'appHostSdkVersion':'13.6.4','aspireCliVersion':(p/'aspire-version.stdout.txt').read_text().strip(),'sdkVersion':(p/'sdk-version.stdout.txt').read_text().strip(),'resources':required_checks,'mappingHash':preparation['mappingHash'],'configuration':'Debug','cleanup':{'result':'PASS','command':allrows['aspire-stop-owned']['command'],'ownedSessionVerified':True,'noSessionsBefore':True,'noSessionsAfter':True,'forced':False,'volumesDeleted':False}},'sourcePreparation':{'result':'PASS','commandExit':0,'producerBuild':'PASS','mode':'source','mappingHash':preparation['mappingHash'],'warnings':preparation['diagnostics'],'warningCount':len(preparation['diagnostics']),'releaseAcceptance':False},'entryHead':a['head'],'buildsSource':preparation['buildsSource'],'commands':commands,'safeDiagnostics':{'rawCaptureHashesRetained':True,'ephemeralAuthenticationValuesRedacted':True,'redactionManifest':'safe-diagnostic-redactions.json','childLog':'diagnostic-log-inventory.json','telemetrySummary':'diagnostic-summary.json','telemetryItems':len(otel),'severityCounts':dict(collections.Counter(x['severity'] for x in otel))},'preservation':{'checks':preservation,'protectedFiles':len(a['protectedFiles']),'previousAttemptFilesPreserved':sum('/attempt-20261027-apphost-baseline-01/' in x for x in a['protectedFiles']),'allTwelveCheckoutIndexPairsMatch':all(x['indexCommit']==x['checkout'] for x in b['rootGitlinks']),'stagedPathsRetained':[x['path'] for x in b['rootGitlinks'] if x['headCommit']!=x['indexCommit']],'noNestedDependencyInitialization':all(not n['initialized'] for x in b['rootGitlinks'] for n in x['nested']),'allSevenRuntimeOutputsAbsent':True,'runtimeOutputs':outputs},'qualificationLedger':[{'id':'dependency-index-preflight','result':'PASS','evidence':'dependency-preflight.json'},{'id':'producer-debug-bootstrap-build','result':'PASS','evidence':'producer-cli-debug-build.json','scope':'bootstrap compilation; no producer qualification tests executed'},{'id':'actual-source-preparation','result':'PASS','evidence':'source-prepare.json','scope':'source-mode preparation with four retained identity warnings'},{'id':'mapped-apphost-evaluation','result':'PASS','evidence':'mapped-apphost-evaluation-check.json'},{'id':'required-apphost-resource-readiness','result':'PASS','evidence':'resource-readiness.json'},{'id':'owned-instance-cleanup','result':'PASS','evidence':'cleanup-ownership.json'},{'id':'tooling-v2-implementation-and-tests','result':'NOT_RUN','reason':'follow-up scope is baseline retry only'},{'id':'runtime-functional-or-durable-tenant-authorization','result':'NOT_RUN','reason':'baseline inspection emitted no test commands/events; existing runtime hold remains'},{'id':'published-artifact-source-catalog-release-and-platform-acceptance','result':'BLOCKED','reason':'source-mode preparation warnings are retained; no matching published release tuple measured'},{'id':'upstream-thirteen-findings-ten-groups-and-owner-acceptance','result':'BLOCKED','reason':'this baseline grants no review-group, external platform, operational or human SM-2 qualification'}],'sourceEdits':False,'measuredRuntimeTests':0,'executedProducerQualificationTests':0,'runtimeQualified':False,'ownerApprovalClaimed':False,'entry':binding['entry'],'independentTrustedEntries':trust,'authority':binding['authority'],'lifecycleAdvanced':False,'committed':False,'pushed':False}
+write('results.json',result)
+shutil.copyfile('/tmp/epic16_apphost_retry.py',p/'capture-driver.py.txt');shutil.copyfile('/tmp/epic16_finalize_retry.py',p/'finalization-driver.py.txt')
+print(json.dumps({'result':result['result'],'commandCount':len(commands),'protectedFileCount':len(a['protectedFiles']),'previousAttemptFilesPreserved':result['preservation']['previousAttemptFilesPreserved'],'severityCounts':result['safeDiagnostics']['severityCounts'],'ephemeralCredentialValuesRedacted':len(secrets),'mappingHash':preparation['mappingHash']}))

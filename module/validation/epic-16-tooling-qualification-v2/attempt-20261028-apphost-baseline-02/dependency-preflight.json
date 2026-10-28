@@ -1,0 +1,25 @@
+{
+  "allTwelveInitialized": true,
+  "allTwelveIndexMatchesCheckout": true,
+  "allTwelveOriginMainMatchesCheckout": true,
+  "allTwelveClean": true,
+  "noInitializedNestedDependencies": true,
+  "headVersusIndexDifferences": [
+    {
+      "path": "references/Hexalith.EventStore",
+      "head": "36c78f3435d2d492a73f1b0707cf865c8735d740",
+      "index": "347d390e3a5c0da28874ae650ef202aefbea15ce"
+    },
+    {
+      "path": "references/Hexalith.FrontComposer",
+      "head": "5f665c4d38afb2255a7dde4620330e09824a40a1",
+      "index": "28d2c7f47849bcfba19501f7c18cd9f67f0fc61c"
+    },
+    {
+      "path": "references/Hexalith.Platform",
+      "head": "8de90958bc41b7fd01b7ed22b8ab364447a800e4",
+      "index": "5889400b50e6e2cefb4ed6976ca53d086d3989e2"
+    }
+  ],
+  "result": "PASS"
+}

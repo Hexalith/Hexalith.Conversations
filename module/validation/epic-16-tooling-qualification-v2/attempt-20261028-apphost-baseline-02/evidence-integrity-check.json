@@ -1,0 +1,28 @@
+{
+  "result": "PASS",
+  "retainedCommandCount": 27,
+  "allCommandExitsZero": true,
+  "streamHashesVerified": 54,
+  "safeChildLogHashVerified": true,
+  "retainedAndActivePreparedImportHashesVerified": 17,
+  "protectedFileHashesVerified": 174,
+  "previousAttemptFilesPreserved": 46,
+  "rawIndexAndStagedEntriesPreserved": true,
+  "allThreeStagedGitlinksPreserved": true,
+  "allTwelveCheckoutsPreserved": true,
+  "noNestedDependenciesInitialized": true,
+  "ownedAppHostStopped": true,
+  "sessionsAfterCleanup": [],
+  "allSevenRuntimeOutputsAbsent": true,
+  "runtimeQualified": false,
+  "gitDiffCheck": {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

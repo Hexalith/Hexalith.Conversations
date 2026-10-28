@@ -1,0 +1,24 @@
+Description:
+  Display logs from resources in a running AppHost
+
+Usage:
+  aspire logs [<resource>] [options]
+
+Arguments:
+  <resource>  The name of the resource to get logs for. If not specified, logs from all resources are shown.
+
+Options:
+  --apphost <apphost>                                                    The path to the Aspire AppHost project file or a directory to search
+  -f, --follow                                                           Stream logs in real-time as they are written
+  --format <Json|Table>                                                  Output format (Table or Json)
+  -n, --tail <tail>                                                      Number of lines to show from the end of logs (default: all)
+  -t, --timestamps                                                       Show timestamps for each log line
+  --include-hidden                                                       Include hidden resources in the output
+  --search <search>                                                      Full-text search to filter log content. See https://aka.ms/aspire/cli-search for more details
+  -?, -h, --help                                                         Show help and usage information
+  -l, --log-level <Critical|Debug|Error|Information|None|Trace|Warning>  Set the minimum log level for console output (Trace, Debug, Information, Warning, Error, Critical)
+  --non-interactive                                                      Run the command in non-interactive mode, disabling all interactive prompts and spinners
+  --nologo                                                               Suppress the startup banner and telemetry notice
+  --banner                                                               Display the animated Aspire CLI welcome banner
+  --wait-for-debugger                                                    Wait for a debugger to attach before executing the command
+
