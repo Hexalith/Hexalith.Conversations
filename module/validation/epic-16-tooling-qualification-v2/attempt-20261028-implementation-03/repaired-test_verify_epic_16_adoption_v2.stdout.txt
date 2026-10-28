@@ -1,0 +1,700 @@
+F....................................................................... [ 44%]
+.............F...................F...................................... [ 88%]
+..........F...F..F                                                       [100%]
+=================================== FAILURES ===================================
+_ test_valid_package_passes_structure_but_reports_actual_entry_failures_without_execution _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-24/test_valid_package_passes_stru0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ecb43988510>
+
+    def test_valid_package_passes_structure_but_reports_actual_entry_failures_without_execution(repository: Path, monkeypatch) -> None:
+        before = {str(path): path.read_bytes() for path in repository.rglob("*") if path.is_file()}
+        def no_command(*args, **kwargs):
+            pytest.fail("review verifier attempted command execution")
+        monkeypatch.setattr(subprocess, "run", no_command)
+        monkeypatch.setattr(subprocess, "Popen", no_command)
+        monkeypatch.setattr(os, "system", no_command)
+        report = checker.verify(repository)
+>       assert report["result"] == "PASS", report
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v2', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py:104: AssertionError
+_ test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[module/validation/epic-16-adoption-v2/version.txt-ACCEPTED_TOOL_UNAVAILABLE] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-24/test_missing_prerequisite_or_a4')
+path = 'module/validation/epic-16-adoption-v2/version.txt'
+code = 'ACCEPTED_TOOL_UNAVAILABLE'
+
+    @pytest.mark.parametrize("path,code", [
+        (PACKAGE, "INPUT_UNAVAILABLE"),
+        (checker.SCHEMA, "INPUT_UNAVAILABLE"),
+        (f"{checker.historic.prerequisite.BASE}/story-contracts/16.1.json", "INPUT_UNAVAILABLE"),
+        (checker.TOOL, "ACCEPTED_TOOL_UNAVAILABLE"),
+        (f"{checker.NATIVE}/version.txt", "ACCEPTED_TOOL_UNAVAILABLE"),
+    ])
+    def test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic(repository: Path, path: str, code: str) -> None:
+        (repository / path).unlink()
+        report = checker.verify(repository)
+>       assert report["result"] == "BLOCKED", report
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v2', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E       assert 'FAIL' == 'BLOCKED'
+E         
+E         - BLOCKED
+E         + FAIL
+
+_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py:262: AssertionError
+___________ test_fixture_and_verifier_need_no_live_reference_content ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-24/test_fixture_and_verifier_need0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ecb43458f50>
+
+    def test_fixture_and_verifier_need_no_live_reference_content(tmp_path: Path, monkeypatch) -> None:
+        original = Path.open
+        def no_live_reference_open(path, *args, **kwargs):
+            assert not path.is_relative_to(ROOT / "references"), f"live reference opened: {path}"
+            return original(path, *args, **kwargs)
+        monkeypatch.setattr(Path, "open", no_live_reference_open)
+        report = checker.verify(populate_repository(tmp_path))
+>       assert report["result"] == "PASS", report
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v2', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py:339: AssertionError
+____ test_current_schema_acceptance_does_not_erase_published_tool_rejection ____
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-24/test_current_schema_acceptance0')
+
+    def test_current_schema_acceptance_does_not_erase_published_tool_rejection(repository: Path) -> None:
+        manifest = json.loads((repository / checker.MANIFEST).read_bytes())
+        schema = json.loads((repository / checker.MANIFEST_SCHEMA).read_bytes())
+        jsonschema.Draft202012Validator(schema).validate(manifest)
+        report = checker.verify(repository)
+>       assert report["result"] == "PASS", report
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v2', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py:515: AssertionError
+___ test_real_v2_cli_success_has_exit_zero_nonempty_ledger_and_no_authority ____
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-24/test_real_v2_cli_success_has_e0')
+
+    def test_real_v2_cli_success_has_exit_zero_nonempty_ledger_and_no_authority(repository: Path) -> None:
+        process = subprocess.run([sys.executable, str(ROOT / "_bmad/scripts/verify_epic_16_adoption_v2.py"),
+                                  "--repository", str(repository)], capture_output=True, text=True, check=False)
+        report = json.loads(process.stdout)
+>       assert process.returncode == 0 and report["result"] == "PASS", process.stdout + process.stderr
+E       AssertionError: {
+E           "schemaVersion": "hexalith.conversations.epic16-adoption-check.v2",
+E           "validationScope": "structural-consistency-only",
+E           "result": "FAIL",
+E           "entryReadiness": "BLOCKED",
+E           "authority": {
+E             "implementationHold": "ACTIVE",
+E             "executionAllowed": false,
+E             "ownerApprovalClaimed": false,
+E             "releaseAuthorized": false,
+E             "pushAuthorized": false
+E           },
+E           "assertionLedger": [
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/architecture.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epics.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-18.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/v9-execution-graph-v1.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/v9/story-contracts/16.1.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/v9/story-contracts/16.2.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/v9/story-contracts/16.3.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/implementation-hold-v1.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/implementation-artifacts/sprint-status.yaml",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:docs/runbooks/current-change-validation.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:.gitmodules",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.Platform/README.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.Platform/docs/domain-module-enrollment.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.Platform/hexalith-platform.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.Platform/.config/dotnet-tools.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.Platform/_bmad-output/specs/spec-platform/SPEC.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.Platform/_bmad-output/planning-artifacts/architecture/architecture-platform-2026-09-27/ARCHITECTURE-SPINE.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.Platform/src/Hexalith.Platform.Composition/PlatformDaprBindings.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.Platform/src/Hexalith.Platform.Composition/PlatformAppModel.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/production-operational-envelope-v1.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad/schemas/epic-16-prerequisites-v1.schema.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/epic.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.1.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.2.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.3.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/package.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/inventories.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/execution-graph.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad/scripts/verify_epic_16_prerequisites.py",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad/scripts/generate_story_record.py",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.Builds/schemas/hexalith.module-manifest.v2.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceRoutes.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServicePolicies.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Authentication/EventStoreWorkloadOperations.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceSecurityExtensions.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Authentication/DaprAppChannelToken.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceExtensions.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDataProtectionServiceCollectionExtensions.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.Tenants/src/Hexalith.Tenants.Client/Registration/TenantServiceCollectionExtensions.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessServiceCollectionExtensions.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:src/Hexalith.Conversations.Server/Program.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-adoption-v1/README.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-adoption-v1/execution-graph.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-adoption-v1/inventories.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.1.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.3.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad/schemas/epic-16-adoption-v1.schema.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:module/hexalith.module-manifest.v2.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:module/hosting-inventory.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:module/sm-2-checklist.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:module/validation/adoption-text.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:module/validation/adoption.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:module/validation/manifest.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:module/validation/restore.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:module/validation/results.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:module/validation/version.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad/scripts/verify_epic_16_adoption.py",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad/scripts/contained_reader.py",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "schema-pin",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "generator-capability-schemas",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source-inventory",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact-inventory",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "review-boundary",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:.config/dotnet-tools.json",
+E               "state": "FAIL"
+E             },
+E             {
+E               "id": "fixed-artifact:.config/dotnet-tools.json",
+E               "state": "FAIL"
+E             },
+E             {
+E               "id": "artifact:.gitattributes",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:.gitattributes",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:_bmad-output/planning-artifacts/epic-16-adoption-v2/README.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:_bmad-output/planning-artifacts/epic-16-adoption-v2/README.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:_bmad-output/planning-artifacts/epic-16-adoption-v2/execution-graph.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:_bmad-output/planning-artifacts/epic-16-adoption-v2/inventories.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.1.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.2.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.3.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:_bmad/schemas/epic-16-adoption-v2.schema.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:_bmad/schemas/epic-16-adoption-v2.schema.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/README.md",
+E               "state": "FAIL"
+E             },
+E             {
+E               "id": "fixed-artifact:module/README.md",
+E               "state": "FAIL"
+E             },
+E             {
+E               "id": "artifact:module/hexalith.module-manifest.v2.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/hexalith.module-manifest.v2.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/hosting-inventory.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/hosting-inventory.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/sm-2-checklist.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/sm-2-checklist.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/adoption-json.stderr.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/adoption-json.stderr.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/adoption-text.stderr.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/adoption-text.stderr.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/adoption-text.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/adoption-text.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/adoption.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/adoption.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/manifest.stderr.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/manifest.stderr.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/manifest.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/manifest.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/provenance.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/provenance.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/restore.stderr.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/restore.stderr.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/restore.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/restore.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/results.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/results.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/version.stderr.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/version.stderr.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/version.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/version.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "input-diagnostic",
+E               "state": "FAIL"
+E             }
+E           ],
+E           "blockers": [
+E             "ARTIFACT_BYTES_DRIFT",
+E             "ENROLLMENT_OR_REVIEW_DRIFT",
+E             "SNAPSHOT_INVALID"
+E           ],
+E           "diagnostics": [
+E             {
+E               "code": "ARTIFACT_BYTES_DRIFT",
+E               "detail": "declared digest differs: .config/dotnet-tools.json"
+E             },
+E             {
+E               "code": "ENROLLMENT_OR_REVIEW_DRIFT",
+E               "detail": "independent enrollment/observation snapshot differs: .config/dotnet-tools.json"
+E             },
+E             {
+E               "code": "ARTIFACT_BYTES_DRIFT",
+E               "detail": "declared digest differs: module/README.md"
+E             },
+E             {
+E               "code": "ENROLLMENT_OR_REVIEW_DRIFT",
+E               "detail": "independent enrollment/observation snapshot differs: module/README.md"
+E             },
+E             {
+E               "code": "SNAPSHOT_INVALID",
+E               "detail": "refusing altered snapshots as measured facts"
+E             }
+E           ],
+E           "entryBlockers": [
+E             {
+E               "code": "GENERATOR_UNSUPPORTED",
+E               "state": "BLOCKED",
+E               "detail": "Generator supports V9/V14 contracts; v2 wrappers remain unsupported."
+E             },
+E             {
+E               "code": "SCENARIO_VERIFIERS_UNAVAILABLE",
+E               "state": "BLOCKED",
+E               "detail": "Fifteen measured scenario verifiers and successor final-record support remain unavailable."
+E             },
+E             {
+E               "code": "QUALIFICATION_PENDING",
+E               "state": "BLOCKED",
+E               "detail": "Source/Debug, package/Release, hosted parity, AD-5/AD-6, recovery and operator qualification remain pending."
+E             },
+E             {
+E               "code": "SM2_UNVERIFIED",
+E               "state": "BLOCKED",
+E               "detail": "Human active-checkout breakpoint/edit, readiness, cleanup and Story 3.11 acceptance remain unverified."
+E             },
+E             {
+E               "code": "APPHOST_OWNERSHIP_PENDING",
+E               "state": "BLOCKED",
+E               "detail": "Both inventory AppHosts remain frozen; baseline owner exemption/relocation and retirement gates remain pending."
+E             },
+E             {
+E               "code": "OWNER_ENTRY_DECISION_PENDING",
+E               "state": "BLOCKED",
+E               "detail": "All seven original owner decisions and a separately scoped runtime entry decision remain pending."
+E             },
+E             {
+E               "code": "TENANTS_OPTIONS_BINDING_PENDING",
+E               "state": "BLOCKED",
+E               "detail": "Bind Tenants:PubSubName/TopicName using AddHexalithTenants configureOptions before route qualification."
+E             },
+E             {
+E               "code": "DATA_PROTECTION_REGISTRATION_PENDING",
+E               "state": "BLOCKED",
+E               "detail": "Adopt SDK AddEventStoreDataProtection with IConfiguration and a stable application name; qualify persisted keys/restart."
+E             },
+E             {
+E               "code": "DECLARATIVE_SUBSCRIPTIONS_PENDING",
+E               "state": "BLOCKED",
+E               "detail": "Inject Dapr:DeclarativeSubscriptions=true; qualify protected /tenants/events, dead-letter behavior and absent discovery."
+E             },
+E             {
+E               "code": "LIVE_TOOL_RECHECK_REQUIRED",
+E               "state": "BLOCKED",
+E               "detail": "Native reports cover the recorded working tree and supported tracked source only; rerun both modes on the owner-reviewed tracked candidate."
+E             }
+E           ],
+E           "evidenceBoundary": {
+E             "status": "not-applicable",
+E             "scope": "runtime-publication",
+E             "reason": "Preparation publishes no runtime receipts or final records."
+E           }
+E         }
+E         
+E       assert (1 == 0)
+E        +  where 1 = CompletedProcess(args=['/home/administrator/projects/hexalith/conversations/.venv/bin/python3', '/home/administrator/p...ntime-publication",\n    "reason": "Preparation publishes no runtime receipts or final records."\n  }\n}\n', stderr='').returncode
+
+_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py:560: AssertionError
+____ test_disposable_git_checkout_preserves_bound_root_bytes_with_autocrlf _____
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-24/test_disposable_git_checkout_p0')
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7ecb43db3d90>, _basetemp=PosixPath('/tmp/pytest-of-administrator/pytest-24'), _retention_count=3, _retention_policy='all')
+
+    def test_disposable_git_checkout_preserves_bound_root_bytes_with_autocrlf(repository: Path, tmp_path_factory) -> None:
+        """Exercise Git's clean/smudge round trip without staging the real workspace."""
+        paths = sorted(path for path in {*checker.SOURCE_PINS, *checker.ARTIFACTS, PACKAGE}
+                       if not path.startswith("references/"))
+        before = {path: (repository / path).read_bytes() for path in paths}
+        assert b"\r\n" in before["src/Hexalith.Conversations.Server/Program.cs"]
+        assert b"\r" not in before[checker.SCHEMA]
+        run_git(repository, "init", "--quiet")
+        run_git(repository, "config", "core.autocrlf", "true")
+        run_git(repository, "config", "core.safecrlf", "true")
+        run_git(repository, "add", "--", *paths)
+        for path, content in before.items():
+            assert run_git(repository, "cat-file", "blob", f":{path}").stdout == content, path
+        checkout = tmp_path_factory.mktemp("automatic-conversion-checkout")
+        run_git(repository, "checkout-index", "--all", "--force", f"--prefix={checkout}/")
+        assert {path: (checkout / path).read_bytes() for path in paths} == before
+        # Dependencies are separate repositories; populate their exact portable
+        # snapshots after root checkout instead of tracking them in this Git fixture.
+        for path in checker.SOURCE_PINS:
+            if path.startswith("references/"):
+                target = checkout / path
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(repository / path, target)
+        report = checker.verify(checkout)
+>       assert report["result"] == "PASS", report
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v2', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py:605: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_valid_package_passes_structure_but_reports_actual_entry_failures_without_execution
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[module/validation/epic-16-adoption-v2/version.txt-ACCEPTED_TOOL_UNAVAILABLE]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_fixture_and_verifier_need_no_live_reference_content
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_current_schema_acceptance_does_not_erase_published_tool_rejection
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_real_v2_cli_success_has_exit_zero_nonempty_ledger_and_no_authority
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_disposable_git_checkout_preserves_bound_root_bytes_with_autocrlf
+6 failed, 156 passed in 7.12s

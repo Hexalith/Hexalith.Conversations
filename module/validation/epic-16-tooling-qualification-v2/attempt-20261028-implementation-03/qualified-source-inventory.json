@@ -1,0 +1,144 @@
+{
+  "scope": "fresh post-test actual source preparation and complete mapped evaluation only",
+  "producerAssembliesBeforeAndAfter": [
+    {
+      "path": "references/Hexalith.Builds/src/libraries/Hexalith.Builds.Module.Cli/bin/Debug/net10.0/Hexalith.Builds.Module.Cli.dll",
+      "sha256": "9b04eff82e9bd37ce4b02a0e859bf3ec24217f27b20b0866ae18f2b109db91b6",
+      "bytes": 31232
+    },
+    {
+      "path": "references/Hexalith.Builds/src/libraries/Hexalith.Builds.Tooling/bin/Debug/net10.0/Hexalith.Builds.Tooling.dll",
+      "sha256": "50229fe9a452f08f266900bb0a29a355d52276acacf4e6cb2b8f50c59839f27f",
+      "bytes": 1597952
+    }
+  ],
+  "producerAssembliesUnchanged": true,
+  "generatedFiles": [
+    {
+      "path": "qualification-prepared-imports/source-mapping/Hexalith.EventStore.CatalogConstruction.proj",
+      "sha256": "eafa46e194910ef6136d94a3dcad231dfbcaaf5cda7a94cbbf9edae7b3101b78",
+      "bytes": 144
+    },
+    {
+      "path": "qualification-prepared-imports/source-mapping/Hexalith.EventStore.QueryRouting.Tests.proj",
+      "sha256": "eafa46e194910ef6136d94a3dcad231dfbcaaf5cda7a94cbbf9edae7b3101b78",
+      "bytes": 144
+    },
+    {
+      "path": "qualification-prepared-imports/source-mapping/Hexalith.EventStore.Server.LiveSidecar.Tests.proj",
+      "sha256": "eafa46e194910ef6136d94a3dcad231dfbcaaf5cda7a94cbbf9edae7b3101b78",
+      "bytes": 144
+    },
+    {
+      "path": "qualification-prepared-imports/source-mapping/Hexalith.EventStore.Server.Tests.proj",
+      "sha256": "eafa46e194910ef6136d94a3dcad231dfbcaaf5cda7a94cbbf9edae7b3101b78",
+      "bytes": 144
+    },
+    {
+      "path": "qualification-prepared-imports/source-mapping/Hexalith.Folders.Aspire.proj",
+      "sha256": "eafa46e194910ef6136d94a3dcad231dfbcaaf5cda7a94cbbf9edae7b3101b78",
+      "bytes": 144
+    },
+    {
+      "path": "qualification-prepared-imports/source-mapping/SourceMapping.before-targets.props",
+      "sha256": "36641e1acf16e0312a3381840d5c3bb527b153086e440c7d82eaa4e91f97e5dc",
+      "bytes": 3597
+    },
+    {
+      "path": "qualification-prepared-imports/source-mapping/SourceMapping.final.targets",
+      "sha256": "c8077e99706ec0dd18852bfa3904aabdfd0a766f5fa5ed82f87d3109f3d7c7d3",
+      "bytes": 9617
+    },
+    {
+      "path": "qualification-prepared-imports/source-mapping/SourceMapping.late.props",
+      "sha256": "e7a02879b7cf715c585e5d447e7779ac5fe35c5458de54d0716e0384d08933a4",
+      "bytes": 7291
+    },
+    {
+      "path": "qualification-prepared-imports/source-mapping/SourceMapping.props",
+      "sha256": "0363694f252736cdfd0bcf6a567bb077940df16cc966e410153718a552769e82",
+      "bytes": 98
+    },
+    {
+      "path": "qualification-prepared-imports/source-mapping/SourceMapping.targets",
+      "sha256": "727dd208cecd59a3295d102fdcb8f0719c0f05b36dd8f30df0da1a14a689a1b2",
+      "bytes": 915
+    },
+    {
+      "path": "qualification-prepared-imports/source-mapping/SourceMapping.values.props",
+      "sha256": "6a8b3a7ae3a289aeed7553bd1fc67e464ac3b9a70b46efb575fe23f97b7aaf89",
+      "bytes": 5895
+    },
+    {
+      "path": "qualification-prepared-imports/source-mapping/SourceMapping.values.targets",
+      "sha256": "0a215b0f3046f9418ef712b29c2e4cbf527acb397f0c44dfe445ac41b23b2944",
+      "bytes": 104156
+    },
+    {
+      "path": "qualification-prepared-imports/source-mapping/__HXW_DefaultCatalog__.proj",
+      "sha256": "eafa46e194910ef6136d94a3dcad231dfbcaaf5cda7a94cbbf9edae7b3101b78",
+      "bytes": 144
+    },
+    {
+      "path": "qualification-prepared-imports/source-mapping/catalog-versions.json",
+      "sha256": "d5549f23725734c6dbf3a122356f1c8dd0664cf48379039471229f31c599a325",
+      "bytes": 83551
+    },
+    {
+      "path": "qualification-prepared-imports/source-mapping/mapping.json",
+      "sha256": "02143bbd7885232c6a7991388de36b3537c9ae4e224b486eac8919bc6205c064",
+      "bytes": 3857
+    },
+    {
+      "path": "qualification-prepared-imports/source-mapping/pinned-tree/Props/Directory.Packages.props",
+      "sha256": "a09050d807c86e0646775836500c040a2e52b74553b04d52a98c2102a7fa9f12",
+      "bytes": 30710
+    },
+    {
+      "path": "qualification-prepared-imports/source-mapping/routing-catalog.cs.proj",
+      "sha256": "eafa46e194910ef6136d94a3dcad231dfbcaaf5cda7a94cbbf9edae7b3101b78",
+      "bytes": 144
+    }
+  ],
+  "mapping": {
+    "workspace": "/tmp/epic16-qualified-source-w3ay6v6z/prepared",
+    "mode": "source",
+    "mappingHash": "364c4095e1092e049db12828df594a5a11a8e63a4d40c8a5e0d039a786104d1b",
+    "environment": {
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-qualified-source-w3ay6v6z/prepared/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-qualified-source-w3ay6v6z/prepared/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-qualified-source-w3ay6v6z/prepared/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-qualified-source-w3ay6v6z/prepared/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-qualified-source-w3ay6v6z/prepared/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "364c4095e1092e049db12828df594a5a11a8e63a4d40c8a5e0d039a786104d1b",
+      "Configuration": "Debug"
+    }
+  },
+  "diagnostics": [
+    {
+      "ruleId": "HXW011",
+      "phase": "Prerequisite",
+      "category": "None",
+      "message": "Platform identity 5889400b50e6e2cefb4ed6976ca53d086d3989e2 has no local v<SemVer> release tag.",
+      "field": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform",
+      "hint": "Fetch Platform tags, then retry.",
+      "source": null,
+      "location": null,
+      "row": null
+    },
+    {
+      "ruleId": "HXW010",
+      "phase": "Prerequisite",
+      "category": "None",
+      "message": "Tool version 1.0.0-20261028095640 is outside Platform range [4.35.2, 5.0.0-0) at '/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform/hexalith-platform.json'.",
+      "field": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform/hexalith-platform.json",
+      "hint": null,
+      "source": null,
+      "location": null,
+      "row": null
+    }
+  ],
+  "dependenciesPreflight": "all twelve initialized, equal to recorded index, clean, no initialized nested dependencies",
+  "runtimeQualified": false,
+  "publishedPackageAccepted": false
+}

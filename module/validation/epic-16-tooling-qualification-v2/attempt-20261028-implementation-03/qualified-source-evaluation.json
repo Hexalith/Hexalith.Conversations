@@ -1,0 +1,38 @@
+{
+  "name": "qualified-source-evaluation",
+  "command": [
+    "dotnet",
+    "msbuild",
+    "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+    "-nologo",
+    "-getProperty:Configuration,UseHexalithProjectReferences,HexalithSourceMappingHash,HexalithBuildsRoot,HexalithEventStoreRoot,HexalithPlatformRoot",
+    "-getItem:ProjectReference"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "timeoutSeconds": 120,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 0.503,
+  "exitCode": 0,
+  "termination": null,
+  "environment": {
+    "CustomBeforeDirectoryBuildProps": "/tmp/epic16-qualified-source-w3ay6v6z/prepared/source-mapping/SourceMapping.targets",
+    "CustomAfterMicrosoftCommonProps": "/tmp/epic16-qualified-source-w3ay6v6z/prepared/source-mapping/SourceMapping.props",
+    "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-qualified-source-w3ay6v6z/prepared/source-mapping/SourceMapping.before-targets.props",
+    "CustomAfterDirectoryBuildTargets": "/tmp/epic16-qualified-source-w3ay6v6z/prepared/source-mapping/SourceMapping.late.props",
+    "AfterMicrosoftNETSdkTargets": "/tmp/epic16-qualified-source-w3ay6v6z/prepared/source-mapping/SourceMapping.final.targets",
+    "HEXALITH_SOURCE_MAPPING_HASH": "364c4095e1092e049db12828df594a5a11a8e63a4d40c8a5e0d039a786104d1b",
+    "Configuration": "Debug"
+  },
+  "stdout": {
+    "path": "qualified-source-evaluation.stdout.txt",
+    "bytes": 6307,
+    "sha256": "05972823fb3d20ec517b0759f06795075bcba911c247497fe9b0eb491408476b",
+    "rawSha256": "05972823fb3d20ec517b0759f06795075bcba911c247497fe9b0eb491408476b"
+  },
+  "stderr": {
+    "path": "qualified-source-evaluation.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

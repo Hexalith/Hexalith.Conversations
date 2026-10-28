@@ -1,0 +1,11 @@
+[
+  {
+    "appHostPath": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+    "appHostPid": 1142245,
+    "status": "running",
+    "sdkVersion": "13.6.4",
+    "cliPid": 1133182,
+    "dashboardUrl": "https://localhost:40267/login?t=[REDACTED]",
+    "logFilePath": "/home/administrator/.aspire/logs/cli_20261028T095505592_detach-child_674de134cf064b3a994076ff689b5065.log"
+  }
+]

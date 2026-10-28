@@ -1102,3 +1102,16 @@ Review strengthens the same solution-context scope with native implicit Platform
 - source_spec: `_bmad-output/implementation-artifacts/spec-epic-16-enrollment-adoption-remediation.md`
   summary: Bound and cancel the pre-existing package/Release Contracts inventory child process and terminate its process tree on cancellation.
   evidence: Both the baseline RunDotNet helper and retained Release branch use unbounded Process.WaitForExit without killing the child; a stalled dotnet pack can block cancellation. The new source/Debug path uses the producer bounded runner, but the Release limitation predates this source slice.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-epic-16-tooling-qualification-and-binding-refresh.md`
+  summary: Fail closed when a mapped AppHost test configuration leaves no gateway provenance build.
+  evidence: BH-04 and EC-02: unexpected Configuration empties the loop in ConversationsAppHostRuntimeBoundaryTest.cs. The consumer is unchanged from entry ef01d578a00efd527bae9226dca302f54cd012f0 and remains frozen; resolve its non-vacuity guard in the owning scope.
+- source_spec: `_bmad-output/implementation-artifacts/spec-epic-16-tooling-qualification-and-binding-refresh.md`
+  summary: Provide a release-compliant CI gate for the Epic 16 pytest family and focused successor tests.
+  evidence: BH-05: current tooling CI invokes an explicit unittest list and does not collect these existing/new pytest files. This predates the implementation; the package/Release environment and supported native helper strategy require explicit CI design and validation.
+- source_spec: `_bmad-output/implementation-artifacts/spec-epic-16-tooling-qualification-and-binding-refresh.md`
+  summary: Publish an additive successor if stronger binary and mapping provenance is required for the existing Story 6.4 v4 proof.
+  evidence: BH-06: the committed observation has source/XML hashes and a mapping hash but no retained executed-binary or mapping-manifest identity. It predates this work and claims no current readiness; preserve accepted evidence rather than edit it.
+- source_spec: `_bmad-output/implementation-artifacts/spec-epic-16-tooling-qualification-and-binding-refresh.md`
+  summary: Qualify an installed declarative tenant subscription for the retained clean AppHost topology.
+  evidence: EC-01: discovery is disabled while no tenant subscription is supplied to the sidecar by the current topology. It predates this prerequisite; readiness-only observations do not qualify tenant delivery, which remains an owner/runtime gate.

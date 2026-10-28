@@ -1,0 +1,748 @@
+{
+  "capturedAtUtc": "2026-10-28T09:30:04.248701+00:00",
+  "head": "ef01d578a00efd527bae9226dca302f54cd012f0",
+  "tree": "912197eb1e492690bf1a6784335f05c2a693011c",
+  "indexSha256": "d5a1b05be20fcce002f2b098c429ea2df4d2d871486d939dbe3197b9e69c1d9f",
+  "indexEntriesSha256": "f8b2080405429385be274bf170624cfd5eb58d2d376158086d8ce71d629f3869",
+  "branch": "main",
+  "status": "## main...origin/main\n M _bmad-output/implementation-artifacts/epic-16-context.md\n?? module/validation/epic-16-entry-2026-10-28/\n",
+  "stagedDiff": "",
+  "rootGitlinks": [
+    {
+      "path": "references/Hexalith.AI.Tools",
+      "mode": "160000",
+      "indexCommit": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+      "headCommit": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+      "checkout": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+      "originMain": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+      "status": "",
+      "nested": []
+    },
+    {
+      "path": "references/Hexalith.Builds",
+      "mode": "160000",
+      "indexCommit": "81ab049208678bd6616828824729c0ddac02f7d1",
+      "headCommit": "81ab049208678bd6616828824729c0ddac02f7d1",
+      "checkout": "81ab049208678bd6616828824729c0ddac02f7d1",
+      "originMain": "81ab049208678bd6616828824729c0ddac02f7d1",
+      "status": "",
+      "nested": [
+        {
+          "path": "references/Hexalith.AI.Tools",
+          "initialized": false
+        }
+      ]
+    },
+    {
+      "path": "references/Hexalith.Commons",
+      "mode": "160000",
+      "indexCommit": "3edfbdafc7d4fa915286dce8a37dc4cc7c06085a",
+      "headCommit": "3edfbdafc7d4fa915286dce8a37dc4cc7c06085a",
+      "checkout": "3edfbdafc7d4fa915286dce8a37dc4cc7c06085a",
+      "originMain": "3edfbdafc7d4fa915286dce8a37dc4cc7c06085a",
+      "status": "",
+      "nested": [
+        {
+          "path": "references/Hexalith.Builds",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.PolymorphicSerializations",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.AI.Tools",
+          "initialized": false
+        }
+      ]
+    },
+    {
+      "path": "references/Hexalith.EventStore",
+      "mode": "160000",
+      "indexCommit": "347d390e3a5c0da28874ae650ef202aefbea15ce",
+      "headCommit": "347d390e3a5c0da28874ae650ef202aefbea15ce",
+      "checkout": "347d390e3a5c0da28874ae650ef202aefbea15ce",
+      "originMain": "347d390e3a5c0da28874ae650ef202aefbea15ce",
+      "status": "",
+      "nested": [
+        {
+          "path": "references/Hexalith.Tenants",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.AI.Tools",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Commons",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Builds",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.FrontComposer",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.PolymorphicSerializations",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Memories",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Platform",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.McpCli",
+          "initialized": false
+        }
+      ]
+    },
+    {
+      "path": "references/Hexalith.Folders",
+      "mode": "160000",
+      "indexCommit": "d7e0b3f307e4cd7e740b9f38923c86f8b5c30847",
+      "headCommit": "d7e0b3f307e4cd7e740b9f38923c86f8b5c30847",
+      "checkout": "d7e0b3f307e4cd7e740b9f38923c86f8b5c30847",
+      "originMain": "d7e0b3f307e4cd7e740b9f38923c86f8b5c30847",
+      "status": "",
+      "nested": [
+        {
+          "path": "references/Hexalith.Tenants",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.AI.Tools",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.EventStore",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.FrontComposer",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Memories",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Commons",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Builds",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.PolymorphicSerializations",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Projects",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Platform",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.McpCli",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Parties",
+          "initialized": false
+        }
+      ]
+    },
+    {
+      "path": "references/Hexalith.FrontComposer",
+      "mode": "160000",
+      "indexCommit": "28d2c7f47849bcfba19501f7c18cd9f67f0fc61c",
+      "headCommit": "28d2c7f47849bcfba19501f7c18cd9f67f0fc61c",
+      "checkout": "28d2c7f47849bcfba19501f7c18cd9f67f0fc61c",
+      "originMain": "28d2c7f47849bcfba19501f7c18cd9f67f0fc61c",
+      "status": "",
+      "nested": [
+        {
+          "path": "references/Hexalith.EventStore",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Tenants",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Commons",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Builds",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.PolymorphicSerializations",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.AI.Tools",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Memories",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Parties",
+          "initialized": false
+        }
+      ]
+    },
+    {
+      "path": "references/Hexalith.McpCli",
+      "mode": "160000",
+      "indexCommit": "2d7311cbbcc592c0ea0348463037389251d1cb4b",
+      "headCommit": "2d7311cbbcc592c0ea0348463037389251d1cb4b",
+      "checkout": "2d7311cbbcc592c0ea0348463037389251d1cb4b",
+      "originMain": "2d7311cbbcc592c0ea0348463037389251d1cb4b",
+      "status": "",
+      "nested": [
+        {
+          "path": "references/Hexalith.AI.Tools",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Commons",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.PolymorphicSerializations",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Conversations",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.EventStore",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Memories",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Tenants",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Builds",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.FrontComposer",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Parties",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Agents",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Projects",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Folders",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.ChatBot",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Works",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Timesheets",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Platform",
+          "initialized": false
+        }
+      ]
+    },
+    {
+      "path": "references/Hexalith.Memories",
+      "mode": "160000",
+      "indexCommit": "72c36c7113c750c8b809f9d72b945a2a8c2d4555",
+      "headCommit": "72c36c7113c750c8b809f9d72b945a2a8c2d4555",
+      "checkout": "72c36c7113c750c8b809f9d72b945a2a8c2d4555",
+      "originMain": "72c36c7113c750c8b809f9d72b945a2a8c2d4555",
+      "status": "",
+      "nested": [
+        {
+          "path": "references/Hexalith.Commons",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.EventStore",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.AI.Tools",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Tenants",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.FrontComposer",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Builds",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.PolymorphicSerializations",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.McpCli",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Platform",
+          "initialized": false
+        }
+      ]
+    },
+    {
+      "path": "references/Hexalith.Parties",
+      "mode": "160000",
+      "indexCommit": "9239c531f3b0cbb4a998c419e537463b597ff14b",
+      "headCommit": "9239c531f3b0cbb4a998c419e537463b597ff14b",
+      "checkout": "9239c531f3b0cbb4a998c419e537463b597ff14b",
+      "originMain": "9239c531f3b0cbb4a998c419e537463b597ff14b",
+      "status": "",
+      "nested": [
+        {
+          "path": "references/Hexalith.EventStore",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Memories",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.FrontComposer",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Tenants",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.AI.Tools",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Commons",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Builds",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.PolymorphicSerializations",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.McpCli",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Platform",
+          "initialized": false
+        }
+      ]
+    },
+    {
+      "path": "references/Hexalith.Platform",
+      "mode": "160000",
+      "indexCommit": "5889400b50e6e2cefb4ed6976ca53d086d3989e2",
+      "headCommit": "5889400b50e6e2cefb4ed6976ca53d086d3989e2",
+      "checkout": "5889400b50e6e2cefb4ed6976ca53d086d3989e2",
+      "originMain": "5889400b50e6e2cefb4ed6976ca53d086d3989e2",
+      "status": "",
+      "nested": [
+        {
+          "path": "references/Hexalith.AI.Tools",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Agents",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Builds",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.ChatBot",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Commons",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Conversations",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.EventStore",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Folders",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.FrontComposer",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.McpCli",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Memories",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Parties",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.PolymorphicSerializations",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Projects",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Tenants",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Timesheets",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Works",
+          "initialized": false
+        }
+      ]
+    },
+    {
+      "path": "references/Hexalith.Projects",
+      "mode": "160000",
+      "indexCommit": "0e45105476902fcfce1f8dbd8416d7234bb16b41",
+      "headCommit": "0e45105476902fcfce1f8dbd8416d7234bb16b41",
+      "checkout": "0e45105476902fcfce1f8dbd8416d7234bb16b41",
+      "originMain": "0e45105476902fcfce1f8dbd8416d7234bb16b41",
+      "status": "",
+      "nested": [
+        {
+          "path": "references/Hexalith.AI.Tools",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.EventStore",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Tenants",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.FrontComposer",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Conversations",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Folders",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Parties",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Commons",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Builds",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Memories",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Platform",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.McpCli",
+          "initialized": false
+        }
+      ]
+    },
+    {
+      "path": "references/Hexalith.Tenants",
+      "mode": "160000",
+      "indexCommit": "7ddb864cda5e942925b056391617eae4895c1253",
+      "headCommit": "7ddb864cda5e942925b056391617eae4895c1253",
+      "checkout": "7ddb864cda5e942925b056391617eae4895c1253",
+      "originMain": "7ddb864cda5e942925b056391617eae4895c1253",
+      "status": "",
+      "nested": [
+        {
+          "path": "references/Hexalith.EventStore",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Commons",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.AI.Tools",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.FrontComposer",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Builds",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.PolymorphicSerializations",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Memories",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.McpCli",
+          "initialized": false
+        },
+        {
+          "path": "references/Hexalith.Platform",
+          "initialized": false
+        }
+      ]
+    }
+  ],
+  "protectedFiles": {
+    ".config/dotnet-tools.json": "5b826b67ce6520bba1fa80ef3982e56cc71b38d7ced437c0aaf5b1697339b411",
+    ".gitattributes": "d7b349e3620e883fcc66000a53e614c1ec331a45024cab5189d9943b51a5ef4c",
+    ".gitmodules": "f772e17bced54e00841b7e84c2e9e4e1624387883c129d2a851316cacab38987",
+    "Directory.Build.props": "6075e5149286cced92b0e1a3c594eab8cf8688c54432f76b4d935d5571e06a8f",
+    "Directory.Packages.props": "87559bfb23a9e906ba564350f4d051406dc3519e1a80f2bcb16d7e3f3fa9a19a",
+    "_bmad-output/implementation-artifacts/epic-16-tooling-qualification-and-binding-refresh-plan.md": "5a33442c184cfe90506b727e981883fd076437728658f75a4c122bd862d3b76a",
+    "_bmad-output/implementation-artifacts/spec-epic-16-tooling-qualification-and-binding-refresh.md": "8fd3c4d282e066cb3d6c966f75b4545be538dec72560a5c52d2877791cfcbb51",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v1/README.md": "bc7d953ab6ea741b488ae8c96f5d4a7dde6d1fe2ef0ff33a3ff79b2cb82a6157",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v1/execution-graph.json": "989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v1/inventories.json": "791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json": "074189ef4eea79bddeef5935b27df01c637dc5bf832a17eb24933c52968364c0",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.1.json": "da8c5462c77239f9f770a9b803b436824efb8e58f7f182fb66ec1343902beae7",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json": "542f1de5e4af3c58c9df7d654e04dd2ea99b9f63cd50bcf864ef5c2ba1257963",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.3.json": "226a0a060951139346282a8048338ff9af35014fe7154d79a8863da56507c9dc",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v2/README.md": "e12ee39652b9d7e18052716c955962d716f7e48b6fea2cd1f43f6a22d783ecb0",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v2/execution-graph.json": "989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v2/inventories.json": "791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v2/package.json": "4c533a78c3f0f115f28d1113e5b2e71a4d71c93b5c08b4e3ebf8cfa23e47b9bd",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.1.json": "3088bcf463a6bd7643925195c0ecf3e34f26e72caf6706c08e2c62b3ddaae2f6",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.2.json": "d9fd9f9fe66b178f2435396ab467886d9dd04024754ff5970345fa1802f53560",
+    "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.3.json": "b353f763387047063f3c2c8d9a0373de8e61f054ea7a3df714c29f43db21b712",
+    "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/epic.md": "b0b110461e81457a12b35bc8515ad691d26a926b206189495241f7f52a50097c",
+    "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/execution-graph.json": "989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747",
+    "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/inventories.json": "791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8",
+    "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/package.json": "16eaf5b30e379ca50172a20fa5b069ac6a3cd4c675c5ca322d9178a1929f5746",
+    "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.1.json": "3e44d0498d231633a12ee122d72535c178870a1601ab8c552c815566fe257e08",
+    "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.2.json": "a21c8c817e5126343110a5e6730883b5cf32738610b3f552ef6cdbbfe605a965",
+    "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.3.json": "5eeccfb8427e4ebccc1955f965d00e3c5655834a3c3005443c970be2dd99509a",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md": "a716350aae1a3352e2671ae6533047d3dd53f338f75c9e8ac71c6ba30729b574",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json": "eb67da125239bf7e533c21125de1c4569dd0f6cd2b0e914d0953c3da1b2a520a",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json": "724a8446b505724700b50009df97387e9f7631d63d800a491e54f23095c9043b",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json": "7ee6c0a68b9e1a916cfa808d4891581cf6f62417bd2f4cf1adcedc847347277d",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json": "c510f07c4aa2714f07df5c36e11f6b38a0639ddea56d293996752ebe068103f5",
+    "_bmad/schemas/epic-16-adoption-v1.schema.json": "884d8efb4bf58571c99dca0b63ba0f97b10e50db0cb4bd238ed5a96f017f4f98",
+    "_bmad/schemas/epic-16-adoption-v2.schema.json": "12278d301a8945ba929d28ecb7a8091663e40f23d821aa4cf3d2d3ec765d3a4f",
+    "_bmad/schemas/epic-16-prerequisites-v1.schema.json": "b7095d7191a96dcefb5a0c333958e5c7eccbd7fa1fae9cb8d62ea2ec8bcad497",
+    "_bmad/schemas/epic-16-tooling-v1.schema.json": "f72a7435dac004cc80c88f444dd8cca135a67f29805ce9f95c68e2e596424ee3",
+    "_bmad/scripts/authoring_outputs.py": "17abd7aca9d82cc6bdb17cf5db5df711b06e75ed4bcac46138f98daf750d897d",
+    "_bmad/scripts/config_utils.py": "48afe2bc18a29201e343cce3703be1e70df9c83ee74eeb68e57ef8ef42e8c651",
+    "_bmad/scripts/contained_reader.py": "fac77aa5381c54fd7df3d2b70204b46b4be353992a6529a44dac2da46ea6001b",
+    "_bmad/scripts/epic16_capture.py": "a05acdd2300589e9c08c67ffa1c397c615f3fccfdd1b1e753d8e8e60c9947e99",
+    "_bmad/scripts/epic16_domain.py": "b59cc54ea133a7c831047294bf34a7d92c5b63421578cb57ce47ed3b61a98cf3",
+    "_bmad/scripts/epic16_execution.py": "b83a28b33e39965c65af91843e8f3b9f68e071272d950dfca25e192c68965755",
+    "_bmad/scripts/epic16_faults.py": "1a58f4492e7b4b53a2d016c05b54df31274a90d6494c3cd40c3251426c1959b5",
+    "_bmad/scripts/epic16_lifecycle.py": "0c429d1608323c71c9605bab3a02556d5d5d389a79515f0d08b0083d75ada465",
+    "_bmad/scripts/epic16_measurements.py": "c4db659fcaa43f55d0f88e2fdc47c0f9c2ac84676a2ffed7d5cfbbb88091f71f",
+    "_bmad/scripts/epic16_native.py": "a092c95518aa2b7e1bfb26cbbe15ef196aa5bf5c951616625f5c12b94b9c6155",
+    "_bmad/scripts/epic16_native_helper/Epic16.NativeHelper.csproj": "f3057cab73b03ec077940f41c8b23a30032c563c1989dc680ac7b60764d4fcb5",
+    "_bmad/scripts/epic16_native_helper/EventStore-LICENSE": "6af66baf053023d456706de321e3cea6a6edbb288ffec10f673186b1befe7ac2",
+    "_bmad/scripts/epic16_native_helper/ProductMetadata.cs": "ef75fbd3b889b78c2e2678db4d99cdb7448f231f29b3d22cb300dff0bb5e3902",
+    "_bmad/scripts/epic16_native_helper/Program.cs": "ca06233bdb4466306b9f0f329f1c087fec71a3f46005562454410503491a5e9a",
+    "_bmad/scripts/epic16_native_helper/README.md": "e65d5be2a5597753bc167e6ebcebd4ce48a71e100d87e3e329601246d55138ac",
+    "_bmad/scripts/epic16_native_helper/ReadModelBatchCanonicalJson.cs": "1f9430e33cefaa51757c36f27d57ed509a31d08aa5f35b05a4159b7d806362f9",
+    "_bmad/scripts/epic16_native_helper/SignatureNames.cs": "a65eb6120957a90478e644ba06f02f38085bfbd8b767d1a97e2ad36838e03450",
+    "_bmad/scripts/epic16_native_helper/TestConstruction.cs": "48b39a9048eadd8f6c094db9a267069bfdaf24af65e5a069e46337af7dbbe218",
+    "_bmad/scripts/epic16_products.py": "3b4d2e085a42faf33e97ad8e782e604737c4b364ded157767ddbd845d2b3635e",
+    "_bmad/scripts/epic16_relationships.py": "b80c2632de8198ad823518844dd17e483af977947bff841b5934ce7c0ec2ceb9",
+    "_bmad/scripts/epic16_schedules.py": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7",
+    "_bmad/scripts/epic16_tooling.py": "1d47daf61c51b5f4553e14f36b5c3fbd2dcec4d17c977b892e4cf20aa903fcc7",
+    "_bmad/scripts/epic16_trust.py": "adde2059614ad92722a67580d1f745378c184e496ce3e0c5325564c334d3a6a1",
+    "_bmad/scripts/evidence_boundary_current.py": "42ae5eb021be38647bf0172db4d4b41cd7c3c5fc299edffbeee616527b6eefdd",
+    "_bmad/scripts/generate_story_record.py": "9e080cd220200535513225fce558f36a61fca52d3df0b6f304a3672b76ec1bd4",
+    "_bmad/scripts/tests/fixtures/epic16-contract-wire-goldens.json": "f08bbd0ce5205a282c8cb2bfbfeac76046ee73494c41a80c527a1c191552fe93",
+    "_bmad/scripts/tests/fixtures/epic16-contract-wire-provenance.json": "daef7f4e47b2c160b9bba813e9e1e38a3806b8167823bfb60bcf277d58afe8ee",
+    "_bmad/scripts/tests/fixtures/epic16-domain-sources.json": "e3dab27bad8647d76cef2359de80cea4ea1d51f17306e2e98c9f099bfb14d236",
+    "_bmad/scripts/tests/fixtures/epic16-protocol-goldens.json": "04b547e3cf9da207a67142473967fb6ca01ffc4e32df4bd886ae769a0063d373",
+    "_bmad/scripts/verify_epic_16_adoption.py": "b22b6d25ae86186d0575a19dfa09b810220c70d3fb9c0eadefc781a53ce68505",
+    "_bmad/scripts/verify_epic_16_adoption_v2.py": "f9ac03603a2b1635b7bb7e7f44262c2acb8f0272fbf55030ea1012932d93b568",
+    "_bmad/scripts/verify_epic_16_prerequisites.py": "b10e910aefdd7f9f19cb80bbb19936efd2340f641be45787c140cf45738bbfa6",
+    "_bmad/scripts/verify_story_16_1.py": "d33063a4d9f0b5df8073606a909d1df023edd5278041ba3877c15f2eb696df7a",
+    "_bmad/scripts/verify_story_16_2.py": "9dd3e559eec69b762fe5e9ef6205fc55be7f23a064ccde063e129be2feb57d16",
+    "_bmad/scripts/verify_story_16_3.py": "86db4c032a177e18212bb1b8977d7e0825eba3890efa30b4b8d68cb172e2a0d3",
+    "_bmad/scripts/verify_story_completion_workflows.py": "1a01c22abda5aff3ae74b277c4437490c752b130c764199e47799235d6129d99",
+    "docs/runbooks/current-change-validation.md": "d5284f00b8c850d43cabfcd45d2a4cf94d76a04a0bf7d6761ead7f17e5947801",
+    "global.json": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652",
+    "module/hexalith.module-manifest.v2.json": "0bed1c297c9c9d78fdb8f37197ac5f71d829191c0535fdd78e4034aaa017bdf0",
+    "module/hosting-inventory.json": "1bfd46248158637c950cd6764a47f926b1683568218208a0107d3b1ed3ada1e7",
+    "module/sm-2-checklist.md": "71fb1992ca38602e4cfba34d1b5471459aff986a1ac87b774fb887feafaeec37",
+    "module/validation/epic-16-entry-2026-10-27/.gitattributes": "6818b9f22daa34c2871fb8c4f30b9af95b8904acb50109bbc06a794c59e79017",
+    "module/validation/epic-16-entry-2026-10-27/AC-16.1-01.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-entry-2026-10-27/AC-16.1-01.stdout.txt": "65d41a7da80e45a6f52cf075b5570f9b6d543111fdf5f1dd040846114cac44ff",
+    "module/validation/epic-16-entry-2026-10-27/AC-16.1-02.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-entry-2026-10-27/AC-16.1-02.stdout.txt": "1cb779bc89eb6882bc2d4bc09bd4b8d94440e25ea732e89daf20ec2b0e10667f",
+    "module/validation/epic-16-entry-2026-10-27/AC-16.1-03.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-entry-2026-10-27/AC-16.1-03.stdout.txt": "0fe6f382ce940de1546a23a5908404c31bd2b4ed92682e94569269b07a3af02b",
+    "module/validation/epic-16-entry-2026-10-27/AC-16.1-04.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-entry-2026-10-27/AC-16.1-04.stdout.txt": "ea489ab410989b06673c7d80864230cc5b9ead29bc60be7337e672a171fa3963",
+    "module/validation/epic-16-entry-2026-10-27/AC-16.1-05.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-entry-2026-10-27/AC-16.1-05.stdout.txt": "fabafcb764c15b3eac779e0be4954982baa3ec64a1d5c338ec974f2c866dbaa4",
+    "module/validation/epic-16-entry-2026-10-27/AC-16.1-06.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-entry-2026-10-27/AC-16.1-06.stdout.txt": "134b19d4db6b4a7eb53aba81e918ce662bd1e21bb98fc5db9e66a1b7ac739f90",
+    "module/validation/epic-16-entry-2026-10-27/adoption-json.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-entry-2026-10-27/adoption-json.stdout.txt": "2e7988aa76501cc4f8cd5e373ec740503c66c6d63bcb37f179335fb4c0747a26",
+    "module/validation/epic-16-entry-2026-10-27/adoption-text.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-entry-2026-10-27/adoption-text.stdout.txt": "446c038fcefab2a958c1befea1bcc29052bfc4af0eefd7e91d37a676d0ac5008",
+    "module/validation/epic-16-entry-2026-10-27/ordinary.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-entry-2026-10-27/ordinary.stdout.txt": "bc037e128cae9965e41ebb9c79ae42d51a432e95acf1102acaa7ef5fe498bdf0",
+    "module/validation/epic-16-entry-2026-10-27/prepare-build-help.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-entry-2026-10-27/prepare-build-help.stdout.txt": "8c94e82fc2bf5cf116715d18333b13d13e6988aa5fd9bb281127b019a43556bf",
+    "module/validation/epic-16-entry-2026-10-27/prepare-build.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-entry-2026-10-27/prepare-build.stdout.txt": "a4648a277904bcbb32b19fe05bda66f935a6dbe4d120a3a394daf8de658dd8ca",
+    "module/validation/epic-16-entry-2026-10-27/results.json": "4f74cddcdfa2621059874da4da67ad107080e74628ee065309672cf01bef888f",
+    "module/validation/epic-16-entry-2026-10-27/tool-version.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-entry-2026-10-27/tool-version.stdout.txt": "2263b9f44abd72ad7f9a4c5ad92505b0ebbccb4356f1e289438b203995fa6de9",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/.gitattributes": "fcedac56ddc292fe4c73f979d8478ea34d084eff1afcdca5987d32d2294d8096",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/README.md": "3e402fbec669f62a628957be7976bf66f280611891b95c9d78d7da3f2ff3f559",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-child.log": "dd7615263bced3afd9015bace1237d4a207d6f2695d9075b139cbd1742659d59",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-describe-help.json": "83a29e80cc9cbeac44ec62de087885f04114375376cb80b584f0b6e0f25565c2",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-describe-help.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-describe-help.stdout.txt": "84d18655ba0983b10169fe155a917f4fe38ba9ed238f612b97c39ac0926eeba7",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-describe.json": "116bc545d374f31bbf2055a32a510fdf4001eb3c9dd915f27a7e0e0a79830ddc",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-describe.stderr.txt": "d8bfb0c84d250b755f98b3f3635cc72bb13d501fd74643970ef10b38bcede150",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-describe.stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-launcher.log": "bda86eb69ab442bae0177b07705b2243a6f920585a62962cc9ac5b418e265535",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-ps-after.json": "4c24985b1efa832a3589772dde2c5f7e9b0ccf364e31cf7efd960fa5cdaefe6c",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-ps-after.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-ps-after.stdout.txt": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-ps-before.json": "5080d2005fea2d4627d03fc8fb9a69b100a6535349bc1ddf6dc45d0f4a656d77",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-ps-before.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-ps-before.stdout.txt": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-ps-help.json": "a1daf88dd2d6f572a99402d5e9ed477ed728a21cc523309e5ecf11e4dedb3cea",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-ps-help.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-ps-help.stdout.txt": "4221229238fefefa07b0422c6593fa87ace86bb939806fbf3353c325c4dac17a",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-run-help.json": "dc64d5094a623e7c2fa5e8259b6ab4f7500a05e7eb11de73bc802aa54841b9e2",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-run-help.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-run-help.stdout.txt": "3d5a55a5a522776cecc4ad90a8f784399fe6ab2bb0107bb876dae95f96da1ee6",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-run.json": "33dd5db91865cf8618c7fb3789ce63f8f017550949996486d6b61e37deac60b2",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-run.stderr.txt": "a710e97fe8b1f59f8f8f154b03e0c25fe2095e623beb931acecb4c1f56800e9e",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-run.stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-stop-help.json": "983ccecf728956d0144a410b5db359cebd70e0a047d612a4a2cd30374063a5a7",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-stop-help.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-stop-help.stdout.txt": "5caed440b97770a9ff1aef2345443a70d430d7281de9ab56072433db6d760e54",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-version.json": "16386b2105ed052609cd063e9cfc5e30d5567cad4dd463b90ae196e19d43b0cb",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-version.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-version.stdout.txt": "1508bd63df5af6e1b15ec072b855bb9d4347343a919848c9a970afba8d36de84",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-wait-conversations.json": "b503da282c8d3cd6c6017b7a7a2ae2d97a780458f7c5c7d8511fd04adc9a2319",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-wait-conversations.stderr.txt": "cca663e6c583afb37596f89899d66269738fdd5bd7ba60004f10c21caee7456a",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-wait-conversations.stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-wait-help.json": "d70ff1edda73293300d19fdb4c44f72dd9875f3bb11846486d3068300fecea89",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-wait-help.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/aspire-wait-help.stdout.txt": "7dec06e4af8bbac0af914531a2d7cb9a36a81446605c38658a9527d2c9849a55",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/capture-driver.py.txt": "c738413a9dd1309043e9133fc658ef98c6874bbc7a9bb9bc5dd6dfe5743a5c5c",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/entry-state.json": "e6b00ef58f14a8934858abfe8d014ea70b6169b459bdb5d29b511b2f2d1bd9f4",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/evidence-integrity-check.json": "9f3adc944bb3684d68bfda0d86d3dce40eb33b1372eee29d571c87e93cff07f7",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/exit-state.json": "d75586d20434eb0550292cb8d83f00638a666e2bf907904ab63b3581886fbda3",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/producer-release-triage.json": "5b33fc4807cc074b8f79e794c6aa6a51ed40312377263d62a5a32019a83a58df",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/results.json": "9287c54d6558b02bd3ef580052402a1a12f5e583fd233565e5efba2eae17fce9",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/sdk-version.json": "1e40ede5ea6f7c40ae9f422b034d674f0238aa541988350082c995da651431be",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/sdk-version.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/sdk-version.stdout.txt": "44ea2595bc5a7acabc030531952071226aa70862fd008ed7327d752b39c8513c",
+    "src/Hexalith.Conversations.AppHost/ConversationsAppHostResources.cs": "16bafd487b4142dbfe6501ec7f095abf7c54c4fc1c1595f9c27539a456dadfa1",
+    "src/Hexalith.Conversations.AppHost/ConversationsAppHostTopology.cs": "c277bea88f4c5784fa9fae573f202d30b1a1e2887eb48a8cd26aab6e8112ebc5",
+    "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj": "7bfb00ecd6b122cc7d241e6379a41d55d45488f61f10c0e82aa69c06c7fb9f2f",
+    "src/Hexalith.Conversations.AppHost/KeycloakRealms/hexalith-realm.json": "858e57b863fb5c3dca55c01e3d7972db9b637dd4d94d389c1b0bb1d4f00d0d91",
+    "src/Hexalith.Conversations.AppHost/Program.cs": "3fd2b6803ff32a808aca097a05ce52c40e6d525533e71bcce6e4b1f86a63d4af",
+    "src/Hexalith.Conversations.AppHost/Properties/launchSettings.json": "9be006b8104bc650842d33c324208d9356d6082fd08763cb26a14cee274c9bf3",
+    "src/Hexalith.Conversations.AppHost/aspire.config.json": "72746e6e7aa2d1f049fe57de87a31ba931fddf0c3d170c1715383bb56c7f7630",
+    "tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props": "1829424f3e0bb649130e4dd551e7153a60d3c8b15cc9230462922e5f2b441f00",
+    "tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx": "d1d35e98212004aebb896470c454cb27536cecf088bae44688c71b84364f1e02",
+    "tests/fixtures/Hexalith.Conversations.MinimalModule/README.md": "1237ce284dbb1dd03e583d76075536ec07a190b24940810e1dece70d2f83d4e2",
+    "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/ConversationCreated.cs": "77bc0e65e08cc5cd47ff30bd485383c4c67307e9a8a050f5bbfd96ab6635707c",
+    "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/CreateConversation.cs": "2bde9eb11aa095f7cb0e7127bffbcce65408663f09b3ff6a6c3cfde3d061532d",
+    "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/Hexalith.Conversations.MinimalModule.Contracts.csproj": "0c71e7b64c02f5053e556e51dde2284547d9a0d454c90ef21f196bf44181b11e",
+    "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/packages.lock.json": "52cbaccb8876b9df65fa7e691cf18b6755378e69aa50451ad5e4e211fcac0314",
+    "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationAggregate.cs": "a700a1ba954e7dd0cf5da40dc79e74f6fda3038460c873a36cf6cc726fba1a4e",
+    "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationModule.cs": "0c16ebc8432cb8e8e6d9fb0a741a50a9a9ce765050c192eff9c326acbb27e7e8",
+    "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/Hexalith.Conversations.MinimalModule.Server.csproj": "815c4bd91e1ea95728f087c27e08538b818b70c5046f7666caf54436a86723fa",
+    "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/packages.lock.json": "d9f8362c9a38b3ad08481559e89dbebc92c474a06e1579923182f4419796295c",
+    "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/AppHost.cs": "42e0d71777bc9456a600c8bc8618fa3e6f3d6c4a95a5dfffdee9056d985175a6",
+    "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj": "320077e5282671bbe921ce01c3ed7f8680d096f31a499e0e41a32ff49a02e36f",
+    "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/packages.lock.json": "78b06f0a95f4be921ace42500c2eba6e7578c0dccb162a2400d838c9b15a2423",
+    "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/Hexalith.Conversations.MinimalModule.Tests.csproj": "6232260db2a9496548739fbd86398cb75a48208454c1860f9684a7d8d4e1f11f",
+    "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/MinimalModuleFixtureTests.cs": "b5a1c813bd41ffd72e54612e94ae742955294b33d2099e3d463d27617d6e2229",
+    "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/packages.lock.json": "7a55c490e0263300eb97079fffc684ca61b1f00acd057bcf213f7f743744d104"
+  },
+  "environment": {}
+}

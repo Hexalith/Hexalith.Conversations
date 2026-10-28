@@ -1,0 +1,403 @@
+{
+  "scope": "completed tooling prerequisite source implementation only",
+  "implementationChecks": "PASS",
+  "focusedV2": {
+    "passed": 60,
+    "failed": 0
+  },
+  "affectedSuites": [
+    {
+      "file": "test_epic16_tooling.py",
+      "counts": {
+        "passed": 2885,
+        "failed": 0,
+        "skipped": 0,
+        "deselected": 0,
+        "errors": 0
+      },
+      "commandRecord": "final-test_epic16_tooling.json",
+      "durationSeconds": 2680.105
+    },
+    {
+      "file": "test_generate_story_record.py",
+      "counts": {
+        "passed": 1516,
+        "failed": 0,
+        "skipped": 0,
+        "deselected": 4271,
+        "errors": 0
+      },
+      "commandRecord": "current-mapped-generator-tests.json",
+      "durationSeconds": 1901.719
+    },
+    {
+      "file": "test_verify_epic_16_adoption.py",
+      "counts": {
+        "passed": 131,
+        "failed": 0,
+        "skipped": 0,
+        "deselected": 0,
+        "errors": 0
+      },
+      "commandRecord": "repaired-test_verify_epic_16_adoption.json",
+      "durationSeconds": 7.21
+    },
+    {
+      "file": "test_verify_epic_16_adoption_v2.py",
+      "counts": {
+        "passed": 162,
+        "failed": 0,
+        "skipped": 0,
+        "deselected": 0,
+        "errors": 0
+      },
+      "commandRecord": "repaired-final-adoption-v2.json",
+      "durationSeconds": 13.089
+    }
+  ],
+  "affectedPassed": 4694,
+  "producerNative": {
+    "reports": [
+      {
+        "path": "PlatformAdoptionValidationTests.retry.trx",
+        "sha256": "a7010cda7d4f87ecd047d0017e0bd4a382cec506e30ba4226d5fa64656d0a2c0",
+        "counts": {
+          "total": 396,
+          "executed": 396,
+          "passed": 396,
+          "failed": 0,
+          "error": 0,
+          "timeout": 0,
+          "aborted": 0,
+          "inconclusive": 0,
+          "passedButRunAborted": 0,
+          "notRunnable": 0,
+          "notExecuted": 0,
+          "disconnected": 0,
+          "warning": 0,
+          "completed": 0,
+          "inProgress": 0,
+          "pending": 0
+        }
+      },
+      {
+        "path": "PlatformManifestCommandTests.trx",
+        "sha256": "eb9225cf47739eaeae6ddbd8bd1e0d05805f4ebaffae1b38c07c150b7f8f68f6",
+        "counts": {
+          "total": 75,
+          "executed": 75,
+          "passed": 75,
+          "failed": 0,
+          "error": 0,
+          "timeout": 0,
+          "aborted": 0,
+          "inconclusive": 0,
+          "passedButRunAborted": 0,
+          "notRunnable": 0,
+          "notExecuted": 0,
+          "disconnected": 0,
+          "warning": 0,
+          "completed": 0,
+          "inProgress": 0,
+          "pending": 0
+        }
+      },
+      {
+        "path": "Workspace.BuildPreparationTests.trx",
+        "sha256": "4f5226c2d9229b6585e41d4549208fbd1d31a1876cb4efd58b07ecebde2d0a62",
+        "counts": {
+          "total": 11,
+          "executed": 11,
+          "passed": 11,
+          "failed": 0,
+          "error": 0,
+          "timeout": 0,
+          "aborted": 0,
+          "inconclusive": 0,
+          "passedButRunAborted": 0,
+          "notRunnable": 0,
+          "notExecuted": 0,
+          "disconnected": 0,
+          "warning": 0,
+          "completed": 0,
+          "inProgress": 0,
+          "pending": 0
+        }
+      },
+      {
+        "path": "Workspace.PlatformIdentityTests.trx",
+        "sha256": "e0030914b029b90de4a0f0031af1ff48df3a906e4abc7a2d3b1c38cae3f7d743",
+        "counts": {
+          "total": 43,
+          "executed": 43,
+          "passed": 43,
+          "failed": 0,
+          "error": 0,
+          "timeout": 0,
+          "aborted": 0,
+          "inconclusive": 0,
+          "passedButRunAborted": 0,
+          "notRunnable": 0,
+          "notExecuted": 0,
+          "disconnected": 0,
+          "warning": 0,
+          "completed": 0,
+          "inProgress": 0,
+          "pending": 0
+        }
+      }
+    ],
+    "passed": 525,
+    "sourceScopeOnly": true,
+    "publishedPackageAccepted": false
+  },
+  "producerAction": {
+    "passed": 9,
+    "failed": 0
+  },
+  "actualHeldMatrix": {
+    "rows": [
+      {
+        "version": "v1",
+        "scenarioId": "AC-16.1-01",
+        "result": "FAIL",
+        "exitCode": 1,
+        "blockers": [
+          "SOURCE_DRIFT"
+        ],
+        "assertions": 1,
+        "counts": {
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "total": 0
+        }
+      },
+      {
+        "version": "v1",
+        "scenarioId": "AC-16.1-02",
+        "result": "FAIL",
+        "exitCode": 1,
+        "blockers": [
+          "SOURCE_DRIFT"
+        ],
+        "assertions": 1,
+        "counts": {
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "total": 0
+        }
+      },
+      {
+        "version": "v1",
+        "scenarioId": "AC-16.1-03",
+        "result": "FAIL",
+        "exitCode": 1,
+        "blockers": [
+          "SOURCE_DRIFT"
+        ],
+        "assertions": 1,
+        "counts": {
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "total": 0
+        }
+      },
+      {
+        "version": "v1",
+        "scenarioId": "AC-16.1-04",
+        "result": "FAIL",
+        "exitCode": 1,
+        "blockers": [
+          "SOURCE_DRIFT"
+        ],
+        "assertions": 1,
+        "counts": {
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "total": 0
+        }
+      },
+      {
+        "version": "v1",
+        "scenarioId": "AC-16.1-05",
+        "result": "FAIL",
+        "exitCode": 1,
+        "blockers": [
+          "SOURCE_DRIFT"
+        ],
+        "assertions": 1,
+        "counts": {
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "total": 0
+        }
+      },
+      {
+        "version": "v1",
+        "scenarioId": "AC-16.1-06",
+        "result": "FAIL",
+        "exitCode": 1,
+        "blockers": [
+          "SOURCE_DRIFT"
+        ],
+        "assertions": 1,
+        "counts": {
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "total": 0
+        }
+      },
+      {
+        "version": "v2",
+        "scenarioId": "AC-16.1-01",
+        "result": "BLOCKED",
+        "exitCode": 2,
+        "blockers": [
+          "ENTRY_QUALIFICATION_PENDING"
+        ],
+        "assertions": 2,
+        "counts": {
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "total": 0
+        }
+      },
+      {
+        "version": "v2",
+        "scenarioId": "AC-16.1-02",
+        "result": "BLOCKED",
+        "exitCode": 2,
+        "blockers": [
+          "ENTRY_QUALIFICATION_PENDING"
+        ],
+        "assertions": 2,
+        "counts": {
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "total": 0
+        }
+      },
+      {
+        "version": "v2",
+        "scenarioId": "AC-16.1-03",
+        "result": "BLOCKED",
+        "exitCode": 2,
+        "blockers": [
+          "ENTRY_QUALIFICATION_PENDING"
+        ],
+        "assertions": 2,
+        "counts": {
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "total": 0
+        }
+      },
+      {
+        "version": "v2",
+        "scenarioId": "AC-16.1-04",
+        "result": "BLOCKED",
+        "exitCode": 2,
+        "blockers": [
+          "ENTRY_QUALIFICATION_PENDING"
+        ],
+        "assertions": 2,
+        "counts": {
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "total": 0
+        }
+      },
+      {
+        "version": "v2",
+        "scenarioId": "AC-16.1-05",
+        "result": "BLOCKED",
+        "exitCode": 2,
+        "blockers": [
+          "ENTRY_QUALIFICATION_PENDING"
+        ],
+        "assertions": 2,
+        "counts": {
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "total": 0
+        }
+      },
+      {
+        "version": "v2",
+        "scenarioId": "AC-16.1-06",
+        "result": "BLOCKED",
+        "exitCode": 2,
+        "blockers": [
+          "ENTRY_QUALIFICATION_PENDING"
+        ],
+        "assertions": 2,
+        "counts": {
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "total": 0
+        }
+      }
+    ],
+    "runtimeQualified": false,
+    "runtimeTestsMeasured": 0,
+    "outputs": [
+      {
+        "path": "artifacts/epic16-runtime/16.1/AC-16.1-01.json",
+        "exists": false
+      },
+      {
+        "path": "artifacts/epic16-runtime/16.1/AC-16.1-02.json",
+        "exists": false
+      },
+      {
+        "path": "artifacts/epic16-runtime/16.1/AC-16.1-03.json",
+        "exists": false
+      },
+      {
+        "path": "artifacts/epic16-runtime/16.1/AC-16.1-04.json",
+        "exists": false
+      },
+      {
+        "path": "artifacts/epic16-runtime/16.1/AC-16.1-05.json",
+        "exists": false
+      },
+      {
+        "path": "docs/release-evidence/story-16.1-final-record-v2.json",
+        "exists": false
+      },
+      {
+        "path": "docs/release-evidence/story-16.1-final-record-v2.md",
+        "exists": false
+      }
+    ],
+    "scope": "actual root held commands; v1 first fails on current tool pin, attributes tested independently"
+  },
+  "generatorPolicyAudit": "generator-selection-audit.json",
+  "retainedInitialFailures": [
+    "final-test_generate_story_record.json",
+    "final-test_verify_epic_16_adoption.json",
+    "final-test_verify_epic_16_adoption_v2.json"
+  ],
+  "runtimeEntry": "BLOCKED",
+  "publishedArtifactAccepted": false,
+  "qualificationLedger": "qualification-ledger.json",
+  "authority": {
+    "implementationHold": "ACTIVE",
+    "executionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  }
+}

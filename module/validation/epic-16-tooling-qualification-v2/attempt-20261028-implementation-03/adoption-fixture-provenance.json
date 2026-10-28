@@ -1,0 +1,30 @@
+{
+  "scope": "additive portable fixtures only; accepted pins and live sources unchanged",
+  "rows": [
+    {
+      "path": "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "sha256": "11aedb0ea85809e27284405ffad0eaed519c42ad2344a570ad9abfc1f6af6cd0",
+      "sourceRevision": "680d31f6f577e77d0e2eb55af5eb7c9fb8e3d871"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessServiceCollectionExtensions.cs",
+      "sha256": "f392210ede5f9eb15d3fa56808a276af8c101f25d6e7837c7b21f2b1b9522428",
+      "sourceRevision": "5310494c326443d3b2287244fc543056d0fcef22"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Program.cs",
+      "sha256": "c5155b67f8478d4d74ec731161157d7e6d980ec1cfcd226e21409a1c4fef9ed9",
+      "sourceRevision": "7a799d8f0ddd45363048712634cc17c73d7dcf61"
+    },
+    {
+      "path": ".config/dotnet-tools.json",
+      "sha256": "5d72a022a9416cb753da75cda1b0f1945fd938c065521fd9946aaa525fe048da",
+      "sourceRevision": "053d95e941c86ca469a4965a39b162294b74c485"
+    },
+    {
+      "path": "module/README.md",
+      "sha256": "777259424cd357f81b14664d491e7d42fb1bc6b06cd55402de546bafd0e871fb",
+      "sourceRevision": "053d95e941c86ca469a4965a39b162294b74c485"
+    }
+  ]
+}

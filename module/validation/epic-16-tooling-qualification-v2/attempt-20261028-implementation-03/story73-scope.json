@@ -1,0 +1,8 @@
+{
+  "checkout": "/tmp/epic16-story73-hzrolvp9/checkout",
+  "candidate": "ef01d578a00efd527bae9226dca302f54cd012f0",
+  "exactCommands": true,
+  "existingRootObservationsUnchanged": true,
+  "scope": "committed identical workflow inputs in isolated local copy; no root output overwritten",
+  "rootObservationPreservationMethod": "both relative-output commands ran only in the isolated local checkout; no before/after root-output hash comparison is claimed"
+}

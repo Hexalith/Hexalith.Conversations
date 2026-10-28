@@ -1,0 +1,33 @@
+{
+  "name": "producer-Workspace.PlatformIdentityTests",
+  "command": [
+    "dotnet",
+    "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds/test/Hexalith.Builds.Module.Tests/bin/Debug/net10.0/Hexalith.Builds.Module.Tests.dll",
+    "-automated",
+    "sync",
+    "-failSkips",
+    "-class",
+    "Hexalith.Builds.ModuleTool.Tests.Workspace.PlatformIdentityTests",
+    "-trx",
+    "/tmp/epic16-native-zkqmxs7z/Workspace.PlatformIdentityTests.trx"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+  "timeoutSeconds": 180,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 50.948,
+  "exitCode": 0,
+  "termination": null,
+  "environment": {},
+  "stdout": {
+    "path": "producer-Workspace.PlatformIdentityTests.stdout.txt",
+    "bytes": 223279,
+    "sha256": "0b818b47e883e8b29ec63aae5e2f3fe983ae86148707552af9186a8232bf7c21",
+    "rawSha256": "0b818b47e883e8b29ec63aae5e2f3fe983ae86148707552af9186a8232bf7c21"
+  },
+  "stderr": {
+    "path": "producer-Workspace.PlatformIdentityTests.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

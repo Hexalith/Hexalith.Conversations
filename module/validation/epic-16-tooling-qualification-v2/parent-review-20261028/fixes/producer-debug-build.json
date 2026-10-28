@@ -1,0 +1,30 @@
+{
+  "command": [
+    "dotnet",
+    "build",
+    "test/Hexalith.Builds.Module.Tests/Hexalith.Builds.Module.Tests.csproj",
+    "--configuration",
+    "Debug",
+    "--nologo",
+    "-m:1"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+  "startedUtc": "2026-10-28T13:06:51.392225+00:00",
+  "completedUtc": "2026-10-28T13:07:37.521772+00:00",
+  "durationSeconds": 46.132,
+  "timeoutSeconds": 300,
+  "outputLimitBytes": 16777216,
+  "exitCode": 0,
+  "termination": null,
+  "environmentOverrides": {},
+  "stdout": {
+    "path": "producer-debug-build.stdout.txt",
+    "bytes": 3350,
+    "sha256": "cb9805b503be75dec6345b3e5fb483e24fc61575841d054832aa0c26b1ea9fbd"
+  },
+  "stderr": {
+    "path": "producer-debug-build.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

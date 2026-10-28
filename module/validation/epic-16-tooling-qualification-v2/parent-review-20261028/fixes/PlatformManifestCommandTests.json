@@ -1,0 +1,32 @@
+{
+  "command": [
+    "dotnet",
+    "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds/test/Hexalith.Builds.Module.Tests/bin/Debug/net10.0/Hexalith.Builds.Module.Tests.dll",
+    "-automated",
+    "sync",
+    "-failSkips",
+    "-class",
+    "Hexalith.Builds.ModuleTool.Tests.PlatformManifestCommandTests",
+    "-trx",
+    "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-tooling-qualification-v2/parent-review-20261028/fixes/PlatformManifestCommandTests.trx"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+  "startedUtc": "2026-10-28T13:07:43.702834+00:00",
+  "completedUtc": "2026-10-28T13:07:48.411658+00:00",
+  "durationSeconds": 4.709,
+  "timeoutSeconds": 180,
+  "outputLimitBytes": 16777216,
+  "exitCode": 0,
+  "termination": null,
+  "environmentOverrides": {},
+  "stdout": {
+    "path": "PlatformManifestCommandTests.stdout.txt",
+    "bytes": 314484,
+    "sha256": "976a39cd8f3469b06d9d6fc10b92f7bd767255d25cb0a694d36d17afd005656b"
+  },
+  "stderr": {
+    "path": "PlatformManifestCommandTests.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "name": "affected-python-tests",
+  "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "_bmad/scripts/tests/test_epic16_tooling.py",
+    "_bmad/scripts/tests/test_generate_story_record.py",
+    "_bmad/scripts/tests/test_verify_epic_16_adoption.py",
+    "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "timeoutSeconds": 1200,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 899.525,
+  "exitCode": 143,
+  "termination": "owned process group stopped with SIGTERM before confirmed containment correction",
+  "environment": {
+    "EPIC16_COMMITLINT_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/affected-commitlint.json"
+  },
+  "stdout": {
+    "path": "affected-python-tests.stdout.txt",
+    "bytes": 963,
+    "sha256": "7723959b9ffc4738f3ddbad62d0a26570c53e5530e9fefbd48d28b38e53a758e",
+    "rawSha256": "7723959b9ffc4738f3ddbad62d0a26570c53e5530e9fefbd48d28b38e53a758e"
+  },
+  "stderr": {
+    "path": "affected-python-tests.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "coverageComplete": false,
+  "result": "INCOMPLETE"
+}

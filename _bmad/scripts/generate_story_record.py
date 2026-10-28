@@ -11099,16 +11099,20 @@ def main(arguments: Sequence[str] | None = None) -> int:
             if token == "--contract" or token.startswith("--contract=")
         ]
         successors = {
-            f"_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/{story}.json"
-            for story in ("16.1", "16.2", "16.3")
+            f"_bmad-output/planning-artifacts/epic-16-tooling-{version}/story-contracts/{story}.json"
+            for version in ("v1", "v2") for story in ("16.1", "16.2", "16.3")
         }
-        if len(contracts) == 1 and contracts[0] in successors:
+        # --scope is an explicit tooling-dialect option, never a package selector.
+        # Unknown contracts in that dialect receive its nonempty rejection ledger.
+        tooling_dialect = any(token == '--scope' or token.startswith('--scope=') for token in raw_arguments)
+        if len(contracts) == 1 and (contracts[0] in successors or tooling_dialect):
             try:
                 sys.dont_write_bytecode = True
                 import epic16_tooling
+                return epic16_tooling.main(raw_arguments, generator=True)
             except ModuleNotFoundError as error:
                 declared = {
-                    'epic16_tooling', 'epic16_trust', 'epic16_measurements', 'epic16_native',
+                    'epic16_tooling', 'epic16_trust', 'epic16_packages', 'epic16_trust_v2', 'epic16_measurements', 'epic16_native',
                     'epic16_domain', 'epic16_lifecycle', 'epic16_schedules', 'epic16_capture',
                     'epic16_faults', 'epic16_relationships', 'epic16_execution', 'epic16_products',
                     'jsonschema', 'attrs', 'attr', 'referencing', 'rpds', 'jsonschema_specifications',
@@ -11123,9 +11127,10 @@ def main(arguments: Sequence[str] | None = None) -> int:
                 document = v2_failure_document([v2_finding(
                     "SCHEMA_UNAVAILABLE", str(contracts[0]),
                     "the Epic 16 successor consumer is unavailable")], None)
+                document['assertionLedger'] = [dict(id='SCHEMA_UNAVAILABLE',
+                    subject=error.name, state='BLOCKED')]
                 v2_write_stdout(v2_render_json(document))
                 return document["exitCode"]
-            return epic16_tooling.main(raw_arguments, generator=True)
         return v2_main(raw_arguments)
     output_format = pre_parse_output_format(raw_arguments)
     repository: Path | None = None

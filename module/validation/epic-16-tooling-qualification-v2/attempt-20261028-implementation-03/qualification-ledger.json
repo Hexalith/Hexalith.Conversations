@@ -1,0 +1,465 @@
+{
+  "scope": "bounded Debug producer-source preparation and held consumer route",
+  "runtimeQualified": false,
+  "publishedArtifactAccepted": false,
+  "producerSource": "81ab049208678bd6616828824729c0ddac02f7d1",
+  "sourceReview": {
+    "path": "evidence/g4/module-configuration-key-release-20261025/resumed-20261025T101341Z/review/triage.json",
+    "sha256": "5b33fc4807cc074b8f79e794c6aa6a51ed40312377263d62a5a32019a83a58df"
+  },
+  "findings": [
+    {
+      "id": "B1",
+      "verdict": "high",
+      "route": "defer",
+      "evidence": "Concurrent cleanup can pass the single EnsureIssuedStateAsync check and release its provisioning lease before ExecuteSelectedAsync writes/recreates the workspace and starts a child. The selected gate has no cleanup-marker/provisioning lease. Static interleaving confirmed; no new Platform qualification.",
+      "incomingOrigin": "0ade5ec2b4f9b81fcd3a4bbb1672c11b0131a274",
+      "group": "late-native-launch",
+      "state": "BLOCKED",
+      "qualificationBoundary": "Preparation does not execute the owner-check/launch versus completed cleanup interleaving. Exact source/artifact lifecycle proof remains required.",
+      "currentEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/ModuleCommandExecutionService.cs",
+          "sha256": "11af6eb4331f58d55ca7598d2a2e6b668cfdec2cd8b47520756495214b8118d5",
+          "bytes": 94292,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/LocalRunLifecycleTests.cs",
+          "sha256": "c0535674f2e9c4bfde092842649de2b41f346b3d601dbba6979bb5a99a148785",
+          "bytes": 82690,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/LocalRunFollowupTests.cs",
+          "sha256": "b8dddd273fa394f7d049a810800e4f877653ea54896fd7914887d0ef1b8f54fb",
+          "bytes": 18173,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ]
+    },
+    {
+      "id": "B2",
+      "verdict": "medium",
+      "route": "defer",
+      "evidence": "RunCoreAsync records a first timestamp, kills/waits, then throws on the current caller cancellation token. NativeTestExecutor samples owner cancellation afterwards, so a later cancellation can replace the earlier timeout cause.",
+      "incomingOrigin": "0ade5ec2b4f9b81fcd3a4bbb1672c11b0131a274",
+      "group": "late-timeout-cause",
+      "state": "BLOCKED",
+      "qualificationBoundary": "Preparation cancellation differs from first native timeout versus later owner cancellation. Retained callback-timeout source regression alone does not settle that race.",
+      "currentEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionProcess.cs",
+          "sha256": "4be249c54ec9b51dea47f2c5db049146a5bac98fa9d548c6de5e3d1b2fecf009",
+          "bytes": 13800,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/LocalRunReviewCorrectionTests.cs",
+          "sha256": "92bba4d93ba1cde82c322a81fe0058ee04fe0e96fe5a7f189e821667e7d05a57",
+          "bytes": 19769,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ]
+    },
+    {
+      "id": "B3",
+      "verdict": "high",
+      "route": "defer",
+      "evidence": "Windows invalid OpenProcess and macOS errors1/13 return null without setting Verified=false. No independent ownership exclusion protects an owned process that becomes inaccessible. Actual-host behavior remains unqualified.",
+      "incomingOrigin": "6e40ea5f6243391bea80084b8ddd695df58fb1ff",
+      "group": "nonlinux-discovery-uncertainty",
+      "state": "BLOCKED",
+      "qualificationBoundary": "No Windows/macOS host available in this Linux attempt; process metadata uncertainty remains unqualified.",
+      "currentEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionRunResourceScanner.cs",
+          "sha256": "221f356680bd13611cb1df6ec6e8258188f2b4cd976884c4ecfbc10365517d50",
+          "bytes": 8142,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/CompositionNativeProcessDiscoveryTests.cs",
+          "sha256": "fb3eb23d806544979f91fe5cb150e21e1c6e9d74d01426d43cc918135869025a",
+          "bytes": 3837,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ]
+    },
+    {
+      "id": "B4",
+      "verdict": "high",
+      "route": "defer",
+      "evidence": "Linux scanner returns(FindProcesses(runId),true), while absent /proc and read exceptions yield no observed processes. The caller can treat this incomplete scan as verified absence and release claims.",
+      "incomingOrigin": "6e40ea5f6243391bea80084b8ddd695df58fb1ff",
+      "group": "linux-discovery-uncertainty",
+      "state": "BLOCKED",
+      "qualificationBoundary": "Preparation/source mapping does not execute incomplete Linux /proc native discovery; no verified-absence claim.",
+      "currentEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionRunResourceScanner.cs",
+          "sha256": "221f356680bd13611cb1df6ec6e8258188f2b4cd976884c4ecfbc10365517d50",
+          "bytes": 8142,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/CompositionNativeProcessDiscoveryTests.cs",
+          "sha256": "fb3eb23d806544979f91fe5cb150e21e1c6e9d74d01426d43cc918135869025a",
+          "bytes": 3837,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ]
+    },
+    {
+      "id": "B5",
+      "verdict": "medium",
+      "route": "defer",
+      "evidence": "ValidResources checks nonnull collections only; ResourceIds and listing serialize containerIds directly. Reviewer reported fake-secret echo on same-source Debug CLI; original stream capture was not retained, so source inspection and reviewer testimony are distinguished.",
+      "incomingOrigin": "0ade5ec2b4f9b81fcd3a4bbb1672c11b0131a274",
+      "group": "persisted-metadata-validation",
+      "state": "BLOCKED",
+      "qualificationBoundary": "Manifest/schema and action exports do not exercise forged persisted run/resource identities in both formats.",
+      "currentEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionRunListing.cs",
+          "sha256": "5de2181b8bd4e420b3631bdc7721dcd000682fd79b53beab1991179e06b23f86",
+          "bytes": 6235,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/CompositionRunListingTests.cs",
+          "sha256": "454215f5c1d678003c688193832541c7840d93e55ce573f63a353bcd0e01ba4b",
+          "bytes": 20455,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/LocalRunReviewCorrectionTests.cs",
+          "sha256": "92bba4d93ba1cde82c322a81fe0058ee04fe0e96fe5a7f189e821667e7d05a57",
+          "bytes": 19769,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ]
+    },
+    {
+      "id": "B6",
+      "verdict": "medium",
+      "route": "defer",
+      "evidence": "CreateListCommand awaits ReadAsync without the OperationCanceledException mapping present in validation; enumeration checks cancellation per file. Reported SIGINT repro returned exit1 with empty streams.",
+      "incomingOrigin": "984c4d50205d00b5238c1cf19e93b232c3282c22",
+      "group": "list-cancellation",
+      "state": "BLOCKED",
+      "qualificationBoundary": "Preparation cancellation coverage does not qualify public list cancellation, HXC130, cancelled category/exit or noncancelled output-token handling.",
+      "currentEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Module.Cli/ModuleCommandApplication.cs",
+          "sha256": "d51ba7020712e24a40725c4deba51edcf2539546c3639b521959ab0b9e7a2a9c",
+          "bytes": 17674,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionRunListing.cs",
+          "sha256": "5de2181b8bd4e420b3631bdc7721dcd000682fd79b53beab1991179e06b23f86",
+          "bytes": 6235,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ]
+    },
+    {
+      "id": "B7",
+      "verdict": "medium",
+      "route": "defer",
+      "evidence": "Acquire has no receipt-length admission bound; ReadReceipt rejects over64KiB. Retained reviewer fixture is67,001 bytes and ReleaseOwned leaves the receipt. Public Acquire has no identity-count guard.",
+      "incomingOrigin": "0ade5ec2b4f9b81fcd3a4bbb1672c11b0131a274",
+      "group": "claim-receipt-bound",
+      "state": "BLOCKED",
+      "qualificationBoundary": "The preparation tests do not exercise the retained 67,001-byte claim-receipt admission/read mismatch; exact owner regression is still required.",
+      "currentEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionResourceClaimStore.cs",
+          "sha256": "4c450fe75fb376522f903ee494c96833ffa3385a2c59f3fdda2e2215c3ff701c",
+          "bytes": 13812,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/CompositionResourceClaimStoreTests.cs",
+          "sha256": "62f414d87919cbdd50634383a49e9f7ab4417339ac53212867fe6d369d82744e",
+          "bytes": 13906,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ]
+    },
+    {
+      "id": "B8",
+      "verdict": "false",
+      "route": "reject",
+      "evidence": "Reviewer retracted the concrete lifecycle expansion claim after the1MiB validated-descriptor guard was identified. An unrestricted generic writer alone does not demonstrate the claimed reachable oversized lifecycle record. No new guard is justified.",
+      "incomingOrigin": "0ade5ec2b4f9b81fcd3a4bbb1672c11b0131a274",
+      "group": null,
+      "state": "not-applicable",
+      "scope": "original rejected disposition preserved; no new evidence reopens this finding",
+      "currentEvidence": []
+    },
+    {
+      "id": "B9",
+      "verdict": "maybe-false",
+      "route": "defer",
+      "evidence": "Atomic rename and absence of an explicit stable-storage barrier are confirmed; whether the current promise includes machine/power-loss durability and a reachable lost-terminal-record case were not established. If true impact is medium; settle with an explicit crash contract and fault-injected storage test.",
+      "incomingOrigin": "984c4d50205d00b5238c1cf19e93b232c3282c22",
+      "group": "storage-durability-unverified",
+      "state": "BLOCKED",
+      "qualificationBoundary": "Atomic replacement is not an owner decision on machine/power-loss durability. Stable-storage policy and a fault-injected test remain required.",
+      "currentEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionDocumentStore.cs",
+          "sha256": "56436be08eece80acd617a8ff71a3b7fb8fc29e6bd68c7c00883d0af742856e1",
+          "bytes": 6879,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/CompositionRunStateStore.cs",
+          "sha256": "f3f145831a52a72b9e179eeb4b297b7ef93e127f1b92287e96650ef3ff4ee112",
+          "bytes": 11659,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ]
+    },
+    {
+      "id": "B10",
+      "verdict": "medium",
+      "route": "defer",
+      "evidence": "Native Windows/macOS discovery is exercised only through injected/synthetic tests in the Ubuntu lanes. Actual-host ownership/cleanup verification is missing; same root coverage gap as G1.",
+      "incomingOrigin": "6e40ea5f6243391bea80084b8ddd695df58fb1ff",
+      "group": "native-host-verification",
+      "state": "BLOCKED",
+      "qualificationBoundary": "NativeTaggedChildRemovalPreservesIndependentPeerAsync requires actual Windows and macOS execution; Linux supplies no platform credit.",
+      "currentEvidence": [
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/CompositionNativeProcessDiscoveryTests.cs",
+          "sha256": "fb3eb23d806544979f91fe5cb150e21e1c6e9d74d01426d43cc918135869025a",
+          "bytes": 3837,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ]
+    },
+    {
+      "id": "B11",
+      "verdict": "low",
+      "route": "reject",
+      "evidence": "The cited file is explicitly the failed historical collector attempt, with original temporary inputs preserved. No supported current replay calls it. Parameterizing/duplicating that capture adds a new helper interface for an uncommon archival replay; actual artifact probe03 already accepts explicit repository/version/output/inventory arguments. Clarify its historical status in the handoff without rewriting it.",
+      "incomingOrigin": null,
+      "group": null,
+      "state": "not-applicable",
+      "scope": "original rejected disposition preserved; no new evidence reopens this finding",
+      "currentEvidence": []
+    },
+    {
+      "id": "E1",
+      "verdict": "medium",
+      "route": "defer",
+      "evidence": "Batch loop resets ExecutionTiming but not EnvironmentBindings; a descriptor refusal returns before assigning new bindings. TestResultWriter checks owner/attempt/environment only. Retained same-source unit repro contains second selection with first execution/catalog bindings.",
+      "incomingOrigin": "0ade5ec2b4f9b81fcd3a4bbb1672c11b0131a274",
+      "group": "batch-stale-bindings",
+      "state": "BLOCKED",
+      "qualificationBoundary": "Single preparation invocation does not cover later batch-descriptor refusal reusing first-entry execution/environment/catalog bindings.",
+      "currentEvidence": [
+        {
+          "path": "src/libraries/Hexalith.Builds.Tooling/Runtime/ModuleCommandExecutionService.cs",
+          "sha256": "11af6eb4331f58d55ca7598d2a2e6b668cfdec2cd8b47520756495214b8118d5",
+          "bytes": 94292,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        },
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/TestEnvironmentProvisioningReviewTests.cs",
+          "sha256": "e8739790481a707a9667587f24db64ee82e3324c0ed34d3a6d805cc6ac4129eb",
+          "bytes": 29173,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ]
+    },
+    {
+      "id": "G1",
+      "verdict": "medium",
+      "route": "defer",
+      "evidence": "Pre-verified gap: source/reference searches and actual CI platforms show no native Windows/macOS reader exercise; override/ContainsEntry tests do not cover discovery or cleanup. Same coverage root cause as B10.",
+      "incomingOrigin": "6e40ea5f6243391bea80084b8ddd695df58fb1ff",
+      "group": "native-host-verification",
+      "state": "BLOCKED",
+      "qualificationBoundary": "Same native-host coverage group as B10; no independent platform acceptance from Linux or synthetic fixtures.",
+      "currentEvidence": [
+        {
+          "path": "test/Hexalith.Builds.Module.Tests/CompositionNativeProcessDiscoveryTests.cs",
+          "sha256": "fb3eb23d806544979f91fe5cb150e21e1c6e9d74d01426d43cc918135869025a",
+          "bytes": 3837,
+          "scope": "current source inspected; this target not qualified by preparation tests"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "id": "late-native-launch",
+      "findings": [
+        "B1"
+      ],
+      "route": "defer",
+      "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "late-timeout-cause",
+      "findings": [
+        "B2"
+      ],
+      "route": "defer",
+      "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "nonlinux-discovery-uncertainty",
+      "findings": [
+        "B3"
+      ],
+      "route": "defer",
+      "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "linux-discovery-uncertainty",
+      "findings": [
+        "B4"
+      ],
+      "route": "defer",
+      "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "persisted-metadata-validation",
+      "findings": [
+        "B5"
+      ],
+      "route": "defer",
+      "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "list-cancellation",
+      "findings": [
+        "B6"
+      ],
+      "route": "defer",
+      "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "claim-receipt-bound",
+      "findings": [
+        "B7"
+      ],
+      "route": "defer",
+      "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "storage-durability-unverified",
+      "findings": [
+        "B9"
+      ],
+      "route": "defer",
+      "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "native-host-verification",
+      "findings": [
+        "B10",
+        "G1"
+      ],
+      "route": "defer",
+      "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "batch-stale-bindings",
+      "findings": [
+        "E1"
+      ],
+      "route": "defer",
+      "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+      "state": "BLOCKED"
+    }
+  ],
+  "rejected": [
+    "B8",
+    "B11"
+  ],
+  "externalGates": [
+    {
+      "id": "published-release-package",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "actual-feed-archive-hash-size-signature",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "nuspec-source-tag-ci-identity",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "packaged-and-loaded-assemblies",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "loose-embedded-schema-and-catalog",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "exact-Platform-release-source-Builds-pair",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "all-36-malformed-key-artifact-controls",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "Windows-native-discovery",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "macOS-native-discovery",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "supported-published-testing-helper-strategy",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "source-package-deployed-provider-parity",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "operational-envelope",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "recovery-operator-capacity-disposition",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "human-SM-2",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "named-owner-entry",
+      "state": "BLOCKED"
+    }
+  ],
+  "authority": {
+    "implementationHold": "ACTIVE",
+    "executionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  },
+  "producerRepository": "references/Hexalith.Builds"
+}

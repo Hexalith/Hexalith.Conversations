@@ -1,0 +1,12 @@
+{
+  "result": "FAIL",
+  "passed": 42,
+  "failed": 4,
+  "durationSeconds": 160.81,
+  "issues": [
+    "fixture warning baseline parent needed re-establishment",
+    "generator unknown tooling selector lacked ledger",
+    "generator unavailable selected module lacked ledger"
+  ],
+  "rawStreamSeparatelyRetained": false
+}

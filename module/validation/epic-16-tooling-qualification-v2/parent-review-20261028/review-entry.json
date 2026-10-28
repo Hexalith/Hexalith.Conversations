@@ -1,0 +1,33 @@
+{
+  "result": "PASS",
+  "scope": "prerequisite review entry",
+  "sourceIntegrity": {
+    "result": "PASS",
+    "sourceRows": 81,
+    "assertionLedger": [
+      {
+        "id": "v2-source-integrity",
+        "subject": "_bmad-output/planning-artifacts/epic-16-tooling-v2/binding.json",
+        "state": "PASS"
+      }
+    ]
+  },
+  "historicalEvidenceBoundary": {
+    "result": "not-applicable",
+    "exitCode": 0,
+    "decision": {
+      "allowed": true,
+      "recordedResult": "not-applicable",
+      "blockers": []
+    },
+    "reason": "Current prerequisite requires source integrity and held route verification; runtime publication and historical boundary replay are excluded."
+  },
+  "runtimeEntry": "BLOCKED",
+  "authority": {
+    "implementationHold": "ACTIVE",
+    "executionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  }
+}

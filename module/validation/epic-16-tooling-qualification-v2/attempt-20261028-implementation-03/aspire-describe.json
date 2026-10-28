@@ -1,0 +1,27 @@
+{
+  "name": "aspire-describe",
+  "command": [
+    "aspire",
+    "describe",
+    "--help"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 0.101,
+  "exitCode": 0,
+  "termination": null,
+  "environment": {},
+  "stdout": {
+    "path": "aspire-describe.stdout.txt",
+    "bytes": 1506,
+    "sha256": "84d18655ba0983b10169fe155a917f4fe38ba9ed238f612b97c39ac0926eeba7",
+    "rawSha256": "84d18655ba0983b10169fe155a917f4fe38ba9ed238f612b97c39ac0926eeba7"
+  },
+  "stderr": {
+    "path": "aspire-describe.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

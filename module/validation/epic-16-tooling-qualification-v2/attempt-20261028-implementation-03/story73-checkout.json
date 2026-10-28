@@ -1,0 +1,32 @@
+{
+  "name": "story73-checkout",
+  "command": [
+    "git",
+    "checkout",
+    "HEAD",
+    "--",
+    ".agents",
+    ".claude",
+    "_bmad",
+    "_bmad-output/planning-artifacts/v9/story-contracts/7.3.json"
+  ],
+  "cwd": "/tmp/epic16-story73-hzrolvp9/checkout",
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 0.602,
+  "exitCode": 0,
+  "termination": null,
+  "environment": {},
+  "stdout": {
+    "path": "story73-checkout.stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "story73-checkout.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

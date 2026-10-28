@@ -1,0 +1,1037 @@
+F..........................................................FFFF......... [ 54%]
+.........FF.FFFFFFFFFFFFFFFFFF.FFF..............FFFF.F.....              [100%]
+=================================== FAILURES ===================================
+_ test_valid_package_passes_structure_but_reports_actual_entry_failures_without_execution _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_valid_package_passes_stru0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x785faba0fa50>
+
+    def test_valid_package_passes_structure_but_reports_actual_entry_failures_without_execution(repository: Path, monkeypatch) -> None:
+        before = {str(path): path.read_bytes() for path in repository.rglob("*") if path.is_file()}
+        def no_command(*args, **kwargs):
+            pytest.fail("review verifier attempted command execution")
+        monkeypatch.setattr(subprocess, "run", no_command)
+        monkeypatch.setattr(subprocess, "Popen", no_command)
+        monkeypatch.setattr(os, "system", no_command)
+        report = checker.verify(repository)
+>       assert report["result"] == "PASS", report
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:88: AssertionError
+__________ test_package_authority_cannot_be_granted[executionAllowed] __________
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_package_authority_cannot_0')
+flag = 'executionAllowed'
+
+    @pytest.mark.parametrize("flag", ["executionAllowed", "ownerApprovalClaimed", "releaseAuthorized", "pushAuthorized"])
+    def test_package_authority_cannot_be_granted(repository: Path, flag: str) -> None:
+        edit(repository, PACKAGE, lambda d: d["authority"].update({flag: True}))
+>       rejected(checker.verify(repository), "STRUCTURE_INVALID")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:190: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'STRUCTURE_INVALID'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'STRUCTURE_INVALID' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+________ test_package_authority_cannot_be_granted[ownerApprovalClaimed] ________
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_package_authority_cannot_1')
+flag = 'ownerApprovalClaimed'
+
+    @pytest.mark.parametrize("flag", ["executionAllowed", "ownerApprovalClaimed", "releaseAuthorized", "pushAuthorized"])
+    def test_package_authority_cannot_be_granted(repository: Path, flag: str) -> None:
+        edit(repository, PACKAGE, lambda d: d["authority"].update({flag: True}))
+>       rejected(checker.verify(repository), "STRUCTURE_INVALID")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:190: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'STRUCTURE_INVALID'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'STRUCTURE_INVALID' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+_________ test_package_authority_cannot_be_granted[releaseAuthorized] __________
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_package_authority_cannot_2')
+flag = 'releaseAuthorized'
+
+    @pytest.mark.parametrize("flag", ["executionAllowed", "ownerApprovalClaimed", "releaseAuthorized", "pushAuthorized"])
+    def test_package_authority_cannot_be_granted(repository: Path, flag: str) -> None:
+        edit(repository, PACKAGE, lambda d: d["authority"].update({flag: True}))
+>       rejected(checker.verify(repository), "STRUCTURE_INVALID")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:190: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'STRUCTURE_INVALID'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'STRUCTURE_INVALID' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+___________ test_package_authority_cannot_be_granted[pushAuthorized] ___________
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_package_authority_cannot_3')
+flag = 'pushAuthorized'
+
+    @pytest.mark.parametrize("flag", ["executionAllowed", "ownerApprovalClaimed", "releaseAuthorized", "pushAuthorized"])
+    def test_package_authority_cannot_be_granted(repository: Path, flag: str) -> None:
+        edit(repository, PACKAGE, lambda d: d["authority"].update({flag: True}))
+>       rejected(checker.verify(repository), "STRUCTURE_INVALID")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:190: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'STRUCTURE_INVALID'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'STRUCTURE_INVALID' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+_ test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json-INPUT_UNAVAILABLE] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_missing_prerequisite_or_a0')
+path = '_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json'
+code = 'INPUT_UNAVAILABLE'
+
+    @pytest.mark.parametrize("path,code", [
+        (PACKAGE, "INPUT_UNAVAILABLE"),
+        (checker.SCHEMA, "INPUT_UNAVAILABLE"),
+        (f"{checker.prerequisite.BASE}/story-contracts/16.1.json", "INPUT_UNAVAILABLE"),
+        (checker.TOOL, "ACCEPTED_TOOL_UNAVAILABLE"),
+        ("module/validation/version.txt", "ACCEPTED_TOOL_UNAVAILABLE"),
+    ])
+    def test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic(repository: Path, path: str, code: str) -> None:
+        (repository / path).unlink()
+        report = checker.verify(repository)
+>       assert report["result"] == "BLOCKED", report
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E       assert 'FAIL' == 'BLOCKED'
+E         
+E         - BLOCKED
+E         + FAIL
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:244: AssertionError
+_ test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[_bmad/schemas/epic-16-adoption-v1.schema.json-INPUT_UNAVAILABLE] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_missing_prerequisite_or_a1')
+path = '_bmad/schemas/epic-16-adoption-v1.schema.json'
+code = 'INPUT_UNAVAILABLE'
+
+    @pytest.mark.parametrize("path,code", [
+        (PACKAGE, "INPUT_UNAVAILABLE"),
+        (checker.SCHEMA, "INPUT_UNAVAILABLE"),
+        (f"{checker.prerequisite.BASE}/story-contracts/16.1.json", "INPUT_UNAVAILABLE"),
+        (checker.TOOL, "ACCEPTED_TOOL_UNAVAILABLE"),
+        ("module/validation/version.txt", "ACCEPTED_TOOL_UNAVAILABLE"),
+    ])
+    def test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic(repository: Path, path: str, code: str) -> None:
+        (repository / path).unlink()
+        report = checker.verify(repository)
+>       assert report["result"] == "BLOCKED", report
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E       assert 'FAIL' == 'BLOCKED'
+E         
+E         - BLOCKED
+E         + FAIL
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:244: AssertionError
+_ test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[.config/dotnet-tools.json-ACCEPTED_TOOL_UNAVAILABLE] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_missing_prerequisite_or_a3')
+path = '.config/dotnet-tools.json', code = 'ACCEPTED_TOOL_UNAVAILABLE'
+
+    @pytest.mark.parametrize("path,code", [
+        (PACKAGE, "INPUT_UNAVAILABLE"),
+        (checker.SCHEMA, "INPUT_UNAVAILABLE"),
+        (f"{checker.prerequisite.BASE}/story-contracts/16.1.json", "INPUT_UNAVAILABLE"),
+        (checker.TOOL, "ACCEPTED_TOOL_UNAVAILABLE"),
+        ("module/validation/version.txt", "ACCEPTED_TOOL_UNAVAILABLE"),
+    ])
+    def test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic(repository: Path, path: str, code: str) -> None:
+        (repository / path).unlink()
+        report = checker.verify(repository)
+>       assert report["result"] == "BLOCKED", report
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E       assert 'FAIL' == 'BLOCKED'
+E         
+E         - BLOCKED
+E         + FAIL
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:244: AssertionError
+_ test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[module/validation/version.txt-ACCEPTED_TOOL_UNAVAILABLE] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_missing_prerequisite_or_a4')
+path = 'module/validation/version.txt', code = 'ACCEPTED_TOOL_UNAVAILABLE'
+
+    @pytest.mark.parametrize("path,code", [
+        (PACKAGE, "INPUT_UNAVAILABLE"),
+        (checker.SCHEMA, "INPUT_UNAVAILABLE"),
+        (f"{checker.prerequisite.BASE}/story-contracts/16.1.json", "INPUT_UNAVAILABLE"),
+        (checker.TOOL, "ACCEPTED_TOOL_UNAVAILABLE"),
+        ("module/validation/version.txt", "ACCEPTED_TOOL_UNAVAILABLE"),
+    ])
+    def test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic(repository: Path, path: str, code: str) -> None:
+        (repository / path).unlink()
+        report = checker.verify(repository)
+>       assert report["result"] == "BLOCKED", report
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E       assert 'FAIL' == 'BLOCKED'
+E         
+E         - BLOCKED
+E         + FAIL
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:244: AssertionError
+__ test_declared_escape_paths_are_rejected_without_opening_them[/tmp/outside] __
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_declared_escape_paths_are0')
+bad_path = '/tmp/outside'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x785fab2bee90>
+
+    @pytest.mark.parametrize("bad_path", ["/tmp/outside", "../../outside", "a/../outside", ".git/config", "a\\outside", "a//b"])
+    def test_declared_escape_paths_are_rejected_without_opening_them(repository: Path, bad_path: str, monkeypatch) -> None:
+        edit(repository, PACKAGE, lambda d: d["files"][0].update(path=bad_path))
+        original = Path.open
+        def confined_open(path, *args, **kwargs):
+            assert path.resolve().is_relative_to(repository), f"outside open attempted: {path}"
+            return original(path, *args, **kwargs)
+        monkeypatch.setattr(Path, "open", confined_open)
+>       rejected(checker.verify(repository), "PATH_INVALID")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:259: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'PATH_INVALID'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'PATH_INVALID' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+_ test_declared_escape_paths_are_rejected_without_opening_them[../../outside] __
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_declared_escape_paths_are1')
+bad_path = '../../outside'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x785fab2bd150>
+
+    @pytest.mark.parametrize("bad_path", ["/tmp/outside", "../../outside", "a/../outside", ".git/config", "a\\outside", "a//b"])
+    def test_declared_escape_paths_are_rejected_without_opening_them(repository: Path, bad_path: str, monkeypatch) -> None:
+        edit(repository, PACKAGE, lambda d: d["files"][0].update(path=bad_path))
+        original = Path.open
+        def confined_open(path, *args, **kwargs):
+            assert path.resolve().is_relative_to(repository), f"outside open attempted: {path}"
+            return original(path, *args, **kwargs)
+        monkeypatch.setattr(Path, "open", confined_open)
+>       rejected(checker.verify(repository), "PATH_INVALID")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:259: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'PATH_INVALID'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'PATH_INVALID' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+__ test_declared_escape_paths_are_rejected_without_opening_them[a/../outside] __
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_declared_escape_paths_are2')
+bad_path = 'a/../outside'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x785fab30b190>
+
+    @pytest.mark.parametrize("bad_path", ["/tmp/outside", "../../outside", "a/../outside", ".git/config", "a\\outside", "a//b"])
+    def test_declared_escape_paths_are_rejected_without_opening_them(repository: Path, bad_path: str, monkeypatch) -> None:
+        edit(repository, PACKAGE, lambda d: d["files"][0].update(path=bad_path))
+        original = Path.open
+        def confined_open(path, *args, **kwargs):
+            assert path.resolve().is_relative_to(repository), f"outside open attempted: {path}"
+            return original(path, *args, **kwargs)
+        monkeypatch.setattr(Path, "open", confined_open)
+>       rejected(checker.verify(repository), "PATH_INVALID")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:259: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'PATH_INVALID'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'PATH_INVALID' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+__ test_declared_escape_paths_are_rejected_without_opening_them[.git/config] ___
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_declared_escape_paths_are3')
+bad_path = '.git/config'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x785fabc1f350>
+
+    @pytest.mark.parametrize("bad_path", ["/tmp/outside", "../../outside", "a/../outside", ".git/config", "a\\outside", "a//b"])
+    def test_declared_escape_paths_are_rejected_without_opening_them(repository: Path, bad_path: str, monkeypatch) -> None:
+        edit(repository, PACKAGE, lambda d: d["files"][0].update(path=bad_path))
+        original = Path.open
+        def confined_open(path, *args, **kwargs):
+            assert path.resolve().is_relative_to(repository), f"outside open attempted: {path}"
+            return original(path, *args, **kwargs)
+        monkeypatch.setattr(Path, "open", confined_open)
+>       rejected(checker.verify(repository), "PATH_INVALID")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:259: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'PATH_INVALID'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'PATH_INVALID' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+___ test_declared_escape_paths_are_rejected_without_opening_them[a\\outside] ___
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_declared_escape_paths_are4')
+bad_path = 'a\\outside'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x785fac04f910>
+
+    @pytest.mark.parametrize("bad_path", ["/tmp/outside", "../../outside", "a/../outside", ".git/config", "a\\outside", "a//b"])
+    def test_declared_escape_paths_are_rejected_without_opening_them(repository: Path, bad_path: str, monkeypatch) -> None:
+        edit(repository, PACKAGE, lambda d: d["files"][0].update(path=bad_path))
+        original = Path.open
+        def confined_open(path, *args, **kwargs):
+            assert path.resolve().is_relative_to(repository), f"outside open attempted: {path}"
+            return original(path, *args, **kwargs)
+        monkeypatch.setattr(Path, "open", confined_open)
+>       rejected(checker.verify(repository), "PATH_INVALID")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:259: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'PATH_INVALID'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'PATH_INVALID' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+______ test_declared_escape_paths_are_rejected_without_opening_them[a//b] ______
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_declared_escape_paths_are5')
+bad_path = 'a//b'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x785fab7dd410>
+
+    @pytest.mark.parametrize("bad_path", ["/tmp/outside", "../../outside", "a/../outside", ".git/config", "a\\outside", "a//b"])
+    def test_declared_escape_paths_are_rejected_without_opening_them(repository: Path, bad_path: str, monkeypatch) -> None:
+        edit(repository, PACKAGE, lambda d: d["files"][0].update(path=bad_path))
+        original = Path.open
+        def confined_open(path, *args, **kwargs):
+            assert path.resolve().is_relative_to(repository), f"outside open attempted: {path}"
+            return original(path, *args, **kwargs)
+        monkeypatch.setattr(Path, "open", confined_open)
+>       rejected(checker.verify(repository), "PATH_INVALID")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:259: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'PATH_INVALID'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'PATH_INVALID' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+_ test_fixed_input_symlink_escape_rejected_before_outside_read[_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_fixed_input_symlink_escap0')
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x785fac0535d0>, _basetemp=PosixPath('/tmp/pytest-of-administrator/pytest-20'), _retention_count=3, _retention_policy='all')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x785fab7726d0>
+target = '_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json'
+
+    @pytest.mark.parametrize("target", [PACKAGE, checker.SCHEMA, "module/hosting-inventory.json", checker.TOOL])
+    def test_fixed_input_symlink_escape_rejected_before_outside_read(repository: Path, tmp_path_factory, monkeypatch, target: str) -> None:
+        outside = tmp_path_factory.mktemp("outside") / "unreadable-input"
+        outside.write_bytes((repository / target).read_bytes())
+        (repository / target).unlink()
+        (repository / target).symlink_to(outside)
+        original = Path.open
+        def confined_open(path, *args, **kwargs):
+            assert path.resolve().is_relative_to(repository), f"outside open attempted: {path}"
+            return original(path, *args, **kwargs)
+        monkeypatch.setattr(Path, "open", confined_open)
+>       rejected(checker.verify(repository), "PATH_ESCAPE")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:273: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'PATH_ESCAPE'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'PATH_ESCAPE' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+_ test_fixed_input_symlink_escape_rejected_before_outside_read[_bmad/schemas/epic-16-adoption-v1.schema.json] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_fixed_input_symlink_escap1')
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x785fac0535d0>, _basetemp=PosixPath('/tmp/pytest-of-administrator/pytest-20'), _retention_count=3, _retention_policy='all')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x785fabe3e6d0>
+target = '_bmad/schemas/epic-16-adoption-v1.schema.json'
+
+    @pytest.mark.parametrize("target", [PACKAGE, checker.SCHEMA, "module/hosting-inventory.json", checker.TOOL])
+    def test_fixed_input_symlink_escape_rejected_before_outside_read(repository: Path, tmp_path_factory, monkeypatch, target: str) -> None:
+        outside = tmp_path_factory.mktemp("outside") / "unreadable-input"
+        outside.write_bytes((repository / target).read_bytes())
+        (repository / target).unlink()
+        (repository / target).symlink_to(outside)
+        original = Path.open
+        def confined_open(path, *args, **kwargs):
+            assert path.resolve().is_relative_to(repository), f"outside open attempted: {path}"
+            return original(path, *args, **kwargs)
+        monkeypatch.setattr(Path, "open", confined_open)
+>       rejected(checker.verify(repository), "PATH_ESCAPE")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:273: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'PATH_ESCAPE'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'PATH_ESCAPE' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+_ test_fixed_input_symlink_escape_rejected_before_outside_read[module/hosting-inventory.json] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_fixed_input_symlink_escap2')
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x785fac0535d0>, _basetemp=PosixPath('/tmp/pytest-of-administrator/pytest-20'), _retention_count=3, _retention_policy='all')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x785fab7d3710>
+target = 'module/hosting-inventory.json'
+
+    @pytest.mark.parametrize("target", [PACKAGE, checker.SCHEMA, "module/hosting-inventory.json", checker.TOOL])
+    def test_fixed_input_symlink_escape_rejected_before_outside_read(repository: Path, tmp_path_factory, monkeypatch, target: str) -> None:
+        outside = tmp_path_factory.mktemp("outside") / "unreadable-input"
+        outside.write_bytes((repository / target).read_bytes())
+        (repository / target).unlink()
+        (repository / target).symlink_to(outside)
+        original = Path.open
+        def confined_open(path, *args, **kwargs):
+            assert path.resolve().is_relative_to(repository), f"outside open attempted: {path}"
+            return original(path, *args, **kwargs)
+        monkeypatch.setattr(Path, "open", confined_open)
+>       rejected(checker.verify(repository), "PATH_ESCAPE")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:273: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'PATH_ESCAPE'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'PATH_ESCAPE' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+_ test_fixed_input_symlink_escape_rejected_before_outside_read[.config/dotnet-tools.json] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_fixed_input_symlink_escap3')
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x785fac0535d0>, _basetemp=PosixPath('/tmp/pytest-of-administrator/pytest-20'), _retention_count=3, _retention_policy='all')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x785fab96be10>
+target = '.config/dotnet-tools.json'
+
+    @pytest.mark.parametrize("target", [PACKAGE, checker.SCHEMA, "module/hosting-inventory.json", checker.TOOL])
+    def test_fixed_input_symlink_escape_rejected_before_outside_read(repository: Path, tmp_path_factory, monkeypatch, target: str) -> None:
+        outside = tmp_path_factory.mktemp("outside") / "unreadable-input"
+        outside.write_bytes((repository / target).read_bytes())
+        (repository / target).unlink()
+        (repository / target).symlink_to(outside)
+        original = Path.open
+        def confined_open(path, *args, **kwargs):
+            assert path.resolve().is_relative_to(repository), f"outside open attempted: {path}"
+            return original(path, *args, **kwargs)
+        monkeypatch.setattr(Path, "open", confined_open)
+>       rejected(checker.verify(repository), "PATH_ESCAPE")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:273: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'PATH_ESCAPE'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'PATH_ESCAPE' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+_ test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[{"status":"candidate-for-owner-review","status":"candidate-for-owner-review"}] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_malformed_json_and_duplic0')
+content = b'{"status":"candidate-for-owner-review","status":"candidate-for-owner-review"}'
+
+    @pytest.mark.parametrize("content", [
+        b'{"status":"candidate-for-owner-review","status":"candidate-for-owner-review"}',
+        b'{"value": NaN}',
+        b'{"value": 1e999}',
+        b'{"value": -1e999}',
+        b'not-json',
+        b'\xff',
+    ])
+    def test_malformed_json_and_duplicate_keys_fail_instead_of_blocking(repository: Path, content: bytes) -> None:
+        (repository / PACKAGE).write_bytes(content)
+>       rejected(checker.verify(repository), "JSON_INVALID")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:286: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'JSON_INVALID'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'JSON_INVALID' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+_ test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[{"value": NaN}] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_malformed_json_and_duplic1')
+content = b'{"value": NaN}'
+
+    @pytest.mark.parametrize("content", [
+        b'{"status":"candidate-for-owner-review","status":"candidate-for-owner-review"}',
+        b'{"value": NaN}',
+        b'{"value": 1e999}',
+        b'{"value": -1e999}',
+        b'not-json',
+        b'\xff',
+    ])
+    def test_malformed_json_and_duplicate_keys_fail_instead_of_blocking(repository: Path, content: bytes) -> None:
+        (repository / PACKAGE).write_bytes(content)
+>       rejected(checker.verify(repository), "JSON_INVALID")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:286: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'JSON_INVALID'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'JSON_INVALID' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+_ test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[{"value": 1e999}] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_malformed_json_and_duplic2')
+content = b'{"value": 1e999}'
+
+    @pytest.mark.parametrize("content", [
+        b'{"status":"candidate-for-owner-review","status":"candidate-for-owner-review"}',
+        b'{"value": NaN}',
+        b'{"value": 1e999}',
+        b'{"value": -1e999}',
+        b'not-json',
+        b'\xff',
+    ])
+    def test_malformed_json_and_duplicate_keys_fail_instead_of_blocking(repository: Path, content: bytes) -> None:
+        (repository / PACKAGE).write_bytes(content)
+>       rejected(checker.verify(repository), "JSON_INVALID")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:286: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'JSON_INVALID'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'JSON_INVALID' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+_ test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[{"value": -1e999}] _
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_malformed_json_and_duplic3')
+content = b'{"value": -1e999}'
+
+    @pytest.mark.parametrize("content", [
+        b'{"status":"candidate-for-owner-review","status":"candidate-for-owner-review"}',
+        b'{"value": NaN}',
+        b'{"value": 1e999}',
+        b'{"value": -1e999}',
+        b'not-json',
+        b'\xff',
+    ])
+    def test_malformed_json_and_duplicate_keys_fail_instead_of_blocking(repository: Path, content: bytes) -> None:
+        (repository / PACKAGE).write_bytes(content)
+>       rejected(checker.verify(repository), "JSON_INVALID")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:286: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'JSON_INVALID'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'JSON_INVALID' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+__ test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[not-json] ___
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_malformed_json_and_duplic4')
+content = b'not-json'
+
+    @pytest.mark.parametrize("content", [
+        b'{"status":"candidate-for-owner-review","status":"candidate-for-owner-review"}',
+        b'{"value": NaN}',
+        b'{"value": 1e999}',
+        b'{"value": -1e999}',
+        b'not-json',
+        b'\xff',
+    ])
+    def test_malformed_json_and_duplicate_keys_fail_instead_of_blocking(repository: Path, content: bytes) -> None:
+        (repository / PACKAGE).write_bytes(content)
+>       rejected(checker.verify(repository), "JSON_INVALID")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:286: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'JSON_INVALID'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'JSON_INVALID' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+____ test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[\xff] _____
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_malformed_json_and_duplic5')
+content = b'\xff'
+
+    @pytest.mark.parametrize("content", [
+        b'{"status":"candidate-for-owner-review","status":"candidate-for-owner-review"}',
+        b'{"value": NaN}',
+        b'{"value": 1e999}',
+        b'{"value": -1e999}',
+        b'not-json',
+        b'\xff',
+    ])
+    def test_malformed_json_and_duplicate_keys_fail_instead_of_blocking(repository: Path, content: bytes) -> None:
+        (repository / PACKAGE).write_bytes(content)
+>       rejected(checker.verify(repository), "JSON_INVALID")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:286: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'JSON_INVALID'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'JSON_INVALID' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+_____ test_capability_claim_is_checked_against_actual_generator_constants ______
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_capability_claim_is_check0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x785fabe10450>
+
+    def test_capability_claim_is_checked_against_actual_generator_constants(repository: Path, monkeypatch) -> None:
+        monkeypatch.setattr(checker, "V2_CONTRACT_SCHEMA_VERSION", "unsupported-schema")
+>       rejected(checker.verify(repository), "GENERATOR_CAPABILITY_DRIFT")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:303: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'GENERATOR_CAPABILITY_DRIFT'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'GENERATOR_CAPABILITY_DRIFT' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+____ test_real_cli_structural_failure_has_exit_one_and_literal_no_authority ____
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_real_cli_structural_failu0')
+
+    def test_real_cli_structural_failure_has_exit_one_and_literal_no_authority(repository: Path) -> None:
+        (repository / PACKAGE).write_bytes(b'{"broken":')
+        process = subprocess.run([sys.executable, str(ROOT / "_bmad/scripts/verify_epic_16_adoption.py"),
+                                  "--repository", str(repository)], capture_output=True, text=True, check=False)
+        assert process.returncode == 1, process.stdout + process.stderr
+>       rejected(json.loads(process.stdout), "JSON_INVALID")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:311: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'JSON_INVALID'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'JSON_INVALID' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+___________ test_fixture_and_verifier_need_no_live_reference_content ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_fixture_and_verifier_need0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x785fab29dc10>
+
+    def test_fixture_and_verifier_need_no_live_reference_content(tmp_path: Path, monkeypatch) -> None:
+        original = Path.open
+        def no_live_reference_open(path, *args, **kwargs):
+            assert not path.is_relative_to(ROOT / "references"), f"live reference opened: {path}"
+            return original(path, *args, **kwargs)
+        monkeypatch.setattr(Path, "open", no_live_reference_open)
+        report = checker.verify(populate_repository(tmp_path))
+>       assert report["result"] == "PASS", report
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:321: AssertionError
+_____________ test_rehashed_wrong_sdk_token_key_is_rejected[input] _____________
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_rehashed_wrong_sdk_token_0')
+field = 'input'
+
+    @pytest.mark.parametrize("field", ["input", "secret"])
+    def test_rehashed_wrong_sdk_token_key_is_rejected(repository: Path, field: str) -> None:
+        def wrong_key(document):
+            module = document["modules"][0]
+            rows = (module["runtime"]["extensions"][0]["configurationInputs"] if field == "input"
+                    else module["integration"]["secrets"])
+            key = "key" if field == "input" else "configurationKey"
+            for row in rows:
+                if row.get("reference", row.get("name")) == "app-channel-token":
+                    row[key] = "EventStore:AppChannelToken"
+        edit(repository, checker.MANIFEST, wrong_key)
+        rehash(repository)
+>       rejected(checker.verify(repository), "ENROLLMENT_OR_REVIEW_DRIFT")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:375: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'ENROLLMENT_OR_REVIEW_DRIFT'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'ENROLLMENT_OR_REVIEW_DRIFT' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+____________ test_rehashed_wrong_sdk_token_key_is_rejected[secret] _____________
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_rehashed_wrong_sdk_token_1')
+field = 'secret'
+
+    @pytest.mark.parametrize("field", ["input", "secret"])
+    def test_rehashed_wrong_sdk_token_key_is_rejected(repository: Path, field: str) -> None:
+        def wrong_key(document):
+            module = document["modules"][0]
+            rows = (module["runtime"]["extensions"][0]["configurationInputs"] if field == "input"
+                    else module["integration"]["secrets"])
+            key = "key" if field == "input" else "configurationKey"
+            for row in rows:
+                if row.get("reference", row.get("name")) == "app-channel-token":
+                    row[key] = "EventStore:AppChannelToken"
+        edit(repository, checker.MANIFEST, wrong_key)
+        rehash(repository)
+>       rejected(checker.verify(repository), "ENROLLMENT_OR_REVIEW_DRIFT")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:375: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'ENROLLMENT_OR_REVIEW_DRIFT'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'ENROLLMENT_OR_REVIEW_DRIFT' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+_______________ test_present_nonregular_input_is_fail[directory] _______________
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_present_nonregular_input_0')
+kind = 'directory'
+
+    @pytest.mark.parametrize("kind", ["directory", "fifo"])
+    def test_present_nonregular_input_is_fail(repository: Path, kind: str) -> None:
+        target = repository / PACKAGE
+        target.unlink()
+        target.mkdir() if kind == "directory" else os.mkfifo(target)
+>       rejected(checker.verify(repository), "INPUT_NOT_REGULAR")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:383: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'INPUT_NOT_REGULAR'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'INPUT_NOT_REGULAR' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+_________________ test_present_nonregular_input_is_fail[fifo] __________________
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_present_nonregular_input_1')
+kind = 'fifo'
+
+    @pytest.mark.parametrize("kind", ["directory", "fifo"])
+    def test_present_nonregular_input_is_fail(repository: Path, kind: str) -> None:
+        target = repository / PACKAGE
+        target.unlink()
+        target.mkdir() if kind == "directory" else os.mkfifo(target)
+>       rejected(checker.verify(repository), "INPUT_NOT_REGULAR")
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:383: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+code = 'INPUT_NOT_REGULAR'
+
+    def rejected(report: dict, code: str | None = None) -> None:
+        assert report["result"] == "FAIL", report
+        assert report["assertionLedger"]
+        assert report["entryReadiness"] == "BLOCKED"
+        no_authority(report)
+        if code:
+>           assert code in report["blockers"], report
+E           AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v1', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E           assert 'INPUT_NOT_REGULAR' in ['SOURCE_BINDING_INVALID', 'SOURCE_BYTES_DRIFT']
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:77: AssertionError
+________________ test_unreadable_input_is_blocked_with_its_path ________________
+
+repository = PosixPath('/tmp/pytest-of-administrator/pytest-20/test_unreadable_input_is_block0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x785fab966150>
+
+    def test_unreadable_input_is_blocked_with_its_path(repository: Path, monkeypatch) -> None:
+        original = os.open
+        target_parent = (repository / PACKAGE).parent.stat().st_ino
+        def denied(name, flags, *, dir_fd=None):
+            if name == "package.json" and dir_fd is not None and os.fstat(dir_fd).st_ino == target_parent:
+                raise PermissionError(errno.EACCES, "permission denied", name)
+            return original(name, flags, dir_fd=dir_fd)
+        monkeypatch.setattr(os, "supports_dir_fd", {*os.supports_dir_fd, denied})
+        monkeypatch.setattr(os, "open", denied)
+        report = checker.verify(repository)
+>       assert report["result"] == "BLOCKED" and report["blockers"] == ["INPUT_UNAVAILABLE"]
+E       AssertionError: assert ('FAIL' == 'BLOCKED'
+E         
+E         - BLOCKED
+E         + FAIL)
+
+_bmad/scripts/tests/test_verify_epic_16_adoption.py:404: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_valid_package_passes_structure_but_reports_actual_entry_failures_without_execution
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_package_authority_cannot_be_granted[executionAllowed]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_package_authority_cannot_be_granted[ownerApprovalClaimed]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_package_authority_cannot_be_granted[releaseAuthorized]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_package_authority_cannot_be_granted[pushAuthorized]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json-INPUT_UNAVAILABLE]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[_bmad/schemas/epic-16-adoption-v1.schema.json-INPUT_UNAVAILABLE]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[.config/dotnet-tools.json-ACCEPTED_TOOL_UNAVAILABLE]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[module/validation/version.txt-ACCEPTED_TOOL_UNAVAILABLE]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_declared_escape_paths_are_rejected_without_opening_them[/tmp/outside]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_declared_escape_paths_are_rejected_without_opening_them[../../outside]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_declared_escape_paths_are_rejected_without_opening_them[a/../outside]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_declared_escape_paths_are_rejected_without_opening_them[.git/config]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_declared_escape_paths_are_rejected_without_opening_them[a\\outside]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_declared_escape_paths_are_rejected_without_opening_them[a//b]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_fixed_input_symlink_escape_rejected_before_outside_read[_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_fixed_input_symlink_escape_rejected_before_outside_read[_bmad/schemas/epic-16-adoption-v1.schema.json]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_fixed_input_symlink_escape_rejected_before_outside_read[module/hosting-inventory.json]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_fixed_input_symlink_escape_rejected_before_outside_read[.config/dotnet-tools.json]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[{"status":"candidate-for-owner-review","status":"candidate-for-owner-review"}]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[{"value": NaN}]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[{"value": 1e999}]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[{"value": -1e999}]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[not-json]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[\xff]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_capability_claim_is_checked_against_actual_generator_constants
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_real_cli_structural_failure_has_exit_one_and_literal_no_authority
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_fixture_and_verifier_need_no_live_reference_content
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_rehashed_wrong_sdk_token_key_is_rejected[input]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_rehashed_wrong_sdk_token_key_is_rejected[secret]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_present_nonregular_input_is_fail[directory]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_present_nonregular_input_is_fail[fifo]
+FAILED _bmad/scripts/tests/test_verify_epic_16_adoption.py::test_unreadable_input_is_blocked_with_its_path
+33 failed, 98 passed in 24.92s

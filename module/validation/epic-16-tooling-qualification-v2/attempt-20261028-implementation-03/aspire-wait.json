@@ -1,0 +1,27 @@
+{
+  "name": "aspire-wait",
+  "command": [
+    "aspire",
+    "wait",
+    "--help"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 0.201,
+  "exitCode": 0,
+  "termination": null,
+  "environment": {},
+  "stdout": {
+    "path": "aspire-wait.stdout.txt",
+    "bytes": 1433,
+    "sha256": "7dec06e4af8bbac0af914531a2d7cb9a36a81446605c38658a9527d2c9849a55",
+    "rawSha256": "7dec06e4af8bbac0af914531a2d7cb9a36a81446605c38658a9527d2c9849a55"
+  },
+  "stderr": {
+    "path": "aspire-wait.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

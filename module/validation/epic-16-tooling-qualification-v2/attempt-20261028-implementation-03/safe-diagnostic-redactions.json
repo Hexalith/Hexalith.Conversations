@@ -1,0 +1,18 @@
+{
+  "distinctAdditionalCredentials": 2,
+  "streams": [
+    {
+      "path": "aspire-describe-ready.stdout.txt",
+      "replacements": 2,
+      "priorRetainedSha256": "0cac13238e20aa66a097168a8f576beb7ca084e2e48c731994b6ba7701c31c70",
+      "sha256": "ed949923b3e875fbb4c204dec83ac6fed082150f83e23f9fc930080a64295747"
+    },
+    {
+      "path": "aspire-describe-initial.stdout.txt",
+      "replacements": 2,
+      "priorRetainedSha256": "c7458614364a1cc18a96a3aebc2dd6f4827664fb76dabaf52d839126bad7a2cc",
+      "sha256": "2387f5ec845bbe609180e0bb938ea18a826f1498d12ec5dc5e5b30b908cda106"
+    }
+  ],
+  "rawCaptureHashesRetained": true
+}

@@ -1,0 +1,32 @@
+{
+  "command": [
+    "dotnet",
+    "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds/test/Hexalith.Builds.Module.Tests/bin/Debug/net10.0/Hexalith.Builds.Module.Tests.dll",
+    "-automated",
+    "sync",
+    "-failSkips",
+    "-class",
+    "Hexalith.Builds.ModuleTool.Tests.Workspace.BuildPreparationTests",
+    "-trx",
+    "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-tooling-qualification-v2/parent-review-20261028/fixes/Workspace.BuildPreparationTests.trx"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+  "startedUtc": "2026-10-28T13:07:37.737363+00:00",
+  "completedUtc": "2026-10-28T13:07:43.548182+00:00",
+  "durationSeconds": 5.811,
+  "timeoutSeconds": 180,
+  "outputLimitBytes": 16777216,
+  "exitCode": 0,
+  "termination": null,
+  "environmentOverrides": {},
+  "stdout": {
+    "path": "Workspace.BuildPreparationTests.stdout.txt",
+    "bytes": 58371,
+    "sha256": "5ef9a1ee5aa0514fefb23950584ba76d16ffe480b4f1d173e08d32e0376016b2"
+  },
+  "stderr": {
+    "path": "Workspace.BuildPreparationTests.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

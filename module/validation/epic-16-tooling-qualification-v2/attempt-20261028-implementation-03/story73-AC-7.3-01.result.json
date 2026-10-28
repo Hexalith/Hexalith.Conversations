@@ -1,0 +1,212 @@
+{
+  "schemaVersion": "hexalith.conversations.acceptance-result.v1",
+  "storyId": "7.3",
+  "scenarioId": "AC-7.3-01",
+  "command": "python3 _bmad/scripts/verify_story_completion_workflows.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json --scenario AC-7.3-01 --output artifacts/v9/7.3/AC-7.3-01.json",
+  "exitCode": 0,
+  "result": "PASS",
+  "blockers": [],
+  "candidate": "ef01d578a00efd527bae9226dca302f54cd012f0",
+  "inputs": [
+    {
+      "path": ".agents/skills/bmad-build-auto/step-04-review.md",
+      "sha256": "197494dafdfef74c5b454bb996ca949e88cb97d2dac6c79a5102517a0181e6c4"
+    },
+    {
+      "path": ".agents/skills/bmad-build/step-05-present.md",
+      "sha256": "877a05d7ff1d4a08a9c35fadc7d684d1ea297bfb305f3149e6a79ba47a8bdf2b"
+    },
+    {
+      "path": ".agents/skills/bmad-build/step-oneshot.md",
+      "sha256": "266dd91dfdf13fe5a1d2c18323c62b0c03de6a0515818eaf5c3908ac7db11eb7"
+    },
+    {
+      "path": ".agents/skills/bmad-code-review/steps/step-04-present.md",
+      "sha256": "a6cb2a555462fb47d0d511ab03c6640d1c309289d1c2f9b533d4dcdb1d8abfcd"
+    },
+    {
+      "path": ".claude/skills/bmad-build-auto/step-04-review.md",
+      "sha256": "197494dafdfef74c5b454bb996ca949e88cb97d2dac6c79a5102517a0181e6c4"
+    },
+    {
+      "path": ".claude/skills/bmad-build/step-05-present.md",
+      "sha256": "877a05d7ff1d4a08a9c35fadc7d684d1ea297bfb305f3149e6a79ba47a8bdf2b"
+    },
+    {
+      "path": ".claude/skills/bmad-build/step-oneshot.md",
+      "sha256": "266dd91dfdf13fe5a1d2c18323c62b0c03de6a0515818eaf5c3908ac7db11eb7"
+    },
+    {
+      "path": ".claude/skills/bmad-code-review/steps/step-04-present.md",
+      "sha256": "a6cb2a555462fb47d0d511ab03c6640d1c309289d1c2f9b533d4dcdb1d8abfcd"
+    }
+  ],
+  "outputs": [],
+  "assertionLedger": [
+    {
+      "id": "AC-7.3-01#0001",
+      "subject": ".agents/skills/bmad-build-auto/step-04-review.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0002",
+      "subject": ".agents/skills/bmad-build-auto/step-04-review.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0003",
+      "subject": ".agents/skills/bmad-build-auto/step-04-review.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0004",
+      "subject": ".agents/skills/bmad-build/step-05-present.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0005",
+      "subject": ".agents/skills/bmad-build/step-05-present.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0006",
+      "subject": ".agents/skills/bmad-build/step-05-present.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0007",
+      "subject": ".agents/skills/bmad-build/step-oneshot.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0008",
+      "subject": ".agents/skills/bmad-build/step-oneshot.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0009",
+      "subject": ".agents/skills/bmad-build/step-oneshot.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0010",
+      "subject": ".agents/skills/bmad-code-review/steps/step-04-present.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0011",
+      "subject": ".agents/skills/bmad-code-review/steps/step-04-present.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0012",
+      "subject": ".agents/skills/bmad-code-review/steps/step-04-present.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0013",
+      "subject": ".claude/skills/bmad-build-auto/step-04-review.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0014",
+      "subject": ".claude/skills/bmad-build-auto/step-04-review.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0015",
+      "subject": ".claude/skills/bmad-build-auto/step-04-review.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0016",
+      "subject": ".claude/skills/bmad-build/step-05-present.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0017",
+      "subject": ".claude/skills/bmad-build/step-05-present.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0018",
+      "subject": ".claude/skills/bmad-build/step-05-present.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0019",
+      "subject": ".claude/skills/bmad-build/step-oneshot.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0020",
+      "subject": ".claude/skills/bmad-build/step-oneshot.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0021",
+      "subject": ".claude/skills/bmad-build/step-oneshot.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0022",
+      "subject": ".claude/skills/bmad-code-review/steps/step-04-present.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0023",
+      "subject": ".claude/skills/bmad-code-review/steps/step-04-present.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0024",
+      "subject": ".claude/skills/bmad-code-review/steps/step-04-present.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0025",
+      "subject": "render:.claude/skills/bmad-build-auto/step-04-review.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0026",
+      "subject": "render:.claude/skills/bmad-build-auto/step-04-review.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0027",
+      "subject": "render:.claude/skills/bmad-build-auto/step-04-review.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0028",
+      "subject": "render:.claude/skills/bmad-build/step-05-present.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0029",
+      "subject": "render:.claude/skills/bmad-build/step-05-present.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0030",
+      "subject": "render:.claude/skills/bmad-build/step-05-present.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0031",
+      "subject": "render:.claude/skills/bmad-build/step-oneshot.md::completion-gate-block-present",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0032",
+      "subject": "render:.claude/skills/bmad-build/step-oneshot.md::generator-invocation-in-block",
+      "state": "PASS"
+    },
+    {
+      "id": "AC-7.3-01#0033",
+      "subject": "render:.claude/skills/bmad-build/step-oneshot.md::block-in-gate-span-before-transition",
+      "state": "PASS"
+    }
+  ]
+}

@@ -43,10 +43,16 @@ def populate_repository(destination: Path) -> Path:
     """Reproduce pinned historic bytes without Git history or live references."""
     snapshot = json.loads((ROOT / "_bmad/scripts/tests/fixtures/epic16-reference-inputs.json").read_text())
     historic = json.loads((ROOT / "_bmad/scripts/tests/fixtures/epic16-historic-root-inputs.json").read_text())
+    frozen_roots = json.loads((ROOT / "_bmad/scripts/tests/fixtures/epic16-adoption-root-sources.json").read_text())["files"]
     for relative in {*checker.SOURCE_PINS, *checker.ARTIFACTS, PACKAGE}:
         target = destination / relative
         target.parent.mkdir(parents=True, exist_ok=True)
-        if relative.startswith("references/") or relative in historic["files"]:
+        if relative in frozen_roots:
+            row = frozen_roots[relative]
+            content = row["utf8"].encode("utf-8")
+            assert digest(content) == row["sha256"] == checker.SOURCE_PINS[relative]
+            target.write_bytes(content)
+        elif relative.startswith("references/") or relative in historic["files"]:
             row = (snapshot if relative.startswith("references/") else historic)["files"][relative]
             content = row["utf8"].encode("utf-8")
             expected = checker.SOURCE_PINS.get(relative, checker.ARTIFACT_PINS.get(relative))

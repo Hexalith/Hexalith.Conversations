@@ -1,0 +1,16 @@
+{
+  "message": "feat(tooling): add held Epic 16 v2 package selection\n\nQualify producer source preparation and preserve immutable v1 evidence.\nAdd explicit v2 policy selection and fail-closed source and entry checks.\nRuntime entry, release and owner qualifications remain held.\n",
+  "command": [
+    "node_modules/.bin/commitlint",
+    "--config",
+    "commitlint.config.mjs",
+    "--edit",
+    "/tmp/epic16-commit-message-8cz0kps7.txt"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "exitCode": 0,
+  "stdout": "",
+  "stderr": "",
+  "configSha256": "6e903d777eba127cd8998956e9cdbd9500e5837bea8e580b1828a9e8d269f1b1",
+  "pinnedCliVersion": "21.2.3"
+}

@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import argparse
 from copy import deepcopy
+from dataclasses import dataclass
+from types import MappingProxyType
 import json
 import os
 from pathlib import Path
@@ -66,12 +68,60 @@ except ReadError as _capture_error:
     _EXECUTION_FAILURE = (_capture_error.code, _capture_error.unavailable)
 
 
-def verify_executing_sources(reader):
+@dataclass(frozen=True)
+class PackagePolicy:
+    """One explicitly selected package; no invocation mutates shared version state."""
+    base: str
+    binding: str
+    schema: str
+    contract_schema: str
+    binding_schema: str
+    contract_pins: object
+    predecessor_pins: object
+    schema_pin: str
+    tool_sources: tuple
+    execution_bytes: object
+    trusted_entries: object
+
+
+def package_policy(package=None):
+    # Preserve public v1 helper defaults, including existing controlled test fixtures.
+    if package is not None:
+        return package
+    return PackagePolicy(BASE, BINDING, SCHEMA, CONTRACT_SCHEMA,
+        'hexalith.conversations.epic16-tooling-binding.v1',
+        MappingProxyType(dict(CONTRACT_PINS)), MappingProxyType(dict(PREDECESSOR_PINS)),
+        SCHEMA_PIN, tuple(TOOL_SOURCES), MappingProxyType(dict(_EXECUTION_BYTES)),
+        MappingProxyType(dict(TRUSTED_ENTRIES)))
+
+
+_V2_CONTRACTS = tuple(
+    f'_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/{story}.json'
+    for story in ('16.1', '16.2', '16.3'))
+
+
+def select_package(path):
+    if path in CONTRACT_PINS:
+        return package_policy()
+    need(path in _V2_CONTRACTS, 'CONTRACT_UNKNOWN', path)
+    # Import only after exact independent selection. V1 retains its old closure/order.
+    try:
+        from epic16_packages import POLICY
+    except ReadError as error:
+        # Secure capture can fail while loading the lazy selected package.
+        # Preserve invalid-input FAIL versus unavailable-platform BLOCKED.
+        raise Stop(error.code, 'selected package executing-source snapshot',
+                   blocked=error.unavailable) from None
+    return POLICY
+
+
+def verify_executing_sources(reader, package=None):
+    package = package_policy(package)
     if _EXECUTION_FAILURE is not None:
         code, unavailable = _EXECUTION_FAILURE
         raise Stop(code, 'executing source snapshot', blocked=unavailable)
     with ContainedReader(_EXECUTION_ROOT) as caller:
-        for path, original in _EXECUTION_BYTES.items():
+        for path, original in package.execution_bytes.items():
             need(read(reader, path) == original == read(caller, path), 'EXECUTING_SOURCE_DRIFT', path)
             if path.endswith('.py'):
                 module = sys.modules.get(Path(path).stem)
@@ -122,8 +172,8 @@ def load(reader, path):
     return parse(read(reader, path))
 
 
-def contract_path(story):
-    return f'{BASE}/story-contracts/{story}.json'
+def contract_path(story, package=None):
+    return f'{package_policy(package).base}/story-contracts/{story}.json'
 
 
 def root_path(scope, story):
@@ -144,13 +194,14 @@ def final_paths(scope, story):
     return [f'{root_path(scope, story)}/final-record.{ext}' for ext in ('json', 'md')]
 
 
-def validate_package(reader, story):
-    path = contract_path(story)
-    need(path in CONTRACT_PINS, 'CONTRACT_UNKNOWN', path)
+def validate_package(reader, story, package=None):
+    package = package_policy(package)
+    path = contract_path(story, package)
+    need(path in package.contract_pins, 'CONTRACT_UNKNOWN', path)
     raw = read(reader, path)
-    need(digest(raw) == CONTRACT_PINS[path], 'CONTRACT_DRIFT', path)
-    schema_bytes = read(reader, SCHEMA)
-    need(digest(schema_bytes) == SCHEMA_PIN, 'SCHEMA_DRIFT', SCHEMA)
+    need(digest(raw) == package.contract_pins[path], 'CONTRACT_DRIFT', path)
+    schema_bytes = read(reader, package.schema)
+    need(digest(schema_bytes) == package.schema_pin, 'SCHEMA_DRIFT', package.schema)
     contract = parse(raw)
     schema = parse(schema_bytes)
     try:
@@ -167,24 +218,30 @@ def validate_package(reader, story):
     need(len(servers)==1 and servers[0]['appId']==measurements.relationships.CATALOG_CONTROL['appId'], 'CONTRACT_DRIFT', 'enrolled runtime identity')
     need(contract['storyId'] == story and contract['authority'] == AUTHORITY
          and all(contract['authority'][key] is False for key in AUTHORITY if key != 'implementationHold'), 'AUTHORITY_INVALID', path)
-    for p, expected in PREDECESSOR_PINS.items():
+    for p, expected in package.predecessor_pins.items():
         need(digest(read(reader, p)) == expected, 'PREDECESSOR_DRIFT', p)
     preserved = load(reader, contract['predecessor'])['preservedContract']
     need(contract['preservedContract'] == preserved, 'OBLIGATION_DRIFT', path)
     need([s['id'] for s in preserved['scenarios']] == [f'AC-{story}-0{n}' for n in range(1, 7)], 'INVENTORY_DRIFT', path)
-    binding = load(reader, BINDING)
-    need(set(binding) == {'schemaVersion', 'purpose', 'authority', 'sources', 'entry'}, 'BINDING_INVALID', BINDING)
-    need(binding['schemaVersion'] == 'hexalith.conversations.epic16-tooling-binding.v1'
-         and binding['purpose'] == 'prerequisite-tooling-only' and canonical(binding['authority']) == canonical(AUTHORITY), 'AUTHORITY_INVALID', BINDING)
-    expected_paths = sorted((*TOOL_SOURCES, *CONTRACT_PINS, *PREDECESSOR_PINS))
-    need([r['path'] for r in binding['sources']] == expected_paths, 'INVENTORY_DRIFT', BINDING)
+    binding = load(reader, package.binding)
+    need(set(binding) == {'schemaVersion', 'purpose', 'authority', 'sources', 'entry'}, 'BINDING_INVALID', package.binding)
+    need(binding['schemaVersion'] == package.binding_schema
+         and binding['purpose'] == 'prerequisite-tooling-only' and canonical(binding['authority']) == canonical(AUTHORITY), 'AUTHORITY_INVALID', package.binding)
+    if package.binding_schema.endswith('.v2'):
+        try:
+            jsonschema.validate(binding, schema['$defs']['binding'])
+        except jsonschema.ValidationError:
+            raise Stop('BINDING_INVALID', package.binding) from None
+    expected_paths = sorted((*package.tool_sources, *package.contract_pins, *package.predecessor_pins))
+    need([r['path'] for r in binding['sources']] == expected_paths, 'INVENTORY_DRIFT', package.binding)
     for row in binding['sources']:
         need(set(row) == {'path', 'sha256'} and row['sha256'] == digest(read(reader, row['path'])), 'SOURCE_DRIFT', row['path'])
-    verify_executing_sources(reader)
+    verify_executing_sources(reader, package)
     return contract, binding
 
 
-def git_facts(repository, candidate, scope, story, reader, binding, *, publication=False, verify_spec=None):
+def git_facts(repository, candidate, scope, story, reader, binding, *, publication=False, verify_spec=None, package=None):
+    package = package_policy(package)
     try:
         candidate = records.resolve_commit(repository, candidate, 'CANDIDATE_UNAVAILABLE')
         head = records.resolve_commit(repository, 'HEAD', 'CANDIDATE_UNAVAILABLE')
@@ -199,7 +256,7 @@ def git_facts(repository, candidate, scope, story, reader, binding, *, publicati
         records.run_git(repository, 'cat-file', '-e', parents[1] + '^{commit}')
         records.run_git(repository, 'rev-list', '--objects', '--missing=error', candidate)
         sources = []
-        for row in binding['sources'] + [dict(path=BINDING, sha256=digest(read(reader, BINDING)))]:
+        for row in binding['sources'] + [dict(path=package.binding, sha256=digest(read(reader, package.binding)))]:
             raw = records.v2_committed_blob(repository, candidate, row['path'])
             need(raw is not None, 'SOURCE_UNCOMMITTED', row['path'], blocked=True)
             need(digest(raw) == row['sha256'], 'SOURCE_DRIFT', row['path'])
@@ -249,14 +306,15 @@ def verify_dependencies(repository, links):
             raise Stop('DEPENDENCY_UNAVAILABLE', link['path'], blocked=True) from None
 
 
-def entry_evidence(reader, binding, story, candidate, scope):
+def entry_evidence(reader, binding, story, candidate, scope, package=None):
+    package = package_policy(package)
     if scope == 'tooling-fixture':
-        need(binding['entry'] is None, 'FIXTURE_AUTHORITY_FORBIDDEN', BINDING)
+        need(binding['entry'] is None, 'FIXTURE_AUTHORITY_FORBIDDEN', package.binding)
         return dict(scope='tooling-fixture', runtimeQualified=False, qualification='not-applicable')
     entry = binding['entry']
     need(entry is not None, 'ENTRY_QUALIFICATION_PENDING', story, blocked=True)
     need(isinstance(entry, dict) and set(entry) == {'path', 'sha256'}, 'ENTRY_UNTRUSTED', story)
-    need(TRUSTED_ENTRIES.get(entry['path']) == entry['sha256'], 'ENTRY_UNTRUSTED', entry['path'])
+    need(package.trusted_entries.get(entry['path']) == entry['sha256'], 'ENTRY_UNTRUSTED', entry['path'])
     raw = read(reader, entry['path'])
     need(digest(raw) == entry['sha256'], 'ENTRY_DRIFT', entry['path'])
     document = parse(raw)
@@ -273,7 +331,7 @@ def entry_evidence(reader, binding, story, candidate, scope):
     need(isinstance(document['qualifications'], dict) and set(document['qualifications']) == set(requirements), 'ENTRY_INVENTORY_DRIFT', story)
     need(all(document['qualifications'][key] == 'PASS' for key in requirements), 'ENTRY_QUALIFICATION_PENDING', story, blocked=True)
     need(document['executionAllowed'] is True and document['ownerApprovalClaimed'] is True, 'ENTRY_AUTHORITY_INVALID', story)
-    expected = load(reader, contract_path(story))['preservedContract']['predecessors']
+    expected = load(reader, contract_path(story, package))['preservedContract']['predecessors']
     predecessors = document['predecessors']
     need(isinstance(predecessors, list) and [r['identity'] for r in predecessors] == expected, 'ENTRY_PREDECESSOR_DRIFT', story)
     files = []
@@ -357,13 +415,14 @@ def verify_canonicalizer_source(reader):
     return dict(path=CANONICALIZER_SOURCE, sha256=measured)
 
 
-def native_binary(reader, raw, candidate, scenario, *, retained=False, facts=None):
+def native_binary(reader, raw, candidate, scenario, *, retained=False, facts=None, package=None):
+    package = package_policy(package)
     parsed = records.parse_trx(raw)
     need(len(parsed['code_bases']) == 1, 'NATIVE_BINARY_UNAVAILABLE', scenario, blocked=True)
     path = parsed['code_bases'][0]
     capture_binding = None
     if retained:
-        path, content, capture_binding, document = capture.resolve(reader, raw, path, candidate, scenario, read, load, need, load(reader, SCHEMA)['$defs']['nativeCapture'])
+        path, content, capture_binding, document = capture.resolve(reader, raw, path, candidate, scenario, read, load, need, load(reader, package.schema)['$defs']['nativeCapture'])
     elif path.startswith('/'):
         # Lexical conversion only. Never resolve symlinks or normalize dot segments.
         prefix = reader.repository.as_posix().rstrip('/') + '/'
@@ -440,34 +499,35 @@ def failed(result, error):
     return result
 
 
-def evaluate(repository: Path, story: str, scenario: str, candidate='HEAD', scope='runtime', *, publication=False, verify_spec=None):
+def evaluate(repository: Path, story: str, scenario: str, candidate='HEAD', scope='runtime', *, publication=False, verify_spec=None, package=None):
+    package = package_policy(package)
     result = report(story, scenario, scope)
     try:
         need(scope in ('runtime', 'tooling-fixture') and scenario in measurements.SCENARIOS and scenario[3:7] == story, 'SCENARIO_INVALID', scenario)
         with ContainedReader(repository) as reader:
-            contract, binding = validate_package(reader, story)
-            result['assertionLedger'].append(dict(id='preservation', subject=contract_path(story), state='PASS'))
+            contract, binding = validate_package(reader, story, package)
+            result['assertionLedger'].append(dict(id='preservation', subject=contract_path(story, package), state='PASS'))
             # Entry precedes runtime consumption. Held preparation cannot emit a
             # runtime PASS even when a caller fabricates native measurements.
             candidate = records.resolve_commit(repository, candidate, 'CANDIDATE_UNAVAILABLE')
-            entry = entry_evidence(reader, binding, story, candidate, scope)
-            facts, tooling = git_facts(repository, candidate, scope, story, reader, binding, publication=publication, verify_spec=verify_spec)
+            entry = entry_evidence(reader, binding, story, candidate, scope, package)
+            facts, tooling = git_facts(repository, candidate, scope, story, reader, binding, publication=publication, verify_spec=verify_spec, package=package)
             result['candidate'] = facts
-            if scope == 'runtime': entry = entry_evidence(reader, binding, story, facts['commit'], scope)
+            if scope == 'runtime': entry = entry_evidence(reader, binding, story, facts['commit'], scope, package)
             sources = source_manifest(repository, reader, facts['commit'], scope, story)
             path = native_path(scope, scenario)
             raw = read(reader, path)
-            observations, counts = parse_native(raw, scenario, facts['commit'], sources, CONTRACT_PINS[contract_path(story)])
+            observations, counts = parse_native(raw, scenario, facts['commit'], sources, package.contract_pins[contract_path(story, package)])
             if scope == 'runtime':
                 # A runtime TRX must bind an actual source-stamped test binary;
                 # fixture TRX deliberately earns no such qualification.
-                binary = native_binary(reader, raw, facts['commit'], scenario, retained=True, facts=facts)
+                binary = native_binary(reader, raw, facts['commit'], scenario, retained=True, facts=facts, package=package)
                 canonicalizer = verify_canonicalizer_source(reader) if scenario == 'AC-16.2-02' else None
             else:
                 binary = None
                 canonicalizer = None
             try:
-                jsonschema.validators.extend(jsonschema.Draft202012Validator, type_checker=jsonschema.Draft202012Validator.TYPE_CHECKER.redefine('integer', lambda checker, value: type(value) is int))(load(reader, SCHEMA)['$defs'][scenario]).validate(observations)
+                jsonschema.validators.extend(jsonschema.Draft202012Validator, type_checker=jsonschema.Draft202012Validator.TYPE_CHECKER.redefine('integer', lambda checker, value: type(value) is int))(load(reader, package.schema)['$defs'][scenario]).validate(observations)
             except jsonschema.ValidationError as error:
                 raise Stop('MEASUREMENT_INVALID' if error.validator == 'maximum' else 'MEASUREMENT_SCHEMA_INVALID', scenario) from None
             # Cross-scenario dependencies are recomputed from native evidence,
@@ -475,13 +535,13 @@ def evaluate(repository: Path, story: str, scenario: str, candidate='HEAD', scop
             dependencies = {'AC-16.1-05': ('AC-16.1-02', 'AC-16.1-03'),
                 'AC-16.2-05': ('AC-16.2-02', 'AC-16.2-03'), 'AC-16.3-04': ('AC-16.3-03',)}.get(scenario, ())
             for dependency in dependencies:
-                other = evaluate(repository, story, dependency, facts['commit'], scope, publication=publication, verify_spec=verify_spec)
+                other = evaluate(repository, story, dependency, facts['commit'], scope, publication=publication, verify_spec=verify_spec, package=package)
                 need(other['result'] == 'PASS', 'SCENARIO_DEPENDENCY_FAILED', dependency,
                      blocked=other['result'] == 'BLOCKED')
                 if scenario == 'AC-16.3-04':
                     with ContainedReader(repository) as dependency_reader:
                         dependency_raw = read(dependency_reader, native_path(scope, dependency))
-                    previous, _ = parse_native(dependency_raw, dependency, facts['commit'], sources, CONTRACT_PINS[contract_path(story)])
+                    previous, _ = parse_native(dependency_raw, dependency, facts['commit'], sources, package.contract_pins[contract_path(story, package)])
                     need(all(observations[key] == previous[key] for key in ('persistedPendingId', 'pendingSequence', 'tenant', 'runtimeId', 'catalogSha256', 'catalogBytes', 'catalogFingerprint', 'pendingLocation', 'wireRoutes', 'pendingEvent', 'pendingBinding', 'precedingEvents')), 'RECONCILIATION_IDENTITY_DRIFT', scenario)
             checks = measurements.evaluate(scenario, observations)
             surface = verify_public_surface(repository, reader, facts, scope, observations, contract) if scenario in ('AC-16.1-05','AC-16.2-05') else None
@@ -489,8 +549,8 @@ def evaluate(repository: Path, story: str, scenario: str, candidate='HEAD', scop
             compiled = products.root_surface(repository, reader, facts, surface['baseline'], observations, story, need, binary['products'] if binary else None) if surface else None
             warning = verify_warning(repository, reader, facts, scope, observations, contract) if scenario=='AC-16.1-05' else None
             result.update(result='PASS', exitCode=0, counts=counts, runtimeQualified=entry['runtimeQualified'])
-            result['bindings'] = dict(contract=dict(path=contract_path(story), sha256=CONTRACT_PINS[contract_path(story)]),
-                schema=dict(path=SCHEMA, sha256=SCHEMA_PIN), native=dict(path=path, sha256=digest(raw)),
+            result['bindings'] = dict(contract=dict(path=contract_path(story, package), sha256=package.contract_pins[contract_path(story, package)]),
+                schema=dict(path=package.schema, sha256=package.schema_pin), native=dict(path=path, sha256=digest(raw)),
                 sources=sources, tooling=tooling, entry=entry, testBinary=binary, canonicalizerSource=canonicalizer, publicSourcePreservation=surface, compiledPublicPreservation=compiled, upstreamApiPreservation=upstream, warningSurface=warning, observationsSha256=digest(canonical(observations)),
                 faultLedger=observations.get('faults', []), rollback=contract['preservedContract']['rollback'])
             result['assertionLedger'] += [dict(id=scenario + ':' + name, subject=scenario, state='PASS') for name in checks]
@@ -523,10 +583,11 @@ def preflight_outputs(repository, paths):
         raise Stop('OUTPUT_FORBIDDEN', 'contained output') from None
 
 
-def safe_write(repository, outputs, readonly=()):
+def safe_write(repository, outputs, readonly=(), package=None):
+    package = package_policy(package)
     preflight_outputs(repository, [path for path, _ in outputs])
     try:
-        write_outputs(repository, outputs, readonly=tuple(readonly), readonly_roots=(BASE, 'references', '.git'))
+        write_outputs(repository, outputs, readonly=tuple(readonly), readonly_roots=(BASE, package.base, 'references', '.git'))
     except OutputError:
         raise Stop('OUTPUT_FORBIDDEN', 'contained output') from None
 
@@ -545,16 +606,17 @@ def make_pair(document):
     return record, json_bytes(record), md
 
 
-def generate(repository, story, candidate='HEAD', scope='runtime', *, write=False, paths=None, publication=False, verify_spec=None):
+def generate(repository, story, candidate='HEAD', scope='runtime', *, write=False, paths=None, publication=False, verify_spec=None, package=None):
+    package = package_policy(package)
     failure = report(story, f'AC-{story}-06', scope)
     try:
         allowed = final_paths(scope, story)
         need(paths is None or list(paths) == allowed, 'OUTPUT_FORBIDDEN', 'exact final pair')
         with ContainedReader(repository) as reader:
             preflight_outputs(repository, allowed)
-            contract, _ = validate_package(reader, story)
+            contract, _ = validate_package(reader, story, package)
             candidate = records.resolve_commit(repository, candidate, 'CANDIDATE_UNAVAILABLE')
-            rows = [evaluate(repository, story, f'AC-{story}-0{n}', candidate, scope, publication=publication, verify_spec=verify_spec) for n in range(1, 6)]
+            rows = [evaluate(repository, story, f'AC-{story}-0{n}', candidate, scope, publication=publication, verify_spec=verify_spec, package=package) for n in range(1, 6)]
             for row in rows:
                 if row['result'] != 'PASS':
                     return row, None, None
@@ -582,7 +644,7 @@ def generate(repository, story, candidate='HEAD', scope='runtime', *, write=Fals
                              failed=0, blocked=0, skipped=0, notRun=0))
             result, j, m = make_pair(document)
             if write:
-                safe_write(repository, list(zip(allowed, (j, m))), [r['path'] for r in receipts])
+                safe_write(repository, list(zip(allowed, (j, m))), [r['path'] for r in receipts], package=package)
             return result, j, m
     except Stop as error:
         return failed(failure, error), None, None
@@ -594,7 +656,8 @@ def generate(repository, story, candidate='HEAD', scope='runtime', *, write=Fals
         return failed(failure, Stop('RECORD_INVALID', story)), None, None
 
 
-def verify_inserted(repository, story, path, scope):
+def verify_inserted(repository, story, path, scope, package=None):
+    package = package_policy(package)
     failure = report(story, f'AC-{story}-06', scope)
     try:
         need(path == spec_path(scope, story), 'SPEC_PATH_INVALID', path)
@@ -602,7 +665,7 @@ def verify_inserted(repository, story, path, scope):
             jpath, mpath = final_paths(scope, story)
             installed_j, installed_m = read(reader, jpath), read(reader, mpath)
             document = parse(installed_j)
-            result, j, m = generate(repository, story, document['candidate']['commit'], scope, publication=True, verify_spec=path)
+            result, j, m = generate(repository, story, document['candidate']['commit'], scope, publication=True, verify_spec=path, package=package)
             if j is None: return result
             need(installed_j == j and installed_m == m, 'RECORD_DRIFT', story)
             raw = read(reader, path)
@@ -652,15 +715,15 @@ def verify_inserted(repository, story, path, scope):
 
 def is_invocation(arguments):
     for i, value in enumerate(arguments):
-        if value == '--contract' and i + 1 < len(arguments) and arguments[i + 1] in CONTRACT_PINS: return True
-        if value.startswith('--contract=') and value.split('=', 1)[1] in CONTRACT_PINS: return True
+        if value == '--contract' and i + 1 < len(arguments) and arguments[i + 1] in (*CONTRACT_PINS, *_V2_CONTRACTS): return True
+        if value.startswith('--contract=') and value.split('=', 1)[1] in (*CONTRACT_PINS, *_V2_CONTRACTS): return True
     return False
 
 
 def main(arguments=None, *, story=None, generator=False):
     parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     parser.add_argument('--repository', default='.')
-    parser.add_argument('--contract', required=True, choices=list(CONTRACT_PINS))
+    parser.add_argument('--contract', required=True)
     parser.add_argument('--candidate', default='HEAD')
     parser.add_argument('--scope', choices=('runtime', 'tooling-fixture'), default='runtime')
     if generator:
@@ -671,14 +734,20 @@ def main(arguments=None, *, story=None, generator=False):
         parser.add_argument('--scenario', required=True); parser.add_argument('--output')
     args = parser.parse_args(arguments)
     selected = Path(args.contract).stem
+    try:
+        package = select_package(args.contract)
+    except Stop as error:
+        result = failed(report(story or selected, getattr(args, 'scenario', f'AC-{selected}-06'), args.scope), error)
+        records.v2_write_stdout(json_bytes(result))
+        return result['exitCode']
     if story is not None and selected != story:
         result = failed(report(story, args.scenario, args.scope), Stop('CONTRACT_STORY_MISMATCH', selected))
     elif generator:
         if args.verify_inserted_record:
-            result = verify_inserted(Path(args.repository), selected, args.verify_inserted_record, args.scope)
+            result = verify_inserted(Path(args.repository), selected, args.verify_inserted_record, args.scope, package=package)
         else:
             result, _, _ = generate(Path(args.repository), selected, args.candidate, args.scope, write=True,
-                paths=None if args.output_json is None and args.output_markdown is None else [args.output_json, args.output_markdown])
+                paths=None if args.output_json is None and args.output_markdown is None else [args.output_json, args.output_markdown], package=package)
     else:
         try:
             if args.output:
@@ -687,11 +756,11 @@ def main(arguments=None, *, story=None, generator=False):
         except Stop as error:
             result = failed(report(selected, args.scenario, args.scope), error)
         else:
-            result = evaluate(Path(args.repository), selected, args.scenario, args.candidate, args.scope)
+            result = evaluate(Path(args.repository), selected, args.scenario, args.candidate, args.scope, package=package)
         if args.output and result['result'] == 'PASS':
             try:
                 need(args.output == receipt_path(args.scope, args.scenario), 'OUTPUT_FORBIDDEN', args.output)
-                safe_write(Path(args.repository), [(args.output, json_bytes(result))], [native_path(args.scope, args.scenario)])
+                safe_write(Path(args.repository), [(args.output, json_bytes(result))], [native_path(args.scope, args.scenario)], package=package)
             except Stop as error: result = failed(result, error)
     records.v2_write_stdout(json_bytes(result))
     return {'PASS': 0, 'FAIL': 1, 'BLOCKED': 2}[result['result']]

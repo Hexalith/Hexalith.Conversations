@@ -1,0 +1,33 @@
+{
+  "result": "PASS",
+  "python": {
+    "passed": 4,
+    "deselected": 60,
+    "junit": "focused-review-regressions.xml",
+    "cases": [
+      "test_selected_inserted_record_through_actual_generator",
+      "test_held_selected_runtime_clis_preserve_existing_evidence[16.1]",
+      "test_held_selected_runtime_clis_preserve_existing_evidence[16.2]",
+      "test_held_selected_runtime_clis_preserve_existing_evidence[16.3]"
+    ]
+  },
+  "producerNative": {
+    "passed": 525,
+    "summary": "producer-native-summary.json"
+  },
+  "editedSources": [
+    {
+      "path": "_bmad/scripts/tests/test_epic16_tooling_v2.py",
+      "sha256": "0cb120fcccb54b4899f7c1985d2f9ee099b74d9b80ff2acf984a8e99b19a61d7"
+    },
+    {
+      "path": "module/README.md",
+      "sha256": "90a2a7326cc7de693dfa19e5187f3ceb2efe67504bf332327acc9f5f5007a5b4"
+    }
+  ],
+  "boundToolingSourcesChanged": false,
+  "originalAttemptPreserved": true,
+  "realRuntimeOutputsAbsent": true,
+  "originalAttemptBeforeExecutionAssemblyHashClaimed": false,
+  "qualificationScope": "review-fix regressions and fresh producer source/Debug execution only"
+}

@@ -1,0 +1,885 @@
+{
+  "purpose": "story-16.1-planning-entry-investigation",
+  "recordedAtUtc": "2026-10-28T09:30:04.313543+00:00",
+  "candidate": "ef01d578a00efd527bae9226dca302f54cd012f0",
+  "tree": "912197eb1e492690bf1a6784335f05c2a693011c",
+  "commands": [
+    {
+      "name": "tool-version",
+      "command": [
+        "dotnet",
+        "tool",
+        "run",
+        "hexalith-module",
+        "--version"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "pid": 462215,
+      "startedAtUtc": "2026-10-28T09:29:26.240721+00:00",
+      "durationSeconds": 0.301,
+      "timeoutSeconds": 60,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 0,
+      "mappingEnvironment": {},
+      "stdout": {
+        "path": "tool-version.stdout.txt",
+        "bytes": 48,
+        "sha256": "f2b8c6f94b2b952c51ce8a3533b8028df431d934efc5b510a0ca44fff51c71a9"
+      },
+      "stderr": {
+        "path": "tool-version.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "validate",
+      "command": [
+        "dotnet",
+        "tool",
+        "run",
+        "hexalith-module",
+        "--",
+        "validate",
+        "--manifest",
+        "module/hexalith.module-manifest.v2.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "pid": 462355,
+      "startedAtUtc": "2026-10-28T09:29:26.542336+00:00",
+      "durationSeconds": 0.502,
+      "timeoutSeconds": 60,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 0,
+      "mappingEnvironment": {},
+      "stdout": {
+        "path": "validate.stdout.txt",
+        "bytes": 19,
+        "sha256": "670f8f82620ce8ee37554566e6d02a245a5c0bab0f76359e0d2b35bed45cb199"
+      },
+      "stderr": {
+        "path": "validate.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "adoption-json",
+      "command": [
+        "dotnet",
+        "tool",
+        "run",
+        "hexalith-module",
+        "--",
+        "validate",
+        "--manifest",
+        "module/hexalith.module-manifest.v2.json",
+        "--adoption",
+        "--output",
+        "json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "pid": 462583,
+      "startedAtUtc": "2026-10-28T09:29:27.044488+00:00",
+      "durationSeconds": 18.923,
+      "timeoutSeconds": 60,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 1,
+      "mappingEnvironment": {},
+      "stdout": {
+        "path": "adoption-json.stdout.txt",
+        "bytes": 10010,
+        "sha256": "a762b2c5d98ad17863f62a116e7de07154ab23f44ecdb9de8c66340f8401f57e"
+      },
+      "stderr": {
+        "path": "adoption-json.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "adoption-text",
+      "command": [
+        "dotnet",
+        "tool",
+        "run",
+        "hexalith-module",
+        "--",
+        "validate",
+        "--manifest",
+        "module/hexalith.module-manifest.v2.json",
+        "--adoption"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "pid": 470356,
+      "startedAtUtc": "2026-10-28T09:29:45.966075+00:00",
+      "durationSeconds": 15.512,
+      "timeoutSeconds": 60,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 1,
+      "mappingEnvironment": {},
+      "stdout": {
+        "path": "adoption-text.stdout.txt",
+        "bytes": 7979,
+        "sha256": "6d916d155b9b64b684ac8e39956b85541e9ac2d1acd19dff32c1427e0c581502"
+      },
+      "stderr": {
+        "path": "adoption-text.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "AC-16.1-01",
+      "command": [
+        "python3",
+        "_bmad/scripts/verify_story_16_1.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+        "--scenario",
+        "AC-16.1-01",
+        "--candidate",
+        "HEAD",
+        "--output",
+        "artifacts/epic16-runtime/16.1/AC-16.1-01.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "pid": 476272,
+      "startedAtUtc": "2026-10-28T09:30:01.476320+00:00",
+      "durationSeconds": 0.202,
+      "timeoutSeconds": 60,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 1,
+      "mappingEnvironment": {},
+      "stdout": {
+        "path": "AC-16.1-01.stdout.txt",
+        "bytes": 708,
+        "sha256": "dae54ea690bcc5332ab62076d9f7360df162595929df42c24f1d75eccde8b5ed"
+      },
+      "stderr": {
+        "path": "AC-16.1-01.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "AC-16.1-02",
+      "command": [
+        "python3",
+        "_bmad/scripts/verify_story_16_1.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+        "--scenario",
+        "AC-16.1-02",
+        "--candidate",
+        "HEAD",
+        "--output",
+        "artifacts/epic16-runtime/16.1/AC-16.1-02.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "pid": 476435,
+      "startedAtUtc": "2026-10-28T09:30:01.678296+00:00",
+      "durationSeconds": 0.302,
+      "timeoutSeconds": 60,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 1,
+      "mappingEnvironment": {},
+      "stdout": {
+        "path": "AC-16.1-02.stdout.txt",
+        "bytes": 708,
+        "sha256": "06691bfac52d6759e98d51f2754684bd88de4020dd0c8a52887c35df41806dd0"
+      },
+      "stderr": {
+        "path": "AC-16.1-02.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "AC-16.1-03",
+      "command": [
+        "python3",
+        "_bmad/scripts/verify_story_16_1.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+        "--scenario",
+        "AC-16.1-03",
+        "--candidate",
+        "HEAD",
+        "--output",
+        "artifacts/epic16-runtime/16.1/AC-16.1-03.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "pid": 476709,
+      "startedAtUtc": "2026-10-28T09:30:01.980504+00:00",
+      "durationSeconds": 0.402,
+      "timeoutSeconds": 60,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 1,
+      "mappingEnvironment": {},
+      "stdout": {
+        "path": "AC-16.1-03.stdout.txt",
+        "bytes": 708,
+        "sha256": "ed7f21217e7b2b703756cd9bab69eb1fab48761a2545f78f8f1be97c4918b896"
+      },
+      "stderr": {
+        "path": "AC-16.1-03.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "AC-16.1-04",
+      "command": [
+        "python3",
+        "_bmad/scripts/verify_story_16_1.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+        "--scenario",
+        "AC-16.1-04",
+        "--candidate",
+        "HEAD",
+        "--output",
+        "artifacts/epic16-runtime/16.1/AC-16.1-04.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "pid": 477041,
+      "startedAtUtc": "2026-10-28T09:30:02.382668+00:00",
+      "durationSeconds": 0.201,
+      "timeoutSeconds": 60,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 1,
+      "mappingEnvironment": {},
+      "stdout": {
+        "path": "AC-16.1-04.stdout.txt",
+        "bytes": 708,
+        "sha256": "c3a1da9a7e03b4a435d1e503317a6c5f66cffed5aef130c949e11ce803fd5f15"
+      },
+      "stderr": {
+        "path": "AC-16.1-04.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "AC-16.1-05",
+      "command": [
+        "python3",
+        "_bmad/scripts/verify_story_16_1.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+        "--scenario",
+        "AC-16.1-05",
+        "--candidate",
+        "HEAD",
+        "--output",
+        "artifacts/epic16-runtime/16.1/AC-16.1-05.json"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "pid": 477045,
+      "startedAtUtc": "2026-10-28T09:30:02.584541+00:00",
+      "durationSeconds": 0.201,
+      "timeoutSeconds": 60,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 1,
+      "mappingEnvironment": {},
+      "stdout": {
+        "path": "AC-16.1-05.stdout.txt",
+        "bytes": 708,
+        "sha256": "3780ef2c7b86b5604d0b1689245291ef03ce831a3aaa025ac3222cc80ee0bd30"
+      },
+      "stderr": {
+        "path": "AC-16.1-05.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "AC-16.1-06",
+      "command": [
+        "python3",
+        "_bmad/scripts/generate_story_record.py",
+        "--repository",
+        ".",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+        "--format",
+        "bundle",
+        "--output-json",
+        "docs/release-evidence/story-16.1-final-record-v2.json",
+        "--output-markdown",
+        "docs/release-evidence/story-16.1-final-record-v2.md"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "pid": 477060,
+      "startedAtUtc": "2026-10-28T09:30:02.786294+00:00",
+      "durationSeconds": 0.709,
+      "timeoutSeconds": 60,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 1,
+      "mappingEnvironment": {},
+      "stdout": {
+        "path": "AC-16.1-06.stdout.txt",
+        "bytes": 708,
+        "sha256": "76f614cc6ba66ef1326c17d6404f06e345b66ef1d4385c4e0bf60eda3411b6b4"
+      },
+      "stderr": {
+        "path": "AC-16.1-06.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "sourceDrift": [
+    {
+      "path": ".config/dotnet-tools.json",
+      "expectedSha256": "5d72a022a9416cb753da75cda1b0f1945fd938c065521fd9946aaa525fe048da",
+      "actualSha256": "5b826b67ce6520bba1fa80ef3982e56cc71b38d7ced437c0aaf5b1697339b411"
+    },
+    {
+      "path": ".gitattributes",
+      "expectedSha256": "d743202ab8c0bdf3dcd000a4a101acde352b6e6cf305a49b708b23c6e7029d7d",
+      "actualSha256": "d7b349e3620e883fcc66000a53e614c1ec331a45024cab5189d9943b51a5ef4c"
+    }
+  ],
+  "preservation": {
+    "head": true,
+    "tree": true,
+    "indexSha256": true,
+    "indexEntriesSha256": true,
+    "stagedDiff": true,
+    "rootGitlinks": true,
+    "protectedFiles": true
+  },
+  "priorBaselineStreams": [
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-describe-after.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-describe-after.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-describe-help.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-describe-help.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-describe-initial.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-describe-initial.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-describe-ready.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-describe-ready.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-logs-final.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-logs-final.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-logs-help.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-logs-help.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-otel-logs-help.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-otel-logs-help.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-otel-warnings.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-otel-warnings.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-ps-after.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-ps-after.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-ps-before-cleanup.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-ps-before-cleanup.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-ps-before.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-ps-before.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-ps-help.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-ps-help.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-ps-ownership-check.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-ps-ownership-check.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-run-help.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-run-help.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-run.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-run.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-stop-help.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-stop-help.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-stop-owned.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-stop-owned.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-version.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-version.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-wait-admin-web.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-wait-admin-web.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-wait-conversations.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-wait-conversations.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-wait-eventstore.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-wait-eventstore.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-wait-help.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-wait-help.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-wait-security.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/aspire-wait-security.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/mapped-apphost-evaluation.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/mapped-apphost-evaluation.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/producer-cli-debug-build.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/producer-cli-debug-build.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/sdk-version.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/sdk-version.stderr.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/source-prepare.stdout.txt",
+      "matches": true
+    },
+    {
+      "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/source-prepare.stderr.txt",
+      "matches": true
+    }
+  ],
+  "runtimeOutputPaths": [
+    {
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-01.json",
+      "exists": false
+    },
+    {
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-02.json",
+      "exists": false
+    },
+    {
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-03.json",
+      "exists": false
+    },
+    {
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-04.json",
+      "exists": false
+    },
+    {
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-05.json",
+      "exists": false
+    },
+    {
+      "path": "docs/release-evidence/story-16.1-final-record-v2.json",
+      "exists": false
+    },
+    {
+      "path": "docs/release-evidence/story-16.1-final-record-v2.md",
+      "exists": false
+    }
+  ],
+  "measuredRuntimeTests": 0,
+  "executedProducerQualificationTests": 0,
+  "runtimeQualified": false,
+  "entry": null,
+  "independentTrustedEntries": {},
+  "authority": {
+    "implementationHold": "ACTIVE",
+    "executionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  },
+  "lifecycleAdvanced": false,
+  "adoption": {
+    "scope": "bounded-static-only",
+    "total": 18,
+    "passed": 6,
+    "failed": 12,
+    "humanJsonRowsEqual": true,
+    "addedFailures": [
+      {
+        "requirement": "dependency-selectors",
+        "file": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/prepared-imports/source-mapping/SourceMapping.late.props"
+      },
+      {
+        "requirement": "dependency-selectors",
+        "file": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/prepared-imports/source-mapping/SourceMapping.values.props"
+      },
+      {
+        "requirement": "tool-pin",
+        "file": ".config/dotnet-tools.json"
+      }
+    ],
+    "removedFailures": [
+      {
+        "requirement": "declaration",
+        "file": "module/hexalith.module-manifest.v2.json"
+      }
+    ],
+    "rows": [
+      {
+        "requirement": "workspace",
+        "passed": true,
+        "file": ".git",
+        "reason": "Static requirement passed. Bounded static checks only. Human source review is required for unsupported constructs. SM-2 remains separately unverified."
+      },
+      {
+        "requirement": "declaration",
+        "passed": true,
+        "file": "module/hexalith.module-manifest.v2.json",
+        "reason": "Static requirement passed. Bounded static checks only. Human source review is required for unsupported constructs. SM-2 remains separately unverified."
+      },
+      {
+        "requirement": "references",
+        "passed": true,
+        "file": ".gitmodules",
+        "reason": "Static requirement passed. Bounded static checks only. Human source review is required for unsupported constructs. SM-2 remains separately unverified."
+      },
+      {
+        "requirement": "gitlinks",
+        "passed": true,
+        "file": ".gitmodules",
+        "reason": "Static requirement passed. Bounded static checks only. Human source review is required for unsupported constructs. SM-2 remains separately unverified."
+      },
+      {
+        "requirement": "nested-references",
+        "passed": true,
+        "file": ".gitmodules",
+        "reason": "Static requirement passed. Bounded static checks only. Human source review is required for unsupported constructs. SM-2 remains separately unverified."
+      },
+      {
+        "requirement": "tool-pin",
+        "passed": false,
+        "file": ".config/dotnet-tools.json",
+        "reason": "The tool pin must exactly match the direct Platform checkout's accepted tool pin."
+      },
+      {
+        "requirement": "hosting-inventory",
+        "passed": true,
+        "file": "module/hosting-inventory.json",
+        "reason": "Static requirement passed. Bounded static checks only. Human source review is required for unsupported constructs. SM-2 remains separately unverified."
+      },
+      {
+        "requirement": "dependency-selectors",
+        "passed": false,
+        "file": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/source-conventions/Directory.Build.props",
+        "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+      },
+      {
+        "requirement": "dependency-selectors",
+        "passed": false,
+        "file": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/source-conventions/references/Hexalith.EventStore/Directory.Build.props",
+        "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+      },
+      {
+        "requirement": "dependency-selectors",
+        "passed": false,
+        "file": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/source-conventions/references/Hexalith.Tenants/Directory.Build.props",
+        "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+      },
+      {
+        "requirement": "dependency-selectors",
+        "passed": false,
+        "file": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/prepared-imports/source-mapping/SourceMapping.late.props",
+        "reason": "Module build files assign a tool-owned dependency root or mode property; leave selection to the pinned tool."
+      },
+      {
+        "requirement": "dependency-selectors",
+        "passed": false,
+        "file": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/prepared-imports/source-mapping/SourceMapping.values.props",
+        "reason": "Module build files assign a tool-owned dependency root or mode property; leave selection to the pinned tool."
+      },
+      {
+        "requirement": "dependency-selectors",
+        "passed": false,
+        "file": "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+        "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+      },
+      {
+        "requirement": "dependency-selectors",
+        "passed": false,
+        "file": "tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj",
+        "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+      },
+      {
+        "requirement": "dependency-selectors",
+        "passed": false,
+        "file": "tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props",
+        "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+      },
+      {
+        "requirement": "dapr-subscriptions",
+        "passed": false,
+        "file": "module/validation/epic-16-prerequisite-implementation/review-iteration-4/implementation/protocol-goldens-final/ConversationProjectionReadModelKeys.cs",
+        "reason": "Literal Dapr component name; obtain the name from the declared configuration key."
+      },
+      {
+        "requirement": "dapr-subscriptions",
+        "passed": false,
+        "file": "module/validation/epic-16-prerequisite-implementation/review-iteration-4/implementation/protocol-goldens/ConversationProjectionReadModelKeys.cs",
+        "reason": "Literal Dapr component name; obtain the name from the declared configuration key."
+      },
+      {
+        "requirement": "dapr-subscriptions",
+        "passed": false,
+        "file": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/source-conventions/references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceExtensions.cs",
+        "reason": "Programmatic subscription discovery is forbidden; declare delivery routes and dead-letter policy in the module declaration."
+      }
+    ]
+  },
+  "storyCommands": [
+    {
+      "scenario": "AC-16.1-01",
+      "result": "FAIL",
+      "exitCode": 1,
+      "assertionLedger": [
+        {
+          "id": "SOURCE_DRIFT",
+          "state": "FAIL",
+          "subject": ".config/dotnet-tools.json"
+        }
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0,
+        "total": 0
+      }
+    },
+    {
+      "scenario": "AC-16.1-02",
+      "result": "FAIL",
+      "exitCode": 1,
+      "assertionLedger": [
+        {
+          "id": "SOURCE_DRIFT",
+          "state": "FAIL",
+          "subject": ".config/dotnet-tools.json"
+        }
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0,
+        "total": 0
+      }
+    },
+    {
+      "scenario": "AC-16.1-03",
+      "result": "FAIL",
+      "exitCode": 1,
+      "assertionLedger": [
+        {
+          "id": "SOURCE_DRIFT",
+          "state": "FAIL",
+          "subject": ".config/dotnet-tools.json"
+        }
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0,
+        "total": 0
+      }
+    },
+    {
+      "scenario": "AC-16.1-04",
+      "result": "FAIL",
+      "exitCode": 1,
+      "assertionLedger": [
+        {
+          "id": "SOURCE_DRIFT",
+          "state": "FAIL",
+          "subject": ".config/dotnet-tools.json"
+        }
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0,
+        "total": 0
+      }
+    },
+    {
+      "scenario": "AC-16.1-05",
+      "result": "FAIL",
+      "exitCode": 1,
+      "assertionLedger": [
+        {
+          "id": "SOURCE_DRIFT",
+          "state": "FAIL",
+          "subject": ".config/dotnet-tools.json"
+        }
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0,
+        "total": 0
+      }
+    },
+    {
+      "scenario": "AC-16.1-06",
+      "result": "FAIL",
+      "exitCode": 1,
+      "assertionLedger": [
+        {
+          "id": "SOURCE_DRIFT",
+          "state": "FAIL",
+          "subject": ".config/dotnet-tools.json"
+        }
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0,
+        "total": 0
+      }
+    }
+  ],
+  "entryReadiness": "BLOCKED",
+  "runtimePublication": "not-applicable",
+  "scopedEvidenceBoundary": "not-applicable: no runtime evidence publication or lifecycle transition"
+}

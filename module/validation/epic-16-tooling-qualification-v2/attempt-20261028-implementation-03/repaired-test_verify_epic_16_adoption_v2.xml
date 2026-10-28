@@ -1,0 +1,671 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="162" time="6.695" timestamp="2026-10-28T12:37:36.199505+01:00" hostname="DESKTOP-VIOG240"><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_valid_package_passes_structure_but_reports_actual_entry_failures_without_execution" time="0.037"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v2', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-24/test_valid_package_passes_stru0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7ecb43988510&gt;
+
+    def test_valid_package_passes_structure_but_reports_actual_entry_failures_without_execution(repository: Path, monkeypatch) -&gt; None:
+        before = {str(path): path.read_bytes() for path in repository.rglob("*") if path.is_file()}
+        def no_command(*args, **kwargs):
+            pytest.fail("review verifier attempted command execution")
+        monkeypatch.setattr(subprocess, "run", no_command)
+        monkeypatch.setattr(subprocess, "Popen", no_command)
+        monkeypatch.setattr(os, "system", no_command)
+        report = checker.verify(repository)
+&gt;       assert report["result"] == "PASS", report
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v2', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py:104: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;0-16.1]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;0-16.2]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;0-16.3]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;1-16.1]" time="0.034" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;1-16.2]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;1-16.3]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;2-16.1]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;2-16.2]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;2-16.3]" time="0.037" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;3-16.1]" time="0.037" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;3-16.2]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;3-16.3]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;4-16.1]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;4-16.2]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;4-16.3]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;5-16.1]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;5-16.2]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;5-16.3]" time="0.037" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;6-16.1]" time="0.037" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;6-16.2]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;6-16.3]" time="0.039" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;7-16.1]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;7-16.2]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;7-16.3]" time="0.041" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;8-16.1]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;8-16.2]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;8-16.3]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;9-16.1]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;9-16.2]" time="0.038" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;9-16.3]" time="0.038" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;10-16.1]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;10-16.2]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;10-16.3]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;11-16.1]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;11-16.2]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;11-16.3]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;12-16.1]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;12-16.2]" time="0.037" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_all_inherited_story_assertions_survive_rehashed_weakening[&lt;lambda&gt;12-16.3]" time="0.037" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_future_commands_are_exact_unexecuted_and_not_interpreted[&lt;lambda&gt;0]" time="0.037" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_future_commands_are_exact_unexecuted_and_not_interpreted[&lt;lambda&gt;1]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_future_commands_are_exact_unexecuted_and_not_interpreted[&lt;lambda&gt;2]" time="0.037" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_future_commands_are_exact_unexecuted_and_not_interpreted[&lt;lambda&gt;3]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_future_commands_are_exact_unexecuted_and_not_interpreted[&lt;lambda&gt;4]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_future_commands_are_exact_unexecuted_and_not_interpreted[&lt;lambda&gt;5]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_future_commands_are_exact_unexecuted_and_not_interpreted[&lt;lambda&gt;6]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_exact_inventory_membership_and_relations_reject_truncation_and_duplicates[&lt;lambda&gt;0]" time="0.038" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_exact_inventory_membership_and_relations_reject_truncation_and_duplicates[&lt;lambda&gt;1]" time="0.039" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_exact_inventory_membership_and_relations_reject_truncation_and_duplicates[&lt;lambda&gt;2]" time="0.042" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_exact_inventory_membership_and_relations_reject_truncation_and_duplicates[&lt;lambda&gt;3]" time="0.041" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_exact_inventory_membership_and_relations_reject_truncation_and_duplicates[&lt;lambda&gt;4]" time="0.042" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_exact_inventory_membership_and_relations_reject_truncation_and_duplicates[&lt;lambda&gt;5]" time="0.038" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_exact_inventory_membership_and_relations_reject_truncation_and_duplicates[&lt;lambda&gt;6]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_entire_graph_preserves_all_edges_and_predecessors[&lt;lambda&gt;0]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_entire_graph_preserves_all_edges_and_predecessors[&lt;lambda&gt;1]" time="0.038" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_entire_graph_preserves_all_edges_and_predecessors[&lt;lambda&gt;2]" time="0.040" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_entire_graph_preserves_all_edges_and_predecessors[&lt;lambda&gt;3]" time="0.043" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_entire_graph_preserves_all_edges_and_predecessors[&lt;lambda&gt;4]" time="0.042" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_package_authority_cannot_be_granted[executionAllowed]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_package_authority_cannot_be_granted[ownerApprovalClaimed]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_package_authority_cannot_be_granted[releaseAuthorized]" time="0.034" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_package_authority_cannot_be_granted[pushAuthorized]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_closed_package_preserves_pending_facts_and_exact_scope[&lt;lambda&gt;0]" time="0.038" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_closed_package_preserves_pending_facts_and_exact_scope[&lt;lambda&gt;1]" time="0.038" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_closed_package_preserves_pending_facts_and_exact_scope[&lt;lambda&gt;2]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_closed_package_preserves_pending_facts_and_exact_scope[&lt;lambda&gt;3]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_closed_package_preserves_pending_facts_and_exact_scope[&lt;lambda&gt;4]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_closed_package_preserves_pending_facts_and_exact_scope[&lt;lambda&gt;5]" time="0.037" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_closed_package_preserves_pending_facts_and_exact_scope[&lt;lambda&gt;6]" time="0.037" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_closed_package_preserves_pending_facts_and_exact_scope[&lt;lambda&gt;7]" time="0.039" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_closed_package_preserves_pending_facts_and_exact_scope[&lt;lambda&gt;8]" time="0.038" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_closed_package_preserves_pending_facts_and_exact_scope[&lt;lambda&gt;9]" time="0.037" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehash_cannot_redefine_source_assertions_or_source_pins" time="0.018" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehashed_enrollment_schema_and_static_observation_cannot_be_weakened[_bmad/schemas/epic-16-adoption-v2.schema.json-&lt;lambda&gt;]" time="0.017" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehashed_enrollment_schema_and_static_observation_cannot_be_weakened[module/hexalith.module-manifest.v2.json-&lt;lambda&gt;]" time="0.017" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehashed_enrollment_schema_and_static_observation_cannot_be_weakened[module/hosting-inventory.json-&lt;lambda&gt;0]" time="0.018" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehashed_enrollment_schema_and_static_observation_cannot_be_weakened[module/hosting-inventory.json-&lt;lambda&gt;1]" time="0.017" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehashed_enrollment_schema_and_static_observation_cannot_be_weakened[module/validation/epic-16-adoption-v2/adoption.json-&lt;lambda&gt;]" time="0.039" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehashed_enrollment_schema_and_static_observation_cannot_be_weakened[module/validation/epic-16-adoption-v2/results.json-&lt;lambda&gt;]" time="0.039" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehashed_enrollment_schema_and_static_observation_cannot_be_weakened[.config/dotnet-tools.json-&lt;lambda&gt;]" time="0.043" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[_bmad-output/planning-artifacts/epic-16-adoption-v2/package.json-INPUT_UNAVAILABLE]" time="0.034" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[_bmad/schemas/epic-16-adoption-v2.schema.json-INPUT_UNAVAILABLE]" time="0.019" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.1.json-INPUT_UNAVAILABLE]" time="0.014" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[.config/dotnet-tools.json-ACCEPTED_TOOL_UNAVAILABLE]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[module/validation/epic-16-adoption-v2/version.txt-ACCEPTED_TOOL_UNAVAILABLE]" time="0.035"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v2', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}&#10;assert 'FAIL' == 'BLOCKED'&#10;  &#10;  - BLOCKED&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-24/test_missing_prerequisite_or_a4')
+path = 'module/validation/epic-16-adoption-v2/version.txt'
+code = 'ACCEPTED_TOOL_UNAVAILABLE'
+
+    @pytest.mark.parametrize("path,code", [
+        (PACKAGE, "INPUT_UNAVAILABLE"),
+        (checker.SCHEMA, "INPUT_UNAVAILABLE"),
+        (f"{checker.historic.prerequisite.BASE}/story-contracts/16.1.json", "INPUT_UNAVAILABLE"),
+        (checker.TOOL, "ACCEPTED_TOOL_UNAVAILABLE"),
+        (f"{checker.NATIVE}/version.txt", "ACCEPTED_TOOL_UNAVAILABLE"),
+    ])
+    def test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic(repository: Path, path: str, code: str) -&gt; None:
+        (repository / path).unlink()
+        report = checker.verify(repository)
+&gt;       assert report["result"] == "BLOCKED", report
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v2', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E       assert 'FAIL' == 'BLOCKED'
+E         
+E         - BLOCKED
+E         + FAIL
+
+_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py:262: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_declared_escape_paths_are_rejected_without_opening_them[/tmp/outside]" time="0.034" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_declared_escape_paths_are_rejected_without_opening_them[../../outside]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_declared_escape_paths_are_rejected_without_opening_them[a/../outside]" time="0.034" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_declared_escape_paths_are_rejected_without_opening_them[.git/config]" time="0.034" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_declared_escape_paths_are_rejected_without_opening_them[a\\outside]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_declared_escape_paths_are_rejected_without_opening_them[a//b]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_fixed_input_symlink_escape_rejected_before_outside_read[_bmad-output/planning-artifacts/epic-16-adoption-v2/package.json]" time="0.033" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_fixed_input_symlink_escape_rejected_before_outside_read[_bmad/schemas/epic-16-adoption-v2.schema.json]" time="0.016" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_fixed_input_symlink_escape_rejected_before_outside_read[module/hosting-inventory.json]" time="0.016" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_fixed_input_symlink_escape_rejected_before_outside_read[.config/dotnet-tools.json]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[{&quot;status&quot;:&quot;candidate-for-owner-review&quot;,&quot;status&quot;:&quot;candidate-for-owner-review&quot;}]" time="0.037" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[{&quot;value&quot;: NaN}]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[{&quot;value&quot;: 1e999}]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[{&quot;value&quot;: -1e999}]" time="0.033" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[not-json]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[\xff]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_cli_missing_inputs_returns_blocked_and_has_no_output_writer" time="0.430" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_capability_claim_is_checked_against_actual_generator_constants" time="0.050" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_real_cli_structural_failure_has_exit_one_and_literal_no_authority" time="0.227" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_fixture_and_verifier_need_no_live_reference_content" time="0.038"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v2', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-24/test_fixture_and_verifier_need0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7ecb43458f50&gt;
+
+    def test_fixture_and_verifier_need_no_live_reference_content(tmp_path: Path, monkeypatch) -&gt; None:
+        original = Path.open
+        def no_live_reference_open(path, *args, **kwargs):
+            assert not path.is_relative_to(ROOT / "references"), f"live reference opened: {path}"
+            return original(path, *args, **kwargs)
+        monkeypatch.setattr(Path, "open", no_live_reference_open)
+        report = checker.verify(populate_repository(tmp_path))
+&gt;       assert report["result"] == "PASS", report
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v2', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py:339: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_published_schema_root_accepts_each_entry_point[_bmad-output/planning-artifacts/epic-16-adoption-v2/package.json]" time="0.014" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_published_schema_root_accepts_each_entry_point[_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.1.json]" time="0.013" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_published_schema_root_accepts_each_entry_point[_bmad-output/planning-artifacts/epic-16-adoption-v2/inventories.json]" time="0.015" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_published_schema_root_accepts_each_entry_point[_bmad-output/planning-artifacts/epic-16-adoption-v2/execution-graph.json]" time="0.014" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_published_schema_root_accepts_each_entry_point[module/validation/epic-16-adoption-v2/results.json]" time="0.013" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_published_schema_root_rejects_arbitrary_documents[document0]" time="0.014" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_published_schema_root_rejects_arbitrary_documents[document1]" time="0.013" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_published_schema_root_rejects_arbitrary_documents[document2]" time="0.014" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_published_schema_root_rejects_arbitrary_documents[True]" time="0.012" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_published_schema_root_rejects_arbitrary_documents[42]" time="0.013" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_published_schema_root_rejects_arbitrary_documents[None]" time="0.013" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_json_exponent_overflow_is_rejected_directly[1e999]" time="0.000" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_json_exponent_overflow_is_rejected_directly[-1e999]" time="0.000" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_json_exponent_overflow_is_rejected_directly[{&quot;nested&quot;:[1e999]}]" time="0.000" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_declared_channel_secret_keys_match_the_actual_sdk_constant" time="0.013" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehashed_wrong_sdk_token_key_is_rejected[input]" time="0.016" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehashed_wrong_sdk_token_key_is_rejected[secret]" time="0.017" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_present_nonregular_input_is_fail[directory]" time="0.033" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_present_nonregular_input_is_fail[fifo]" time="0.033" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_unavailable_secure_open_environment_blocks_without_fallback" time="0.013" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_unreadable_input_is_blocked_with_its_path" time="0.034" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_descriptor_reads_refuse_ancestor_or_leaf_replacement[before-open-ancestor]" time="0.002" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_descriptor_reads_refuse_ancestor_or_leaf_replacement[before-open-leaf]" time="0.001" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_descriptor_reads_refuse_ancestor_or_leaf_replacement[after-open-ancestor]" time="0.001" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_descriptor_reads_refuse_ancestor_or_leaf_replacement[after-open-leaf]" time="0.001" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_bounded_reader_rejects_oversize_without_reading_content" time="0.001" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_authority_requires_literal_false_not_false_like_values[0-executionAllowed]" time="0.034" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_authority_requires_literal_false_not_false_like_values[0-ownerApprovalClaimed]" time="0.046" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_authority_requires_literal_false_not_false_like_values[0-releaseAuthorized]" time="0.034" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_authority_requires_literal_false_not_false_like_values[0-pushAuthorized]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_authority_requires_literal_false_not_false_like_values[false-executionAllowed]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_authority_requires_literal_false_not_false_like_values[false-ownerApprovalClaimed]" time="0.037" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_authority_requires_literal_false_not_false_like_values[false-releaseAuthorized]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_authority_requires_literal_false_not_false_like_values[false-pushAuthorized]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_authority_requires_literal_false_not_false_like_values[None-executionAllowed]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_authority_requires_literal_false_not_false_like_values[None-ownerApprovalClaimed]" time="0.034" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_authority_requires_literal_false_not_false_like_values[None-releaseAuthorized]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_authority_requires_literal_false_not_false_like_values[None-pushAuthorized]" time="0.041" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehash_cannot_rewrite_commands_native_failures_or_observation_provenance[module/validation/epic-16-adoption-v2/results.json-&lt;lambda&gt;0]" time="0.038" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehash_cannot_rewrite_commands_native_failures_or_observation_provenance[module/validation/epic-16-adoption-v2/results.json-&lt;lambda&gt;1]" time="0.036" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehash_cannot_rewrite_commands_native_failures_or_observation_provenance[module/validation/epic-16-adoption-v2/results.json-&lt;lambda&gt;2]" time="0.040" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehash_cannot_rewrite_commands_native_failures_or_observation_provenance[module/validation/epic-16-adoption-v2/results.json-&lt;lambda&gt;3]" time="0.039" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehash_cannot_rewrite_commands_native_failures_or_observation_provenance[module/validation/epic-16-adoption-v2/results.json-&lt;lambda&gt;4]" time="0.047" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehash_cannot_rewrite_commands_native_failures_or_observation_provenance[module/validation/epic-16-adoption-v2/provenance.json-&lt;lambda&gt;0]" time="0.039" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehash_cannot_rewrite_commands_native_failures_or_observation_provenance[module/validation/epic-16-adoption-v2/provenance.json-&lt;lambda&gt;1]" time="0.043" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehash_cannot_rewrite_commands_native_failures_or_observation_provenance[module/validation/epic-16-adoption-v2/adoption.json-&lt;lambda&gt;0]" time="0.035" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehash_cannot_rewrite_commands_native_failures_or_observation_provenance[module/validation/epic-16-adoption-v2/adoption.json-&lt;lambda&gt;1]" time="0.037" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehash_cannot_rewrite_commands_native_failures_or_observation_provenance[module/validation/epic-16-adoption-v2/adoption.json-&lt;lambda&gt;2]" time="0.038" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_current_schema_acceptance_does_not_erase_published_tool_rejection" time="0.047"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v2', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-24/test_current_schema_acceptance0')
+
+    def test_current_schema_acceptance_does_not_erase_published_tool_rejection(repository: Path) -&gt; None:
+        manifest = json.loads((repository / checker.MANIFEST).read_bytes())
+        schema = json.loads((repository / checker.MANIFEST_SCHEMA).read_bytes())
+        jsonschema.Draft202012Validator(schema).validate(manifest)
+        report = checker.verify(repository)
+&gt;       assert report["result"] == "PASS", report
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v2', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py:515: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehash_cannot_redefine_current_schema_semantics" time="0.021" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_predecessor_and_all_carrier_fields_are_preserved" time="0.016" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_real_v1_cli_keeps_reporting_current_source_drift" time="0.209" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_real_v2_cli_success_has_exit_zero_nonempty_ledger_and_no_authority" time="0.201"><failure message="AssertionError: {&#10;    &quot;schemaVersion&quot;: &quot;hexalith.conversations.epic16-adoption-check.v2&quot;,&#10;    &quot;validationScope&quot;: &quot;structural-consistency-only&quot;,&#10;    &quot;result&quot;: &quot;FAIL&quot;,&#10;    &quot;entryReadiness&quot;: &quot;BLOCKED&quot;,&#10;    &quot;authority&quot;: {&#10;      &quot;implementationHold&quot;: &quot;ACTIVE&quot;,&#10;      &quot;executionAllowed&quot;: false,&#10;      &quot;ownerApprovalClaimed&quot;: false,&#10;      &quot;releaseAuthorized&quot;: false,&#10;      &quot;pushAuthorized&quot;: false&#10;    },&#10;    &quot;assertionLedger&quot;: [&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/architecture.md&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/epics.md&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-18.md&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/v9-execution-graph-v1.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/v9/story-contracts/16.1.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/v9/story-contracts/16.2.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/v9/story-contracts/16.3.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/implementation-hold-v1.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/implementation-artifacts/sprint-status.yaml&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:docs/runbooks/current-change-validation.md&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:.gitmodules&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:references/Hexalith.Platform/README.md&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:references/Hexalith.Platform/docs/domain-module-enrollment.md&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:references/Hexalith.Platform/hexalith-platform.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:references/Hexalith.Platform/.config/dotnet-tools.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:references/Hexalith.Platform/_bmad-output/specs/spec-platform/SPEC.md&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:references/Hexalith.Platform/_bmad-output/planning-artifacts/architecture/architecture-platform-2026-09-27/ARCHITECTURE-SPINE.md&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:references/Hexalith.Platform/src/Hexalith.Platform.Composition/PlatformDaprBindings.cs&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:references/Hexalith.Platform/src/Hexalith.Platform.Composition/PlatformAppModel.cs&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/production-operational-envelope-v1.md&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad/schemas/epic-16-prerequisites-v1.schema.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/epic.md&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.1.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.2.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.3.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/package.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/inventories.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/execution-graph.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad/scripts/verify_epic_16_prerequisites.py&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad/scripts/generate_story_record.py&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:references/Hexalith.Builds/schemas/hexalith.module-manifest.v2.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceRoutes.cs&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServicePolicies.cs&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Authentication/EventStoreWorkloadOperations.cs&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceSecurityExtensions.cs&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Authentication/DaprAppChannelToken.cs&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceExtensions.cs&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDataProtectionServiceCollectionExtensions.cs&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:references/Hexalith.Tenants/src/Hexalith.Tenants.Client/Registration/TenantServiceCollectionExtensions.cs&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessServiceCollectionExtensions.cs&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:src/Hexalith.Conversations.Server/Program.cs&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/epic-16-adoption-v1/README.md&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/epic-16-adoption-v1/execution-graph.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/epic-16-adoption-v1/inventories.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.1.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.3.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad/schemas/epic-16-adoption-v1.schema.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:module/hexalith.module-manifest.v2.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:module/hosting-inventory.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:module/sm-2-checklist.md&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:module/validation/adoption-text.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:module/validation/adoption.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:module/validation/manifest.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:module/validation/restore.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:module/validation/results.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:module/validation/version.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad/scripts/verify_epic_16_adoption.py&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source:_bmad/scripts/contained_reader.py&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;schema-pin&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;generator-capability-schemas&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;source-inventory&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact-inventory&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;review-boundary&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:.config/dotnet-tools.json&quot;,&#10;        &quot;state&quot;: &quot;FAIL&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;fixed-artifact:.config/dotnet-tools.json&quot;,&#10;        &quot;state&quot;: &quot;FAIL&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:.gitattributes&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;fixed-artifact:.gitattributes&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:_bmad-output/planning-artifacts/epic-16-adoption-v2/README.md&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;fixed-artifact:_bmad-output/planning-artifacts/epic-16-adoption-v2/README.md&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:_bmad-output/planning-artifacts/epic-16-adoption-v2/execution-graph.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:_bmad-output/planning-artifacts/epic-16-adoption-v2/inventories.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.1.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.2.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.3.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:_bmad/schemas/epic-16-adoption-v2.schema.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;fixed-artifact:_bmad/schemas/epic-16-adoption-v2.schema.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:module/README.md&quot;,&#10;        &quot;state&quot;: &quot;FAIL&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;fixed-artifact:module/README.md&quot;,&#10;        &quot;state&quot;: &quot;FAIL&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:module/hexalith.module-manifest.v2.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;fixed-artifact:module/hexalith.module-manifest.v2.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:module/hosting-inventory.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;fixed-artifact:module/hosting-inventory.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:module/sm-2-checklist.md&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;fixed-artifact:module/sm-2-checklist.md&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:module/validation/epic-16-adoption-v2/adoption-json.stderr.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;fixed-artifact:module/validation/epic-16-adoption-v2/adoption-json.stderr.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:module/validation/epic-16-adoption-v2/adoption-text.stderr.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;fixed-artifact:module/validation/epic-16-adoption-v2/adoption-text.stderr.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:module/validation/epic-16-adoption-v2/adoption-text.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;fixed-artifact:module/validation/epic-16-adoption-v2/adoption-text.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:module/validation/epic-16-adoption-v2/adoption.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;fixed-artifact:module/validation/epic-16-adoption-v2/adoption.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:module/validation/epic-16-adoption-v2/manifest.stderr.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;fixed-artifact:module/validation/epic-16-adoption-v2/manifest.stderr.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:module/validation/epic-16-adoption-v2/manifest.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;fixed-artifact:module/validation/epic-16-adoption-v2/manifest.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:module/validation/epic-16-adoption-v2/provenance.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;fixed-artifact:module/validation/epic-16-adoption-v2/provenance.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:module/validation/epic-16-adoption-v2/restore.stderr.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;fixed-artifact:module/validation/epic-16-adoption-v2/restore.stderr.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:module/validation/epic-16-adoption-v2/restore.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;fixed-artifact:module/validation/epic-16-adoption-v2/restore.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:module/validation/epic-16-adoption-v2/results.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;fixed-artifact:module/validation/epic-16-adoption-v2/results.json&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:module/validation/epic-16-adoption-v2/version.stderr.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;fixed-artifact:module/validation/epic-16-adoption-v2/version.stderr.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;artifact:module/validation/epic-16-adoption-v2/version.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;fixed-artifact:module/validation/epic-16-adoption-v2/version.txt&quot;,&#10;        &quot;state&quot;: &quot;PASS&quot;&#10;      },&#10;      {&#10;        &quot;id&quot;: &quot;input-diagnostic&quot;,&#10;        &quot;state&quot;: &quot;FAIL&quot;&#10;      }&#10;    ],&#10;    &quot;blockers&quot;: [&#10;      &quot;ARTIFACT_BYTES_DRIFT&quot;,&#10;      &quot;ENROLLMENT_OR_REVIEW_DRIFT&quot;,&#10;      &quot;SNAPSHOT_INVALID&quot;&#10;    ],&#10;    &quot;diagnostics&quot;: [&#10;      {&#10;        &quot;code&quot;: &quot;ARTIFACT_BYTES_DRIFT&quot;,&#10;        &quot;detail&quot;: &quot;declared digest differs: .config/dotnet-tools.json&quot;&#10;      },&#10;      {&#10;        &quot;code&quot;: &quot;ENROLLMENT_OR_REVIEW_DRIFT&quot;,&#10;        &quot;detail&quot;: &quot;independent enrollment/observation snapshot differs: .config/dotnet-tools.json&quot;&#10;      },&#10;      {&#10;        &quot;code&quot;: &quot;ARTIFACT_BYTES_DRIFT&quot;,&#10;        &quot;detail&quot;: &quot;declared digest differs: module/README.md&quot;&#10;      },&#10;      {&#10;        &quot;code&quot;: &quot;ENROLLMENT_OR_REVIEW_DRIFT&quot;,&#10;        &quot;detail&quot;: &quot;independent enrollment/observation snapshot differs: module/README.md&quot;&#10;      },&#10;      {&#10;        &quot;code&quot;: &quot;SNAPSHOT_INVALID&quot;,&#10;        &quot;detail&quot;: &quot;refusing altered snapshots as measured facts&quot;&#10;      }&#10;    ],&#10;    &quot;entryBlockers&quot;: [&#10;      {&#10;        &quot;code&quot;: &quot;GENERATOR_UNSUPPORTED&quot;,&#10;        &quot;state&quot;: &quot;BLOCKED&quot;,&#10;        &quot;detail&quot;: &quot;Generator supports V9/V14 contracts; v2 wrappers remain unsupported.&quot;&#10;      },&#10;      {&#10;        &quot;code&quot;: &quot;SCENARIO_VERIFIERS_UNAVAILABLE&quot;,&#10;        &quot;state&quot;: &quot;BLOCKED&quot;,&#10;        &quot;detail&quot;: &quot;Fifteen measured scenario verifiers and successor final-record support remain unavailable.&quot;&#10;      },&#10;      {&#10;        &quot;code&quot;: &quot;QUALIFICATION_PENDING&quot;,&#10;        &quot;state&quot;: &quot;BLOCKED&quot;,&#10;        &quot;detail&quot;: &quot;Source/Debug, package/Release, hosted parity, AD-5/AD-6, recovery and operator qualification remain pending.&quot;&#10;      },&#10;      {&#10;        &quot;code&quot;: &quot;SM2_UNVERIFIED&quot;,&#10;        &quot;state&quot;: &quot;BLOCKED&quot;,&#10;        &quot;detail&quot;: &quot;Human active-checkout breakpoint/edit, readiness, cleanup and Story 3.11 acceptance remain unverified.&quot;&#10;      },&#10;      {&#10;        &quot;code&quot;: &quot;APPHOST_OWNERSHIP_PENDING&quot;,&#10;        &quot;state&quot;: &quot;BLOCKED&quot;,&#10;        &quot;detail&quot;: &quot;Both inventory AppHosts remain frozen; baseline owner exemption/relocation and retirement gates remain pending.&quot;&#10;      },&#10;      {&#10;        &quot;code&quot;: &quot;OWNER_ENTRY_DECISION_PENDING&quot;,&#10;        &quot;state&quot;: &quot;BLOCKED&quot;,&#10;        &quot;detail&quot;: &quot;All seven original owner decisions and a separately scoped runtime entry decision remain pending.&quot;&#10;      },&#10;      {&#10;        &quot;code&quot;: &quot;TENANTS_OPTIONS_BINDING_PENDING&quot;,&#10;        &quot;state&quot;: &quot;BLOCKED&quot;,&#10;        &quot;detail&quot;: &quot;Bind Tenants:PubSubName/TopicName using AddHexalithTenants configureOptions before route qualification.&quot;&#10;      },&#10;      {&#10;        &quot;code&quot;: &quot;DATA_PROTECTION_REGISTRATION_PENDING&quot;,&#10;        &quot;state&quot;: &quot;BLOCKED&quot;,&#10;        &quot;detail&quot;: &quot;Adopt SDK AddEventStoreDataProtection with IConfiguration and a stable application name; qualify persisted keys/restart.&quot;&#10;      },&#10;      {&#10;        &quot;code&quot;: &quot;DECLARATIVE_SUBSCRIPTIONS_PENDING&quot;,&#10;        &quot;state&quot;: &quot;BLOCKED&quot;,&#10;        &quot;detail&quot;: &quot;Inject Dapr:DeclarativeSubscriptions=true; qualify protected /tenants/events, dead-letter behavior and absent discovery.&quot;&#10;      },&#10;      {&#10;        &quot;code&quot;: &quot;LIVE_TOOL_RECHECK_REQUIRED&quot;,&#10;        &quot;state&quot;: &quot;BLOCKED&quot;,&#10;        &quot;detail&quot;: &quot;Native reports cover the recorded working tree and supported tracked source only; rerun both modes on the owner-reviewed tracked candidate.&quot;&#10;      }&#10;    ],&#10;    &quot;evidenceBoundary&quot;: {&#10;      &quot;status&quot;: &quot;not-applicable&quot;,&#10;      &quot;scope&quot;: &quot;runtime-publication&quot;,&#10;      &quot;reason&quot;: &quot;Preparation publishes no runtime receipts or final records.&quot;&#10;    }&#10;  }&#10;  &#10;assert (1 == 0)&#10; +  where 1 = CompletedProcess(args=['/home/administrator/projects/hexalith/conversations/.venv/bin/python3', '/home/administrator/p...ntime-publication&quot;,\n    &quot;reason&quot;: &quot;Preparation publishes no runtime receipts or final records.&quot;\n  }\n}\n', stderr='').returncode">repository = PosixPath('/tmp/pytest-of-administrator/pytest-24/test_real_v2_cli_success_has_e0')
+
+    def test_real_v2_cli_success_has_exit_zero_nonempty_ledger_and_no_authority(repository: Path) -&gt; None:
+        process = subprocess.run([sys.executable, str(ROOT / "_bmad/scripts/verify_epic_16_adoption_v2.py"),
+                                  "--repository", str(repository)], capture_output=True, text=True, check=False)
+        report = json.loads(process.stdout)
+&gt;       assert process.returncode == 0 and report["result"] == "PASS", process.stdout + process.stderr
+E       AssertionError: {
+E           "schemaVersion": "hexalith.conversations.epic16-adoption-check.v2",
+E           "validationScope": "structural-consistency-only",
+E           "result": "FAIL",
+E           "entryReadiness": "BLOCKED",
+E           "authority": {
+E             "implementationHold": "ACTIVE",
+E             "executionAllowed": false,
+E             "ownerApprovalClaimed": false,
+E             "releaseAuthorized": false,
+E             "pushAuthorized": false
+E           },
+E           "assertionLedger": [
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/architecture.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epics.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-18.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/v9-execution-graph-v1.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/v9/story-contracts/16.1.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/v9/story-contracts/16.2.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/v9/story-contracts/16.3.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/implementation-hold-v1.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/implementation-artifacts/sprint-status.yaml",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:docs/runbooks/current-change-validation.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:.gitmodules",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.Platform/README.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.Platform/docs/domain-module-enrollment.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.Platform/hexalith-platform.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.Platform/.config/dotnet-tools.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.Platform/_bmad-output/specs/spec-platform/SPEC.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.Platform/_bmad-output/planning-artifacts/architecture/architecture-platform-2026-09-27/ARCHITECTURE-SPINE.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.Platform/src/Hexalith.Platform.Composition/PlatformDaprBindings.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.Platform/src/Hexalith.Platform.Composition/PlatformAppModel.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/production-operational-envelope-v1.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad/schemas/epic-16-prerequisites-v1.schema.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/epic.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.1.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.2.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.3.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/package.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/inventories.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-prerequisites-v1/execution-graph.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad/scripts/verify_epic_16_prerequisites.py",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad/scripts/generate_story_record.py",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.Builds/schemas/hexalith.module-manifest.v2.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceRoutes.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServicePolicies.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Authentication/EventStoreWorkloadOperations.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceSecurityExtensions.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Authentication/DaprAppChannelToken.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceExtensions.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDataProtectionServiceCollectionExtensions.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:references/Hexalith.Tenants/src/Hexalith.Tenants.Client/Registration/TenantServiceCollectionExtensions.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessServiceCollectionExtensions.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:src/Hexalith.Conversations.Server/Program.cs",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-adoption-v1/README.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-adoption-v1/execution-graph.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-adoption-v1/inventories.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.1.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.3.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad/schemas/epic-16-adoption-v1.schema.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:module/hexalith.module-manifest.v2.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:module/hosting-inventory.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:module/sm-2-checklist.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:module/validation/adoption-text.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:module/validation/adoption.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:module/validation/manifest.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:module/validation/restore.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:module/validation/results.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:module/validation/version.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad/scripts/verify_epic_16_adoption.py",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source:_bmad/scripts/contained_reader.py",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "schema-pin",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "generator-capability-schemas",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "source-inventory",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact-inventory",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "review-boundary",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:.config/dotnet-tools.json",
+E               "state": "FAIL"
+E             },
+E             {
+E               "id": "fixed-artifact:.config/dotnet-tools.json",
+E               "state": "FAIL"
+E             },
+E             {
+E               "id": "artifact:.gitattributes",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:.gitattributes",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:_bmad-output/planning-artifacts/epic-16-adoption-v2/README.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:_bmad-output/planning-artifacts/epic-16-adoption-v2/README.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:_bmad-output/planning-artifacts/epic-16-adoption-v2/execution-graph.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:_bmad-output/planning-artifacts/epic-16-adoption-v2/inventories.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.1.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.2.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.3.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:_bmad/schemas/epic-16-adoption-v2.schema.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:_bmad/schemas/epic-16-adoption-v2.schema.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/README.md",
+E               "state": "FAIL"
+E             },
+E             {
+E               "id": "fixed-artifact:module/README.md",
+E               "state": "FAIL"
+E             },
+E             {
+E               "id": "artifact:module/hexalith.module-manifest.v2.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/hexalith.module-manifest.v2.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/hosting-inventory.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/hosting-inventory.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/sm-2-checklist.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/sm-2-checklist.md",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/adoption-json.stderr.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/adoption-json.stderr.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/adoption-text.stderr.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/adoption-text.stderr.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/adoption-text.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/adoption-text.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/adoption.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/adoption.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/manifest.stderr.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/manifest.stderr.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/manifest.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/manifest.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/provenance.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/provenance.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/restore.stderr.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/restore.stderr.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/restore.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/restore.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/results.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/results.json",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/version.stderr.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/version.stderr.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "artifact:module/validation/epic-16-adoption-v2/version.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "fixed-artifact:module/validation/epic-16-adoption-v2/version.txt",
+E               "state": "PASS"
+E             },
+E             {
+E               "id": "input-diagnostic",
+E               "state": "FAIL"
+E             }
+E           ],
+E           "blockers": [
+E             "ARTIFACT_BYTES_DRIFT",
+E             "ENROLLMENT_OR_REVIEW_DRIFT",
+E             "SNAPSHOT_INVALID"
+E           ],
+E           "diagnostics": [
+E             {
+E               "code": "ARTIFACT_BYTES_DRIFT",
+E               "detail": "declared digest differs: .config/dotnet-tools.json"
+E             },
+E             {
+E               "code": "ENROLLMENT_OR_REVIEW_DRIFT",
+E               "detail": "independent enrollment/observation snapshot differs: .config/dotnet-tools.json"
+E             },
+E             {
+E               "code": "ARTIFACT_BYTES_DRIFT",
+E               "detail": "declared digest differs: module/README.md"
+E             },
+E             {
+E               "code": "ENROLLMENT_OR_REVIEW_DRIFT",
+E               "detail": "independent enrollment/observation snapshot differs: module/README.md"
+E             },
+E             {
+E               "code": "SNAPSHOT_INVALID",
+E               "detail": "refusing altered snapshots as measured facts"
+E             }
+E           ],
+E           "entryBlockers": [
+E             {
+E               "code": "GENERATOR_UNSUPPORTED",
+E               "state": "BLOCKED",
+E               "detail": "Generator supports V9/V14 contracts; v2 wrappers remain unsupported."
+E             },
+E             {
+E               "code": "SCENARIO_VERIFIERS_UNAVAILABLE",
+E               "state": "BLOCKED",
+E               "detail": "Fifteen measured scenario verifiers and successor final-record support remain unavailable."
+E             },
+E             {
+E               "code": "QUALIFICATION_PENDING",
+E               "state": "BLOCKED",
+E               "detail": "Source/Debug, package/Release, hosted parity, AD-5/AD-6, recovery and operator qualification remain pending."
+E             },
+E             {
+E               "code": "SM2_UNVERIFIED",
+E               "state": "BLOCKED",
+E               "detail": "Human active-checkout breakpoint/edit, readiness, cleanup and Story 3.11 acceptance remain unverified."
+E             },
+E             {
+E               "code": "APPHOST_OWNERSHIP_PENDING",
+E               "state": "BLOCKED",
+E               "detail": "Both inventory AppHosts remain frozen; baseline owner exemption/relocation and retirement gates remain pending."
+E             },
+E             {
+E               "code": "OWNER_ENTRY_DECISION_PENDING",
+E               "state": "BLOCKED",
+E               "detail": "All seven original owner decisions and a separately scoped runtime entry decision remain pending."
+E             },
+E             {
+E               "code": "TENANTS_OPTIONS_BINDING_PENDING",
+E               "state": "BLOCKED",
+E               "detail": "Bind Tenants:PubSubName/TopicName using AddHexalithTenants configureOptions before route qualification."
+E             },
+E             {
+E               "code": "DATA_PROTECTION_REGISTRATION_PENDING",
+E               "state": "BLOCKED",
+E               "detail": "Adopt SDK AddEventStoreDataProtection with IConfiguration and a stable application name; qualify persisted keys/restart."
+E             },
+E             {
+E               "code": "DECLARATIVE_SUBSCRIPTIONS_PENDING",
+E               "state": "BLOCKED",
+E               "detail": "Inject Dapr:DeclarativeSubscriptions=true; qualify protected /tenants/events, dead-letter behavior and absent discovery."
+E             },
+E             {
+E               "code": "LIVE_TOOL_RECHECK_REQUIRED",
+E               "state": "BLOCKED",
+E               "detail": "Native reports cover the recorded working tree and supported tracked source only; rerun both modes on the owner-reviewed tracked candidate."
+E             }
+E           ],
+E           "evidenceBoundary": {
+E             "status": "not-applicable",
+E             "scope": "runtime-publication",
+E             "reason": "Preparation publishes no runtime receipts or final records."
+E           }
+E         }
+E         
+E       assert (1 == 0)
+E        +  where 1 = CompletedProcess(args=['/home/administrator/projects/hexalith/conversations/.venv/bin/python3', '/home/administrator/p...ntime-publication",\n    "reason": "Preparation publishes no runtime receipts or final records."\n  }\n}\n', stderr='').returncode
+
+_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py:560: AssertionError</failure></testcase><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_real_cli_surrogate_path_emits_structured_failure" time="0.201" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_rehashed_checkout_policy_cannot_redefine_pinned_bytes" time="0.038" /><testcase classname="_bmad.scripts.tests.test_verify_epic_16_adoption_v2" name="test_disposable_git_checkout_preserves_bound_root_bytes_with_autocrlf" time="0.243"><failure message="AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v2', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}&#10;assert 'FAIL' == 'PASS'&#10;  &#10;  - PASS&#10;  + FAIL">repository = PosixPath('/tmp/pytest-of-administrator/pytest-24/test_disposable_git_checkout_p0')
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=&lt;pluggy._tracing.TagTracerSub object at 0x7ecb43db3d90&gt;, _basetemp=PosixPath('/tmp/pytest-of-administrator/pytest-24'), _retention_count=3, _retention_policy='all')
+
+    def test_disposable_git_checkout_preserves_bound_root_bytes_with_autocrlf(repository: Path, tmp_path_factory) -&gt; None:
+        """Exercise Git's clean/smudge round trip without staging the real workspace."""
+        paths = sorted(path for path in {*checker.SOURCE_PINS, *checker.ARTIFACTS, PACKAGE}
+                       if not path.startswith("references/"))
+        before = {path: (repository / path).read_bytes() for path in paths}
+        assert b"\r\n" in before["src/Hexalith.Conversations.Server/Program.cs"]
+        assert b"\r" not in before[checker.SCHEMA]
+        run_git(repository, "init", "--quiet")
+        run_git(repository, "config", "core.autocrlf", "true")
+        run_git(repository, "config", "core.safecrlf", "true")
+        run_git(repository, "add", "--", *paths)
+        for path, content in before.items():
+            assert run_git(repository, "cat-file", "blob", f":{path}").stdout == content, path
+        checkout = tmp_path_factory.mktemp("automatic-conversion-checkout")
+        run_git(repository, "checkout-index", "--all", "--force", f"--prefix={checkout}/")
+        assert {path: (checkout / path).read_bytes() for path in paths} == before
+        # Dependencies are separate repositories; populate their exact portable
+        # snapshots after root checkout instead of tracking them in this Git fixture.
+        for path in checker.SOURCE_PINS:
+            if path.startswith("references/"):
+                target = checkout / path
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(repository / path, target)
+        report = checker.verify(checkout)
+&gt;       assert report["result"] == "PASS", report
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-adoption-check.v2', 'validationScope': 'structural-consistency-only', 'result': 'FAIL', 'entryReadiness': 'BLOCKED', ...}
+E       assert 'FAIL' == 'PASS'
+E         
+E         - PASS
+E         + FAIL
+
+_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py:605: AssertionError</failure></testcase></testsuite></testsuites>

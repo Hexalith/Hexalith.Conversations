@@ -1,0 +1,95 @@
+{
+  "reports": [
+    {
+      "path": "PlatformAdoptionValidationTests.retry.trx",
+      "sha256": "a7010cda7d4f87ecd047d0017e0bd4a382cec506e30ba4226d5fa64656d0a2c0",
+      "counts": {
+        "total": 396,
+        "executed": 396,
+        "passed": 396,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      }
+    },
+    {
+      "path": "PlatformManifestCommandTests.trx",
+      "sha256": "eb9225cf47739eaeae6ddbd8bd1e0d05805f4ebaffae1b38c07c150b7f8f68f6",
+      "counts": {
+        "total": 75,
+        "executed": 75,
+        "passed": 75,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      }
+    },
+    {
+      "path": "Workspace.BuildPreparationTests.trx",
+      "sha256": "4f5226c2d9229b6585e41d4549208fbd1d31a1876cb4efd58b07ecebde2d0a62",
+      "counts": {
+        "total": 11,
+        "executed": 11,
+        "passed": 11,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      }
+    },
+    {
+      "path": "Workspace.PlatformIdentityTests.trx",
+      "sha256": "e0030914b029b90de4a0f0031af1ff48df3a906e4abc7a2d3b1c38cae3f7d743",
+      "counts": {
+        "total": 43,
+        "executed": 43,
+        "passed": 43,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      }
+    }
+  ],
+  "passed": 525,
+  "sourceScopeOnly": true,
+  "publishedPackageAccepted": false
+}

@@ -1,0 +1,249 @@
+{
+  "result": "PASS",
+  "selected": 1516,
+  "junitIdentitiesEqual": true,
+  "policy": {
+    "path": "_bmad/scripts/tests/conftest.py",
+    "sha256": "e5b200875df0c76d17a53bd6cee20f5c7f8c5aedf719c6f4262c9c54ed379981"
+  },
+  "retiredByExistingPolicy": [
+    {
+      "nodeid": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_fault_receipt_requires_the_exact_observed_restored_matrix",
+      "file": "_bmad/scripts/tests/test_generate_story_record.py",
+      "fixtures": [
+        "tmp_path_factory",
+        "committed_facts",
+        "sm2_repository",
+        "tmp_path",
+        "request",
+        "monkeypatch"
+      ]
+    },
+    {
+      "nodeid": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_route_derives_current_metrics_receipts_and_closed_record",
+      "file": "_bmad/scripts/tests/test_generate_story_record.py",
+      "fixtures": [
+        "tmp_path_factory",
+        "committed_facts",
+        "story113_fixture",
+        "sm2_repository",
+        "tmp_path",
+        "request",
+        "monkeypatch"
+      ]
+    },
+    {
+      "nodeid": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_disk_receipts_reject_linked_parent",
+      "file": "_bmad/scripts/tests/test_generate_story_record.py",
+      "fixtures": [
+        "tmp_path_factory",
+        "committed_facts",
+        "story113_fixture",
+        "sm2_repository",
+        "tmp_path",
+        "request",
+        "monkeypatch"
+      ]
+    },
+    {
+      "nodeid": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_resigned_pair_rejects_nonpassing_assertions[FAIL]",
+      "file": "_bmad/scripts/tests/test_generate_story_record.py",
+      "fixtures": [
+        "tmp_path_factory",
+        "committed_facts",
+        "story113_fixture",
+        "sm2_repository",
+        "tmp_path",
+        "request",
+        "monkeypatch",
+        "state"
+      ]
+    },
+    {
+      "nodeid": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_resigned_pair_rejects_nonpassing_assertions[SKIPPED]",
+      "file": "_bmad/scripts/tests/test_generate_story_record.py",
+      "fixtures": [
+        "tmp_path_factory",
+        "committed_facts",
+        "story113_fixture",
+        "sm2_repository",
+        "tmp_path",
+        "request",
+        "monkeypatch",
+        "state"
+      ]
+    },
+    {
+      "nodeid": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_upstream_failure_retains_fail_exit_and_exact_diagnostics[False]",
+      "file": "_bmad/scripts/tests/test_generate_story_record.py",
+      "fixtures": [
+        "tmp_path_factory",
+        "committed_facts",
+        "story113_fixture",
+        "sm2_repository",
+        "tmp_path",
+        "request",
+        "monkeypatch",
+        "insertion"
+      ]
+    },
+    {
+      "nodeid": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_upstream_failure_retains_fail_exit_and_exact_diagnostics[True]",
+      "file": "_bmad/scripts/tests/test_generate_story_record.py",
+      "fixtures": [
+        "tmp_path_factory",
+        "committed_facts",
+        "story113_fixture",
+        "sm2_repository",
+        "tmp_path",
+        "request",
+        "monkeypatch",
+        "insertion"
+      ]
+    },
+    {
+      "nodeid": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_actual_insertion_wrapper_replays_provenance_and_detects_metric_drift",
+      "file": "_bmad/scripts/tests/test_generate_story_record.py",
+      "fixtures": [
+        "tmp_path_factory",
+        "committed_facts",
+        "tmp_path",
+        "request",
+        "monkeypatch"
+      ]
+    },
+    {
+      "nodeid": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_route_rejects_stale_vacuous_or_uncommitted_evidence[missing-receipt]",
+      "file": "_bmad/scripts/tests/test_generate_story_record.py",
+      "fixtures": [
+        "tmp_path_factory",
+        "committed_facts",
+        "story113_fixture",
+        "sm2_repository",
+        "tmp_path",
+        "request",
+        "monkeypatch",
+        "fault"
+      ]
+    },
+    {
+      "nodeid": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_route_rejects_stale_vacuous_or_uncommitted_evidence[stale-trx]",
+      "file": "_bmad/scripts/tests/test_generate_story_record.py",
+      "fixtures": [
+        "tmp_path_factory",
+        "committed_facts",
+        "story113_fixture",
+        "sm2_repository",
+        "tmp_path",
+        "request",
+        "monkeypatch",
+        "fault"
+      ]
+    },
+    {
+      "nodeid": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_route_rejects_stale_vacuous_or_uncommitted_evidence[stale-json]",
+      "file": "_bmad/scripts/tests/test_generate_story_record.py",
+      "fixtures": [
+        "tmp_path_factory",
+        "committed_facts",
+        "story113_fixture",
+        "sm2_repository",
+        "tmp_path",
+        "request",
+        "monkeypatch",
+        "fault"
+      ]
+    },
+    {
+      "nodeid": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_route_rejects_stale_vacuous_or_uncommitted_evidence[empty-matrix]",
+      "file": "_bmad/scripts/tests/test_generate_story_record.py",
+      "fixtures": [
+        "tmp_path_factory",
+        "committed_facts",
+        "story113_fixture",
+        "sm2_repository",
+        "tmp_path",
+        "request",
+        "monkeypatch",
+        "fault"
+      ]
+    },
+    {
+      "nodeid": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_route_rejects_stale_vacuous_or_uncommitted_evidence[source-drift]",
+      "file": "_bmad/scripts/tests/test_generate_story_record.py",
+      "fixtures": [
+        "tmp_path_factory",
+        "committed_facts",
+        "story113_fixture",
+        "sm2_repository",
+        "tmp_path",
+        "request",
+        "monkeypatch",
+        "fault"
+      ]
+    },
+    {
+      "nodeid": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_route_rejects_stale_vacuous_or_uncommitted_evidence[regeneration-drift]",
+      "file": "_bmad/scripts/tests/test_generate_story_record.py",
+      "fixtures": [
+        "tmp_path_factory",
+        "committed_facts",
+        "story113_fixture",
+        "sm2_repository",
+        "tmp_path",
+        "request",
+        "monkeypatch",
+        "fault"
+      ]
+    },
+    {
+      "nodeid": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_route_rejects_stale_vacuous_or_uncommitted_evidence[upstream-blocked]",
+      "file": "_bmad/scripts/tests/test_generate_story_record.py",
+      "fixtures": [
+        "tmp_path_factory",
+        "committed_facts",
+        "story113_fixture",
+        "sm2_repository",
+        "tmp_path",
+        "request",
+        "monkeypatch",
+        "fault"
+      ]
+    },
+    {
+      "nodeid": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_dirty_worktree_reports_its_stable_blocker[False]",
+      "file": "_bmad/scripts/tests/test_generate_story_record.py",
+      "fixtures": [
+        "tmp_path_factory",
+        "committed_facts",
+        "story113_fixture",
+        "sm2_repository",
+        "tmp_path",
+        "request",
+        "monkeypatch",
+        "insertion"
+      ]
+    },
+    {
+      "nodeid": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_dirty_worktree_reports_its_stable_blocker[True]",
+      "file": "_bmad/scripts/tests/test_generate_story_record.py",
+      "fixtures": [
+        "tmp_path_factory",
+        "committed_facts",
+        "story113_fixture",
+        "sm2_repository",
+        "tmp_path",
+        "request",
+        "monkeypatch",
+        "insertion"
+      ]
+    }
+  ],
+  "explicitReproduction": {
+    "passed": 1455,
+    "failed": 14,
+    "errors": 64,
+    "result": "FAIL"
+  },
+  "qualifiedEnvironment": "all seven values from qualified-source-inventory.json; helper/bridge unchanged"
+}

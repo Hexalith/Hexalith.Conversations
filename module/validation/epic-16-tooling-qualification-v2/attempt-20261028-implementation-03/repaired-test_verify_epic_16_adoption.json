@@ -1,0 +1,35 @@
+{
+  "name": "repaired-test_verify_epic_16_adoption",
+  "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "_bmad/scripts/tests/test_verify_epic_16_adoption.py",
+    "--junitxml",
+    "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/repaired-test_verify_epic_16_adoption.xml"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "timeoutSeconds": 600,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 7.21,
+  "exitCode": 0,
+  "termination": null,
+  "environment": {},
+  "stdout": {
+    "path": "repaired-test_verify_epic_16_adoption.stdout.txt",
+    "bytes": 180,
+    "sha256": "a6f8c94442c35fcd63d0d92e839b8dc3aef40a83ffe016072b454de3a986959c",
+    "rawSha256": "a6f8c94442c35fcd63d0d92e839b8dc3aef40a83ffe016072b454de3a986959c"
+  },
+  "stderr": {
+    "path": "repaired-test_verify_epic_16_adoption.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

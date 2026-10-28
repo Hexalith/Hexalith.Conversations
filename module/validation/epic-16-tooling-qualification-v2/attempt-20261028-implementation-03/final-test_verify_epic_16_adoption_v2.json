@@ -1,0 +1,35 @@
+{
+  "name": "final-test_verify_epic_16_adoption_v2",
+  "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "timeoutSeconds": 600,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 4.407,
+  "exitCode": 1,
+  "termination": null,
+  "environment": {
+    "EPIC16_COMMITLINT_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/test_verify_epic_16_adoption_v2-commitlint.json"
+  },
+  "stdout": {
+    "path": "final-test_verify_epic_16_adoption_v2.stdout.txt",
+    "bytes": 128286,
+    "sha256": "1bf7560e4f6c98e462beb42a77c41300f16132b35e89d484290b16be29601aa9",
+    "rawSha256": "1bf7560e4f6c98e462beb42a77c41300f16132b35e89d484290b16be29601aa9"
+  },
+  "stderr": {
+    "path": "final-test_verify_epic_16_adoption_v2.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -47,31 +47,31 @@ context:
 
 ## Code Map
 
-[Current investigation](story-16-1-entry-investigation-2026-10-27.md): owner seams, exact commands and remaining gates. Enrollment source remediation and producer CI preparation are implemented. Accepted CLI 4.35.2 lacks `prepare-build`. Six story commands now FAIL on bound `.gitattributes` drift. Entry remains null, trust empty.
+[Investigation](story-16-1-entry-investigation-2026-10-28.md): AppHost readiness PASS; root 4.38.1 validates, Platform pins 4.35.2; adoption six PASS/twelve FAIL; source binding FAIL. Entry null, trust empty.
 
-The selected [separate prerequisite draft](spec-epic-16-tooling-qualification-and-binding-refresh.md) contains the next scope; its implementation is not approved.
+The [approved prerequisite](spec-epic-16-tooling-qualification-and-binding-refresh.md) now supplies additive tooling-v2 with exact package selection. [Fresh evidence](../../module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/) records source preparation/readiness and held commands: v1 FAIL/SOURCE_DRIFT; v2 BLOCKED/ENTRY_QUALIFICATION_PENDING. Both routes measure zero runtime tests and leave all seven outputs absent. Runtime entry remains null, independent trust empty and the hold ACTIVE.
 
 ## Tasks & Acceptance
 
 **Prerequisites; runtime remains held:**
 
-- [x] `module/`, planning `epic-16-adoption-v2/`, successor tooling — retain completed preparation and enrollment source remediation.
-- [ ] Platform/root `.config/dotnet-tools.json`, producer preparation — separately qualify a compatible published release/source/catalog tuple before alignment; resolve ten excluded adoption failures.
-- [ ] Planning `epic-16-tooling-v1/` — separately scope additive source-binding refresh; preserve accepted predecessors and the current drift failure.
-- [ ] Planning `production-operational-envelope-v1.md`, `module/sm-2-checklist.md` — obtain parity, recovery/operator, capacity disposition, human SM-2 and trusted owner entry.
+- [x] `module/`, planning `epic-16-adoption-v2/`, successor tooling — preserve completed enrollment preparation.
+- [ ] Platform/root `.config/dotnet-tools.json` — qualify a published release/source/catalog tuple before alignment; disposition all twelve current adoption failures.
+- [x] Planning `epic-16-tooling-v2/`, shared consumers — implement the approved additive refresh; preserve v1 and both current bound-source mismatches.
+- [ ] Planning `production-operational-envelope-v1.md`, `module/sm-2-checklist.md` — qualify operations, parity, human SM-2 and trusted entry.
 
 **After qualified entry; upstream paths belong to their root-declared repositories:**
 
 - [ ] EventStore Client `Subscriptions/`, `Projections/` — raw binding before deduplication, atomic mutation, pending evidence, fenced recovery and durable acknowledgements.
 - [ ] Tenants Client `Projections/`, handler/registration — durable coherent snapshots and pure transitions; preserve signatures.
-- [ ] Conversations `Server/TenantAccess/ConversationTenantProjectionSnapshotAdapter.cs`, access/signal/registration — one persisted snapshot, fail-closed health and injected options. Retain Program.cs disclosure until proofs pass.
+- [ ] Conversations `Server/TenantAccess/ConversationTenantProjectionSnapshotAdapter.cs`, access/signal — one persisted snapshot and fail-closed health. Preserve configured delivery and Program.cs disclosure until proofs pass.
 - [ ] Owner Client tests, Conversations `Server.Tests/TenantAccess/`, new `IntegrationTests/Epic16/Story16_1EvidenceTests.cs` — frozen matrix/concurrency/recovery/provider faults, persisted end-state/acknowledgements and native loaded-product capture.
 
 **Acceptance Criteria:**
 
-- Given acknowledged events, when restarting without redelivery or reading another replica, then decisions/checkpoints agree.
+- Given acknowledged events, when restarting without redelivery or reading another replica, then persisted decisions/checkpoints agree.
 - Given concurrent mutation/recovery, when authorizing, then one coherent snapshot controls access and unsafe states deny.
-- Given qualified entry and committed owner revisions, when six adopted scenarios run, then the generated record reports `6/6/0/0/0/0`, compatibility, safe diagnostics and exact gitlink/rollback scope.
+- Given qualified entry and owner commits, when six scenarios run, then generate `6/6/0/0/0/0` with compatibility, safe diagnostics and exact gitlink/rollback scope.
 
 ## Implementation Notes
 
@@ -85,6 +85,10 @@ The selected [separate prerequisite draft](spec-epic-16-tooling-qualification-an
 
 2026-10-27 later investigation: the separate remediation is now done; producer preparation is present. Fresh commands fail source binding before entry. Runtime remains held.
 
+2026-10-28: retained baseline readiness passed; current declaration validates, adoption and source binding still fail. Runtime entry remains held.
+
+2026-10-28 scope decision: The user selected option 1: resume the approved tooling prerequisite. Runtime implementation remains held.
+
 ## Spec Change Log
 
 2026-10-25: refreshed investigation; frozen intent unchanged. History remains in `spec-epic-16-adoption-v2-preparation.md`.
@@ -93,10 +97,14 @@ The selected [separate prerequisite draft](spec-epic-16-tooling-qualification-an
 
 2026-10-27: reconciled committed remediation/CI changes and measured drift; preserved frozen intent and draft/backlog.
 
+2026-10-28: refreshed pins, baseline and failure inventory; preserve accepted evidence, frozen intent and draft/backlog.
+
 ## Review Triage Log
 
 ## Verification
 
-[Current commands/results](story-16-1-entry-investigation-2026-10-27.md#verification): six story commands FAIL/exit 1/SOURCE_DRIFT; accepted CLI adoption exit 1, six PASS/ten FAIL; `prepare-build` exit 1/HXC001. Runtime publication not-applicable; prior native test results were not rerun.
+2026-10-28 prerequisite execution: mapped Debug readiness and cleanup PASS; 525 producer-source and nine action tests PASS. Current Python verification PASS: 60 focused cases and 4,694 affected cases, using the complete source environment and existing retirement policy. Explicit v2 held commands reach entry BLOCKED; v1 retains source FAIL. Published artifact/Platform/native-host/operational/human owner qualification remains BLOCKED; no runtime lifecycle advancement.
 
-After entry: individual Debug builds, focused xUnit, affected suites and six successor contract commands; no missing runtime result may pass.
+[Measured results](story-16-1-entry-investigation-2026-10-28.md#verification): declaration PASS; adoption six PASS/twelve FAIL; six story commands FAIL/SOURCE_DRIFT. Runtime publication not-applicable; zero runtime tests.
+
+After entry: individual Debug builds, xUnit and six successor commands; missing runtime results cannot pass.

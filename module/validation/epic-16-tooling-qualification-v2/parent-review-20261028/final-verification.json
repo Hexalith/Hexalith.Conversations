@@ -1,0 +1,32 @@
+{
+  "result": "PASS",
+  "focusedCases": 64,
+  "currentCompatibilityCases": 4694,
+  "producerNativeCases": 525,
+  "producerActionCases": 9,
+  "executionDirectoryFilesBound": 92,
+  "sourceRowsValidated": 81,
+  "originalAttemptFilesPreserved": 326,
+  "parentProtectedFilesPreserved": 73,
+  "logicalIndexPreserved": true,
+  "runtimeOutputPathsAbsent": [
+    "artifacts/epic16-runtime/16.1/AC-16.1-01.json",
+    "artifacts/epic16-runtime/16.1/AC-16.1-02.json",
+    "artifacts/epic16-runtime/16.1/AC-16.1-03.json",
+    "artifacts/epic16-runtime/16.1/AC-16.1-04.json",
+    "artifacts/epic16-runtime/16.1/AC-16.1-05.json",
+    "docs/release-evidence/story-16.1-final-record-v2.json",
+    "docs/release-evidence/story-16.1-final-record-v2.md"
+  ],
+  "runtimeEntry": "BLOCKED",
+  "runtimePublication": "not-applicable",
+  "authority": {
+    "implementationHold": "ACTIVE",
+    "executionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  },
+  "phase": "final audit before staging or local commit",
+  "recordedAtUtc": "2026-10-28T13:32:31.474572+00:00"
+}

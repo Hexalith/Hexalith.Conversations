@@ -1,0 +1,171 @@
+{
+  "basis": "initial status had no changes in these paths; exact bytes match unchanged initial HEAD",
+  "revision": "ef01d578a00efd527bae9226dca302f54cd012f0",
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "862aaa6872e51b2106e4e648340b427d9c47446cdac8b8a1b4081f1939a3eee9"
+    },
+    {
+      "path": "Hexalith.Conversations.slnx",
+      "sha256": "42cbe1bdcd286bd7bddec1f1e9f200966694e58705fd5a0b8e5572c7e39aacf5"
+    },
+    {
+      "path": "README.md",
+      "sha256": "d79e75699103013d69cb8892b8a2219a2339168becb5df71878c1cb33a3f56c9"
+    },
+    {
+      "path": "_bmad/scripts/check_package_refresh_environment.py",
+      "sha256": "c809f7211049ee25864127e350e8785feda3c922fd2fac5f25b78afba44acb36"
+    },
+    {
+      "path": "_bmad/scripts/generate_sm2_evidence.py",
+      "sha256": "91eeaf10173c6dbed39eb2e7303b7c5ef07d0c2f88f400d2e6bb3237f76daf3e"
+    },
+    {
+      "path": "_bmad/scripts/verify_minimal_module_fixture.py",
+      "sha256": "79a1868c35f501df8a46a79cf42fb67ab0df20318ff359763a97429e7db0f365"
+    },
+    {
+      "path": "_bmad/scripts/verify_sm2_evidence.py",
+      "sha256": "df29010f219820ea36d18c25780ca923e4beac53c860c045fdc275fcad3864a6"
+    },
+    {
+      "path": "src/Hexalith.Conversations.AppHost/ConversationsAppHostResources.cs",
+      "sha256": "16bafd487b4142dbfe6501ec7f095abf7c54c4fc1c1595f9c27539a456dadfa1"
+    },
+    {
+      "path": "src/Hexalith.Conversations.AppHost/ConversationsAppHostTopology.cs",
+      "sha256": "c277bea88f4c5784fa9fae573f202d30b1a1e2887eb48a8cd26aab6e8112ebc5"
+    },
+    {
+      "path": "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "sha256": "7bfb00ecd6b122cc7d241e6379a41d55d45488f61f10c0e82aa69c06c7fb9f2f"
+    },
+    {
+      "path": "src/Hexalith.Conversations.AppHost/KeycloakRealms/hexalith-realm.json",
+      "sha256": "858e57b863fb5c3dca55c01e3d7972db9b637dd4d94d389c1b0bb1d4f00d0d91"
+    },
+    {
+      "path": "src/Hexalith.Conversations.AppHost/Program.cs",
+      "sha256": "3fd2b6803ff32a808aca097a05ce52c40e6d525533e71bcce6e4b1f86a63d4af"
+    },
+    {
+      "path": "src/Hexalith.Conversations.AppHost/Properties/launchSettings.json",
+      "sha256": "9be006b8104bc650842d33c324208d9356d6082fd08763cb26a14cee274c9bf3"
+    },
+    {
+      "path": "src/Hexalith.Conversations.AppHost/aspire.config.json",
+      "sha256": "72746e6e7aa2d1f049fe57de87a31ba931fddf0c3d170c1715383bb56c7f7630"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs",
+      "sha256": "7aac85872586461ab0397e23f0eb832dc9c78ef44d343087f61fec684b7610aa"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs",
+      "sha256": "595006a437a706ae070b9d5c11155ac1a3321c730641f34ff6e7a62e6d932997"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.AppHost.Tests/DaprComponents/runtime-boundary.yaml",
+      "sha256": "d315774f33fe6b56b73f9b5213f96bc1bc6d3fe1cc87961d6e522823e7f3f6cb"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj",
+      "sha256": "d061e8524352927a01c0a5b8d74dd04cd162b36086231abe947bb83fbb4ba5c6"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs",
+      "sha256": "6114dc50d9737dc4b31ab99ffce2aa01e606129b1cedb50155e522e8cbc854b7"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs",
+      "sha256": "d472d4d5222de5d846a302db38423bb3a4af89e84519cccc6809730b2601811a"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Contracts.Tests/ContractPackageInventoryTest.cs",
+      "sha256": "317b220a2c5fec5831aa1435af6aea8b9dcf1301eb56dca3a1a3b8fe9e7eae13"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Contracts.Tests/Documentation/DomainModuleAuthoringTemplateValidationTest.cs",
+      "sha256": "0888d86a52046f8aa5100eb89cd6a31a42cb98339d64ea33664424071e233f86"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Contracts.Tests/Documentation/MinimalModuleAuthoringCostBaselineValidationTest.cs",
+      "sha256": "9f3ef1ff55a9a6fc672a682395585634b1c7792ed9f2bc6f99b01ecec2583369"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs",
+      "sha256": "bffe8f8390c78c21f2f8bb1c181dc7eca29d59126426be8f546fcc24bf826167"
+    },
+    {
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props",
+      "sha256": "1829424f3e0bb649130e4dd551e7153a60d3c8b15cc9230462922e5f2b441f00"
+    },
+    {
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx",
+      "sha256": "d1d35e98212004aebb896470c454cb27536cecf088bae44688c71b84364f1e02"
+    },
+    {
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/README.md",
+      "sha256": "1237ce284dbb1dd03e583d76075536ec07a190b24940810e1dece70d2f83d4e2"
+    },
+    {
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/ConversationCreated.cs",
+      "sha256": "77bc0e65e08cc5cd47ff30bd485383c4c67307e9a8a050f5bbfd96ab6635707c"
+    },
+    {
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/CreateConversation.cs",
+      "sha256": "2bde9eb11aa095f7cb0e7127bffbcce65408663f09b3ff6a6c3cfde3d061532d"
+    },
+    {
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/Hexalith.Conversations.MinimalModule.Contracts.csproj",
+      "sha256": "0c71e7b64c02f5053e556e51dde2284547d9a0d454c90ef21f196bf44181b11e"
+    },
+    {
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/packages.lock.json",
+      "sha256": "52cbaccb8876b9df65fa7e691cf18b6755378e69aa50451ad5e4e211fcac0314"
+    },
+    {
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationAggregate.cs",
+      "sha256": "a700a1ba954e7dd0cf5da40dc79e74f6fda3038460c873a36cf6cc726fba1a4e"
+    },
+    {
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationModule.cs",
+      "sha256": "0c16ebc8432cb8e8e6d9fb0a741a50a9a9ce765050c192eff9c326acbb27e7e8"
+    },
+    {
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/Hexalith.Conversations.MinimalModule.Server.csproj",
+      "sha256": "815c4bd91e1ea95728f087c27e08538b818b70c5046f7666caf54436a86723fa"
+    },
+    {
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/packages.lock.json",
+      "sha256": "d9f8362c9a38b3ad08481559e89dbebc92c474a06e1579923182f4419796295c"
+    },
+    {
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/AppHost.cs",
+      "sha256": "42e0d71777bc9456a600c8bc8618fa3e6f3d6c4a95a5dfffdee9056d985175a6"
+    },
+    {
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj",
+      "sha256": "320077e5282671bbe921ce01c3ed7f8680d096f31a499e0e41a32ff49a02e36f"
+    },
+    {
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/packages.lock.json",
+      "sha256": "78b06f0a95f4be921ace42500c2eba6e7578c0dccb162a2400d838c9b15a2423"
+    },
+    {
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/Hexalith.Conversations.MinimalModule.Tests.csproj",
+      "sha256": "6232260db2a9496548739fbd86398cb75a48208454c1860f9684a7d8d4e1f11f"
+    },
+    {
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/MinimalModuleFixtureTests.cs",
+      "sha256": "b5a1c813bd41ffd72e54612e94ae742955294b33d2099e3d463d27617d6e2229"
+    },
+    {
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/packages.lock.json",
+      "sha256": "7a55c490e0263300eb97079fffc684ca61b1f00acd057bcf213f7f743744d104"
+    }
+  ],
+  "changed": []
+}

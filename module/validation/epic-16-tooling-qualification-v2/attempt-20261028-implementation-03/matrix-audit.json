@@ -1,0 +1,115 @@
+{
+  "scope": "prerequisite implementation matrix only",
+  "result": "PASS",
+  "rows": [
+    {
+      "input": "Existing producer source tests",
+      "expected": "Report only executed source scope",
+      "state": "PASS",
+      "evidence": [
+        "native-test-summary.json",
+        "producer-action-tests.json",
+        "qualified-source-inventory.json"
+      ],
+      "coveringTests": [
+        "BuildPreparationTests (11 passed)",
+        "PlatformManifestCommandTests (75 passed)",
+        "PlatformAdoptionValidationTests (396 passed)",
+        "PlatformIdentityTests (43 passed)",
+        "prepare-module-build action exports (9 passed)"
+      ],
+      "limit": "Controlled package fixtures are source-test inputs only; no artifact or Platform acceptance."
+    },
+    {
+      "input": "Missing published package, tag or platform evidence",
+      "expected": "Qualification remains BLOCKED without acceptance inference",
+      "state": "PASS",
+      "evidence": [
+        "qualification-ledger.json",
+        "qualified-source-inventory.json",
+        "final-held-command-matrix.json"
+      ],
+      "coveringTests": [
+        "BuildPreparationTests.InvalidPackageProvenanceRefusesAsync",
+        "PlatformIdentityTests",
+        "test_held_selected_v2_emits_no_runtime_outputs",
+        "test_owner_json_cannot_nominate_entry"
+      ],
+      "limit": "HXW011 records missing local Platform tag; external evidence is unqualified, not asserted nonexistent remotely. Independent entry trust is empty."
+    },
+    {
+      "input": "Existing v1 commands",
+      "expected": "Preserve measured FAIL/SOURCE_DRIFT and independent attributes guard",
+      "state": "PASS",
+      "evidence": [
+        "final-held-command-matrix.json",
+        "final-focused-v2-scoped-attributes.json"
+      ],
+      "coveringTests": [
+        "test_actual_v1_cli_retains_current_pin_drift_before_new_imports",
+        "test_v1_independent_source_faults_keep_drift_before_optional_v2_imports[.gitattributes]",
+        "test_v1_independent_source_faults_keep_drift_before_optional_v2_imports[.config/dotnet-tools.json]"
+      ],
+      "reconciliation": "The spec current-investigation override preserves the actual first failure on .config/dotnet-tools.json; a separately passing v1 fault proves .gitattributes rejection."
+    },
+    {
+      "input": "Explicit v2 contract with null entry",
+      "expected": "BLOCKED/ENTRY_QUALIFICATION_PENDING, zero runtime tests, seven output paths absent",
+      "state": "PASS",
+      "evidence": [
+        "final-held-command-matrix.json"
+      ],
+      "coveringTests": [
+        "test_held_selected_v2_emits_no_runtime_outputs"
+      ],
+      "actualCommands": "all six exact v2 Story 16.1 commands"
+    },
+    {
+      "input": "Altered pin, inventory, selector or executable",
+      "expected": "Fail closed with a nonempty ledger and no version fallback",
+      "state": "PASS",
+      "evidence": [
+        "final-focused-v2-scoped-attributes.json"
+      ],
+      "coveringTests": [
+        "test_independent_pin_and_source_guards_restore_exactly",
+        "test_independent_source_pin_rejects_with_unchanged_source_bytes",
+        "test_source_row_identity_is_exact",
+        "test_executing_snapshot_independently_rejects_rebound_substitution",
+        "test_loaded_policy_module_location_is_bound",
+        "test_unknown_selector_and_no_fallback",
+        "test_wrong_story_is_rejected",
+        "test_native_contract_digest_cannot_cross_versions",
+        "test_selected_package_capture_failures_are_structured",
+        "test_selected_lazy_imports_distinguish_unavailable_from_internal_defect",
+        "test_unsafe_outputs_reject_before_any_write"
+      ],
+      "limit": "Internal undeclared/broken imports retain their traceback; only genuine declared unavailability and contained-reader failures receive the corresponding structured classification."
+    },
+    {
+      "input": "Synthetic fixture success",
+      "expected": "runtimeQualified=false and isolated fixture outputs only",
+      "state": "PASS",
+      "evidence": [
+        "final-focused-v2-scoped-attributes.json"
+      ],
+      "coveringTests": [
+        "test_all_fifteen_native_routes_use_actual_selected_entrypoints (15 passed)",
+        "test_three_deterministic_final_records_through_actual_generator (3 passed)",
+        "test_policy_and_preserved_obligations_are_immutable",
+        "test_preserved_requirement_and_graph_inventory_counts"
+      ]
+    }
+  ],
+  "focusedTestsPassed": 60,
+  "affectedTestsPassed": 4694,
+  "authority": {
+    "implementationHold": "ACTIVE",
+    "executionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  },
+  "runtimeQualified": false,
+  "qualificationDisposition": "external/package/platform/owner gates remain BLOCKED"
+}

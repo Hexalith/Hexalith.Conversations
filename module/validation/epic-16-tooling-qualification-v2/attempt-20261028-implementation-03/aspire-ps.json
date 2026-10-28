@@ -1,0 +1,27 @@
+{
+  "name": "aspire-ps",
+  "command": [
+    "aspire",
+    "ps",
+    "--help"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 0.201,
+  "exitCode": 0,
+  "termination": null,
+  "environment": {},
+  "stdout": {
+    "path": "aspire-ps.stdout.txt",
+    "bytes": 1184,
+    "sha256": "4221229238fefefa07b0422c6593fa87ace86bb939806fbf3353c325c4dac17a",
+    "rawSha256": "4221229238fefefa07b0422c6593fa87ace86bb939806fbf3353c325c4dac17a"
+  },
+  "stderr": {
+    "path": "aspire-ps.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

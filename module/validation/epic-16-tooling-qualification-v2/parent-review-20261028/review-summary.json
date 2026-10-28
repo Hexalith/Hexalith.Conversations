@@ -1,0 +1,91 @@
+{
+  "result": "PASS",
+  "scope": "separately approved prerequisite only",
+  "layers": [
+    "blind-hunter",
+    "edge-case-hunter",
+    "verification-gap"
+  ],
+  "reviewInput": {
+    "path": "/tmp/epic16-prerequisite-review-3cnpp5zp.patch",
+    "sha256": "c1a48482c6a7ca8b5cac7a7d8c2161becc3733a624b3884eeba84c1cf4039b90"
+  },
+  "findings": [
+    {
+      "id": "BH-01",
+      "verdict": "false",
+      "disposition": "reject"
+    },
+    {
+      "id": "BH-02",
+      "verdict": "low",
+      "disposition": "reject"
+    },
+    {
+      "id": "BH-03",
+      "verdict": "false",
+      "disposition": "reject"
+    },
+    {
+      "id": "BH-04",
+      "verdict": "medium",
+      "disposition": "defer"
+    },
+    {
+      "id": "BH-05",
+      "verdict": "medium",
+      "disposition": "defer"
+    },
+    {
+      "id": "BH-06",
+      "verdict": "medium",
+      "disposition": "defer"
+    },
+    {
+      "id": "BH-07",
+      "verdict": "low",
+      "disposition": "patched"
+    },
+    {
+      "id": "BH-08",
+      "verdict": "low",
+      "disposition": "patched"
+    },
+    {
+      "id": "BH-09",
+      "verdict": "low",
+      "disposition": "reject"
+    },
+    {
+      "id": "BH-10",
+      "verdict": "low",
+      "disposition": "patched"
+    },
+    {
+      "id": "EC-01",
+      "verdict": "medium",
+      "disposition": "defer"
+    },
+    {
+      "id": "EC-02",
+      "verdict": "medium",
+      "disposition": "defer"
+    },
+    {
+      "id": "VG-01",
+      "verdict": "medium",
+      "disposition": "patched"
+    }
+  ],
+  "patched": 4,
+  "rejected": 4,
+  "deferredFindings": 5,
+  "deferredRootCauses": 4,
+  "triageSource": "_bmad-output/implementation-artifacts/spec-epic-16-tooling-qualification-and-binding-refresh.md#review-triage-log",
+  "verification": "final-verification.json",
+  "fixes": "fixes/README.md",
+  "runtimeEntry": "BLOCKED",
+  "runtimePublication": "not-applicable",
+  "completionContract": "not-applicable: prerequisite has no dotted story id",
+  "pushAuthorized": false
+}

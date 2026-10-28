@@ -1,5 +1,51 @@
 # Conversations Platform registration handoff — pending
 
+## Current bounded tooling disposition — 2026-10-28
+
+[The fresh source qualification attempt](validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/)
+records the exact current root/dependency identities, mapped Debug readiness and cleanup,
+525 passing producer source tests and nine passing action tests. The initial 180-second
+adoption-class timeout is retained separately; its bounded retry passed all 396 tests.
+Final current regressions also pass: 2,885 tooling, 1,516 generator, 131 adoption v1,
+162 adoption v2 and 60 focused successor tests. Existing policy excludes 17 retired
+live Story 11.3 cases; the earlier explicit-file FAIL is retained. The neutral helper
+uses all seven producer-selected source environment values. Additive historical fixture
+blobs restore old positive controls against unchanged accepted pins.
+
+These tests qualify only their executed source scopes, including controlled package fixtures.
+They provide no published-package, deployed-provider, production or human acceptance.
+
+[Tooling v2](../_bmad-output/planning-artifacts/epic-16-tooling-v2/README.md) now supplies an
+explicit held route. All six actual v2 Story 16.1 commands reach ENTRY_QUALIFICATION_PENDING
+(BLOCKED/exit 2); v1 still fails SOURCE_DRIFT/exit 1 first on the current root tool manifest.
+The attributes mismatch has a separate passing fault guard. Both actual routes measure zero
+runtime tests and emit none of the seven runtime/final outputs.
+
+Root CLI 4.38.1 and direct Platform 4.35.2 remain unchanged. The latest retained adoption
+observation has six PASS/twelve FAIL, including the two archived generated-import findings.
+Preserve every finding; new observations must report their exact actual inventory. No source
+archive removal, scanner exemption, accepted fixture amendment or frozen host retirement is authorized.
+
+The qualification ledger retains all thirteen release-review findings, ten deferred groups
+and the original B8/B11 rejected dispositions. No preparation result closes the native launch,
+timeout, process-discovery, forged-listing, list-cancellation, 67,001-byte claim-bound,
+machine-crash durability, Windows/macOS native-host or batch-stale-binding gates. Owners must
+qualify these against the actual accepted artifact/source/catalog tuple.
+
+The exact producer-CI package, archive/hash/size/signature, NuSpec source/tag/CI identity,
+packaged/loaded assemblies, loose/embedded schema/catalog and Platform release/source/Builds
+pair remain pending, together with all 36 malformed-key controls on that artifact. Use only
+isolated restoration for candidate qualification; local Debug sources cannot replace the
+producer's required matched Release host package lane. The published testing-helper strategy,
+source/package/deployed parity, operational envelope, recovery/operator/capacity disposition
+and human SM-2 plus named owner entry remain separate BLOCKED inputs.
+
+Entry remains null, independent trust empty, Story 16.1 draft/backlog and the hold ACTIVE;
+all four authority flags remain false. The dated handoff below retains its original identities
+and scope, including its historical offline exception and earlier pin/scanner observations.
+
+## Earlier enrollment registration record
+
 Static declaration/adoption validity does not register executables. This handoff
 uses the direct Platform enrollment template at
 `references/Hexalith.Platform/templates/domain-module-enrollment/platform-handoff.md`.

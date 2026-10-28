@@ -1,0 +1,33 @@
+{
+  "name": "producer-adoption-retry",
+  "command": [
+    "dotnet",
+    "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds/test/Hexalith.Builds.Module.Tests/bin/Debug/net10.0/Hexalith.Builds.Module.Tests.dll",
+    "-automated",
+    "sync",
+    "-failSkips",
+    "-class",
+    "Hexalith.Builds.ModuleTool.Tests.PlatformAdoptionValidationTests",
+    "-trx",
+    "/tmp/epic16-adoption-retry-7_nok5wn/PlatformAdoptionValidationTests.trx"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+  "timeoutSeconds": 600,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 413.607,
+  "exitCode": 0,
+  "termination": null,
+  "environment": {},
+  "stdout": {
+    "path": "producer-adoption-retry.stdout.txt",
+    "bytes": 1382616,
+    "sha256": "74def2641ff366aafc3ff839da5906abde4133e11f511c879ebc962c27044f6b",
+    "rawSha256": "74def2641ff366aafc3ff839da5906abde4133e11f511c879ebc962c27044f6b"
+  },
+  "stderr": {
+    "path": "producer-adoption-retry.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "tool-version",
+  "command": [
+    "dotnet",
+    "tool",
+    "run",
+    "hexalith-module",
+    "--version"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 462215,
+  "startedAtUtc": "2026-10-28T09:29:26.240721+00:00",
+  "durationSeconds": 0.301,
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {},
+  "stdout": {
+    "path": "tool-version.stdout.txt",
+    "bytes": 48,
+    "sha256": "f2b8c6f94b2b952c51ce8a3533b8028df431d934efc5b510a0ca44fff51c71a9"
+  },
+  "stderr": {
+    "path": "tool-version.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

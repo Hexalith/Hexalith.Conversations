@@ -1,0 +1,35 @@
+{
+  "name": "adoption-json",
+  "command": [
+    "dotnet",
+    "tool",
+    "run",
+    "hexalith-module",
+    "--",
+    "validate",
+    "--manifest",
+    "module/hexalith.module-manifest.v2.json",
+    "--adoption",
+    "--output",
+    "json"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 462583,
+  "startedAtUtc": "2026-10-28T09:29:27.044488+00:00",
+  "durationSeconds": 18.923,
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 1,
+  "mappingEnvironment": {},
+  "stdout": {
+    "path": "adoption-json.stdout.txt",
+    "bytes": 10010,
+    "sha256": "a762b2c5d98ad17863f62a116e7de07154ab23f44ecdb9de8c66340f8401f57e"
+  },
+  "stderr": {
+    "path": "adoption-json.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

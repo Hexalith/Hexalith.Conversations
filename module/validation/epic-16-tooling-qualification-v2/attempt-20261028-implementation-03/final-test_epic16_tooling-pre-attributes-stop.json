@@ -1,0 +1,35 @@
+{
+  "name": "final-test_epic16_tooling-pre-attributes-stop",
+  "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "_bmad/scripts/tests/test_epic16_tooling.py"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "timeoutSeconds": 3600,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 186,
+  "exitCode": null,
+  "termination": "owned run stopped for confirmed missing LF attribute policy",
+  "coverageComplete": false,
+  "result": "INCOMPLETE",
+  "stdout": {
+    "path": "final-test_epic16_tooling-pre-attributes-stop.stdout.txt",
+    "bytes": 110,
+    "sha256": "af108b6e843b5e139402adc7281dec06493a299ecdc98e050f6c2f62a1a16365"
+  },
+  "stderr": {
+    "path": "final-test_epic16_tooling-pre-attributes-stop.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "exitStatusObserved": false,
+  "terminationSignal": "SIGTERM",
+  "captureScope": "partial streams at stop request; not a complete test result"
+}

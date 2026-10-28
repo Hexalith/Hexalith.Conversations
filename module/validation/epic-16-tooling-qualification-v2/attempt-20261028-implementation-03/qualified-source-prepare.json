@@ -1,0 +1,35 @@
+{
+  "name": "qualified-source-prepare",
+  "command": [
+    "dotnet",
+    "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds/src/libraries/Hexalith.Builds.Module.Cli/bin/Debug/net10.0/Hexalith.Builds.Module.Cli.dll",
+    "prepare-build",
+    "--manifest",
+    "module/hexalith.module-manifest.v2.json",
+    "--mode",
+    "source",
+    "--output",
+    "json",
+    "--workspace",
+    "/tmp/epic16-qualified-source-w3ay6v6z/prepared"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "timeoutSeconds": 120,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 2.204,
+  "exitCode": 0,
+  "termination": null,
+  "environment": {},
+  "stdout": {
+    "path": "qualified-source-prepare.stdout.txt",
+    "bytes": 1844,
+    "sha256": "292d118ce675f21fdae1e1a9954e15eddbf43c26971b923cc67cc9ab1dc26144",
+    "rawSha256": "292d118ce675f21fdae1e1a9954e15eddbf43c26971b923cc67cc9ab1dc26144"
+  },
+  "stderr": {
+    "path": "qualified-source-prepare.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

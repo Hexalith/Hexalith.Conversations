@@ -1,5 +1,44 @@
 # Conversations Platform enrollment prerequisite source slice
 
+## Held tooling refresh — 2026-10-28
+
+The additive [tooling v2 package](../_bmad-output/planning-artifacts/epic-16-tooling-v2/README.md)
+selects an immutable policy by exact contract path. Its contracts preserve all eighteen
+ACs, thirty-two requirements, graph 38/61, predecessor order, rollback and native/final-record
+obligations. V1 carriers, schema, trust pins and evidence are unchanged.
+
+[Fresh qualification evidence](validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/)
+records mapped Development/Debug AppHost readiness and exact-instance cleanup; 525 producer
+source tests and nine action tests passed. Preparation returned the complete producer mapping
+environment and the focused AppHost evaluation selected Debug and project references. Source
+identity/provenance warnings remain recorded. No local Release output or published package was used.
+Final current Python regressions pass: 2,885 tooling, 1,516 generator, 131 adoption v1
+and 162 adoption v2 cases, plus 60 focused successor tests. Generator validation uses
+the complete producer source environment and the existing directory-selection policy;
+17 retired live Story 11.3 cases remain separate from current coverage. Legacy adoption
+fixtures use additive committed-history blobs matching unchanged accepted pins.
+
+All six actual v1 Story 16.1 commands remain FAIL/exit 1/SOURCE_DRIFT on the current root
+`.config/dotnet-tools.json`; independent fixture faults also reject `.gitattributes` drift.
+All six explicit v2 commands reach BLOCKED/exit 2/ENTRY_QUALIFICATION_PENDING. Both routes
+measure zero runtime tests and leave the five runtime receipts and both final paths absent.
+Fixture success is isolated and carries runtimeQualified=false.
+
+The root pin remains 4.38.1 and direct Platform remains 4.35.2. The twelve adoption failure
+identities observed in the [entry investigation](../_bmad-output/implementation-artifacts/story-16-1-entry-investigation-2026-10-28.md)
+remain undispositioned; this slice adds no scanner exemptions. Exact published-release/source/catalog
+and Platform pairing, artifact controls, native Windows/macOS coverage, supported testing-helper
+strategy, operational/provider parity, recovery/operator/capacity decisions and human SM-2/owner
+acceptance remain BLOCKED. The retained release-review ledger preserves all thirteen findings,
+ten deferred groups and two rejected dispositions. Passing preparation does not close those groups.
+
+Story 16.1 remains draft/backlog, entry null, independent trust empty and the hold ACTIVE;
+all four authority flags remain false. Relative to implementation-entry commit
+`ef01d578a00efd527bae9226dca302f54cd012f0`, this slice makes no runtime, host,
+tool-pin or dependency changes.
+
+## Prior enrollment remediation scope — 2026-10-27
+
 The approved 2026-10-27 remediation corrects active source/build/configuration
 consumers and prepares the pending [Platform owner handoff](platform-handoff.md).
 It uses only mapped Debug builds and isolated composition/test stores under the

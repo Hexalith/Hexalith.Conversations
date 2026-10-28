@@ -1,0 +1,14 @@
+{
+  "scope": "bounded final resource logs; lexical matching is diagnostic only, not test results",
+  "source": "aspire-logs-final.stdout.txt",
+  "matches": {
+    "warning": 4,
+    "error": 0,
+    "workloadAssertion": 0,
+    "unauthorized": 0,
+    "missingMetadata": 0
+  },
+  "readinessScopeOnly": true,
+  "functionalAcceptance": false,
+  "runtimeQualified": false
+}

@@ -1,0 +1,20 @@
+{
+  "attempt03": {
+    "path": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03",
+    "before": "attempt-03-before.json",
+    "files": 326,
+    "exactInventoryAndBytesUnchanged": true
+  },
+  "realRuntimeOutputs": {
+    "paths": [
+      "artifacts/epic16-runtime/16.1/AC-16.1-01.json",
+      "artifacts/epic16-runtime/16.1/AC-16.1-02.json",
+      "artifacts/epic16-runtime/16.1/AC-16.1-03.json",
+      "artifacts/epic16-runtime/16.1/AC-16.1-04.json",
+      "artifacts/epic16-runtime/16.1/AC-16.1-05.json",
+      "docs/release-evidence/story-16.1-final-record-v2.json",
+      "docs/release-evidence/story-16.1-final-record-v2.md"
+    ],
+    "absentBeforeAndAfter": true
+  }
+}

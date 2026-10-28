@@ -1,0 +1,32 @@
+{
+  "name": "neutral-helper-unmapped-build",
+  "command": [
+    "dotnet",
+    "build",
+    "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.TestSupport.Runner/Hexalith.Conversations.TestSupport.Runner.csproj",
+    "--configuration",
+    "Debug",
+    "--nologo",
+    "-p:NuGetAudit=false",
+    "-p:ImportDirectoryPackagesProps=false"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "timeoutSeconds": 120,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 0.501,
+  "exitCode": 1,
+  "termination": null,
+  "environment": {},
+  "stdout": {
+    "path": "neutral-helper-unmapped-build.stdout.txt",
+    "bytes": 1499,
+    "sha256": "db0d5f910833c77cbc7b65efebe8efc9fde252e8115e7bbe485e959e7c5139ed",
+    "rawSha256": "db0d5f910833c77cbc7b65efebe8efc9fde252e8115e7bbe485e959e7c5139ed"
+  },
+  "stderr": {
+    "path": "neutral-helper-unmapped-build.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

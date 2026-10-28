@@ -1,0 +1,36 @@
+{
+  "name": "held-v1-1",
+  "command": [
+    "python3",
+    "_bmad/scripts/verify_story_16_1.py",
+    "--repository",
+    ".",
+    "--contract",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+    "--scenario",
+    "AC-16.1-01",
+    "--candidate",
+    "HEAD",
+    "--output",
+    "artifacts/epic16-runtime/16.1/AC-16.1-01.json"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 0.425,
+  "exitCode": 1,
+  "termination": null,
+  "environment": {},
+  "stdout": {
+    "path": "held-v1-1.stdout.txt",
+    "bytes": 708,
+    "sha256": "dae54ea690bcc5332ab62076d9f7360df162595929df42c24f1d75eccde8b5ed",
+    "rawSha256": "dae54ea690bcc5332ab62076d9f7360df162595929df42c24f1d75eccde8b5ed"
+  },
+  "stderr": {
+    "path": "held-v1-1.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

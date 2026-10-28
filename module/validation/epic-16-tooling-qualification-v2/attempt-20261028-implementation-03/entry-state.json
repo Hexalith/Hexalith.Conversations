@@ -1,0 +1,91 @@
+{
+  "head": "ef01d578a00efd527bae9226dca302f54cd012f0",
+  "status": " M _bmad-output/implementation-artifacts/epic-16-context.md\n M _bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md\n M _bmad-output/implementation-artifacts/spec-epic-16-tooling-qualification-and-binding-refresh.md\n?? _bmad-output/implementation-artifacts/story-16-1-entry-investigation-2026-10-28.md\n?? module/validation/epic-16-entry-2026-10-28/\n?? module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/\n",
+  "gitlinks": [
+    {
+      "path": "references/Hexalith.AI.Tools",
+      "commit": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+      "checkout": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+      "status": "",
+      "nested": []
+    },
+    {
+      "path": "references/Hexalith.Builds",
+      "commit": "81ab049208678bd6616828824729c0ddac02f7d1",
+      "checkout": "81ab049208678bd6616828824729c0ddac02f7d1",
+      "status": "",
+      "nested": []
+    },
+    {
+      "path": "references/Hexalith.Commons",
+      "commit": "3edfbdafc7d4fa915286dce8a37dc4cc7c06085a",
+      "checkout": "3edfbdafc7d4fa915286dce8a37dc4cc7c06085a",
+      "status": "",
+      "nested": []
+    },
+    {
+      "path": "references/Hexalith.EventStore",
+      "commit": "347d390e3a5c0da28874ae650ef202aefbea15ce",
+      "checkout": "347d390e3a5c0da28874ae650ef202aefbea15ce",
+      "status": "",
+      "nested": []
+    },
+    {
+      "path": "references/Hexalith.Folders",
+      "commit": "d7e0b3f307e4cd7e740b9f38923c86f8b5c30847",
+      "checkout": "d7e0b3f307e4cd7e740b9f38923c86f8b5c30847",
+      "status": "",
+      "nested": []
+    },
+    {
+      "path": "references/Hexalith.FrontComposer",
+      "commit": "28d2c7f47849bcfba19501f7c18cd9f67f0fc61c",
+      "checkout": "28d2c7f47849bcfba19501f7c18cd9f67f0fc61c",
+      "status": "",
+      "nested": []
+    },
+    {
+      "path": "references/Hexalith.McpCli",
+      "commit": "2d7311cbbcc592c0ea0348463037389251d1cb4b",
+      "checkout": "2d7311cbbcc592c0ea0348463037389251d1cb4b",
+      "status": "",
+      "nested": []
+    },
+    {
+      "path": "references/Hexalith.Memories",
+      "commit": "72c36c7113c750c8b809f9d72b945a2a8c2d4555",
+      "checkout": "72c36c7113c750c8b809f9d72b945a2a8c2d4555",
+      "status": "",
+      "nested": []
+    },
+    {
+      "path": "references/Hexalith.Parties",
+      "commit": "9239c531f3b0cbb4a998c419e537463b597ff14b",
+      "checkout": "9239c531f3b0cbb4a998c419e537463b597ff14b",
+      "status": "",
+      "nested": []
+    },
+    {
+      "path": "references/Hexalith.Platform",
+      "commit": "5889400b50e6e2cefb4ed6976ca53d086d3989e2",
+      "checkout": "5889400b50e6e2cefb4ed6976ca53d086d3989e2",
+      "status": "",
+      "nested": []
+    },
+    {
+      "path": "references/Hexalith.Projects",
+      "commit": "0e45105476902fcfce1f8dbd8416d7234bb16b41",
+      "checkout": "0e45105476902fcfce1f8dbd8416d7234bb16b41",
+      "status": "",
+      "nested": []
+    },
+    {
+      "path": "references/Hexalith.Tenants",
+      "commit": "7ddb864cda5e942925b056391617eae4895c1253",
+      "checkout": "7ddb864cda5e942925b056391617eae4895c1253",
+      "status": "",
+      "nested": []
+    }
+  ],
+  "indexSha256": "d5a1b05be20fcce002f2b098c429ea2df4d2d871486d939dbe3197b9e69c1d9f"
+}

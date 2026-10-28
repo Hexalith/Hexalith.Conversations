@@ -1,0 +1,689 @@
+[
+  {
+    "file": "test_generate_story_record.py",
+    "failures": [
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story103_publication_scope_accepts_only_bound_outputs[none]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story103_publication_scope_accepts_only_bound_outputs[source-drift]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story103_publication_scope_accepts_only_bound_outputs[gitlink]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story103_generation_rejects_working_spec_intent_drift"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story103_inserted_rederivation_accepts_only_committed_owned_sprint_completion[none]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story103_inserted_rederivation_accepts_only_committed_owned_sprint_completion[unrelated-row]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story103_inserted_rederivation_accepts_only_committed_owned_sprint_completion[uncommitted-sprint]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_legacy_scope_envelope_preserves_only_exact_accepted_ids[none]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_committed_lifecycle_sprint_rederives_only_the_owned_transition[story]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_committed_lifecycle_sprint_rederives_only_the_owned_transition[unrelated-row]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_committed_lifecycle_sprint_rederives_only_the_owned_transition[dirty]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_real_git_insertion_rejects_one_changed_inserted_byte"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_real_git_publication_rejects_installed_receipt_snapshot_and_xml_drift"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_actual_insertion_wrapper_replays_provenance_and_detects_metric_drift"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_committed_publication_review_done_rederives_original_sources[none]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_committed_publication_review_done_rederives_original_sources[unrelated-row]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_committed_publication_review_done_rederives_original_sources[source-drift]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[none]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[hash-relabel]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[fault-extra-code]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[positive-span-missing]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[fault-case-rename]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[native-revision-suffix]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[native-schema]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[native-blocker]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[native-failed-row]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[native-skipped-row]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[native-assembly]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[native-storage]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[native-result-test-id]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[native-result-execution-id]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[native-definition-id]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[native-definition-execution-id]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[native-definition-name]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[native-class]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[native-method]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[native-missing-definition]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[native-duplicate-definition]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[native-second-envelope]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[native-second-escaped-envelope]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[stale-AC09]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[AC09-failed-row]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[AC09-unrelated]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[AC09-no-guidance]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[AC09-no-customization]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[AC09-no-runbook]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[AC09-no-workflow]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[AC09-subject-drift]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[malformed-trx]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[malformed-junit]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[restoration]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_complete_receipts_reject_tampering_with_the_real_parser[empty-fault-ledger]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_junit_receipts_require_closed_ledgers_and_exact_modules[integer-id-06]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_junit_receipts_require_closed_ledgers_and_exact_modules[integer-id-07]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_junit_receipts_require_closed_ledgers_and_exact_modules[missing-subject-06]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_junit_receipts_require_closed_ledgers_and_exact_modules[missing-subject-07]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_junit_receipts_require_closed_ledgers_and_exact_modules[unknown-field-06]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_junit_receipts_require_closed_ledgers_and_exact_modules[unknown-field-07]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_junit_receipts_require_closed_ledgers_and_exact_modules[duplicate-row-06]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_junit_receipts_require_closed_ledgers_and_exact_modules[duplicate-row-07]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_junit_receipts_require_closed_ledgers_and_exact_modules[classname-06]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story104_junit_receipts_require_closed_ledgers_and_exact_modules[classname-07]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_fault_receipt_requires_the_exact_observed_restored_matrix"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_route_derives_current_metrics_receipts_and_closed_record"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_disk_receipts_reject_linked_parent"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_resigned_pair_rejects_nonpassing_assertions[FAIL]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_resigned_pair_rejects_nonpassing_assertions[SKIPPED]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_upstream_failure_retains_fail_exit_and_exact_diagnostics[False]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_upstream_failure_retains_fail_exit_and_exact_diagnostics[True]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_route_rejects_stale_vacuous_or_uncommitted_evidence[missing-receipt]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_route_rejects_stale_vacuous_or_uncommitted_evidence[stale-trx]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_route_rejects_stale_vacuous_or_uncommitted_evidence[stale-json]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_route_rejects_stale_vacuous_or_uncommitted_evidence[empty-matrix]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_route_rejects_stale_vacuous_or_uncommitted_evidence[source-drift]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_route_rejects_stale_vacuous_or_uncommitted_evidence[regeneration-drift]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_route_rejects_stale_vacuous_or_uncommitted_evidence[upstream-blocked]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_dirty_worktree_reports_its_stable_blocker[False]"
+      },
+      {
+        "outcome": "ERROR",
+        "selector": "_bmad/scripts/tests/test_generate_story_record.py::test_story_113_dirty_worktree_reports_its_stable_blocker[True]"
+      }
+    ]
+  },
+  {
+    "file": "test_verify_epic_16_adoption.py",
+    "failures": [
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_valid_package_passes_structure_but_reports_actual_entry_failures_without_execution"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_package_authority_cannot_be_granted[executionAllowed]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_package_authority_cannot_be_granted[ownerApprovalClaimed]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_package_authority_cannot_be_granted[releaseAuthorized]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_package_authority_cannot_be_granted[pushAuthorized]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json-INPUT_UNAVAILABLE]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[_bmad/schemas/epic-16-adoption-v1.schema.json-INPUT_UNAVAILABLE]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[.config/dotnet-tools.json-ACCEPTED_TOOL_UNAVAILABLE]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[module/validation/version.txt-ACCEPTED_TOOL_UNAVAILABLE]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_declared_escape_paths_are_rejected_without_opening_them[/tmp/outside]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_declared_escape_paths_are_rejected_without_opening_them[../../outside]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_declared_escape_paths_are_rejected_without_opening_them[a/../outside]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_declared_escape_paths_are_rejected_without_opening_them[.git/config]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_declared_escape_paths_are_rejected_without_opening_them[a\\\\outside]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_declared_escape_paths_are_rejected_without_opening_them[a//b]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_fixed_input_symlink_escape_rejected_before_outside_read[_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_fixed_input_symlink_escape_rejected_before_outside_read[_bmad/schemas/epic-16-adoption-v1.schema.json]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_fixed_input_symlink_escape_rejected_before_outside_read[module/hosting-inventory.json]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_fixed_input_symlink_escape_rejected_before_outside_read[.config/dotnet-tools.json]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[{\"status\":\"candidate-for-owner-review\",\"status\":\"candidate-for-owner-review\"}]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[{\"value\": NaN}]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[{\"value\": 1e999}]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[{\"value\": -1e999}]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[not-json]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[\\xff]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_capability_claim_is_checked_against_actual_generator_constants"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_real_cli_structural_failure_has_exit_one_and_literal_no_authority"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_fixture_and_verifier_need_no_live_reference_content"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_rehashed_wrong_sdk_token_key_is_rejected[input]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_rehashed_wrong_sdk_token_key_is_rejected[secret]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_present_nonregular_input_is_fail[directory]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_present_nonregular_input_is_fail[fifo]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption.py::test_unreadable_input_is_blocked_with_its_path"
+      }
+    ]
+  },
+  {
+    "file": "test_verify_epic_16_adoption_v2.py",
+    "failures": [
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_valid_package_passes_structure_but_reports_actual_entry_failures_without_execution"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_package_authority_cannot_be_granted[executionAllowed]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_package_authority_cannot_be_granted[ownerApprovalClaimed]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_package_authority_cannot_be_granted[releaseAuthorized]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_package_authority_cannot_be_granted[pushAuthorized]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[_bmad-output/planning-artifacts/epic-16-adoption-v2/package.json-INPUT_UNAVAILABLE]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[_bmad/schemas/epic-16-adoption-v2.schema.json-INPUT_UNAVAILABLE]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[.config/dotnet-tools.json-ACCEPTED_TOOL_UNAVAILABLE]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_missing_prerequisite_or_accepted_tool_is_blocked_with_exact_diagnostic[module/validation/epic-16-adoption-v2/version.txt-ACCEPTED_TOOL_UNAVAILABLE]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_declared_escape_paths_are_rejected_without_opening_them[/tmp/outside]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_declared_escape_paths_are_rejected_without_opening_them[../../outside]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_declared_escape_paths_are_rejected_without_opening_them[a/../outside]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_declared_escape_paths_are_rejected_without_opening_them[.git/config]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_declared_escape_paths_are_rejected_without_opening_them[a\\\\outside]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_declared_escape_paths_are_rejected_without_opening_them[a//b]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_fixed_input_symlink_escape_rejected_before_outside_read[_bmad-output/planning-artifacts/epic-16-adoption-v2/package.json]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_fixed_input_symlink_escape_rejected_before_outside_read[_bmad/schemas/epic-16-adoption-v2.schema.json]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_fixed_input_symlink_escape_rejected_before_outside_read[.config/dotnet-tools.json]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[{\"status\":\"candidate-for-owner-review\",\"status\":\"candidate-for-owner-review\"}]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[{\"value\": NaN}]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[{\"value\": 1e999}]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[{\"value\": -1e999}]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[not-json]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_malformed_json_and_duplicate_keys_fail_instead_of_blocking[\\xff]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_capability_claim_is_checked_against_actual_generator_constants"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_real_cli_structural_failure_has_exit_one_and_literal_no_authority"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_fixture_and_verifier_need_no_live_reference_content"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_present_nonregular_input_is_fail[directory]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_present_nonregular_input_is_fail[fifo]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_unreadable_input_is_blocked_with_its_path"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_authority_requires_literal_false_not_false_like_values[0-executionAllowed]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_authority_requires_literal_false_not_false_like_values[0-ownerApprovalClaimed]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_authority_requires_literal_false_not_false_like_values[0-releaseAuthorized]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_authority_requires_literal_false_not_false_like_values[0-pushAuthorized]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_authority_requires_literal_false_not_false_like_values[false-executionAllowed]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_authority_requires_literal_false_not_false_like_values[false-ownerApprovalClaimed]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_authority_requires_literal_false_not_false_like_values[false-releaseAuthorized]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_authority_requires_literal_false_not_false_like_values[false-pushAuthorized]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_authority_requires_literal_false_not_false_like_values[None-executionAllowed]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_authority_requires_literal_false_not_false_like_values[None-ownerApprovalClaimed]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_authority_requires_literal_false_not_false_like_values[None-releaseAuthorized]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_authority_requires_literal_false_not_false_like_values[None-pushAuthorized]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_rehash_cannot_rewrite_commands_native_failures_or_observation_provenance[module/validation/epic-16-adoption-v2/results.json-<lambda>0]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_rehash_cannot_rewrite_commands_native_failures_or_observation_provenance[module/validation/epic-16-adoption-v2/results.json-<lambda>1]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_rehash_cannot_rewrite_commands_native_failures_or_observation_provenance[module/validation/epic-16-adoption-v2/results.json-<lambda>2]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_rehash_cannot_rewrite_commands_native_failures_or_observation_provenance[module/validation/epic-16-adoption-v2/results.json-<lambda>3]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_rehash_cannot_rewrite_commands_native_failures_or_observation_provenance[module/validation/epic-16-adoption-v2/results.json-<lambda>4]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_rehash_cannot_rewrite_commands_native_failures_or_observation_provenance[module/validation/epic-16-adoption-v2/provenance.json-<lambda>0]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_rehash_cannot_rewrite_commands_native_failures_or_observation_provenance[module/validation/epic-16-adoption-v2/provenance.json-<lambda>1]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_rehash_cannot_rewrite_commands_native_failures_or_observation_provenance[module/validation/epic-16-adoption-v2/adoption.json-<lambda>0]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_rehash_cannot_rewrite_commands_native_failures_or_observation_provenance[module/validation/epic-16-adoption-v2/adoption.json-<lambda>1]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_rehash_cannot_rewrite_commands_native_failures_or_observation_provenance[module/validation/epic-16-adoption-v2/adoption.json-<lambda>2]"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_current_schema_acceptance_does_not_erase_published_tool_rejection"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_real_v2_cli_success_has_exit_zero_nonempty_ledger_and_no_authority"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_real_cli_surrogate_path_emits_structured_failure"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_rehashed_checkout_policy_cannot_redefine_pinned_bytes"
+      },
+      {
+        "outcome": "FAILED",
+        "selector": "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py::test_disposable_git_checkout_preserves_bound_root_bytes_with_autocrlf"
+      }
+    ]
+  }
+]

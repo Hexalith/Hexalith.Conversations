@@ -1,0 +1,27 @@
+{
+  "name": "producer-version",
+  "command": [
+    "dotnet",
+    "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds/src/libraries/Hexalith.Builds.Module.Cli/bin/Debug/net10.0/Hexalith.Builds.Module.Cli.dll",
+    "--version"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 0.101,
+  "exitCode": 0,
+  "termination": null,
+  "environment": {},
+  "stdout": {
+    "path": "producer-version.stdout.txt",
+    "bytes": 62,
+    "sha256": "63e5aa37cb41b3b8e2a6b56fd5f2a1ceea30b65714cf8d459707a2a6c7970a0f",
+    "rawSha256": "63e5aa37cb41b3b8e2a6b56fd5f2a1ceea30b65714cf8d459707a2a6c7970a0f"
+  },
+  "stderr": {
+    "path": "producer-version.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

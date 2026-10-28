@@ -1,0 +1,24 @@
+[
+  {
+    "message": "test: bind explicit successor fixture",
+    "command": [
+      "node_modules/.bin/commitlint",
+      "--config",
+      "commitlint.config.mjs"
+    ],
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "message": "test: bind disposable fixture sources",
+    "command": [
+      "node_modules/.bin/commitlint",
+      "--config",
+      "commitlint.config.mjs"
+    ],
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

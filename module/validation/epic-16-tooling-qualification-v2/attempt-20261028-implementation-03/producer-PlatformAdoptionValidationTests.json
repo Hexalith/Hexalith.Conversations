@@ -1,0 +1,33 @@
+{
+  "name": "producer-PlatformAdoptionValidationTests",
+  "command": [
+    "dotnet",
+    "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds/test/Hexalith.Builds.Module.Tests/bin/Debug/net10.0/Hexalith.Builds.Module.Tests.dll",
+    "-automated",
+    "sync",
+    "-failSkips",
+    "-class",
+    "Hexalith.Builds.ModuleTool.Tests.PlatformAdoptionValidationTests",
+    "-trx",
+    "/tmp/epic16-native-0sbl5g7z/PlatformAdoptionValidationTests.trx"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+  "timeoutSeconds": 180,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 180.134,
+  "exitCode": -15,
+  "termination": "timeout-or-output-limit",
+  "environment": {},
+  "stdout": {
+    "path": "producer-PlatformAdoptionValidationTests.stdout.txt",
+    "bytes": 631841,
+    "sha256": "cb6c4148b6df09eb6769cf71cedb50e3a5ae39b134834071480b118d1845a842",
+    "rawSha256": "cb6c4148b6df09eb6769cf71cedb50e3a5ae39b134834071480b118d1845a842"
+  },
+  "stderr": {
+    "path": "producer-PlatformAdoptionValidationTests.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

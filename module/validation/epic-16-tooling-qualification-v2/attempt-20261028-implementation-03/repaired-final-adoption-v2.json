@@ -1,0 +1,35 @@
+{
+  "name": "repaired-final-adoption-v2",
+  "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py",
+    "--junitxml",
+    "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/repaired-final-adoption-v2.xml"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "timeoutSeconds": 600,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 13.089,
+  "exitCode": 0,
+  "termination": null,
+  "environment": {},
+  "stdout": {
+    "path": "repaired-final-adoption-v2.stdout.txt",
+    "bytes": 261,
+    "sha256": "7ed9e25246d42c33e36c554332743a833561bca5ee41a8dd06243989af4a1361",
+    "rawSha256": "7ed9e25246d42c33e36c554332743a833561bca5ee41a8dd06243989af4a1361"
+  },
+  "stderr": {
+    "path": "repaired-final-adoption-v2.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

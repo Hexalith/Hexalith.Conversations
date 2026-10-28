@@ -1,0 +1,26 @@
+{
+  "result": "PASS",
+  "checks": {
+    "tenCommandsUnterminated": true,
+    "twentyCommandStreams": true,
+    "fiftyFourRetainedBaselineStreams": true,
+    "declarationPass": true,
+    "eighteenIdenticalAdoptionRows": true,
+    "sixNonemptyFailureLedgers": true,
+    "sevenRuntimeOutputsAbsent": true,
+    "exactTwoSourceMismatches": true,
+    "headTreeIndexGitlinksProtectedFilesPreserved": true,
+    "twelveCleanPinnedDependencies": true,
+    "frozenIntentByteIdentical": true,
+    "sprintUnchanged": true,
+    "draftAndBacklogRetained": true,
+    "epicContextValid": true,
+    "planningFilesUseLf": true
+  },
+  "scopedEvidenceBoundary": "not-applicable: planning-only, no runtime publication or lifecycle transition",
+  "runtimeEntry": "BLOCKED",
+  "specTokenCount": {
+    "encoding": "o200k_base",
+    "count": 1596
+  }
+}

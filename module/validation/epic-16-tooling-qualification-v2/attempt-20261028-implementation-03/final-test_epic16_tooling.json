@@ -1,0 +1,35 @@
+{
+  "name": "final-test_epic16_tooling",
+  "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "_bmad/scripts/tests/test_epic16_tooling.py"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "timeoutSeconds": 3600,
+  "outputLimitBytes": 8388608,
+  "durationSeconds": 2680.105,
+  "exitCode": 0,
+  "termination": null,
+  "environment": {
+    "EPIC16_COMMITLINT_EVIDENCE": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/test_epic16_tooling-commitlint.json"
+  },
+  "stdout": {
+    "path": "final-test_epic16_tooling.stdout.txt",
+    "bytes": 3314,
+    "sha256": "ee1ae7ddfd0c6211635da90fe420952083bdcdd65b98bce5cf27bfa566058119",
+    "rawSha256": "ee1ae7ddfd0c6211635da90fe420952083bdcdd65b98bce5cf27bfa566058119"
+  },
+  "stderr": {
+    "path": "final-test_epic16_tooling.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
