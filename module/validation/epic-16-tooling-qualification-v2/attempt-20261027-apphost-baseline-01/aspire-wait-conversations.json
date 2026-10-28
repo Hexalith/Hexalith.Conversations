@@ -1,0 +1,32 @@
+{
+  "name": "aspire-wait-conversations",
+  "command": [
+    "aspire",
+    "wait",
+    "conversations",
+    "--apphost",
+    "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+    "--status",
+    "healthy",
+    "--timeout",
+    "120",
+    "--non-interactive"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "startedAtUtc": "2026-10-27T21:08:59.617560+00:00",
+  "durationSeconds": 0.301,
+  "timeoutSeconds": 135,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 7,
+  "stdout": {
+    "path": "aspire-wait-conversations.stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "aspire-wait-conversations.stderr.txt",
+    "bytes": 235,
+    "sha256": "cca663e6c583afb37596f89899d66269738fdd5bd7ba60004f10c21caee7456a"
+  }
+}

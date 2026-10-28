@@ -1,0 +1,1 @@
+ℹ️ No AppHost is currently running for 'src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj'. Use 'aspire run' to start it first.

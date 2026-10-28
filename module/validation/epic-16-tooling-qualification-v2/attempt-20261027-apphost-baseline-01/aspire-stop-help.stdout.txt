@@ -1,0 +1,18 @@
+Description:
+  Stop a running AppHost
+
+Usage:
+  aspire stop [options]
+
+Options:
+  --apphost <apphost>                                                    The path to the Aspire AppHost project file or a directory to search
+  --all                                                                  Stop all running AppHosts
+  --force                                                                Stop the AppHost and clean up its persistent resources, preserving volumes by default
+  --volumes                                                              Also remove persistent volumes created by Aspire (requires --force)
+  -?, -h, --help                                                         Show help and usage information
+  -l, --log-level <Critical|Debug|Error|Information|None|Trace|Warning>  Set the minimum log level for console output (Trace, Debug, Information, Warning, Error, Critical)
+  --non-interactive                                                      Run the command in non-interactive mode, disabling all interactive prompts and spinners
+  --nologo                                                               Suppress the startup banner and telemetry notice
+  --banner                                                               Display the animated Aspire CLI welcome banner
+  --wait-for-debugger                                                    Wait for a debugger to attach before executing the command
+

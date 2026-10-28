@@ -1,0 +1,21 @@
+{
+  "retainedCommandCount": 12,
+  "rawCommandStreamHashesVerified": 24,
+  "logHashesVerified": 2,
+  "protectedFileCount": 124,
+  "allSevenRuntimeOutputsAbsent": true,
+  "qualificationLedgerNonempty": true,
+  "producerReviewFindings": 13,
+  "producerReviewDeferredGroups": 10,
+  "result": "PASS",
+  "gitDiffCheck": {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

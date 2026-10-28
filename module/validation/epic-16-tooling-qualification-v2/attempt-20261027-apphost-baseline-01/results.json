@@ -1,0 +1,627 @@
+{
+  "purpose": "required-apphost-baseline-before-tooling-edits",
+  "recordedAtUtc": "2026-10-27T21:10:20.704346+00:00",
+  "result": "BLOCKED",
+  "baseline": {
+    "result": "FAIL",
+    "mappedBaselineEstablished": false,
+    "mappingEnvironmentAvailable": false,
+    "reason": "No active complete producer-selected source mapping. Prior temporary imports are absent. The source-preparation preflight forbids invoking the resolver with Builds and Platform checkouts differing from the root recorded gitlinks. The prescribed isolated launch in the unchanged environment failed at the mapping guard.",
+    "launchExit": 2,
+    "childCliExit": 6,
+    "childBuildExit": 1,
+    "buildErrors": 7,
+    "diagnostic": "Directory.Build.props(8,5): Conversations requires the Platform tool-selected source mapping; validation does not resolve dependency mappings.",
+    "appHost": "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+    "launcherPid": 165674,
+    "childCliPid": 165829,
+    "childBuildPid": 166132,
+    "createdAppHostRun": null,
+    "observedResources": [],
+    "observedEndpoints": [],
+    "noSessionsBefore": true,
+    "noSessionsAfter": true,
+    "cleanup": "No running AppHost was created; no stop, force or volume deletion command was issued."
+  },
+  "sourcePreparation": {
+    "result": "BLOCKED",
+    "executed": false,
+    "reason": "Required preflight failed: direct dependency checkout/index mismatch. No resolver invocation or initialization was allowed.",
+    "mismatches": [
+      {
+        "path": "references/Hexalith.Builds",
+        "recorded": "f914752cf8223b683799d4b25b4b0f742863297b",
+        "checkout": "05ae0a23adfb516231b31da6d83989bdf229f2f9"
+      },
+      {
+        "path": "references/Hexalith.Platform",
+        "recorded": "9ead86f9061695bf3e30bcb0e020c0b830ddaf7e",
+        "checkout": "541c2e31081ec4e0582ff2c5395527caa4f05948"
+      }
+    ],
+    "initializedNestedDependencies": []
+  },
+  "commands": [
+    {
+      "name": "aspire-describe-help",
+      "command": [
+        "aspire",
+        "describe",
+        "--help"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAtUtc": "2026-10-27T21:08:41.198517+00:00",
+      "durationSeconds": 0.101,
+      "timeoutSeconds": 60,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 0,
+      "stdout": {
+        "path": "aspire-describe-help.stdout.txt",
+        "bytes": 1506,
+        "sha256": "84d18655ba0983b10169fe155a917f4fe38ba9ed238f612b97c39ac0926eeba7"
+      },
+      "stderr": {
+        "path": "aspire-describe-help.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "aspire-describe",
+      "command": [
+        "aspire",
+        "describe",
+        "--apphost",
+        "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+        "--include-hidden",
+        "--format",
+        "Json",
+        "--non-interactive"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAtUtc": "2026-10-27T21:08:59.315860+00:00",
+      "durationSeconds": 0.301,
+      "timeoutSeconds": 60,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 0,
+      "stdout": {
+        "path": "aspire-describe.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "aspire-describe.stderr.txt",
+        "bytes": 155,
+        "sha256": "d8bfb0c84d250b755f98b3f3635cc72bb13d501fd74643970ef10b38bcede150"
+      }
+    },
+    {
+      "name": "aspire-ps-after",
+      "command": [
+        "aspire",
+        "ps",
+        "--format",
+        "Json",
+        "--non-interactive"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAtUtc": "2026-10-27T21:08:59.919293+00:00",
+      "durationSeconds": 0.301,
+      "timeoutSeconds": 60,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 0,
+      "stdout": {
+        "path": "aspire-ps-after.stdout.txt",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "stderr": {
+        "path": "aspire-ps-after.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "aspire-ps-before",
+      "command": [
+        "aspire",
+        "ps",
+        "--format",
+        "Json",
+        "--non-interactive"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAtUtc": "2026-10-27T21:08:41.604286+00:00",
+      "durationSeconds": 0.301,
+      "timeoutSeconds": 60,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 0,
+      "stdout": {
+        "path": "aspire-ps-before.stdout.txt",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "stderr": {
+        "path": "aspire-ps-before.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "aspire-ps-help",
+      "command": [
+        "aspire",
+        "ps",
+        "--help"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAtUtc": "2026-10-27T21:08:41.401166+00:00",
+      "durationSeconds": 0.101,
+      "timeoutSeconds": 60,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 0,
+      "stdout": {
+        "path": "aspire-ps-help.stdout.txt",
+        "bytes": 1184,
+        "sha256": "4221229238fefefa07b0422c6593fa87ace86bb939806fbf3353c325c4dac17a"
+      },
+      "stderr": {
+        "path": "aspire-ps-help.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "aspire-run-help",
+      "command": [
+        "aspire",
+        "run",
+        "--help"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAtUtc": "2026-10-27T21:08:41.097261+00:00",
+      "durationSeconds": 0.101,
+      "timeoutSeconds": 60,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 0,
+      "stdout": {
+        "path": "aspire-run-help.stdout.txt",
+        "bytes": 1872,
+        "sha256": "3d5a55a5a522776cecc4ad90a8f784399fe6ab2bb0107bb876dae95f96da1ee6"
+      },
+      "stderr": {
+        "path": "aspire-run-help.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "aspire-run",
+      "command": [
+        "aspire",
+        "run",
+        "--detach",
+        "--isolated",
+        "--apphost",
+        "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+        "--format",
+        "Json",
+        "--non-interactive"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAtUtc": "2026-10-27T21:08:45.526517+00:00",
+      "durationSeconds": 2.405,
+      "timeoutSeconds": 180,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 2,
+      "stdout": {
+        "path": "aspire-run.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "aspire-run.stderr.txt",
+        "bytes": 5829,
+        "sha256": "a710e97fe8b1f59f8f8f154b03e0c25fe2095e623beb931acecb4c1f56800e9e"
+      }
+    },
+    {
+      "name": "aspire-stop-help",
+      "command": [
+        "aspire",
+        "stop",
+        "--help"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAtUtc": "2026-10-27T21:08:41.502341+00:00",
+      "durationSeconds": 0.102,
+      "timeoutSeconds": 60,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 0,
+      "stdout": {
+        "path": "aspire-stop-help.stdout.txt",
+        "bytes": 1434,
+        "sha256": "5caed440b97770a9ff1aef2345443a70d430d7281de9ab56072433db6d760e54"
+      },
+      "stderr": {
+        "path": "aspire-stop-help.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "aspire-version",
+      "command": [
+        "aspire",
+        "--version"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAtUtc": "2026-10-27T21:08:40.996054+00:00",
+      "durationSeconds": 0.101,
+      "timeoutSeconds": 60,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 0,
+      "stdout": {
+        "path": "aspire-version.stdout.txt",
+        "bytes": 48,
+        "sha256": "1508bd63df5af6e1b15ec072b855bb9d4347343a919848c9a970afba8d36de84"
+      },
+      "stderr": {
+        "path": "aspire-version.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "aspire-wait-conversations",
+      "command": [
+        "aspire",
+        "wait",
+        "conversations",
+        "--apphost",
+        "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+        "--status",
+        "healthy",
+        "--timeout",
+        "120",
+        "--non-interactive"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAtUtc": "2026-10-27T21:08:59.617560+00:00",
+      "durationSeconds": 0.301,
+      "timeoutSeconds": 135,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 7,
+      "stdout": {
+        "path": "aspire-wait-conversations.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "aspire-wait-conversations.stderr.txt",
+        "bytes": 235,
+        "sha256": "cca663e6c583afb37596f89899d66269738fdd5bd7ba60004f10c21caee7456a"
+      }
+    },
+    {
+      "name": "aspire-wait-help",
+      "command": [
+        "aspire",
+        "wait",
+        "--help"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAtUtc": "2026-10-27T21:08:41.299828+00:00",
+      "durationSeconds": 0.101,
+      "timeoutSeconds": 60,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 0,
+      "stdout": {
+        "path": "aspire-wait-help.stdout.txt",
+        "bytes": 1433,
+        "sha256": "7dec06e4af8bbac0af914531a2d7cb9a36a81446605c38658a9527d2c9849a55"
+      },
+      "stderr": {
+        "path": "aspire-wait-help.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "sdk-version",
+      "command": [
+        "dotnet",
+        "--version"
+      ],
+      "cwd": "/home/administrator/projects/hexalith/conversations",
+      "startedAtUtc": "2026-10-27T21:08:40.794865+00:00",
+      "durationSeconds": 0.201,
+      "timeoutSeconds": 60,
+      "outputLimitBytes": 8388608,
+      "termination": null,
+      "exitCode": 0,
+      "stdout": {
+        "path": "sdk-version.stdout.txt",
+        "bytes": 9,
+        "sha256": "44ea2595bc5a7acabc030531952071226aa70862fd008ed7327d752b39c8513c"
+      },
+      "stderr": {
+        "path": "sdk-version.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "diagnosticLogs": [
+    {
+      "source": "/home/administrator/.aspire/logs/cli_20261027T210845_88a8790b.log",
+      "path": "aspire-launcher.log",
+      "sha256": "bda86eb69ab442bae0177b07705b2243a6f920585a62962cc9ac5b418e265535",
+      "bytes": 17803
+    },
+    {
+      "source": "/home/administrator/.aspire/logs/cli_20261027T210846037_detach-child_9e10475882024e93890670d36e5df7b0.log",
+      "path": "aspire-child.log",
+      "sha256": "dd7615263bced3afd9015bace1237d4a207d6f2695d9075b139cbd1742659d59",
+      "bytes": 17241
+    }
+  ],
+  "preservation": {
+    "protectedFileCount": 124,
+    "protectedHashesUnchanged": true,
+    "headUnchanged": true,
+    "rawIndexUnchanged": true,
+    "allTwelveRootGitlinksAndCheckoutsUnchanged": true,
+    "nestedInitializationUnchanged": true,
+    "runtimeOutputs": [
+      {
+        "path": "artifacts/epic16-runtime/16.1/AC-16.1-01.json",
+        "exists": false
+      },
+      {
+        "path": "artifacts/epic16-runtime/16.1/AC-16.1-02.json",
+        "exists": false
+      },
+      {
+        "path": "artifacts/epic16-runtime/16.1/AC-16.1-03.json",
+        "exists": false
+      },
+      {
+        "path": "artifacts/epic16-runtime/16.1/AC-16.1-04.json",
+        "exists": false
+      },
+      {
+        "path": "artifacts/epic16-runtime/16.1/AC-16.1-05.json",
+        "exists": false
+      },
+      {
+        "path": "docs/release-evidence/story-16.1-final-record-v2.json",
+        "exists": false
+      },
+      {
+        "path": "docs/release-evidence/story-16.1-final-record-v2.md",
+        "exists": false
+      }
+    ],
+    "noRuntimeOutputs": true,
+    "v1Entry": null,
+    "independentTrustedEntries": {},
+    "authority": {
+      "executionAllowed": false,
+      "implementationHold": "ACTIVE",
+      "ownerApprovalClaimed": false,
+      "pushAuthorized": false,
+      "releaseAuthorized": false
+    }
+  },
+  "qualificationLedger": [
+    {
+      "id": "apphost-baseline",
+      "result": "FAIL",
+      "executed": true,
+      "evidence": "aspire-run.json"
+    },
+    {
+      "id": "permitted-source-preparation",
+      "result": "BLOCKED",
+      "executed": false,
+      "reason": "dependency preflight mismatch"
+    },
+    {
+      "id": "producer-focused-debug-tests-and-action-tests",
+      "result": "BLOCKED",
+      "executed": false,
+      "reason": "required normal mapped baseline was not established; no producer qualification credit"
+    },
+    {
+      "id": "tooling-v2-contract-schema-trust-and-consumers",
+      "result": "BLOCKED",
+      "executed": false,
+      "reason": "spec requires stopping code edits after baseline failure"
+    },
+    {
+      "id": "v2-faults-native-fixtures-and-final-records",
+      "result": "BLOCKED",
+      "executed": false,
+      "reason": "v2 implementation could not start"
+    },
+    {
+      "id": "affected-python-regressions-and-story-7.3-guards",
+      "result": "BLOCKED",
+      "executed": false,
+      "reason": "v2 implementation could not start"
+    },
+    {
+      "id": "six-v1-and-six-v2-actual-held-commands",
+      "result": "BLOCKED",
+      "executed": false,
+      "reason": "v2 implementation could not start; historical observations are unchanged"
+    },
+    {
+      "id": "exact-published-producer-artifact-source-tag-ci-catalog-tuple",
+      "result": "BLOCKED",
+      "executed": false,
+      "reason": "not supplied or measured in this attempt; no release acceptance"
+    },
+    {
+      "id": "windows-and-macos-native-discovery",
+      "result": "BLOCKED",
+      "executed": false,
+      "reason": "external platform qualification remains required"
+    },
+    {
+      "id": "operational-envelope-provider-recovery-capacity-and-human-sm2",
+      "result": "BLOCKED",
+      "executed": false,
+      "reason": "owner acceptance remains required"
+    }
+  ],
+  "producerReviewInventory": {
+    "sourcePath": "references/Hexalith.Builds/evidence/g4/module-configuration-key-release-20261025/resumed-20261025T101341Z/review/triage.json",
+    "sourceSha256": "5b33fc4807cc074b8f79e794c6aa6a51ed40312377263d62a5a32019a83a58df",
+    "retainedPath": "producer-release-triage.json",
+    "findings": 13,
+    "deferredGroups": 10,
+    "rejectedFindings": [
+      "B8",
+      "B11"
+    ],
+    "groups": [
+      {
+        "id": "late-native-launch",
+        "findings": [
+          "B1"
+        ],
+        "route": "defer",
+        "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+        "qualification": "BLOCKED",
+        "measuredThisAttempt": false,
+        "attemptEvidence": "AppHost baseline failed before producer qualification; retained upstream disposition is unchanged."
+      },
+      {
+        "id": "late-timeout-cause",
+        "findings": [
+          "B2"
+        ],
+        "route": "defer",
+        "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+        "qualification": "BLOCKED",
+        "measuredThisAttempt": false,
+        "attemptEvidence": "AppHost baseline failed before producer qualification; retained upstream disposition is unchanged."
+      },
+      {
+        "id": "nonlinux-discovery-uncertainty",
+        "findings": [
+          "B3"
+        ],
+        "route": "defer",
+        "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+        "qualification": "BLOCKED",
+        "measuredThisAttempt": false,
+        "attemptEvidence": "AppHost baseline failed before producer qualification; retained upstream disposition is unchanged."
+      },
+      {
+        "id": "linux-discovery-uncertainty",
+        "findings": [
+          "B4"
+        ],
+        "route": "defer",
+        "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+        "qualification": "BLOCKED",
+        "measuredThisAttempt": false,
+        "attemptEvidence": "AppHost baseline failed before producer qualification; retained upstream disposition is unchanged."
+      },
+      {
+        "id": "persisted-metadata-validation",
+        "findings": [
+          "B5"
+        ],
+        "route": "defer",
+        "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+        "qualification": "BLOCKED",
+        "measuredThisAttempt": false,
+        "attemptEvidence": "AppHost baseline failed before producer qualification; retained upstream disposition is unchanged."
+      },
+      {
+        "id": "list-cancellation",
+        "findings": [
+          "B6"
+        ],
+        "route": "defer",
+        "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+        "qualification": "BLOCKED",
+        "measuredThisAttempt": false,
+        "attemptEvidence": "AppHost baseline failed before producer qualification; retained upstream disposition is unchanged."
+      },
+      {
+        "id": "claim-receipt-bound",
+        "findings": [
+          "B7"
+        ],
+        "route": "defer",
+        "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+        "qualification": "BLOCKED",
+        "measuredThisAttempt": false,
+        "attemptEvidence": "AppHost baseline failed before producer qualification; retained upstream disposition is unchanged."
+      },
+      {
+        "id": "storage-durability-unverified",
+        "findings": [
+          "B9"
+        ],
+        "route": "defer",
+        "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+        "qualification": "BLOCKED",
+        "measuredThisAttempt": false,
+        "attemptEvidence": "AppHost baseline failed before producer qualification; retained upstream disposition is unchanged."
+      },
+      {
+        "id": "native-host-verification",
+        "findings": [
+          "B10",
+          "G1"
+        ],
+        "route": "defer",
+        "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+        "qualification": "BLOCKED",
+        "measuredThisAttempt": false,
+        "attemptEvidence": "AppHost baseline failed before producer qualification; retained upstream disposition is unchanged."
+      },
+      {
+        "id": "batch-stale-bindings",
+        "findings": [
+          "E1"
+        ],
+        "route": "defer",
+        "reason": "Incoming/pre-existing runtime implementation, not caused by configuration-key release/measurement changes; retain separate owner work and existing runtime hold.",
+        "qualification": "BLOCKED",
+        "measuredThisAttempt": false,
+        "attemptEvidence": "AppHost baseline failed before producer qualification; retained upstream disposition is unchanged."
+      }
+    ],
+    "rejectedDispositionPreserved": true
+  },
+  "measuredRuntimeTests": 0,
+  "executedProducerTests": 0,
+  "sourceEdits": false,
+  "runtimeQualified": false,
+  "evidencePublication": false,
+  "authority": {
+    "executionAllowed": false,
+    "implementationHold": "ACTIVE",
+    "ownerApprovalClaimed": false,
+    "pushAuthorized": false,
+    "releaseAuthorized": false
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "aspire-describe-help",
+  "command": [
+    "aspire",
+    "describe",
+    "--help"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "startedAtUtc": "2026-10-27T21:08:41.198517+00:00",
+  "durationSeconds": 0.101,
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "stdout": {
+    "path": "aspire-describe-help.stdout.txt",
+    "bytes": 1506,
+    "sha256": "84d18655ba0983b10169fe155a917f4fe38ba9ed238f612b97c39ac0926eeba7"
+  },
+  "stderr": {
+    "path": "aspire-describe-help.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

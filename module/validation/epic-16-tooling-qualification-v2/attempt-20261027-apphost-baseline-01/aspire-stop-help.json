@@ -1,0 +1,25 @@
+{
+  "name": "aspire-stop-help",
+  "command": [
+    "aspire",
+    "stop",
+    "--help"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "startedAtUtc": "2026-10-27T21:08:41.502341+00:00",
+  "durationSeconds": 0.102,
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "stdout": {
+    "path": "aspire-stop-help.stdout.txt",
+    "bytes": 1434,
+    "sha256": "5caed440b97770a9ff1aef2345443a70d430d7281de9ab56072433db6d760e54"
+  },
+  "stderr": {
+    "path": "aspire-stop-help.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

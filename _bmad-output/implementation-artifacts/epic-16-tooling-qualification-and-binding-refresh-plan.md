@@ -5,12 +5,17 @@ Prepared 2026-10-27 at Conversations
 The [separate draft](spec-epic-16-tooling-qualification-and-binding-refresh.md)
 controls any later implementation. Story 16.1 remains draft/backlog and held.
 
+The user subsequently selected the normal AppHost baseline before code edits.
+This resolves the proposed offline-exception question in favor of a real local
+run and resource inspection. It is not implementation approval or runtime-story
+entry, and it does not extend the earlier remediation's exception.
+
 ## Facts and preservation boundary
 
 | Input | Inspected identity or disposition |
 | --- | --- |
-| Direct Builds source | `5808d3b1a860d3afb75440b9726fca06703d0146`, clean |
-| Direct Platform source | `dc83a208930b95f1a0164229bebc8359024f2e48`, clean |
+| Direct Builds source at planning entry | `5808d3b1a860d3afb75440b9726fca06703d0146`, clean |
+| Direct Platform source at planning entry | `dc83a208930b95f1a0164229bebc8359024f2e48`, clean |
 | Platform's recorded Builds | Same `5808d3b1a860d3afb75440b9726fca06703d0146` |
 | Root and Platform accepted CLI | 4.35.2, roll-forward disabled |
 | SDK | Both repositories pin 10.0.402/latestPatch |
@@ -23,6 +28,30 @@ The [entry investigation](story-16-1-entry-investigation-2026-10-27.md) and its
 remain unchanged. Existing dirty root documentation and untracked observations
 belong to that investigation; preserve them. No dependency work or fresh native
 qualification was performed while preparing this plan.
+
+The final preservation check observed external dependency checkout advances
+while Conversations HEAD, its index and all 42 protected root file hashes
+remained unchanged. The following checkout identities supersede the entry
+snapshot for future qualification; none receives qualification credit here.
+
+| Root-declared checkout | Entry HEAD | Later observed HEAD |
+| --- | --- | --- |
+| Builds | `5808d3b1a860d3afb75440b9726fca06703d0146` | `f914752cf8223b683799d4b25b4b0f742863297b` |
+| EventStore | `4dc256c4db7a0ba88efdbbe0f6bcbcf047c09d34` | `b62a5f4b376fbd5994ef811f80d652e7c6e53f54` |
+| Folders | `e8de71406a54030fd0048ec180f08936b74b6fe6` | `f48886763a1b57b30f7767deb9909f741dc812f3` |
+| Memories | `ff0978d6c38c083ac410830dd2e2f9ffe7d6c4cc` | `3e7dcb504b3d816366427f53be51df187f837376` |
+| Platform | `dc83a208930b95f1a0164229bebc8359024f2e48` | `9ead86f9061695bf3e30bcb0e020c0b830ddaf7e` |
+| Projects | `3364aceb4e257b3bf60097dffee210476c68458d` | `c978a5e86c8134ba09a166e093a1a4d6b4db77a8` |
+| Tenants | `2cf3a9660f71f6877923772cd145aa6856907945` | `ec2d21a93cc8591eabdba17b2004dfcc6482b6e3` |
+
+These checkouts were individually clean, but differed from the root's recorded
+gitlinks. Latest inspected Platform still records Builds `5808d3b1…`, and both
+accepted pins remain 4.35.2. The Builds delta changes validation's environment
+descriptor support, source-mapping materialization and CI/provenance handling;
+the preparation/action paths still exist. Re-capture the actual workspace and
+reassess affected tests before implementation. Preserve all external work; do
+not update the index, gitlinks or checkouts to make the plan's initial tuple
+current. Any resulting native checkout/index failures remain real failures.
 
 The current Platform checkout has no locally available `v<SemVer>` release tag
 pointing at its HEAD. `PlatformIdentityResolver` reports HXW011 when required
@@ -47,8 +76,10 @@ green deployment pipeline. Missing external gates remain recorded BLOCKED.
 
 1. Re-read current owning guidance and capture the actual implementation-entry
    revisions, dirty paths and exact protected inventory. Preserve the prior
-   investigation artifacts. Before code edits, resolve the draft's explicit
-   baseline question; the earlier slice's exception is not inherited.
+   investigation artifacts. Run and inspect the existing AppHost using the
+   required baseline below before code edits. If the baseline cannot become
+   healthy, retain its exact blocker and stop code edits; no offline exception
+   or runtime configuration change is inferred.
 2. Execute existing producer preparation/action and manifest/provenance tests.
    Record selected SDK, actual assembly/source identities, exact commands,
    bounded durations, exits, raw stdout/stderr, native reports and source-mode
@@ -63,6 +94,53 @@ green deployment pipeline. Missing external gates remain recorded BLOCKED.
    16.1 commands. Retain failed attempts separately. Update current guidance with
    measured outcomes and external qualification requirements. Keep the runtime
    draft/backlog, null entry, empty trust and hold.
+
+## Required AppHost baseline
+
+Target only
+`src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj`.
+The frozen MinimalModule AppHost is a different fixture. Use the retained local
+harness without changing its source, topology, identity or frozen configuration.
+The normal baseline is a Development/Debug observation, not AD-5/AD-6,
+production parity or durable tenant authorization qualification.
+
+Planning checked Aspire CLI `13.6.1+3751e615ad660621f2a7aa4c390ef48e08a0eed8`
+and its `run`, `describe`, `wait`, `ps` and `stop` help without launching resources.
+At implementation entry, verify the installed command shape again, inspect
+existing sessions and inherit the complete producer-selected source/Debug
+mapping environment. If bootstrapping that mapping is necessary, building the
+existing producer and preparing temporary imports are allowed setup before code
+edits; accepted tool pins and dependency roots remain unchanged. Do not use stale
+`--no-build` output to bypass mapping or build failures.
+
+From Conversations under that environment, capture these commands and results:
+
+```bash
+aspire ps --format Json --non-interactive
+aspire run --detach --isolated --apphost src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj --format Json --non-interactive
+aspire describe --apphost src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj --include-hidden --format Json --non-interactive
+aspire wait conversations --apphost src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj --status healthy --timeout 120 --non-interactive
+```
+
+The detached `run` command satisfies the baseline's AppHost-run requirement
+without blocking the terminal. Isolation protects concurrent sessions; missing
+isolated credentials or prerequisites remain blockers, not permission to insert
+test credentials or bypass authentication. Record the created process/run
+identity, actual resources/endpoints and safe diagnostics. Inspect all required
+resources, including the gateway and Admin Web, then capture final describe/log
+state. A healthy Conversations process alone cannot establish a healthy topology.
+Use the discovered resource names for additional bounded waits.
+
+Only after a healthy baseline may this slice change tooling sources. On failure,
+record the exact command/exit and resource/diagnostic result and stop before
+those edits; focused diagnostics do not turn baseline failure into PASS. Do not
+emit test commands/events to create durable tenant evidence as part of baseline
+inspection. Preserve the runtime hold and single-replica disclosure.
+
+Clean up only the baseline instance created by this slice after its work, using
+the verified exact AppHost/session target. Recheck ownership if other instances
+appear; an ambiguous target does not authorize stopping another session. No
+`--all`, forced cleanup or volume deletion is part of this plan.
 
 ## Producer capability and command plan
 
@@ -118,8 +196,9 @@ as part of this slice. Compare workspace state afterward.
 All process calls need explicit time/output bounds and cancellation/descendant
 cleanup. Use focused first-failure fallback and existing environment-only pins
 when justified; record exact changed command flags. Run no broad historical
-39-minute lane or product AppHost. Any existing test that launches a real
-topology remains outside the proposed offline exception.
+39-minute lane. The user-selected AppHost baseline above is required; other
+live topology tests remain separately scoped qualification and cannot be
+inferred from that baseline.
 
 ## Retained producer release-review gates
 
@@ -149,7 +228,7 @@ Paths in this table are relative to Builds; runtime implementations are under
 
 A needed correction must be scoped in Builds before modification, with its
 own guidance, exact regression and source/artifact provenance. For B6, reuse
-existing `ExecutePlatformValidationAsync` cancellation semantics (`cancelled`,
+existing `ExecuteValidationAsync` cancellation semantics (`cancelled`,
 HXC130, cancelled category/exit and a noncancelled output token); do not add a
 generic exception mask. This plan identifies that route but does not authorize
 unbounded native lifecycle repair. External platform tests and B9 owner policy

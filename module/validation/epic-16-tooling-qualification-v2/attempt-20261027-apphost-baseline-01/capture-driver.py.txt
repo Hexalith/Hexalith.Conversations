@@ -1,0 +1,56 @@
+import datetime, hashlib, json, os, pathlib, signal, subprocess, sys, time
+ROOT=pathlib.Path('/home/administrator/projects/hexalith/conversations')
+BASE=ROOT/'module/validation/epic-16-tooling-qualification-v2'
+ATTEMPT=BASE/'attempt-20261027-apphost-baseline-01'
+APP='src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj'
+def write(p,d): p.write_text(json.dumps(d,indent=2)+'\n')
+def git(*args,cwd=ROOT):
+ p=subprocess.run(['git',*args],cwd=cwd,capture_output=True,text=True,timeout=20)
+ return {'exit':p.returncode,'stdout':p.stdout,'stderr':p.stderr}
+def digest(p): return hashlib.sha256(p.read_bytes()).hexdigest()
+def snapshot():
+ files=set(x['path'] for x in json.loads((ROOT/'_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json').read_text())['sources'])
+ for prefix in ['_bmad-output/planning-artifacts/epic-16-prerequisites-v1','_bmad-output/planning-artifacts/epic-16-adoption-v1','_bmad-output/planning-artifacts/epic-16-adoption-v2','_bmad-output/planning-artifacts/epic-16-tooling-v1','src/Hexalith.Conversations.AppHost','tests/fixtures/Hexalith.Conversations.MinimalModule','module/validation/epic-16-entry-2026-10-27']:
+  for p in (ROOT/prefix).rglob('*'):
+   if p.is_file() and not {'obj','bin'}.intersection(p.relative_to(ROOT).parts): files.add(p.relative_to(ROOT).as_posix())
+ files.update(['.gitmodules','.gitattributes','.config/dotnet-tools.json','global.json','_bmad/scripts/epic16_trust.py','_bmad/schemas/epic-16-tooling-v1.schema.json'])
+ hashes={p:digest(ROOT/p) for p in sorted(files) if (ROOT/p).is_file()}
+ links=[]
+ for row in git('ls-files','--stage','references')['stdout'].splitlines():
+  if not row.startswith('160000 '):continue
+  meta,path=row.split('\t',1); mode,commit,stage=meta.split()
+  child=ROOT/path
+  nested=[]
+  if (child/'.gitmodules').exists():
+   for line in git('config','--file','.gitmodules','--get-regexp','path',cwd=child)['stdout'].splitlines():
+    np=line.split(None,1)[1];nested.append({'path':np,'initialized':(child/np/'.git').exists()})
+  links.append({'path':path,'mode':mode,'commit':commit,'checkout':git('rev-parse','HEAD',cwd=child)['stdout'].strip(),'status':git('status','--porcelain=v1',cwd=child)['stdout'],'nested':nested})
+ return {'capturedAtUtc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'head':git('rev-parse','HEAD')['stdout'].strip(),'tree':git('rev-parse','HEAD^{tree}')['stdout'].strip(),'indexSha256':digest(pathlib.Path(git('rev-parse','--git-path','index')['stdout'].strip())),'branch':git('branch','--show-current')['stdout'].strip(),'status':git('status','--short','--branch')['stdout'],'rootGitlinks':links,'protectedFiles':hashes,'environment':{k:v for k,v in os.environ.items() if k.startswith(('Custom','AfterMicrosoft','HEXALITH','UseHexalith','Hexalith'))}}
+def run(name,command,timeout=60):
+ out=ATTEMPT/(name+'.stdout.txt');err=ATTEMPT/(name+'.stderr.txt');started=datetime.datetime.now(datetime.timezone.utc).isoformat();t=time.monotonic();limit=8*1024*1024;reason=None
+ with out.open('wb') as so,err.open('wb') as se:
+  p=subprocess.Popen(command,cwd=ROOT,stdout=so,stderr=se,start_new_session=True)
+  while p.poll() is None:
+   if time.monotonic()-t>timeout:reason='timeout'
+   if out.stat().st_size+err.stat().st_size>limit:reason='output-bound'
+   if reason:
+    os.killpg(p.pid,signal.SIGTERM)
+    try:p.wait(timeout=5)
+    except subprocess.TimeoutExpired:os.killpg(p.pid,signal.SIGKILL);p.wait(timeout=5)
+    break
+   time.sleep(.1)
+ row={'name':name,'command':command,'cwd':str(ROOT),'startedAtUtc':started,'durationSeconds':round(time.monotonic()-t,3),'timeoutSeconds':timeout,'outputLimitBytes':limit,'termination':reason,'exitCode':p.returncode,'stdout':{'path':out.name,'bytes':out.stat().st_size,'sha256':digest(out)},'stderr':{'path':err.name,'bytes':err.stat().st_size,'sha256':digest(err)}}
+ write(ATTEMPT/(name+'.json'),row)
+ print(json.dumps(row));print(out.read_text(errors='replace')[-9000:]);print(err.read_text(errors='replace')[-3000:]);return row
+if sys.argv[1]=='init':
+ ATTEMPT.mkdir(parents=True,exist_ok=False)
+ (ATTEMPT/'.gitattributes').write_text('* -text diff -whitespace\n')
+ write(ATTEMPT/'entry-state.json',snapshot())
+ for name,command in [('sdk-version',['dotnet','--version']),('aspire-version',['aspire','--version']),*[(f'aspire-{s}-help',['aspire',s,'--help']) for s in ['run','describe','wait','ps','stop']]]:run(name,command)
+ run('aspire-ps-before',['aspire','ps','--format','Json','--non-interactive'])
+elif sys.argv[1]=='run':run('aspire-run',['aspire','run','--detach','--isolated','--apphost',APP,'--format','Json','--non-interactive'],180)
+elif sys.argv[1]=='inspect':
+ run('aspire-describe',['aspire','describe','--apphost',APP,'--include-hidden','--format','Json','--non-interactive'])
+ run('aspire-wait-conversations',['aspire','wait','conversations','--apphost',APP,'--status','healthy','--timeout','120','--non-interactive'],135)
+ run('aspire-ps-after',['aspire','ps','--format','Json','--non-interactive'])
+ write(ATTEMPT/'exit-state.json',snapshot())

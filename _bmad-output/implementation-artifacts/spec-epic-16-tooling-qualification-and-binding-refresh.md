@@ -2,7 +2,8 @@
 title: 'Qualify producer preparation and refresh held Epic 16 tooling bindings'
 type: 'feature'
 created: '2026-10-27'
-status: 'draft'
+status: 'in-progress'
+baseline_commit: 'c71e6ba924f42e7f5da62116f9e3b4fd5d77227e'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -19,6 +20,8 @@ context:
 **Approach:** Measure the existing producer's bounded preparation capability, retain every unqualified release/owner gate, and introduce an explicitly selected v2 tooling package using shared consumers. This delivers a truthful prerequisite handoff and a working held route; it does not qualify runtime execution.
 
 **Decision:** On 2026-10-27 the user selected preparation of this separate plan. Implementation is not yet approved. The earlier remediation's offline baseline exception does not automatically extend here.
+
+**Baseline decision:** The user selected the normal AppHost baseline. Run and inspect the existing Conversations AppHost before code edits; an unsuccessful baseline blocks those edits. No offline exception is granted. This local baseline grants no runtime-story entry.
 
 ## Boundaries & Constraints
 
@@ -39,10 +42,6 @@ context:
 
 </frozen-after-approval>
 
-## Open Questions
-
-- Implementation baseline: approve a scoped offline exception for Python tooling changes and Debug producer/source tests without launching the AppHost, or require the normal AppHost baseline first? The latter retains an implementation blocker until a separately permitted topology can run. Neither option grants runtime-story entry.
-
 ## Code Map
 
 [Detailed plan](epic-16-tooling-qualification-and-binding-refresh-plan.md) freezes the inspected revisions, review inventory, exact commands, proposed footprint and publication gates. Builds already owns `BuildPreparationService`, its CLI and action; reuse them. Existing consumers use global package paths, so adding a binding alone cannot select v2.
@@ -51,6 +50,7 @@ context:
 
 **Execution after approval:**
 
+- [ ] `src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj` — run the existing mapped Debug topology, inspect resource readiness and retain the baseline before changing code; use the plan's exact CLI target and preserve other sessions.
 - [ ] `module/validation/epic-16-tooling-qualification-v2/` — retain fresh bounded producer tests, source mapping, command streams, identities and complete qualification ledger. Keep unavailable artifact/platform/owner gates explicit; upstream corrections require their own scope.
 - [ ] Planning `epic-16-tooling-v2/` — add README, three contracts and binding; preserve exact predecessor obligations and independent source inventory. Generate the binding last, excluding its own digest.
 - [ ] `_bmad/schemas/epic-16-tooling-v2.schema.json`, `_bmad/scripts/epic16_trust_v2.py` — add closed successor schema and independent contract/schema/predecessor pins; preserve v1 files.
@@ -67,6 +67,10 @@ context:
 
 ## Implementation Notes
 
+2026-10-27: The user approved this prerequisite spec and chose to stop before execution. Resume with the required AppHost baseline. No implementation task has started; Story 16.1 remains held.
+
+2026-10-27 execution attempt: [Baseline evidence](../../module/validation/epic-16-tooling-qualification-v2/attempt-20261027-apphost-baseline-01/README.md) records the isolated AppHost launch exiting 2 with seven missing-source-mapping build errors. Source preparation was BLOCKED because Builds and Platform checkouts differ from the recorded root gitlinks. No instance started, and no tooling or runtime code was changed. Required implementation/tests remain incomplete; the normal-baseline gate stops further edits. Stream/log hashes and preservation checks passed. Story 16.1 remains draft/backlog and held.
+
 ## Spec Change Log
 
 ## Review Triage Log
@@ -77,4 +81,4 @@ Shared executable changes are explicitly proposed; accepted v1 data/trust/eviden
 
 ## Verification
 
-Run the plan's bounded individual Debug/native and action commands, focused v2 plus affected v1/legacy Python suites, both Story 7.3 guards, and twelve actual held commands. Compare exact obligations, protected bytes, raw gitlinks/checkouts, output absence and whitespace. This slice cannot complete on failed required implementation tests; qualification exclusions remain separately BLOCKED rather than silently waived. Current historical boundary replay is not required.
+First capture the AppHost run and resource-state baseline. Then run the plan's bounded individual Debug/native and action commands, focused v2 plus affected v1/legacy Python suites, both Story 7.3 guards, and twelve actual held commands. Compare exact obligations, protected bytes, raw gitlinks/checkouts, output absence and whitespace. This slice cannot complete on failed required implementation tests; qualification exclusions remain separately BLOCKED rather than silently waived. Current historical boundary replay is not required.

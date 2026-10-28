@@ -1,0 +1,31 @@
+{
+  "name": "aspire-run",
+  "command": [
+    "aspire",
+    "run",
+    "--detach",
+    "--isolated",
+    "--apphost",
+    "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+    "--format",
+    "Json",
+    "--non-interactive"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "startedAtUtc": "2026-10-27T21:08:45.526517+00:00",
+  "durationSeconds": 2.405,
+  "timeoutSeconds": 180,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 2,
+  "stdout": {
+    "path": "aspire-run.stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "aspire-run.stderr.txt",
+    "bytes": 5829,
+    "sha256": "a710e97fe8b1f59f8f8f154b03e0c25fe2095e623beb931acecb4c1f56800e9e"
+  }
+}
