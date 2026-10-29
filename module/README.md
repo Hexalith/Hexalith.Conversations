@@ -1,5 +1,16 @@
 # Conversations Platform enrollment prerequisite source slice
 
+For Story 6.4's local published-tuple preparation on 2026-10-28, the tool
+manifest now prepares `hexalith.builds.module.cli` **4.38.2**, matching the
+prepared direct Platform range floor. The published tool identifies Builds
+`2574bf2f3da5367d8801f0d7661d66155e5d90b0`; its official qualification,
+signed archive and exact source were verified. This local pin prepares the
+consumer for that floor. It does not record or qualify a new Platform identity,
+adopt a package composition, change a .NET dependency, or refresh the historical
+observations below. Platform still needs its exact Builds gitlink recorded,
+integration qualification and publication before consumer adoption. Current
+original-checkout public package preparation remains subject to those guards.
+
 ## Held tooling refresh — 2026-10-28
 
 The additive [tooling v2 package](../_bmad-output/planning-artifacts/epic-16-tooling-v2/README.md)
