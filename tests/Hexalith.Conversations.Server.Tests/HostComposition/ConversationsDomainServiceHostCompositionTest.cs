@@ -148,8 +148,9 @@ public sealed class ConversationsDomainServiceHostCompositionTest
     /// </summary>
     /// <remarks>
     /// <para>
-    /// <c>Program.cs</c> is top-level statements compiled into the Server host entry point, so no unit test in
-    /// this project executes it; <see cref="ComposeHost"/> re-types its registration sequence instead. The
+    /// <c>Program.cs</c> is top-level statements compiled into the Server host entry point. In this project only
+    /// <c>ConversationDeletionRuntimeHostStartupTests</c> executes it, through <c>WebApplicationFactory</c>, and only
+    /// for the opted-in refusal paths; <see cref="ComposeHost"/> re-types its default registration sequence. The
     /// production file IS executed end to end by the AppHost runtime boundary lane, which launches the real
     /// Server project through Aspire — that lane is where a broken host fails. What had no guard at all was
     /// the re-typing: adding, removing, or reordering a host call in <c>Program.cs</c> left every composition
@@ -164,12 +165,16 @@ public sealed class ConversationsDomainServiceHostCompositionTest
     [Fact]
     public void ProductionProgramShouldPerformExactlyTheComposedHostSequence()
     {
+        // The two deletion-runtime statements run only when the explicit opt-in is true. ComposeHost() mirrors the
+        // default (disabled) composition; ConversationDeletionRuntimeHostTests mirrors the opted-in one.
         string[] expected =
         [
             "builder.AddEventStoreDomainService(",
             "builder.Services.AddConversationTenantAccess(builder.Configuration);",
             "builder.Services.AddConversationQueries(builder.Configuration);",
+            "builder.Services.AddConversationDeletionRuntimeHost(builder.Configuration);",
             "app.UseEventStoreDomainService();",
+            "app.MapConversationDeletionRuntimeHost();",
             "app.Run();",
         ];
 
@@ -183,6 +188,15 @@ public sealed class ConversationsDomainServiceHostCompositionTest
             expected,
             "ComposeHost() re-types Program.cs rather than executing it, so the two must be bound. Update "
             + "both together, and keep UseEventStoreDomainService() after the module registrations.");
+
+        string program = File.ReadAllText(ProgramPath());
+        program.ShouldContain(
+            "bool deletionRuntimeEnabled = builder.Configuration.GetValue<bool>(ConversationDeletionRuntimeOptions.EnabledKey);",
+            Case.Sensitive);
+        System.Text.RegularExpressions.Regex.Matches(
+            program,
+            @"if \(deletionRuntimeEnabled\)\s*\{\s*(builder\.Services\.AddConversationDeletionRuntimeHost|app\.MapConversationDeletionRuntimeHost)\(")
+            .Count.ShouldBe(2, "both deletion-runtime statements must stay behind the explicit opt-in");
     }
 
     /// <summary>

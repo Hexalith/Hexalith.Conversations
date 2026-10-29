@@ -63,3 +63,121 @@ The replacement packet is `/home/administrator/hexalith-conversations-evidence/e
 No bases, credential references, Party or worker records, approval issuer, or twelve frozen input files were supplied. Those bindings and file hashes are null. The manifest names the same canonical target and leaves every unsupplied field null; its SHA-256 is the hash of those bytes. No host adapter was added, because no installed provider was supplied. No receiver was deployed. The source tree and the Debug conformance assembly are not an installed receiver, so they are not a restore-graph or principal-separation proof. `EXT-PROTECTION-1` remains Uncommitted, and no host Live `passPath` result was qualified. No cohort attempt was reserved. C1–C4 remain `NOT_RUN`. The packet status is `NotSubmitted`. It does not claim `Available`, and the Agents register was not edited. `delivery-20261022-71fab44` and `delivery-20261025-ed53473` were not rewritten.
 
 Focused Debug builds of the server and deletion-conformance test projects succeeded with zero warnings. The conformance assembly passed 31 cases with zero failures or skips. That result is component evidence only.
+
+## Opt-in host composition — 2026-10-29
+
+The repository Server host can now compose `AddConversationDeletionRuntime`, but
+only after an explicit opt-in. When `Hexalith:Conversations:DeletionRuntime:Enabled`
+is absent or `false`, `Program.cs` skips both opt-in statements and the host keeps
+its existing Unavailable defaults. When it is `true`,
+`AddConversationDeletionRuntimeHost` validates the configuration below, registers
+the Conversations-side adapters, and then calls `AddConversationDeletionRuntime`.
+That call still refuses startup, naming the first missing provider, until the
+independent providers are installed. `MapConversationDeletionRuntimeHost` maps
+`GET api/v1/ext-conv-ai-1/runtime-identity` and the restricted participant route.
+Both require a Bearer caller validated against the shared `Authentication:JwtBearer`
+contract.
+
+Settings in the `Hexalith:Conversations:DeletionRuntime` section:
+
+| Key | Meaning |
+| --- | --- |
+| `Enabled` | Explicit `true` opt-in; absent or `false` leaves the host unchanged. |
+| `TenantId` | The only installed tenant. |
+| `WorkerPrincipalId` | Enrolled worker; the gateway token subject for background delivery. |
+| `ServicePartyId` | Separately enrolled dedicated Conversations service Party. |
+| `NamespaceInstallationId` | Installation of the `conversation/approved-deletion-v1` namespace. |
+| `StorageIdentity` | Installed Conversations storage reference reported by runtime identity. |
+| `GatewayBaseAddress` | EventStore gateway origin: HTTPS, or HTTP on loopback, with no path. |
+| `PlatformWorkloadId` | EventStore platform workload bound by SDK complete-source admission for `conversation`. |
+| `ReceiverPrincipalId` | Receiver principal; also its Dapr application id and the lookup assertion audience. |
+| `LookupPrincipalId` | Independent lookup workload; the query `userId` and the lookup issuer workload. |
+| `IdentityReaderPrincipalId` | The only token `sub` allowed to read the runtime identity. |
+| `AcceptedTargetVersions` | Full lowercase 40-hex receiver targets, including any pinned rollover target. |
+| `LookupIssuer:*` | Separate `WorkloadAssertionIssuerOptions` for lookups. `ClientId`, `ClientSecret` and `TokenEndpoint` are required, and `EnableResourceBindingRequests` must be `true`. |
+
+`AcceptedTargetVersions` must keep every target that still has pending delivery
+attempts. Removing one leaves those attempts unable to resolve a lost
+acknowledgement.
+
+The worker, receiver, lookup and reader principals and the platform workload must
+all be distinct, and `PlatformWorkloadId` is at most 200 characters. The host also
+requires `EventStore:Authentication` (`Authority`, `TokenEndpoint`, `ClientId`,
+`ClientSecret`, `client_credentials` grant) for the worker's SDK gateway authority
+transport, `Authentication:JwtBearer` for inbound callers, and `DAPR_HTTP_ENDPOINT`
+or `DAPR_HTTP_PORT` plus `DAPR_API_TOKEN` for its own sidecar. The sidecar endpoint
+must be HTTPS, or HTTP to a loopback host, with no path. The lookup issuer client
+must differ from the worker and host issuer clients. An incomplete value refuses
+startup by key name, without echoing values.
+
+The out-of-scope providers are compiled adapters. The installation registers them
+in the service collection before it calls `AddConversationDeletionRuntimeHost`;
+configuration cannot supply them.
+
+Inbound callers are validated against the shared `Authentication:JwtBearer` gateway
+contract, and their Bearer token is forwarded to the gateway unchanged. That is a
+deliberate trust boundary: this host accepts only tokens the gateway itself would
+accept, and it never substitutes the worker identity for a caller.
+
+The in-scope adapters are:
+
+- `CompleteSourceConversationCommandSourceVerifier`, which maps only the
+  SDK-admitted `CompleteCommandSourceContext.Current` prefix. It refuses an absent,
+  foreign, expired, gapped, erased or proof-mismatched source, and any request that
+  carries `CommandStateProof` or `VerifiedEffectiveEvents`.
+- The SDK `AuthoritativeEventStreamReader`, with native proof, over the gateway client.
+- `ConformanceConversationDeletionReceiver`. It submits through the gateway client
+  and treats a 202 as pending admission, never as `Available`. It looks up the
+  current target and receipts through this host's sidecar at
+  `/v1.0/invoke/{ReceiverPrincipalId}/method/query`, with `dapr-api-token` and a
+  bound lookup assertion. Only an exact acknowledgement is `Available`. A
+  well-formed receipt whose same-id fields differ is `Conflict`, which the pump
+  quarantines. Malformed, failed, unknown or ambiguous answers are `Unavailable`.
+  Each unavailable cause logs one value-free reason code.
+- `IConversationClient` on the gateway. Inside a request it forwards the inbound
+  Bearer and fails without one. In the background it uses the worker authority
+  token.
+
+Redirects are disabled on every outbound client.
+
+Still external, and mandatory before an enabled host starts:
+`IConversationAgentAuthority`, `IConversationDeletionApprovalVerifier`,
+`ISourcePublicationNamespaceSource` and `ISourcePublicationIndexStore`. Lookups
+also need a binding-capable lookup issuer, which is an enrolled authority profile
+with `EnableResourceBindingRequests`. Until one exists, current-target and receipt
+lookups are `Unavailable`, so delivery stays pending and runtime identity answers
+503. That is intended fail-closed behaviour. Still not delivered: the platform
+complete-source binding, `ISourcePublicationAuthorityInstallationEvidence`, a binding
+signer, the Parties endpoint, an installed receiver, and the Live manifest. This
+change installs, enrolls or qualifies nothing, and it does not edit the Agents
+register or run a cohort.
+
+The Server and receiver projects now publish containers `conversations` and
+`conversations-deletion-conformance` on `aspnet:10.0-alpine` as user `app`.
+Nothing was pushed.
+
+Verification for this change used the producer source/Debug mapping from
+`delivery-20261029-acd8b0b/prepare-source.stdout.log`. The first five-project Local
+run passed 2,372 tests. After the review fixes, one run failed: two
+`PlatformEnrollmentMappingTest` cases rejected a test reference to the receiver
+tool. The wire-contract test therefore moved to the receiver's own test project.
+The final Local run passed 2,419 tests with zero failures or skips, and its 37-case
+six-seam run also passed. The new cases cover every matrix row, including:
+
+- a real `WebApplicationFactory` refusal when the host is enabled without installed providers;
+- a real-pipeline participant call;
+- the composed native-proof reader and the real lookup issuer;
+- quarantine of a mismatched receipt;
+- a pump that advances only after an independently looked-up exact acknowledgement.
+
+These tests use doubles for the out-of-scope providers and a stubbed gateway and
+sidecar, so they are component evidence only.
+
+`PublishContainer` archives were produced and not pushed. A Release publish is
+refused under the source mapping (`HXW006`), so the archives come from a Debug
+source-mode build of a working tree. They carry the baseline commit stamp and must
+be rebuilt from the clean committed target before installation.
+
+All receipts, including the failed run, are retained at
+`/home/administrator/hexalith-conversations-evidence/ext-conv-ai-1/host-composition-20261029-acd8b0b/`.
+The parent owner-qualification spec stays in progress.

@@ -1,6 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <IsPackable>false</IsPackable>
+    <IsPublishable>true</IsPublishable>
+    <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
+    <ContainerRepository>conversations</ContainerRepository>
+    <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:10.0-alpine</ContainerBaseImage>
+    <ContainerUser>app</ContainerUser>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Hexalith.Conversations.Contracts\Hexalith.Conversations.Contracts.csproj" />
@@ -31,5 +36,6 @@
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Hexalith.Conversations.Server.Tests" />
+    <InternalsVisibleTo Include="Hexalith.Conversations.DeletionConformance.Tests" />
   </ItemGroup>
 </Project>

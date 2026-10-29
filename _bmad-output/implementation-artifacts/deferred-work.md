@@ -1119,3 +1119,7 @@ Review strengthens the same solution-context scope with native implicit Platform
 - source_spec: `_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md`
   summary: Prepare published-artifact/Platform qualification and exact adoption-failure dispositions in the separate spec-epic-16-published-artifact-platform-qualification.md prerequisite.
   evidence: The user selected option 1 on 2026-10-28 to split this prerequisite from the long runtime draft; tooling v2 source checks pass, sixteen adoption failures and qualified-entry gates remain, and runtime stays held.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-host-composition.md`
+  summary: An enabled deletion-runtime host requires a platform-admitted complete source for every `conversation` command, so it may deny ordinary commands for aggregates the installed EventStore complete-source authority does not cover.
+  evidence: Unverified (would be high). `AddEventStoreCompleteCommandSourceVerification(platform, ["conversation"])` makes the SDK deny any conversation-domain request that has no `CompleteSource`. EventStore attaches one only when `ICompleteCommandSourceAuthority.Requires(identity)` is true. Settle this at installation by confirming the installed authority covers every conversation aggregate (all tenants) routed to this host, or by narrowing enforcement.

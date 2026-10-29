@@ -2,6 +2,10 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <IsPublishable>true</IsPublishable>
+    <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
+    <ContainerRepository>conversations-deletion-conformance</ContainerRepository>
+    <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:10.0-alpine</ContainerBaseImage>
+    <ContainerUser>app</ContainerUser>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Hexalith.Conversations/Hexalith.Conversations.csproj" />

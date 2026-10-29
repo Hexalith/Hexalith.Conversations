@@ -5,6 +5,7 @@
 
 using Hexalith.Conversations;
 using Hexalith.Conversations.Server;
+using Hexalith.Conversations.Server.Agents;
 using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.EventStore.DomainService;
@@ -30,6 +31,15 @@ builder.AddEventStoreDomainService(
 builder.Services.AddConversationTenantAccess(builder.Configuration);
 builder.Services.AddConversationQueries(builder.Configuration);
 
+// EXT-CONV-AI-1 deletion runtime: explicit opt-in only. Absent or false keeps this host's fail-closed Unavailable
+// defaults unchanged. When enabled, the host validates its complete configuration and refuses to start until the
+// independently installed authority, approval and publication providers are present.
+bool deletionRuntimeEnabled = builder.Configuration.GetValue<bool>(ConversationDeletionRuntimeOptions.EnabledKey);
+if (deletionRuntimeEnabled)
+{
+    builder.Services.AddConversationDeletionRuntimeHost(builder.Configuration);
+}
+
 WebApplication app = builder.Build();
 
 // DAPR pub/sub delivery for the consumed Tenants domain events is platform-owned: because
@@ -42,5 +52,9 @@ WebApplication app = builder.Build();
 // not redeliver acked events. Conversations is SINGLE-REPLICA-ONLY until the deferred durable tenant
 // access projection lands; a restart or a second replica leaves that instance denying legitimate callers.
 app.UseEventStoreDomainService();
+if (deletionRuntimeEnabled)
+{
+    app.MapConversationDeletionRuntimeHost();
+}
 
 app.Run();
