@@ -1,0 +1,41 @@
+{
+  "result": "PASS",
+  "scope": "planning-only",
+  "candidate": "f2b75d0dd45547d5b40c6b676fd1c17f695f917b",
+  "checks": {
+    "candidateUnchanged": true,
+    "fortySourceHashesMatch": true,
+    "directGitlinksAndCheckoutsUnchanged": true,
+    "indexUnchanged": true,
+    "rootToolPinPreserved": true,
+    "exactReleaseSource": true,
+    "platformRecordedSourceMeasured": true,
+    "allNewLinksExist": true,
+    "draftDispatchNoOpenQuestions": true,
+    "noPlaceholdersInSpec": true,
+    "onlyAuthorizedIntentDecisionAdded": true,
+    "runtimeTasksPreserved": true,
+    "sprintBacklogPreserved": true,
+    "exactStory73Commands": true,
+    "whitespaceClean": true,
+    "newFileWhitespace_.md": true,
+    "newFileWhitespace_.json": true,
+    "exactPlanningPathBoundary": true,
+    "runtimeEntryStillNull": true
+  },
+  "specTokens": {
+    "encoding": "o200k_base",
+    "count": 1366
+  },
+  "productTestsRun": false,
+  "artifactQualificationRun": false,
+  "runtimeEntry": "BLOCKED",
+  "decision": "separate 4.38.3 prerequisite planning selected; implementation awaiting spec approval",
+  "changedPaths": [
+    "_bmad-output/implementation-artifacts/epic-16-4-38-3-plan-validation.json",
+    "_bmad-output/implementation-artifacts/epic-16-4-38-3-qualification-and-binding-refresh-plan.md",
+    "_bmad-output/implementation-artifacts/epic-16-4-38-3-qualification-inputs.json",
+    "_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md",
+    "_bmad-output/implementation-artifacts/spec-epic-16-4-38-3-qualification-and-binding-refresh.md"
+  ]
+}

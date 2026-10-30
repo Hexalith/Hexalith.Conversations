@@ -25,6 +25,8 @@ context:
 
 **2026-10-28 post-tooling decision:** The user selected option 1: prepare a separate published-artifact/Platform qualification and adoption-disposition plan. This authorizes planning only; runtime remains held.
 
+**2026-10-30 current-tuple decision:** The user selected the recommended separate 4.38.3 qualification and binding-refresh plan. This authorizes preparation; implementation requires approval of that spec. Runtime entry remains held.
+
 ## Boundaries & Constraints
 
 **Always:** Enforce architecture AD-5/AD-6. EventStore owns identity, CAS, retry, replay, fenced recovery and acknowledgements; Tenants owns transitions/checkpoints. Conversations evaluates one state/health/checkpoint snapshot per invocation. Only proven healthy state authorizes. Preserve compatibility and historical evidence.
@@ -48,11 +50,9 @@ context:
 
 ## Entry Requirements
 
-Current [investigation](story-16-1-entry-investigation-2026-10-30.md): root 4.38.2 differs from Platform's prepared 4.38.3; adoption is six PASS/twenty-one FAIL. Both tooling versions fail SOURCE_DRIFT before native execution. Nine owner qualifications, trusted entry and compatible predecessors remain missing. Runtime entry stays BLOCKED; preserve draft/backlog.
+The retained [entry investigation](story-16-1-entry-investigation-2026-10-30.md) measured root 4.38.2 versus Platform's prepared 4.38.3, six PASS/twenty-one FAIL adoption rows and SOURCE_DRIFT in both tooling versions. Those measurements precede the external dependency update; the separate prerequisite captures fresh execution inputs. Nine owner qualifications, trusted entry and compatible predecessors remain required. Runtime entry stays BLOCKED; preserve draft/backlog.
 
-## Open Questions
-
-1. Current-tuple prerequisite scope — prepare a separate 4.38.3 candidate qualification/adoption/source-binding-successor plan (runtime held; approval before implementation or pin changes), or validate supplied accepted current tuple/owner records (provide their references; evaluate without inferring acceptance)? The October 30 prerequisite-first sequence is already selected.
+The selected [separate prerequisite](spec-epic-16-4-38-3-qualification-and-binding-refresh.md) owns current candidate measurement and held source-binding preparation. Its approval does not qualify runtime entry.
 
 ## Code Map
 
@@ -92,6 +92,8 @@ Earlier notes and planning are preserved verbatim in [history](story-16-1-planni
 2026-10-28 split: regenerate this draft around runtime work; archive prior notes, retain the complete prior change log and record the human's prerequisite-planning choice. KEEP accepted evidence, runtime hold and draft/backlog.
 
 2026-10-30: refreshed current tuple, exact adoption delta and source-binding failures; archived prior planning verbatim. KEEP frozen intent, accepted evidence, draft/backlog and runtime hold.
+
+2026-10-30 decision: recorded the user's prerequisite-planning choice and removed the answered scope question. KEEP runtime tasks, draft/backlog and ACTIVE hold.
 
 ## Review Triage Log
 

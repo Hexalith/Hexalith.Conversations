@@ -1,0 +1,277 @@
+{
+  "schemaVersion": "hexalith.conversations.epic16-4383-planning-inputs.v1",
+  "purpose": "planning-inputs-only; no qualification or entry authority",
+  "candidate": "f2b75d0dd45547d5b40c6b676fd1c17f695f917b",
+  "tree": "217f8d6a1aa67cbb940f8b2ad7e0da758f10d69e",
+  "rootToolPin": "4.38.2",
+  "candidateTool": {
+    "version": "4.38.3",
+    "releaseSource": "d1931b1e803144048d927fff16cb8119afde541e",
+    "signedArchiveSha256": "6c074186a9bbfb66c558fe5d1090e1e35fdd58577c0396266074bd1cea8919fd",
+    "toolingDllSha256": "4e307577ae4fb02104914951a9905a1c9dd453447a80735443d24fbc83496823",
+    "identityScope": "Observed Platform source pins; package bytes must be measured independently"
+  },
+  "platformRecordedBuilds": "cc0db51b800be1d0d5badc3780395cfb5953d0f5",
+  "rootGitlinks": [
+    {
+      "path": "references/Hexalith.AI.Tools",
+      "mode": "160000",
+      "revision": "9b78aa008cfc62cd88ad0ea4b39b1f07311956ce",
+      "checkout": "9b78aa008cfc62cd88ad0ea4b39b1f07311956ce",
+      "dirtyState": ""
+    },
+    {
+      "path": "references/Hexalith.Builds",
+      "mode": "160000",
+      "revision": "96dc22928af914ed22d44789090dd2f65c9e598e",
+      "checkout": "96dc22928af914ed22d44789090dd2f65c9e598e",
+      "dirtyState": ""
+    },
+    {
+      "path": "references/Hexalith.Commons",
+      "mode": "160000",
+      "revision": "0604bcf5304fc09a569f7abbd8e5d1b9049c02b7",
+      "checkout": "0604bcf5304fc09a569f7abbd8e5d1b9049c02b7",
+      "dirtyState": ""
+    },
+    {
+      "path": "references/Hexalith.EventStore",
+      "mode": "160000",
+      "revision": "e92e6694a93c79531368fa3bbf6c06462fd05484",
+      "checkout": "e92e6694a93c79531368fa3bbf6c06462fd05484",
+      "dirtyState": ""
+    },
+    {
+      "path": "references/Hexalith.Folders",
+      "mode": "160000",
+      "revision": "a5f1cd8bebba3f09d698ea6682b1531179bb3a3b",
+      "checkout": "a5f1cd8bebba3f09d698ea6682b1531179bb3a3b",
+      "dirtyState": ""
+    },
+    {
+      "path": "references/Hexalith.FrontComposer",
+      "mode": "160000",
+      "revision": "2255fb8a7fc135a04769c7b9df0f14de3796fb19",
+      "checkout": "2255fb8a7fc135a04769c7b9df0f14de3796fb19",
+      "dirtyState": ""
+    },
+    {
+      "path": "references/Hexalith.McpCli",
+      "mode": "160000",
+      "revision": "e74d215739766a663cb9e910f4534f383e7973ff",
+      "checkout": "e74d215739766a663cb9e910f4534f383e7973ff",
+      "dirtyState": ""
+    },
+    {
+      "path": "references/Hexalith.Memories",
+      "mode": "160000",
+      "revision": "0ae7faee14bf20e280e9c5bb23ff763dbda64382",
+      "checkout": "0ae7faee14bf20e280e9c5bb23ff763dbda64382",
+      "dirtyState": ""
+    },
+    {
+      "path": "references/Hexalith.Parties",
+      "mode": "160000",
+      "revision": "f9757d94a9e3f144d250b21f295b903c00d5f412",
+      "checkout": "f9757d94a9e3f144d250b21f295b903c00d5f412",
+      "dirtyState": ""
+    },
+    {
+      "path": "references/Hexalith.Platform",
+      "mode": "160000",
+      "revision": "2030542f8e7e25f97b2ee106e8074dedeefda9f5",
+      "checkout": "2030542f8e7e25f97b2ee106e8074dedeefda9f5",
+      "dirtyState": ""
+    },
+    {
+      "path": "references/Hexalith.Projects",
+      "mode": "160000",
+      "revision": "f99cbe784fc77d82291c14ef3cbf86368f7b1863",
+      "checkout": "f99cbe784fc77d82291c14ef3cbf86368f7b1863",
+      "dirtyState": ""
+    },
+    {
+      "path": "references/Hexalith.Tenants",
+      "mode": "160000",
+      "revision": "8919dd0c5bca3e505ed3de25c37f8326f9e8b814",
+      "checkout": "8919dd0c5bca3e505ed3de25c37f8326f9e8b814",
+      "dirtyState": ""
+    }
+  ],
+  "sources": [
+    {
+      "path": ".config/dotnet-tools.json",
+      "sha256": "f718f3ed50cc549069b785e38325a00af635f45d09a6926590e08d142a850c20"
+    },
+    {
+      "path": ".gitattributes",
+      "sha256": "d7b349e3620e883fcc66000a53e614c1ec331a45024cab5189d9943b51a5ef4c"
+    },
+    {
+      "path": "Directory.Build.props",
+      "sha256": "6075e5149286cced92b0e1a3c594eab8cf8688c54432f76b4d935d5571e06a8f"
+    },
+    {
+      "path": "Directory.Packages.props",
+      "sha256": "87559bfb23a9e906ba564350f4d051406dc3519e1a80f2bcb16d7e3f3fa9a19a"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md",
+      "sha256": "a716350aae1a3352e2671ae6533047d3dd53f338f75c9e8ac71c6ba30729b574"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+      "sha256": "eb67da125239bf7e533c21125de1c4569dd0f6cd2b0e914d0953c3da1b2a520a"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "sha256": "724a8446b505724700b50009df97387e9f7631d63d800a491e54f23095c9043b"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+      "sha256": "7ee6c0a68b9e1a916cfa808d4891581cf6f62417bd2f4cf1adcedc847347277d"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json",
+      "sha256": "c510f07c4aa2714f07df5c36e11f6b38a0639ddea56d293996752ebe068103f5"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/README.md",
+      "sha256": "be41eec432410cde29a1679b87bff2eb9bf3a1577f2cdd55e24b688083230676"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/binding.json",
+      "sha256": "ff457038fcb2fd1e00503407d49ead4d3d95cf3f56d247b0941d0cb653e0fb0d"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "sha256": "631686da12952ed0c3db6aee0e4cb133feca2fa492e84e52262e8cf97ac03cf8"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.2.json",
+      "sha256": "48bf0236e3627847e83ce9f4811f7f19ebf14c7ecad123ffae6b4acf1b31bae7"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.3.json",
+      "sha256": "b3dfb6802a07215a1772316b3f748e13fe2e5d01b6a43040e1b12879ec1d855a"
+    },
+    {
+      "path": "_bmad/schemas/epic-16-tooling-v1.schema.json",
+      "sha256": "f72a7435dac004cc80c88f444dd8cca135a67f29805ce9f95c68e2e596424ee3"
+    },
+    {
+      "path": "_bmad/schemas/epic-16-tooling-v2.schema.json",
+      "sha256": "c8eb8c0d362266fef85b30adeb23b8d1b502963f99c9514a1d5511a061141c91"
+    },
+    {
+      "path": "_bmad/scripts/epic16_packages.py",
+      "sha256": "cf9213366ee5ee35655b2c0cd91c4919fd75d0d4a76317d40ba4d5a7fba37fb1"
+    },
+    {
+      "path": "_bmad/scripts/epic16_tooling.py",
+      "sha256": "a0c64bc6f6b9cc463296bc112e614824c9df0fd7a28855d4392b754fb0ff4f6b"
+    },
+    {
+      "path": "_bmad/scripts/epic16_trust_v2.py",
+      "sha256": "2f6e077ac90c22a06346c0777dc07e12611cfa92e0c2e37f9cddcd4084b35dc2"
+    },
+    {
+      "path": "_bmad/scripts/generate_story_record.py",
+      "sha256": "08cf61ef856978fb107f54b21f3672544e249fc45559706d0f4b6d65b5c004a2"
+    },
+    {
+      "path": "_bmad/scripts/qualify_epic16_published_artifact.py",
+      "sha256": "a2fcbe52dd7bb6254bbc2e325473475266edd27a68d0190fa2736ac267c31cce"
+    },
+    {
+      "path": "_bmad/scripts/tests/test_epic16_tooling.py",
+      "sha256": "041019802d8f68321ae6354d48f4c8ecb78312b39a6df709b7cb30d9bc2a38a7"
+    },
+    {
+      "path": "_bmad/scripts/tests/test_epic16_tooling_v2.py",
+      "sha256": "0cb120fcccb54b4899f7c1985d2f9ee099b74d9b80ff2acf984a8e99b19a61d7"
+    },
+    {
+      "path": "_bmad/scripts/verify_story_16_1.py",
+      "sha256": "4bbc5a4d40bd2a7ca780d1d4bdbb7277683cb40c2e8cac83d1ee0ff4ad24f928"
+    },
+    {
+      "path": "_bmad/scripts/verify_story_16_2.py",
+      "sha256": "e2fdea931ffae8ec4a555e7f9db76ec6aba7ab691476c4eb71010f3e1b68f28b"
+    },
+    {
+      "path": "_bmad/scripts/verify_story_16_3.py",
+      "sha256": "eb90d46cdf8470a211c25e43e05d39a3e5dc0abbf27e231385f1400a0c390ad5"
+    },
+    {
+      "path": "docs/runbooks/current-change-validation.md",
+      "sha256": "d5284f00b8c850d43cabfcd45d2a4cf94d76a04a0bf7d6761ead7f17e5947801"
+    },
+    {
+      "path": "global.json",
+      "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+    },
+    {
+      "path": "module/hexalith.module-manifest.v2.json",
+      "sha256": "0bed1c297c9c9d78fdb8f37197ac5f71d829191c0535fdd78e4034aaa017bdf0"
+    },
+    {
+      "path": "module/hosting-inventory.json",
+      "sha256": "1bfd46248158637c950cd6764a47f926b1683568218208a0107d3b1ed3ada1e7"
+    },
+    {
+      "path": "module/sm-2-checklist.md",
+      "sha256": "71fb1992ca38602e4cfba34d1b5471459aff986a1ac87b774fb887feafaeec37"
+    },
+    {
+      "path": "references/Hexalith.AI.Tools/hexalith-llm-instructions.md",
+      "sha256": "49e0fc0c04960b6f986343e87250462313394642ce9f9451de7ddca34e849bb4"
+    },
+    {
+      "path": "references/Hexalith.Platform/.config/dotnet-tools.json",
+      "sha256": "1ea6be710eaed92fdaa4f0d9c9c6fce11f4efcaca81a555cdae18fd6ead4fa6d"
+    },
+    {
+      "path": "references/Hexalith.Platform/.github/workflows/tuple-ci.yml",
+      "sha256": "322521c7c72ae4a6c6cb37a0bfa3f3aaa34b5c546a1156745ffa3b071da213e1"
+    },
+    {
+      "path": "references/Hexalith.Platform/README.md",
+      "sha256": "d3940e42a5530f72640d93eccb999753d01c0bd26ce7e5a7291f86eaa9647dba"
+    },
+    {
+      "path": "references/Hexalith.Platform/eng/prepare_builds_artifacts.py",
+      "sha256": "454b8fb70803069206e2d4346da8080651b7593db6919b8ab8b1474b9989113f"
+    },
+    {
+      "path": "references/Hexalith.Platform/eng/run_tuple_ci.py",
+      "sha256": "583830d1cd7462bbb82d83321ae181eb37c48fe89827ce44daf582403923400c"
+    },
+    {
+      "path": "references/Hexalith.Platform/hexalith-platform.json",
+      "sha256": "efcbf0f9f358803ef16418a205f1adc25124139070f9a384f2dae81acf82059c"
+    },
+    {
+      "path": "tests/Directory.Build.props",
+      "sha256": "fdfa72e0e13ac1d56b2c61e088781d311babe1e49fbe075cf4faeb3079d763a4"
+    },
+    {
+      "path": "tests/tooling/test_epic16_published_artifact_qualification.py",
+      "sha256": "8482887c80f1a48a1947d2ea69579ca0d6cd90a07ba4a9ec3d800c76f85893a0"
+    }
+  ],
+  "adoptionPredecessor": "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/adoption-json.stdout.txt",
+  "observedAdoption": {
+    "total": 27,
+    "passed": 6,
+    "failed": 21,
+    "scope": "Historical entry observation; remeasure during implementation"
+  },
+  "authority": {
+    "implementationHold": "ACTIVE",
+    "executionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  }
+}
