@@ -19,6 +19,8 @@ context:
 
 **Approach:** Add shared preflight diagnostics and a live AppHost proof of production reconciliation, then derive the six-scenario record from measured results.
 
+**2026-10-30 decision:** The user selected prerequisite-first execution: qualify entry, complete 16.1, then 16.2, then 16.3. Pursue a narrow exemption for the existing AppHost test fixture; named baseline-owner/Architect/Runtime acceptance remains pending. Separate early preparation and Platform relocation are deferred.
+
 ## Boundaries & Constraints
 
 **Always:** EventStore owns writes, hosting and the authenticated `project/v2/reconcile` coordinator route. Shared helpers belong there. Require durable pending/end-state observations, production queries, bounded cancellation, safe diagnostics and isolated fixture cleanup. Bind evidence to committed sources, runtime/route/catalog identities, raw gitlinks and rollback. Preserve V14 history; consume authorized successor contracts.
@@ -38,10 +40,9 @@ context:
 
 </frozen-after-approval>
 
-## Open Questions
+## Entry Requirements
 
-1. **Sequence:** complete 16.1/16.2 and owner qualification first (recommended), or authorize a separate, bounded 16.3 preparation plan while runtime acceptance stays held. Tooling preparation is complete; runtime entry remains unqualified.
-2. **AppHost ownership:** obtain a baseline-owner/Architect/Runtime exemption retaining the local fixture, or a Platform relocation amendment. Both need an explicit owner record before entry; relocation changes this plan's fixture paths.
+Follow the [selected sequence and exemption proposal](../../module/platform-handoff.md#selected-sequence-and-apphost-exemption-proposal--2026-10-30). Resolve Platform/tool pairing and adoption findings, obtain owner qualification and accepted predecessors, and secure the named fixture exemption. Direction is selected; runtime entry remains BLOCKED and this spec stays draft/backlog.
 
 ## Code Map
 
@@ -70,6 +71,8 @@ Select `_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.3.
 ## Spec Change Log
 
 2026-10-29: refreshed entry facts, existing-tooling reuse, native test identity and output paths. KEEP frozen intent, draft/backlog, predecessor chain, accepted evidence and ACTIVE hold unchanged.
+
+2026-10-30: recorded the user's selected sequence/exemption direction and removed answered questions. KEEP prior intent, pending owner acceptance, draft/backlog and ACTIVE hold.
 
 ## Review Triage Log
 

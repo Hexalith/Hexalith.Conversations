@@ -1,5 +1,40 @@
 # Conversations Platform registration handoff — pending
 
+## Selected sequence and AppHost exemption proposal — 2026-10-30
+
+The user selected prerequisite-first execution and pursuit of a narrow AppHost
+test-fixture exemption. This selects direction; named owner acceptance remains
+pending. Story 16.3 stays draft/backlog with runtime entry BLOCKED.
+
+1. Resolve the measured Platform/tool/catalog disagreement and package-preparation
+   blocker using an owner-accepted tuple. Resolve all sixteen retained adoption
+   failures through owner-reviewed remedies; retain their evidence and identities.
+   Pin or dependency changes require their own reviewed scope.
+2. Complete the existing operational, provider, recovery/operator/capacity,
+   registration, human SM-2 and trusted owner-entry qualifications. Complete and
+   accept Story 16.1, then 16.2, before implementing Story 16.3.
+3. Obtain the fixture exemption below before Story 16.3 entry. Reuse existing
+   shared diagnostics/evidence tooling when implementing that story. Early
+   diagnostics preparation and Platform relocation are deferred.
+
+**Proposed exemption terms — baseline-owner and Architect/Runtime acceptance pending:**
+
+- Exact subject: `src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj`
+  and its existing production-boundary test consumers. The minimal-module
+  fixture is outside this proposal; both inventory entries remain frozen.
+- Purpose: local/CI verification of production hosts, authentication and durable
+  reconciliation. Retain non-packable/non-publishable status. After qualified
+  entry, limit fixture changes to the diagnostics, failure injection and recovery
+  assertions required by Story 16.3. EventStore owns shared helpers; Platform owns
+  deployment and environment policy.
+- Required acceptance record: named baseline owner and Architect/Runtime, exact
+  reviewed revision/subject, approval date and reference, and accepted scope.
+  Until recorded and independently qualified, `appHostOwnership` stays pending.
+  This proposal grants no runtime, provider-parity or capacity waiver.
+- Revisit when Platform offers an adopted replacement harness with qualified
+  source/package/hosted mappings. Migrate active consumers and satisfy the
+  inventory's retirement gates before removing the fixture.
+
 ## Published 4.38.1 qualification observation — 2026-10-28
 
 [The fresh artifact attempt](validation/epic-16-published-artifact-qualification/parent-review-20261028/README.md)
