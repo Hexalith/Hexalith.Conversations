@@ -64,6 +64,79 @@ No bases, credential references, Party or worker records, approval issuer, or tw
 
 Focused Debug builds of the server and deletion-conformance test projects succeeded with zero warnings. The conformance assembly passed 31 cases with zero failures or skips. That result is component evidence only.
 
+## Owner-qualification continuation — 2026-10-29
+
+The committed Agents register inspected on this date still pins Conversations
+`87e8b4a6ec3224b20a560b0e83de857805925572`, omits its proposed
+`RuntimeQualificationBinding`, and leaves `EXT-PROTECTION-1` Uncommitted. The
+2026-10-28 MVP custody amendment preserves the full dependency and Live gates.
+The installed `/home/administrator/hexalith-conversations-evidence/ext-conv-ai-1/live-manifest.json`
+is absent, and the retained attempt journal is empty. No new independently
+verified installation inputs were supplied.
+
+The earlier observation that no publication-authority implementation existed
+is historical. EventStore owner source at
+`5945ba8b3575f76597075e460bb9a973453272ea` and the producer-selected direct
+reference at `347d390e3a5c0da28874ae650ef202aefbea15ce` now contain
+`SourcePublicationAuthority` and its SDK registration for namespace, operation
+and complete-command authority. Composition still requires independently
+verified `ISourcePublicationAuthorityInstallationEvidence`, current enrolled
+scopes and resource-bound workload issuers. Source availability establishes no
+installed or accepted authority. The router still rejects caller-supplied
+`CommandStateProof` / `VerifiedEffectiveEvents`.
+
+The original Local verifier failed at `Directory.Build.props:8` because its
+hand-selected sibling roots bypassed the current required producer mapping.
+The verifier now inherits the complete `SourceMappingMaterializer.Environment`
+from its caller, checks all five import files, the mapping hash and Debug mode,
+and evaluates the mapped Contracts project before building. Missing or
+inconsistent source selection refuses before any build. It supplies no
+dependency roots, versions or reference-mode overrides. The recorded Local
+evidence includes the mapping hash; normal build targets continue to enforce
+the producer's mapping validation.
+
+The source-only preparation used for this continuation was:
+
+```bash
+dotnet /home/administrator/projects/hexalith/conversations/references/Hexalith.Builds/src/libraries/Hexalith.Builds.Module.Cli/bin/Debug/net10.0/Hexalith.Builds.Module.Cli.dll prepare-build --manifest module/hexalith.module-manifest.v2.json --mode source --output json --workspace /home/administrator/hexalith-conversations-evidence/ext-conv-ai-1/delivery-20261029-acd8b0b/prepared-source
+```
+
+It returned a complete seven-variable `buildPreparation.environment`. Pass
+every entry unchanged to the Local child process:
+
+```powershell
+$preparation = Get-Content /home/administrator/hexalith-conversations-evidence/ext-conv-ai-1/delivery-20261029-acd8b0b/prepare-source.stdout.log -Raw | ConvertFrom-Json -AsHashtable
+foreach ($entry in $preparation.buildPreparation.environment.GetEnumerator()) {
+    [Environment]::SetEnvironmentVariable($entry.Key, $entry.Value, 'Process')
+}
+pwsh -NoProfile -File eng/verify-ext-conv-ai-1.ps1 -Mode Local -ArtifactsPath /home/administrator/hexalith-conversations-evidence/ext-conv-ai-1/delivery-20261029-acd8b0b/local-mapped
+```
+
+This uses an existing Debug source tool for component checks only. Its missing
+Platform release-tag and tool-version-range warnings are retained; it is no
+published-artifact or installed-runtime qualification. The isolated Aspire
+baseline failed before runtime on EventStore `CopyRefAssembly` file-copy errors;
+`aspire describe` confirmed no running AppHost for the selected project.
+
+Fresh Local verification passed 2,279 tests across the five suites, including
+31 receiver cases, with zero failures or skips. The separate 37-case six-seam
+execution reruns cases already included in the Server suite. The receiver
+source restore graph contains 52 libraries and no Agents library. Those
+receipts remain component evidence.
+The helper, synthetic Live/Local-runner and retained-packet suite passed 52
+tests. New Local-runner cases prove missing/invalid mappings and evaluated
+selection mismatches refuse before builds, while the complete producer
+environment reaches every build and assembly invocation without replacement.
+
+Fresh commands, original failures, producer mapping, component receipts and a
+blocked replacement packet are retained under
+`/home/administrator/hexalith-conversations-evidence/ext-conv-ai-1/delivery-20261029-acd8b0b/`.
+The accepted exact owner command exited 1 at its old-target comparison and
+never reached the Live script. No installed manifest was authored, no receiver
+was deployed and no cohort attempt was reserved. Installation, replacement
+acceptance and persisted C1–C4 qualification remain incomplete. Earlier
+evidence and accepted records remain unchanged.
+
 ## Opt-in host composition — 2026-10-29
 
 The repository Server host can now compose `AddConversationDeletionRuntime`, but
@@ -181,3 +254,65 @@ be rebuilt from the clean committed target before installation.
 All receipts, including the failed run, are retained at
 `/home/administrator/hexalith-conversations-evidence/ext-conv-ai-1/host-composition-20261029-acd8b0b/`.
 The parent owner-qualification spec stays in progress.
+
+### Installation prerequisite continuation — 2026-10-30
+
+Both frontmatter context files were fully loaded before this continuation. The
+Platform owner form already contains `extConvAi1InstallationAuthorization` for
+additive isolated Conversations, Parties and target/rollover conformance receiver
+installation on `https://192.168.1.30:6443`, including workload enrollment and
+Party provisioning. Its broader top-level `installationAuthorized: false`
+applies to the coupled lifecycle scope and is not a request to reapprove this
+narrow installation. Independent approvals, register changes, replacement target
+acceptance and C1–C4 remain outside that installation authorization.
+
+Fresh read-only metadata from that configured cluster found 24 namespaces and
+57 workloads, with no named Conversations, Parties, conformance receiver or
+Agents workload. This is a scoped cluster observation, not a universal absence
+claim. The canonical source candidate is `ebc65f6da42d8c165ed70f94d2fe5231a6402830`.
+Its opt-in host, complete-source verifier, conformance receiver adapter,
+authenticated identity endpoint and container settings supersede the historical
+source-absence observations. Source availability establishes no installation.
+
+The inspected production source still supplies only Unavailable agent-authority
+and approval-verification defaults; no concrete independent source-publication
+installation-evidence provider or acknowledgement observer was found in the
+searched Conversations/EventStore/Platform source roots. The executable gateway
+does not compose publication authority. The embedded bound-assertion issuer is
+explicitly a nonconforming Development fixture, whereas the conformance receiver
+requires separately enrolled Production-capable SDK trust and exact bound
+principals. Authentic tenant/AgentId/Branch-B Party, current worker, independent
+approval issuer/public trust, source inventory/journal/epoch enrollment and
+receiver/storage bindings remain unsupplied. An enabled host refuses before
+listening without mandatory providers; deploying disabled/nonstarting placeholders
+cannot close these tasks. No installation or enrollment was invoked.
+
+The committed Agents register still pins the prior Conversations target, omits
+its proposed `RuntimeQualificationBinding`, and leaves `EXT-PROTECTION-1`
+Uncommitted. The exact accepted command was captured verbatim and exited 1 at
+its immutable-target comparison before invoking Live. The manifest remains
+absent, the retained attempt journal is empty, and no C1–C4 attempt was reserved
+or executed. No runtime source changed, so the passing component suites were
+not repeated.
+
+Fresh receipts, committed/working register snapshots, narrow authorization,
+preexisting changed-file snapshots, source hashes, all five prerequisite
+statuses, exact ordered owner actions and a blocked NotSubmitted replacement
+packet are retained at `/home/administrator/hexalith-conversations-evidence/ext-conv-ai-1/owner-prerequisites-20261030-060525/`.
+The proposed command pins the observed full canonical source candidate but is
+neither accepted nor installed; missing installed hashes, successor acceptance
+and integration date remain null. The bundle's `SHA256SUMS` is verified by
+`sha256sum --check SHA256SUMS`; its native receipt is
+`checksum-verification.json`. Historical evidence and preexisting edits are
+preserved. Both installation and persisted C1–C4 tasks remain unchecked, delivery
+remains in progress, and Story 8.3/Level 5/availability remain gated.
+
+The kubeconfig supplies deployment-target/access configuration and the owner
+form supplies narrow authorization; neither supplies installed application
+configuration. No authoritative installed Conversations/Parties/receiver
+application deployment configuration was located in the inspected Platform
+`deploy/src/eng` or Conversations `src/tools` JSON/YAML/environment files, or at
+the known Live-manifest path. `application-deployment-input-map.json` in the
+bundle records the scoped no-match search, exact configuration keys and
+owner-return JSON pointers separately from missing compiled production
+providers; no placeholder application configuration was manufactured.

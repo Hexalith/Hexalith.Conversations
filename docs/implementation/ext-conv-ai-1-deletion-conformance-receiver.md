@@ -123,8 +123,16 @@ resolve a lost acknowledgement; it never relabels an old receipt.
 
 For local source verification, build and execute the test project individually:
 
+First inherit every entry of the Platform/Builds producer's generated
+`buildPreparation.environment`, as described in the
+[current qualification continuation](ext-conv-ai-1-runtime-qualification.md#owner-qualification-continuation--2026-10-29).
+The producer selects source/Debug mode and dependency roots. The commands below
+require that environment; setting `UseHexalithProjectReferences` alone cannot
+enroll a build. The five-project Local verifier includes this receiver suite
+and checks the producer mapping before building.
+
 ```bash
-dotnet build tests/Hexalith.Conversations.DeletionConformance.Tests/Hexalith.Conversations.DeletionConformance.Tests.csproj -c Debug -p:UseHexalithProjectReferences=true -p:NuGetAudit=false
+dotnet build tests/Hexalith.Conversations.DeletionConformance.Tests/Hexalith.Conversations.DeletionConformance.Tests.csproj -c Debug -p:NuGetAudit=false
 dotnet tests/Hexalith.Conversations.DeletionConformance.Tests/bin/Debug/net10.0/Hexalith.Conversations.DeletionConformance.Tests.dll -xml /tmp/deletion-conformance-tests.xml
 ```
 
@@ -132,7 +140,7 @@ After independently accepted installation inputs exist, prepare a separately
 deployed local Debug process artifact with the SDK publish path:
 
 ```bash
-dotnet publish tools/Hexalith.Conversations.DeletionConformance/Hexalith.Conversations.DeletionConformance.csproj -c Debug -p:UseHexalithProjectReferences=true -p:NuGetAudit=false -o /tmp/conversations-deletion-conformance
+dotnet publish tools/Hexalith.Conversations.DeletionConformance/Hexalith.Conversations.DeletionConformance.csproj -c Debug -p:NuGetAudit=false -o /tmp/conversations-deletion-conformance
 ```
 
 The platform owner installs that artifact under its own application identity and

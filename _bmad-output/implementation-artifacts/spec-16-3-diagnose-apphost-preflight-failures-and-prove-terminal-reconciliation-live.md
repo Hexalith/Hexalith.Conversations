@@ -40,39 +40,41 @@ context:
 
 ## Open Questions
 
-1. **Entry sequence:** complete 16.1/16.2 and entry decisions first; or explicitly authorize out-of-order 16.3 preparation with acceptance blocked. Missing decisions include reconciled AD-5–AD-8 carriers, operational envelope and scoped execution authorization. The recorded lift covers only `7.1-SCHEMAS`; both predecessors remain backlog. Current-change policy supplies no runtime approval.
-2. **AppHost ownership:** named baseline-owner/Architect/Runtime exemption retaining the non-packable local fixture; or platform relocation amendment. Architecture requires this before entry. Relocation requires revising this draft's paths before approval.
+1. **Sequence:** complete 16.1/16.2 and owner qualification first (recommended), or authorize a separate, bounded 16.3 preparation plan while runtime acceptance stays held. Tooling preparation is complete; runtime entry remains unqualified.
+2. **AppHost ownership:** obtain a baseline-owner/Architect/Runtime exemption retaining the local fixture, or a Platform relocation amendment. Both need an explicit owner record before entry; relocation changes this plan's fixture paths.
 
 ## Code Map
 
-- `tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs` — reuse gateway/Dapr/Redis patterns; its tenant bypass cannot prove 16.1 readiness.
-- `src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs` — preserve `ReconcileAsync` and contracts.
-- EventStore `DomainService/EventStoreDomainServiceExtensions.cs` maps the route; `Server/Projections/{NamedProjectionDispatchCoordinator,DaprProjectionDeliveryRetryScheduler,ProjectionDeliveryRetryWorker}.cs` owns recovery. Observe public scheduler state and hosted execution; `RunOnceAsync` is internal.
-- `_bmad/scripts/{evidence_boundary_current,authoring_outputs}.py` — reuse neutral Git bridge, ledgers and contained publication.
+The [entry investigation](story-16-3-entry-investigation-2026-10-29.md) maps existing diagnostics, authenticated routing, durable scheduling, fixtures and tooling. Reuse the shared validators and generator; neither is new work. The gateway fixture's tenant bypass cannot prove production admission.
+
+Select `_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.3.json` explicitly. Its native source and output paths supersede this draft's earlier paths; preserved V14 contracts remain immutable.
 
 ## Tasks & Acceptance
 
-**Execution:**
-- [ ] `references/Hexalith.EventStore/src/Hexalith.EventStore.Testing.Integration/DaprDiagnostics.cs` and owning repository's `tests/Hexalith.EventStore.Testing.Integration.Tests/DaprDiagnosticsTests.cs` — extend shared readiness/binding diagnostics with positive/negative tests; preserve callers.
-- [ ] `tests/Hexalith.Conversations.AppHost.Tests/{ConversationsAppHostRuntimeBoundaryTest,ConversationTerminalReconciliationLiveTest}.cs` and its `.csproj` — consume preflight; launch production hosts; induce failure; observe durable terminal work, coordinator HTTP route, clearance and persisted query state.
-- [ ] `_bmad/scripts/verify_story_16_3.py` and `_bmad/scripts/tests/test_verify_story_16_3.py` — AC-01–05 runner, closed exits/results, fault identities, restoration digests, anti-vacuity and candidate/runtime/route binding.
-- [ ] `_bmad/scripts/generate_story_record.py`, `_bmad/schemas/story-final-record-v2.schema.json`, `_bmad/scripts/tests/test_generate_story_record.py` — independently derive predecessor/receipt bindings; add mutation tests.
-- [ ] `artifacts/v14/16.3/` and `docs/release-evidence/story-16.3-final-record-v2.{json,md}` — measure committed sources with exact effective commands; regenerate identically; publish atomically without replacing accepted evidence.
-- [ ] This spec and `_bmad-output/implementation-artifacts/sprint-status.yaml` — review, scoped verification, verbatim insertion, then owned transition.
+**After qualified entry only, in dependency order:**
+
+- [ ] `references/Hexalith.EventStore/src/Hexalith.EventStore.Testing.Integration/DaprDiagnostics.cs` — add bounded, safe endpoint/binding diagnostics; extend the existing owning `DaprTestPrerequisiteDiagnosticsTests.cs` and `GeneratedApiSmokePreflightDiagnosticsTests.cs` suites.
+- [ ] `tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs` and its `.csproj` — consume shared preflight through mapped references; preserve authentication.
+- [ ] `tests/Hexalith.Conversations.IntegrationTests/Epic16/Story16_3EvidenceTests.cs` — implement contract-bound `Scenario01`–`Scenario05`: real production hosts, durable pending work, authenticated coordinator traffic, persisted/query-visible recovery, duplicate/concurrent progress and fault restoration. Observe hosted workers through public scheduler seams.
+- [ ] `artifacts/epic16-runtime/16.3/` and `docs/release-evidence/story-16.3-final-record-v2.{json,md}` — capture committed native sources/binaries, run the six selected commands and verify deterministic generation; publish only under separately authorized scope.
+- [ ] This spec and `_bmad-output/implementation-artifacts/sprint-status.yaml` — review, scoped verification, verbatim record insertion and owned transition after acceptance.
 
 **Acceptance Criteria:**
-- Given authorized entry and predecessors, when contracted commands run, then six scenarios pass: `6/6/0/0/0/0`.
+
+- Given qualified entry and accepted predecessors, when all six selected commands run, then the derived summary is `6/6/0/0/0/0`.
 - Given identical sources, when regenerated, then both records match bytes and bind runtime, route, faults, candidate/gitlinks and rollback.
-- Given faults/unavailable dependencies, when verified, then FAIL/BLOCKED remains explicit and fixtures restore.
+- Given faults or unavailable dependencies, when verified, then FAIL/BLOCKED stays explicit, required execution is nonempty and fixtures restore.
 
 ## Implementation Notes
 
 ## Spec Change Log
 
+2026-10-29: refreshed entry facts, existing-tooling reuse, native test identity and output paths. KEEP frozen intent, draft/backlog, predecessor chain, accepted evidence and ACTIVE hold unchanged.
+
 ## Review Triage Log
 
 ## Verification
 
-- Build/run affected projects individually in Debug; use built xUnit assemblies with `-class`/`-method` and `-failSkips`; require executed live tests.
-- Run focused Python suites and exact effective contract commands; scoped evidence and Story 7.3 guards before review/done. FAIL/BLOCKED halt; preserve not-applicable.
-- `git diff --check`; validate commitlint before separately authorized commits. No push.
+Fresh entry check: all six exact commands in the investigation returned BLOCKED/exit 2, `ENTRY_QUALIFICATION_PENDING`, zero runtime tests and no outputs. Ten owner qualifications, trusted entry and accepted predecessors remain required.
+
+After entry: use Platform-materialized mappings, individual Debug builds and built xUnit `-class`/`-method` with `-failSkips`. Run the selected contract commands, focused shared-tooling regressions, scoped evidence verifier and Story 7.3 guards before review/done; FAIL/BLOCKED halts. Historical evidence replay is not-applicable to this planning refresh. Run `git diff --check`; commits/publication need separate authorization and pinned commitlint validation. No push.

@@ -8,7 +8,6 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $PSNativeCommandUseErrorActionPreference = $false
 $repository = Split-Path -Parent $PSScriptRoot
-$workspace = Split-Path -Parent $repository
 $requiredLanes = @('Membership', 'Posting', 'Facilitator', 'ActiveCount', 'CurrentReads', 'ApprovedDeletionDelivery', 'CrossTenant')
 
 function Invoke-Checked([string[]]$Arguments, [string]$Log) {
@@ -49,23 +48,34 @@ New-Item -ItemType Directory -Path $ArtifactsPath -Force | Out-Null
 $ArtifactsPath = Join-Path $ArtifactsPath ('run-' + [DateTime]::UtcNow.ToString('yyyyMMddTHHmmssfffffffZ'))
 New-Item -ItemType Directory -Path $ArtifactsPath | Out-Null
 Write-Output "Execution evidence: $ArtifactsPath"
-$properties = @('-p:UseHexalithProjectReferences=true', '-p:NuGetAudit=false', '-p:MinVerVersionOverride=1.0.0')
-foreach ($pair in @(@('HexalithEventStoreRoot', 'eventstore'), @('HexalithCommonsRoot', 'commons'), @('HexalithTenantsRoot', 'tenants'))) {
-    $source = Join-Path $workspace $pair[1]
-    if (-not (Test-Path -LiteralPath $source)) { throw "Missing local source reference: $source" }
-    $properties += "-p:$($pair[0])=$source"
+# The Platform/Builds producer owns dependency roots, versions and source/package mode.
+# Inherit its complete materialized environment; never reconstruct a sibling layout here.
+$mappingEnvironment = @{}
+foreach ($name in @('CustomBeforeDirectoryBuildProps', 'CustomAfterMicrosoftCommonProps',
+        'CustomBeforeDirectoryBuildTargets', 'CustomAfterDirectoryBuildTargets', 'AfterMicrosoftNETSdkTargets')) {
+    $value = [Environment]::GetEnvironmentVariable($name)
+    if ([string]::IsNullOrWhiteSpace($value) -or -not (Test-Path -LiteralPath $value -PathType Leaf)) {
+        throw "Local verification requires the complete producer-selected source mapping environment: missing $name. See module/README.md."
+    }
+    $mappingEnvironment[$name] = $value
 }
-# Tenants forwards its package pin as Version on EventStore project references. Resolve the
-# selected EventStore source's own version once and use it throughout this local graph, so
-# different central package observations cannot produce two versions in one output directory.
-$eventStoreProject = Join-Path $workspace 'eventstore/src/Hexalith.EventStore.Contracts/Hexalith.EventStore.Contracts.csproj'
-$versionArguments = @('msbuild', $eventStoreProject, '-getProperty:HexalithEventStoreVersion', '-p:Configuration=Debug') + $properties
-$eventStoreVersion = (& dotnet @versionArguments 2> (Join-Path $ArtifactsPath 'eventstore-version.stderr.log') | Out-String).Trim()
-if ($LASTEXITCODE -ne 0 -or $eventStoreVersion -notmatch '\A\d+\.\d+\.\d+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?\z') {
-    throw 'Cannot resolve the selected EventStore source version for a consistent local build graph.'
+$mappingEnvironment['HEXALITH_SOURCE_MAPPING_HASH'] = [Environment]::GetEnvironmentVariable('HEXALITH_SOURCE_MAPPING_HASH')
+$mappingEnvironment['Configuration'] = [Environment]::GetEnvironmentVariable('Configuration')
+if ($mappingEnvironment['HEXALITH_SOURCE_MAPPING_HASH'] -cnotmatch '^[0-9a-f]{64}$' -or $mappingEnvironment['Configuration'] -cne 'Debug') {
+    throw 'Local verification requires a producer-selected source/Debug mapping with its exact SHA-256.'
 }
-$eventStoreVersion | Set-Content -LiteralPath (Join-Path $ArtifactsPath 'eventstore-version.log')
-$properties += "-p:HexalithEventStoreVersion=$eventStoreVersion"
+$properties = @('-p:NuGetAudit=false', '-p:MinVerVersionOverride=1.0.0')
+$mappingLog = Join-Path $ArtifactsPath 'source-mapping-evaluation.json'
+$mappingProject = Join-Path $repository 'src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj'
+Invoke-Checked (@('msbuild', $mappingProject,
+    '-getProperty:HexalithSourceMappingMode,UseHexalithProjectReferences,HexalithSourceMappingHash,HexalithSourceMappingApplies,Configuration') + $properties) $mappingLog
+$selection = (Get-Content -LiteralPath $mappingLog -Raw | ConvertFrom-Json -AsHashtable).Properties
+if ($selection['HexalithSourceMappingMode'] -cne 'source' -or $selection['UseHexalithProjectReferences'] -cne 'true' -or
+    $selection['HexalithSourceMappingApplies'] -cne 'true' -or $selection['Configuration'] -cne 'Debug' -or
+    $selection['HexalithSourceMappingHash'] -cne $mappingEnvironment['HEXALITH_SOURCE_MAPPING_HASH']) {
+    throw 'Local verification refused an absent, changed or non-source producer mapping.'
+}
+$mappingEnvironment | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $ArtifactsPath 'source-mapping-environment.json') -Encoding utf8
 $projects = @('Hexalith.Conversations.Contracts.Tests', 'Hexalith.Conversations.Tests', 'Hexalith.Conversations.Server.Tests', 'Hexalith.Conversations.Client.Tests', 'Hexalith.Conversations.DeletionConformance.Tests')
 foreach ($name in $projects) {
     $project = Join-Path $repository "tests/$name/$name.csproj"
@@ -106,6 +116,7 @@ foreach ($name in $projects) {
     $null = Read-PassingTests $xml
 }
 $evidence = @{ Mode = 'Local'; EvidenceKind = 'SerializedLocalSimulation'; LiveReady = $false;
+    SourceMappingHash = $mappingEnvironment['HEXALITH_SOURCE_MAPPING_HASH'];
     SourceRevision = (& git -C $repository rev-parse HEAD).Trim(); Lanes = $lanes;
     RemainingGates = @('Replacement immutable target and exact command acceptance by Agents owner', 'Real current authority and immutable Party',
         'Independently qualified SDK complete command-source attestation and actor compare/append', 'Installed complete authenticated tenant catalogue under the accepted creation window',
