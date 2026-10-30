@@ -1,0 +1,36 @@
+<frozen-after-approval reason="human-owned intent — do not modify unless human renegotiates">
+
+## Intent
+
+**Problem:** Tenant authorization uses a process-local projection lost on restart. Consumer-group delivery cannot populate every replica, and missing freshness evidence currently defaults to healthy.
+
+**Approach:** Consume an additive Tenants durable projection capability backed by EventStore mutation/recovery infrastructure. Prove restart recovery without redelivery and consistent authorization across replicas.
+
+**Decision:** Prepare prerequisites first; inherit Hexalith.Platform infrastructure and operational policy. On 2026-10-23 the user selected Platform enrollment and successor tooling preparation for review; runtime remains held. On 2026-10-25 the user approved additive prerequisite refresh with accepted CLI 4.35.2; runtime entry remains held. On 2026-10-25 the user authorized corrected CLI qualification and successor-tooling implementation under the separate prerequisite scope; runtime entry remains held.
+
+**2026-10-27 decision:** Prepare a separate enrollment/adoption-remediation plan. This selects prerequisite planning; runtime entry remains held.
+
+**2026-10-27 follow-up decision:** The user selected option 1: prepare a separate tooling-qualification and source-binding-refresh plan. This authorizes planning only; runtime entry remains held.
+
+**2026-10-28 post-tooling decision:** The user selected option 1: prepare a separate published-artifact/Platform qualification and adoption-disposition plan. This authorizes planning only; runtime remains held.
+
+## Boundaries & Constraints
+
+**Always:** Enforce architecture AD-5/AD-6. EventStore owns identity, CAS, retry, replay, fenced recovery and acknowledgements; Tenants owns transitions/checkpoints. Conversations evaluates one state/health/checkpoint snapshot per invocation. Only proven healthy state authorizes. Preserve compatibility and historical evidence.
+
+**Never:** Direct Dapr persistence, unconditional saves, process-local concurrency, read repair, synthetic health, or early acknowledgement. Exclude 16.2/16.3, deployment and destructive migration. Rollback removes adoption/configuration; retain events, evidence and accepted records.
+
+## I/O & Edge-Case Matrix
+
+| State/delivery | Required behavior |
+| --- | --- |
+| Healthy, exact-next sequence | Atomically commit transition and checkpoint |
+| Identical accepted duplicate | No-op; verify older sequences against authoritative history |
+| Conflicting identity/payload | Persist terminal Corrupt; deny |
+| Future sequence | Persist Gapped, immutable expected sequence, monotonic recoveryThrough and fingerprints; deny |
+| CAS/provider/retry exhaustion | Retryable failure, no acknowledgement; authorization unavailable |
+| Fenced recovery | Validate history/evidence; restore Healthy only with AD-6 final CAS and no pending evidence |
+| Missing/stale/unavailable or malformed state | Deny without disclosing tenant existence |
+| Restart or second replica | Reload the same persisted decision/checkpoint without redelivery |
+
+</frozen-after-approval>

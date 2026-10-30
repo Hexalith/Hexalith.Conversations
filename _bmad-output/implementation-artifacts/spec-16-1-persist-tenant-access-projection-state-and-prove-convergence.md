@@ -46,45 +46,36 @@ context:
 
 </frozen-after-approval>
 
+## Entry Requirements
+
+Current [investigation](story-16-1-entry-investigation-2026-10-30.md): root 4.38.2 differs from Platform's prepared 4.38.3; adoption is six PASS/twenty-one FAIL. Both tooling versions fail SOURCE_DRIFT before native execution. Nine owner qualifications, trusted entry and compatible predecessors remain missing. Runtime entry stays BLOCKED; preserve draft/backlog.
+
+## Open Questions
+
+1. Current-tuple prerequisite scope — prepare a separate 4.38.3 candidate qualification/adoption/source-binding-successor plan (runtime held; approval before implementation or pin changes), or validate supplied accepted current tuple/owner records (provide their references; evaluate without inferring acceptance)? The October 30 prerequisite-first sequence is already selected.
+
 ## Code Map
 
-Use the [runtime source map](story-16-1-entry-investigation-2026-10-28.md#runtime-code-map-after-qualified-entry). The [separate prerequisite](spec-epic-16-published-artifact-platform-qualification.md) owns artifact/Platform qualification and adoption dispositions. Entry remains BLOCKED.
-
-The [published 4.38.1 observation](../../module/validation/epic-16-published-artifact-qualification/parent-review-20261028/README.md)
-now measures artifact/source/CI/catalog identities and all 36 malformed-key
-controls successfully. Its overall qualification remains FAIL: the sixteen
-adoption failures and Platform catalog identity disagreement remain explicit.
-Missing declared producer qualification files are separately BLOCKED. Published package preparation
-and action export are BLOCKED by the untagged direct Platform checkout; the
-reviewed tuple, registration, native hosts, operational envelope, provider parity
-and human acceptance remain pending. No runtime task is qualified to start.
+Use the investigation's owner paths and reuse notes. EventStore owns atomic mutation/recovery; Tenants owns durable snapshots/transitions; Conversations consumes one snapshot. Existing implementation remains process-local. Preserve public signatures, accepted evidence and enrolled subscription configuration.
 
 ## Tasks & Acceptance
 
-**After qualified entry only:**
+**After qualified entry only, in dependency order:**
 
-- [ ] EventStore Client `Subscriptions/`, `Projections/` — implement AD-6 raw binding, atomic mutation, pending evidence, fenced recovery and durable acknowledgement.
-- [ ] Tenants Client `Projections/`, `Handlers/TenantProjectionEventHandler.cs` — implement coherent durable snapshots and pure transitions, preserving signatures.
-- [ ] Conversations `Server/TenantAccess/` — add the snapshot adapter and consume one persisted snapshot per invocation; unsafe state denies.
-- [ ] Owner Client tests, `Server.Tests/TenantAccess/`, `IntegrationTests/Epic16/Story16_1EvidenceTests.cs` — prove the frozen matrix, persisted end-state, concurrency, restart and replica convergence.
+- [ ] EventStore Client `Subscriptions/`, `Projections/` — add raw fingerprint binding, CAS outcomes, pending evidence, fenced recovery and durable acknowledgements.
+- [ ] Tenants Client `Projections/`, `Handlers/TenantProjectionEventHandler.cs` — add coherent durable snapshots and pure transitions; preserve signatures.
+- [ ] Conversations `Server/TenantAccess/` — add the snapshot adapter; evaluate one persisted snapshot per invocation; unsafe state denies.
+- [ ] Owner Client tests, `Server.Tests/TenantAccess/`, `IntegrationTests/Epic16/Story16_1EvidenceTests.cs` — prove the frozen fault matrix, persisted end-state, concurrency, restart and replica convergence.
 
 **Acceptance Criteria:**
 
 - Given acknowledged events, when restarting without redelivery or reading another replica, then persisted decisions/checkpoints agree.
 - Given concurrent mutation/recovery, when authorizing, then one coherent snapshot controls access and unsafe states deny.
-- Given qualified entry and owner commits, when six contracted scenarios run, then derive `6/6/0/0/0/0` with compatibility and exact rollback/gitlink scope.
+- Given qualified entry and owner commits, when six selected tooling-v2 scenarios run, then derive `6/6/0/0/0/0` with compatibility and exact rollback/gitlink scope.
 
 ## Implementation Notes
 
-[Prior planning history](story-16-1-planning-history-2026-10-28-before-artifact-split.md) preserves all earlier notes verbatim. On 2026-10-28 the user selected the separate prerequisite plan; no runtime task started.
-
-2026-10-28 artifact prerequisite implementation: retain the measured
-[qualification ledger](../../module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/collection-05/qualification-ledger.json)
-and [held-command matrix](../../module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/held-command-matrix-v2.json).
-The fresh Debug AppHost readiness observation grants no runtime-entry credit.
-V1 remains FAIL/SOURCE_DRIFT; v2 remains BLOCKED/ENTRY_QUALIFICATION_PENDING.
-Entry is null, independent trust empty, all seven outputs absent and all four
-authority flags false. This draft and its backlog/runtime tasks remain held.
+Earlier notes and planning are preserved verbatim in [history](story-16-1-planning-history-2026-10-30-before-tuple-refresh.md). This refresh runs no runtime task. Twelve current commands fail SOURCE_DRIFT; zero runtime measurements, seven absent outputs, null entry, empty trust and ACTIVE hold remain explicit.
 
 ## Spec Change Log
 
@@ -100,8 +91,12 @@ authority flags false. This draft and its backlog/runtime tasks remain held.
 
 2026-10-28 split: regenerate this draft around runtime work; archive prior notes, retain the complete prior change log and record the human's prerequisite-planning choice. KEEP accepted evidence, runtime hold and draft/backlog.
 
+2026-10-30: refreshed current tuple, exact adoption delta and source-binding failures; archived prior planning verbatim. KEEP frozen intent, accepted evidence, draft/backlog and runtime hold.
+
 ## Review Triage Log
 
 ## Verification
 
-After entry, run individual Debug owner/consumer tests and six tooling-v2 commands. Require native persisted-state evidence and the exact final summary. Planning checks preserve intent except the user decision, bound sources and repository state.
+Current planning checks rehash captured streams, compare exact commands/adoption rows, verify protected state and run `git diff --check`. See the investigation and observation's `planning-verification.json`.
+
+After entry: use individual mapped Debug owner/consumer builds/tests and the six exact tooling-v2 contract commands. Require native persisted-state proof and the derived summary; FAIL/BLOCKED halts. Historical evidence replay and runtime publication are not-applicable to this planning refresh.

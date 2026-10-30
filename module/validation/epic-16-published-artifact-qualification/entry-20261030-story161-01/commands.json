@@ -1,0 +1,1466 @@
+[
+  {
+    "name": "root-revision",
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809809,
+    "processGroup": 2809809,
+    "durationSeconds": 0.002191,
+    "stdout": {
+      "path": "root-revision.stdout.txt",
+      "bytes": 41,
+      "sha256": "a28567aac7e5f688eaf6f363f6d0d8a6306989481859742ac4e3e9e84345359f",
+      "complete": true
+    },
+    "stderr": {
+      "path": "root-revision.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "root-tree",
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD^{tree}"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809810,
+    "processGroup": 2809810,
+    "durationSeconds": 0.001945,
+    "stdout": {
+      "path": "root-tree.stdout.txt",
+      "bytes": 41,
+      "sha256": "15c618c66d3e95ebb8d0a1b954416397343012cf8ebd1c114b4a4c443416403c",
+      "complete": true
+    },
+    "stderr": {
+      "path": "root-tree.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "index-path",
+    "command": [
+      "git",
+      "rev-parse",
+      "--path-format=absolute",
+      "--git-path",
+      "index"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809811,
+    "processGroup": 2809811,
+    "durationSeconds": 0.001519,
+    "stdout": {
+      "path": "index-path.stdout.txt",
+      "bytes": 63,
+      "sha256": "d24e8391b89a1731c144ee36abdec7c1d8f3986adf071df1107647ccebb1e744",
+      "complete": true
+    },
+    "stderr": {
+      "path": "index-path.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "raw-root-gitlinks",
+    "command": [
+      "git",
+      "ls-tree",
+      "-rz",
+      "HEAD",
+      "--",
+      "references/"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809812,
+    "processGroup": 2809812,
+    "durationSeconds": 0.002518,
+    "stdout": {
+      "path": "raw-root-gitlinks.stdout.txt",
+      "bytes": 1007,
+      "sha256": "f54337bc2442a10deaafed028f2f8a102f88c3edb3114344460c35797fa20d02",
+      "complete": true
+    },
+    "stderr": {
+      "path": "raw-root-gitlinks.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-0-head",
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.AI.Tools",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809813,
+    "processGroup": 2809813,
+    "durationSeconds": 0.001908,
+    "stdout": {
+      "path": "dependency-0-head.stdout.txt",
+      "bytes": 41,
+      "sha256": "95a5b68a080a8fed2e6fe4155009f65f697227287cc997a6ca4ac4fb7e24f971",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-0-head.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-0-status",
+    "command": [
+      "git",
+      "status",
+      "--porcelain=v1",
+      "--untracked-files=all",
+      "--ignore-submodules=all"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.AI.Tools",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809814,
+    "processGroup": 2809814,
+    "durationSeconds": 0.002325,
+    "stdout": {
+      "path": "dependency-0-status.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-0-status.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-1-head",
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809815,
+    "processGroup": 2809815,
+    "durationSeconds": 0.001626,
+    "stdout": {
+      "path": "dependency-1-head.stdout.txt",
+      "bytes": 41,
+      "sha256": "67e0d0f0967c4ec196f61901df00e492be22c93154847aa8c335e9844c81c03a",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-1-head.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-1-status",
+    "command": [
+      "git",
+      "status",
+      "--porcelain=v1",
+      "--untracked-files=all",
+      "--ignore-submodules=all"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809816,
+    "processGroup": 2809816,
+    "durationSeconds": 0.006122,
+    "stdout": {
+      "path": "dependency-1-status.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-1-status.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-2-head",
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809822,
+    "processGroup": 2809822,
+    "durationSeconds": 0.001782,
+    "stdout": {
+      "path": "dependency-2-head.stdout.txt",
+      "bytes": 41,
+      "sha256": "7f7ee7b141696997f3e6d220b1b14541ad558eeda3d83d70eed27d15e4a3a758",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-2-head.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-2-status",
+    "command": [
+      "git",
+      "status",
+      "--porcelain=v1",
+      "--untracked-files=all",
+      "--ignore-submodules=all"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809823,
+    "processGroup": 2809823,
+    "durationSeconds": 0.003071,
+    "stdout": {
+      "path": "dependency-2-status.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-2-status.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-3-head",
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809824,
+    "processGroup": 2809824,
+    "durationSeconds": 0.001836,
+    "stdout": {
+      "path": "dependency-3-head.stdout.txt",
+      "bytes": 41,
+      "sha256": "3243c6a04d486bf6ee655dd112a735fd4020a964ac6f906f571515f7485a701e",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-3-head.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-3-status",
+    "command": [
+      "git",
+      "status",
+      "--porcelain=v1",
+      "--untracked-files=all",
+      "--ignore-submodules=all"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809825,
+    "processGroup": 2809825,
+    "durationSeconds": 0.016706,
+    "stdout": {
+      "path": "dependency-3-status.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-3-status.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-4-head",
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Folders",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809845,
+    "processGroup": 2809845,
+    "durationSeconds": 0.002127,
+    "stdout": {
+      "path": "dependency-4-head.stdout.txt",
+      "bytes": 41,
+      "sha256": "8502b54fa9bc241f12704b21c138331d8c59e09e29aebbd219731d267a8df5eb",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-4-head.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-4-status",
+    "command": [
+      "git",
+      "status",
+      "--porcelain=v1",
+      "--untracked-files=all",
+      "--ignore-submodules=all"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Folders",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809847,
+    "processGroup": 2809847,
+    "durationSeconds": 0.018693,
+    "stdout": {
+      "path": "dependency-4-status.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-4-status.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-5-head",
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.FrontComposer",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809868,
+    "processGroup": 2809868,
+    "durationSeconds": 0.002151,
+    "stdout": {
+      "path": "dependency-5-head.stdout.txt",
+      "bytes": 41,
+      "sha256": "6b39ad6c62e944a0599d653b312ef620039859bed357a5c5fae4ba502c62ab83",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-5-head.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-5-status",
+    "command": [
+      "git",
+      "status",
+      "--porcelain=v1",
+      "--untracked-files=all",
+      "--ignore-submodules=all"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.FrontComposer",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809869,
+    "processGroup": 2809869,
+    "durationSeconds": 0.014359,
+    "stdout": {
+      "path": "dependency-5-status.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-5-status.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-6-head",
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.McpCli",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809882,
+    "processGroup": 2809882,
+    "durationSeconds": 0.001869,
+    "stdout": {
+      "path": "dependency-6-head.stdout.txt",
+      "bytes": 41,
+      "sha256": "c0dd148119b29c0aa8646dddb579043b2123e0cea0c9c2580910fe5756a80462",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-6-head.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-6-status",
+    "command": [
+      "git",
+      "status",
+      "--porcelain=v1",
+      "--untracked-files=all",
+      "--ignore-submodules=all"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.McpCli",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809883,
+    "processGroup": 2809883,
+    "durationSeconds": 0.027572,
+    "stdout": {
+      "path": "dependency-6-status.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-6-status.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-7-head",
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Memories",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809915,
+    "processGroup": 2809915,
+    "durationSeconds": 0.001831,
+    "stdout": {
+      "path": "dependency-7-head.stdout.txt",
+      "bytes": 41,
+      "sha256": "ed2a4a1edf8b5431580840579fd40b2e7f8c8faa3d0bc92eebed8189ea6dc299",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-7-head.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-7-status",
+    "command": [
+      "git",
+      "status",
+      "--porcelain=v1",
+      "--untracked-files=all",
+      "--ignore-submodules=all"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Memories",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809916,
+    "processGroup": 2809916,
+    "durationSeconds": 0.014503,
+    "stdout": {
+      "path": "dependency-7-status.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-7-status.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-8-head",
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Parties",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809938,
+    "processGroup": 2809938,
+    "durationSeconds": 0.002612,
+    "stdout": {
+      "path": "dependency-8-head.stdout.txt",
+      "bytes": 41,
+      "sha256": "18b5218a476163891803702090a33b11af26d3d6d0b115ca17bbf40baf7ba35e",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-8-head.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-8-status",
+    "command": [
+      "git",
+      "status",
+      "--porcelain=v1",
+      "--untracked-files=all",
+      "--ignore-submodules=all"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Parties",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809941,
+    "processGroup": 2809941,
+    "durationSeconds": 0.016963,
+    "stdout": {
+      "path": "dependency-8-status.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-8-status.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-9-head",
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809959,
+    "processGroup": 2809959,
+    "durationSeconds": 0.001949,
+    "stdout": {
+      "path": "dependency-9-head.stdout.txt",
+      "bytes": 41,
+      "sha256": "1692a6ec169774608a003f9348ada1418f844c6d504276b5ff043e072546f0c1",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-9-head.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-9-status",
+    "command": [
+      "git",
+      "status",
+      "--porcelain=v1",
+      "--untracked-files=all",
+      "--ignore-submodules=all"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809960,
+    "processGroup": 2809960,
+    "durationSeconds": 0.021067,
+    "stdout": {
+      "path": "dependency-9-status.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-9-status.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-10-head",
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Projects",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809984,
+    "processGroup": 2809984,
+    "durationSeconds": 0.002002,
+    "stdout": {
+      "path": "dependency-10-head.stdout.txt",
+      "bytes": 41,
+      "sha256": "13460b1e5048a8bd9a69dfe012797141399500a644b608fa23c45b8ef8f848f1",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-10-head.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-10-status",
+    "command": [
+      "git",
+      "status",
+      "--porcelain=v1",
+      "--untracked-files=all",
+      "--ignore-submodules=all"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Projects",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2809985,
+    "processGroup": 2809985,
+    "durationSeconds": 0.016757,
+    "stdout": {
+      "path": "dependency-10-status.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-10-status.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-11-head",
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Tenants",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2810003,
+    "processGroup": 2810003,
+    "durationSeconds": 0.001855,
+    "stdout": {
+      "path": "dependency-11-head.stdout.txt",
+      "bytes": 41,
+      "sha256": "99cdee79264d3fc02ffb2263ec9000a95605a40f53fe9c3d34df447188328b44",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-11-head.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "dependency-11-status",
+    "command": [
+      "git",
+      "status",
+      "--porcelain=v1",
+      "--untracked-files=all",
+      "--ignore-submodules=all"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Tenants",
+    "environment": {},
+    "timeoutSeconds": 30,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2810004,
+    "processGroup": 2810004,
+    "durationSeconds": 0.010271,
+    "stdout": {
+      "path": "dependency-11-status.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    },
+    "stderr": {
+      "path": "dependency-11-status.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "root-submodules",
+    "command": [
+      "python3",
+      "scripts/check-root-submodules.py",
+      "--repository",
+      "."
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2810014,
+    "processGroup": 2810014,
+    "durationSeconds": 0.058077,
+    "stdout": {
+      "path": "root-submodules.stdout.txt",
+      "bytes": 22,
+      "sha256": "559973d6f916369c1919c7ca2ef459e660614339e3c843bb60a81b8320fb3ab4",
+      "complete": true
+    },
+    "stderr": {
+      "path": "root-submodules.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "tool-version",
+    "command": [
+      "dotnet",
+      "tool",
+      "run",
+      "hexalith-module",
+      "--version"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2810018,
+    "processGroup": 2810018,
+    "durationSeconds": 0.258079,
+    "stdout": {
+      "path": "tool-version.stdout.txt",
+      "bytes": 48,
+      "sha256": "bf13cce67f6b6bd269411a161d03cd8e31b46c58b9859953b23fa72709c5f90e",
+      "complete": true
+    },
+    "stderr": {
+      "path": "tool-version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "declaration",
+    "command": [
+      "dotnet",
+      "tool",
+      "run",
+      "hexalith-module",
+      "--",
+      "validate",
+      "--manifest",
+      "module/hexalith.module-manifest.v2.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2810045,
+    "processGroup": 2810045,
+    "durationSeconds": 0.426171,
+    "stdout": {
+      "path": "declaration.stdout.txt",
+      "bytes": 19,
+      "sha256": "670f8f82620ce8ee37554566e6d02a245a5c0bab0f76359e0d2b35bed45cb199",
+      "complete": true
+    },
+    "stderr": {
+      "path": "declaration.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "adoption-json",
+    "command": [
+      "dotnet",
+      "tool",
+      "run",
+      "hexalith-module",
+      "--",
+      "validate",
+      "--manifest",
+      "module/hexalith.module-manifest.v2.json",
+      "--adoption",
+      "--output",
+      "json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 1,
+    "termination": null,
+    "processId": 2810092,
+    "processGroup": 2810092,
+    "durationSeconds": 14.04881,
+    "stdout": {
+      "path": "adoption-json.stdout.txt",
+      "bytes": 17962,
+      "sha256": "9380f5f5a7da8b556468f0b2b9db116374ed195143b593c8b697cb03871ee1be",
+      "complete": true
+    },
+    "stderr": {
+      "path": "adoption-json.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "adoption-human",
+    "command": [
+      "dotnet",
+      "tool",
+      "run",
+      "hexalith-module",
+      "--",
+      "validate",
+      "--manifest",
+      "module/hexalith.module-manifest.v2.json",
+      "--adoption"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 1,
+    "termination": null,
+    "processId": 2815627,
+    "processGroup": 2815627,
+    "durationSeconds": 12.479112,
+    "stdout": {
+      "path": "adoption-human.stdout.txt",
+      "bytes": 14707,
+      "sha256": "8cc5e802986abad57a4c4b784afe0df4a87a8e993f0780de6962f0e572fe463f",
+      "complete": true
+    },
+    "stderr": {
+      "path": "adoption-human.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v1-AC-16.1-01",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-01",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-01.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 1,
+    "termination": null,
+    "processId": 2821545,
+    "processGroup": 2821545,
+    "durationSeconds": 0.134026,
+    "stdout": {
+      "path": "v1-AC-16.1-01.stdout.txt",
+      "bytes": 708,
+      "sha256": "dae54ea690bcc5332ab62076d9f7360df162595929df42c24f1d75eccde8b5ed",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v1-AC-16.1-01.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v1-AC-16.1-02",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-02",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-02.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 1,
+    "termination": null,
+    "processId": 2821581,
+    "processGroup": 2821581,
+    "durationSeconds": 0.114879,
+    "stdout": {
+      "path": "v1-AC-16.1-02.stdout.txt",
+      "bytes": 708,
+      "sha256": "06691bfac52d6759e98d51f2754684bd88de4020dd0c8a52887c35df41806dd0",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v1-AC-16.1-02.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v1-AC-16.1-03",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-03",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-03.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 1,
+    "termination": null,
+    "processId": 2821582,
+    "processGroup": 2821582,
+    "durationSeconds": 0.120416,
+    "stdout": {
+      "path": "v1-AC-16.1-03.stdout.txt",
+      "bytes": 708,
+      "sha256": "ed7f21217e7b2b703756cd9bab69eb1fab48761a2545f78f8f1be97c4918b896",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v1-AC-16.1-03.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v1-AC-16.1-04",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-04",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-04.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 1,
+    "termination": null,
+    "processId": 2821594,
+    "processGroup": 2821594,
+    "durationSeconds": 0.125156,
+    "stdout": {
+      "path": "v1-AC-16.1-04.stdout.txt",
+      "bytes": 708,
+      "sha256": "c3a1da9a7e03b4a435d1e503317a6c5f66cffed5aef130c949e11ce803fd5f15",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v1-AC-16.1-04.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v1-AC-16.1-05",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-05",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-05.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 1,
+    "termination": null,
+    "processId": 2821667,
+    "processGroup": 2821667,
+    "durationSeconds": 0.126294,
+    "stdout": {
+      "path": "v1-AC-16.1-05.stdout.txt",
+      "bytes": 708,
+      "sha256": "3780ef2c7b86b5604d0b1689245291ef03ce831a3aaa025ac3222cc80ee0bd30",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v1-AC-16.1-05.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v1-AC-16.1-06",
+    "command": [
+      "python3",
+      "_bmad/scripts/generate_story_record.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "--format",
+      "bundle",
+      "--output-json",
+      "docs/release-evidence/story-16.1-final-record-v2.json",
+      "--output-markdown",
+      "docs/release-evidence/story-16.1-final-record-v2.md"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 1,
+    "termination": null,
+    "processId": 2821830,
+    "processGroup": 2821830,
+    "durationSeconds": 0.219337,
+    "stdout": {
+      "path": "v1-AC-16.1-06.stdout.txt",
+      "bytes": 708,
+      "sha256": "76f614cc6ba66ef1326c17d6404f06e345b66ef1d4385c4e0bf60eda3411b6b4",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v1-AC-16.1-06.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v2-AC-16.1-01",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-01",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-01.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 1,
+    "termination": null,
+    "processId": 2822049,
+    "processGroup": 2822049,
+    "durationSeconds": 0.12972,
+    "stdout": {
+      "path": "v2-AC-16.1-01.stdout.txt",
+      "bytes": 708,
+      "sha256": "dae54ea690bcc5332ab62076d9f7360df162595929df42c24f1d75eccde8b5ed",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v2-AC-16.1-01.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v2-AC-16.1-02",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-02",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-02.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 1,
+    "termination": null,
+    "processId": 2822051,
+    "processGroup": 2822051,
+    "durationSeconds": 0.134259,
+    "stdout": {
+      "path": "v2-AC-16.1-02.stdout.txt",
+      "bytes": 708,
+      "sha256": "06691bfac52d6759e98d51f2754684bd88de4020dd0c8a52887c35df41806dd0",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v2-AC-16.1-02.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v2-AC-16.1-03",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-03",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-03.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 1,
+    "termination": null,
+    "processId": 2822071,
+    "processGroup": 2822071,
+    "durationSeconds": 0.141536,
+    "stdout": {
+      "path": "v2-AC-16.1-03.stdout.txt",
+      "bytes": 708,
+      "sha256": "ed7f21217e7b2b703756cd9bab69eb1fab48761a2545f78f8f1be97c4918b896",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v2-AC-16.1-03.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v2-AC-16.1-04",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-04",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-04.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 1,
+    "termination": null,
+    "processId": 2822092,
+    "processGroup": 2822092,
+    "durationSeconds": 0.162555,
+    "stdout": {
+      "path": "v2-AC-16.1-04.stdout.txt",
+      "bytes": 708,
+      "sha256": "c3a1da9a7e03b4a435d1e503317a6c5f66cffed5aef130c949e11ce803fd5f15",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v2-AC-16.1-04.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v2-AC-16.1-05",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-05",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-05.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 1,
+    "termination": null,
+    "processId": 2822217,
+    "processGroup": 2822217,
+    "durationSeconds": 0.140479,
+    "stdout": {
+      "path": "v2-AC-16.1-05.stdout.txt",
+      "bytes": 708,
+      "sha256": "3780ef2c7b86b5604d0b1689245291ef03ce831a3aaa025ac3222cc80ee0bd30",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v2-AC-16.1-05.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "v2-AC-16.1-06",
+    "command": [
+      "python3",
+      "_bmad/scripts/generate_story_record.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "--format",
+      "bundle",
+      "--output-json",
+      "docs/release-evidence/story-16.1-final-record-v2.json",
+      "--output-markdown",
+      "docs/release-evidence/story-16.1-final-record-v2.md"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 1,
+    "termination": null,
+    "processId": 2822387,
+    "processGroup": 2822387,
+    "durationSeconds": 0.232543,
+    "stdout": {
+      "path": "v2-AC-16.1-06.stdout.txt",
+      "bytes": 708,
+      "sha256": "76f614cc6ba66ef1326c17d6404f06e345b66ef1d4385c4e0bf60eda3411b6b4",
+      "complete": true
+    },
+    "stderr": {
+      "path": "v2-AC-16.1-06.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  }
+]

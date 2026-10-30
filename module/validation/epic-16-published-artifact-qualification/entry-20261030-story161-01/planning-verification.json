@@ -1,0 +1,244 @@
+{
+  "result": "PASS",
+  "scope": "planning-validation-only",
+  "command": "python3 /tmp/story161-planning-verify-20261030.py",
+  "candidate": "fdd0e9454f56c0dce30a6b14ca7bc17c33b4f961",
+  "checks": {
+    "capturedStreamsRehash": true,
+    "nativeBoundsRespected": true,
+    "protectedInputsUnchanged": true,
+    "indexUnchanged": true,
+    "candidateUnchanged": true,
+    "rawRootGitlinksUnchanged": true,
+    "dependencyHeadsAndStatusUnchanged": true,
+    "priorDraftArchivedVerbatim": true,
+    "frozenIntentVerbatim": true,
+    "priorChangeLogPreserved": true,
+    "draftAndBacklogPreserved": true,
+    "sevenRuntimeOutputsAbsent": true,
+    "sourceRowsIndependentlyRehashed": true,
+    "twelveExactFailingCommandsWithNonemptyLedgers": true,
+    "adoptionRowsAndDelta": true,
+    "newMarkdownLinksExist": true,
+    "trackedWhitespace": true,
+    "newMarkdownWhitespace": true,
+    "exactChangedPathBoundary": true
+  },
+  "capturedCommands": 45,
+  "rehashedCommandStreams": 90,
+  "runtimeCommandObservations": [
+    {
+      "version": "v1",
+      "scenario": "AC-16.1-01",
+      "result": "FAIL",
+      "blockers": [
+        "SOURCE_DRIFT"
+      ]
+    },
+    {
+      "version": "v1",
+      "scenario": "AC-16.1-02",
+      "result": "FAIL",
+      "blockers": [
+        "SOURCE_DRIFT"
+      ]
+    },
+    {
+      "version": "v1",
+      "scenario": "AC-16.1-03",
+      "result": "FAIL",
+      "blockers": [
+        "SOURCE_DRIFT"
+      ]
+    },
+    {
+      "version": "v1",
+      "scenario": "AC-16.1-04",
+      "result": "FAIL",
+      "blockers": [
+        "SOURCE_DRIFT"
+      ]
+    },
+    {
+      "version": "v1",
+      "scenario": "AC-16.1-05",
+      "result": "FAIL",
+      "blockers": [
+        "SOURCE_DRIFT"
+      ]
+    },
+    {
+      "version": "v1",
+      "scenario": "AC-16.1-06",
+      "result": "FAIL",
+      "blockers": [
+        "SOURCE_DRIFT"
+      ]
+    },
+    {
+      "version": "v2",
+      "scenario": "AC-16.1-01",
+      "result": "FAIL",
+      "blockers": [
+        "SOURCE_DRIFT"
+      ]
+    },
+    {
+      "version": "v2",
+      "scenario": "AC-16.1-02",
+      "result": "FAIL",
+      "blockers": [
+        "SOURCE_DRIFT"
+      ]
+    },
+    {
+      "version": "v2",
+      "scenario": "AC-16.1-03",
+      "result": "FAIL",
+      "blockers": [
+        "SOURCE_DRIFT"
+      ]
+    },
+    {
+      "version": "v2",
+      "scenario": "AC-16.1-04",
+      "result": "FAIL",
+      "blockers": [
+        "SOURCE_DRIFT"
+      ]
+    },
+    {
+      "version": "v2",
+      "scenario": "AC-16.1-05",
+      "result": "FAIL",
+      "blockers": [
+        "SOURCE_DRIFT"
+      ]
+    },
+    {
+      "version": "v2",
+      "scenario": "AC-16.1-06",
+      "result": "FAIL",
+      "blockers": [
+        "SOURCE_DRIFT"
+      ]
+    }
+  ],
+  "adoptionCounts": {
+    "total": 27,
+    "passed": 6,
+    "failed": 21
+  },
+  "runtimeEntry": "BLOCKED",
+  "sourceBinding": "FAIL",
+  "runtimeMeasurements": 0,
+  "historicalEvidenceBoundary": "not-applicable",
+  "runtimePublication": "not-applicable",
+  "specTokenCount": {
+    "encoding": "o200k_base",
+    "tokens": 1534
+  },
+  "changedPaths": [
+    "_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md",
+    "_bmad-output/implementation-artifacts/story-16-1-entry-investigation-2026-10-30.md",
+    "_bmad-output/implementation-artifacts/story-16-1-planning-history-2026-10-30-before-tuple-refresh.md",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/.gitattributes",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/adoption-delta.json",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/adoption-human.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/adoption-human.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/adoption-json.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/adoption-json.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/capture-preservation.json",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/commands.json",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/declaration.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/declaration.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-0-head.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-0-head.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-0-status.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-0-status.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-1-head.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-1-head.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-1-status.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-1-status.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-10-head.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-10-head.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-10-status.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-10-status.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-11-head.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-11-head.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-11-status.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-11-status.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-2-head.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-2-head.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-2-status.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-2-status.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-3-head.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-3-head.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-3-status.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-3-status.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-4-head.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-4-head.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-4-status.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-4-status.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-5-head.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-5-head.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-5-status.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-5-status.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-6-head.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-6-head.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-6-status.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-6-status.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-7-head.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-7-head.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-7-status.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-7-status.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-8-head.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-8-head.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-8-status.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-8-status.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-9-head.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-9-head.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-9-status.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/dependency-9-status.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/entry-state.json",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/frozen-intent.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/index-path.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/index-path.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/planning-verification.json",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/raw-root-gitlinks.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/raw-root-gitlinks.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/root-revision.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/root-revision.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/root-submodules.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/root-submodules.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/root-tree.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/root-tree.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/source-bindings.json",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/tool-version.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/tool-version.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v1-AC-16.1-01.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v1-AC-16.1-01.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v1-AC-16.1-02.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v1-AC-16.1-02.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v1-AC-16.1-03.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v1-AC-16.1-03.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v1-AC-16.1-04.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v1-AC-16.1-04.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v1-AC-16.1-05.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v1-AC-16.1-05.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v1-AC-16.1-06.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v1-AC-16.1-06.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v2-AC-16.1-01.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v2-AC-16.1-01.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v2-AC-16.1-02.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v2-AC-16.1-02.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v2-AC-16.1-03.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v2-AC-16.1-03.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v2-AC-16.1-04.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v2-AC-16.1-04.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v2-AC-16.1-05.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v2-AC-16.1-05.stdout.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v2-AC-16.1-06.stderr.txt",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/v2-AC-16.1-06.stdout.txt"
+  ]
+}

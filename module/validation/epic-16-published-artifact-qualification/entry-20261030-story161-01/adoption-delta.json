@@ -1,0 +1,376 @@
+{
+  "prior": "module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/collection-05/adoption-json.stdout.txt",
+  "priorSha256": "3bce922088b9d9fd87d479953ae8f378e70fb14c3d7cc497165110799e70646c",
+  "currentRows": [
+    {
+      "requirement": "workspace",
+      "passed": true,
+      "file": ".git",
+      "reason": "Static requirement passed. Bounded static checks only. Human source review is required for unsupported constructs. SM-2 remains separately unverified."
+    },
+    {
+      "requirement": "declaration",
+      "passed": true,
+      "file": "module/hexalith.module-manifest.v2.json",
+      "reason": "Static requirement passed. Bounded static checks only. Human source review is required for unsupported constructs. SM-2 remains separately unverified."
+    },
+    {
+      "requirement": "references",
+      "passed": true,
+      "file": ".gitmodules",
+      "reason": "Static requirement passed. Bounded static checks only. Human source review is required for unsupported constructs. SM-2 remains separately unverified."
+    },
+    {
+      "requirement": "gitlinks",
+      "passed": true,
+      "file": ".gitmodules",
+      "reason": "Static requirement passed. Bounded static checks only. Human source review is required for unsupported constructs. SM-2 remains separately unverified."
+    },
+    {
+      "requirement": "nested-references",
+      "passed": true,
+      "file": ".gitmodules",
+      "reason": "Static requirement passed. Bounded static checks only. Human source review is required for unsupported constructs. SM-2 remains separately unverified."
+    },
+    {
+      "requirement": "tool-pin",
+      "passed": false,
+      "file": ".config/dotnet-tools.json",
+      "reason": "The tool pin must exactly match the direct Platform checkout's accepted tool pin."
+    },
+    {
+      "requirement": "hosting-inventory",
+      "passed": true,
+      "file": "module/hosting-inventory.json",
+      "reason": "Static requirement passed. Bounded static checks only. Human source review is required for unsupported constructs. SM-2 remains separately unverified."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/source-conventions/Directory.Build.props",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/source-conventions/references/Hexalith.EventStore/Directory.Build.props",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/source-conventions/references/Hexalith.Tenants/Directory.Build.props",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/prepared-imports/source-mapping/SourceMapping.late.props",
+      "reason": "Module build files assign a tool-owned dependency root or mode property; leave selection to the pinned tool."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/prepared-imports/source-mapping/SourceMapping.values.props",
+      "reason": "Module build files assign a tool-owned dependency root or mode property; leave selection to the pinned tool."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/prepared-imports/source-mapping/SourceMapping.late.props",
+      "reason": "Module build files assign a tool-owned dependency root or mode property; leave selection to the pinned tool."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/prepared-imports/source-mapping/SourceMapping.values.props",
+      "reason": "Module build files assign a tool-owned dependency root or mode property; leave selection to the pinned tool."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/qualification-prepared-imports/source-mapping/SourceMapping.late.props",
+      "reason": "Module build files assign a tool-owned dependency root or mode property; leave selection to the pinned tool."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/qualification-prepared-imports/source-mapping/SourceMapping.values.props",
+      "reason": "Module build files assign a tool-owned dependency root or mode property; leave selection to the pinned tool."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "requirement": "dependency-selectors",
+      "passed": false,
+      "file": "tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "requirement": "dapr-subscriptions",
+      "passed": false,
+      "file": "module/validation/epic-16-prerequisite-implementation/review-iteration-4/implementation/protocol-goldens-final/ConversationProjectionReadModelKeys.cs",
+      "reason": "Literal Dapr component name; obtain the name from the declared configuration key."
+    },
+    {
+      "requirement": "dapr-subscriptions",
+      "passed": false,
+      "file": "module/validation/epic-16-prerequisite-implementation/review-iteration-4/implementation/protocol-goldens/ConversationProjectionReadModelKeys.cs",
+      "reason": "Literal Dapr component name; obtain the name from the declared configuration key."
+    },
+    {
+      "requirement": "dapr-subscriptions",
+      "passed": false,
+      "file": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/source-conventions/references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceExtensions.cs",
+      "reason": "Programmatic subscription discovery is forbidden; declare delivery routes and dead-letter policy in the module declaration."
+    },
+    {
+      "requirement": "dapr-subscriptions",
+      "passed": false,
+      "file": "module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/collection-01/isolated/tool/.store/hexalith.builds.module.cli/4.38.1/hexalith.builds.module.cli/4.38.1/tools/net10.0/any/g4-host/bin/EventStoreHost/appsettings.json",
+      "reason": "Literal Dapr component default in configuration; Platform injects the declared configuration key. Bounded static check only."
+    },
+    {
+      "requirement": "dapr-subscriptions",
+      "passed": false,
+      "file": "module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/collection-02/isolated/tool/.store/hexalith.builds.module.cli/4.38.1/hexalith.builds.module.cli/4.38.1/tools/net10.0/any/g4-host/bin/EventStoreHost/appsettings.json",
+      "reason": "Literal Dapr component default in configuration; Platform injects the declared configuration key. Bounded static check only."
+    },
+    {
+      "requirement": "dapr-subscriptions",
+      "passed": false,
+      "file": "module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/collection-03/isolated/tool/.store/hexalith.builds.module.cli/4.38.1/hexalith.builds.module.cli/4.38.1/tools/net10.0/any/g4-host/bin/EventStoreHost/appsettings.json",
+      "reason": "Literal Dapr component default in configuration; Platform injects the declared configuration key. Bounded static check only."
+    },
+    {
+      "requirement": "dapr-subscriptions",
+      "passed": false,
+      "file": "module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/collection-04/isolated/tool/.store/hexalith.builds.module.cli/4.38.1/hexalith.builds.module.cli/4.38.1/tools/net10.0/any/g4-host/bin/EventStoreHost/appsettings.json",
+      "reason": "Literal Dapr component default in configuration; Platform injects the declared configuration key. Bounded static check only."
+    },
+    {
+      "requirement": "dapr-subscriptions",
+      "passed": false,
+      "file": "module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/collection-05/isolated/tool/.store/hexalith.builds.module.cli/4.38.1/hexalith.builds.module.cli/4.38.1/tools/net10.0/any/g4-host/bin/EventStoreHost/appsettings.json",
+      "reason": "Literal Dapr component default in configuration; Platform injects the declared configuration key. Bounded static check only."
+    }
+  ],
+  "humanRows": [
+    {
+      "passed": true,
+      "requirement": "workspace",
+      "file": ".git",
+      "reason": "Static requirement passed. Bounded static checks only. Human source review is required for unsupported constructs. SM-2 remains separately unverified."
+    },
+    {
+      "passed": true,
+      "requirement": "declaration",
+      "file": "module/hexalith.module-manifest.v2.json",
+      "reason": "Static requirement passed. Bounded static checks only. Human source review is required for unsupported constructs. SM-2 remains separately unverified."
+    },
+    {
+      "passed": true,
+      "requirement": "references",
+      "file": ".gitmodules",
+      "reason": "Static requirement passed. Bounded static checks only. Human source review is required for unsupported constructs. SM-2 remains separately unverified."
+    },
+    {
+      "passed": true,
+      "requirement": "gitlinks",
+      "file": ".gitmodules",
+      "reason": "Static requirement passed. Bounded static checks only. Human source review is required for unsupported constructs. SM-2 remains separately unverified."
+    },
+    {
+      "passed": true,
+      "requirement": "nested-references",
+      "file": ".gitmodules",
+      "reason": "Static requirement passed. Bounded static checks only. Human source review is required for unsupported constructs. SM-2 remains separately unverified."
+    },
+    {
+      "passed": false,
+      "requirement": "tool-pin",
+      "file": ".config/dotnet-tools.json",
+      "reason": "The tool pin must exactly match the direct Platform checkout's accepted tool pin."
+    },
+    {
+      "passed": true,
+      "requirement": "hosting-inventory",
+      "file": "module/hosting-inventory.json",
+      "reason": "Static requirement passed. Bounded static checks only. Human source review is required for unsupported constructs. SM-2 remains separately unverified."
+    },
+    {
+      "passed": false,
+      "requirement": "dependency-selectors",
+      "file": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/source-conventions/Directory.Build.props",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "passed": false,
+      "requirement": "dependency-selectors",
+      "file": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/source-conventions/references/Hexalith.EventStore/Directory.Build.props",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "passed": false,
+      "requirement": "dependency-selectors",
+      "file": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/source-conventions/references/Hexalith.Tenants/Directory.Build.props",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "passed": false,
+      "requirement": "dependency-selectors",
+      "file": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/prepared-imports/source-mapping/SourceMapping.late.props",
+      "reason": "Module build files assign a tool-owned dependency root or mode property; leave selection to the pinned tool."
+    },
+    {
+      "passed": false,
+      "requirement": "dependency-selectors",
+      "file": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-apphost-baseline-02/prepared-imports/source-mapping/SourceMapping.values.props",
+      "reason": "Module build files assign a tool-owned dependency root or mode property; leave selection to the pinned tool."
+    },
+    {
+      "passed": false,
+      "requirement": "dependency-selectors",
+      "file": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/prepared-imports/source-mapping/SourceMapping.late.props",
+      "reason": "Module build files assign a tool-owned dependency root or mode property; leave selection to the pinned tool."
+    },
+    {
+      "passed": false,
+      "requirement": "dependency-selectors",
+      "file": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/prepared-imports/source-mapping/SourceMapping.values.props",
+      "reason": "Module build files assign a tool-owned dependency root or mode property; leave selection to the pinned tool."
+    },
+    {
+      "passed": false,
+      "requirement": "dependency-selectors",
+      "file": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/qualification-prepared-imports/source-mapping/SourceMapping.late.props",
+      "reason": "Module build files assign a tool-owned dependency root or mode property; leave selection to the pinned tool."
+    },
+    {
+      "passed": false,
+      "requirement": "dependency-selectors",
+      "file": "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/qualification-prepared-imports/source-mapping/SourceMapping.values.props",
+      "reason": "Module build files assign a tool-owned dependency root or mode property; leave selection to the pinned tool."
+    },
+    {
+      "passed": false,
+      "requirement": "dependency-selectors",
+      "file": "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "passed": false,
+      "requirement": "dependency-selectors",
+      "file": "tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "passed": false,
+      "requirement": "dependency-selectors",
+      "file": "tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props",
+      "reason": "File-based dependency selection or sibling/nested fallback; consume only tool-mapped roots and project/package pairs."
+    },
+    {
+      "passed": false,
+      "requirement": "dapr-subscriptions",
+      "file": "module/validation/epic-16-prerequisite-implementation/review-iteration-4/implementation/protocol-goldens-final/ConversationProjectionReadModelKeys.cs",
+      "reason": "Literal Dapr component name; obtain the name from the declared configuration key."
+    },
+    {
+      "passed": false,
+      "requirement": "dapr-subscriptions",
+      "file": "module/validation/epic-16-prerequisite-implementation/review-iteration-4/implementation/protocol-goldens/ConversationProjectionReadModelKeys.cs",
+      "reason": "Literal Dapr component name; obtain the name from the declared configuration key."
+    },
+    {
+      "passed": false,
+      "requirement": "dapr-subscriptions",
+      "file": "module/validation/epic-16-prerequisite-implementation/review-iteration-9/implementation/source-conventions/references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceExtensions.cs",
+      "reason": "Programmatic subscription discovery is forbidden; declare delivery routes and dead-letter policy in the module declaration."
+    },
+    {
+      "passed": false,
+      "requirement": "dapr-subscriptions",
+      "file": "module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/collection-01/isolated/tool/.store/hexalith.builds.module.cli/4.38.1/hexalith.builds.module.cli/4.38.1/tools/net10.0/any/g4-host/bin/EventStoreHost/appsettings.json",
+      "reason": "Literal Dapr component default in configuration; Platform injects the declared configuration key. Bounded static check only."
+    },
+    {
+      "passed": false,
+      "requirement": "dapr-subscriptions",
+      "file": "module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/collection-02/isolated/tool/.store/hexalith.builds.module.cli/4.38.1/hexalith.builds.module.cli/4.38.1/tools/net10.0/any/g4-host/bin/EventStoreHost/appsettings.json",
+      "reason": "Literal Dapr component default in configuration; Platform injects the declared configuration key. Bounded static check only."
+    },
+    {
+      "passed": false,
+      "requirement": "dapr-subscriptions",
+      "file": "module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/collection-03/isolated/tool/.store/hexalith.builds.module.cli/4.38.1/hexalith.builds.module.cli/4.38.1/tools/net10.0/any/g4-host/bin/EventStoreHost/appsettings.json",
+      "reason": "Literal Dapr component default in configuration; Platform injects the declared configuration key. Bounded static check only."
+    },
+    {
+      "passed": false,
+      "requirement": "dapr-subscriptions",
+      "file": "module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/collection-04/isolated/tool/.store/hexalith.builds.module.cli/4.38.1/hexalith.builds.module.cli/4.38.1/tools/net10.0/any/g4-host/bin/EventStoreHost/appsettings.json",
+      "reason": "Literal Dapr component default in configuration; Platform injects the declared configuration key. Bounded static check only."
+    },
+    {
+      "passed": false,
+      "requirement": "dapr-subscriptions",
+      "file": "module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/collection-05/isolated/tool/.store/hexalith.builds.module.cli/4.38.1/hexalith.builds.module.cli/4.38.1/tools/net10.0/any/g4-host/bin/EventStoreHost/appsettings.json",
+      "reason": "Literal Dapr component default in configuration; Platform injects the declared configuration key. Bounded static check only."
+    }
+  ],
+  "orderedFormatsEqual": true,
+  "counts": {
+    "total": 27,
+    "passed": 6,
+    "failed": 21
+  },
+  "priorCounts": {
+    "total": 22,
+    "passed": 6,
+    "failed": 16
+  },
+  "addedRows": [
+    {
+      "file": "module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/collection-01/isolated/tool/.store/hexalith.builds.module.cli/4.38.1/hexalith.builds.module.cli/4.38.1/tools/net10.0/any/g4-host/bin/EventStoreHost/appsettings.json",
+      "passed": false,
+      "reason": "Literal Dapr component default in configuration; Platform injects the declared configuration key. Bounded static check only.",
+      "requirement": "dapr-subscriptions"
+    },
+    {
+      "file": "module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/collection-02/isolated/tool/.store/hexalith.builds.module.cli/4.38.1/hexalith.builds.module.cli/4.38.1/tools/net10.0/any/g4-host/bin/EventStoreHost/appsettings.json",
+      "passed": false,
+      "reason": "Literal Dapr component default in configuration; Platform injects the declared configuration key. Bounded static check only.",
+      "requirement": "dapr-subscriptions"
+    },
+    {
+      "file": "module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/collection-03/isolated/tool/.store/hexalith.builds.module.cli/4.38.1/hexalith.builds.module.cli/4.38.1/tools/net10.0/any/g4-host/bin/EventStoreHost/appsettings.json",
+      "passed": false,
+      "reason": "Literal Dapr component default in configuration; Platform injects the declared configuration key. Bounded static check only.",
+      "requirement": "dapr-subscriptions"
+    },
+    {
+      "file": "module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/collection-04/isolated/tool/.store/hexalith.builds.module.cli/4.38.1/hexalith.builds.module.cli/4.38.1/tools/net10.0/any/g4-host/bin/EventStoreHost/appsettings.json",
+      "passed": false,
+      "reason": "Literal Dapr component default in configuration; Platform injects the declared configuration key. Bounded static check only.",
+      "requirement": "dapr-subscriptions"
+    },
+    {
+      "file": "module/validation/epic-16-published-artifact-qualification/attempt-20261028-implementation-01/collection-05/isolated/tool/.store/hexalith.builds.module.cli/4.38.1/hexalith.builds.module.cli/4.38.1/tools/net10.0/any/g4-host/bin/EventStoreHost/appsettings.json",
+      "passed": false,
+      "reason": "Literal Dapr component default in configuration; Platform injects the declared configuration key. Bounded static check only.",
+      "requirement": "dapr-subscriptions"
+    }
+  ],
+  "removedRows": []
+}
