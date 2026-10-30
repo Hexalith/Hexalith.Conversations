@@ -42,13 +42,13 @@ context:
 
 ## Entry Requirements
 
-Follow the [selected sequence and exemption proposal](../../module/platform-handoff.md#selected-sequence-and-apphost-exemption-proposal--2026-10-30). Resolve Platform/tool pairing and adoption findings, obtain owner qualification and accepted predecessors, and secure the named fixture exemption. Direction is selected; runtime entry remains BLOCKED and this spec stays draft/backlog.
+The [handoff](../../module/platform-handoff.md#selected-sequence-and-apphost-exemption-proposal--2026-10-30) records prerequisite actions and exemption terms. Runtime entry remains BLOCKED; retain draft/backlog until qualification and predecessor acceptance.
 
 ## Code Map
 
-The [entry investigation](story-16-3-entry-investigation-2026-10-29.md) maps existing diagnostics, authenticated routing, durable scheduling, fixtures and tooling. Reuse the shared validators and generator; neither is new work. The gateway fixture's tenant bypass cannot prove production admission.
+The [entry investigation](story-16-3-entry-investigation-2026-10-29.md) maps diagnostics, routing, durable scheduling and fixtures. Reuse shared validators/generator; the gateway fixture's tenant bypass cannot prove production admission.
 
-Select `_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.3.json` explicitly. Its native source and output paths supersede this draft's earlier paths; preserved V14 contracts remain immutable.
+Select `_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.3.json` explicitly for native identities/output paths; preserve V14 history.
 
 ## Tasks & Acceptance
 
@@ -78,6 +78,6 @@ Select `_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.3.
 
 ## Verification
 
-Fresh entry check: all six exact commands in the investigation returned BLOCKED/exit 2, `ENTRY_QUALIFICATION_PENDING`, zero runtime tests and no outputs. Ten owner qualifications, trusted entry and accepted predecessors remain required.
+2026-10-29 entry check: all six investigation commands returned BLOCKED/exit 2, `ENTRY_QUALIFICATION_PENDING`, zero runtime tests and no outputs. Ten owner qualifications, trusted entry and accepted predecessors remain required.
 
 After entry: use Platform-materialized mappings, individual Debug builds and built xUnit `-class`/`-method` with `-failSkips`. Run the selected contract commands, focused shared-tooling regressions, scoped evidence verifier and Story 7.3 guards before review/done; FAIL/BLOCKED halts. Historical evidence replay is not-applicable to this planning refresh. Run `git diff --check`; commits/publication need separate authorization and pinned commitlint validation. No push.
