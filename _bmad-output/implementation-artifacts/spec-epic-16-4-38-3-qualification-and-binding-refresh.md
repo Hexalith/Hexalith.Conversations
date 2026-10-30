@@ -2,7 +2,7 @@
 title: 'Measure the 4.38.3 candidate and refresh held Epic 16 validation'
 type: 'feature'
 created: '2026-10-30'
-status: 'draft'
+status: 'ready-for-dev'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
