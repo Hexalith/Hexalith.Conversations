@@ -1,0 +1,5 @@
+96dc22928af914ed22d44789090dd2f65c9e598e build(deps): refresh the complete package audit
+90f1da006e770caf0bcaff42bd2ec9eb785f9a1f fix(ci): initialize nuget settings for releases
+a6bbc24fd4cc76b356b968b06cc3aa393c2eba45 build(deps): refresh stable package versions
+20d0f8dd6b0580328169e185553173d96513b76a build(deps): sync ai tools with upstream
+a6cd5532cf3003a12c89f05fb0e08d8cbc5c4b25 build: merge origin/main into main

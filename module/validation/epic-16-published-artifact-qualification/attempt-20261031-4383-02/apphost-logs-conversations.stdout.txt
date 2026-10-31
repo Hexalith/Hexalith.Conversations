@@ -1,0 +1,144 @@
+{
+  "logs": [
+    {
+      "resourceName": "conversations",
+      "content": "Waiting for resource 'eventstore' to enter the 'Running' state.",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "Waiting for resource 'security' to enter the 'Running' state.",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "Waiting for resource 'security' to become healthy.",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "Waiting for resource ready to execute for 'security'.",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "Finished waiting for resource 'security'.",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "Waiting for resource ready to execute for 'eventstore'.",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "Finished waiting for resource 'eventstore'.",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "[sys] Starting process...: Cmd = /home/administrator/.dotnet/dotnet, Args = [\"run\", \"--project\", \"/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj\", \"--no-build\", \"--configuration\", \"Debug\", \"--no-launch-profile\"]",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":0,\"LogLevel\":\"Information\",\"Category\":\"Hexalith.EventStore.Client.Registration.EventStoreHostExtensions\",\"Message\":\"EventStore activated: 1 domains (conversation [Aggregate: ConversationAggregate])\",\"State\":{\"DomainCount\":1,\"DomainDetails\":\"conversation [Aggregate: ConversationAggregate]\",\"{OriginalFormat}\":\"EventStore activated: {DomainCount} domains ({DomainDetails})\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":14,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.Hosting.Lifetime\",\"Message\":\"Now listening on: http://localhost:20348\",\"State\":{\"address\":\"http://localhost:20348\",\"{OriginalFormat}\":\"Now listening on: {address}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":0,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.Hosting.Lifetime\",\"Message\":\"Application started. Press Ctrl\\u002BC to shut down.\",\"State\":{\"{OriginalFormat}\":\"Application started. Press Ctrl\\u002BC to shut down.\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":0,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.Hosting.Lifetime\",\"Message\":\"Hosting environment: Development\",\"State\":{\"EnvName\":\"Development\",\"{OriginalFormat}\":\"Hosting environment: {EnvName}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":0,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.Hosting.Lifetime\",\"Message\":\"Content root path: /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server\",\"State\":{\"ContentRoot\":\"/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server\",\"{OriginalFormat}\":\"Content root path: {ContentRoot}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":7,\"LogLevel\":\"Information\",\"Category\":\"Hexalith.EventStore.ServiceDefaults.Authentication.DaprSidecarChannelAuthenticationHandler\",\"Message\":\"EventStoreSidecarChannel was not authenticated. Failure message: channel-token-missing\",\"State\":{\"AuthenticationScheme\":\"EventStoreSidecarChannel\",\"FailureMessage\":\"channel-token-missing\",\"{OriginalFormat}\":\"{AuthenticationScheme} was not authenticated. Failure message: {FailureMessage}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":0,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.AspNetCore.Routing.EndpointMiddleware\",\"Message\":\"Executing endpoint \\u0027Health checks\\u0027\",\"State\":{\"EndpointName\":\"Health checks\",\"{OriginalFormat}\":\"Executing endpoint \\u0027{EndpointName}\\u0027\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":1,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.AspNetCore.Routing.EndpointMiddleware\",\"Message\":\"Executed endpoint \\u0027Health checks\\u0027\",\"State\":{\"EndpointName\":\"Health checks\",\"{OriginalFormat}\":\"Executed endpoint \\u0027{EndpointName}\\u0027\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":2,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.AspNetCore.Authorization.DefaultAuthorizationService\",\"Message\":\"Authorization failed. These requirements were not met:\\nHexalith.EventStore.ServiceDefaults.Authentication.EventStoreUnclassifiedEndpointRequirement\",\"State\":{\"Reason\":\"These requirements were not met:\\nHexalith.EventStore.ServiceDefaults.Authentication.EventStoreUnclassifiedEndpointRequirement\",\"{OriginalFormat}\":\"Authorization failed. {Reason}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":5501,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.ServiceDefaults.Authentication.DaprSidecarChannelAuthenticationHandler\",\"Message\":\"Internal credential denied: SecurityEvent=InternalAuthenticationDenied, Scheme=EventStoreSidecarChannel, Reason=operation-not-granted, StatusCode=403, Path=/dapr/config, CorrelationId=98bf2893d708ff1eed85639f5e2d75e9\",\"State\":{\"Message\":\"CorrelationId=98bf2893d708ff1eed85639f5e2d75e9,Path=/dapr/config,StatusCode=403,Reason=operation-not-granted,Scheme=EventStoreSidecarChannel,{OriginalFormat}=Internal credential denied: SecurityEvent=InternalAuthenticationDenied, Scheme={Scheme}, Reason={Reason}, StatusCode={StatusCode}, Path={Path}, CorrelationId={CorrelationId}\",\"CorrelationId\":\"98bf2893d708ff1eed85639f5e2d75e9\",\"Path\":\"/dapr/config\",\"StatusCode\":403,\"Reason\":\"operation-not-granted\",\"Scheme\":\"EventStoreSidecarChannel\",\"{OriginalFormat}\":\"Internal credential denied: SecurityEvent=InternalAuthenticationDenied, Scheme={Scheme}, Reason={Reason}, StatusCode={StatusCode}, Path={Path}, CorrelationId={CorrelationId}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":13,\"LogLevel\":\"Information\",\"Category\":\"Hexalith.EventStore.ServiceDefaults.Authentication.DaprSidecarChannelAuthenticationHandler\",\"Message\":\"AuthenticationScheme: EventStoreSidecarChannel was forbidden.\",\"State\":{\"AuthenticationScheme\":\"EventStoreSidecarChannel\",\"{OriginalFormat}\":\"AuthenticationScheme: {AuthenticationScheme} was forbidden.\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":2,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.AspNetCore.Authorization.DefaultAuthorizationService\",\"Message\":\"Authorization failed. These requirements were not met:\\nHexalith.EventStore.ServiceDefaults.Authentication.EventStoreUnclassifiedEndpointRequirement\",\"State\":{\"Reason\":\"These requirements were not met:\\nHexalith.EventStore.ServiceDefaults.Authentication.EventStoreUnclassifiedEndpointRequirement\",\"{OriginalFormat}\":\"Authorization failed. {Reason}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":5501,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.ServiceDefaults.Authentication.DaprSidecarChannelAuthenticationHandler\",\"Message\":\"Internal credential denied: SecurityEvent=InternalAuthenticationDenied, Scheme=EventStoreSidecarChannel, Reason=operation-not-granted, StatusCode=403, Path=/dapr/subscribe, CorrelationId=97b0f8f355774d6e9f86a8301969f9f5\",\"State\":{\"Message\":\"CorrelationId=97b0f8f355774d6e9f86a8301969f9f5,Path=/dapr/subscribe,StatusCode=403,Reason=operation-not-granted,Scheme=EventStoreSidecarChannel,{OriginalFormat}=Internal credential denied: SecurityEvent=InternalAuthenticationDenied, Scheme={Scheme}, Reason={Reason}, StatusCode={StatusCode}, Path={Path}, CorrelationId={CorrelationId}\",\"CorrelationId\":\"97b0f8f355774d6e9f86a8301969f9f5\",\"Path\":\"/dapr/subscribe\",\"StatusCode\":403,\"Reason\":\"operation-not-granted\",\"Scheme\":\"EventStoreSidecarChannel\",\"{OriginalFormat}\":\"Internal credential denied: SecurityEvent=InternalAuthenticationDenied, Scheme={Scheme}, Reason={Reason}, StatusCode={StatusCode}, Path={Path}, CorrelationId={CorrelationId}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":13,\"LogLevel\":\"Information\",\"Category\":\"Hexalith.EventStore.ServiceDefaults.Authentication.DaprSidecarChannelAuthenticationHandler\",\"Message\":\"AuthenticationScheme: EventStoreSidecarChannel was forbidden.\",\"State\":{\"AuthenticationScheme\":\"EventStoreSidecarChannel\",\"{OriginalFormat}\":\"AuthenticationScheme: {AuthenticationScheme} was forbidden.\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":7,\"LogLevel\":\"Information\",\"Category\":\"Hexalith.EventStore.ServiceDefaults.Authentication.DaprSidecarChannelAuthenticationHandler\",\"Message\":\"EventStoreSidecarChannel was not authenticated. Failure message: channel-token-missing\",\"State\":{\"AuthenticationScheme\":\"EventStoreSidecarChannel\",\"FailureMessage\":\"channel-token-missing\",\"{OriginalFormat}\":\"{AuthenticationScheme} was not authenticated. Failure message: {FailureMessage}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":0,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.AspNetCore.Routing.EndpointMiddleware\",\"Message\":\"Executing endpoint \\u0027Health checks\\u0027\",\"State\":{\"EndpointName\":\"Health checks\",\"{OriginalFormat}\":\"Executing endpoint \\u0027{EndpointName}\\u0027\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":1,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.AspNetCore.Routing.EndpointMiddleware\",\"Message\":\"Executed endpoint \\u0027Health checks\\u0027\",\"State\":{\"EndpointName\":\"Health checks\",\"{OriginalFormat}\":\"Executed endpoint \\u0027{EndpointName}\\u0027\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":7,\"LogLevel\":\"Information\",\"Category\":\"Hexalith.EventStore.ServiceDefaults.Authentication.DaprSidecarChannelAuthenticationHandler\",\"Message\":\"EventStoreSidecarChannel was not authenticated. Failure message: channel-token-missing\",\"State\":{\"AuthenticationScheme\":\"EventStoreSidecarChannel\",\"FailureMessage\":\"channel-token-missing\",\"{OriginalFormat}\":\"{AuthenticationScheme} was not authenticated. Failure message: {FailureMessage}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":0,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.AspNetCore.Routing.EndpointMiddleware\",\"Message\":\"Executing endpoint \\u0027Health checks\\u0027\",\"State\":{\"EndpointName\":\"Health checks\",\"{OriginalFormat}\":\"Executing endpoint \\u0027{EndpointName}\\u0027\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations",
+      "content": "{\"EventId\":1,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.AspNetCore.Routing.EndpointMiddleware\",\"Message\":\"Executed endpoint \\u0027Health checks\\u0027\",\"State\":{\"EndpointName\":\"Health checks\",\"{OriginalFormat}\":\"Executed endpoint \\u0027{EndpointName}\\u0027\"}}",
+      "isError": false
+    }
+  ]
+}

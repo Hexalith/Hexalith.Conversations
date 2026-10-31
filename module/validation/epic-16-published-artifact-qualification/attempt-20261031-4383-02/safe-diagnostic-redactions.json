@@ -1,0 +1,89 @@
+{
+  "scope": "ephemeral dashboard login tokens and generated dashboard credential environment values only; prior evidence is untouched",
+  "streams": [
+    {
+      "path": "apphost-describe-final.stdout.txt",
+      "replacements": 12,
+      "raw": {
+        "bytes": 43377,
+        "sha256": "84b5c6770da8527251aefd93962b4355dadf5f6538a76e4e5c6b9e930ce3bd87"
+      },
+      "retained": {
+        "bytes": 43113,
+        "sha256": "0271af38775b04526a95f4733e068fe24301fad92a88806a3717300a2fc95b60"
+      }
+    },
+    {
+      "path": "apphost-describe-initial.stdout.txt",
+      "replacements": 7,
+      "raw": {
+        "bytes": 34401,
+        "sha256": "650a66290389676df9d4104c24a652594fd6be4d8bef88843fe32e05dc381083"
+      },
+      "retained": {
+        "bytes": 34247,
+        "sha256": "0ca8c59aca0417ace76b6c87f5a9539e374282da6d12a958ce77f376006b5f01"
+      }
+    },
+    {
+      "path": "apphost-run.stdout.txt",
+      "replacements": 1,
+      "raw": {
+        "bytes": 398,
+        "sha256": "4c743c7abcd077e6ae4be859ed0e5b8c72d7f9d4e94dfd8ea4dae8e5e179097b"
+      },
+      "retained": {
+        "bytes": 376,
+        "sha256": "05835007ccd9008dcdf0c9a30d269ebb9167e74969f0b8784fdeac982d2b80fb"
+      }
+    },
+    {
+      "path": "aspire-ps-after.stdout.txt",
+      "replacements": 1,
+      "raw": {
+        "bytes": 457,
+        "sha256": "8bfbc9eddd4924c374d385b889c78ac901f021ca2a0ce4d61684c6cab89acd34"
+      },
+      "retained": {
+        "bytes": 435,
+        "sha256": "8c59e83d9bca319290f373f4523750cdab0242dcb0054b9af9cfcaa40945ed01"
+      }
+    },
+    {
+      "path": "aspire-ps-before-cleanup.stdout.txt",
+      "replacements": 2,
+      "raw": {
+        "bytes": 927,
+        "sha256": "dbe21b57e627c23505eaa8403ff37b866a1f60b49280448bc022f64ace641cf4"
+      },
+      "retained": {
+        "bytes": 883,
+        "sha256": "3079872a9f158ea9799d5d520a920a03880dc928ac86434b2e8fc2371a9924a8"
+      }
+    },
+    {
+      "path": "aspire-ps-before.stdout.txt",
+      "replacements": 1,
+      "raw": {
+        "bytes": 457,
+        "sha256": "8bfbc9eddd4924c374d385b889c78ac901f021ca2a0ce4d61684c6cab89acd34"
+      },
+      "retained": {
+        "bytes": 435,
+        "sha256": "8c59e83d9bca319290f373f4523750cdab0242dcb0054b9af9cfcaa40945ed01"
+      }
+    },
+    {
+      "path": "aspire-ps-running.stdout.txt",
+      "replacements": 3,
+      "raw": {
+        "bytes": 1397,
+        "sha256": "349b5a90ac6f63f1f64418b8c2fbd5b03f2c5830147a8a5fd26e9754beffff92"
+      },
+      "retained": {
+        "bytes": 1331,
+        "sha256": "aaae4979c0f9d0fb9ca3c739a87904fe74123bfdc80788fce7dbcccddc58d224"
+      }
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "name": "apphost-describe-final",
+  "command": [
+    "aspire",
+    "describe",
+    "--apphost",
+    "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+    "--include-hidden",
+    "--format",
+    "Json",
+    "--non-interactive"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 83135,
+  "startedAtUtc": "2026-10-31T06:41:34.673463+00:00",
+  "durationSeconds": 0.301,
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+    "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-resume-95swxuf1/source-preparation/source-mapping/SourceMapping.targets",
+    "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-resume-95swxuf1/source-preparation/source-mapping/SourceMapping.props",
+    "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-resume-95swxuf1/source-preparation/source-mapping/SourceMapping.before-targets.props",
+    "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-resume-95swxuf1/source-preparation/source-mapping/SourceMapping.late.props",
+    "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-resume-95swxuf1/source-preparation/source-mapping/SourceMapping.final.targets",
+    "HEXALITH_SOURCE_MAPPING_HASH": "9acfac8f689c645c750d9129bf05be7194e637c5fb6a139aacd213c0581893f1",
+    "Configuration": "Debug"
+  },
+  "stdout": {
+    "path": "apphost-describe-final.stdout.txt",
+    "bytes": 43113,
+    "sha256": "0271af38775b04526a95f4733e068fe24301fad92a88806a3717300a2fc95b60",
+    "capturedRaw": {
+      "bytes": 43377,
+      "sha256": "84b5c6770da8527251aefd93962b4355dadf5f6538a76e4e5c6b9e930ce3bd87"
+    },
+    "ephemeralCredentialReplacements": 12
+  },
+  "stderr": {
+    "path": "apphost-describe-final.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

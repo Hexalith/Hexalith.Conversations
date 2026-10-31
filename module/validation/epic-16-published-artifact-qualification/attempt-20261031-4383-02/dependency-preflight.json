@@ -1,0 +1,9 @@
+{
+  "state": "PASS",
+  "checks": {
+    "allTwelveInitialized": true,
+    "allTwelveIndexMatchesCheckout": true,
+    "allTwelveClean": true,
+    "noInitializedNestedDependencies": true
+  }
+}

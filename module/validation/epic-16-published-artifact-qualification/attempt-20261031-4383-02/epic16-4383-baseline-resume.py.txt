@@ -1,0 +1,11 @@
+import json,os,pathlib,runpy,sys,tempfile
+phase=sys.argv[1];sys.argv=['capture','noop'];n=runpy.run_path('/tmp/epic16-4383-provenance-resume.py');run=n['run'];write=n['write'];root=n['ROOT'];attempt=n['ATTEMPT'];b=root/'references/Hexalith.Builds'
+if phase=='bootstrap':
+ for name,cmd in [('sdk-version',['dotnet','--version']),('aspire-version',['aspire','--version']),*[(f'aspire-{s}-help',['aspire',s,'--help']) for s in ['run','describe','wait','ps','stop']],('aspire-ps-before',['aspire','ps','--format','Json','--non-interactive'])]:run(name,cmd)
+ run('producer-cli-debug-build',['dotnet','build','src/libraries/Hexalith.Builds.Module.Cli/Hexalith.Builds.Module.Cli.csproj','--configuration','Debug','--nologo','-m:1'],180,cwd=b)
+elif phase=='prepare':
+ assert json.loads((attempt/'producer-cli-debug-build.json').read_bytes())['exitCode']==0
+ parent=pathlib.Path(tempfile.mkdtemp(prefix='epic16-4383-resume-'));workspace=parent/'source-preparation';write('temporary-workspace.json',{'parent':str(parent),'workspace':str(workspace),'existedBefore':workspace.exists()})
+ cli=b/'src/libraries/Hexalith.Builds.Module.Cli/bin/Debug/net10.0/Hexalith.Builds.Module.Cli.dll'
+ run('source-prepare',['dotnet',str(cli),'prepare-build','--manifest','module/hexalith.module-manifest.v2.json','--mode','source','--output','json','--workspace',str(workspace)],120)
+ print((attempt/'source-prepare.stdout.txt').read_text())

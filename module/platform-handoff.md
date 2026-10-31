@@ -1,5 +1,60 @@
 # Conversations Platform registration handoff — pending
 
+## 4.38.3 prerequisite resume: source prepared, baseline failed — 2026-10-31
+
+[The fresh resume attempt](validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/README.md)
+successfully fetched exact Builds commit
+`cc0db51b800be1d0d5badc3780395cfb5953d0f5` from its canonical remote, without
+recursive fetching, dependency selection changes or nested initialization. The
+commit and `Props/Directory.Packages.props` are available. The previous
+local-object blocker is resolved; a new Debug producer build and source
+preparation both exited 0. Prepared/recorded source, version-range and absent
+Platform-tag warnings confer no candidate or tuple acceptance.
+
+The isolated mapped Debug AppHost launched. Conversations, EventStore, security,
+state store and pub/sub became healthy. Admin Web exited **134** after failing to
+bind `http://127.0.0.1:5000`: the port was already occupied. The required
+`aspire wait conversations-admin-web --apphost src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj --status healthy --timeout 120 --non-interactive`
+exited **18**. Its empty endpoint inventory and native logs are retained.
+
+The [new ledger](validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/qualification-ledger.json)
+is **BLOCKED**, with a **FAIL** baseline gate. Resolve Admin Web endpoint/isolation
+through separately reviewed Conversations hosting work or owner-managed
+environment preparation, then rerun the full baseline in a fresh attempt.
+Collector/v3 implementation and independent artifact/36-control qualification
+remain incomplete. Platform's recorded Builds source still differs from its
+prepared 4.38.3 source; that separate owner correction/acceptance remains pending.
+
+The verified created AppHost was stopped successfully and pre-existing sessions
+were preserved. Tool pins, gitlinks, checkout revisions, frozen intent and prior
+evidence are unchanged. No runtime tests or runtime/native/final evidence was
+produced. Story 16.1 remains draft/backlog, entry null, trust empty, hold ACTIVE
+and all four authority flags false. Earlier dated observations below retain
+their original scope.
+
+## 4.38.3 prerequisite baseline blocked — 2026-10-31
+
+[The fresh prerequisite attempt](validation/epic-16-published-artifact-qualification/attempt-20261031-4383-01/README.md)
+stopped before source edits or AppHost launch. Direct-dependency preflight and
+the existing producer CLI Debug build passed, but actual source preparation
+exited **2 / PrerequisiteUnavailable / HXW009**: Platform-recorded Builds
+`cc0db51b800be1d0d5badc3780395cfb5953d0f5` is unavailable in the local Builds
+object database, preventing the required mapped Debug baseline. This observation
+does not establish whether the actual upstream revision contains the named file.
+
+The [current ledger](validation/epic-16-published-artifact-qualification/attempt-20261031-4383-01/qualification-ledger.json)
+is **BLOCKED**. Collector/v3 implementation, independent 4.38.3 artifact identity
+and all 36 controls remain incomplete. Builds/Platform owners must resolve the
+source-identity/local-object prerequisite within separately reviewed scope,
+followed by a fresh mapped baseline before implementation. The measured root pin
+was already 4.38.3 with roll-forward false; the historical planning pin was
+4.38.2. This attempt preserved that manifest, gitlinks, accepted evidence and the
+existing unrelated AppHost session. Pin agreement supplies no artifact acceptance.
+No runtime tests or runtime/native/final outputs were produced; no instance was
+created to clean up. Story 16.1 stays draft/backlog, entry null, trust empty,
+hold ACTIVE and all four authority flags false. The dated observations below
+retain their historical scopes and identities.
+
 ## Selected sequence and AppHost exemption proposal — 2026-10-30
 
 The user selected prerequisite-first execution and pursuit of a narrow AppHost

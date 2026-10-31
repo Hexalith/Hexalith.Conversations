@@ -1,0 +1,95 @@
+{
+  "schemaVersion": "hexalith.conversations.epic16-4383-prerequisite-attempt.v1",
+  "state": "BLOCKED",
+  "completed": false,
+  "attemptScope": "implementation-entry and required normal mapped Debug AppHost baseline only",
+  "candidateVersion": "4.38.3",
+  "candidateSource": "d1931b1e803144048d927fff16cb8119afde541e",
+  "rootToolPin": "4.38.3",
+  "entryCandidate": "bc8ea08fdb06719a29931e1d3fd53d2338ee6bbf",
+  "entryTree": "363589bd393f6d9b670080b35e60f796fe75eb90",
+  "authority": {
+    "implementationHold": "ACTIVE",
+    "executionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  },
+  "entry": null,
+  "trustedEntries": [],
+  "runtimeQualified": false,
+  "measuredRuntimeTests": 0,
+  "ledger": [
+    {
+      "gate": "dependency-preflight",
+      "state": "PASS",
+      "code": "INPUT_IDENTITIES_MEASURED",
+      "evidence": "dependency-preflight.json",
+      "detail": "All twelve direct checkouts match the recorded index and are clean; no nested dependencies initialized."
+    },
+    {
+      "gate": "producer-debug-bootstrap",
+      "state": "PASS",
+      "code": "DEBUG_BUILD_PASSED",
+      "evidence": "producer-cli-debug-build.json",
+      "detail": "Existing producer CLI built in Debug with zero warnings/errors; no qualification tests executed."
+    },
+    {
+      "gate": "normal-mapped-apphost-baseline",
+      "state": "BLOCKED",
+      "code": "HXW009",
+      "nativeExitCode": 2,
+      "evidence": "source-prepare.json",
+      "detail": "Actual source preparation cannot read Platform-recorded Builds cc0db51b800be1d0d5badc3780395cfb5953d0f5:Props/Directory.Packages.props from the local Builds object database. The object is unavailable locally; no claim is made that upstream lacks this file."
+    },
+    {
+      "gate": "recorded-builds-object",
+      "state": "BLOCKED",
+      "code": "LOCAL_OBJECT_UNAVAILABLE",
+      "nativeExitCode": 128,
+      "evidence": "recorded-builds-object.json",
+      "detail": "git cat-file confirms the recorded commit object is unavailable in this non-shallow local repository."
+    },
+    {
+      "gate": "apphost-launch-and-resource-inspection",
+      "state": "not-applicable",
+      "code": "NOT_LAUNCHED",
+      "detail": "No source mapping was produced, so no AppHost was launched and no resource-readiness result is inferred."
+    },
+    {
+      "gate": "implementation-artifact-controls-and-v3",
+      "state": "BLOCKED",
+      "code": "BASELINE_REQUIRED",
+      "detail": "Collector changes, exact candidate collection/36 controls, additive v3 and all implementation regressions/held command ledgers remain unexecuted because the required baseline did not become healthy."
+    },
+    {
+      "gate": "preservation",
+      "state": "PASS",
+      "code": "INPUTS_UNCHANGED",
+      "evidence": "preservation-check.json",
+      "detail": "Protected bytes, root/index/gitlinks/checkouts/nested state and existing sessions preserved; runtime/native/final outputs remain absent."
+    },
+    {
+      "gate": "historical-boundary-replay-and-runtime-publication",
+      "state": "not-applicable",
+      "code": "OUTSIDE_PREREQUISITE",
+      "detail": "Neither historical replay nor runtime publication belongs to this prerequisite."
+    }
+  ],
+  "nextOwnerAction": "Resolve the Platform/Builds source identity and local object availability within separately reviewed owner scope, then rerun the required mapped Debug baseline in a new attempt before code edits. Do not change pins/gitlinks or fetch/initialize nested dependencies under this attempt.",
+  "remainingTasks": [
+    "collector selectors, independent candidate/root identity, prepared/recorded/accepted Platform observations and evidence carriers",
+    "exact independently verified 4.38.3 signed artifact/source/CI/schema/catalog and 36 controls",
+    "exact adoption delta/dispositions, package preparation/action export and retained producer review groups",
+    "additive held tooling v3 contracts/schema/policy/trust/summary and lazy consumer routing",
+    "focused collector/tooling/generator/adoption regressions, 15 native fixture routes and 3 deterministic final pairs",
+    "18 selected v3 and 12 preserved legacy held commands with absent runtime outputs",
+    "final source/stream/changed-path evidence and independent Story 7.3 guards"
+  ],
+  "rootToolPinRollForward": false,
+  "rootToolManifest": {
+    "path": ".config/dotnet-tools.json",
+    "sha256": "1ea6be710eaed92fdaa4f0d9c9c6fce11f4efcaca81a555cdae18fd6ead4fa6d",
+    "unchangedFromImplementationEntry": true
+  }
+}

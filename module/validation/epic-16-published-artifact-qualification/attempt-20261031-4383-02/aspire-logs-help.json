@@ -1,0 +1,29 @@
+{
+  "name": "aspire-logs-help",
+  "command": [
+    "aspire",
+    "logs",
+    "--help"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 74014,
+  "startedAtUtc": "2026-10-31T06:41:16.945446+00:00",
+  "durationSeconds": 0.101,
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "aspire-logs-help.stdout.txt",
+    "bytes": 1935,
+    "sha256": "3980db3df96c931c212cf15cc19f3d9dc3fd870d5ecb4d9a32607131759facdb"
+  },
+  "stderr": {
+    "path": "aspire-logs-help.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

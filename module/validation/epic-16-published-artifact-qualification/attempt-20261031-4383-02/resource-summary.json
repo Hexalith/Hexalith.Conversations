@@ -1,0 +1,133 @@
+{
+  "resources": [
+    {
+      "name": "aspire-dashboard-mnnwskhu",
+      "displayName": "aspire-dashboard",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "healthReports": {}
+    },
+    {
+      "name": "conversations-admin-web-nmvnpttp",
+      "displayName": "conversations-admin-web",
+      "state": "Finished",
+      "healthReports": {}
+    },
+    {
+      "name": "conversations-admin-web-rebuilder-dyghqafm",
+      "displayName": "conversations-admin-web-rebuilder",
+      "state": "NotStarted",
+      "healthReports": {}
+    },
+    {
+      "name": "conversations-app-api-token",
+      "displayName": "conversations-app-api-token",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "healthReports": {}
+    },
+    {
+      "name": "conversations-dapr",
+      "displayName": "conversations-dapr",
+      "healthReports": {}
+    },
+    {
+      "name": "conversations-dapr-cli-qbxybfyc",
+      "displayName": "conversations-dapr-cli",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "healthReports": {}
+    },
+    {
+      "name": "conversations-gagmwrfq",
+      "displayName": "conversations",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "healthReports": {}
+    },
+    {
+      "name": "conversations-rebuilder-uapkjpvw",
+      "displayName": "conversations-rebuilder",
+      "state": "NotStarted",
+      "healthReports": {}
+    },
+    {
+      "name": "eventstore-app-api-token",
+      "displayName": "eventstore-app-api-token",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "healthReports": {}
+    },
+    {
+      "name": "eventstore-dapr",
+      "displayName": "eventstore-dapr",
+      "healthReports": {}
+    },
+    {
+      "name": "eventstore-dapr-cli-hgrxjxmb",
+      "displayName": "eventstore-dapr-cli",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "healthReports": {}
+    },
+    {
+      "name": "eventstore-rebuilder-xggurxey",
+      "displayName": "eventstore-rebuilder",
+      "state": "NotStarted",
+      "healthReports": {}
+    },
+    {
+      "name": "eventstore-wjdbvhrp",
+      "displayName": "eventstore",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "healthReports": {}
+    },
+    {
+      "name": "eventstore-workload-client-secret",
+      "displayName": "eventstore-workload-client-secret",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "healthReports": {}
+    },
+    {
+      "name": "pubsub",
+      "displayName": "pubsub",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "healthReports": {}
+    },
+    {
+      "name": "security-eventstore-client-password",
+      "displayName": "security-eventstore-client-password",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "healthReports": {}
+    },
+    {
+      "name": "security-eventstore-client-username",
+      "displayName": "security-eventstore-client-username",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "healthReports": {}
+    },
+    {
+      "name": "security-jsbteaaw",
+      "displayName": "security",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "healthReports": {
+        "security_management_/health/ready_200_check": {
+          "status": "Healthy"
+        }
+      }
+    },
+    {
+      "name": "statestore",
+      "displayName": "statestore",
+      "state": "Running",
+      "healthStatus": "Healthy",
+      "healthReports": {}
+    }
+  ]
+}

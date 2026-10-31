@@ -1,0 +1,10 @@
+{
+  "state": "PASS",
+  "appHostPath": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+  "appHostPid": 52891,
+  "cliPid": 46168,
+  "matchingSessions": 1,
+  "force": false,
+  "all": false,
+  "deleteVolumes": false
+}

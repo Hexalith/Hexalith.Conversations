@@ -1,0 +1,29 @@
+{
+  "name": "aspire-ps-help",
+  "command": [
+    "aspire",
+    "ps",
+    "--help"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 2030540,
+  "startedAtUtc": "2026-10-31T05:10:05.940950+00:00",
+  "durationSeconds": 0.101,
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "aspire-ps-help.stdout.txt",
+    "bytes": 1184,
+    "sha256": "4221229238fefefa07b0422c6593fa87ace86bb939806fbf3353c325c4dac17a"
+  },
+  "stderr": {
+    "path": "aspire-ps-help.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

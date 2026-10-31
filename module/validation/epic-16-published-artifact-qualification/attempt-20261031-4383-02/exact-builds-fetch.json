@@ -1,0 +1,35 @@
+{
+  "name": "exact-builds-fetch",
+  "command": [
+    "git",
+    "-c",
+    "fetch.recurseSubmodules=false",
+    "fetch",
+    "--no-recurse-submodules",
+    "--no-tags",
+    "--no-write-fetch-head",
+    "https://github.com/Hexalith/Hexalith.Builds.git",
+    "cc0db51b800be1d0d5badc3780395cfb5953d0f5"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+  "pid": 6557,
+  "startedAtUtc": "2026-10-31T06:38:24.305910+00:00",
+  "durationSeconds": 0.902,
+  "timeoutSeconds": 300,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "exact-builds-fetch.stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "exact-builds-fetch.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

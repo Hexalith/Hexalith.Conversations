@@ -1,0 +1,110 @@
+from pathlib import Path
+import hashlib,json,os,re,runpy,sys,unicodedata
+sys.argv=['capture','noop'];n=runpy.run_path('/tmp/epic16-4383-provenance-resume.py');ROOT=n['ROOT'];A=n['ATTEMPT'];PREVIOUS=n['PREVIOUS'];git=n['git'];write=n['write']
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def load(name):return json.loads((A/name).read_bytes())
+(A/'finalization-driver.py.txt').write_bytes(Path(__file__).read_bytes())
+# Redact ephemeral credentials only in the new, not-yet-accepted evidence.
+credentials=set()
+for p in A.glob('*.stdout.txt'):
+ raw=p.read_bytes()
+ credentials.update(m.group(0) for m in re.finditer(rb'(?<=/login\?t=)[^\s"&]+',raw))
+ try:value=json.loads(raw)
+ except (json.JSONDecodeError,UnicodeDecodeError):continue
+ if isinstance(value,dict) and isinstance(value.get('resources'),list):
+  for resource in value['resources']:
+   for key,val in resource.get('environment',{}).items():
+    if key in ('DASHBOARD__API__PRIMARYAPIKEY','DASHBOARD__FRONTEND__BROWSERTOKEN','DASHBOARD__OTLP__PRIMARYAPIKEY','DASHBOARD__RESOURCESERVICECLIENT__APIKEY') and isinstance(val,str) and val:
+     credentials.add(val.encode())
+commands=[];redactions=[]
+for p in sorted(A.glob('*.json')):
+ row=json.loads(p.read_bytes())
+ if not isinstance(row,dict) or not {'name','command','stdout','stderr'}<=row.keys():continue
+ for stream in ('stdout','stderr'):
+  meta=row[stream];target=A/meta['path'];raw=target.read_bytes();safe=raw;count=0
+  for credential in sorted(credentials,key=len,reverse=True):
+   count+=safe.count(credential);safe=safe.replace(credential,b'[REDACTED]')
+  if count:
+   before={'bytes':len(raw),'sha256':sha(raw)};target.write_bytes(safe)
+   meta.update({'capturedRaw':before,'ephemeralCredentialReplacements':count,'bytes':len(safe),'sha256':sha(safe)})
+   redactions.append({'path':target.name,'replacements':count,'raw':before,'retained':{'bytes':len(safe),'sha256':sha(safe)}})
+  assert meta['bytes']==len(safe) and meta['sha256']==sha(safe)
+ if any(x['path'] in (row['stdout']['path'],row['stderr']['path']) for x in redactions):write(p.name,row)
+ commands.append(row)
+write('commands.json',commands)
+write('safe-diagnostic-redactions.json',{'scope':'ephemeral dashboard login tokens and generated dashboard credential environment values only; prior evidence is untouched','streams':redactions})
+checks=[]
+def check(key,ok,**facts):
+ checks.append(dict(id=key,state='PASS' if ok else 'FAIL',**facts))
+ if not ok:raise AssertionError(key+': '+json.dumps(facts))
+entry=load('entry-state.json');after=load('after-fetch-state.json');baseline_exit=load('exit-state.json');final=n['state']();write('final-state.json',final)
+keys=('head','tree','indexSha256','indexEntriesSha256','branch','stagedDiff','rootGitlinks','protectedFiles','previousAttemptFiles','dependencyIndexSha256','runtimeOutputs')
+for key in keys:
+ check('preserved-after-fetch-'+key,entry[key]==after[key])
+ check('preserved-after-baseline-'+key,entry[key]==baseline_exit[key])
+ check('preserved-at-finalization-'+key,entry[key]==final[key])
+check('preexisting-documentation-preserved-through-baseline',entry['entryChangedFiles']==baseline_exit['entryChangedFiles'])
+for category in ('protectedFiles','previousAttemptFiles'):
+ for path,digest in entry[category].items():check('preserved-file',sha((ROOT/path).read_bytes())==digest,path=path,sha256=digest,category=category)
+# Reconstitute each inherited dirty document by removing only this attempt's additive note.
+spec='_bmad-output/implementation-artifacts/spec-epic-16-4-38-3-qualification-and-binding-refresh.md';story='_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md';handoff='module/platform-handoff.md'
+markers={spec:('2026-10-31 resume:','## Review Triage Log'),story:('The [2026-10-31 prerequisite resume]','Use the investigation\'s owner paths'),handoff:('## 4.38.3 prerequisite resume:','## 4.38.3 prerequisite baseline blocked')}
+for path,(start,end) in markers.items():
+ raw=(ROOT/path).read_bytes();first=raw.index(start.encode());last=raw.index(end.encode(),first);inherited=raw[:first]+raw[last:]
+ check('inherited-document-bytes-preserved',sha(inherited)==entry['entryChangedFiles'][path],path=path,entrySha256=entry['entryChangedFiles'][path],reconstitutedSha256=sha(inherited))
+for path in (spec,story):
+ old=git('show','HEAD:'+path)['stdout'].encode();new=(ROOT/path).read_bytes()
+ def block(raw):return raw.split(b'<frozen-after-approval',1)[1].split(b'</frozen-after-approval>',1)[0]
+ check('frozen-intent-unchanged',block(old)==block(new),path=path)
+check('story-16.1-remains-draft',bool(re.search(r"(?m)^status: ['\"]?draft['\"]?$",(ROOT/story).read_text())))
+sprint='_bmad-output/implementation-artifacts/sprint-status.yaml'
+check('story-16.1-remains-backlog',bool(re.search(r'(?m)^  16-1-persist-tenant-access-projection-state-and-prove-convergence: backlog$',(ROOT/sprint).read_text())))
+check('sprint-tracking-unchanged',git('diff','HEAD','--',sprint)['stdout']=='')
+for version in ('v1','v2'):
+ binding=json.loads((ROOT/f'_bmad-output/planning-artifacts/epic-16-tooling-{version}/binding.json').read_bytes())
+ check('entry-and-hold-preserved',binding['entry'] is None and binding['authority']['implementationHold']=='ACTIVE' and all(binding['authority'][key] is False for key in ('executionAllowed','ownerApprovalClaimed','releaseAuthorized','pushAuthorized')),version=version)
+for path,absent in entry['runtimeOutputs'].items():check('runtime-output-absent',absent and not (ROOT/path).exists() and not (ROOT/path).is_symlink(),path=path)
+for story_id in ('16.1','16.2','16.3'):check('runtime-directory-absent',not (ROOT/f'artifacts/epic16-runtime/{story_id}').exists(),storyId=story_id)
+before=load('aspire-ps-before.stdout.txt');after_sessions=load('aspire-ps-after.stdout.txt');owned=load('owned-apphost.json')
+check('existing-sessions-identical',before==after_sessions)
+check('created-instance-absent',all(s['appHostPath']!=owned['appHostPath'] for s in after_sessions))
+check('targeted-cleanup-passed',load('cleanup-target-verification.json')['state']=='PASS' and load('apphost-stop.json')['exitCode']==0)
+for row in commands:
+ check('bounded-command',row['termination'] is None and row['stdout']['bytes']+row['stderr']['bytes']<=row['outputLimitBytes'],name=row['name'],exitCode=row['exitCode'])
+ for stream in ('stdout','stderr'):
+  m=row[stream];raw=(A/m['path']).read_bytes();check('command-stream-hash',len(raw)==m['bytes'] and sha(raw)==m['sha256'],path=m['path'])
+for key in ('exact-builds-fetch','recorded-builds-object-after','recorded-builds-props','producer-cli-debug-build','source-prepare','apphost-run','apphost-wait-conversations','apphost-wait-eventstore'):
+ check('native-result',load(key+'.json')['exitCode']==0,name=key,expectedExitCode=0)
+check('recorded-object-is-commit',(A/'recorded-builds-object-after.stdout.txt').read_text().strip()=='commit')
+check('readable-recorded-catalog',load('recorded-builds-props.json')['stdout']['bytes']>0)
+check('baseline-failure-retained',load('apphost-wait-conversations-admin-web.json')['exitCode']==18)
+resources=load('apphost-describe-final.stdout.txt')['resources'];admin=next(x for x in resources if x.get('displayName')=='conversations-admin-web')
+check('admin-failure-retained',admin['state']=='Finished' and admin['exitCode']==134 and admin['urls']==[])
+check('native-port-diagnostic-retained','Failed to bind to address http://127.0.0.1:5000: address already in use.' in (A/'apphost-logs-conversations-admin-web.stdout.txt').read_text())
+pin=json.loads((ROOT/'.config/dotnet-tools.json').read_bytes())['tools']['hexalith.builds.module.cli']
+check('tool-pin-unchanged',pin['version']=='4.38.3' and pin['rollForward'] is False and sha((ROOT/'.config/dotnet-tools.json').read_bytes())==entry['protectedFiles']['.config/dotnet-tools.json'])
+write('preservation-check.json',{'state':'PASS','evaluatedChecks':len(checks),'assertionLedger':checks,'protectedFileCount':len(entry['protectedFiles']),'previousAttemptFileCount':len(entry['previousAttemptFiles']),'runtimeOutputPaths':list(entry['runtimeOutputs']),'measuredRuntimeTests':0,'createdAppHost':owned,'cleanup':{'state':'PASS','command':'apphost-stop.json','scope':'verified created instance only'},'existingSessionsIdentical':True})
+old= json.loads((PREVIOUS/'qualification-ledger.json').read_bytes())
+authority={'implementationHold':'ACTIVE','executionAllowed':False,'ownerApprovalClaimed':False,'releaseAuthorized':False,'pushAuthorized':False}
+ledger=[
+ {'gate':'dependency-preflight','state':'PASS','evidence':'dependency-preflight.json'},
+ {'gate':'canonical-builds-provenance','state':'PASS','nativeExitCode':0,'evidence':'exact-builds-fetch.json','recordedCommit':n['SHA'],'canonicalRemote':n['REMOTE'],'detail':'Exact upstream retrieval succeeded; recorded catalog blob is readable. No ref or checkout selection changed.'},
+ {'gate':'producer-debug-bootstrap','state':'PASS','nativeExitCode':0,'evidence':'producer-cli-debug-build.json'},
+ {'gate':'source-preparation','state':'PASS','nativeExitCode':0,'evidence':'source-prepare.json','warnings':['HXW009','HXW010','HXW011'],'detail':'Complete producer-selected source/Debug environment retained. Native warnings confer no qualification or acceptance.'},
+ {'gate':'platform-prepared-recorded-source-equality','state':'FAIL','code':'PLATFORM_RECORDED_SOURCE_MISMATCH','classification':'measured identity inequality, not an unavailable-object claim','recordedSource':n['SHA'],'preparedSource':'d1931b1e803144048d927fff16cb8119afde541e','evidence':['platform-recorded-builds.json','platform-prepared-identity.json'],'owner':'Hexalith.Platform'},
+ {'gate':'normal-mapped-apphost-baseline','state':'FAIL','code':'ADMIN_WEB_ADDRESS_IN_USE','nativeExitCode':18,'resourceProcessExitCode':134,'evidence':['apphost-wait-conversations-admin-web.json','apphost-logs-conversations-admin-web.json','apphost-describe-final.json'],'detail':'Admin Web exited after binding http://127.0.0.1:5000 failed; Conversations, EventStore, security, state store and pub/sub were healthy at final inspection.'},
+ {'gate':'implementation-artifact-controls-and-v3','state':'BLOCKED','code':'HEALTHY_BASELINE_REQUIRED','detail':'No collector/v3 source edits or candidate/control execution after the failed full baseline.'},
+ {'gate':'preservation-and-owned-cleanup','state':'PASS','evidence':'preservation-check.json'},
+ {'gate':'historical-boundary-replay-and-runtime-publication','state':'not-applicable','code':'OUTSIDE_PREREQUISITE'}]
+write('qualification-ledger.json',{'schemaVersion':'hexalith.conversations.epic16-4383-prerequisite-attempt.v1','state':'BLOCKED','completed':False,'attemptScope':'authorized exact provenance fetch, fresh source preparation and required mapped Debug AppHost baseline','candidateVersion':'4.38.3','candidateSource':old['candidateSource'],'entryCandidate':entry['head'],'entryTree':entry['tree'],'rootToolPin':pin['version'],'rootToolPinRollForward':pin['rollForward'],'rootToolManifest':{'path':'.config/dotnet-tools.json','sha256':sha((ROOT/'.config/dotnet-tools.json').read_bytes()),'unchangedFromImplementationEntry':True},'authority':authority,'entry':None,'trustedEntries':[],'runtimeQualified':False,'measuredRuntimeTests':0,'ledger':ledger,'nextOwnerAction':'Resolve the Admin Web endpoint/isolation problem through separately reviewed Conversations hosting work or owner-managed environment preparation; preserve unrelated sessions and dependency selections. Then rerun the full mapped Debug baseline in a new attempt. Platform recorded/prepared source reconciliation and acceptance remain separate owner work.','remainingTasks':old['remainingTasks'],'historicalBoundaryReplay':'not-applicable','runtimePublication':'not-applicable'})
+result=git('diff','--check');(A/'diff-check.stdout.txt').write_text(result['stdout']);(A/'diff-check.stderr.txt').write_text(result['stderr']);check('git-diff-check',result['exit']==0,command=['git','diff','--check'],exitCode=result['exit'])
+# Freeze exact inherited paths plus this new attempt; do not absorb additional source changes.
+inherited=set(json.loads((PREVIOUS/'owned-paths.json').read_bytes())['paths'])
+expected=inherited|{p.relative_to(ROOT).as_posix() for p in A.rglob('*') if p.is_file()}|{(A/x).relative_to(ROOT).as_posix() for x in ('owned-paths.json','evidence-integrity-check.json')}
+write('owned-paths.json',{'scope':'inherited dirty files and previous attempt preserved; additive notes in the same three documents plus new observation directory','paths':sorted(expected),'inheritedPaths':sorted(inherited),'pathListSha256':sha(('\n'.join(unicodedata.normalize('NFC',p) for p in sorted(expected))+'\n').encode())})
+write('evidence-integrity-check.json',{})
+actual=set(git('diff','--name-only')['stdout'].splitlines())|set(git('ls-files','--others','--exclude-standard')['stdout'].splitlines())
+check('exact-changed-path-inventory',actual==expected,missing=sorted(expected-actual),unexpected=sorted(actual-expected))
+file_rows=[{'path':p.relative_to(ROOT).as_posix(),'bytes':p.stat().st_size,'sha256':sha(p.read_bytes())} for p in sorted(A.rglob('*')) if p.is_file() and p.name not in ('owned-paths.json','evidence-integrity-check.json')]
+write('evidence-integrity-check.json',{'state':'PASS','evaluatedChecks':len(checks),'assertionLedger':checks,'retainedFiles':file_rows,'inventoryExclusions':['owned-paths.json','evidence-integrity-check.json'],'ownedPaths':'owned-paths.json','trackedDocumentation':[{'path':p,'sha256':sha((ROOT/p).read_bytes())} for p in sorted(markers)],'historicalBoundaryReplay':'not-applicable','runtimePublication':'not-applicable','implementationCompletion':'BLOCKED','verificationScope':'provenance/source-preparation, failed full baseline, preservation, cleanup and additive blocker documentation; implementation tests and completion review were not entered'})
+print(json.dumps({'integrity':'PASS','checks':len(checks),'protectedFiles':len(entry['protectedFiles']),'previousAttemptFiles':len(entry['previousAttemptFiles']),'commands':len(commands),'redactedStreams':len(redactions),'changedPaths':len(expected),'retainedFiles':len(file_rows),'qualification':'BLOCKED','baseline':'FAIL','runtimeTests':0}))

@@ -2,7 +2,8 @@
 title: 'Measure the 4.38.3 candidate and refresh held Epic 16 validation'
 type: 'feature'
 created: '2026-10-30'
-status: 'ready-for-dev'
+status: 'in-progress'
+baseline_commit: 'bc8ea08fdb06719a29931e1d3fd53d2338ee6bbf'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -62,7 +63,62 @@ The plan and [input inventory](epic-16-4-38-3-qualification-inputs.json) bind ex
 
 ## Implementation Notes
 
+2026-10-31: Implementation stopped at the required normal mapped Debug AppHost
+baseline. The [fresh attempt](../../module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-01/README.md)
+records passing direct-dependency preflight and a successful existing producer
+CLI Debug build, followed by this exact command:
+
+```text
+dotnet /home/administrator/projects/hexalith/conversations/references/Hexalith.Builds/src/libraries/Hexalith.Builds.Module.Cli/bin/Debug/net10.0/Hexalith.Builds.Module.Cli.dll prepare-build --manifest module/hexalith.module-manifest.v2.json --mode source --output json --workspace /tmp/epic16-baseline-02-uy5dag_7/source-preparation
+```
+
+It exited **2 / PrerequisiteUnavailable / HXW009**: Platform-recorded Builds
+`cc0db51b800be1d0d5badc3780395cfb5953d0f5:Props/Directory.Packages.props`
+cannot be read from the local Builds object database. Independent `git cat-file
+-t cc0db51b800be1d0d5badc3780395cfb5953d0f5` exited 128; the checkout is not
+shallow. This establishes local object unavailability, not upstream file absence.
+No AppHost was launched or stopped, and the existing unrelated Tenants session
+was preserved. The [ledger](../../module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-01/qualification-ledger.json)
+is BLOCKED; no code edits or candidate execution followed the failed baseline.
+
+All implementation tasks remain incomplete: collector selectors and identity/
+acceptance/evidence handling; exact isolated 4.38.3 artifact and 36 controls;
+adoption deltas, package/action and owner observations; additive held v3 and
+consumer routing; fixtures, regressions and actual held commands; final binding
+and independent guards. Resolve the source-identity/local-object prerequisite
+within separately reviewed owner scope, then retry the mapped baseline in a
+fresh attempt before code edits. Pins, gitlinks, accepted evidence, null entry,
+empty trust, draft/backlog and ACTIVE hold remain unchanged.
+
 ## Spec Change Log
+
+2026-10-31 resume: The user authorized a targeted, nonrecursive fetch of the
+Platform-recorded Builds commit while preserving pins, gitlinks and checkouts.
+The [new attempt](../../module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/README.md)
+retrieved exact commit `cc0db51b800be1d0d5badc3780395cfb5953d0f5` from canonical
+`https://github.com/Hexalith/Hexalith.Builds.git`. Its recorded Props blob is
+readable; the prior local-object blocker is resolved. The fresh producer Debug
+build and source preparation both exited 0. Source identity/tag/range warnings
+remain observations, with no Platform acceptance inferred.
+
+The required mapped Debug baseline launched an isolated AppHost. Conversations,
+the EventStore gateway, security, state store and pub/sub became healthy, but
+Admin Web finished with process exit 134: binding `http://127.0.0.1:5000` failed
+because that address was already in use. Its exact health wait exited **18**.
+The [ledger](../../module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/qualification-ledger.json)
+therefore remains **BLOCKED** with a **FAIL** baseline gate. No collector/v3
+source edits, artifact/control qualification or runtime tests followed. Only the
+verified created AppHost was stopped; existing sessions were preserved.
+
+Next, resolve the Admin Web endpoint/isolation problem through separately
+reviewed Conversations hosting work or owner-managed environment preparation,
+then repeat the complete mapped baseline in a new attempt. Do not stop another
+session or change dependency selections to bypass this failure. Platform's
+recorded Builds source still differs from its prepared 4.38.3 source
+`d1931b1e803144048d927fff16cb8119afde541e`; that independent owner gate remains
+unaccepted. All implementation tasks remain incomplete. Frozen intent, accepted
+evidence and Story 16.1 draft/backlog, null entry, empty trust, ACTIVE hold and
+four false authority flags remain unchanged.
 
 ## Review Triage Log
 

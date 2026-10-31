@@ -1,0 +1,8 @@
+{
+  "allTwelveInitialized": true,
+  "allTwelveIndexMatchesCheckout": true,
+  "allTwelveClean": true,
+  "noInitializedNestedDependencies": true,
+  "headVersusIndexDifferences": [],
+  "result": "PASS"
+}

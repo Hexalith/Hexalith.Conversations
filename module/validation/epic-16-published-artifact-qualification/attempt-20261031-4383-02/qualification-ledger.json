@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "hexalith.conversations.epic16-4383-prerequisite-attempt.v1",
+  "state": "BLOCKED",
+  "completed": false,
+  "attemptScope": "authorized exact provenance fetch, fresh source preparation and required mapped Debug AppHost baseline",
+  "candidateVersion": "4.38.3",
+  "candidateSource": "d1931b1e803144048d927fff16cb8119afde541e",
+  "entryCandidate": "bc8ea08fdb06719a29931e1d3fd53d2338ee6bbf",
+  "entryTree": "363589bd393f6d9b670080b35e60f796fe75eb90",
+  "rootToolPin": "4.38.3",
+  "rootToolPinRollForward": false,
+  "rootToolManifest": {
+    "path": ".config/dotnet-tools.json",
+    "sha256": "1ea6be710eaed92fdaa4f0d9c9c6fce11f4efcaca81a555cdae18fd6ead4fa6d",
+    "unchangedFromImplementationEntry": true
+  },
+  "authority": {
+    "implementationHold": "ACTIVE",
+    "executionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  },
+  "entry": null,
+  "trustedEntries": [],
+  "runtimeQualified": false,
+  "measuredRuntimeTests": 0,
+  "ledger": [
+    {
+      "gate": "dependency-preflight",
+      "state": "PASS",
+      "evidence": "dependency-preflight.json"
+    },
+    {
+      "gate": "canonical-builds-provenance",
+      "state": "PASS",
+      "nativeExitCode": 0,
+      "evidence": "exact-builds-fetch.json",
+      "recordedCommit": "cc0db51b800be1d0d5badc3780395cfb5953d0f5",
+      "canonicalRemote": "https://github.com/Hexalith/Hexalith.Builds.git",
+      "detail": "Exact upstream retrieval succeeded; recorded catalog blob is readable. No ref or checkout selection changed."
+    },
+    {
+      "gate": "producer-debug-bootstrap",
+      "state": "PASS",
+      "nativeExitCode": 0,
+      "evidence": "producer-cli-debug-build.json"
+    },
+    {
+      "gate": "source-preparation",
+      "state": "PASS",
+      "nativeExitCode": 0,
+      "evidence": "source-prepare.json",
+      "warnings": [
+        "HXW009",
+        "HXW010",
+        "HXW011"
+      ],
+      "detail": "Complete producer-selected source/Debug environment retained. Native warnings confer no qualification or acceptance."
+    },
+    {
+      "gate": "platform-prepared-recorded-source-equality",
+      "state": "FAIL",
+      "code": "PLATFORM_RECORDED_SOURCE_MISMATCH",
+      "classification": "measured identity inequality, not an unavailable-object claim",
+      "recordedSource": "cc0db51b800be1d0d5badc3780395cfb5953d0f5",
+      "preparedSource": "d1931b1e803144048d927fff16cb8119afde541e",
+      "evidence": [
+        "platform-recorded-builds.json",
+        "platform-prepared-identity.json"
+      ],
+      "owner": "Hexalith.Platform"
+    },
+    {
+      "gate": "normal-mapped-apphost-baseline",
+      "state": "FAIL",
+      "code": "ADMIN_WEB_ADDRESS_IN_USE",
+      "nativeExitCode": 18,
+      "resourceProcessExitCode": 134,
+      "evidence": [
+        "apphost-wait-conversations-admin-web.json",
+        "apphost-logs-conversations-admin-web.json",
+        "apphost-describe-final.json"
+      ],
+      "detail": "Admin Web exited after binding http://127.0.0.1:5000 failed; Conversations, EventStore, security, state store and pub/sub were healthy at final inspection."
+    },
+    {
+      "gate": "implementation-artifact-controls-and-v3",
+      "state": "BLOCKED",
+      "code": "HEALTHY_BASELINE_REQUIRED",
+      "detail": "No collector/v3 source edits or candidate/control execution after the failed full baseline."
+    },
+    {
+      "gate": "preservation-and-owned-cleanup",
+      "state": "PASS",
+      "evidence": "preservation-check.json"
+    },
+    {
+      "gate": "historical-boundary-replay-and-runtime-publication",
+      "state": "not-applicable",
+      "code": "OUTSIDE_PREREQUISITE"
+    }
+  ],
+  "nextOwnerAction": "Resolve the Admin Web endpoint/isolation problem through separately reviewed Conversations hosting work or owner-managed environment preparation; preserve unrelated sessions and dependency selections. Then rerun the full mapped Debug baseline in a new attempt. Platform recorded/prepared source reconciliation and acceptance remain separate owner work.",
+  "remainingTasks": [
+    "collector selectors, independent candidate/root identity, prepared/recorded/accepted Platform observations and evidence carriers",
+    "exact independently verified 4.38.3 signed artifact/source/CI/schema/catalog and 36 controls",
+    "exact adoption delta/dispositions, package preparation/action export and retained producer review groups",
+    "additive held tooling v3 contracts/schema/policy/trust/summary and lazy consumer routing",
+    "focused collector/tooling/generator/adoption regressions, 15 native fixture routes and 3 deterministic final pairs",
+    "18 selected v3 and 12 preserved legacy held commands with absent runtime outputs",
+    "final source/stream/changed-path evidence and independent Story 7.3 guards"
+  ],
+  "historicalBoundaryReplay": "not-applicable",
+  "runtimePublication": "not-applicable"
+}

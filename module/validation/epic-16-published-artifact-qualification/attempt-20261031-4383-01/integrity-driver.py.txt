@@ -1,0 +1,48 @@
+from pathlib import Path
+import hashlib,json,subprocess,unicodedata
+ROOT=Path('/home/administrator/projects/hexalith/conversations')
+ATTEMPT=ROOT/'module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-01'
+def digest(raw):return hashlib.sha256(raw).hexdigest()
+def write(name,value):(ATTEMPT/name).write_text(json.dumps(value,indent=2)+'\n')
+def git(*args):return subprocess.run(['git',*args],cwd=ROOT,capture_output=True,timeout=30,check=False)
+checks=[]
+def check(name,ok,**facts):
+ checks.append(dict(id=name,state='PASS' if ok else 'FAIL',**facts));assert ok,name
+for row in json.loads((ATTEMPT/'commands.json').read_bytes()):
+ for key in ('stdout','stderr'):
+  m=row[key];raw=(ATTEMPT/m['path']).read_bytes();check('retained-command-stream',len(raw)==m['bytes'] and digest(raw)==m['sha256'],path=m['path'])
+entry=json.loads((ATTEMPT/'entry-state.json').read_bytes())
+for path,expected in entry['protectedFiles'].items():check('protected-input-still-unchanged',digest((ROOT/path).read_bytes())==expected,path=path)
+check('same-head',git('rev-parse','HEAD').stdout.decode().strip()==entry['head'])
+check('same-tree',git('rev-parse','HEAD^{tree}').stdout.decode().strip()==entry['tree'])
+check('same-index-entries',digest(git('ls-files','--stage').stdout)==entry['indexEntriesSha256'])
+index_path=Path(git('rev-parse','--git-path','index').stdout.decode().strip());index_path=index_path if index_path.is_absolute() else ROOT/index_path
+check('same-index-bytes',digest(index_path.read_bytes())==entry['indexSha256'])
+check('preservation-ledger-passed',json.loads((ATTEMPT/'preservation-check.json').read_bytes())['state']=='PASS')
+root_manifest=(ROOT/'.config/dotnet-tools.json').read_bytes()
+root_pin=json.loads(root_manifest)['tools']['hexalith.builds.module.cli']
+ledger=json.loads((ATTEMPT/'qualification-ledger.json').read_bytes())
+planning=json.loads((ROOT/'_bmad-output/implementation-artifacts/epic-16-4-38-3-qualification-inputs.json').read_bytes())
+delta=json.loads((ATTEMPT/'planning-input-delta.json').read_bytes())['rootToolPin']
+check('measured-root-tool-pin',ledger['rootToolPin']==root_pin['version'] and ledger['rootToolPinRollForward']==root_pin['rollForward'] and ledger['rootToolManifest']['sha256']==digest(root_manifest) and entry['protectedFiles']['.config/dotnet-tools.json']==digest(root_manifest),version=root_pin['version'],rollForward=root_pin['rollForward'])
+check('historical-planning-pin-delta',delta=={'planningVersion':planning['rootToolPin'],'implementationEntryVersion':root_pin['version'],'implementationEntryRollForward':root_pin['rollForward'],'changedFromPlanning':planning['rootToolPin']!=root_pin['version'],'manifestPath':'.config/dotnet-tools.json','manifestSha256':digest(root_manifest)},planningVersion=planning['rootToolPin'],implementationEntryVersion=root_pin['version'])
+for path in json.loads((ATTEMPT/'preservation-check.json').read_bytes())['runtimeOutputPaths']:check('runtime-output-still-absent',not (ROOT/path).exists() and not (ROOT/path).is_symlink(),path=path)
+# Both frozen spec blocks must exactly equal their committed predecessor bytes.
+for path in ('_bmad-output/implementation-artifacts/spec-epic-16-4-38-3-qualification-and-binding-refresh.md','_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md'):
+ old=git('show','HEAD:'+path).stdout;new=(ROOT/path).read_bytes()
+ block=lambda raw:raw.split(b'<frozen-after-approval',1)[1].split(b'</frozen-after-approval>',1)[0]
+ check('frozen-spec-block-unchanged',block(old)==block(new),path=path)
+whitespace=git('diff','--check')
+(ATTEMPT/'diff-check.stdout.txt').write_bytes(whitespace.stdout);(ATTEMPT/'diff-check.stderr.txt').write_bytes(whitespace.stderr)
+check('git-diff-check',whitespace.returncode==0,command=['git','diff','--check'],exitCode=whitespace.returncode)
+docs={'_bmad-output/implementation-artifacts/spec-epic-16-4-38-3-qualification-and-binding-refresh.md','_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md','module/platform-handoff.md'}
+# Predeclare the two inventory outputs; inventory hashes exclude these self-referential carriers.
+expected=docs|{p.relative_to(ROOT).as_posix() for p in ATTEMPT.rglob('*') if p.is_file()}|{(ATTEMPT/'owned-paths.json').relative_to(ROOT).as_posix(),(ATTEMPT/'evidence-integrity-check.json').relative_to(ROOT).as_posix()}
+write('owned-paths.json',{'scope':'three blocker-documentation paths (prerequisite spec already had two parent lifecycle edits) plus fresh observation directory only','paths':sorted(expected),'pathListSha256':digest(('\n'.join(unicodedata.normalize('NFC',p) for p in sorted(expected))+'\n').encode())})
+# Ensure this file exists for exact comparison before final content is emitted.
+write('evidence-integrity-check.json',{})
+actual={p.decode() for p in git('diff','--name-only','-z').stdout.split(b'\0') if p}|{p.decode() for p in git('ls-files','--others','--exclude-standard','-z').stdout.split(b'\0') if p}
+check('exact-changed-path-inventory',actual==expected,missing=sorted(expected-actual),unexpected=sorted(actual-expected))
+rows=[dict(path=p.relative_to(ROOT).as_posix(),bytes=p.stat().st_size,sha256=digest(p.read_bytes())) for p in sorted(ATTEMPT.rglob('*')) if p.is_file() and p.name not in ('evidence-integrity-check.json','owned-paths.json')]
+write('evidence-integrity-check.json',{'state':'PASS','evaluatedChecks':len(checks),'assertionLedger':checks,'retainedFiles':rows,'inventoryExclusions':['evidence-integrity-check.json','owned-paths.json'],'ownedPaths':'owned-paths.json','trackedDocumentation':[dict(path=p,sha256=digest((ROOT/p).read_bytes())) for p in sorted(docs)],'historicalBoundaryReplay':'not-applicable','runtimePublication':'not-applicable','implementationCompletion':'BLOCKED','verificationScope':'failed required baseline preservation and blocker documentation only; no implementation tests or Story 7.3 completion guards executed'})
+print(json.dumps({'state':'PASS','checks':len(checks),'protectedFiles':len(entry['protectedFiles']),'ownedChangedPaths':len(expected),'retainedFilesHashed':len(rows)}))

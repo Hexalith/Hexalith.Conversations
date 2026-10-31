@@ -1,0 +1,29 @@
+{
+  "name": "platform-prepared-identity",
+  "command": [
+    "git",
+    "show",
+    "HEAD:eng/prepare_builds_artifacts.py"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform",
+  "pid": 13583,
+  "startedAtUtc": "2026-10-31T06:38:39.958795+00:00",
+  "durationSeconds": 0.101,
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "platform-prepared-identity.stdout.txt",
+    "bytes": 4952,
+    "sha256": "454b8fb70803069206e2d4346da8080651b7593db6919b8ab8b1474b9989113f"
+  },
+  "stderr": {
+    "path": "platform-prepared-identity.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

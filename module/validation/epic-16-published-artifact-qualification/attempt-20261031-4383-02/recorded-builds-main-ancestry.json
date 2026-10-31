@@ -1,0 +1,31 @@
+{
+  "name": "recorded-builds-main-ancestry",
+  "command": [
+    "git",
+    "merge-base",
+    "--is-ancestor",
+    "cc0db51b800be1d0d5badc3780395cfb5953d0f5",
+    "origin/main"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+  "pid": 13582,
+  "startedAtUtc": "2026-10-31T06:38:39.857228+00:00",
+  "durationSeconds": 0.101,
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 1,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "recorded-builds-main-ancestry.stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "recorded-builds-main-ancestry.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

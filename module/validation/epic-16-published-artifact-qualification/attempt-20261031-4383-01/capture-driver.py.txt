@@ -1,0 +1,66 @@
+import datetime,hashlib,json,os,pathlib,signal,subprocess,sys,tempfile,time
+ROOT=pathlib.Path('/home/administrator/projects/hexalith/conversations')
+ATTEMPT=ROOT/'module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-01'
+APP='src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj'
+BUILDS=ROOT/'references/Hexalith.Builds'
+CLI=BUILDS/'src/libraries/Hexalith.Builds.Module.Cli/bin/Debug/net10.0/Hexalith.Builds.Module.Cli.dll'
+def write(name,obj): (ATTEMPT/name).write_text(json.dumps(obj,indent=2)+'\n')
+def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def git(*args,cwd=ROOT):
+ p=subprocess.run(['git',*args],cwd=cwd,capture_output=True,text=True,timeout=30)
+ return {'exit':p.returncode,'stdout':p.stdout,'stderr':p.stderr}
+def snapshot():
+ status=git('status','--short','--branch')['stdout']
+ indexed=git('ls-files','--stage')['stdout'];headlinks={}
+ for row in git('ls-tree','HEAD','--','references/')['stdout'].splitlines():
+  if row.startswith('160000 '):
+   meta,path=row.split('\t',1);headlinks[path]=meta.split()[2]
+ files=set(x['path'] for x in json.loads((ROOT/'_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json').read_text())['sources'])
+ for prefix in ['_bmad-output/planning-artifacts/epic-16-prerequisites-v1','_bmad-output/planning-artifacts/epic-16-adoption-v1','_bmad-output/planning-artifacts/epic-16-adoption-v2','_bmad-output/planning-artifacts/epic-16-tooling-v1','src/Hexalith.Conversations.AppHost','tests/fixtures/Hexalith.Conversations.MinimalModule','module/validation/epic-16-entry-2026-10-27','_bmad-output/planning-artifacts/epic-16-tooling-v2']:
+  for p in (ROOT/prefix).rglob('*'):
+   if p.is_file() and not {'obj','bin'}.intersection(p.relative_to(ROOT).parts):files.add(p.relative_to(ROOT).as_posix())
+ files.update(x['path'] for x in json.loads((ROOT/'_bmad-output/implementation-artifacts/epic-16-4-38-3-qualification-inputs.json').read_text())['sources'])
+ files.update(['.gitmodules','.gitattributes','.config/dotnet-tools.json','global.json','_bmad/scripts/epic16_trust.py','_bmad/schemas/epic-16-tooling-v1.schema.json','_bmad-output/implementation-artifacts/spec-epic-16-tooling-qualification-and-binding-refresh.md','_bmad-output/implementation-artifacts/epic-16-tooling-qualification-and-binding-refresh-plan.md','Directory.Build.props','Directory.Packages.props','module/hexalith.module-manifest.v2.json'])
+ hashes={p:digest(ROOT/p) for p in sorted(files) if (ROOT/p).is_file()}
+ links=[]
+ for row in indexed.splitlines():
+  if not row.startswith('160000 '):continue
+  meta,path=row.split('\t',1);mode,commit,stage=meta.split();child=ROOT/path;nested=[]
+  if (child/'.gitmodules').exists():
+   for line in git('config','--file','.gitmodules','--get-regexp','path',cwd=child)['stdout'].splitlines():
+    np=line.split(None,1)[1];nested.append({'path':np,'initialized':(child/np/'.git').exists()})
+  links.append({'path':path,'mode':mode,'indexCommit':commit,'headCommit':headlinks.get(path),'checkout':git('rev-parse','HEAD',cwd=child)['stdout'].strip(),'originMain':git('rev-parse','origin/main',cwd=child)['stdout'].strip(),'status':git('status','--porcelain=v1',cwd=child)['stdout'],'nested':nested})
+ indexpath=pathlib.Path(git('rev-parse','--git-path','index')['stdout'].strip());indexpath=indexpath if indexpath.is_absolute() else ROOT/indexpath
+ return {'capturedAtUtc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'head':git('rev-parse','HEAD')['stdout'].strip(),'tree':git('rev-parse','HEAD^{tree}')['stdout'].strip(),'indexSha256':digest(indexpath),'indexEntriesSha256':hashlib.sha256(indexed.encode()).hexdigest(),'branch':git('branch','--show-current')['stdout'].strip(),'status':status,'stagedDiff':git('diff','--cached','--raw')['stdout'],'rootGitlinks':links,'protectedFiles':hashes,'environment':{k:v for k,v in os.environ.items() if k.startswith(('Custom','AfterMicrosoft','HEXALITH','UseHexalith','Hexalith'))}}
+def run(name,command,timeout=60,cwd=ROOT,env=None):
+ out=ATTEMPT/(name+'.stdout.txt');err=ATTEMPT/(name+'.stderr.txt');started=datetime.datetime.now(datetime.timezone.utc).isoformat();t=time.monotonic();reason=None;limit=8*1024*1024
+ with out.open('xb') as so,err.open('xb') as se:
+  p=subprocess.Popen(command,cwd=cwd,stdout=so,stderr=se,env=env,start_new_session=True)
+  pid=p.pid
+  while p.poll() is None:
+   if time.monotonic()-t>timeout:reason='timeout'
+   if out.stat().st_size+err.stat().st_size>limit:reason='output-bound'
+   if reason:
+    os.killpg(pid,signal.SIGTERM)
+    try:p.wait(timeout=5)
+    except subprocess.TimeoutExpired:os.killpg(pid,signal.SIGKILL);p.wait(timeout=5)
+    break
+   time.sleep(.1)
+ row={'name':name,'command':[str(x) for x in command],'cwd':str(cwd),'pid':pid,'startedAtUtc':started,'durationSeconds':round(time.monotonic()-t,3),'timeoutSeconds':timeout,'outputLimitBytes':limit,'termination':reason,'exitCode':p.returncode,'mappingEnvironment':{k:v for k,v in (env or os.environ).items() if k.startswith(('Custom','AfterMicrosoft','HEXALITH')) or k=='Configuration'},'stdout':{'path':out.name,'bytes':out.stat().st_size,'sha256':digest(out)},'stderr':{'path':err.name,'bytes':err.stat().st_size,'sha256':digest(err)}}
+ write(name+'.json',row);print(json.dumps(row),flush=True)
+ # Raw output is retained for safe diagnostic handling; do not echo environment credentials.
+ return row
+if sys.argv[1]=='init':
+ ATTEMPT.mkdir(parents=True,exist_ok=False);(ATTEMPT/'.gitattributes').write_text('* -text diff -whitespace\n')
+ s=snapshot();write('entry-state.json',s)
+ preflight={'allTwelveInitialized':len(s['rootGitlinks'])==12,'allTwelveIndexMatchesCheckout':all(x['indexCommit']==x['checkout'] for x in s['rootGitlinks']),'allTwelveClean':all(not x['status'] for x in s['rootGitlinks']),'noInitializedNestedDependencies':all(not n['initialized'] for x in s['rootGitlinks'] for n in x['nested']),'headVersusIndexDifferences':[{'path':x['path'],'head':x['headCommit'],'index':x['indexCommit']} for x in s['rootGitlinks'] if x['headCommit']!=x['indexCommit']]}
+ preflight['result']='PASS' if all(v for k,v in preflight.items() if k!='headVersusIndexDifferences') else 'BLOCKED';write('dependency-preflight.json',preflight);print(json.dumps(preflight),flush=True)
+ for name,cmd in [('sdk-version',['dotnet','--version']),('aspire-version',['aspire','--version']),*[(f'aspire-{s}-help',['aspire',s,'--help']) for s in ['run','describe','wait','ps','stop']],('aspire-ps-before',['aspire','ps','--format','Json','--non-interactive'])]:run(name,cmd)
+elif sys.argv[1]=='build':
+ p=json.loads((ATTEMPT/'dependency-preflight.json').read_text());assert p['result']=='PASS'
+ run('producer-cli-debug-build',['dotnet','build','src/libraries/Hexalith.Builds.Module.Cli/Hexalith.Builds.Module.Cli.csproj','--configuration','Debug','--nologo','-m:1'],180,cwd=BUILDS)
+elif sys.argv[1]=='prepare':
+ assert json.loads((ATTEMPT/'producer-cli-debug-build.json').read_text())['exitCode']==0
+ parent=pathlib.Path(tempfile.mkdtemp(prefix='epic16-baseline-02-'));workspace=parent/'source-preparation';write('temporary-workspace.json',{'parent':str(parent),'workspace':str(workspace),'existedBefore':workspace.exists()})
+ run('source-prepare',['dotnet',str(CLI),'prepare-build','--manifest','module/hexalith.module-manifest.v2.json','--mode','source','--output','json','--workspace',str(workspace)],120)
+elif sys.argv[1]=='snapshot':write('exit-state.json',snapshot())

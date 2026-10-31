@@ -1,0 +1,42 @@
+from pathlib import Path
+import hashlib, json, os, subprocess, sys
+ROOT=Path('/home/administrator/projects/hexalith/conversations')
+PREVIOUS=ROOT/'module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-01'
+namespace={}
+exec(compile((PREVIOUS/'capture-driver.py.txt').read_text().split("if sys.argv[1]=='init':",1)[0],str(PREVIOUS/'capture-driver.py.txt'),'exec'),namespace)
+ATTEMPT=ROOT/'module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02'
+namespace['ATTEMPT']=ATTEMPT
+write=namespace['write'];run=namespace['run'];snapshot=namespace['snapshot'];git=namespace['git'];digest=namespace['digest']
+SHA='cc0db51b800be1d0d5badc3780395cfb5953d0f5'
+REMOTE='https://github.com/Hexalith/Hexalith.Builds.git'
+def state():
+ s=snapshot()
+ s['previousAttemptFiles']={p.relative_to(ROOT).as_posix():digest(p) for p in sorted(PREVIOUS.iterdir()) if p.is_file()}
+ s['entryChangedFiles']={p:digest(ROOT/p) for p in git('diff','--name-only')['stdout'].splitlines() if (ROOT/p).is_file()}
+ s['runtimeOutputs']={p:not (ROOT/p).exists() and not (ROOT/p).is_symlink() for p in json.loads((PREVIOUS/'preservation-check.json').read_bytes())['runtimeOutputPaths']}
+ s['dependencyIndexSha256']={}
+ for row in s['rootGitlinks']:
+  child=ROOT/row['path'];index=Path(git('rev-parse','--git-path','index',cwd=child)['stdout'].strip());index=index if index.is_absolute() else child/index
+  s['dependencyIndexSha256'][row['path']]=digest(index)
+ return s
+if sys.argv[1]=='init':
+ ATTEMPT.mkdir(exist_ok=False)
+ (ATTEMPT/'.gitattributes').write_text('* -text diff -whitespace\n')
+ (ATTEMPT/'capture-driver.py.txt').write_bytes(Path(__file__).read_bytes())
+ write('entry-state.json',state())
+ entry=json.loads((ATTEMPT/'entry-state.json').read_bytes());links=entry['rootGitlinks']
+ checks={'allTwelveInitialized':len(links)==12,'allTwelveIndexMatchesCheckout':all(x['indexCommit']==x['checkout']==x['headCommit'] for x in links),'allTwelveClean':all(not x['status'] for x in links),'noInitializedNestedDependencies':all(not n['initialized'] for x in links for n in x['nested'])}
+ write('dependency-preflight.json',{'state':'PASS' if all(checks.values()) else 'BLOCKED','checks':checks});assert all(checks.values()),checks
+ for name,cmd,cwd in [('builds-context',['git','status','--short','--branch'],ROOT/'references/Hexalith.Builds'),('builds-remotes',['git','remote','-v'],ROOT/'references/Hexalith.Builds'),('builds-history',['git','log','-5','--format=%H %s'],ROOT/'references/Hexalith.Builds'),('platform-recorded-builds',['git','ls-tree','HEAD','--','references/Hexalith.Builds'],ROOT/'references/Hexalith.Platform'),('recorded-builds-object-before',['git','cat-file','-t',SHA],ROOT/'references/Hexalith.Builds'),('builds-shallow-state',['git','rev-parse','--is-shallow-repository'],ROOT/'references/Hexalith.Builds')]:run(name,cmd,cwd=cwd)
+ rooturl=git('config','--file','.gitmodules','--get','submodule.references/Hexalith.Builds.url')['stdout'].strip()
+ platformurl=git('config','--file','.gitmodules','--get','submodule.references/Hexalith.Builds.url',cwd=ROOT/'references/Hexalith.Platform')['stdout'].strip()
+ origin=git('remote','get-url','origin',cwd=ROOT/'references/Hexalith.Builds')['stdout'].strip()
+ assert rooturl==platformurl==origin==REMOTE
+ write('canonical-remote.json',{'state':'PASS','canonicalRemote':REMOTE,'rootDeclaration':rooturl,'platformDeclaration':platformurl,'localOrigin':origin,'requestedCommit':SHA,'authorization':'User authorized targeted nonrecursive fetch of this exact object; pins/gitlinks/checkouts must remain unchanged.'})
+elif sys.argv[1]=='fetch':
+ assert json.loads((ATTEMPT/'dependency-preflight.json').read_bytes())['state']=='PASS'
+ run('canonical-builds-advertised-refs',['git','ls-remote',REMOTE,'HEAD','refs/heads/main','refs/tags/v4.38.3','refs/tags/v4.38.3^{}'],timeout=60,cwd=ROOT/'references/Hexalith.Builds')
+ run('exact-builds-fetch',['git','-c','fetch.recurseSubmodules=false','fetch','--no-recurse-submodules','--no-tags','--no-write-fetch-head',REMOTE,SHA],timeout=300,cwd=ROOT/'references/Hexalith.Builds')
+ run('recorded-builds-object-after',['git','cat-file','-t',SHA],cwd=ROOT/'references/Hexalith.Builds')
+ write('after-fetch-state.json',state())
+elif sys.argv[1]=='snapshot':write('exit-state.json',state())

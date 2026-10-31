@@ -1,0 +1,23 @@
+{
+  "purpose": "historical planning input comparison; not qualification",
+  "planningCandidate": "f2b75d0dd45547d5b40c6b676fd1c17f695f917b",
+  "implementationEntryCandidate": "bc8ea08fdb06719a29931e1d3fd53d2338ee6bbf",
+  "planningTree": "217f8d6a1aa67cbb940f8b2ad7e0da758f10d69e",
+  "implementationEntryTree": "363589bd393f6d9b670080b35e60f796fe75eb90",
+  "rootGitlinkDifferences": [],
+  "sourceDifferences": [
+    {
+      "path": ".config/dotnet-tools.json",
+      "sha256": "f718f3ed50cc549069b785e38325a00af635f45d09a6926590e08d142a850c20",
+      "actualSha256": "1ea6be710eaed92fdaa4f0d9c9c6fce11f4efcaca81a555cdae18fd6ead4fa6d"
+    }
+  ],
+  "rootToolPin": {
+    "planningVersion": "4.38.2",
+    "implementationEntryVersion": "4.38.3",
+    "implementationEntryRollForward": false,
+    "changedFromPlanning": true,
+    "manifestPath": ".config/dotnet-tools.json",
+    "manifestSha256": "1ea6be710eaed92fdaa4f0d9c9c6fce11f4efcaca81a555cdae18fd6ead4fa6d"
+  }
+}

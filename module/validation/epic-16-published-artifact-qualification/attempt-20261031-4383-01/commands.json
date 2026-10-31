@@ -1,0 +1,463 @@
+[
+  {
+    "name": "aspire-describe-help",
+    "command": [
+      "aspire",
+      "describe",
+      "--help"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2030387,
+    "startedAtUtc": "2026-10-31T05:10:05.737636+00:00",
+    "durationSeconds": 0.102,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "aspire-describe-help.stdout.txt",
+      "bytes": 1506,
+      "sha256": "84d18655ba0983b10169fe155a917f4fe38ba9ed238f612b97c39ac0926eeba7"
+    },
+    "stderr": {
+      "path": "aspire-describe-help.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-ps-after",
+    "command": [
+      "aspire",
+      "ps",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2074645,
+    "startedAtUtc": "2026-10-31T05:11:43.791614+00:00",
+    "durationSeconds": 0.301,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "aspire-ps-after.stdout.txt",
+      "bytes": 435,
+      "sha256": "8c59e83d9bca319290f373f4523750cdab0242dcb0054b9af9cfcaa40945ed01",
+      "capturedRaw": {
+        "bytes": 457,
+        "sha256": "8bfbc9eddd4924c374d385b889c78ac901f021ca2a0ce4d61684c6cab89acd34"
+      },
+      "ephemeralCredentialReplacements": 1
+    },
+    "stderr": {
+      "path": "aspire-ps-after.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-ps-before",
+    "command": [
+      "aspire",
+      "ps",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2030778,
+    "startedAtUtc": "2026-10-31T05:10:06.144703+00:00",
+    "durationSeconds": 1.404,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "aspire-ps-before.stdout.txt",
+      "bytes": 435,
+      "sha256": "8c59e83d9bca319290f373f4523750cdab0242dcb0054b9af9cfcaa40945ed01",
+      "capturedRaw": {
+        "bytes": 457,
+        "sha256": "8bfbc9eddd4924c374d385b889c78ac901f021ca2a0ce4d61684c6cab89acd34"
+      },
+      "ephemeralCredentialReplacements": 1
+    },
+    "stderr": {
+      "path": "aspire-ps-before.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-ps-help",
+    "command": [
+      "aspire",
+      "ps",
+      "--help"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2030540,
+    "startedAtUtc": "2026-10-31T05:10:05.940950+00:00",
+    "durationSeconds": 0.101,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "aspire-ps-help.stdout.txt",
+      "bytes": 1184,
+      "sha256": "4221229238fefefa07b0422c6593fa87ace86bb939806fbf3353c325c4dac17a"
+    },
+    "stderr": {
+      "path": "aspire-ps-help.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-run-help",
+    "command": [
+      "aspire",
+      "run",
+      "--help"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2030285,
+    "startedAtUtc": "2026-10-31T05:10:05.635828+00:00",
+    "durationSeconds": 0.101,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "aspire-run-help.stdout.txt",
+      "bytes": 1872,
+      "sha256": "3d5a55a5a522776cecc4ad90a8f784399fe6ab2bb0107bb876dae95f96da1ee6"
+    },
+    "stderr": {
+      "path": "aspire-run-help.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-stop-help",
+    "command": [
+      "aspire",
+      "stop",
+      "--help"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2030616,
+    "startedAtUtc": "2026-10-31T05:10:06.042464+00:00",
+    "durationSeconds": 0.102,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "aspire-stop-help.stdout.txt",
+      "bytes": 1434,
+      "sha256": "5caed440b97770a9ff1aef2345443a70d430d7281de9ab56072433db6d760e54"
+    },
+    "stderr": {
+      "path": "aspire-stop-help.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-version",
+    "command": [
+      "aspire",
+      "--version"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2030255,
+    "startedAtUtc": "2026-10-31T05:10:05.534039+00:00",
+    "durationSeconds": 0.101,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "aspire-version.stdout.txt",
+      "bytes": 48,
+      "sha256": "c221e6c7530f2820e5b610f7318f1c119f5b4ba65378bdd0e4b86ba6c062259e"
+    },
+    "stderr": {
+      "path": "aspire-version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-wait-help",
+    "command": [
+      "aspire",
+      "wait",
+      "--help"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2030467,
+    "startedAtUtc": "2026-10-31T05:10:05.839900+00:00",
+    "durationSeconds": 0.101,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "aspire-wait-help.stdout.txt",
+      "bytes": 1433,
+      "sha256": "7dec06e4af8bbac0af914531a2d7cb9a36a81446605c38658a9527d2c9849a55"
+    },
+    "stderr": {
+      "path": "aspire-wait-help.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "builds-shallow-state",
+    "command": [
+      "git",
+      "rev-parse",
+      "--is-shallow-repository"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+    "pid": 2089739,
+    "startedAtUtc": "2026-10-31T05:12:24.641720+00:00",
+    "durationSeconds": 0.101,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "builds-shallow-state.stdout.txt",
+      "bytes": 6,
+      "sha256": "2ed27c1421e6928dbe13dbfdb5c59e1045b30341fe7ebe05700006bc5ac572c0"
+    },
+    "stderr": {
+      "path": "builds-shallow-state.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "platform-recorded-builds-gitlink",
+    "command": [
+      "git",
+      "ls-tree",
+      "HEAD",
+      "references/Hexalith.Builds"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform",
+    "pid": 2074568,
+    "startedAtUtc": "2026-10-31T05:11:43.487234+00:00",
+    "durationSeconds": 0.101,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "platform-recorded-builds-gitlink.stdout.txt",
+      "bytes": 82,
+      "sha256": "82a1db514bade55b951e34003b5d34b56e3fb202db7fbc79a7ad148788d13dce"
+    },
+    "stderr": {
+      "path": "platform-recorded-builds-gitlink.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "producer-cli-debug-build",
+    "command": [
+      "dotnet",
+      "build",
+      "src/libraries/Hexalith.Builds.Module.Cli/Hexalith.Builds.Module.Cli.csproj",
+      "--configuration",
+      "Debug",
+      "--nologo",
+      "-m:1"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+    "pid": 2032538,
+    "startedAtUtc": "2026-10-31T05:10:07.584402+00:00",
+    "durationSeconds": 49.373,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "producer-cli-debug-build.stdout.txt",
+      "bytes": 1028,
+      "sha256": "e47e676d2b89865635ccf47c26a286db90f614c3964eab5b58955a3f23f57ad8"
+    },
+    "stderr": {
+      "path": "producer-cli-debug-build.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "recorded-builds-object",
+    "command": [
+      "git",
+      "cat-file",
+      "-t",
+      "cc0db51b800be1d0d5badc3780395cfb5953d0f5"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+    "pid": 2074643,
+    "startedAtUtc": "2026-10-31T05:11:43.588702+00:00",
+    "durationSeconds": 0.101,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 128,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "recorded-builds-object.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "recorded-builds-object.stderr.txt",
+      "bytes": 47,
+      "sha256": "93051ef5e7bf1424b70ed514d3f012953c936894eec9c3018251c6cfb674dd83"
+    }
+  },
+  {
+    "name": "recorded-builds-props",
+    "command": [
+      "git",
+      "show",
+      "cc0db51b800be1d0d5badc3780395cfb5953d0f5:Props/Directory.Packages.props"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+    "pid": 2074644,
+    "startedAtUtc": "2026-10-31T05:11:43.690118+00:00",
+    "durationSeconds": 0.101,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 128,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "recorded-builds-props.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "recorded-builds-props.stderr.txt",
+      "bytes": 115,
+      "sha256": "d7ea635662954dbaac473bda94bf62bd37796c4151b0b224004320054475288b"
+    }
+  },
+  {
+    "name": "sdk-version",
+    "command": [
+      "dotnet",
+      "--version"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2030209,
+    "startedAtUtc": "2026-10-31T05:10:05.332966+00:00",
+    "durationSeconds": 0.201,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "sdk-version.stdout.txt",
+      "bytes": 9,
+      "sha256": "00922204861c9366b1259b84337ee228d58ec876604bb149e82c077108ce3be2"
+    },
+    "stderr": {
+      "path": "sdk-version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "source-prepare",
+    "command": [
+      "dotnet",
+      "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds/src/libraries/Hexalith.Builds.Module.Cli/bin/Debug/net10.0/Hexalith.Builds.Module.Cli.dll",
+      "prepare-build",
+      "--manifest",
+      "module/hexalith.module-manifest.v2.json",
+      "--mode",
+      "source",
+      "--output",
+      "json",
+      "--workspace",
+      "/tmp/epic16-baseline-02-uy5dag_7/source-preparation"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2058591,
+    "startedAtUtc": "2026-10-31T05:11:03.932716+00:00",
+    "durationSeconds": 1.102,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 2,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "source-prepare.stdout.txt",
+      "bytes": 615,
+      "sha256": "19e0050b4b6981b5259591c81067a853927b1efe22e5b77768750c1b9595cd9b"
+    },
+    "stderr": {
+      "path": "source-prepare.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+]

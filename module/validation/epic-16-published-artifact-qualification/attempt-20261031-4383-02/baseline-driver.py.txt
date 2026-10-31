@@ -1,0 +1,12 @@
+import json,os,pathlib,runpy,sys
+sys.argv=['capture','noop'];n=runpy.run_path('/tmp/epic16-4383-provenance-resume.py');a=n['ATTEMPT'];r=n['ROOT'];run=n['run'];write=n['write']
+pre=json.loads((a/'source-prepare.json').read_bytes());assert pre['exitCode']==0
+prepared=json.loads((a/'source-prepare.stdout.txt').read_bytes());assert prepared['status']=='prepared' and prepared['buildPreparation']['mode']=='source'
+environment=prepared['buildPreparation']['environment'];assert environment['Configuration']=='Debug';assert environment['HEXALITH_SOURCE_MAPPING_HASH']==prepared['buildPreparation']['mappingHash']
+app='src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj'
+sessions=json.loads((a/'aspire-ps-before.stdout.txt').read_bytes());assert all(s['appHostPath']!=str(r/app) for s in sessions)
+write('baseline-driver.py.txt.json',{'path':'baseline-driver.py.txt'})
+(a/'baseline-driver.py.txt').write_bytes(pathlib.Path(__file__).read_bytes())
+write('source-environment.json',{'state':'PASS','configuration':'Debug','mappingHash':prepared['buildPreparation']['mappingHash'],'environment':environment,'diagnostics':prepared['diagnostics'],'acceptanceInferred':False})
+env=os.environ.copy();env.update(environment)
+run('apphost-run',['aspire','run','--detach','--isolated','--apphost',app,'--format','Json','--non-interactive'],600,env=env)

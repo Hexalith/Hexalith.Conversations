@@ -54,7 +54,24 @@ The retained [entry investigation](story-16-1-entry-investigation-2026-10-30.md)
 
 The selected [separate prerequisite](spec-epic-16-4-38-3-qualification-and-binding-refresh.md) owns current candidate measurement and held source-binding preparation. Its approval does not qualify runtime entry.
 
+The prerequisite's [2026-10-31 baseline attempt](../../module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-01/README.md)
+is BLOCKED before AppHost launch: source preparation exits 2/HXW009 because
+Platform's recorded Builds object is unavailable in the local Builds database.
+No collector/v3 implementation or 4.38.3 artifact/control measurement followed.
+Resolve the owner source-identity/local-object prerequisite and retry the normal
+mapped Debug baseline in a fresh attempt. Runtime entry, draft/backlog, null
+entry, empty trust and ACTIVE hold remain unchanged.
+
 ## Code Map
+
+The [2026-10-31 prerequisite resume](../../module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/README.md)
+retrieved the exact recorded Builds commit from its canonical remote. Fresh
+source preparation now passes. The mapped Debug AppHost baseline remains
+BLOCKED: Admin Web failed to bind `http://127.0.0.1:5000` (process exit 134;
+health-wait exit 18), although Conversations and the gateway became healthy.
+Only the created instance was stopped. Resolve that hosting/environment blocker
+and repeat the full baseline before prerequisite implementation; this supplies
+no runtime entry qualification. Draft/backlog and the ACTIVE hold stay in force.
 
 Use the investigation's owner paths and reuse notes. EventStore owns atomic mutation/recovery; Tenants owns durable snapshots/transitions; Conversations consumes one snapshot. Existing implementation remains process-local. Preserve public signatures, accepted evidence and enrolled subscription configuration.
 

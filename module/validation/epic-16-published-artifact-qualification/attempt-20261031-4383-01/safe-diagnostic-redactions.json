@@ -1,0 +1,29 @@
+{
+  "scope": "ephemeral dashboard login query values in retained existing-session listings only",
+  "streams": [
+    {
+      "path": "aspire-ps-after.stdout.txt",
+      "replacements": 1,
+      "raw": {
+        "bytes": 457,
+        "sha256": "8bfbc9eddd4924c374d385b889c78ac901f021ca2a0ce4d61684c6cab89acd34"
+      },
+      "retained": {
+        "bytes": 435,
+        "sha256": "8c59e83d9bca319290f373f4523750cdab0242dcb0054b9af9cfcaa40945ed01"
+      }
+    },
+    {
+      "path": "aspire-ps-before.stdout.txt",
+      "replacements": 1,
+      "raw": {
+        "bytes": 457,
+        "sha256": "8bfbc9eddd4924c374d385b889c78ac901f021ca2a0ce4d61684c6cab89acd34"
+      },
+      "retained": {
+        "bytes": 435,
+        "sha256": "8c59e83d9bca319290f373f4523750cdab0242dcb0054b9af9cfcaa40945ed01"
+      }
+    }
+  ]
+}

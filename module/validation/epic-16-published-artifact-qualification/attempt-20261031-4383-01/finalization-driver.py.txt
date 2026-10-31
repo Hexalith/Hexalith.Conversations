@@ -1,0 +1,49 @@
+from pathlib import Path
+import datetime,hashlib,json,re,sys,runpy
+ROOT=Path('/home/administrator/projects/hexalith/conversations')
+ATTEMPT=ROOT/'module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-01'
+def digest(raw):return hashlib.sha256(raw).hexdigest()
+def write(name,value):(ATTEMPT/name).write_text(json.dumps(value,indent=2)+'\n')
+commands=[];redactions=[]
+for p in sorted(ATTEMPT.glob('*.json')):
+ row=json.loads(p.read_bytes())
+ if not isinstance(row,dict) or not {'name','command','stdout','stderr'}<=row.keys():continue
+ for stream in ('stdout','stderr'):
+  meta=row[stream];target=ATTEMPT/meta['path'];raw=target.read_bytes()
+  safe,count=re.subn(rb'(?<=/login\?t=)[^\s"&]+',b'[REDACTED]',raw)
+  if count:
+   meta['capturedRaw']={'bytes':len(raw),'sha256':digest(raw)}
+   meta['ephemeralCredentialReplacements']=count
+   target.write_bytes(safe);meta['bytes']=len(safe);meta['sha256']=digest(safe)
+   redactions.append({'path':target.name,'replacements':count,'raw':meta['capturedRaw'],'retained':{'bytes':len(safe),'sha256':digest(safe)}})
+  assert meta['bytes']==target.stat().st_size and meta['sha256']==digest(target.read_bytes()),target
+ write(p.name,row);commands.append(row)
+write('safe-diagnostic-redactions.json',{'scope':'ephemeral dashboard login query values in retained existing-session listings only','streams':redactions})
+entry=json.loads((ATTEMPT/'entry-state.json').read_bytes());exit_state=json.loads((ATTEMPT/'exit-state.json').read_bytes())
+checks=[]
+def check(name,condition,**facts):
+ checks.append(dict(id=name,state='PASS' if condition else 'FAIL',**facts));assert condition,name
+for key in ('head','tree','indexSha256','indexEntriesSha256','branch','stagedDiff','rootGitlinks','protectedFiles'):
+ check('unchanged-'+key,entry[key]==exit_state[key])
+for path,expected in entry['protectedFiles'].items():check('protected-input',digest((ROOT/path).read_bytes())==expected,path=path,sha256=expected)
+outputs=[]
+for story in ('16.1','16.2','16.3'):
+ for n in range(1,6):
+  for ext in ('json','trx','capture.json'):outputs.append(f'artifacts/epic16-runtime/{story}/AC-{story}-0{n}.{ext}')
+ outputs.extend(f'docs/release-evidence/story-{story}-final-record-v2.{ext}' for ext in ('json','md'))
+for path in outputs:check('absent-runtime-output',not (ROOT/path).exists() and not (ROOT/path).is_symlink(),path=path)
+for story in ('16.1','16.2','16.3'):check('absent-runtime-directory',not (ROOT/f'artifacts/epic16-runtime/{story}').exists(),path=f'artifacts/epic16-runtime/{story}')
+before=json.loads((ATTEMPT/'aspire-ps-before.stdout.txt').read_bytes());after=json.loads((ATTEMPT/'aspire-ps-after.stdout.txt').read_bytes())
+check('existing-sessions-preserved',before==after,sessions=[{'appHostPath':r['appHostPath'],'appHostPid':r['appHostPid'],'cliPid':r['cliPid']} for r in after])
+check('no-created-apphost',all(r['appHostPath']!=str(ROOT/'src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj') for r in after))
+check('bounded-command-capture',bool(commands) and all(r['termination'] is None and r['stdout']['bytes']+r['stderr']['bytes']<=r['outputLimitBytes'] for r in commands),commands=len(commands))
+planning=json.loads((ROOT/'_bmad-output/implementation-artifacts/epic-16-4-38-3-qualification-inputs.json').read_bytes())
+root_manifest=(ROOT/'.config/dotnet-tools.json').read_bytes()
+root_pin=json.loads(root_manifest)['tools']['hexalith.builds.module.cli']
+assert digest(root_manifest)==entry['protectedFiles']['.config/dotnet-tools.json']
+write('planning-input-delta.json',{'purpose':'historical planning input comparison; not qualification','planningCandidate':planning['candidate'],'implementationEntryCandidate':entry['head'],'planningTree':planning['tree'],'implementationEntryTree':entry['tree'],'rootToolPin':{'planningVersion':planning['rootToolPin'],'implementationEntryVersion':root_pin['version'],'implementationEntryRollForward':root_pin['rollForward'],'changedFromPlanning':planning['rootToolPin']!=root_pin['version'],'manifestPath':'.config/dotnet-tools.json','manifestSha256':digest(root_manifest)},'rootGitlinkDifferences':[{'path':r['path'],'planning':r,'entry':next((x for x in entry['rootGitlinks'] if x['path']==r['path']),None)} for r in planning['rootGitlinks'] if not any(x['path']==r['path'] and x['indexCommit']==r['revision'] and x['checkout']==r['checkout'] and x['status']==r['dirtyState'] for x in entry['rootGitlinks'])],'sourceDifferences':[dict(row,actualSha256=digest((ROOT/row['path']).read_bytes())) for row in planning['sources'] if digest((ROOT/row['path']).read_bytes())!=row['sha256']]})
+write('commands.json',commands)
+write('preservation-check.json',{'state':'PASS','evaluatedChecks':len(checks),'assertionLedger':checks,'protectedFileCount':len(entry['protectedFiles']),'runtimeOutputPaths':outputs,'measuredRuntimeTests':0,'createdAppHost':None,'cleanup':{'state':'not-applicable','reason':'source preparation blocked before launch; no owned instance exists'}})
+authority={'implementationHold':'ACTIVE','executionAllowed':False,'ownerApprovalClaimed':False,'releaseAuthorized':False,'pushAuthorized':False}
+write('qualification-ledger.json',{'schemaVersion':'hexalith.conversations.epic16-4383-prerequisite-attempt.v1','state':'BLOCKED','completed':False,'attemptScope':'implementation-entry and required normal mapped Debug AppHost baseline only','candidateVersion':'4.38.3','candidateSource':'d1931b1e803144048d927fff16cb8119afde541e','rootToolPin':root_pin['version'],'rootToolPinRollForward':root_pin['rollForward'],'rootToolManifest':{'path':'.config/dotnet-tools.json','sha256':digest(root_manifest),'unchangedFromImplementationEntry':True},'entryCandidate':entry['head'],'entryTree':entry['tree'],'authority':authority,'entry':None,'trustedEntries':[],'runtimeQualified':False,'measuredRuntimeTests':0,'ledger':[{'gate':'dependency-preflight','state':'PASS','code':'INPUT_IDENTITIES_MEASURED','evidence':'dependency-preflight.json','detail':'All twelve direct checkouts match the recorded index and are clean; no nested dependencies initialized.'},{'gate':'producer-debug-bootstrap','state':'PASS','code':'DEBUG_BUILD_PASSED','evidence':'producer-cli-debug-build.json','detail':'Existing producer CLI built in Debug with zero warnings/errors; no qualification tests executed.'},{'gate':'normal-mapped-apphost-baseline','state':'BLOCKED','code':'HXW009','nativeExitCode':2,'evidence':'source-prepare.json','detail':"Actual source preparation cannot read Platform-recorded Builds cc0db51b800be1d0d5badc3780395cfb5953d0f5:Props/Directory.Packages.props from the local Builds object database. The object is unavailable locally; no claim is made that upstream lacks this file."},{'gate':'recorded-builds-object','state':'BLOCKED','code':'LOCAL_OBJECT_UNAVAILABLE','nativeExitCode':128,'evidence':'recorded-builds-object.json','detail':'git cat-file confirms the recorded commit object is unavailable in this non-shallow local repository.'},{'gate':'apphost-launch-and-resource-inspection','state':'not-applicable','code':'NOT_LAUNCHED','detail':'No source mapping was produced, so no AppHost was launched and no resource-readiness result is inferred.'},{'gate':'implementation-artifact-controls-and-v3','state':'BLOCKED','code':'BASELINE_REQUIRED','detail':'Collector changes, exact candidate collection/36 controls, additive v3 and all implementation regressions/held command ledgers remain unexecuted because the required baseline did not become healthy.'},{'gate':'preservation','state':'PASS','code':'INPUTS_UNCHANGED','evidence':'preservation-check.json','detail':'Protected bytes, root/index/gitlinks/checkouts/nested state and existing sessions preserved; runtime/native/final outputs remain absent.'},{'gate':'historical-boundary-replay-and-runtime-publication','state':'not-applicable','code':'OUTSIDE_PREREQUISITE','detail':'Neither historical replay nor runtime publication belongs to this prerequisite.'}],'nextOwnerAction':'Resolve the Platform/Builds source identity and local object availability within separately reviewed owner scope, then rerun the required mapped Debug baseline in a new attempt before code edits. Do not change pins/gitlinks or fetch/initialize nested dependencies under this attempt.','remainingTasks':['collector selectors, independent candidate/root identity, prepared/recorded/accepted Platform observations and evidence carriers','exact independently verified 4.38.3 signed artifact/source/CI/schema/catalog and 36 controls','exact adoption delta/dispositions, package preparation/action export and retained producer review groups','additive held tooling v3 contracts/schema/policy/trust/summary and lazy consumer routing','focused collector/tooling/generator/adoption regressions, 15 native fixture routes and 3 deterministic final pairs','18 selected v3 and 12 preserved legacy held commands with absent runtime outputs','final source/stream/changed-path evidence and independent Story 7.3 guards']})
+print(json.dumps({'state':'BLOCKED','protectedFiles':len(entry['protectedFiles']),'preservationChecks':len(checks),'commands':len(commands),'redactedStreams':len(redactions),'runtimeTests':0}))

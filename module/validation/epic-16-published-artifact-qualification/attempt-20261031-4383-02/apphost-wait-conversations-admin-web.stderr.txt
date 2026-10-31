@@ -1,0 +1,4 @@
+❌ Resource 'conversations-admin-web' entered a failed state: Stopped waiting for resource 'conversations-admin-web' to become healthy because it failed to     
+   start.                                                                                                                                                       
+📄 See logs at /home/administrator/.aspire/logs/cli_20261031T064134_78c0fd45.log
+🔍 See AppHost logs at /home/administrator/.aspire/logs/cli_20261031T064011956_detach-child_5eb4a5e128cd4392ab4fdd30cb91b501.log

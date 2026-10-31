@@ -1,0 +1,14 @@
+import json,os,pathlib,runpy,sys
+phase=sys.argv[1];sys.argv=['capture','noop'];n=runpy.run_path('/tmp/epic16-4383-provenance-resume.py');a=n['ATTEMPT'];r=n['ROOT'];run=n['run'];write=n['write'];app='src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj'
+prepared=json.loads((a/'source-prepare.stdout.txt').read_bytes());env=os.environ.copy();env.update(prepared['buildPreparation']['environment'])
+assert json.loads((a/'apphost-run.json').read_bytes())['exitCode']==0
+owned=json.loads((a/'apphost-run.stdout.txt').read_bytes());assert owned['appHostPath']==str(r/app)
+if phase=='inspect':
+ run('aspire-ps-running',['aspire','ps','--format','Json','--non-interactive'],env=env)
+ sessions=json.loads((a/'aspire-ps-running.stdout.txt').read_bytes());selected=[s for s in sessions if s['appHostPath']==str(r/app)];assert len(selected)==1 and all(selected[0][k]==owned[k] for k in ['appHostPid','cliPid'])
+ write('owned-apphost.json',{k:owned[k] for k in ['appHostPath','appHostPid','cliPid','logFile']})
+ run('apphost-describe-initial',['aspire','describe','--apphost',app,'--include-hidden','--format','Json','--non-interactive'],60,env=env)
+ run('apphost-wait-conversations',['aspire','wait','conversations','--apphost',app,'--status','healthy','--timeout','120','--non-interactive'],135,env=env)
+elif phase=='final':
+ run('apphost-describe-final',['aspire','describe','--apphost',app,'--include-hidden','--format','Json','--non-interactive'],60,env=env)
+ run('aspire-logs-help',['aspire','logs','--help'],env=env)

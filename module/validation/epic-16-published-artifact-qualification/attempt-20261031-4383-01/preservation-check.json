@@ -1,0 +1,1276 @@
+{
+  "state": "PASS",
+  "evaluatedChecks": 213,
+  "assertionLedger": [
+    {
+      "id": "unchanged-head",
+      "state": "PASS"
+    },
+    {
+      "id": "unchanged-tree",
+      "state": "PASS"
+    },
+    {
+      "id": "unchanged-indexSha256",
+      "state": "PASS"
+    },
+    {
+      "id": "unchanged-indexEntriesSha256",
+      "state": "PASS"
+    },
+    {
+      "id": "unchanged-branch",
+      "state": "PASS"
+    },
+    {
+      "id": "unchanged-stagedDiff",
+      "state": "PASS"
+    },
+    {
+      "id": "unchanged-rootGitlinks",
+      "state": "PASS"
+    },
+    {
+      "id": "unchanged-protectedFiles",
+      "state": "PASS"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": ".config/dotnet-tools.json",
+      "sha256": "1ea6be710eaed92fdaa4f0d9c9c6fce11f4efcaca81a555cdae18fd6ead4fa6d"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": ".gitattributes",
+      "sha256": "d7b349e3620e883fcc66000a53e614c1ec331a45024cab5189d9943b51a5ef4c"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": ".gitmodules",
+      "sha256": "f772e17bced54e00841b7e84c2e9e4e1624387883c129d2a851316cacab38987"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "Directory.Build.props",
+      "sha256": "6075e5149286cced92b0e1a3c594eab8cf8688c54432f76b4d935d5571e06a8f"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "Directory.Packages.props",
+      "sha256": "87559bfb23a9e906ba564350f4d051406dc3519e1a80f2bcb16d7e3f3fa9a19a"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/implementation-artifacts/epic-16-tooling-qualification-and-binding-refresh-plan.md",
+      "sha256": "5a33442c184cfe90506b727e981883fd076437728658f75a4c122bd862d3b76a"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/implementation-artifacts/spec-epic-16-tooling-qualification-and-binding-refresh.md",
+      "sha256": "94f24d4acf9dccbe5649933d41edc8f2796e3d5cff2340f3a67751f580e120de"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/README.md",
+      "sha256": "bc7d953ab6ea741b488ae8c96f5d4a7dde6d1fe2ef0ff33a3ff79b2cb82a6157"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/execution-graph.json",
+      "sha256": "989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/inventories.json",
+      "sha256": "791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json",
+      "sha256": "074189ef4eea79bddeef5935b27df01c637dc5bf832a17eb24933c52968364c0"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.1.json",
+      "sha256": "da8c5462c77239f9f770a9b803b436824efb8e58f7f182fb66ec1343902beae7"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json",
+      "sha256": "542f1de5e4af3c58c9df7d654e04dd2ea99b9f63cd50bcf864ef5c2ba1257963"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.3.json",
+      "sha256": "226a0a060951139346282a8048338ff9af35014fe7154d79a8863da56507c9dc"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/README.md",
+      "sha256": "e12ee39652b9d7e18052716c955962d716f7e48b6fea2cd1f43f6a22d783ecb0"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/execution-graph.json",
+      "sha256": "989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/inventories.json",
+      "sha256": "791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/package.json",
+      "sha256": "4c533a78c3f0f115f28d1113e5b2e71a4d71c93b5c08b4e3ebf8cfa23e47b9bd"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.1.json",
+      "sha256": "3088bcf463a6bd7643925195c0ecf3e34f26e72caf6706c08e2c62b3ddaae2f6"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.2.json",
+      "sha256": "d9fd9f9fe66b178f2435396ab467886d9dd04024754ff5970345fa1802f53560"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.3.json",
+      "sha256": "b353f763387047063f3c2c8d9a0373de8e61f054ea7a3df714c29f43db21b712"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/epic.md",
+      "sha256": "b0b110461e81457a12b35bc8515ad691d26a926b206189495241f7f52a50097c"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/execution-graph.json",
+      "sha256": "989cea64a9f8bdcee5d69909d2c3f9662722e27ba19ba3d80e129fcab54c3747"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/inventories.json",
+      "sha256": "791b3a9de4a6f846fe265a5284ee2d8d930b30a2ec1cd48ca6ee1a8eb7e792b8"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/package.json",
+      "sha256": "16eaf5b30e379ca50172a20fa5b069ac6a3cd4c675c5ca322d9178a1929f5746"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.1.json",
+      "sha256": "3e44d0498d231633a12ee122d72535c178870a1601ab8c552c815566fe257e08"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.2.json",
+      "sha256": "a21c8c817e5126343110a5e6730883b5cf32738610b3f552ef6cdbbfe605a965"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.3.json",
+      "sha256": "5eeccfb8427e4ebccc1955f965d00e3c5655834a3c3005443c970be2dd99509a"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md",
+      "sha256": "a716350aae1a3352e2671ae6533047d3dd53f338f75c9e8ac71c6ba30729b574"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+      "sha256": "eb67da125239bf7e533c21125de1c4569dd0f6cd2b0e914d0953c3da1b2a520a"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "sha256": "724a8446b505724700b50009df97387e9f7631d63d800a491e54f23095c9043b"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+      "sha256": "7ee6c0a68b9e1a916cfa808d4891581cf6f62417bd2f4cf1adcedc847347277d"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json",
+      "sha256": "c510f07c4aa2714f07df5c36e11f6b38a0639ddea56d293996752ebe068103f5"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/README.md",
+      "sha256": "be41eec432410cde29a1679b87bff2eb9bf3a1577f2cdd55e24b688083230676"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/binding.json",
+      "sha256": "ff457038fcb2fd1e00503407d49ead4d3d95cf3f56d247b0941d0cb653e0fb0d"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "sha256": "631686da12952ed0c3db6aee0e4cb133feca2fa492e84e52262e8cf97ac03cf8"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.2.json",
+      "sha256": "48bf0236e3627847e83ce9f4811f7f19ebf14c7ecad123ffae6b4acf1b31bae7"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.3.json",
+      "sha256": "b3dfb6802a07215a1772316b3f748e13fe2e5d01b6a43040e1b12879ec1d855a"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/schemas/epic-16-adoption-v1.schema.json",
+      "sha256": "884d8efb4bf58571c99dca0b63ba0f97b10e50db0cb4bd238ed5a96f017f4f98"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/schemas/epic-16-adoption-v2.schema.json",
+      "sha256": "12278d301a8945ba929d28ecb7a8091663e40f23d821aa4cf3d2d3ec765d3a4f"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/schemas/epic-16-prerequisites-v1.schema.json",
+      "sha256": "b7095d7191a96dcefb5a0c333958e5c7eccbd7fa1fae9cb8d62ea2ec8bcad497"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/schemas/epic-16-tooling-v1.schema.json",
+      "sha256": "f72a7435dac004cc80c88f444dd8cca135a67f29805ce9f95c68e2e596424ee3"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/schemas/epic-16-tooling-v2.schema.json",
+      "sha256": "c8eb8c0d362266fef85b30adeb23b8d1b502963f99c9514a1d5511a061141c91"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/authoring_outputs.py",
+      "sha256": "17abd7aca9d82cc6bdb17cf5db5df711b06e75ed4bcac46138f98daf750d897d"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/config_utils.py",
+      "sha256": "48afe2bc18a29201e343cce3703be1e70df9c83ee74eeb68e57ef8ef42e8c651"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/contained_reader.py",
+      "sha256": "fac77aa5381c54fd7df3d2b70204b46b4be353992a6529a44dac2da46ea6001b"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_capture.py",
+      "sha256": "a05acdd2300589e9c08c67ffa1c397c615f3fccfdd1b1e753d8e8e60c9947e99"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_domain.py",
+      "sha256": "b59cc54ea133a7c831047294bf34a7d92c5b63421578cb57ce47ed3b61a98cf3"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_execution.py",
+      "sha256": "b83a28b33e39965c65af91843e8f3b9f68e071272d950dfca25e192c68965755"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_faults.py",
+      "sha256": "1a58f4492e7b4b53a2d016c05b54df31274a90d6494c3cd40c3251426c1959b5"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "sha256": "0c429d1608323c71c9605bab3a02556d5d5d389a79515f0d08b0083d75ada465"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "sha256": "c4db659fcaa43f55d0f88e2fdc47c0f9c2ac84676a2ffed7d5cfbbb88091f71f"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_native.py",
+      "sha256": "a092c95518aa2b7e1bfb26cbbe15ef196aa5bf5c951616625f5c12b94b9c6155"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_native_helper/Epic16.NativeHelper.csproj",
+      "sha256": "f3057cab73b03ec077940f41c8b23a30032c563c1989dc680ac7b60764d4fcb5"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_native_helper/EventStore-LICENSE",
+      "sha256": "6af66baf053023d456706de321e3cea6a6edbb288ffec10f673186b1befe7ac2"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_native_helper/ProductMetadata.cs",
+      "sha256": "ef75fbd3b889b78c2e2678db4d99cdb7448f231f29b3d22cb300dff0bb5e3902"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_native_helper/Program.cs",
+      "sha256": "ca06233bdb4466306b9f0f329f1c087fec71a3f46005562454410503491a5e9a"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_native_helper/README.md",
+      "sha256": "e65d5be2a5597753bc167e6ebcebd4ce48a71e100d87e3e329601246d55138ac"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_native_helper/ReadModelBatchCanonicalJson.cs",
+      "sha256": "1f9430e33cefaa51757c36f27d57ed509a31d08aa5f35b05a4159b7d806362f9"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_native_helper/SignatureNames.cs",
+      "sha256": "a65eb6120957a90478e644ba06f02f38085bfbd8b767d1a97e2ad36838e03450"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+      "sha256": "48b39a9048eadd8f6c094db9a267069bfdaf24af65e5a069e46337af7dbbe218"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_packages.py",
+      "sha256": "cf9213366ee5ee35655b2c0cd91c4919fd75d0d4a76317d40ba4d5a7fba37fb1"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_products.py",
+      "sha256": "3b4d2e085a42faf33e97ad8e782e604737c4b364ded157767ddbd845d2b3635e"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "sha256": "b80c2632de8198ad823518844dd17e483af977947bff841b5934ce7c0ec2ceb9"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "sha256": "de0ec931ac21ea0887b311aaf4b9c99bdb8394100e1f405386d87bea7969d8d7"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_tooling.py",
+      "sha256": "a0c64bc6f6b9cc463296bc112e614824c9df0fd7a28855d4392b754fb0ff4f6b"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_trust.py",
+      "sha256": "adde2059614ad92722a67580d1f745378c184e496ce3e0c5325564c334d3a6a1"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/epic16_trust_v2.py",
+      "sha256": "2f6e077ac90c22a06346c0777dc07e12611cfa92e0c2e37f9cddcd4084b35dc2"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/evidence_boundary_current.py",
+      "sha256": "42ae5eb021be38647bf0172db4d4b41cd7c3c5fc299edffbeee616527b6eefdd"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/generate_story_record.py",
+      "sha256": "08cf61ef856978fb107f54b21f3672544e249fc45559706d0f4b6d65b5c004a2"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/qualify_epic16_published_artifact.py",
+      "sha256": "a2fcbe52dd7bb6254bbc2e325473475266edd27a68d0190fa2736ac267c31cce"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/tests/fixtures/epic16-contract-wire-goldens.json",
+      "sha256": "f08bbd0ce5205a282c8cb2bfbfeac76046ee73494c41a80c527a1c191552fe93"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/tests/fixtures/epic16-contract-wire-provenance.json",
+      "sha256": "daef7f4e47b2c160b9bba813e9e1e38a3806b8167823bfb60bcf277d58afe8ee"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/tests/fixtures/epic16-domain-sources.json",
+      "sha256": "e3dab27bad8647d76cef2359de80cea4ea1d51f17306e2e98c9f099bfb14d236"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/tests/fixtures/epic16-protocol-goldens.json",
+      "sha256": "04b547e3cf9da207a67142473967fb6ca01ffc4e32df4bd886ae769a0063d373"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/tests/test_epic16_tooling.py",
+      "sha256": "041019802d8f68321ae6354d48f4c8ecb78312b39a6df709b7cb30d9bc2a38a7"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/tests/test_epic16_tooling_v2.py",
+      "sha256": "0cb120fcccb54b4899f7c1985d2f9ee099b74d9b80ff2acf984a8e99b19a61d7"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/verify_epic_16_adoption.py",
+      "sha256": "b22b6d25ae86186d0575a19dfa09b810220c70d3fb9c0eadefc781a53ce68505"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/verify_epic_16_adoption_v2.py",
+      "sha256": "f9ac03603a2b1635b7bb7e7f44262c2acb8f0272fbf55030ea1012932d93b568"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/verify_epic_16_prerequisites.py",
+      "sha256": "b10e910aefdd7f9f19cb80bbb19936efd2340f641be45787c140cf45738bbfa6"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/verify_story_16_1.py",
+      "sha256": "4bbc5a4d40bd2a7ca780d1d4bdbb7277683cb40c2e8cac83d1ee0ff4ad24f928"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/verify_story_16_2.py",
+      "sha256": "e2fdea931ffae8ec4a555e7f9db76ec6aba7ab691476c4eb71010f3e1b68f28b"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/verify_story_16_3.py",
+      "sha256": "eb90d46cdf8470a211c25e43e05d39a3e5dc0abbf27e231385f1400a0c390ad5"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "_bmad/scripts/verify_story_completion_workflows.py",
+      "sha256": "1a01c22abda5aff3ae74b277c4437490c752b130c764199e47799235d6129d99"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "docs/runbooks/current-change-validation.md",
+      "sha256": "d5284f00b8c850d43cabfcd45d2a4cf94d76a04a0bf7d6761ead7f17e5947801"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "global.json",
+      "sha256": "4ec97d7c7e6bee864d2da2c965f18b94b0bd84e71058427f1f6fa69ee6824652"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/hexalith.module-manifest.v2.json",
+      "sha256": "0bed1c297c9c9d78fdb8f37197ac5f71d829191c0535fdd78e4034aaa017bdf0"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/hosting-inventory.json",
+      "sha256": "1bfd46248158637c950cd6764a47f926b1683568218208a0107d3b1ed3ada1e7"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/sm-2-checklist.md",
+      "sha256": "71fb1992ca38602e4cfba34d1b5471459aff986a1ac87b774fb887feafaeec37"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/.gitattributes",
+      "sha256": "6818b9f22daa34c2871fb8c4f30b9af95b8904acb50109bbc06a794c59e79017"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/AC-16.1-01.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/AC-16.1-01.stdout.txt",
+      "sha256": "65d41a7da80e45a6f52cf075b5570f9b6d543111fdf5f1dd040846114cac44ff"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/AC-16.1-02.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/AC-16.1-02.stdout.txt",
+      "sha256": "1cb779bc89eb6882bc2d4bc09bd4b8d94440e25ea732e89daf20ec2b0e10667f"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/AC-16.1-03.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/AC-16.1-03.stdout.txt",
+      "sha256": "0fe6f382ce940de1546a23a5908404c31bd2b4ed92682e94569269b07a3af02b"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/AC-16.1-04.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/AC-16.1-04.stdout.txt",
+      "sha256": "ea489ab410989b06673c7d80864230cc5b9ead29bc60be7337e672a171fa3963"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/AC-16.1-05.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/AC-16.1-05.stdout.txt",
+      "sha256": "fabafcb764c15b3eac779e0be4954982baa3ec64a1d5c338ec974f2c866dbaa4"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/AC-16.1-06.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/AC-16.1-06.stdout.txt",
+      "sha256": "134b19d4db6b4a7eb53aba81e918ce662bd1e21bb98fc5db9e66a1b7ac739f90"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/adoption-json.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/adoption-json.stdout.txt",
+      "sha256": "2e7988aa76501cc4f8cd5e373ec740503c66c6d63bcb37f179335fb4c0747a26"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/adoption-text.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/adoption-text.stdout.txt",
+      "sha256": "446c038fcefab2a958c1befea1bcc29052bfc4af0eefd7e91d37a676d0ac5008"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/ordinary.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/ordinary.stdout.txt",
+      "sha256": "bc037e128cae9965e41ebb9c79ae42d51a432e95acf1102acaa7ef5fe498bdf0"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/prepare-build-help.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/prepare-build-help.stdout.txt",
+      "sha256": "8c94e82fc2bf5cf116715d18333b13d13e6988aa5fd9bb281127b019a43556bf"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/prepare-build.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/prepare-build.stdout.txt",
+      "sha256": "a4648a277904bcbb32b19fe05bda66f935a6dbe4d120a3a394daf8de658dd8ca"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/results.json",
+      "sha256": "4f74cddcdfa2621059874da4da67ad107080e74628ee065309672cf01bef888f"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/tool-version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "module/validation/epic-16-entry-2026-10-27/tool-version.stdout.txt",
+      "sha256": "2263b9f44abd72ad7f9a4c5ad92505b0ebbccb4356f1e289438b203995fa6de9"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "references/Hexalith.AI.Tools/hexalith-llm-instructions.md",
+      "sha256": "49e0fc0c04960b6f986343e87250462313394642ce9f9451de7ddca34e849bb4"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "references/Hexalith.Platform/.config/dotnet-tools.json",
+      "sha256": "1ea6be710eaed92fdaa4f0d9c9c6fce11f4efcaca81a555cdae18fd6ead4fa6d"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "references/Hexalith.Platform/.github/workflows/tuple-ci.yml",
+      "sha256": "322521c7c72ae4a6c6cb37a0bfa3f3aaa34b5c546a1156745ffa3b071da213e1"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "references/Hexalith.Platform/README.md",
+      "sha256": "d3940e42a5530f72640d93eccb999753d01c0bd26ce7e5a7291f86eaa9647dba"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "references/Hexalith.Platform/eng/prepare_builds_artifacts.py",
+      "sha256": "454b8fb70803069206e2d4346da8080651b7593db6919b8ab8b1474b9989113f"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "references/Hexalith.Platform/eng/run_tuple_ci.py",
+      "sha256": "583830d1cd7462bbb82d83321ae181eb37c48fe89827ce44daf582403923400c"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "references/Hexalith.Platform/hexalith-platform.json",
+      "sha256": "efcbf0f9f358803ef16418a205f1adc25124139070f9a384f2dae81acf82059c"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "src/Hexalith.Conversations.AppHost/ConversationsAppHostResources.cs",
+      "sha256": "16bafd487b4142dbfe6501ec7f095abf7c54c4fc1c1595f9c27539a456dadfa1"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "src/Hexalith.Conversations.AppHost/ConversationsAppHostTopology.cs",
+      "sha256": "c277bea88f4c5784fa9fae573f202d30b1a1e2887eb48a8cd26aab6e8112ebc5"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "sha256": "7bfb00ecd6b122cc7d241e6379a41d55d45488f61f10c0e82aa69c06c7fb9f2f"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "src/Hexalith.Conversations.AppHost/KeycloakRealms/hexalith-realm.json",
+      "sha256": "858e57b863fb5c3dca55c01e3d7972db9b637dd4d94d389c1b0bb1d4f00d0d91"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "src/Hexalith.Conversations.AppHost/Program.cs",
+      "sha256": "3fd2b6803ff32a808aca097a05ce52c40e6d525533e71bcce6e4b1f86a63d4af"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "src/Hexalith.Conversations.AppHost/Properties/launchSettings.json",
+      "sha256": "9be006b8104bc650842d33c324208d9356d6082fd08763cb26a14cee274c9bf3"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "src/Hexalith.Conversations.AppHost/aspire.config.json",
+      "sha256": "72746e6e7aa2d1f049fe57de87a31ba931fddf0c3d170c1715383bb56c7f7630"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "tests/Directory.Build.props",
+      "sha256": "fdfa72e0e13ac1d56b2c61e088781d311babe1e49fbe075cf4faeb3079d763a4"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props",
+      "sha256": "1829424f3e0bb649130e4dd551e7153a60d3c8b15cc9230462922e5f2b441f00"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx",
+      "sha256": "d1d35e98212004aebb896470c454cb27536cecf088bae44688c71b84364f1e02"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/README.md",
+      "sha256": "1237ce284dbb1dd03e583d76075536ec07a190b24940810e1dece70d2f83d4e2"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/ConversationCreated.cs",
+      "sha256": "77bc0e65e08cc5cd47ff30bd485383c4c67307e9a8a050f5bbfd96ab6635707c"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/CreateConversation.cs",
+      "sha256": "2bde9eb11aa095f7cb0e7127bffbcce65408663f09b3ff6a6c3cfde3d061532d"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/Hexalith.Conversations.MinimalModule.Contracts.csproj",
+      "sha256": "0c71e7b64c02f5053e556e51dde2284547d9a0d454c90ef21f196bf44181b11e"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/packages.lock.json",
+      "sha256": "52cbaccb8876b9df65fa7e691cf18b6755378e69aa50451ad5e4e211fcac0314"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationAggregate.cs",
+      "sha256": "a700a1ba954e7dd0cf5da40dc79e74f6fda3038460c873a36cf6cc726fba1a4e"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationModule.cs",
+      "sha256": "0c16ebc8432cb8e8e6d9fb0a741a50a9a9ce765050c192eff9c326acbb27e7e8"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/Hexalith.Conversations.MinimalModule.Server.csproj",
+      "sha256": "815c4bd91e1ea95728f087c27e08538b818b70c5046f7666caf54436a86723fa"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/packages.lock.json",
+      "sha256": "d9f8362c9a38b3ad08481559e89dbebc92c474a06e1579923182f4419796295c"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/AppHost.cs",
+      "sha256": "42e0d71777bc9456a600c8bc8618fa3e6f3d6c4a95a5dfffdee9056d985175a6"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj",
+      "sha256": "320077e5282671bbe921ce01c3ed7f8680d096f31a499e0e41a32ff49a02e36f"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/packages.lock.json",
+      "sha256": "78b06f0a95f4be921ace42500c2eba6e7578c0dccb162a2400d838c9b15a2423"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/Hexalith.Conversations.MinimalModule.Tests.csproj",
+      "sha256": "6232260db2a9496548739fbd86398cb75a48208454c1860f9684a7d8d4e1f11f"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/MinimalModuleFixtureTests.cs",
+      "sha256": "b5a1c813bd41ffd72e54612e94ae742955294b33d2099e3d463d27617d6e2229"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/packages.lock.json",
+      "sha256": "7a55c490e0263300eb97079fffc684ca61b1f00acd057bcf213f7f743744d104"
+    },
+    {
+      "id": "protected-input",
+      "state": "PASS",
+      "path": "tests/tooling/test_epic16_published_artifact_qualification.py",
+      "sha256": "8482887c80f1a48a1947d2ea69579ca0d6cd90a07ba4a9ec3d800c76f85893a0"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-01.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-01.trx"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-01.capture.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-02.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-02.trx"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-02.capture.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-03.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-03.trx"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-03.capture.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-04.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-04.trx"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-04.capture.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-05.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-05.trx"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.1/AC-16.1-05.capture.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "docs/release-evidence/story-16.1-final-record-v2.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "docs/release-evidence/story-16.1-final-record-v2.md"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.2/AC-16.2-01.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.2/AC-16.2-01.trx"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.2/AC-16.2-01.capture.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.2/AC-16.2-02.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.2/AC-16.2-02.trx"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.2/AC-16.2-02.capture.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.2/AC-16.2-03.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.2/AC-16.2-03.trx"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.2/AC-16.2-03.capture.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.2/AC-16.2-04.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.2/AC-16.2-04.trx"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.2/AC-16.2-04.capture.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.2/AC-16.2-05.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.2/AC-16.2-05.trx"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.2/AC-16.2-05.capture.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "docs/release-evidence/story-16.2-final-record-v2.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "docs/release-evidence/story-16.2-final-record-v2.md"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.3/AC-16.3-01.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.3/AC-16.3-01.trx"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.3/AC-16.3-01.capture.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.3/AC-16.3-02.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.3/AC-16.3-02.trx"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.3/AC-16.3-02.capture.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.3/AC-16.3-03.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.3/AC-16.3-03.trx"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.3/AC-16.3-03.capture.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.3/AC-16.3-04.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.3/AC-16.3-04.trx"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.3/AC-16.3-04.capture.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.3/AC-16.3-05.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.3/AC-16.3-05.trx"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.3/AC-16.3-05.capture.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "docs/release-evidence/story-16.3-final-record-v2.json"
+    },
+    {
+      "id": "absent-runtime-output",
+      "state": "PASS",
+      "path": "docs/release-evidence/story-16.3-final-record-v2.md"
+    },
+    {
+      "id": "absent-runtime-directory",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.1"
+    },
+    {
+      "id": "absent-runtime-directory",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.2"
+    },
+    {
+      "id": "absent-runtime-directory",
+      "state": "PASS",
+      "path": "artifacts/epic16-runtime/16.3"
+    },
+    {
+      "id": "existing-sessions-preserved",
+      "state": "PASS",
+      "sessions": [
+        {
+          "appHostPath": "/home/administrator/projects/hexalith/tenants/src/Hexalith.Tenants.AppHost/Hexalith.Tenants.AppHost.csproj",
+          "appHostPid": 430453,
+          "cliPid": 395900
+        }
+      ]
+    },
+    {
+      "id": "no-created-apphost",
+      "state": "PASS"
+    },
+    {
+      "id": "bounded-command-capture",
+      "state": "PASS",
+      "commands": 15
+    }
+  ],
+  "protectedFileCount": 148,
+  "runtimeOutputPaths": [
+    "artifacts/epic16-runtime/16.1/AC-16.1-01.json",
+    "artifacts/epic16-runtime/16.1/AC-16.1-01.trx",
+    "artifacts/epic16-runtime/16.1/AC-16.1-01.capture.json",
+    "artifacts/epic16-runtime/16.1/AC-16.1-02.json",
+    "artifacts/epic16-runtime/16.1/AC-16.1-02.trx",
+    "artifacts/epic16-runtime/16.1/AC-16.1-02.capture.json",
+    "artifacts/epic16-runtime/16.1/AC-16.1-03.json",
+    "artifacts/epic16-runtime/16.1/AC-16.1-03.trx",
+    "artifacts/epic16-runtime/16.1/AC-16.1-03.capture.json",
+    "artifacts/epic16-runtime/16.1/AC-16.1-04.json",
+    "artifacts/epic16-runtime/16.1/AC-16.1-04.trx",
+    "artifacts/epic16-runtime/16.1/AC-16.1-04.capture.json",
+    "artifacts/epic16-runtime/16.1/AC-16.1-05.json",
+    "artifacts/epic16-runtime/16.1/AC-16.1-05.trx",
+    "artifacts/epic16-runtime/16.1/AC-16.1-05.capture.json",
+    "docs/release-evidence/story-16.1-final-record-v2.json",
+    "docs/release-evidence/story-16.1-final-record-v2.md",
+    "artifacts/epic16-runtime/16.2/AC-16.2-01.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-01.trx",
+    "artifacts/epic16-runtime/16.2/AC-16.2-01.capture.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-02.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-02.trx",
+    "artifacts/epic16-runtime/16.2/AC-16.2-02.capture.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-03.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-03.trx",
+    "artifacts/epic16-runtime/16.2/AC-16.2-03.capture.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-04.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-04.trx",
+    "artifacts/epic16-runtime/16.2/AC-16.2-04.capture.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-05.json",
+    "artifacts/epic16-runtime/16.2/AC-16.2-05.trx",
+    "artifacts/epic16-runtime/16.2/AC-16.2-05.capture.json",
+    "docs/release-evidence/story-16.2-final-record-v2.json",
+    "docs/release-evidence/story-16.2-final-record-v2.md",
+    "artifacts/epic16-runtime/16.3/AC-16.3-01.json",
+    "artifacts/epic16-runtime/16.3/AC-16.3-01.trx",
+    "artifacts/epic16-runtime/16.3/AC-16.3-01.capture.json",
+    "artifacts/epic16-runtime/16.3/AC-16.3-02.json",
+    "artifacts/epic16-runtime/16.3/AC-16.3-02.trx",
+    "artifacts/epic16-runtime/16.3/AC-16.3-02.capture.json",
+    "artifacts/epic16-runtime/16.3/AC-16.3-03.json",
+    "artifacts/epic16-runtime/16.3/AC-16.3-03.trx",
+    "artifacts/epic16-runtime/16.3/AC-16.3-03.capture.json",
+    "artifacts/epic16-runtime/16.3/AC-16.3-04.json",
+    "artifacts/epic16-runtime/16.3/AC-16.3-04.trx",
+    "artifacts/epic16-runtime/16.3/AC-16.3-04.capture.json",
+    "artifacts/epic16-runtime/16.3/AC-16.3-05.json",
+    "artifacts/epic16-runtime/16.3/AC-16.3-05.trx",
+    "artifacts/epic16-runtime/16.3/AC-16.3-05.capture.json",
+    "docs/release-evidence/story-16.3-final-record-v2.json",
+    "docs/release-evidence/story-16.3-final-record-v2.md"
+  ],
+  "measuredRuntimeTests": 0,
+  "createdAppHost": null,
+  "cleanup": {
+    "state": "not-applicable",
+    "reason": "source preparation blocked before launch; no owned instance exists"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "recorded-builds-object-after",
+  "command": [
+    "git",
+    "cat-file",
+    "-t",
+    "cc0db51b800be1d0d5badc3780395cfb5953d0f5"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+  "pid": 6890,
+  "startedAtUtc": "2026-10-31T06:38:25.208721+00:00",
+  "durationSeconds": 0.101,
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "recorded-builds-object-after.stdout.txt",
+    "bytes": 7,
+    "sha256": "50836eee574ecff79dea3b4fd40673d7d000f7a5f177d8a6a3000b59c78383b8"
+  },
+  "stderr": {
+    "path": "recorded-builds-object-after.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

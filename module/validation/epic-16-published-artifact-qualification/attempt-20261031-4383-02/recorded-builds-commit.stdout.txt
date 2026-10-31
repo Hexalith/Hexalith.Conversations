@@ -1,0 +1,7 @@
+commit cc0db51b800be1d0d5badc3780395cfb5953d0f5
+Author:     Jérôme Piquot <jpiquot@itaneo.com>
+AuthorDate: Fri Oct 30 16:54:53 2026 +0100
+Commit:     Jérôme Piquot <jpiquot@itaneo.com>
+CommitDate: Fri Oct 30 16:54:53 2026 +0100
+
+    fix(module): complete attached-run withdrawal and retention review

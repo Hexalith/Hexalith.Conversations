@@ -1,0 +1,29 @@
+[
+  {
+    "appHostPath": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+    "appHostPid": 52891,
+    "status": "running",
+    "sdkVersion": "13.6.4",
+    "cliPid": 46168,
+    "dashboardUrl": "https://localhost:46861/login?t=[REDACTED]",
+    "logFilePath": "/home/administrator/.aspire/logs/cli_20261031T064011956_detach-child_5eb4a5e128cd4392ab4fdd30cb91b501.log"
+  },
+  {
+    "appHostPath": "/home/administrator/projects/hexalith/tenants/src/Hexalith.Tenants.AppHost/Hexalith.Tenants.AppHost.csproj",
+    "appHostPid": 430453,
+    "status": "running",
+    "sdkVersion": "13.6.4",
+    "cliPid": 395900,
+    "dashboardUrl": "https://localhost:17117/login?t=[REDACTED]",
+    "logFilePath": "/home/administrator/.aspire/logs/cli_20261030T174028526_detach-child_b9bf5b6c70744dd6a310b3a6f4e0783a.log"
+  },
+  {
+    "appHostPath": "/home/administrator/projects/hexalith/frontcomposer/src/Hexalith.FrontComposer.AppHost/Hexalith.FrontComposer.AppHost.csproj",
+    "appHostPid": 56938,
+    "status": "running",
+    "sdkVersion": "13.6.4",
+    "cliPid": 27941,
+    "dashboardUrl": "https://localhost:34963/login?t=[REDACTED]",
+    "logFilePath": "/home/administrator/.aspire/logs/cli_20261031T063921333_detach-child_42bac72e424a4504928db520c0de64d5.log"
+  }
+]
