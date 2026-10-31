@@ -1,0 +1,6 @@
+* -text diff -whitespace
+*.nupkg -text -diff
+*.zip -text -diff
+*.dll -text -diff
+*.pdb -text -diff
+*.bundle -text -diff

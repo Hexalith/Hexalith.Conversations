@@ -1,0 +1,22 @@
+import json,os,shlex,runpy,sys
+sys.argv=['capture','noop'];n=runpy.run_path('/tmp/epic16-4383-isolation-baseline.py');A=n['ATTEMPT'];R=n['ROOT'];rows=[]
+outputs=[]
+for story in ('16.1','16.2','16.3'):
+ for base in ('artifacts/epic16-runtime','artifacts/native'):
+  outputs.append(base+'/'+story)
+ outputs += [f'docs/release-evidence/story-{story}-final-record-v2.{ext}' for ext in ('json','md')]
+assert all(not (R/p).exists() and not (R/p).is_symlink() for p in outputs)
+for version in ('v3','v1','v2'):
+ for story in (('16.1','16.2','16.3') if version=='v3' else ('16.1',)):
+  path=f'_bmad-output/planning-artifacts/epic-16-tooling-{version}/story-contracts/{story}.json'
+  contract=json.loads((R/path).read_bytes())
+  for record in contract['commands']:
+   label=f'held-{version}-{record["scenarioId"]}'
+   native=n['run'](label,shlex.split(record['command']),120)
+   data=json.loads((A/(label+'.stdout.txt')).read_bytes());expected='ENTRY_QUALIFICATION_PENDING' if version=='v3' else 'SOURCE_DRIFT';exit_code=2 if version=='v3' else 1
+   ok=native['exitCode']==exit_code and expected in data['blockers'] and bool(data['assertionLedger']) and data['counts']==dict(total=0,passed=0,failed=0,skipped=0) and data['runtimeQualified'] is False
+   assert ok,(label,data)
+   assert all(not (R/p).exists() and not (R/p).is_symlink() for p in outputs)
+   rows.append(dict(version=version,storyId=story,scenarioId=record['scenarioId'],command=record['command'],state=data['result'],nativeExitCode=native['exitCode'],code=expected,assertionCount=len(data['assertionLedger']),measuredRuntimeTests=data['counts']['total'],stdout=native['stdout'],stderr=native['stderr']))
+n['write']('held-command-ledger.json',dict(state='PASS',evaluatedCommands=len(rows),v3Commands=18,legacyCommands=12,measuredRuntimeTests=0,runtimeOutputsAbsent=True,outputPaths=outputs,ledger=rows))
+print('All 30 actual held commands verified; no runtime outputs.')

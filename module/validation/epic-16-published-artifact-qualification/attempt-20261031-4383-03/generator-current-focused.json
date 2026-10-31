@@ -1,0 +1,40 @@
+{
+  "name": "generator-current-focused",
+  "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "-ra",
+    "-p",
+    "no:cacheprovider",
+    "_bmad/scripts/tests/test_generate_story_record.py",
+    "-k",
+    "(successor or optional or tooling or standalone or epic16 or dialect) and not story_113_"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 67917,
+  "startedAtUtc": "2026-10-31T17:11:06.393356+00:00",
+  "durationSeconds": 1.303,
+  "timeoutSeconds": 900,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "generator-current-focused.stdout.txt",
+    "bytes": 116,
+    "sha256": "5f16cf6d3afe6dc965929f97110761b189f969441ff90e694182d2e24be0b2ae"
+  },
+  "stderr": {
+    "path": "generator-current-focused.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

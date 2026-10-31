@@ -50,6 +50,20 @@ context:
 
 ## Entry Requirements
 
+The [fresh 2026-10-31 qualification and held v3 attempt](../../module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/README.md)
+passes the repaired complete mapped Debug baseline, exact signed 4.38.3 artifact
+identity and all 36 controls. It records 29 adoption rows (7 PASS/22 FAIL),
+Platform's recorded/prepared source inequality, and 55 unavailable declared
+producer evidence files. The prerequisite remains incomplete because that
+required evidence is BLOCKED. Explicitly selected tooling v3 refreshes source
+binding while retaining null entry, empty trust and ACTIVE hold. It confers no
+runtime readiness, acceptance or Story 16.1 implementation authority. This story
+remains draft/backlog; all runtime tasks below remain untouched.
+The [measured qualification ledger](../../module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/collection-measured/qualification-ledger.json) and
+[30-command held-route ledger](../../module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/held-command-ledger.json) preserve distinct candidate and entry outcomes.
+The full broad regression run timed out; focused current results do not claim
+completion of that broader run.
+
 The retained [entry investigation](story-16-1-entry-investigation-2026-10-30.md) measured root 4.38.2 versus Platform's prepared 4.38.3, six PASS/twenty-one FAIL adoption rows and SOURCE_DRIFT in both tooling versions. Those measurements precede the external dependency update; the separate prerequisite captures fresh execution inputs. Nine owner qualifications, trusted entry and compatible predecessors remain required. Runtime entry stays BLOCKED; preserve draft/backlog.
 
 The selected [separate prerequisite](spec-epic-16-4-38-3-qualification-and-binding-refresh.md) owns current candidate measurement and held source-binding preparation. Its approval does not qualify runtime entry.

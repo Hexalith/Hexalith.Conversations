@@ -1,0 +1,30 @@
+{
+  "name": "aspire-project-resource-docs",
+  "command": [
+    "aspire",
+    "docs",
+    "get",
+    "project-resources"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 1813274,
+  "startedAtUtc": "2026-10-31T16:10:15.144178+00:00",
+  "durationSeconds": 2.405,
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "aspire-project-resource-docs.stdout.txt",
+    "bytes": 22379,
+    "sha256": "7143f2f763e2c347a0b5ddc83c317f472c5d26834f4c8bdb6dcf4d944d1a7a61"
+  },
+  "stderr": {
+    "path": "aspire-project-resource-docs.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

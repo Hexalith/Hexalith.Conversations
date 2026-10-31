@@ -1,0 +1,39 @@
+{
+  "name": "adoption-v1-v2-current-focused",
+  "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "-ra",
+    "-p",
+    "no:cacheprovider",
+    "_bmad/scripts/tests/test_verify_epic_16_adoption.py",
+    "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 68322,
+  "startedAtUtc": "2026-10-31T17:11:07.696699+00:00",
+  "durationSeconds": 15.031,
+  "timeoutSeconds": 900,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "adoption-v1-v2-current-focused.stdout.txt",
+    "bytes": 421,
+    "sha256": "8a150ce4c04ffe882967b53954d20b7c6107cb703822785b64227a764be2d720"
+  },
+  "stderr": {
+    "path": "adoption-v1-v2-current-focused.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

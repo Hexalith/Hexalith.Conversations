@@ -1,0 +1,79 @@
+{
+  "rootPin": {
+    "rootVersion": "4.38.3",
+    "candidateVersion": "4.38.3",
+    "rollForward": false,
+    "versionsEqual": true,
+    "adoptionAccepted": false,
+    "candidateOnly": true
+  },
+  "version": "4.38.3",
+  "releaseSha": "d1931b1e803144048d927fff16cb8119afde541e",
+  "inventorySha256": "2421408b564af44ba75a83670aee147d21347d09ed5b823d091c24a6dbc29b5e",
+  "unsignedPackage": {
+    "file": "Hexalith.Builds.Module.Cli.4.38.3.nupkg",
+    "sha256": "4C991A34296EEB12AABC2974CC9AA1153F5B3564B02C420E68D114CA50122567",
+    "sizeBytes": 37660478
+  },
+  "releaseUrl": "https://github.com/Hexalith/Hexalith.Builds/releases/tag/v4.38.3",
+  "signedArchive": {
+    "sha256": "6c074186a9bbfb66c558fe5d1090e1e35fdd58577c0396266074bd1cea8919fd",
+    "sha512Base64": "ZUqhrrwKESuPOzznwOs0yu7mnZ8lVdx7XBOcnWm8yDhrGLVZeU4rz5havkz7pEwOMuAN01uSJUkRRaLXwglc3Q==",
+    "sizeBytes": 37673564
+  },
+  "nuspec": {
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/Hexalith/Hexalith.Builds",
+      "branch": "refs/heads/main",
+      "commit": "d1931b1e803144048d927fff16cb8119afde541e"
+    },
+    "archiveSha256": "e224d824871cd14b13a83d6d3a88d1f3520f0fa47d68313937e3a2d1fc1e1905",
+    "feedSha256": "3176bbbffa8a5c5faa753a967817d5e29871bf07e7cf9e20efb4c6a57f1eb739",
+    "archiveBom": true,
+    "feedBom": false
+  },
+  "toolingAssemblySha256": "4e307577ae4fb02104914951a9905a1c9dd453447a80735443d24fbc83496823",
+  "embeddedCatalog": {
+    "schemaVersion": "1",
+    "eventStoreVersion": "3.128.4",
+    "frontComposerVersion": "4.7.1",
+    "daprSdkVersion": "1.19.0",
+    "aspireHostingVersion": "13.6.4",
+    "aspireHostingDaprVersion": "13.6.2-beta.959",
+    "aspireAppHostSdkVersion": "13.6.4",
+    "daprRuntimeVersion": "1.18.7",
+    "daprCliVersion": "1.18.2",
+    "redisImage": "docker.io/library/redis",
+    "redisImageTag": "7.4-alpine",
+    "redisImageDigest": "sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf",
+    "eventStoreHostingDaprRange": "13.6.2-beta.959"
+  },
+  "embeddedCatalogSha256": "799480b488cba3c2b66f20b78fad76432cd423cd5c460de7252ad9131359d00c",
+  "installedAndLoadedAssemblyEqual": true,
+  "sourceProps": {
+    "rawSha256": "501d72650e3a42afc8fde0345a69208669e7fabdb98b6300f20afca07585d405",
+    "filteredSha256": "443beb3037f215fc602fb0a2bc7eca06ae1bb46fc16ef1df0a2c3fb3b468d2b0",
+    "bytesEqual": false,
+    "catalogSelectionsEqual": {
+      "eventStoreVersion": "3.128.4",
+      "frontComposerVersion": "4.7.1",
+      "daprSdkVersion": "1.19.0",
+      "aspireHostingVersion": "13.6.4",
+      "aspireHostingDaprVersion": "13.6.2-beta.959",
+      "aspireAppHostSdkVersion": "13.6.4",
+      "daprRuntimeVersion": "1.18.7",
+      "daprCliVersion": "1.18.2",
+      "redisImage": "docker.io/library/redis",
+      "redisImageTag": "7.4-alpine",
+      "redisImageDigest": "sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf"
+    }
+  },
+  "qualifiedUnsignedArchive": {
+    "sha256": "4c991a34296eeb12aabc2974cc9aa1153f5b3564b02c420e68d114ca50122567",
+    "sizeBytes": 37660478,
+    "exactCiArchiveEquality": true,
+    "uncompressedPayloadEqual": true
+  },
+  "toolVersion": "4.38.3+d1931b1e803144048d927fff16cb8119afde541e"
+}

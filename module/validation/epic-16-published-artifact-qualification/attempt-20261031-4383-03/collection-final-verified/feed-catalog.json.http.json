@@ -1,0 +1,33 @@
+{
+  "url": "https://api.nuget.org/v3/catalog0/data/2026.10.28.11.53.24/hexalith.builds.module.cli.4.38.3.json",
+  "bytes": 121926,
+  "sha256": "10fed61dacb36da45bd3e8c0e552eec086fa7364bd1dd0fcee0580f357125d93",
+  "timeoutSeconds": 300,
+  "limitBytes": 8388608,
+  "complete": true,
+  "state": "PASS",
+  "workerCommand": "network-feed-catalog.json",
+  "headers": {
+    "Date": "Sat, 31 Oct 2026 16:43:04 GMT",
+    "Content-Type": "application/json",
+    "Content-Length": "121926",
+    "Connection": "close",
+    "Vary": "Accept-Encoding",
+    "Cache-Control": "max-age=2592000",
+    "Last-Modified": "Wed, 28 Oct 2026 11:53:25 GMT",
+    "ETag": "0x8DF34EA12F42C06",
+    "x-ms-request-id": "abd8adce-b01e-0028-6f56-69dc5f000000",
+    "x-ms-version": "2009-09-19",
+    "x-ms-lease-status": "unlocked",
+    "x-ms-blob-type": "BlockBlob",
+    "Access-Control-Expose-Headers": "x-ms-request-id,Server,x-ms-version,Content-Type,Cache-Control,ETag,Last-Modified,x-ms-lease-status,x-ms-blob-type,Content-Length,Date,Transfer-Encoding",
+    "Access-Control-Allow-Origin": "*",
+    "x-azure-ref": "20261031T164304Z-1594545dbc7d5m4rhS1PARdr0w00000006zg000000000ag2",
+    "x-fd-int-roxy-purgeid": "0",
+    "X-Cache": "TCP_MISS",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+    "X-Content-Type-Options": "nosniff",
+    "Accept-Ranges": "bytes"
+  },
+  "responseUrl": "https://api.nuget.org/v3/catalog0/data/2026.10.28.11.53.24/hexalith.builds.module.cli.4.38.3.json"
+}

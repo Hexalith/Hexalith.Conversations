@@ -1,0 +1,1089 @@
+{
+  "state": "PASS",
+  "scope": "disposable-tooling-fixture-only",
+  "runtimeQualified": false,
+  "measuredRuntimeTests": 0,
+  "fixtureRepository": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+  "fixtureCandidate": "f55d643f96d7417b54842a468e8142ece52aedcb",
+  "nativeRoutes": 15,
+  "deterministicFinalPairs": [
+    {
+      "storyId": "16.1",
+      "deterministic": true,
+      "files": [
+        {
+          "path": "artifacts/epic16-tooling-fixture/16.1/final-record.json",
+          "sha256": "8ad42dcfe3a3ced368cb2be37a3b17b3a28ad94e71556315102570ef4be8beb1",
+          "sizeBytes": 183343
+        },
+        {
+          "path": "artifacts/epic16-tooling-fixture/16.1/final-record.md",
+          "sha256": "c929aa31915d9ffbe313afa72e84d9303bc4e5f80769507aa87073602ce23485",
+          "sizeBytes": 718
+        }
+      ]
+    },
+    {
+      "storyId": "16.2",
+      "deterministic": true,
+      "files": [
+        {
+          "path": "artifacts/epic16-tooling-fixture/16.2/final-record.json",
+          "sha256": "9e32f044963e7adda1c0865ee2e29445a6e6baf610d71a1d8331e130f072683d",
+          "sizeBytes": 116216
+        },
+        {
+          "path": "artifacts/epic16-tooling-fixture/16.2/final-record.md",
+          "sha256": "279a25f525da52a0d843f20d8ae5f8b29d583432d93a83d47408ba25ec1164d6",
+          "sizeBytes": 696
+        }
+      ]
+    },
+    {
+      "storyId": "16.3",
+      "deterministic": true,
+      "files": [
+        {
+          "path": "artifacts/epic16-tooling-fixture/16.3/final-record.json",
+          "sha256": "8e37f2d981b334d1a2e4157dcda8f1ddc0f3ff9c8f8b4f8b5e2712b3fe63e2a0",
+          "sizeBytes": 123824
+        },
+        {
+          "path": "artifacts/epic16-tooling-fixture/16.3/final-record.md",
+          "sha256": "2138dc14569a80d811afddf4e424e959488ecaafc8e5d3a44ecb559da129b75a",
+          "sizeBytes": 673
+        }
+      ]
+    }
+  ],
+  "insertedRecordVerified": true,
+  "inputsRestored": true,
+  "commands": [
+    {
+      "name": "fixture-AC-16.1-01",
+      "storyId": "16.1",
+      "scenarioId": "AC-16.1-01",
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_1.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+        "--scope",
+        "tooling-fixture",
+        "--scenario",
+        "AC-16.1-01",
+        "--output",
+        "artifacts/epic16-tooling-fixture/16.1/AC-16.1-01.json"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 5,
+      "stdout": {
+        "path": "fixture-AC-16.1-01.stdout.txt",
+        "bytes": 19143,
+        "sha256": "746e23bedfd64c4aa9fab9902c649594186d6158950261420307898cf63de023"
+      },
+      "stderr": {
+        "path": "fixture-AC-16.1-01.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "fixture-AC-16.1-02",
+      "storyId": "16.1",
+      "scenarioId": "AC-16.1-02",
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_1.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+        "--scope",
+        "tooling-fixture",
+        "--scenario",
+        "AC-16.1-02",
+        "--output",
+        "artifacts/epic16-tooling-fixture/16.1/AC-16.1-02.json"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 5,
+      "stdout": {
+        "path": "fixture-AC-16.1-02.stdout.txt",
+        "bytes": 19139,
+        "sha256": "27a4f1a9d8d9795c92963cdc7c103ceffa807ca16732f4cec77bc75b79f87fce"
+      },
+      "stderr": {
+        "path": "fixture-AC-16.1-02.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "fixture-AC-16.1-03",
+      "storyId": "16.1",
+      "scenarioId": "AC-16.1-03",
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_1.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+        "--scope",
+        "tooling-fixture",
+        "--scenario",
+        "AC-16.1-03",
+        "--output",
+        "artifacts/epic16-tooling-fixture/16.1/AC-16.1-03.json"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 5,
+      "stdout": {
+        "path": "fixture-AC-16.1-03.stdout.txt",
+        "bytes": 19148,
+        "sha256": "874350e383c520f129f86b763e2f4b692663eb60b3bb78d71a809af1e8bffefd"
+      },
+      "stderr": {
+        "path": "fixture-AC-16.1-03.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "fixture-AC-16.1-04",
+      "storyId": "16.1",
+      "scenarioId": "AC-16.1-04",
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_1.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+        "--scope",
+        "tooling-fixture",
+        "--scenario",
+        "AC-16.1-04",
+        "--output",
+        "artifacts/epic16-tooling-fixture/16.1/AC-16.1-04.json"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 5,
+      "stdout": {
+        "path": "fixture-AC-16.1-04.stdout.txt",
+        "bytes": 43346,
+        "sha256": "758627445ac74237d0321f4badb66762569753b84a45efa52a81b68f4249ff52"
+      },
+      "stderr": {
+        "path": "fixture-AC-16.1-04.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "fixture-AC-16.1-05",
+      "storyId": "16.1",
+      "scenarioId": "AC-16.1-05",
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_1.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+        "--scope",
+        "tooling-fixture",
+        "--scenario",
+        "AC-16.1-05",
+        "--output",
+        "artifacts/epic16-tooling-fixture/16.1/AC-16.1-05.json"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 5,
+      "stdout": {
+        "path": "fixture-AC-16.1-05.stdout.txt",
+        "bytes": 65165,
+        "sha256": "914d7b4c7dae1fb0714ba31fa32bdc193548b41fd412d8515be58a3aa9b82003"
+      },
+      "stderr": {
+        "path": "fixture-AC-16.1-05.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "fixture-AC-16.2-01",
+      "storyId": "16.2",
+      "scenarioId": "AC-16.2-01",
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_2.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+        "--scope",
+        "tooling-fixture",
+        "--scenario",
+        "AC-16.2-01",
+        "--output",
+        "artifacts/epic16-tooling-fixture/16.2/AC-16.2-01.json"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 5,
+      "stdout": {
+        "path": "fixture-AC-16.2-01.stdout.txt",
+        "bytes": 19126,
+        "sha256": "6f10b0305c7a742f864d558e6919d4c65ad61757f66a5cf271daa49e5f841f11"
+      },
+      "stderr": {
+        "path": "fixture-AC-16.2-01.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "fixture-AC-16.2-02",
+      "storyId": "16.2",
+      "scenarioId": "AC-16.2-02",
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_2.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+        "--scope",
+        "tooling-fixture",
+        "--scenario",
+        "AC-16.2-02",
+        "--output",
+        "artifacts/epic16-tooling-fixture/16.2/AC-16.2-02.json"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 5,
+      "stdout": {
+        "path": "fixture-AC-16.2-02.stdout.txt",
+        "bytes": 19127,
+        "sha256": "809f048f0ec81180707cebb915287d3d6c3f509f7645f5930cbf5178092683f9"
+      },
+      "stderr": {
+        "path": "fixture-AC-16.2-02.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "fixture-AC-16.2-03",
+      "storyId": "16.2",
+      "scenarioId": "AC-16.2-03",
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_2.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+        "--scope",
+        "tooling-fixture",
+        "--scenario",
+        "AC-16.2-03",
+        "--output",
+        "artifacts/epic16-tooling-fixture/16.2/AC-16.2-03.json"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 5,
+      "stdout": {
+        "path": "fixture-AC-16.2-03.stdout.txt",
+        "bytes": 19128,
+        "sha256": "04971cddf43d8bc6f8508f54bc57761766db67f0f9e2f05346613af03ee42f30"
+      },
+      "stderr": {
+        "path": "fixture-AC-16.2-03.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "fixture-AC-16.2-04",
+      "storyId": "16.2",
+      "scenarioId": "AC-16.2-04",
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_2.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+        "--scope",
+        "tooling-fixture",
+        "--scenario",
+        "AC-16.2-04",
+        "--output",
+        "artifacts/epic16-tooling-fixture/16.2/AC-16.2-04.json"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 5,
+      "stdout": {
+        "path": "fixture-AC-16.2-04.stdout.txt",
+        "bytes": 19127,
+        "sha256": "ff0f213da3a3d7de283b7232fd7274320298370cfb7e6506df9840102e4cf8a2"
+      },
+      "stderr": {
+        "path": "fixture-AC-16.2-04.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "fixture-AC-16.2-05",
+      "storyId": "16.2",
+      "scenarioId": "AC-16.2-05",
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_2.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+        "--scope",
+        "tooling-fixture",
+        "--scenario",
+        "AC-16.2-05",
+        "--output",
+        "artifacts/epic16-tooling-fixture/16.2/AC-16.2-05.json"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 5,
+      "stdout": {
+        "path": "fixture-AC-16.2-05.stdout.txt",
+        "bytes": 26523,
+        "sha256": "a71c0e0067b014556cf5b61e582cff2180a6c199af83c5abf0362c6a4847c352"
+      },
+      "stderr": {
+        "path": "fixture-AC-16.2-05.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "fixture-AC-16.3-01",
+      "storyId": "16.3",
+      "scenarioId": "AC-16.3-01",
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_3.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+        "--scope",
+        "tooling-fixture",
+        "--scenario",
+        "AC-16.3-01",
+        "--output",
+        "artifacts/epic16-tooling-fixture/16.3/AC-16.3-01.json"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 5,
+      "stdout": {
+        "path": "fixture-AC-16.3-01.stdout.txt",
+        "bytes": 19087,
+        "sha256": "aa6afc97c14129f72ba597b9198d604560bf7c32a00d86e3dbf9795c096d6d72"
+      },
+      "stderr": {
+        "path": "fixture-AC-16.3-01.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "fixture-AC-16.3-02",
+      "storyId": "16.3",
+      "scenarioId": "AC-16.3-02",
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_3.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+        "--scope",
+        "tooling-fixture",
+        "--scenario",
+        "AC-16.3-02",
+        "--output",
+        "artifacts/epic16-tooling-fixture/16.3/AC-16.3-02.json"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 5,
+      "stdout": {
+        "path": "fixture-AC-16.3-02.stdout.txt",
+        "bytes": 19088,
+        "sha256": "0f213fcdf68cb1d96764b8fb449421f4e3077919302811f8a20863892ab5fd58"
+      },
+      "stderr": {
+        "path": "fixture-AC-16.3-02.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "fixture-AC-16.3-03",
+      "storyId": "16.3",
+      "scenarioId": "AC-16.3-03",
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_3.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+        "--scope",
+        "tooling-fixture",
+        "--scenario",
+        "AC-16.3-03",
+        "--output",
+        "artifacts/epic16-tooling-fixture/16.3/AC-16.3-03.json"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 5,
+      "stdout": {
+        "path": "fixture-AC-16.3-03.stdout.txt",
+        "bytes": 19090,
+        "sha256": "2e28f14edb5165d8caaaa631c8ea7f0f0180116b83f181a22aa970991c05be54"
+      },
+      "stderr": {
+        "path": "fixture-AC-16.3-03.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "fixture-AC-16.3-04",
+      "storyId": "16.3",
+      "scenarioId": "AC-16.3-04",
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_3.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+        "--scope",
+        "tooling-fixture",
+        "--scenario",
+        "AC-16.3-04",
+        "--output",
+        "artifacts/epic16-tooling-fixture/16.3/AC-16.3-04.json"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 5,
+      "stdout": {
+        "path": "fixture-AC-16.3-04.stdout.txt",
+        "bytes": 19115,
+        "sha256": "cbd0234af44e89e74ccb7bd51dc65d442496db76e8504f353e2ea7b80d07c7ca"
+      },
+      "stderr": {
+        "path": "fixture-AC-16.3-04.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "fixture-AC-16.3-05",
+      "storyId": "16.3",
+      "scenarioId": "AC-16.3-05",
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_3.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+        "--scope",
+        "tooling-fixture",
+        "--scenario",
+        "AC-16.3-05",
+        "--output",
+        "artifacts/epic16-tooling-fixture/16.3/AC-16.3-05.json"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 5,
+      "stdout": {
+        "path": "fixture-AC-16.3-05.stdout.txt",
+        "bytes": 33046,
+        "sha256": "d85e97867fa18d84401420f109bdcca78abdf61ad6c7591c8cea47d5ec93835c"
+      },
+      "stderr": {
+        "path": "fixture-AC-16.3-05.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "fixture-final-16.1",
+      "storyId": "16.1",
+      "scenarioId": null,
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/generate_story_record.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+        "--scope",
+        "tooling-fixture",
+        "--format",
+        "bundle"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 0,
+      "stdout": {
+        "path": "fixture-final-16.1.stdout.txt",
+        "bytes": 183343,
+        "sha256": "8ad42dcfe3a3ced368cb2be37a3b17b3a28ad94e71556315102570ef4be8beb1"
+      },
+      "stderr": {
+        "path": "fixture-final-16.1.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "fixture-final-repeat-16.1",
+      "storyId": "16.1",
+      "scenarioId": null,
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/generate_story_record.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+        "--scope",
+        "tooling-fixture",
+        "--format",
+        "bundle"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 0,
+      "stdout": {
+        "path": "fixture-final-repeat-16.1.stdout.txt",
+        "bytes": 183343,
+        "sha256": "8ad42dcfe3a3ced368cb2be37a3b17b3a28ad94e71556315102570ef4be8beb1"
+      },
+      "stderr": {
+        "path": "fixture-final-repeat-16.1.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "fixture-final-16.2",
+      "storyId": "16.2",
+      "scenarioId": null,
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/generate_story_record.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+        "--scope",
+        "tooling-fixture",
+        "--format",
+        "bundle"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 0,
+      "stdout": {
+        "path": "fixture-final-16.2.stdout.txt",
+        "bytes": 116216,
+        "sha256": "9e32f044963e7adda1c0865ee2e29445a6e6baf610d71a1d8331e130f072683d"
+      },
+      "stderr": {
+        "path": "fixture-final-16.2.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "fixture-final-repeat-16.2",
+      "storyId": "16.2",
+      "scenarioId": null,
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/generate_story_record.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+        "--scope",
+        "tooling-fixture",
+        "--format",
+        "bundle"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 0,
+      "stdout": {
+        "path": "fixture-final-repeat-16.2.stdout.txt",
+        "bytes": 116216,
+        "sha256": "9e32f044963e7adda1c0865ee2e29445a6e6baf610d71a1d8331e130f072683d"
+      },
+      "stderr": {
+        "path": "fixture-final-repeat-16.2.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "fixture-final-16.3",
+      "storyId": "16.3",
+      "scenarioId": null,
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/generate_story_record.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+        "--scope",
+        "tooling-fixture",
+        "--format",
+        "bundle"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 0,
+      "stdout": {
+        "path": "fixture-final-16.3.stdout.txt",
+        "bytes": 123824,
+        "sha256": "8e37f2d981b334d1a2e4157dcda8f1ddc0f3ff9c8f8b4f8b5e2712b3fe63e2a0"
+      },
+      "stderr": {
+        "path": "fixture-final-16.3.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "fixture-final-repeat-16.3",
+      "storyId": "16.3",
+      "scenarioId": null,
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/generate_story_record.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+        "--scope",
+        "tooling-fixture",
+        "--format",
+        "bundle"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 0,
+      "stdout": {
+        "path": "fixture-final-repeat-16.3.stdout.txt",
+        "bytes": 123824,
+        "sha256": "8e37f2d981b334d1a2e4157dcda8f1ddc0f3ff9c8f8b4f8b5e2712b3fe63e2a0"
+      },
+      "stderr": {
+        "path": "fixture-final-repeat-16.3.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "fixture-inserted-record",
+      "storyId": "16.1",
+      "scenarioId": null,
+      "command": [
+        "python3",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/generate_story_record.py",
+        "--repository",
+        "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+        "--contract",
+        "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+        "--scope",
+        "tooling-fixture",
+        "--format",
+        "bundle",
+        "--verify-inserted-record",
+        "fixture-spec.md"
+      ],
+      "nativeExitCode": 0,
+      "result": "PASS",
+      "runtimeQualified": false,
+      "assertionCount": 0,
+      "stdout": {
+        "path": "fixture-inserted-record.stdout.txt",
+        "bytes": 183343,
+        "sha256": "8ad42dcfe3a3ced368cb2be37a3b17b3a28ad94e71556315102570ef4be8beb1"
+      },
+      "stderr": {
+        "path": "fixture-inserted-record.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "retainedFiles": [
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.1/AC-16.1-01.json",
+      "sha256": "746e23bedfd64c4aa9fab9902c649594186d6158950261420307898cf63de023",
+      "sizeBytes": 19143
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.1/AC-16.1-01.trx",
+      "sha256": "f91403fbb683a51d66ed29d464d2dac7372aec153f132506f0d11030adaf4ada",
+      "sizeBytes": 34230
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.1/AC-16.1-02.json",
+      "sha256": "27a4f1a9d8d9795c92963cdc7c103ceffa807ca16732f4cec77bc75b79f87fce",
+      "sizeBytes": 19139
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.1/AC-16.1-02.trx",
+      "sha256": "862df8d4de3528518c6f592de596a63756707e03ccad669c9876027ee25aed13",
+      "sizeBytes": 47965
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.1/AC-16.1-03.json",
+      "sha256": "874350e383c520f129f86b763e2f4b692663eb60b3bb78d71a809af1e8bffefd",
+      "sizeBytes": 19148
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.1/AC-16.1-03.trx",
+      "sha256": "cefd51889fc2c2e6104295c0652bfb5393acdd611073f7d31269c71701b342a7",
+      "sizeBytes": 60841
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.1/AC-16.1-04.json",
+      "sha256": "758627445ac74237d0321f4badb66762569753b84a45efa52a81b68f4249ff52",
+      "sizeBytes": 43346
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.1/AC-16.1-04.trx",
+      "sha256": "3101bc7dcb80d421786533a35e75563c4140410c40818fda1b52a29e2aea922b",
+      "sizeBytes": 48796
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.1/AC-16.1-05.json",
+      "sha256": "914d7b4c7dae1fb0714ba31fa32bdc193548b41fd412d8515be58a3aa9b82003",
+      "sizeBytes": 65165
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.1/AC-16.1-05.trx",
+      "sha256": "59bc110cd29458e3dea798a912e82f04a530c0ba7a581b54c60189a147f51843",
+      "sizeBytes": 12343
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.1/binaries/37eb3dffc2131e203e760f58e6a39eaa072516737816e6264612da39fa0c9fed.dll",
+      "sha256": "37eb3dffc2131e203e760f58e6a39eaa072516737816e6264612da39fa0c9fed",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.1/binaries/4241c99ae6588a63c7585d64099d61d54ddf72b6286b197b2fc54e60632cf069.dll",
+      "sha256": "4241c99ae6588a63c7585d64099d61d54ddf72b6286b197b2fc54e60632cf069",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.1/binaries/5e220bb1e79e59a6889b7792fd0696a922c609d498b6688acb1f95586d054615.dll",
+      "sha256": "5e220bb1e79e59a6889b7792fd0696a922c609d498b6688acb1f95586d054615",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.1/binaries/682114b9a675bcfa2e7f0677eb7528c432a824f70616e79af03e56cf4afaed8a.dll",
+      "sha256": "682114b9a675bcfa2e7f0677eb7528c432a824f70616e79af03e56cf4afaed8a",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.1/binaries/68da4001fbae62721f30c006c81a9ac3bd661708dc78745606cd098b28ba0222.dll",
+      "sha256": "68da4001fbae62721f30c006c81a9ac3bd661708dc78745606cd098b28ba0222",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.1/binaries/9c32b13110ce716f3a25350bb0f635d757c07840cb51411cbbba0185c44a497a.dll",
+      "sha256": "9c32b13110ce716f3a25350bb0f635d757c07840cb51411cbbba0185c44a497a",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.1/binaries/9c9449cf621b2bca4c8e477be54dd5b63370a26266c68e7fc7c4f8b78fee0acf.dll",
+      "sha256": "9c9449cf621b2bca4c8e477be54dd5b63370a26266c68e7fc7c4f8b78fee0acf",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.1/binaries/e61efb6d18780fb4d672d6d0ec154e040d418724682c2e14a10bf7eac75e57e4.dll",
+      "sha256": "e61efb6d18780fb4d672d6d0ec154e040d418724682c2e14a10bf7eac75e57e4",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.1/binaries/eb38060e0ce574e429fa04414310969064c7dcaecd0d783c556a77801578e46e.dll",
+      "sha256": "eb38060e0ce574e429fa04414310969064c7dcaecd0d783c556a77801578e46e",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.1/final-record.json",
+      "sha256": "8ad42dcfe3a3ced368cb2be37a3b17b3a28ad94e71556315102570ef4be8beb1",
+      "sizeBytes": 183343
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.1/final-record.md",
+      "sha256": "c929aa31915d9ffbe313afa72e84d9303bc4e5f80769507aa87073602ce23485",
+      "sizeBytes": 718
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.2/AC-16.2-01.json",
+      "sha256": "6f10b0305c7a742f864d558e6919d4c65ad61757f66a5cf271daa49e5f841f11",
+      "sizeBytes": 19126
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.2/AC-16.2-01.trx",
+      "sha256": "d36cb97cbdac169895cfed522e03c30a5c8aa90c50eb8204480ce1a656d071a5",
+      "sizeBytes": 15379
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.2/AC-16.2-02.json",
+      "sha256": "809f048f0ec81180707cebb915287d3d6c3f509f7645f5930cbf5178092683f9",
+      "sizeBytes": 19127
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.2/AC-16.2-02.trx",
+      "sha256": "52a6a704642dc931a7e59f3c61c60f29c9538e16e63cde811a003392da49cc17",
+      "sizeBytes": 21777
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.2/AC-16.2-03.json",
+      "sha256": "04971cddf43d8bc6f8508f54bc57761766db67f0f9e2f05346613af03ee42f30",
+      "sizeBytes": 19128
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.2/AC-16.2-03.trx",
+      "sha256": "3f6844ab1e05a47bfc54f5670edf8308d6339b4ea14b254544971c196e5239fe",
+      "sizeBytes": 12693
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.2/AC-16.2-04.json",
+      "sha256": "ff0f213da3a3d7de283b7232fd7274320298370cfb7e6506df9840102e4cf8a2",
+      "sizeBytes": 19127
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.2/AC-16.2-04.trx",
+      "sha256": "b976906bc0dfdf26655c89b9cf1def37487dc35237e37e883bd94462e55c7a6f",
+      "sizeBytes": 115674
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.2/AC-16.2-05.json",
+      "sha256": "a71c0e0067b014556cf5b61e582cff2180a6c199af83c5abf0362c6a4847c352",
+      "sizeBytes": 26523
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.2/AC-16.2-05.trx",
+      "sha256": "8554a4001fd4dd8f087f3366bfc1430c04ca17fe736c812776bfc931522dfcf5",
+      "sizeBytes": 41473
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.2/binaries/5e220bb1e79e59a6889b7792fd0696a922c609d498b6688acb1f95586d054615.dll",
+      "sha256": "5e220bb1e79e59a6889b7792fd0696a922c609d498b6688acb1f95586d054615",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.2/binaries/9c32b13110ce716f3a25350bb0f635d757c07840cb51411cbbba0185c44a497a.dll",
+      "sha256": "9c32b13110ce716f3a25350bb0f635d757c07840cb51411cbbba0185c44a497a",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.2/binaries/e61efb6d18780fb4d672d6d0ec154e040d418724682c2e14a10bf7eac75e57e4.dll",
+      "sha256": "e61efb6d18780fb4d672d6d0ec154e040d418724682c2e14a10bf7eac75e57e4",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.2/binaries/eb38060e0ce574e429fa04414310969064c7dcaecd0d783c556a77801578e46e.dll",
+      "sha256": "eb38060e0ce574e429fa04414310969064c7dcaecd0d783c556a77801578e46e",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.2/final-record.json",
+      "sha256": "9e32f044963e7adda1c0865ee2e29445a6e6baf610d71a1d8331e130f072683d",
+      "sizeBytes": 116216
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.2/final-record.md",
+      "sha256": "279a25f525da52a0d843f20d8ae5f8b29d583432d93a83d47408ba25ec1164d6",
+      "sizeBytes": 696
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.3/AC-16.3-01.json",
+      "sha256": "aa6afc97c14129f72ba597b9198d604560bf7c32a00d86e3dbf9795c096d6d72",
+      "sizeBytes": 19087
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.3/AC-16.3-01.trx",
+      "sha256": "063afc1764aefccf4d2809ed6e25221ffeb982e3e82137504a1c8198fec1f9db",
+      "sizeBytes": 1903
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.3/AC-16.3-02.json",
+      "sha256": "0f213fcdf68cb1d96764b8fb449421f4e3077919302811f8a20863892ab5fd58",
+      "sizeBytes": 19088
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.3/AC-16.3-02.trx",
+      "sha256": "ddd06e0b25fe7b304abf607cf0372ca6b17e7af273505e68577f13eab8e00980",
+      "sizeBytes": 3382
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.3/AC-16.3-03.json",
+      "sha256": "2e28f14edb5165d8caaaa631c8ea7f0f0180116b83f181a22aa970991c05be54",
+      "sizeBytes": 19090
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.3/AC-16.3-03.trx",
+      "sha256": "bfb3b36d70ce9c9ef9cd5b422e24813dc27760c867652f74dab05ca2f6440554",
+      "sizeBytes": 7567
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.3/AC-16.3-04.json",
+      "sha256": "cbd0234af44e89e74ccb7bd51dc65d442496db76e8504f353e2ea7b80d07c7ca",
+      "sizeBytes": 19115
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.3/AC-16.3-04.trx",
+      "sha256": "5f76aab8f4cc314c7537b5018504db6724880c89faf656fe5bdece48b7332632",
+      "sizeBytes": 56715
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.3/AC-16.3-05.json",
+      "sha256": "d85e97867fa18d84401420f109bdcca78abdf61ad6c7591c8cea47d5ec93835c",
+      "sizeBytes": 33046
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.3/AC-16.3-05.trx",
+      "sha256": "3b97ef20b981f2e66ff5d7bb0cd3dac665f68f317c718b1a0176e28eb75f2806",
+      "sizeBytes": 14902
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.3/final-record.json",
+      "sha256": "8e37f2d981b334d1a2e4157dcda8f1ddc0f3ff9c8f8b4f8b5e2712b3fe63e2a0",
+      "sizeBytes": 123824
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/epic16-tooling-fixture/16.3/final-record.md",
+      "sha256": "2138dc14569a80d811afddf4e424e959488ecaafc8e5d3a44ecb559da129b75a",
+      "sizeBytes": 673
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/product-builds/53eae1ad70ca3ce5631288b6408fa613d2fba167/Hexalith.Conversations.Contracts.dll",
+      "sha256": "eb38060e0ce574e429fa04414310969064c7dcaecd0d783c556a77801578e46e",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/product-builds/60eeb16e7a00505958529f2134a2c4ae20cc9d5a/Hexalith.Conversations.Contracts.dll",
+      "sha256": "e61efb6d18780fb4d672d6d0ec154e040d418724682c2e14a10bf7eac75e57e4",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/product-builds/728d7c898c4e70b12c8e650e66b95b9f8a28a42e/Hexalith.EventStore.Client.dll",
+      "sha256": "682114b9a675bcfa2e7f0677eb7528c432a824f70616e79af03e56cf4afaed8a",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/product-builds/728d7c898c4e70b12c8e650e66b95b9f8a28a42e/Hexalith.EventStore.Contracts.dll",
+      "sha256": "9c9449cf621b2bca4c8e477be54dd5b63370a26266c68e7fc7c4f8b78fee0acf",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/product-builds/728d7c898c4e70b12c8e650e66b95b9f8a28a42e/Hexalith.EventStore.DomainService.dll",
+      "sha256": "68da4001fbae62721f30c006c81a9ac3bd661708dc78745606cd098b28ba0222",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/product-builds/b8bcbb6d598fb46591319c896aa0a36a103a7dee/Hexalith.Conversations.Contracts.dll",
+      "sha256": "9c32b13110ce716f3a25350bb0f635d757c07840cb51411cbbba0185c44a497a",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/product-builds/dc3e3d332158e4c0e60c53cf6dd5a6c93fa47cdf/Hexalith.Tenants.Client.dll",
+      "sha256": "37eb3dffc2131e203e760f58e6a39eaa072516737816e6264612da39fa0c9fed",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/product-builds/dc3e3d332158e4c0e60c53cf6dd5a6c93fa47cdf/Hexalith.Tenants.Contracts.dll",
+      "sha256": "4241c99ae6588a63c7585d64099d61d54ddf72b6286b197b2fc54e60632cf069",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/artifacts/product-builds/f55d643f96d7417b54842a468e8142ece52aedcb/Hexalith.Conversations.Contracts.dll",
+      "sha256": "5e220bb1e79e59a6889b7792fd0696a922c609d498b6688acb1f95586d054615",
+      "sizeBytes": 4096
+    },
+    {
+      "path": "native-fixture-evidence/references-Hexalith.Commons.bundle",
+      "sha256": "d38520ab6825adbf8c9c83c1841ead5ab64644c60a4e9cd992f6b5e2c4832d97",
+      "sizeBytes": 597
+    },
+    {
+      "path": "native-fixture-evidence/references-Hexalith.EventStore.bundle",
+      "sha256": "0c37bb136d3a5b58e4af63cedc915dd69554eaa0239dc0f7e3bbb333f593bd26",
+      "sizeBytes": 2709
+    },
+    {
+      "path": "native-fixture-evidence/references-Hexalith.Tenants.bundle",
+      "sha256": "cbea5b12f22ff96a8ad88807a4953fb3e0adf5153acad8acb9666fc6da8760eb",
+      "sizeBytes": 767
+    },
+    {
+      "path": "native-fixture-evidence/root.bundle",
+      "sha256": "9a1b27131f17d06694d3c4cb4162c319726c2c2625a2530b66f810096fd013dc",
+      "sizeBytes": 559494
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "aspire-stop-help",
+  "command": [
+    "aspire",
+    "stop",
+    "--help"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 1796013,
+  "startedAtUtc": "2026-10-31T16:10:00.309656+00:00",
+  "durationSeconds": 0.101,
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "aspire-stop-help.stdout.txt",
+    "bytes": 1434,
+    "sha256": "5caed440b97770a9ff1aef2345443a70d430d7281de9ab56072433db6d760e54"
+  },
+  "stderr": {
+    "path": "aspire-stop-help.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

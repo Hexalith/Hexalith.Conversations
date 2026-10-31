@@ -1,0 +1,36 @@
+{
+  "name": "aspire-ps-before",
+  "command": [
+    "aspire",
+    "ps",
+    "--format",
+    "Json",
+    "--non-interactive"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 1796192,
+  "startedAtUtc": "2026-10-31T16:10:00.410907+00:00",
+  "durationSeconds": 0.302,
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "aspire-ps-before.stdout.txt",
+    "bytes": 435,
+    "sha256": "8c59e83d9bca319290f373f4523750cdab0242dcb0054b9af9cfcaa40945ed01",
+    "capturedRaw": {
+      "bytes": 457,
+      "sha256": "8bfbc9eddd4924c374d385b889c78ac901f021ca2a0ce4d61684c6cab89acd34"
+    },
+    "ephemeralCredentialsRedacted": true
+  },
+  "stderr": {
+    "path": "aspire-ps-before.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

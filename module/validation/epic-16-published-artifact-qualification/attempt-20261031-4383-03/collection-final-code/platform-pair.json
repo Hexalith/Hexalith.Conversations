@@ -1,0 +1,52 @@
+{
+  "revision": "2030542f8e7e25f97b2ee106e8074dedeefda9f5",
+  "tags": [],
+  "pin": {
+    "version": "4.38.3",
+    "commands": [
+      "hexalith-module"
+    ],
+    "rollForward": false
+  },
+  "range": {
+    "schemaVersion": 1,
+    "toolVersionRange": "[4.38.3, 5.0.0-0)"
+  },
+  "recordedBuildsGitlink": "160000 commit cc0db51b800be1d0d5badc3780395cfb5953d0f5\treferences/Hexalith.Builds",
+  "preparedIdentity": {
+    "VERSION": "4.38.3",
+    "SOURCE": "d1931b1e803144048d927fff16cb8119afde541e",
+    "ARCHIVE_SHA256": "6c074186a9bbfb66c558fe5d1090e1e35fdd58577c0396266074bd1cea8919fd",
+    "TOOLING_SHA256": "4e307577ae4fb02104914951a9905a1c9dd453447a80735443d24fbc83496823"
+  },
+  "readmeSha256": "d3940e42a5530f72640d93eccb999753d01c0bd26ce7e5a7291f86eaa9647dba",
+  "ownerRunInventory": {
+    "total_count": 0,
+    "workflow_runs": []
+  },
+  "candidateRangeEligible": true,
+  "candidateVersion": "4.38.3",
+  "candidateSource": "d1931b1e803144048d927fff16cb8119afde541e",
+  "candidateCatalog": {
+    "schemaVersion": "1",
+    "eventStoreVersion": "3.128.4",
+    "frontComposerVersion": "4.7.1",
+    "daprSdkVersion": "1.19.0",
+    "aspireHostingVersion": "13.6.4",
+    "aspireHostingDaprVersion": "13.6.2-beta.959",
+    "aspireAppHostSdkVersion": "13.6.4",
+    "daprRuntimeVersion": "1.18.7",
+    "daprCliVersion": "1.18.2",
+    "redisImage": "docker.io/library/redis",
+    "redisImageTag": "7.4-alpine",
+    "redisImageDigest": "sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf",
+    "eventStoreHostingDaprRange": "13.6.2-beta.959"
+  },
+  "registrationAcceptance": "pending",
+  "acceptance": {
+    "state": "BLOCKED",
+    "code": "OWNER_EVIDENCE_PENDING",
+    "evidence": null,
+    "reason": "Authenticated exact-candidate decision and generated/direct-host qualification unavailable"
+  }
+}

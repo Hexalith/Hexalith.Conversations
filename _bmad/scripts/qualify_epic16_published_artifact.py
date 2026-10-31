@@ -7,6 +7,7 @@ Only a fresh directory below the local qualification observation root is writabl
 from __future__ import annotations
 
 import argparse
+import ast
 import base64
 from collections import Counter
 from contextlib import ExitStack
@@ -34,6 +35,8 @@ from contained_reader import ContainedReader, ReadError, relative_path
 OBSERVATIONS = "module/validation/epic-16-published-artifact-qualification"
 MANIFEST = "module/hexalith.module-manifest.v2.json"
 PREDECESSOR = "module/validation/epic-16-entry-2026-10-28-post-tooling-01/adoption.stdout.txt"
+PLANNING_INPUTS = "_bmad-output/implementation-artifacts/epic-16-published-artifact-platform-qualification-inputs.json"
+TOOLING_CONTRACT = "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json"
 REVIEW_LEDGER = "module/validation/epic-16-tooling-qualification-v2/attempt-20261028-implementation-03/qualification-ledger.json"
 INVALID_KEYS = ("", " ", "1TOKEN", "_TOKEN", "TOKEN_", "APP__API_TOKEN",
                 "App::Token", "APP_API_TOKEN\n", "A" * 257)
@@ -623,6 +626,26 @@ def platform_catalog_binding(raw_gitlink: str, documented_source: str) -> bool:
     return match[1] == documented_source
 
 
+def prepared_platform_identity(source: bytes) -> dict:
+    """Read producer declarations without importing or executing owner code."""
+    try:
+        assignments = {node.targets[0].id: ast.literal_eval(node.value)
+                       for node in ast.parse(source).body
+                       if isinstance(node, ast.Assign) and len(node.targets) == 1
+                       and isinstance(node.targets[0], ast.Name)
+                       and node.targets[0].id in ("VERSION", "SOURCE", "ARCHIVE_SHA256", "TOOLING_SHA256")}
+    except (SyntaxError, ValueError, TypeError):
+        raise QualificationError("IDENTITY_MISMATCH", "invalid prepared Platform identity declarations") from None
+    need(set(assignments) == {"VERSION", "SOURCE", "ARCHIVE_SHA256", "TOOLING_SHA256"},
+         "IDENTITY_MISMATCH", "incomplete prepared Platform identity declarations")
+    need(isinstance(assignments["VERSION"], str) and re.fullmatch(r"\d+\.\d+\.\d+", assignments["VERSION"]) is not None
+         and isinstance(assignments["SOURCE"], str) and re.fullmatch(r"[a-f0-9]{40}", assignments["SOURCE"]) is not None
+         and all(isinstance(assignments[key], str) and re.fullmatch(r"[a-f0-9]{64}", assignments[key]) is not None
+                 for key in ("ARCHIVE_SHA256", "TOOLING_SHA256")),
+         "IDENTITY_MISMATCH", "malformed prepared Platform identity declarations")
+    return assignments
+
+
 UNSIGN_SOURCE = """using NuGet.Packaging.Signing;
 
 /// <summary>Removes NuGet signing metadata into a fresh, separate archive.</summary>
@@ -691,6 +714,16 @@ class Collector:
         need(inventory.is_relative_to(self.root), "PATH_ESCAPE", "inventory must be contained by Conversations")
         self.inventory_relative = inventory.relative_to(self.root).as_posix()
         relative_path(self.inventory_relative)
+        for name, default in (("planning_inputs", PLANNING_INPUTS), ("adoption_predecessor", PREDECESSOR),
+                              ("tooling_contract", TOOLING_CONTRACT)):
+            selected = Path(getattr(args, name, None) or default)
+            selected = selected if selected.is_absolute() else self.root / selected
+            need(selected.is_relative_to(self.root), "PATH_ESCAPE", name + " must be contained by Conversations")
+            value = selected.relative_to(self.root).as_posix()
+            relative_path(value)
+            setattr(self, name, value)
+        need(re.fullmatch(r"_bmad-output/planning-artifacts/epic-16-tooling-v[123]/story-contracts/16\.[123]\.json", self.tooling_contract) is not None,
+             "IDENTITY_MISMATCH", "unknown exact tooling contract selector")
         self.output = FreshOutput(self.root, args.output)
         self.deadline = Deadline()
         self.runner = Runner(self.output, self.deadline)
@@ -728,21 +761,53 @@ class Collector:
     def protect(self, path: str):
         self.originals[path] = sha(self.reader.read(path))
 
+    def index_digest(self, label):
+        # Hash the complete index without emitting its large path inventory into
+        # a diagnostic stream. The child shares the runner's cancellation group.
+        worker = "import hashlib,pathlib,subprocess; p=subprocess.run(['git','rev-parse','--git-path','index'],check=True,capture_output=True,text=True).stdout.strip(); h=hashlib.sha256(); f=pathlib.Path(p).open('rb'); n=0\nwhile b:=f.read(65536):\n n+=len(b)\n if n>268435456: raise ValueError('index size bound')\n h.update(b)\nprint(h.hexdigest())"
+        value = self.runner.checked(label, [sys.executable, "-c", worker], self.root).decode().strip()
+        need(re.fullmatch(r"[a-f0-9]{64}", value) is not None, "IDENTITY_MISMATCH", "invalid complete index digest")
+        return value
+
     def entry(self):
+        package = str(PurePosixPath(self.tooling_contract).parent.parent)
+        version = package.rsplit("-", 1)[1]
         for path in (MANIFEST, ".config/dotnet-tools.json", ".gitmodules", ".gitattributes",
-                     "_bmad-output/planning-artifacts/epic-16-tooling-v2/binding.json", "_bmad/scripts/epic16_trust_v2.py"):
+                     package + "/binding.json", self.tooling_contract, self.planning_inputs, self.adoption_predecessor,
+                     "_bmad/scripts/epic16_trust.py" if version == "v1" else f"_bmad/scripts/epic16_trust_{version}.py"):
             self.protect(path)
+        selected_binding = load_json(self.reader.read(package + "/binding.json"))
+        for row in selected_binding["sources"]:
+            self.protect(row["path"])
         self.protect("_bmad/scripts/qualify_epic16_published_artifact.py")
         self.protect("tests/tooling/test_epic16_published_artifact_qualification.py")
-        planning = load_json(self.reader.read("_bmad-output/implementation-artifacts/epic-16-published-artifact-platform-qualification-inputs.json"))
+        planning = load_json(self.reader.read(self.planning_inputs))
         for row in planning["sources"]:
             self.protect(row["path"])
+        planning_differences = [dict(path=row["path"], plannedSha256=row["sha256"], actualSha256=self.originals[row["path"]])
+                                for row in planning["sources"] if self.originals[row["path"]] != row["sha256"]]
         actual_root = self.git("root-identity", self.root, "rev-parse", "--show-toplevel").decode().strip()
         need(actual_root == str(self.root), "PATH_ESCAPE", "Conversations path is not its owning repository root")
-        pin = load_json(self.reader.read(".config/dotnet-tools.json"))["tools"]["hexalith.builds.module.cli"]
-        need(pin["version"] == self.args.version and pin.get("rollForward") is False,
+        tool_manifest = load_json(self.reader.read(".config/dotnet-tools.json"))
+        need(isinstance(tool_manifest, dict) and isinstance(tool_manifest.get("tools"), dict)
+             and isinstance(tool_manifest["tools"].get("hexalith.builds.module.cli"), dict),
+             "IDENTITY_MISMATCH", "root tool pin metadata is missing or malformed")
+        pin = tool_manifest["tools"]["hexalith.builds.module.cli"]
+        need(isinstance(pin.get("version"), str) and
+             re.fullmatch(r"\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?", pin["version"]) is not None,
+             "IDENTITY_MISMATCH", "root tool pin must identify a valid exact version")
+        need(pin.get("rollForward") is False and (getattr(self.args, "candidate_only", False) or pin["version"] == self.args.version),
              "IDENTITY_MISMATCH", "candidate differs from the exact disabled-roll-forward root pin")
-        links = self.git("root-gitlinks", self.root, "ls-files", "--stage", "-z")
+        root_pin = dict(rootVersion=pin["version"], candidateVersion=self.args.version, rollForward=pin.get("rollForward"),
+                        versionsEqual=pin["version"] == self.args.version, adoptionAccepted=False,
+                        candidateOnly=getattr(self.args, "candidate_only", False))
+        self.identity["rootPin"] = root_pin
+        self.output.json("candidate-root-selection.json", root_pin)
+        # All rows retain raw modes/object IDs/stages, while the twelve long
+        # gitlink paths are captured separately. Full index bytes bind every path.
+        self.entry_index_bytes = self.index_digest("root-index-digest")
+        modes = self.git("root-index-modes", self.root, "ls-files", "-z", "--format=%(objectmode) %(objectname) %(stage)")
+        links = self.git("root-gitlinks", self.root, "ls-files", "--stage", "-z", "--", "references/")
         self.entry_index = sha(links)
         rows = {}
         for row in links.split(b"\0"):
@@ -753,6 +818,8 @@ class Collector:
             if mode == b"160000":
                 need(stage == b"0", "IDENTITY_MISMATCH", "unmerged gitlink")
                 rows[os.fsdecode(path)] = revision.decode()
+        need(sum(row.startswith(b"160000 ") for row in modes.split(b"\0")) == len(rows),
+             "IDENTITY_MISMATCH", "unexpected gitlinks outside the exact direct dependency inventory")
         identities = []
         self.dependency_identities = []
         for relative, revision in sorted(rows.items()):
@@ -768,8 +835,13 @@ class Collector:
             self.dependency_identities.append((relative, revision, nested))
         need(rows.get("references/Hexalith.Builds") is not None and rows.get("references/Hexalith.Platform") is not None,
              "IDENTITY_MISMATCH", "direct dependencies are not raw mode-160000 gitlinks")
-        self.output.json("entry-identities.json", dict(dependencies=identities, indexRowsSha256=self.entry_index, protectedInputs=self.originals))
+        self.output.json("entry-identities.json", dict(dependencies=identities, indexRowsSha256=self.entry_index, protectedInputs=self.originals,
+                         fullIndexSha256=self.entry_index_bytes, allIndexModesSha256=sha(modes),
+                         planningInputs=self.planning_inputs, planningDifferences=planning_differences,
+                         toolingContract=self.tooling_contract, adoptionPredecessor=self.adoption_predecessor, rootPin=root_pin))
         self.record("entry", "PASS", "INPUT_IDENTITIES_MEASURED", "Root pin and clean direct dependency tuples measured independently")
+        if not root_pin["versionsEqual"]:
+            self.record("root-pin-adoption", "FAIL", "ROOT_PIN_CANDIDATE_MISMATCH", "Candidate measured independently; unchanged root pin mismatch grants no adoption", **root_pin)
 
     def provenance(self):
         data = self.reader.read(self.inventory_relative)
@@ -789,12 +861,15 @@ class Collector:
              "IDENTITY_MISMATCH", "independent release asset/inventory hash substitution")
         runs = self.api("producer-source-runs", f"repos/{REPOSITORY}/actions/runs?head_sha={self.args.release_sha}&per_page=100")["workflow_runs"]
         self.release_run = None
+        self.producer_runs = []
+        self.release_assets = release.get("assets", [])
         for name, event in (("CI", "push"), ("Release", "workflow_dispatch")):
             matched = [run for run in runs if run.get("name") == name and run.get("event") == event and
                        run.get("conclusion") == "success" and run.get("status") == "completed" and run.get("head_sha") == self.args.release_sha]
             if not matched:
                 raise QualificationError("ARTIFACT_UNAVAILABLE", f"successful exact-source {name} unavailable", "BLOCKED")
             run = max(matched, key=lambda item: item["id"])
+            self.producer_runs.append(run)
             jobs = self.api("producer-" + name.lower() + "-jobs", f"repos/{REPOSITORY}/actions/runs/{run['id']}/jobs?per_page=100")
             self.output.json("producer-" + name.lower() + "-identity.json", dict(run=run, jobs=jobs))
             if name == "Release":
@@ -918,6 +993,45 @@ class Collector:
         self.identity["toolVersion"] = observed
         self.record("candidate-version", "PASS", "CANDIDATE_VERSION_MEASURED", "Verified candidate version executed after all required independent artifact/CI gates")
 
+    def qualification_carriers(self, available):
+        """Inspect exact-source CI inventories; missing declared bytes stay missing."""
+        declared = {row["file"] for row in self.inventory.get("qualificationEvidence", [])}
+        carriers = []
+        for run in getattr(self, "producer_runs", []):
+            data = self.api(f"producer-artifacts-{run['id']}", f"repos/{REPOSITORY}/actions/runs/{run['id']}/artifacts?per_page=100")
+            need(data.get("total_count") == len(data.get("artifacts", [])), "CONTROLS_INCOMPLETE", "incomplete CI artifact inventory")
+            for artifact in data["artifacts"]:
+                item = dict(runId=run["id"], source=run["head_sha"], artifact=artifact, files=[])
+                carriers.append(item)
+                if artifact.get("expired") or artifact.get("size_in_bytes", LIMITS["archiveBytes"] + 1) > LIMITS["archiveBytes"]:
+                    item.update(state="BLOCKED", code="ARTIFACT_UNAVAILABLE")
+                    continue
+                label = f"producer-artifact-{artifact['id']}"
+                native, raw = self.runner.run(label, ["gh", "api", f"repos/{REPOSITORY}/actions/artifacts/{artifact['id']}/zip"], self.root,
+                                              maximum=LIMITS["networkSeconds"])
+                if native["termination"] or native["exitCode"] != 0:
+                    item.update(state="BLOCKED", code=native["termination"] or "ARTIFACT_UNAVAILABLE")
+                    continue
+                need(len(raw) <= LIMITS["archiveBytes"] and zipfile.is_zipfile(io.BytesIO(raw)), "IDENTITY_MISMATCH", "CI carrier is not a bounded archive")
+                self.output.write(label + ".zip", raw)
+                digest = artifact.get("digest")
+                need(digest is None or digest == "sha256:" + sha(raw), "IDENTITY_MISMATCH", "CI archive digest mismatch")
+                with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+                    entries = archive.infolist()
+                    need(len(entries) <= LIMITS["watchedEntries"] and sum(row.file_size for row in entries) <= LIMITS["expandedBytes"], "ARCHIVE_LIMIT", "CI carrier expansion limit")
+                    need(len({row.filename for row in entries}) == len(entries), "IDENTITY_MISMATCH", "duplicate CI carrier paths")
+                    for entry in entries:
+                        relative_path(entry.filename.rstrip("/"))
+                        if entry.filename not in declared:
+                            continue
+                        need(entry.file_size <= LIMITS["streamBytes"], "CAPTURE_LIMIT", "declared evidence exceeds stream bound")
+                        content = archive.read(entry)
+                        need(entry.filename not in available or available[entry.filename] == content, "IDENTITY_MISMATCH", "conflicting declared evidence carriers")
+                        available[entry.filename] = content
+                        item["files"].append(dict(file=entry.filename, sha256=sha(content), sizeBytes=len(content)))
+                item.update(state="PASS", archiveSha256=sha(raw), sizeBytes=len(raw))
+        self.output.json("producer-qualification-carriers.json", carriers)
+
     def producer_native(self):
         if not getattr(self, "release_run", None):
             raise QualificationError("ARTIFACT_UNAVAILABLE", "producer Release identity unavailable", "BLOCKED")
@@ -927,6 +1041,7 @@ class Collector:
         self.output.write("producer-release-logs.zip", data)
         need(zipfile.is_zipfile(io.BytesIO(data)), "IDENTITY_MISMATCH", "producer log response is not an archive")
         logs, available_evidence = [], {}
+        self.available_qualification_evidence = available_evidence
         declared = self.inventory.get("qualificationEvidence", [])
         declared_names = {row["file"] for row in declared}
         with zipfile.ZipFile(io.BytesIO(data)) as archive:
@@ -956,18 +1071,30 @@ class Collector:
         native_state = "BLOCKED" if not summaries else "FAIL" if any(row["failed"] or row["outcome"] != "Passed!" or row["total"] <= 0 or row["total"] != row["failed"] + row["passed"] + row["skipped"] for row in summaries) else "PASS"
         self.record("producer-native", native_state, "PRODUCER_NATIVE_EVIDENCE_UNAVAILABLE" if not summaries else "PRODUCER_NATIVE_RESULTS_MEASURED",
                     "Nonempty native test summaries required independently of publisher payload binding; skips retain their actual state")
+    def qualification_evidence(self):
+        available_evidence = getattr(self, "available_qualification_evidence", {})
+        declared = getattr(self, "inventory", {}).get("qualificationEvidence", [])
+        carrier_error = None
+        try:
+            if hasattr(self, "inventory"):
+                self.qualification_carriers(available_evidence)
+        except QualificationError as error:
+            carrier_error = error
         evidence = []
         for row in declared:
             raw = available_evidence.get(row["file"])
             state = "BLOCKED" if raw is None else "PASS" if sha(raw) == row["sha256"].lower() and len(raw) == row["sizeBytes"] else "FAIL"
             if raw is not None:
                 self.output.write("producer-qualification-evidence/" + row["file"], raw)
-            evidence.append(dict(**row, state=state, observedSha256=sha(raw) if raw is not None else None))
+            evidence.append(dict(**row, state=state, observedSha256=sha(raw) if raw is not None else None,
+                                 observedSizeBytes=len(raw) if raw is not None else None))
         self.output.json("producer-qualification-evidence.json", evidence)
         evidence_state = "FAIL" if any(row["state"] == "FAIL" for row in evidence) else "PASS" if evidence and all(row["state"] == "PASS" for row in evidence) else "BLOCKED"
         self.record("producer-qualification-evidence", evidence_state,
                     "QUALIFICATION_EVIDENCE_MEASURED" if evidence_state == "PASS" else "QUALIFICATION_EVIDENCE_MISMATCH" if evidence_state == "FAIL" else "QUALIFICATION_EVIDENCE_UNAVAILABLE",
-                    "Every declared qualificationEvidence hash/size checked when bytes are available; missing declared files remain explicitly BLOCKED")
+                    "Every declared qualificationEvidence file/hash/size measured independently; missing bytes remain BLOCKED")
+        if carrier_error is not None:
+            raise carrier_error
 
     def unsigned_archive(self):
         if not getattr(self, "artifact_validated", False) or not hasattr(self, "package_inventory"):
@@ -1114,11 +1241,15 @@ class Collector:
                 raise QualificationError(result["termination"], "adoption native output incomplete", "BLOCKED")
             exits[format_name] = result["exitCode"]
         current = load_json(reports["json"])["adoption"]
-        previous = load_json(self.reader.read(PREDECESSOR))["adoption"]
+        predecessor = getattr(self, "adoption_predecessor", PREDECESSOR)
+        previous = load_json(self.reader.read(predecessor))["adoption"]
+        rows = [disposition(row) for row in current if not row["passed"]]
+        self.output.json("adoption-inventories.json", dict(predecessor=predecessor, predecessorRows=previous, currentRows=current,
+                         predecessorDispositions=[disposition(row) for row in previous], currentDispositions=[disposition(row) for row in current],
+                         nativeExits=exits, failures=rows))
         need(human_adoption(reports["human"]) == current, "ADOPTION_INVENTORY_DRIFT", "human/JSON ordered rows disagree")
         delta = adoption_delta(previous, current)
         self.output.json("adoption-comparison.json", delta)
-        rows = [disposition(row) for row in current if not row["passed"]]
         self.output.json("adoption-dispositions.json", dict(nativeExits=exits, predecessorCounts=dict(total=len(previous), failed=sum(not row["passed"] for row in previous)),
                          currentCounts=dict(total=len(current), failed=len(rows)), delta=delta, failures=rows))
         expected_exit = 1 if rows else 0
@@ -1136,33 +1267,48 @@ class Collector:
         revision = self.git("platform-head", self.platform, "rev-parse", "HEAD").decode().strip()
         tags = self.git("platform-tags", self.platform, "tag", "--points-at", revision).decode().splitlines()
         builds_link = self.git("platform-builds-gitlink", self.platform, "ls-tree", "HEAD", "references/Hexalith.Builds").decode().strip()
-        readme = self.platform_reader.read("README.md").decode()
-        accepted = re.search(r"catalog commit is\s+`([a-f0-9]{40})`", readme)
+        prepared = prepared_platform_identity(self.platform_reader.read("eng/prepare_builds_artifacts.py"))
+        # Retain prose as context only. Neither a prepared helper nor README is an
+        # authenticated owner decision, and historical acceptance is not inherited.
+        readme = self.platform_reader.read("README.md")
         range_match = re.fullmatch(r"\[(\d+\.\d+\.\d+), (\d+\.\d+\.\d+)-0\)", platform_config.get("toolVersionRange", ""))
         stable = re.fullmatch(r"\d+\.\d+\.\d+", self.args.version)
+        eligible = None
         if range_match and stable:
             numeric = lambda value: tuple(int(part) for part in value.split("."))
             eligible = numeric(range_match[1]) <= numeric(self.args.version) < numeric(range_match[2])
-            need(eligible, "PLATFORM_INCOMPATIBLE", "candidate is outside the exact Platform version range")
-        else:
-            raise QualificationError("PLATFORM_IDENTITY_UNAVAILABLE", "safe exact version-range inspection unavailable for this shape", "BLOCKED")
-        documented_source = None
-        if accepted:
-            documented_source = self.git("platform-documented-builds-tag", self.builds, "rev-parse", f"v{pin['version']}^{{commit}}").decode().strip()
-            need(documented_source == accepted[1], "IDENTITY_MISMATCH", "Platform documented accepted Builds source/tag disagrees")
+        owner_runs = None
+        try:
+            owner_runs = self.api("platform-owner-runs", f"repos/Hexalith/Hexalith.Platform/actions/runs?head_sha={revision}&per_page=100")
+            self.record("platform-owner-results", "BLOCKED", "OWNER_ACCEPTANCE_PENDING", "Available exact-candidate owner run inventory retained; workflow success cannot grant authenticated acceptance")
+        except QualificationError as error:
+            self.record("platform-owner-results", error.state, error.code, str(error))
+        catalog_matches = platform_catalog_binding(builds_link, prepared["SOURCE"])
+        prepared_matches = pin.get("rollForward") is False and pin.get("version") == prepared["VERSION"] == self.args.version and prepared["SOURCE"] == self.args.release_sha
+        measured = self.identity.get("signedArchive", {})
+        tooling = self.identity.get("toolingAssemblySha256")
+        # When actual archive/assembly identity is available, the prepared tuple
+        # must agree with it as well as the requested exact version/source.
+        artifact_matches = (not measured or measured.get("sha256") == prepared["ARCHIVE_SHA256"]) and (not tooling or tooling == prepared["TOOLING_SHA256"])
         self.output.json("platform-pair.json", dict(revision=revision, tags=tags, pin=pin, range=platform_config,
-                         recordedBuildsGitlink=builds_link, documentedCatalogCommit=accepted[1] if accepted else None,
-                         acceptedBuildsTagCommit=documented_source, candidateRangeEligible=True,
-                         candidateVersion=self.args.version, candidateSource=self.args.release_sha,
-                         candidateCatalog=self.identity.get("embeddedCatalog"), registrationAcceptance="pending"))
-        need(pin.get("rollForward") is False and accepted is not None, "IDENTITY_MISMATCH", "Platform recorded acceptance identity is incomplete")
-        catalog_matches = platform_catalog_binding(builds_link, accepted[1])
+                         recordedBuildsGitlink=builds_link, preparedIdentity=prepared, readmeSha256=sha(readme), ownerRunInventory=owner_runs,
+                         candidateRangeEligible=eligible, candidateVersion=self.args.version, candidateSource=self.args.release_sha,
+                         candidateCatalog=self.identity.get("embeddedCatalog"), registrationAcceptance="pending",
+                         acceptance=dict(state="BLOCKED", code="OWNER_EVIDENCE_PENDING", evidence=None,
+                                         reason="Authenticated exact-candidate decision and generated/direct-host qualification unavailable")))
+        self.record("platform-prepared-identity", "PASS" if prepared_matches and artifact_matches else "FAIL",
+                    "PLATFORM_PREPARED_IDENTITY_MEASURED" if prepared_matches and artifact_matches else "PLATFORM_PREPARED_IDENTITY_MISMATCH",
+                    "Prepared version/source/hash declarations compared independently; no acceptance inferred")
         self.record("platform-recorded-catalog", "PASS" if catalog_matches else "FAIL",
                     "PLATFORM_CATALOG_BINDING_MEASURED" if catalog_matches else "PLATFORM_CATALOG_BINDING_MISMATCH",
-                    "Recorded Platform Builds gitlink compared independently with its documented accepted catalog/tag source; no repair or acceptance inferred")
-        if not any(re.fullmatch(r"v\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?", tag) for tag in tags):
-            raise QualificationError("PLATFORM_IDENTITY_UNAVAILABLE", "direct Platform checkout has no clean exact release tag; recorded tuple/pin remain separate", "BLOCKED")
-        self.record("platform-pair", "BLOCKED", "OWNER_EVIDENCE_PENDING", "Range eligibility alone does not qualify the candidate catalog or reviewed registration pair")
+                    "Raw recorded Builds gitlink compared with prepared source; no repair or acceptance inferred")
+        self.record("platform-range", "BLOCKED" if eligible is None else "PASS" if eligible else "FAIL",
+                    "PLATFORM_IDENTITY_UNAVAILABLE" if eligible is None else "PLATFORM_RANGE_MEASURED" if eligible else "PLATFORM_INCOMPATIBLE",
+                    "Range eligibility measured separately from recorded identity and acceptance")
+        release_tagged = any(re.fullmatch(r"v\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?", tag) for tag in tags)
+        self.record("platform-release-identity", "PASS" if release_tagged else "BLOCKED",
+                    "PLATFORM_TAG_MEASURED" if release_tagged else "PLATFORM_IDENTITY_UNAVAILABLE", "Exact Platform release identity; no tags fetched or fabricated")
+        self.record("platform-pair", "BLOCKED", "OWNER_EVIDENCE_PENDING", "Prepared tuple, README and any preflight success confer no authenticated candidate acceptance")
 
     def pending_gates(self):
         for gate in ("provider-source-package-deployed-parity", "ad5-envelope", "recovery-operator-capacity", "published-testing-helper-strategy", "native-windows-macos", "human-sm2", "registration-source-config-auth-gateway-dapr"):
@@ -1172,8 +1318,11 @@ class Collector:
         for path, expected in self.originals.items():
             need(sha(self.reader.read(path)) == expected, "INPUT_RESTORATION_MISMATCH", "protected input changed: " + path)
         if hasattr(self, "entry_index"):
-            need(sha(self.git("final-index", self.root, "ls-files", "--stage", "-z")) == self.entry_index,
+            need(sha(self.git("final-index", self.root, "ls-files", "--stage", "-z", "--", "references/")) == self.entry_index,
                  "INPUT_RESTORATION_MISMATCH", "index rows changed")
+        if hasattr(self, "entry_index_bytes"):
+            need(self.index_digest("final-index-digest") == self.entry_index_bytes,
+                 "INPUT_RESTORATION_MISMATCH", "complete index bytes changed")
         for relative, expected, nested in getattr(self, "dependency_identities", []):
             repository = self.root / relative
             name = repository.name
@@ -1188,6 +1337,7 @@ class Collector:
             for name, action in (("entry", self.entry), ("producer-provenance", self.provenance),
                                  ("producer-fixtures", self.fixture_inventory), ("isolated-restore", self.restore),
                                  ("published-artifact", self.artifact), ("producer-native", self.producer_native),
+                                 ("producer-qualification-carriers", self.qualification_evidence),
                                  ("qualified-unsigned-archive", self.unsigned_archive), ("candidate-version", self.candidate_version),
                                  ("malformed-key-controls", self.controls),
                                  ("adoption", self.adoption), ("package-preparation-action", self.package_preparation),
@@ -1195,7 +1345,7 @@ class Collector:
                 self.gate(name, action)
                 # Do not execute an unverified, substituted artifact or proceed from
                 # invalid source/pin/dependency identities.
-                if name == "entry" and self.ledger[-1]["state"] != "PASS":
+                if name == "entry" and not any(row["gate"] == "entry" and row["state"] == "PASS" for row in self.ledger):
                     break
             self.pending_gates()
         except KeyboardInterrupt:
@@ -1244,6 +1394,10 @@ def main(argv=None) -> int:
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--version", required=True)
     parser.add_argument("--release-sha", required=True)
+    parser.add_argument("--candidate-only", action="store_true")
+    parser.add_argument("--planning-inputs", type=Path, default=Path(PLANNING_INPUTS))
+    parser.add_argument("--adoption-predecessor", type=Path, default=Path(PREDECESSOR))
+    parser.add_argument("--tooling-contract", type=Path, default=Path(TOOLING_CONTRACT))
     args = parser.parse_args(argv)
     try:
         result, exit_code = Collector(args).collect()

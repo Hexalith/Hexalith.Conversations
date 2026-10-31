@@ -1,0 +1,31 @@
+{
+  "name": "producer-inventory-download",
+  "command": [
+    "gh",
+    "api",
+    "-H",
+    "Accept: application/octet-stream",
+    "repos/Hexalith/Hexalith.Builds/releases/assets/684839586"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 2107237,
+  "startedAtUtc": "2026-10-31T16:14:55.410984+00:00",
+  "durationSeconds": 0.502,
+  "timeoutSeconds": 300,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "producer-inventory-download.stdout.txt",
+    "bytes": 74432,
+    "sha256": "2421408b564af44ba75a83670aee147d21347d09ed5b823d091c24a6dbc29b5e"
+  },
+  "stderr": {
+    "path": "producer-inventory-download.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

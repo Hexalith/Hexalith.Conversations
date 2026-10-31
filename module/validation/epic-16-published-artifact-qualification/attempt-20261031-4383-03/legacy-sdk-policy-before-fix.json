@@ -1,0 +1,40 @@
+{
+  "name": "legacy-sdk-policy-before-fix",
+  "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "-ra",
+    "-p",
+    "no:cacheprovider",
+    "_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "round7_latest_patch_policy_permits_only_approved_feature_band or round12_helper_prerequisite_failure_retains_bounded_streams_and_exit or round12_helper_prerequisite_diagnostics_remain_structured_blocked"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 4073386,
+  "startedAtUtc": "2026-10-31T17:05:40.719397+00:00",
+  "durationSeconds": 21.96,
+  "timeoutSeconds": 600,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 1,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "legacy-sdk-policy-before-fix.stdout.txt",
+    "bytes": 9421,
+    "sha256": "5e8942e6d54c05130505c9cc105b2570c231147d2d614180381be4beef377102"
+  },
+  "stderr": {
+    "path": "legacy-sdk-policy-before-fix.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

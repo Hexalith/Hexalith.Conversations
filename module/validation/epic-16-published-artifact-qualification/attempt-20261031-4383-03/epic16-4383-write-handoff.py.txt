@@ -1,0 +1,126 @@
+import json,pathlib,runpy,sys
+sys.argv=['capture','noop'];n=runpy.run_path('/tmp/epic16-4383-isolation-baseline.py');A=n['ATTEMPT'];R=n['ROOT'];write=n['write'];entry=json.loads((A/'entry-state.json').read_bytes());candidate=json.loads((A/'collection-final-source/qualification-ledger.json').read_bytes());authority=dict(implementationHold='ACTIVE',executionAllowed=False,ownerApprovalClaimed=False,releaseAuthorized=False,pushAuthorized=False)
+ledger=[
+ dict(gate='direct-dependency-preflight',state='PASS',evidence='dependency-preflight.json'),
+ dict(gate='authorized-admin-web-isolation-correction',state='PASS',evidence=['admin-web-endpoint.json','admin-web-health.json','focused-topology-tests.json'],detail='Aspire-managed HTTP endpoint without fixed ports; eight topology tests pass; discovered /health returns 200'),
+ dict(gate='complete-normal-mapped-debug-baseline',state='PASS',evidence=['source-prepare.json','apphost-run.json','resource-summary.json','apphost-wait-conversations.json','apphost-wait-eventstore.json','apphost-wait-conversations-admin-web.json']),
+ dict(gate='collector-current-regressions',state='PASS',evaluatedTests=103,evidence='collector-final-metadata-regressions.json'),
+ dict(gate='v3-native-matrix-and-independent-pins',state='PASS',evidence=['collector-v3-focused-final.json','collector-v3-all-pins-retry.json','native-fixture-ledger.json','root-v3-audit.json'],detail='194 passing combined cases retained; two test-harness selector faults corrected by matching story selection and all45 pin cases pass; actual15 native fixture routes, three deterministic pairs and inserted record retained'),
+ dict(gate='current-sdk-policy-regressions',state='PASS',evaluatedTests=14,evidence=['legacy-sdk-policy-before-fix.json','legacy-sdk-policy-final.json'],detail='Five stale positive/mock SDK inputs reproduced and corrected to unchanged 10.0.403 policy; explicit 10.0.402 rejection retained; helper and pin unchanged'),
+ dict(gate='current-focused-legacy-consumer-generator-adoption',state='PASS',evaluatedTests=dict(v1=30,v2=64,generator=43,adoption=293),evidence=['legacy-v1-current-focused.json','legacy-v2-current-focused.json','generator-current-focused.json','adoption-v1-v2-current-focused.json']),
+ dict(gate='planned-broad-regression-run',state='BLOCKED',code='BROAD_REGRESSION_TIMEOUT',nativeExitCode=143,timeoutSeconds=1800,collectedTests=4775,evidence=['legacy-tooling-generator-adoption-exact.json','broad-regression-disposition.json'],detail='Incomplete broad run retained independently; focused passing partitions do not claim its completion'),
+ dict(gate='actual-held-command-routing',state='PASS',evidence='held-command-ledger.json',commands=30,v3=18,legacy=12,measuredRuntimeTests=0),
+ dict(gate='independent-story-7.3-guards',state='PASS',evidence=['story73-final-AC-7.3-01.json','story73-final-AC-7.3-02.json','story73-final-measurement-inputs.json','story73-final-preservation.json'],detail='Exact commands run against byte-exact current inputs in a shared local measurement checkout; existing root outputs unchanged'),
+ dict(gate='required-producer-qualification-evidence',state='BLOCKED',code='QUALIFICATION_EVIDENCE_UNAVAILABLE',declaredFiles=55,evidence='collection-final-source/producer-qualification-evidence.json',detail='Exact source CI and Release artifact inventories are empty; no broad native summary substitutes for declared file/hash/size evidence'),
+ dict(gate='candidate-qualification-overall',state=candidate['state'],nativeExitCode=candidate['collectorExitCode'],evidence='collection-final-source/qualification-ledger.json',detail='Artifact and all36 controls PASS; adoption and recorded Platform source identity FAIL; missing producer and owner evidence BLOCKED'),
+ dict(gate='preservation-and-exact-owned-boundary',state='PASS',evidence=['preservation-check.json','evidence-integrity-check.json','owned-paths.json','root-protected-audit.json']),
+ dict(gate='runtime-entry',state='BLOCKED',code='ENTRY_QUALIFICATION_PENDING',entry=None,trustedEntries=[],measuredRuntimeTests=0),
+ dict(gate='historical-boundary-replay-and-runtime-publication',state='not-applicable',code='OUTSIDE_PREREQUISITE')]
+write('qualification-ledger.json',dict(schemaVersion='hexalith.conversations.epic16-4383-prerequisite-attempt.v1',state='BLOCKED',completed=False,attemptScope='authorized hosting correction, exact published candidate measurement and additive held v3 source binding',entryCandidate=entry['head'],entryTree=entry['tree'],rootToolPin='4.38.3',rootToolPinRollForward=False,candidateVersion='4.38.3',candidateSource='d1931b1e803144048d927fff16cb8119afde541e',authority=authority,entry=None,trustedEntries=[],runtimeQualified=False,measuredRuntimeTests=0,ledger=ledger,finalCollection='collection-final-source',intermediateCollections=['collection-initial','collection-measured','collection-final-code','collection-final-verified'],immutableV3ObservationSource='collection-measured',remainingTasks=['Obtain exact55 declared producer evidence files or separately reviewed evidence successor','Complete the timed-out broad regression scope; focused current checks are separate passing evidence'],nextOwnerActions=['Builds release owner supplies every declared file with matching inventory hash and size; preserve existing inventories and evidence','Platform owner reconciles recorded cc0db51b800be1d0d5badc3780395cfb5953d0f5 with prepared d1931b1e803144048d927fff16cb8119afde541e, publishes a qualified identity and supplies authenticated acceptance with distinct generated/direct-host evidence','Conversations and producer policy owners disposition all22 adoption failures without scanner exclusions or accepted fixture changes','Complete native Windows/macOS, provider/AD-5/recovery/operator/capacity/registration/human SM-2 and trusted owner-entry qualifications before runtime work'],historicalBoundaryReplay='not-applicable',runtimePublication='not-applicable'))
+(A/'README.md').write_text('''# 4.38.3 measured candidate and held v3: completion blocked
+
+The bounded prerequisite remains **in-progress / BLOCKED**. The Admin Web
+isolation repair, collector changes, additive held v3 and focused verification
+are implemented. Required producer evidence remains unavailable, and the full
+planned broad regression run did not complete. No review/done or runtime
+readiness follows. See the [attempt ledger](qualification-ledger.json).
+
+The separately authorized repair adds `.WithHttpEndpoint()` without a port.
+The fresh producer Debug build and source preparation pass; their complete
+selected environment and mapping bytes are retained. The exact detached,
+isolated mapped AppHost baseline passes all three health waits. Final native
+inspection shows Conversations, EventStore, Admin Web, security, state store,
+pub/sub and active Dapr CLI resources healthy. Abstract Dapr resources retain
+null states and rebuilders remain NotStarted. Admin Web's discovered
+[HTTP endpoint](admin-web-endpoint.json) serves `/health` with 200; no credential
+or topology bypass was used. All eight focused topology tests pass.
+
+The initial stop command rejected unsupported `--format` (exit1). It is retained.
+After rechecking the same created AppHost/CLI PIDs and process start times, the
+supported exact-target stop exits0. The final session inventory matches entry.
+A transient unrelated Memories session appeared and was absent before cleanup;
+no command targeted it. The existing Tenants session was preserved.
+
+[Final source collection](collection-final-source/qualification-ledger.json)
+independently verifies exact 4.38.3 tag/source, successful producer CI/Release,
+official release inventory asset684839586, signed NuGet signature/SHA-512/size,
+NuSpec source, packaged/loaded Tooling assembly, all three loose/embedded/source
+schemas and embedded catalog against source Props. The signed archive SHA-256
+is `6c074186a9bbfb66c558fe5d1090e1e35fdd58577c0396266074bd1cea8919fd`;
+the distinct unsigned archive reproduces the producer CI hash and payload.
+Both real-manifest positive formats and **all36 malformed-key controls PASS**.
+The 289 selected fixtures, hidden exclusion, filtered/raw differences, native
+Release summaries and every skip retain their actual scopes.
+
+The exact CI run40669428503 and Release run40673566658 each report zero
+artifacts. All **55 declared qualificationEvidence files remain BLOCKED**.
+The overall candidate ledger is **FAIL**: adoption is exactly **29 ordered rows,
+7 PASS /22 FAIL**, and Platform's recorded Builds `cc0db51b800be1d0d5badc3780395cfb5953d0f5`
+differs from prepared `d1931b1e803144048d927fff16cb8119afde541e`.
+[Adoption deltas/dispositions](collection-final-source/adoption-dispositions.json)
+retain every row and owner action without waivers. Prepared version/range/hash
+agreement supplies no acceptance. Missing Platform release identity blocks
+package preparation/action export. All thirteen producer findings, ten groups
+and rejected B8/B11 dispositions survive. Native Windows/macOS and operational,
+provider, recovery/operator/capacity, registration, human and owner gates remain
+separate required inputs; no CI dispatch, publish, deployment or owner message occurred.
+
+[V3](../../../../_bmad-output/planning-artifacts/epic-16-tooling-v3/README.md)
+freezes90 source rows, all independent contract/schema/predecessor pins and an
+immutable observation summary from `collection-measured`. The accepted v1/v2
+carriers, policy/trust and schema bytes are preserved. All18 ACs,32 requirements,
+graph38/61, product/API ownership, native/final wire rules and rollback remain
+unchanged. Root manifest4.38.3 was already present at entry and is unchanged;
+version agreement grants no adoption.
+
+Verification:103 collector tests pass, including malformed-root-version,
+provenance-before-execution, false prepared acceptance, carrier substitution and
+duplicate adoption controls. The combined collector/v3 run retains194 passing
+cases and two test-harness selector failures; their corrected matching-story
+partition passes all45 independent pin cases. The [retained fixture ledger](native-fixture-ledger.json)
+records all15 actual native fixture routes, three byte-deterministic final pairs,
+inserted-record verification, raw command streams, artifact bytes and Git bundles
+for the disposable fixture and its three synthetic dependencies. It grants no
+runtime authority. The [held-route ledger](held-command-ledger.json) verifies all18
+v3 commands as BLOCKED/2/ENTRY_QUALIFICATION_PENDING and12 legacy commands as
+FAIL/1/SOURCE_DRIFT, with zero runtime tests and no runtime/native/final outputs.
+
+The exact4775-case broad command reached its1800-second bound: exit143,
+1977 passing progress markers and one failing marker; it has no completed suite
+verdict. Its [incomplete disposition](broad-regression-disposition.json) remains
+separate. Focused reproduction found five stale10.0.402 SDK positive/mock inputs
+against the unchanged10.0.403 policy. Corrected tests and an explicit10.0.402
+rejection pass all14 SDK/diagnostic cases. Current focused partitions pass30 v1,
+64 v2,43 generator and293 adoption tests. They do not claim completion of the
+broader run. The two exact independent Story7.3 guard commands pass against
+[fresh byte-exact current inputs](story73-final-measurement-inputs.json) in a
+disposable measurement checkout; existing root outputs remain unchanged.
+
+[Preservation](preservation-check.json) and [integrity](evidence-integrity-check.json)
+rehash retained streams/files, exact changed paths, full root index, all twelve
+direct gitlinks/checkouts, protected inputs, previous failed evidence and frozen
+intent. Independent root audits retain178 immutable-file checks and143 v3
+checks. The authorization-entry spec comparison is explicitly reconstructed
+from HEAD plus the exact authorization patch, not mislabeled as precaptured.
+Only ephemeral dashboard credentials in this fresh attempt are redacted, with
+raw and retained digests. Intermediate collections remain unchanged; only
+`collection-final-source` protects the finished source/test tree.
+
+Builds owners must supply all55 exact declared files or a separately reviewed
+evidence successor. Platform owners must reconcile/publish/qualify the recorded
+tuple and supply authenticated candidate acceptance. Policy owners retain all22
+adoption failures and the remaining native/operational/human entry gates.
+Story16.1 remains draft/backlog; entry null, independent trust empty, hold ACTIVE
+and all four authority flags false. Historical boundary replay and runtime
+publication are not-applicable. No root pin, dependency checkout/gitlink, index,
+accepted fixture/evidence or runtime implementation was changed.
+''')
+# Keep individually finished tasks visible while required qualification and broad
+# regression completion remain unchecked.
+p=R/'_bmad-output/implementation-artifacts/spec-epic-16-4-38-3-qualification-and-binding-refresh.md';s=p.read_text();begin=s.index('## Tasks & Acceptance');end=s.index('## Implementation Notes',begin);section=s[begin:end];lines=section.splitlines();index=0
+for i,line in enumerate(lines):
+ if line.startswith('- [ ]') or line.startswith('- [x]'):
+  index+=1
+  if index in (1,2,4,5,7):lines[i]=line.replace('- [ ]','- [x]',1)
+p.write_text(s[:begin]+'\n'.join(lines)+'\n\n'+s[end:])
+print('Attempt handoff and individually completed tasks recorded; completion remains BLOCKED.')

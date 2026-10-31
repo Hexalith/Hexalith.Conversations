@@ -1,3 +1,4 @@
 # Preserve the independently pinned successor schema and this scoped policy.
 .gitattributes text eol=lf
 epic-16-tooling-v2.schema.json text eol=lf
+epic-16-tooling-v3.schema.json text eol=lf

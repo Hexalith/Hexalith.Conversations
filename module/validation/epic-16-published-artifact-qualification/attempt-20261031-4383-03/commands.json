@@ -1,0 +1,4507 @@
+[
+  {
+    "name": "admin-web-health",
+    "command": [
+      "curl",
+      "--fail-with-body",
+      "--silent",
+      "--show-error",
+      "--max-time",
+      "30",
+      "--dump-header",
+      "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/admin-web-health.headers.txt",
+      "http://localhost:36277/health"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1957539,
+    "startedAtUtc": "2026-10-31T16:12:32.119179+00:00",
+    "durationSeconds": 0.101,
+    "timeoutSeconds": 40,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "admin-web-health.stdout.txt",
+      "bytes": 15,
+      "sha256": "a29ee2b15c494311c52521766e44af56a3ad2248e7a8ab465e5206463c13d288"
+    },
+    "stderr": {
+      "path": "admin-web-health.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "adoption-v1-v2-current-focused",
+    "command": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "-ra",
+      "-p",
+      "no:cacheprovider",
+      "_bmad/scripts/tests/test_verify_epic_16_adoption.py",
+      "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 68322,
+    "startedAtUtc": "2026-10-31T17:11:07.696699+00:00",
+    "durationSeconds": 15.031,
+    "timeoutSeconds": 900,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "adoption-v1-v2-current-focused.stdout.txt",
+      "bytes": 421,
+      "sha256": "8a150ce4c04ffe882967b53954d20b7c6107cb703822785b64227a764be2d720"
+    },
+    "stderr": {
+      "path": "adoption-v1-v2-current-focused.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "apphost-describe-final",
+    "command": [
+      "aspire",
+      "describe",
+      "--apphost",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "--include-hidden",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1937058,
+    "startedAtUtc": "2026-10-31T16:12:17.226415+00:00",
+    "durationSeconds": 0.402,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "apphost-describe-final.stdout.txt",
+      "bytes": 43421,
+      "sha256": "93e678d04792feef1a0968011e349d901a9988aaff2ddf39cd35ce50966ce422",
+      "capturedRaw": {
+        "bytes": 43685,
+        "sha256": "c2cd103f2dc3613db8580431eac78899badcf25326b3b5e0ce7fc1f56fe65bab"
+      },
+      "ephemeralCredentialsRedacted": true
+    },
+    "stderr": {
+      "path": "apphost-describe-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "apphost-describe-initial",
+    "command": [
+      "aspire",
+      "describe",
+      "--apphost",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "--include-hidden",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1916962,
+    "startedAtUtc": "2026-10-31T16:11:55.600715+00:00",
+    "durationSeconds": 0.617,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "apphost-describe-initial.stdout.txt",
+      "bytes": 34248,
+      "sha256": "46339caf1aae0121640e743546ac87361a8c37ca10c586b4670df9cc3c8589db",
+      "capturedRaw": {
+        "bytes": 34402,
+        "sha256": "4c3fdaca3fb85fffd0e26f9054ed141ddf7b69144c258bb939623cbeb6e5983f"
+      },
+      "ephemeralCredentialsRedacted": true
+    },
+    "stderr": {
+      "path": "apphost-describe-initial.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "apphost-logs-conversations-admin-web",
+    "command": [
+      "aspire",
+      "logs",
+      "conversations-admin-web",
+      "--apphost",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "--tail",
+      "100",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1969666,
+    "startedAtUtc": "2026-10-31T16:12:45.376179+00:00",
+    "durationSeconds": 0.405,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "apphost-logs-conversations-admin-web.stdout.txt",
+      "bytes": 4620,
+      "sha256": "4620548ee3a6c3a263aa9e100ac462e22218568c89b3fc76beb86b7174cfc372"
+    },
+    "stderr": {
+      "path": "apphost-logs-conversations-admin-web.stderr.txt",
+      "bytes": 16,
+      "sha256": "a396df1faa9367ab22afa4c3320053f0546088c84306e83946c347d3723a26c5"
+    }
+  },
+  {
+    "name": "apphost-logs-conversations-dapr-cli",
+    "command": [
+      "aspire",
+      "logs",
+      "conversations-dapr-cli",
+      "--apphost",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "--tail",
+      "100",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1971733,
+    "startedAtUtc": "2026-10-31T16:12:47.800510+00:00",
+    "durationSeconds": 0.405,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "apphost-logs-conversations-dapr-cli.stdout.txt",
+      "bytes": 28972,
+      "sha256": "296136f09cb001987f23b1d7341eb022f5683d5192a2f615d9aa8f57e6c68fa1"
+    },
+    "stderr": {
+      "path": "apphost-logs-conversations-dapr-cli.stderr.txt",
+      "bytes": 16,
+      "sha256": "a396df1faa9367ab22afa4c3320053f0546088c84306e83946c347d3723a26c5"
+    }
+  },
+  {
+    "name": "apphost-logs-conversations",
+    "command": [
+      "aspire",
+      "logs",
+      "conversations",
+      "--apphost",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "--tail",
+      "100",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1970202,
+    "startedAtUtc": "2026-10-31T16:12:45.781765+00:00",
+    "durationSeconds": 0.404,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "apphost-logs-conversations.stdout.txt",
+      "bytes": 14758,
+      "sha256": "d95b2b1c2203bd37110cb76c8cb623a119838a0f8d9d97748faec7710410448c"
+    },
+    "stderr": {
+      "path": "apphost-logs-conversations.stderr.txt",
+      "bytes": 16,
+      "sha256": "a396df1faa9367ab22afa4c3320053f0546088c84306e83946c347d3723a26c5"
+    }
+  },
+  {
+    "name": "apphost-logs-eventstore-dapr-cli",
+    "command": [
+      "aspire",
+      "logs",
+      "eventstore-dapr-cli",
+      "--apphost",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "--tail",
+      "100",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1971903,
+    "startedAtUtc": "2026-10-31T16:12:48.205720+00:00",
+    "durationSeconds": 0.407,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "apphost-logs-eventstore-dapr-cli.stdout.txt",
+      "bytes": 28415,
+      "sha256": "d87e8fdfa122367cf9e888cac5d193374a290f933fb363dfbe6aab14b58f47fd"
+    },
+    "stderr": {
+      "path": "apphost-logs-eventstore-dapr-cli.stderr.txt",
+      "bytes": 16,
+      "sha256": "a396df1faa9367ab22afa4c3320053f0546088c84306e83946c347d3723a26c5"
+    }
+  },
+  {
+    "name": "apphost-logs-eventstore",
+    "command": [
+      "aspire",
+      "logs",
+      "eventstore",
+      "--apphost",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "--tail",
+      "100",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1970500,
+    "startedAtUtc": "2026-10-31T16:12:46.185833+00:00",
+    "durationSeconds": 0.407,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "apphost-logs-eventstore.stdout.txt",
+      "bytes": 54217,
+      "sha256": "f9028fd7f0a35ccb2d3b389955cfc904b731874cf74193eae68bff6299375a45"
+    },
+    "stderr": {
+      "path": "apphost-logs-eventstore.stderr.txt",
+      "bytes": 16,
+      "sha256": "a396df1faa9367ab22afa4c3320053f0546088c84306e83946c347d3723a26c5"
+    }
+  },
+  {
+    "name": "apphost-logs-security",
+    "command": [
+      "aspire",
+      "logs",
+      "security",
+      "--apphost",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "--tail",
+      "100",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1970951,
+    "startedAtUtc": "2026-10-31T16:12:46.593090+00:00",
+    "durationSeconds": 1.204,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "apphost-logs-security.stdout.txt",
+      "bytes": 23583,
+      "sha256": "86f4b4643f6314c2ed9739e7bc1e5066acabbbb43198019161e02c28700f6cdd"
+    },
+    "stderr": {
+      "path": "apphost-logs-security.stderr.txt",
+      "bytes": 16,
+      "sha256": "a396df1faa9367ab22afa4c3320053f0546088c84306e83946c347d3723a26c5"
+    }
+  },
+  {
+    "name": "apphost-run",
+    "command": [
+      "aspire",
+      "run",
+      "--detach",
+      "--isolated",
+      "--apphost",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1883397,
+    "startedAtUtc": "2026-10-31T16:11:24.032201+00:00",
+    "durationSeconds": 15.782,
+    "timeoutSeconds": 600,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "apphost-run.stdout.txt",
+      "bytes": 380,
+      "sha256": "a4d9254c630bbcb8eaeddee444b1dcf8ddde84aa2ead764064c52dde915e7c7e",
+      "capturedRaw": {
+        "bytes": 402,
+        "sha256": "184c7f5f9eb83e779913b2626a9683de82ceff5e37f0efc776fad9a20b6a151a"
+      },
+      "ephemeralCredentialsRedacted": true
+    },
+    "stderr": {
+      "path": "apphost-run.stderr.txt",
+      "bytes": 45,
+      "sha256": "217c09956c3c640c6b8cdded618a7d1610e98cecdcc663dda3052246b9d21c58"
+    }
+  },
+  {
+    "name": "apphost-stop-retry",
+    "command": [
+      "aspire",
+      "stop",
+      "--apphost",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2118651,
+    "startedAtUtc": "2026-10-31T16:15:10.352944+00:00",
+    "durationSeconds": 0.804,
+    "timeoutSeconds": 90,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "apphost-stop-retry.stdout.txt",
+      "bytes": 423,
+      "sha256": "74cf3f0aab629f1499c633b12b02fe12388da8c2a07b127dda5df24e1893bede"
+    },
+    "stderr": {
+      "path": "apphost-stop-retry.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "apphost-stop",
+    "command": [
+      "aspire",
+      "stop",
+      "--apphost",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1972711,
+    "startedAtUtc": "2026-10-31T16:12:49.077593+00:00",
+    "durationSeconds": 0.403,
+    "timeoutSeconds": 90,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 1,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "apphost-stop.stdout.txt",
+      "bytes": 1506,
+      "sha256": "75e857f0e4932d539953b31b274369aa53e0a9ca0a1c5de12470e514e04ea89e"
+    },
+    "stderr": {
+      "path": "apphost-stop.stderr.txt",
+      "bytes": 87,
+      "sha256": "27d0fc3c984e69796bed847372a7cf7f3d632fcb5f0c7b3905a120425a299d62"
+    }
+  },
+  {
+    "name": "apphost-wait-conversations-admin-web",
+    "command": [
+      "aspire",
+      "wait",
+      "conversations-admin-web",
+      "--apphost",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "--status",
+      "healthy",
+      "--timeout",
+      "120",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1936595,
+    "startedAtUtc": "2026-10-31T16:12:16.820589+00:00",
+    "durationSeconds": 0.405,
+    "timeoutSeconds": 135,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "apphost-wait-conversations-admin-web.stdout.txt",
+      "bytes": 123,
+      "sha256": "d83bdb78a705108f8284f1adfaa75b94fcd77668fbf620dee98f07d85b08ec49"
+    },
+    "stderr": {
+      "path": "apphost-wait-conversations-admin-web.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "apphost-wait-conversations",
+    "command": [
+      "aspire",
+      "wait",
+      "conversations",
+      "--apphost",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "--status",
+      "healthy",
+      "--timeout",
+      "120",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1917506,
+    "startedAtUtc": "2026-10-31T16:11:56.218416+00:00",
+    "durationSeconds": 20.199,
+    "timeoutSeconds": 135,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "apphost-wait-conversations.stdout.txt",
+      "bytes": 104,
+      "sha256": "3d58744745fd0f4fb3083e8111aa2dbba1c8824dc3708a6e9684598b76896931"
+    },
+    "stderr": {
+      "path": "apphost-wait-conversations.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "apphost-wait-eventstore",
+    "command": [
+      "aspire",
+      "wait",
+      "eventstore",
+      "--apphost",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "--status",
+      "healthy",
+      "--timeout",
+      "120",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1936144,
+    "startedAtUtc": "2026-10-31T16:12:16.416472+00:00",
+    "durationSeconds": 0.404,
+    "timeoutSeconds": 135,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "apphost-wait-eventstore.stdout.txt",
+      "bytes": 97,
+      "sha256": "e98def87905db7de99e6f39b8962e4298c907b6f3e16e314e1890256f56caaaf"
+    },
+    "stderr": {
+      "path": "apphost-wait-eventstore.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-describe-help",
+    "command": [
+      "aspire",
+      "describe",
+      "--help"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1795427,
+    "startedAtUtc": "2026-10-31T16:09:59.905178+00:00",
+    "durationSeconds": 0.202,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "aspire-describe-help.stdout.txt",
+      "bytes": 1506,
+      "sha256": "84d18655ba0983b10169fe155a917f4fe38ba9ed238f612b97c39ac0926eeba7"
+    },
+    "stderr": {
+      "path": "aspire-describe-help.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-http-endpoint-api",
+    "command": [
+      "aspire",
+      "docs",
+      "api",
+      "get",
+      "csharp/aspire.hosting/resourcebuilderextensions/methods#withhttpendpoint-965ef192"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1816224,
+    "startedAtUtc": "2026-10-31T16:10:17.550657+00:00",
+    "durationSeconds": 1.704,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "aspire-http-endpoint-api.stdout.txt",
+      "bytes": 311453,
+      "sha256": "fc1b17f18589a14f5248b9b24098b17a3da6205814524aa49d75bf7e3089eb34"
+    },
+    "stderr": {
+      "path": "aspire-http-endpoint-api.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-logs-help",
+    "command": [
+      "aspire",
+      "logs",
+      "--help"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1957625,
+    "startedAtUtc": "2026-10-31T16:12:32.220654+00:00",
+    "durationSeconds": 0.101,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "aspire-logs-help.stdout.txt",
+      "bytes": 1935,
+      "sha256": "3980db3df96c931c212cf15cc19f3d9dc3fd870d5ecb4d9a32607131759facdb"
+    },
+    "stderr": {
+      "path": "aspire-logs-help.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-project-resource-docs",
+    "command": [
+      "aspire",
+      "docs",
+      "get",
+      "project-resources"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1813274,
+    "startedAtUtc": "2026-10-31T16:10:15.144178+00:00",
+    "durationSeconds": 2.405,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "aspire-project-resource-docs.stdout.txt",
+      "bytes": 22379,
+      "sha256": "7143f2f763e2c347a0b5ddc83c317f472c5d26834f4c8bdb6dcf4d944d1a7a61"
+    },
+    "stderr": {
+      "path": "aspire-project-resource-docs.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-ps-after-cleanup-retry",
+    "command": [
+      "aspire",
+      "ps",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2119237,
+    "startedAtUtc": "2026-10-31T16:15:11.156850+00:00",
+    "durationSeconds": 0.307,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "aspire-ps-after-cleanup-retry.stdout.txt",
+      "bytes": 435,
+      "sha256": "8c59e83d9bca319290f373f4523750cdab0242dcb0054b9af9cfcaa40945ed01",
+      "capturedRaw": {
+        "bytes": 457,
+        "sha256": "8bfbc9eddd4924c374d385b889c78ac901f021ca2a0ce4d61684c6cab89acd34"
+      },
+      "ephemeralCredentialsRedacted": true
+    },
+    "stderr": {
+      "path": "aspire-ps-after-cleanup-retry.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-ps-after",
+    "command": [
+      "aspire",
+      "ps",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1973234,
+    "startedAtUtc": "2026-10-31T16:12:49.481392+00:00",
+    "durationSeconds": 0.301,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "aspire-ps-after.stdout.txt",
+      "bytes": 887,
+      "sha256": "326607481d530eb42ddb79e183a8cd07dd8722951618a6a4b4aff355275206f6",
+      "capturedRaw": {
+        "bytes": 931,
+        "sha256": "8f68a3aaa390b5c9d425bf05cf7f62ea9f66ad433001157d19e9c1edc3b7d88b"
+      },
+      "ephemeralCredentialsRedacted": true
+    },
+    "stderr": {
+      "path": "aspire-ps-after.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-ps-before-cleanup-retry",
+    "command": [
+      "aspire",
+      "ps",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2118185,
+    "startedAtUtc": "2026-10-31T16:15:09.947952+00:00",
+    "durationSeconds": 0.404,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "aspire-ps-before-cleanup-retry.stdout.txt",
+      "bytes": 887,
+      "sha256": "326607481d530eb42ddb79e183a8cd07dd8722951618a6a4b4aff355275206f6",
+      "capturedRaw": {
+        "bytes": 931,
+        "sha256": "8f68a3aaa390b5c9d425bf05cf7f62ea9f66ad433001157d19e9c1edc3b7d88b"
+      },
+      "ephemeralCredentialsRedacted": true
+    },
+    "stderr": {
+      "path": "aspire-ps-before-cleanup-retry.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-ps-before-cleanup",
+    "command": [
+      "aspire",
+      "ps",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1972328,
+    "startedAtUtc": "2026-10-31T16:12:48.671496+00:00",
+    "durationSeconds": 0.405,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "aspire-ps-before-cleanup.stdout.txt",
+      "bytes": 887,
+      "sha256": "326607481d530eb42ddb79e183a8cd07dd8722951618a6a4b4aff355275206f6",
+      "capturedRaw": {
+        "bytes": 931,
+        "sha256": "8f68a3aaa390b5c9d425bf05cf7f62ea9f66ad433001157d19e9c1edc3b7d88b"
+      },
+      "ephemeralCredentialsRedacted": true
+    },
+    "stderr": {
+      "path": "aspire-ps-before-cleanup.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-ps-before",
+    "command": [
+      "aspire",
+      "ps",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1796192,
+    "startedAtUtc": "2026-10-31T16:10:00.410907+00:00",
+    "durationSeconds": 0.302,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "aspire-ps-before.stdout.txt",
+      "bytes": 435,
+      "sha256": "8c59e83d9bca319290f373f4523750cdab0242dcb0054b9af9cfcaa40945ed01",
+      "capturedRaw": {
+        "bytes": 457,
+        "sha256": "8bfbc9eddd4924c374d385b889c78ac901f021ca2a0ce4d61684c6cab89acd34"
+      },
+      "ephemeralCredentialsRedacted": true
+    },
+    "stderr": {
+      "path": "aspire-ps-before.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-ps-help",
+    "command": [
+      "aspire",
+      "ps",
+      "--help"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1795897,
+    "startedAtUtc": "2026-10-31T16:10:00.208347+00:00",
+    "durationSeconds": 0.101,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "aspire-ps-help.stdout.txt",
+      "bytes": 1184,
+      "sha256": "4221229238fefefa07b0422c6593fa87ace86bb939806fbf3353c325c4dac17a"
+    },
+    "stderr": {
+      "path": "aspire-ps-help.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-ps-running",
+    "command": [
+      "aspire",
+      "ps",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1916247,
+    "startedAtUtc": "2026-10-31T16:11:55.098059+00:00",
+    "durationSeconds": 0.502,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "aspire-ps-running.stdout.txt",
+      "bytes": 1324,
+      "sha256": "707b8953f87f8be46062b294a6c3d36ede3228da9435ca96a59c11661d8e3546",
+      "capturedRaw": {
+        "bytes": 1390,
+        "sha256": "53194e899cfcf946949e16f473b0d5cca36e19a121d2cf10cc24cd40fa943f07"
+      },
+      "ephemeralCredentialsRedacted": true
+    },
+    "stderr": {
+      "path": "aspire-ps-running.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-run-help",
+    "command": [
+      "aspire",
+      "run",
+      "--help"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1795319,
+    "startedAtUtc": "2026-10-31T16:09:59.802236+00:00",
+    "durationSeconds": 0.102,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "aspire-run-help.stdout.txt",
+      "bytes": 1872,
+      "sha256": "3d5a55a5a522776cecc4ad90a8f784399fe6ab2bb0107bb876dae95f96da1ee6"
+    },
+    "stderr": {
+      "path": "aspire-run-help.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-stop-help",
+    "command": [
+      "aspire",
+      "stop",
+      "--help"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1796013,
+    "startedAtUtc": "2026-10-31T16:10:00.309656+00:00",
+    "durationSeconds": 0.101,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "aspire-stop-help.stdout.txt",
+      "bytes": 1434,
+      "sha256": "5caed440b97770a9ff1aef2345443a70d430d7281de9ab56072433db6d760e54"
+    },
+    "stderr": {
+      "path": "aspire-stop-help.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-version",
+    "command": [
+      "aspire",
+      "--version"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1794859,
+    "startedAtUtc": "2026-10-31T16:09:59.600111+00:00",
+    "durationSeconds": 0.202,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "aspire-version.stdout.txt",
+      "bytes": 48,
+      "sha256": "c221e6c7530f2820e5b610f7318f1c119f5b4ba65378bdd0e4b86ba6c062259e"
+    },
+    "stderr": {
+      "path": "aspire-version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "aspire-wait-help",
+    "command": [
+      "aspire",
+      "wait",
+      "--help"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1795713,
+    "startedAtUtc": "2026-10-31T16:10:00.107121+00:00",
+    "durationSeconds": 0.101,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "aspire-wait-help.stdout.txt",
+      "bytes": 1433,
+      "sha256": "7dec06e4af8bbac0af914531a2d7cb9a36a81446605c38658a9527d2c9849a55"
+    },
+    "stderr": {
+      "path": "aspire-wait-help.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "candidate-collection-final-code",
+    "command": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "_bmad/scripts/qualify_epic16_published_artifact.py",
+      "--conversations",
+      ".",
+      "--builds",
+      "references/Hexalith.Builds",
+      "--platform",
+      "references/Hexalith.Platform",
+      "--version",
+      "4.38.3",
+      "--release-sha",
+      "d1931b1e803144048d927fff16cb8119afde541e",
+      "--inventory",
+      "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/g4-tool-package-inventory.json",
+      "--output",
+      "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/collection-final-code",
+      "--candidate-only",
+      "--planning-inputs",
+      "_bmad-output/implementation-artifacts/epic-16-4-38-3-qualification-inputs.json",
+      "--adoption-predecessor",
+      "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/adoption-json.stdout.txt",
+      "--tooling-contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2993514,
+    "startedAtUtc": "2026-10-31T16:39:12.324972+00:00",
+    "durationSeconds": 80.531,
+    "timeoutSeconds": 1850,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 1,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "candidate-collection-final-code.stdout.txt",
+      "bytes": 226,
+      "sha256": "e97ec99f996709300f6e775039426fab1a5a10ff15db0caa36de91c8e6f06581"
+    },
+    "stderr": {
+      "path": "candidate-collection-final-code.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "candidate-collection-final-source",
+    "command": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "_bmad/scripts/qualify_epic16_published_artifact.py",
+      "--conversations",
+      ".",
+      "--builds",
+      "references/Hexalith.Builds",
+      "--platform",
+      "references/Hexalith.Platform",
+      "--version",
+      "4.38.3",
+      "--release-sha",
+      "d1931b1e803144048d927fff16cb8119afde541e",
+      "--inventory",
+      "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/g4-tool-package-inventory.json",
+      "--output",
+      "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/collection-final-source",
+      "--candidate-only",
+      "--planning-inputs",
+      "_bmad-output/implementation-artifacts/epic-16-4-38-3-qualification-inputs.json",
+      "--adoption-predecessor",
+      "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/adoption-json.stdout.txt",
+      "--tooling-contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 236991,
+    "startedAtUtc": "2026-10-31T17:15:40.081260+00:00",
+    "durationSeconds": 75.987,
+    "timeoutSeconds": 1850,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 1,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "candidate-collection-final-source.stdout.txt",
+      "bytes": 228,
+      "sha256": "2195a90c677b3bdaee6d20fd58fb66d8555aff88c8c8f96fb55811d477ef82a6"
+    },
+    "stderr": {
+      "path": "candidate-collection-final-source.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "candidate-collection-final-verified",
+    "command": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "_bmad/scripts/qualify_epic16_published_artifact.py",
+      "--conversations",
+      ".",
+      "--builds",
+      "references/Hexalith.Builds",
+      "--platform",
+      "references/Hexalith.Platform",
+      "--version",
+      "4.38.3",
+      "--release-sha",
+      "d1931b1e803144048d927fff16cb8119afde541e",
+      "--inventory",
+      "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/g4-tool-package-inventory.json",
+      "--output",
+      "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/collection-final-verified",
+      "--candidate-only",
+      "--planning-inputs",
+      "_bmad-output/implementation-artifacts/epic-16-4-38-3-qualification-inputs.json",
+      "--adoption-predecessor",
+      "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/adoption-json.stdout.txt",
+      "--tooling-contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3125036,
+    "startedAtUtc": "2026-10-31T16:42:57.145572+00:00",
+    "durationSeconds": 53.128,
+    "timeoutSeconds": 1850,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 1,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "candidate-collection-final-verified.stdout.txt",
+      "bytes": 230,
+      "sha256": "4bbe7d1a8f48a80a0b3f4f8d84b016f8e03abbd2e495fc42cfddc415bdc8d45a"
+    },
+    "stderr": {
+      "path": "candidate-collection-final-verified.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "candidate-collection-initial",
+    "command": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "_bmad/scripts/qualify_epic16_published_artifact.py",
+      "--conversations",
+      ".",
+      "--builds",
+      "references/Hexalith.Builds",
+      "--platform",
+      "references/Hexalith.Platform",
+      "--version",
+      "4.38.3",
+      "--release-sha",
+      "d1931b1e803144048d927fff16cb8119afde541e",
+      "--inventory",
+      "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/g4-tool-package-inventory.json",
+      "--output",
+      "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/collection-initial",
+      "--candidate-only",
+      "--planning-inputs",
+      "_bmad-output/implementation-artifacts/epic-16-4-38-3-qualification-inputs.json",
+      "--adoption-predecessor",
+      "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/adoption-json.stdout.txt",
+      "--tooling-contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2217048,
+    "startedAtUtc": "2026-10-31T16:17:33.638846+00:00",
+    "durationSeconds": 0.408,
+    "timeoutSeconds": 1850,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 2,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "candidate-collection-initial.stdout.txt",
+      "bytes": 225,
+      "sha256": "cc2e5d37d7fe752e3c5cf8243ea8cbe8c86644a59925fbe6a1005c2a1e7d3cce"
+    },
+    "stderr": {
+      "path": "candidate-collection-initial.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "candidate-collection-measured",
+    "command": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "_bmad/scripts/qualify_epic16_published_artifact.py",
+      "--conversations",
+      ".",
+      "--builds",
+      "references/Hexalith.Builds",
+      "--platform",
+      "references/Hexalith.Platform",
+      "--version",
+      "4.38.3",
+      "--release-sha",
+      "d1931b1e803144048d927fff16cb8119afde541e",
+      "--inventory",
+      "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/g4-tool-package-inventory.json",
+      "--output",
+      "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/collection-measured",
+      "--candidate-only",
+      "--planning-inputs",
+      "_bmad-output/implementation-artifacts/epic-16-4-38-3-qualification-inputs.json",
+      "--adoption-predecessor",
+      "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/adoption-json.stdout.txt",
+      "--tooling-contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2264712,
+    "startedAtUtc": "2026-10-31T16:18:51.579789+00:00",
+    "durationSeconds": 70.304,
+    "timeoutSeconds": 1850,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 1,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "candidate-collection-measured.stdout.txt",
+      "bytes": 224,
+      "sha256": "adbf2ca2731c3c05f9407b63b85d17878e475f0d607cd803b9d0436799192724"
+    },
+    "stderr": {
+      "path": "candidate-collection-measured.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "collector-final-metadata-regressions",
+    "command": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "-ra",
+      "-p",
+      "no:cacheprovider",
+      "tests/tooling/test_epic16_published_artifact_qualification.py"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3081101,
+    "startedAtUtc": "2026-10-31T16:41:50.975123+00:00",
+    "durationSeconds": 13.75,
+    "timeoutSeconds": 600,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "collector-final-metadata-regressions.stdout.txt",
+      "bytes": 181,
+      "sha256": "f647f2b8f29f1b0755c03ae604271526ac8f24940aecb9d37c52e7f77054420c"
+    },
+    "stderr": {
+      "path": "collector-final-metadata-regressions.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "collector-regression-initial",
+    "command": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "-ra",
+      "-p",
+      "no:cacheprovider",
+      "tests/tooling/test_epic16_published_artifact_qualification.py"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2189625,
+    "startedAtUtc": "2026-10-31T16:16:49.363970+00:00",
+    "durationSeconds": 8.349,
+    "timeoutSeconds": 600,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "collector-regression-initial.stdout.txt",
+      "bytes": 99,
+      "sha256": "3868a6ae3dc183e25ad7ad20063773928296485bf1b78648f3f7fafb336d1413"
+    },
+    "stderr": {
+      "path": "collector-regression-initial.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "collector-v3-all-pins-retry",
+    "command": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "-ra",
+      "-p",
+      "no:cacheprovider",
+      "_bmad/scripts/tests/test_epic16_tooling_v3.py::test_every_independent_pin_rejects_drift_and_restores_exactly"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2667536,
+    "startedAtUtc": "2026-10-31T16:31:07.975990+00:00",
+    "durationSeconds": 48.751,
+    "timeoutSeconds": 600,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "collector-v3-all-pins-retry.stdout.txt",
+      "bytes": 100,
+      "sha256": "17605f36fe825caedc0c97dbdef917d7f9eedc700c3afb1343ce75b3fe12ffbf"
+    },
+    "stderr": {
+      "path": "collector-v3-all-pins-retry.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "collector-v3-focused-final",
+    "command": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "-ra",
+      "-p",
+      "no:cacheprovider",
+      "tests/tooling/test_epic16_published_artifact_qualification.py",
+      "_bmad/scripts/tests/test_epic16_tooling_v3.py"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2512025,
+    "startedAtUtc": "2026-10-31T16:26:37.472161+00:00",
+    "durationSeconds": 215.775,
+    "timeoutSeconds": 1800,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 1,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "collector-v3-focused-final.stdout.txt",
+      "bytes": 4274,
+      "sha256": "4037fe25c66c74d9a52c771734d99ff61085bb6a761c14ebf9886ce40fa8e591"
+    },
+    "stderr": {
+      "path": "collector-v3-focused-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "collector-v3-focused",
+    "command": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "-ra",
+      "-p",
+      "no:cacheprovider",
+      "tests/tooling/test_epic16_published_artifact_qualification.py",
+      "_bmad/scripts/tests/test_epic16_tooling_v3.py"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2367346,
+    "startedAtUtc": "2026-10-31T16:22:25.424008+00:00",
+    "durationSeconds": 215.6,
+    "timeoutSeconds": 1800,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 1,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "collector-v3-focused.stdout.txt",
+      "bytes": 1279,
+      "sha256": "a7f4b1105d895cfb1bd99edc544340ea2d58f0c3d2b83f9cf1571912279bf65d"
+    },
+    "stderr": {
+      "path": "collector-v3-focused.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "final-diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 430286,
+    "startedAtUtc": "2026-10-31T17:21:25.987244+00:00",
+    "durationSeconds": 0.317,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "final-diff-check.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "final-diff-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-AC-16.1-01",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+      "--scope",
+      "tooling-fixture",
+      "--scenario",
+      "AC-16.1-01",
+      "--output",
+      "artifacts/epic16-tooling-fixture/16.1/AC-16.1-01.json"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 104642,
+    "startedAtUtc": "2026-10-31T17:12:32.250749+00:00",
+    "durationSeconds": 1.904,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-AC-16.1-01.stdout.txt",
+      "bytes": 19143,
+      "sha256": "746e23bedfd64c4aa9fab9902c649594186d6158950261420307898cf63de023"
+    },
+    "stderr": {
+      "path": "fixture-AC-16.1-01.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-AC-16.1-02",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+      "--scope",
+      "tooling-fixture",
+      "--scenario",
+      "AC-16.1-02",
+      "--output",
+      "artifacts/epic16-tooling-fixture/16.1/AC-16.1-02.json"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 105720,
+    "startedAtUtc": "2026-10-31T17:12:34.155756+00:00",
+    "durationSeconds": 1.906,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-AC-16.1-02.stdout.txt",
+      "bytes": 19139,
+      "sha256": "27a4f1a9d8d9795c92963cdc7c103ceffa807ca16732f4cec77bc75b79f87fce"
+    },
+    "stderr": {
+      "path": "fixture-AC-16.1-02.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-AC-16.1-03",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+      "--scope",
+      "tooling-fixture",
+      "--scenario",
+      "AC-16.1-03",
+      "--output",
+      "artifacts/epic16-tooling-fixture/16.1/AC-16.1-03.json"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 106874,
+    "startedAtUtc": "2026-10-31T17:12:36.062177+00:00",
+    "durationSeconds": 0.702,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-AC-16.1-03.stdout.txt",
+      "bytes": 19148,
+      "sha256": "874350e383c520f129f86b763e2f4b692663eb60b3bb78d71a809af1e8bffefd"
+    },
+    "stderr": {
+      "path": "fixture-AC-16.1-03.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-AC-16.1-04",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+      "--scope",
+      "tooling-fixture",
+      "--scenario",
+      "AC-16.1-04",
+      "--output",
+      "artifacts/epic16-tooling-fixture/16.1/AC-16.1-04.json"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 107999,
+    "startedAtUtc": "2026-10-31T17:12:36.764614+00:00",
+    "durationSeconds": 0.702,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-AC-16.1-04.stdout.txt",
+      "bytes": 43346,
+      "sha256": "758627445ac74237d0321f4badb66762569753b84a45efa52a81b68f4249ff52"
+    },
+    "stderr": {
+      "path": "fixture-AC-16.1-04.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-AC-16.1-05",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+      "--scope",
+      "tooling-fixture",
+      "--scenario",
+      "AC-16.1-05",
+      "--output",
+      "artifacts/epic16-tooling-fixture/16.1/AC-16.1-05.json"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 108339,
+    "startedAtUtc": "2026-10-31T17:12:37.467043+00:00",
+    "durationSeconds": 3.818,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-AC-16.1-05.stdout.txt",
+      "bytes": 65165,
+      "sha256": "914d7b4c7dae1fb0714ba31fa32bdc193548b41fd412d8515be58a3aa9b82003"
+    },
+    "stderr": {
+      "path": "fixture-AC-16.1-05.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-AC-16.2-01",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_2.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+      "--scope",
+      "tooling-fixture",
+      "--scenario",
+      "AC-16.2-01",
+      "--output",
+      "artifacts/epic16-tooling-fixture/16.2/AC-16.2-01.json"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 110740,
+    "startedAtUtc": "2026-10-31T17:12:41.291995+00:00",
+    "durationSeconds": 2.224,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-AC-16.2-01.stdout.txt",
+      "bytes": 19126,
+      "sha256": "6f10b0305c7a742f864d558e6919d4c65ad61757f66a5cf271daa49e5f841f11"
+    },
+    "stderr": {
+      "path": "fixture-AC-16.2-01.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-AC-16.2-02",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_2.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+      "--scope",
+      "tooling-fixture",
+      "--scenario",
+      "AC-16.2-02",
+      "--output",
+      "artifacts/epic16-tooling-fixture/16.2/AC-16.2-02.json"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 111958,
+    "startedAtUtc": "2026-10-31T17:12:43.516365+00:00",
+    "durationSeconds": 2.412,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-AC-16.2-02.stdout.txt",
+      "bytes": 19127,
+      "sha256": "809f048f0ec81180707cebb915287d3d6c3f509f7645f5930cbf5178092683f9"
+    },
+    "stderr": {
+      "path": "fixture-AC-16.2-02.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-AC-16.2-03",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_2.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+      "--scope",
+      "tooling-fixture",
+      "--scenario",
+      "AC-16.2-03",
+      "--output",
+      "artifacts/epic16-tooling-fixture/16.2/AC-16.2-03.json"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 113699,
+    "startedAtUtc": "2026-10-31T17:12:45.929622+00:00",
+    "durationSeconds": 1.209,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-AC-16.2-03.stdout.txt",
+      "bytes": 19128,
+      "sha256": "04971cddf43d8bc6f8508f54bc57761766db67f0f9e2f05346613af03ee42f30"
+    },
+    "stderr": {
+      "path": "fixture-AC-16.2-03.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-AC-16.2-04",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_2.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+      "--scope",
+      "tooling-fixture",
+      "--scenario",
+      "AC-16.2-04",
+      "--output",
+      "artifacts/epic16-tooling-fixture/16.2/AC-16.2-04.json"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 114386,
+    "startedAtUtc": "2026-10-31T17:12:47.139590+00:00",
+    "durationSeconds": 4.132,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-AC-16.2-04.stdout.txt",
+      "bytes": 19127,
+      "sha256": "ff0f213da3a3d7de283b7232fd7274320298370cfb7e6506df9840102e4cf8a2"
+    },
+    "stderr": {
+      "path": "fixture-AC-16.2-04.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-AC-16.2-05",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_2.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+      "--scope",
+      "tooling-fixture",
+      "--scenario",
+      "AC-16.2-05",
+      "--output",
+      "artifacts/epic16-tooling-fixture/16.2/AC-16.2-05.json"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 116998,
+    "startedAtUtc": "2026-10-31T17:12:51.271937+00:00",
+    "durationSeconds": 4.544,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-AC-16.2-05.stdout.txt",
+      "bytes": 26523,
+      "sha256": "a71c0e0067b014556cf5b61e582cff2180a6c199af83c5abf0362c6a4847c352"
+    },
+    "stderr": {
+      "path": "fixture-AC-16.2-05.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-AC-16.3-01",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_3.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+      "--scope",
+      "tooling-fixture",
+      "--scenario",
+      "AC-16.3-01",
+      "--output",
+      "artifacts/epic16-tooling-fixture/16.3/AC-16.3-01.json"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 119744,
+    "startedAtUtc": "2026-10-31T17:12:55.816385+00:00",
+    "durationSeconds": 0.905,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-AC-16.3-01.stdout.txt",
+      "bytes": 19087,
+      "sha256": "aa6afc97c14129f72ba597b9198d604560bf7c32a00d86e3dbf9795c096d6d72"
+    },
+    "stderr": {
+      "path": "fixture-AC-16.3-01.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-AC-16.3-02",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_3.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+      "--scope",
+      "tooling-fixture",
+      "--scenario",
+      "AC-16.3-02",
+      "--output",
+      "artifacts/epic16-tooling-fixture/16.3/AC-16.3-02.json"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 120702,
+    "startedAtUtc": "2026-10-31T17:12:56.721986+00:00",
+    "durationSeconds": 1.106,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-AC-16.3-02.stdout.txt",
+      "bytes": 19088,
+      "sha256": "0f213fcdf68cb1d96764b8fb449421f4e3077919302811f8a20863892ab5fd58"
+    },
+    "stderr": {
+      "path": "fixture-AC-16.3-02.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-AC-16.3-03",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_3.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+      "--scope",
+      "tooling-fixture",
+      "--scenario",
+      "AC-16.3-03",
+      "--output",
+      "artifacts/epic16-tooling-fixture/16.3/AC-16.3-03.json"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 121599,
+    "startedAtUtc": "2026-10-31T17:12:57.829108+00:00",
+    "durationSeconds": 2.925,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-AC-16.3-03.stdout.txt",
+      "bytes": 19090,
+      "sha256": "2e28f14edb5165d8caaaa631c8ea7f0f0180116b83f181a22aa970991c05be54"
+    },
+    "stderr": {
+      "path": "fixture-AC-16.3-03.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-AC-16.3-04",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_3.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+      "--scope",
+      "tooling-fixture",
+      "--scenario",
+      "AC-16.3-04",
+      "--output",
+      "artifacts/epic16-tooling-fixture/16.3/AC-16.3-04.json"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 123406,
+    "startedAtUtc": "2026-10-31T17:13:00.755063+00:00",
+    "durationSeconds": 6.259,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-AC-16.3-04.stdout.txt",
+      "bytes": 19115,
+      "sha256": "cbd0234af44e89e74ccb7bd51dc65d442496db76e8504f353e2ea7b80d07c7ca"
+    },
+    "stderr": {
+      "path": "fixture-AC-16.3-04.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-AC-16.3-05",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_3.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+      "--scope",
+      "tooling-fixture",
+      "--scenario",
+      "AC-16.3-05",
+      "--output",
+      "artifacts/epic16-tooling-fixture/16.3/AC-16.3-05.json"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 127198,
+    "startedAtUtc": "2026-10-31T17:13:07.014052+00:00",
+    "durationSeconds": 1.023,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-AC-16.3-05.stdout.txt",
+      "bytes": 33046,
+      "sha256": "d85e97867fa18d84401420f109bdcca78abdf61ad6c7591c8cea47d5ec93835c"
+    },
+    "stderr": {
+      "path": "fixture-AC-16.3-05.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-bundle-references-Hexalith.Commons",
+    "command": [
+      "git",
+      "bundle",
+      "create",
+      "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/native-fixture-evidence/references-Hexalith.Commons.bundle",
+      "--all"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/references/Hexalith.Commons",
+    "pid": 202810,
+    "startedAtUtc": "2026-10-31T17:14:50.839104+00:00",
+    "durationSeconds": 0.103,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-bundle-references-Hexalith.Commons.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "fixture-bundle-references-Hexalith.Commons.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-bundle-references-Hexalith.EventStore",
+    "command": [
+      "git",
+      "bundle",
+      "create",
+      "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/native-fixture-evidence/references-Hexalith.EventStore.bundle",
+      "--all"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/references/Hexalith.EventStore",
+    "pid": 202710,
+    "startedAtUtc": "2026-10-31T17:14:50.631911+00:00",
+    "durationSeconds": 0.103,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-bundle-references-Hexalith.EventStore.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "fixture-bundle-references-Hexalith.EventStore.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-bundle-references-Hexalith.Tenants",
+    "command": [
+      "git",
+      "bundle",
+      "create",
+      "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/native-fixture-evidence/references-Hexalith.Tenants.bundle",
+      "--all"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/references/Hexalith.Tenants",
+    "pid": 202765,
+    "startedAtUtc": "2026-10-31T17:14:50.735410+00:00",
+    "durationSeconds": 0.102,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-bundle-references-Hexalith.Tenants.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "fixture-bundle-references-Hexalith.Tenants.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-bundle-root",
+    "command": [
+      "git",
+      "bundle",
+      "create",
+      "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/native-fixture-evidence/root.bundle",
+      "--all"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 202584,
+    "startedAtUtc": "2026-10-31T17:14:50.429941+00:00",
+    "durationSeconds": 0.201,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-bundle-root.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "fixture-bundle-root.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-final-16.1",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/generate_story_record.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+      "--scope",
+      "tooling-fixture",
+      "--format",
+      "bundle"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 127653,
+    "startedAtUtc": "2026-10-31T17:13:08.037920+00:00",
+    "durationSeconds": 10.189,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-final-16.1.stdout.txt",
+      "bytes": 183343,
+      "sha256": "8ad42dcfe3a3ced368cb2be37a3b17b3a28ad94e71556315102570ef4be8beb1"
+    },
+    "stderr": {
+      "path": "fixture-final-16.1.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-final-16.2",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/generate_story_record.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+      "--scope",
+      "tooling-fixture",
+      "--format",
+      "bundle"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 157675,
+    "startedAtUtc": "2026-10-31T17:13:42.656803+00:00",
+    "durationSeconds": 13.704,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-final-16.2.stdout.txt",
+      "bytes": 116216,
+      "sha256": "9e32f044963e7adda1c0865ee2e29445a6e6baf610d71a1d8331e130f072683d"
+    },
+    "stderr": {
+      "path": "fixture-final-16.2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-final-16.3",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/generate_story_record.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+      "--scope",
+      "tooling-fixture",
+      "--format",
+      "bundle"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 175494,
+    "startedAtUtc": "2026-10-31T17:14:09.357855+00:00",
+    "durationSeconds": 10.88,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-final-16.3.stdout.txt",
+      "bytes": 123824,
+      "sha256": "8e37f2d981b334d1a2e4157dcda8f1ddc0f3ff9c8f8b4f8b5e2712b3fe63e2a0"
+    },
+    "stderr": {
+      "path": "fixture-final-16.3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-final-repeat-16.1",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/generate_story_record.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+      "--scope",
+      "tooling-fixture",
+      "--format",
+      "bundle"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 134275,
+    "startedAtUtc": "2026-10-31T17:13:18.229016+00:00",
+    "durationSeconds": 24.427,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-final-repeat-16.1.stdout.txt",
+      "bytes": 183343,
+      "sha256": "8ad42dcfe3a3ced368cb2be37a3b17b3a28ad94e71556315102570ef4be8beb1"
+    },
+    "stderr": {
+      "path": "fixture-final-repeat-16.1.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-final-repeat-16.2",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/generate_story_record.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+      "--scope",
+      "tooling-fixture",
+      "--format",
+      "bundle"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 166775,
+    "startedAtUtc": "2026-10-31T17:13:56.361870+00:00",
+    "durationSeconds": 12.996,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-final-repeat-16.2.stdout.txt",
+      "bytes": 116216,
+      "sha256": "9e32f044963e7adda1c0865ee2e29445a6e6baf610d71a1d8331e130f072683d"
+    },
+    "stderr": {
+      "path": "fixture-final-repeat-16.2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-final-repeat-16.3",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/generate_story_record.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+      "--scope",
+      "tooling-fixture",
+      "--format",
+      "bundle"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 182967,
+    "startedAtUtc": "2026-10-31T17:14:20.238598+00:00",
+    "durationSeconds": 13.429,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-final-repeat-16.3.stdout.txt",
+      "bytes": 123824,
+      "sha256": "8e37f2d981b334d1a2e4157dcda8f1ddc0f3ff9c8f8b4f8b5e2712b3fe63e2a0"
+    },
+    "stderr": {
+      "path": "fixture-final-repeat-16.3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "fixture-inserted-record",
+    "command": [
+      "python3",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/generate_story_record.py",
+      "--repository",
+      "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+      "--scope",
+      "tooling-fixture",
+      "--format",
+      "bundle",
+      "--verify-inserted-record",
+      "fixture-spec.md"
+    ],
+    "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "pid": 191302,
+    "startedAtUtc": "2026-10-31T17:14:33.668908+00:00",
+    "durationSeconds": 16.749,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "fixture-inserted-record.stdout.txt",
+      "bytes": 183343,
+      "sha256": "8ad42dcfe3a3ced368cb2be37a3b17b3a28ad94e71556315102570ef4be8beb1"
+    },
+    "stderr": {
+      "path": "fixture-inserted-record.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "focused-apphost-test-debug-build",
+    "command": [
+      "dotnet",
+      "build",
+      "tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj",
+      "--configuration",
+      "Debug",
+      "--nologo",
+      "-m:1"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1974028,
+    "startedAtUtc": "2026-10-31T16:12:49.864121+00:00",
+    "durationSeconds": 8.533,
+    "timeoutSeconds": 600,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "focused-apphost-test-debug-build.stdout.txt",
+      "bytes": 5561,
+      "sha256": "1dadf12822be467dc4e5804b5e36a0b5303ededb181c57c700483f6323f64012"
+    },
+    "stderr": {
+      "path": "focused-apphost-test-debug-build.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "focused-topology-tests",
+    "command": [
+      "dotnet",
+      "tests/Hexalith.Conversations.AppHost.Tests/bin/Debug/net10.0/Hexalith.Conversations.AppHost.Tests.dll",
+      "-class",
+      "Hexalith.Conversations.AppHost.Tests.ConversationsAppHostTopologyTest"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1983087,
+    "startedAtUtc": "2026-10-31T16:12:58.397540+00:00",
+    "durationSeconds": 1.007,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+      "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+      "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+      "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+      "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+      "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+      "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+      "Configuration": "Debug"
+    },
+    "stdout": {
+      "path": "focused-topology-tests.stdout.txt",
+      "bytes": 494,
+      "sha256": "8881e5aebd17880ed75ded37d5d700d53c9084d7ec53f005c58d68b2c6bf69c5"
+    },
+    "stderr": {
+      "path": "focused-topology-tests.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "generator-current-focused",
+    "command": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "-ra",
+      "-p",
+      "no:cacheprovider",
+      "_bmad/scripts/tests/test_generate_story_record.py",
+      "-k",
+      "(successor or optional or tooling or standalone or epic16 or dialect) and not story_113_"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 67917,
+    "startedAtUtc": "2026-10-31T17:11:06.393356+00:00",
+    "durationSeconds": 1.303,
+    "timeoutSeconds": 900,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "generator-current-focused.stdout.txt",
+      "bytes": 116,
+      "sha256": "5f16cf6d3afe6dc965929f97110761b189f969441ff90e694182d2e24be0b2ae"
+    },
+    "stderr": {
+      "path": "generator-current-focused.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v1-AC-16.1-01",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-01",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-01.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3238582,
+    "startedAtUtc": "2026-10-31T16:45:21.412510+00:00",
+    "durationSeconds": 0.302,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 1,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v1-AC-16.1-01.stdout.txt",
+      "bytes": 708,
+      "sha256": "dae54ea690bcc5332ab62076d9f7360df162595929df42c24f1d75eccde8b5ed"
+    },
+    "stderr": {
+      "path": "held-v1-AC-16.1-01.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v1-AC-16.1-02",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-02",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-02.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3238863,
+    "startedAtUtc": "2026-10-31T16:45:21.714729+00:00",
+    "durationSeconds": 0.301,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 1,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v1-AC-16.1-02.stdout.txt",
+      "bytes": 708,
+      "sha256": "06691bfac52d6759e98d51f2754684bd88de4020dd0c8a52887c35df41806dd0"
+    },
+    "stderr": {
+      "path": "held-v1-AC-16.1-02.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v1-AC-16.1-03",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-03",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-03.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3239196,
+    "startedAtUtc": "2026-10-31T16:45:22.016812+00:00",
+    "durationSeconds": 0.301,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 1,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v1-AC-16.1-03.stdout.txt",
+      "bytes": 708,
+      "sha256": "ed7f21217e7b2b703756cd9bab69eb1fab48761a2545f78f8f1be97c4918b896"
+    },
+    "stderr": {
+      "path": "held-v1-AC-16.1-03.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v1-AC-16.1-04",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-04",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-04.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3239362,
+    "startedAtUtc": "2026-10-31T16:45:22.318626+00:00",
+    "durationSeconds": 0.301,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 1,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v1-AC-16.1-04.stdout.txt",
+      "bytes": 708,
+      "sha256": "c3a1da9a7e03b4a435d1e503317a6c5f66cffed5aef130c949e11ce803fd5f15"
+    },
+    "stderr": {
+      "path": "held-v1-AC-16.1-04.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v1-AC-16.1-05",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-05",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-05.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3239524,
+    "startedAtUtc": "2026-10-31T16:45:22.620551+00:00",
+    "durationSeconds": 0.301,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 1,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v1-AC-16.1-05.stdout.txt",
+      "bytes": 708,
+      "sha256": "3780ef2c7b86b5604d0b1689245291ef03ce831a3aaa025ac3222cc80ee0bd30"
+    },
+    "stderr": {
+      "path": "held-v1-AC-16.1-05.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v1-AC-16.1-06",
+    "command": [
+      "python3",
+      "_bmad/scripts/generate_story_record.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "--format",
+      "bundle",
+      "--output-json",
+      "docs/release-evidence/story-16.1-final-record-v2.json",
+      "--output-markdown",
+      "docs/release-evidence/story-16.1-final-record-v2.md"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3239650,
+    "startedAtUtc": "2026-10-31T16:45:22.922733+00:00",
+    "durationSeconds": 0.402,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 1,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v1-AC-16.1-06.stdout.txt",
+      "bytes": 708,
+      "sha256": "76f614cc6ba66ef1326c17d6404f06e345b66ef1d4385c4e0bf60eda3411b6b4"
+    },
+    "stderr": {
+      "path": "held-v1-AC-16.1-06.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v2-AC-16.1-01",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-01",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-01.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3239850,
+    "startedAtUtc": "2026-10-31T16:45:23.325207+00:00",
+    "durationSeconds": 0.301,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 1,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v2-AC-16.1-01.stdout.txt",
+      "bytes": 708,
+      "sha256": "dae54ea690bcc5332ab62076d9f7360df162595929df42c24f1d75eccde8b5ed"
+    },
+    "stderr": {
+      "path": "held-v2-AC-16.1-01.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v2-AC-16.1-02",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-02",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-02.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3239994,
+    "startedAtUtc": "2026-10-31T16:45:23.627055+00:00",
+    "durationSeconds": 0.301,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 1,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v2-AC-16.1-02.stdout.txt",
+      "bytes": 708,
+      "sha256": "06691bfac52d6759e98d51f2754684bd88de4020dd0c8a52887c35df41806dd0"
+    },
+    "stderr": {
+      "path": "held-v2-AC-16.1-02.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v2-AC-16.1-03",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-03",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-03.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3240296,
+    "startedAtUtc": "2026-10-31T16:45:23.928976+00:00",
+    "durationSeconds": 0.302,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 1,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v2-AC-16.1-03.stdout.txt",
+      "bytes": 708,
+      "sha256": "ed7f21217e7b2b703756cd9bab69eb1fab48761a2545f78f8f1be97c4918b896"
+    },
+    "stderr": {
+      "path": "held-v2-AC-16.1-03.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v2-AC-16.1-04",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-04",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-04.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3240461,
+    "startedAtUtc": "2026-10-31T16:45:24.231205+00:00",
+    "durationSeconds": 0.301,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 1,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v2-AC-16.1-04.stdout.txt",
+      "bytes": 708,
+      "sha256": "c3a1da9a7e03b4a435d1e503317a6c5f66cffed5aef130c949e11ce803fd5f15"
+    },
+    "stderr": {
+      "path": "held-v2-AC-16.1-04.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v2-AC-16.1-05",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-05",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-05.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3240732,
+    "startedAtUtc": "2026-10-31T16:45:24.533000+00:00",
+    "durationSeconds": 0.301,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 1,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v2-AC-16.1-05.stdout.txt",
+      "bytes": 708,
+      "sha256": "3780ef2c7b86b5604d0b1689245291ef03ce831a3aaa025ac3222cc80ee0bd30"
+    },
+    "stderr": {
+      "path": "held-v2-AC-16.1-05.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v2-AC-16.1-06",
+    "command": [
+      "python3",
+      "_bmad/scripts/generate_story_record.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "--format",
+      "bundle",
+      "--output-json",
+      "docs/release-evidence/story-16.1-final-record-v2.json",
+      "--output-markdown",
+      "docs/release-evidence/story-16.1-final-record-v2.md"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3241053,
+    "startedAtUtc": "2026-10-31T16:45:24.835039+00:00",
+    "durationSeconds": 0.401,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 1,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v2-AC-16.1-06.stdout.txt",
+      "bytes": 708,
+      "sha256": "76f614cc6ba66ef1326c17d6404f06e345b66ef1d4385c4e0bf60eda3411b6b4"
+    },
+    "stderr": {
+      "path": "held-v2-AC-16.1-06.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v3-AC-16.1-01",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-01",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-01.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3233079,
+    "startedAtUtc": "2026-10-31T16:45:14.855586+00:00",
+    "durationSeconds": 0.51,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 2,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v3-AC-16.1-01.stdout.txt",
+      "bytes": 883,
+      "sha256": "a3df175b8c039fab5196ac242a81f692461c5320e0f1405a9eef867b4802dc00"
+    },
+    "stderr": {
+      "path": "held-v3-AC-16.1-01.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v3-AC-16.1-02",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-02",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-02.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3233306,
+    "startedAtUtc": "2026-10-31T16:45:15.366289+00:00",
+    "durationSeconds": 0.41,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 2,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v3-AC-16.1-02.stdout.txt",
+      "bytes": 883,
+      "sha256": "82a03602369fce46d6890cdc5c4c2306deb1d60a60176834ecccf332e4a39eb2"
+    },
+    "stderr": {
+      "path": "held-v3-AC-16.1-02.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v3-AC-16.1-03",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-03",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-03.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3233789,
+    "startedAtUtc": "2026-10-31T16:45:15.776988+00:00",
+    "durationSeconds": 0.302,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 2,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v3-AC-16.1-03.stdout.txt",
+      "bytes": 883,
+      "sha256": "cfc712508c4a4f4bad392b975ce32b93bb02930c46251410e152033a51430996"
+    },
+    "stderr": {
+      "path": "held-v3-AC-16.1-03.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v3-AC-16.1-04",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-04",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-04.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3234078,
+    "startedAtUtc": "2026-10-31T16:45:16.079502+00:00",
+    "durationSeconds": 0.301,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 2,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v3-AC-16.1-04.stdout.txt",
+      "bytes": 883,
+      "sha256": "e531d1e347ee46a959f9307c27b17660e31525fc345af7115068c4265c617b6f"
+    },
+    "stderr": {
+      "path": "held-v3-AC-16.1-04.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v3-AC-16.1-05",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_1.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+      "--scenario",
+      "AC-16.1-05",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.1/AC-16.1-05.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3234465,
+    "startedAtUtc": "2026-10-31T16:45:16.381465+00:00",
+    "durationSeconds": 0.302,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 2,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v3-AC-16.1-05.stdout.txt",
+      "bytes": 883,
+      "sha256": "7fe5068bafa924bf6803ebe4c4a201ce158ed20303ff06e108bb3491693b0732"
+    },
+    "stderr": {
+      "path": "held-v3-AC-16.1-05.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v3-AC-16.1-06",
+    "command": [
+      "python3",
+      "_bmad/scripts/generate_story_record.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+      "--format",
+      "bundle",
+      "--output-json",
+      "docs/release-evidence/story-16.1-final-record-v2.json",
+      "--output-markdown",
+      "docs/release-evidence/story-16.1-final-record-v2.md"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3234743,
+    "startedAtUtc": "2026-10-31T16:45:16.684165+00:00",
+    "durationSeconds": 0.602,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 2,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v3-AC-16.1-06.stdout.txt",
+      "bytes": 883,
+      "sha256": "a3df175b8c039fab5196ac242a81f692461c5320e0f1405a9eef867b4802dc00"
+    },
+    "stderr": {
+      "path": "held-v3-AC-16.1-06.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v3-AC-16.2-01",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_2.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+      "--scenario",
+      "AC-16.2-01",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.2/AC-16.2-01.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3235050,
+    "startedAtUtc": "2026-10-31T16:45:17.286875+00:00",
+    "durationSeconds": 0.301,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 2,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v3-AC-16.2-01.stdout.txt",
+      "bytes": 883,
+      "sha256": "b3caa777409af9f91956bc42efe21dcca9254fd371cf59115b80cb64c09e9fd5"
+    },
+    "stderr": {
+      "path": "held-v3-AC-16.2-01.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v3-AC-16.2-02",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_2.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+      "--scenario",
+      "AC-16.2-02",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.2/AC-16.2-02.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3235206,
+    "startedAtUtc": "2026-10-31T16:45:17.588888+00:00",
+    "durationSeconds": 0.301,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 2,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v3-AC-16.2-02.stdout.txt",
+      "bytes": 883,
+      "sha256": "e8da9806d001c385528c479cac22b8ff6380baeed365ed8dc0963c3764730666"
+    },
+    "stderr": {
+      "path": "held-v3-AC-16.2-02.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v3-AC-16.2-03",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_2.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+      "--scenario",
+      "AC-16.2-03",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.2/AC-16.2-03.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3235348,
+    "startedAtUtc": "2026-10-31T16:45:17.890822+00:00",
+    "durationSeconds": 0.301,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 2,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v3-AC-16.2-03.stdout.txt",
+      "bytes": 883,
+      "sha256": "c696f790f2ad823b1d8dc003ab9a75d1e68f73295cfd145d5042bdd2a39d2b5e"
+    },
+    "stderr": {
+      "path": "held-v3-AC-16.2-03.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v3-AC-16.2-04",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_2.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+      "--scenario",
+      "AC-16.2-04",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.2/AC-16.2-04.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3235491,
+    "startedAtUtc": "2026-10-31T16:45:18.192715+00:00",
+    "durationSeconds": 0.301,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 2,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v3-AC-16.2-04.stdout.txt",
+      "bytes": 883,
+      "sha256": "3c0c22dbee0f9c5c794f0425b0ebea3d76cdb4df49c0f6d2b4b645080d5eec48"
+    },
+    "stderr": {
+      "path": "held-v3-AC-16.2-04.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v3-AC-16.2-05",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_2.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+      "--scenario",
+      "AC-16.2-05",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.2/AC-16.2-05.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3235639,
+    "startedAtUtc": "2026-10-31T16:45:18.494707+00:00",
+    "durationSeconds": 0.301,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 2,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v3-AC-16.2-05.stdout.txt",
+      "bytes": 883,
+      "sha256": "d6932476e6b6e9beaa02d04b832ee735f1c1d4a4086e964076608d7d6c6da8cc"
+    },
+    "stderr": {
+      "path": "held-v3-AC-16.2-05.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v3-AC-16.2-06",
+    "command": [
+      "python3",
+      "_bmad/scripts/generate_story_record.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+      "--format",
+      "bundle",
+      "--output-json",
+      "docs/release-evidence/story-16.2-final-record-v2.json",
+      "--output-markdown",
+      "docs/release-evidence/story-16.2-final-record-v2.md"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3235788,
+    "startedAtUtc": "2026-10-31T16:45:18.796733+00:00",
+    "durationSeconds": 0.602,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 2,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v3-AC-16.2-06.stdout.txt",
+      "bytes": 883,
+      "sha256": "b3caa777409af9f91956bc42efe21dcca9254fd371cf59115b80cb64c09e9fd5"
+    },
+    "stderr": {
+      "path": "held-v3-AC-16.2-06.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v3-AC-16.3-01",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_3.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+      "--scenario",
+      "AC-16.3-01",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.3/AC-16.3-01.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3236444,
+    "startedAtUtc": "2026-10-31T16:45:19.400015+00:00",
+    "durationSeconds": 0.301,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 2,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v3-AC-16.3-01.stdout.txt",
+      "bytes": 883,
+      "sha256": "30667d42141083db4e775d3882a5af5457623295c44a7d9457e41046cd247c6f"
+    },
+    "stderr": {
+      "path": "held-v3-AC-16.3-01.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v3-AC-16.3-02",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_3.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+      "--scenario",
+      "AC-16.3-02",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.3/AC-16.3-02.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3236986,
+    "startedAtUtc": "2026-10-31T16:45:19.701950+00:00",
+    "durationSeconds": 0.301,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 2,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v3-AC-16.3-02.stdout.txt",
+      "bytes": 883,
+      "sha256": "98b5d4dfee8bec841b50959976470796404305963ea2dc087f6982be55d4e9ea"
+    },
+    "stderr": {
+      "path": "held-v3-AC-16.3-02.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v3-AC-16.3-03",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_3.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+      "--scenario",
+      "AC-16.3-03",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.3/AC-16.3-03.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3237250,
+    "startedAtUtc": "2026-10-31T16:45:20.003935+00:00",
+    "durationSeconds": 0.301,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 2,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v3-AC-16.3-03.stdout.txt",
+      "bytes": 883,
+      "sha256": "4073d65abf173793918eae3ce5caf625196f9c49518c1bf6d821683624128f1b"
+    },
+    "stderr": {
+      "path": "held-v3-AC-16.3-03.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v3-AC-16.3-04",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_3.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+      "--scenario",
+      "AC-16.3-04",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.3/AC-16.3-04.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3237487,
+    "startedAtUtc": "2026-10-31T16:45:20.305895+00:00",
+    "durationSeconds": 0.302,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 2,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v3-AC-16.3-04.stdout.txt",
+      "bytes": 883,
+      "sha256": "9bf2d39690947c406b8fe88ee4f036dd46eefa71fc48516b97067922ed86eb8c"
+    },
+    "stderr": {
+      "path": "held-v3-AC-16.3-04.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v3-AC-16.3-05",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_16_3.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+      "--scenario",
+      "AC-16.3-05",
+      "--candidate",
+      "HEAD",
+      "--output",
+      "artifacts/epic16-runtime/16.3/AC-16.3-05.json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3237771,
+    "startedAtUtc": "2026-10-31T16:45:20.608177+00:00",
+    "durationSeconds": 0.301,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 2,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v3-AC-16.3-05.stdout.txt",
+      "bytes": 883,
+      "sha256": "2605179e41be0a9ba7ab9797e07a0f7ca48109be7b06ed5ee95c5daa269deb88"
+    },
+    "stderr": {
+      "path": "held-v3-AC-16.3-05.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "held-v3-AC-16.3-06",
+    "command": [
+      "python3",
+      "_bmad/scripts/generate_story_record.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+      "--format",
+      "bundle",
+      "--output-json",
+      "docs/release-evidence/story-16.3-final-record-v2.json",
+      "--output-markdown",
+      "docs/release-evidence/story-16.3-final-record-v2.md"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3237929,
+    "startedAtUtc": "2026-10-31T16:45:20.910184+00:00",
+    "durationSeconds": 0.502,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 2,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "held-v3-AC-16.3-06.stdout.txt",
+      "bytes": 883,
+      "sha256": "30667d42141083db4e775d3882a5af5457623295c44a7d9457e41046cd247c6f"
+    },
+    "stderr": {
+      "path": "held-v3-AC-16.3-06.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "legacy-exact-test-inventory",
+    "command": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "--collect-only",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "_bmad/scripts/tests/test_epic16_tooling.py",
+      "_bmad/scripts/tests/test_epic16_tooling_v2.py",
+      "_bmad/scripts/tests/test_generate_story_record.py",
+      "_bmad/scripts/tests/test_verify_epic_16_adoption.py",
+      "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2954327,
+    "startedAtUtc": "2026-10-31T16:38:04.834701+00:00",
+    "durationSeconds": 2.113,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "legacy-exact-test-inventory.stdout.txt",
+      "bytes": 643700,
+      "sha256": "0635cc272879a9b7057502b380c1a62bf96310d0f7824fbb9991ff8f05dec7dd"
+    },
+    "stderr": {
+      "path": "legacy-exact-test-inventory.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "legacy-sdk-policy-before-fix",
+    "command": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "-ra",
+      "-p",
+      "no:cacheprovider",
+      "_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round7_latest_patch_policy_permits_only_approved_feature_band or round12_helper_prerequisite_failure_retains_bounded_streams_and_exit or round12_helper_prerequisite_diagnostics_remain_structured_blocked"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 4073386,
+    "startedAtUtc": "2026-10-31T17:05:40.719397+00:00",
+    "durationSeconds": 21.96,
+    "timeoutSeconds": 600,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 1,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "legacy-sdk-policy-before-fix.stdout.txt",
+      "bytes": 9421,
+      "sha256": "5e8942e6d54c05130505c9cc105b2570c231147d2d614180381be4beef377102"
+    },
+    "stderr": {
+      "path": "legacy-sdk-policy-before-fix.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "legacy-sdk-policy-final",
+    "command": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "-ra",
+      "-p",
+      "no:cacheprovider",
+      "_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "round7_latest_patch_policy_permits_only_approved_feature_band or round7_current_sdk_policy_rejects_preceding_patch or round12_helper_prerequisite_failure_retains_bounded_streams_and_exit or round12_helper_prerequisite_diagnostics_remain_structured_blocked"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 4091314,
+    "startedAtUtc": "2026-10-31T17:06:21.272715+00:00",
+    "durationSeconds": 22.43,
+    "timeoutSeconds": 600,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "legacy-sdk-policy-final.stdout.txt",
+      "bytes": 117,
+      "sha256": "b9d8e0ca3ec8c1c33ec4dbe579331e199c70ea972e1ffed6f838d9e376014378"
+    },
+    "stderr": {
+      "path": "legacy-sdk-policy-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "legacy-tooling-generator-adoption-exact",
+    "command": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "-ra",
+      "-p",
+      "no:cacheprovider",
+      "_bmad/scripts/tests/test_epic16_tooling.py",
+      "_bmad/scripts/tests/test_epic16_tooling_v2.py",
+      "_bmad/scripts/tests/test_generate_story_record.py",
+      "_bmad/scripts/tests/test_verify_epic_16_adoption.py",
+      "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2701231,
+    "startedAtUtc": "2026-10-31T16:32:04.623672+00:00",
+    "durationSeconds": 1800.135,
+    "timeoutSeconds": 1800,
+    "outputLimitBytes": 8388608,
+    "termination": "timeout",
+    "exitCode": 143,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "legacy-tooling-generator-adoption-exact.stdout.txt",
+      "bytes": 2194,
+      "sha256": "f6a1d156d3f52b3b7162e4edbbb3bd2215c5924d89c96bf0820dd3245cf89f87"
+    },
+    "stderr": {
+      "path": "legacy-tooling-generator-adoption-exact.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "legacy-v1-current-focused",
+    "command": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "-ra",
+      "-p",
+      "no:cacheprovider",
+      "_bmad/scripts/tests/test_epic16_tooling.py",
+      "-k",
+      "all_fifteen_measured_routes_pass_only_as_disposable_fixtures or final_record_derives_sixth_after_five_and_is_deterministic or runtime_and_generator_remain_blocked_even_with_all_fixture_proofs or contract_schema_predecessor_and_source_pins_are_independent or dispatch_rejects_other_story_and_runs_no_artifact_commands or package_preparation_preserves_all_obligations_and_has_no_entry or standalone_generator_preserves_legacy_dispatch_without_successor_modules or protected_and_escaping_outputs_never_write_even_while_held or artifact_cannot_nominate_its_own_entry_trust"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 4125076,
+    "startedAtUtc": "2026-10-31T17:07:34.553671+00:00",
+    "durationSeconds": 44.72,
+    "timeoutSeconds": 900,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "legacy-v1-current-focused.stdout.txt",
+      "bytes": 117,
+      "sha256": "35327cd820f7bf401be6a38b82b2b1ca1fe6df581e35a8168a3574671d8fc2ea"
+    },
+    "stderr": {
+      "path": "legacy-v1-current-focused.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "legacy-v2-current-focused",
+    "command": [
+      "uv",
+      "run",
+      "--frozen",
+      "--no-sync",
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "-ra",
+      "-p",
+      "no:cacheprovider",
+      "_bmad/scripts/tests/test_epic16_tooling_v2.py"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 4156152,
+    "startedAtUtc": "2026-10-31T17:08:19.275486+00:00",
+    "durationSeconds": 167.127,
+    "timeoutSeconds": 900,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "legacy-v2-current-focused.stdout.txt",
+      "bytes": 111,
+      "sha256": "5c3ed1e0429a10cb288194e2777a75daa773c87544cff0c2636ebf513d39e5f7"
+    },
+    "stderr": {
+      "path": "legacy-v2-current-focused.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "producer-cli-debug-build",
+    "command": [
+      "dotnet",
+      "build",
+      "src/libraries/Hexalith.Builds.Module.Cli/Hexalith.Builds.Module.Cli.csproj",
+      "--configuration",
+      "Debug",
+      "--nologo",
+      "-m:1"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+    "pid": 1828568,
+    "startedAtUtc": "2026-10-31T16:10:28.787182+00:00",
+    "durationSeconds": 37.98,
+    "timeoutSeconds": 180,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "producer-cli-debug-build.stdout.txt",
+      "bytes": 1028,
+      "sha256": "e19cc8fd948e66425f6a589633905c70d8056123bf9caab9852c3a2e26052915"
+    },
+    "stderr": {
+      "path": "producer-cli-debug-build.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "producer-inventory-download",
+    "command": [
+      "gh",
+      "api",
+      "-H",
+      "Accept: application/octet-stream",
+      "repos/Hexalith/Hexalith.Builds/releases/assets/684839586"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2107237,
+    "startedAtUtc": "2026-10-31T16:14:55.410984+00:00",
+    "durationSeconds": 0.502,
+    "timeoutSeconds": 300,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "producer-inventory-download.stdout.txt",
+      "bytes": 74432,
+      "sha256": "2421408b564af44ba75a83670aee147d21347d09ed5b823d091c24a6dbc29b5e"
+    },
+    "stderr": {
+      "path": "producer-inventory-download.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "producer-release-discovery",
+    "command": [
+      "gh",
+      "api",
+      "repos/Hexalith/Hexalith.Builds/releases/tags/v4.38.3"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 2002490,
+    "startedAtUtc": "2026-10-31T16:13:14.790489+00:00",
+    "durationSeconds": 0.402,
+    "timeoutSeconds": 300,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "producer-release-discovery.stdout.txt",
+      "bytes": 3915,
+      "sha256": "bbb15294ea604a1aba3850f52ec9502481e48a626c0a16d4b688452dedf06eca"
+    },
+    "stderr": {
+      "path": "producer-release-discovery.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "sdk-version",
+    "command": [
+      "dotnet",
+      "--version"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1794324,
+    "startedAtUtc": "2026-10-31T16:09:59.398966+00:00",
+    "durationSeconds": 0.201,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "sdk-version.stdout.txt",
+      "bytes": 9,
+      "sha256": "00922204861c9366b1259b84337ee228d58ec876604bb149e82c077108ce3be2"
+    },
+    "stderr": {
+      "path": "sdk-version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "source-prepare",
+    "command": [
+      "dotnet",
+      "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds/src/libraries/Hexalith.Builds.Module.Cli/bin/Debug/net10.0/Hexalith.Builds.Module.Cli.dll",
+      "prepare-build",
+      "--manifest",
+      "module/hexalith.module-manifest.v2.json",
+      "--mode",
+      "source",
+      "--output",
+      "json",
+      "--workspace",
+      "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 1870057,
+    "startedAtUtc": "2026-10-31T16:11:11.212602+00:00",
+    "durationSeconds": 1.403,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "source-prepare.stdout.txt",
+      "bytes": 2416,
+      "sha256": "c14bdc2bd830f8452bdc3ab00c095e96057e2f67f00251ef9dda04cb890241c0"
+    },
+    "stderr": {
+      "path": "source-prepare.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "story73-AC-7.3-01",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_completion_workflows.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/v9/story-contracts/7.3.json",
+      "--scenario",
+      "AC-7.3-01",
+      "--output",
+      "artifacts/v9/7.3/AC-7.3-01.json"
+    ],
+    "cwd": "/tmp/epic16-4383-story73-5m2cw7yf/measurement",
+    "pid": 3281390,
+    "startedAtUtc": "2026-10-31T16:46:15.218344+00:00",
+    "durationSeconds": 0.201,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "story73-AC-7.3-01.stdout.txt",
+      "bytes": 7341,
+      "sha256": "b5f253949af98b78be18ecdc5d77efc8d9a62749b8eed2517ac2280c0c571c3b"
+    },
+    "stderr": {
+      "path": "story73-AC-7.3-01.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "story73-AC-7.3-02",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_completion_workflows.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/v9/story-contracts/7.3.json",
+      "--scenario",
+      "AC-7.3-02",
+      "--output",
+      "artifacts/v9/7.3/AC-7.3-02.json"
+    ],
+    "cwd": "/tmp/epic16-4383-story73-5m2cw7yf/measurement",
+    "pid": 3281565,
+    "startedAtUtc": "2026-10-31T16:46:15.420241+00:00",
+    "durationSeconds": 0.202,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "story73-AC-7.3-02.stdout.txt",
+      "bytes": 5500,
+      "sha256": "83d73a8cf3c39988ff44202ff7cb0c65d601fa3a954843964475def740baacb8"
+    },
+    "stderr": {
+      "path": "story73-AC-7.3-02.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "story73-final-AC-7.3-01",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_completion_workflows.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/v9/story-contracts/7.3.json",
+      "--scenario",
+      "AC-7.3-01",
+      "--output",
+      "artifacts/v9/7.3/AC-7.3-01.json"
+    ],
+    "cwd": "/tmp/epic16-4383-story73-kh6ksy5g/measurement",
+    "pid": 293757,
+    "startedAtUtc": "2026-10-31T17:17:16.733871+00:00",
+    "durationSeconds": 0.201,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "story73-final-AC-7.3-01.stdout.txt",
+      "bytes": 7341,
+      "sha256": "b5f253949af98b78be18ecdc5d77efc8d9a62749b8eed2517ac2280c0c571c3b"
+    },
+    "stderr": {
+      "path": "story73-final-AC-7.3-01.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "story73-final-AC-7.3-02",
+    "command": [
+      "python3",
+      "_bmad/scripts/verify_story_completion_workflows.py",
+      "--repository",
+      ".",
+      "--contract",
+      "_bmad-output/planning-artifacts/v9/story-contracts/7.3.json",
+      "--scenario",
+      "AC-7.3-02",
+      "--output",
+      "artifacts/v9/7.3/AC-7.3-02.json"
+    ],
+    "cwd": "/tmp/epic16-4383-story73-kh6ksy5g/measurement",
+    "pid": 293799,
+    "startedAtUtc": "2026-10-31T17:17:16.936043+00:00",
+    "durationSeconds": 0.201,
+    "timeoutSeconds": 120,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "story73-final-AC-7.3-02.stdout.txt",
+      "bytes": 5500,
+      "sha256": "83d73a8cf3c39988ff44202ff7cb0c65d601fa3a954843964475def740baacb8"
+    },
+    "stderr": {
+      "path": "story73-final-AC-7.3-02.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "story73-final-local-shared-clone",
+    "command": [
+      "git",
+      "clone",
+      "--shared",
+      "--no-checkout",
+      "/home/administrator/projects/hexalith/conversations",
+      "/tmp/epic16-4383-story73-kh6ksy5g/measurement"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 293413,
+    "startedAtUtc": "2026-10-31T17:17:16.171710+00:00",
+    "durationSeconds": 0.101,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "story73-final-local-shared-clone.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "story73-final-local-shared-clone.stderr.txt",
+      "bytes": 70,
+      "sha256": "ac2b28761d43c59950d9ec8751810175d55e555cb1d8c9558f890def21a57447"
+    }
+  },
+  {
+    "name": "story73-local-shared-clone",
+    "command": [
+      "git",
+      "clone",
+      "--shared",
+      "--no-checkout",
+      "/home/administrator/projects/hexalith/conversations",
+      "/tmp/epic16-4383-story73-5m2cw7yf/measurement"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "pid": 3280331,
+    "startedAtUtc": "2026-10-31T16:46:13.742879+00:00",
+    "durationSeconds": 0.101,
+    "timeoutSeconds": 60,
+    "outputLimitBytes": 8388608,
+    "termination": null,
+    "exitCode": 0,
+    "mappingEnvironment": {
+      "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+    },
+    "stdout": {
+      "path": "story73-local-shared-clone.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "story73-local-shared-clone.stderr.txt",
+      "bytes": 70,
+      "sha256": "e0562c1588636c91c75fceab35baecf83c5c9eeda9ea226eb354135b2ec889ad"
+    }
+  }
+]

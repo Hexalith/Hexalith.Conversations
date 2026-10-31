@@ -8,6 +8,7 @@ route: 'dispatch'
 review_loop_iteration: 0
 context:
   - '{project-root}/docs/runbooks/current-change-validation.md'
+  - '{project-root}/_bmad-output/implementation-artifacts/epic-16-admin-web-isolation-correction.md'
 ---
 
 <frozen-after-approval reason="separate prerequisite; user selected preparation only">
@@ -47,13 +48,13 @@ The plan and [input inventory](epic-16-4-38-3-qualification-inputs.json) bind ex
 
 **Execution after approval, in dependency order:**
 
-- [ ] `module/validation/epic-16-published-artifact-qualification/` — create a fresh attempt, capture protected inputs and inspect the normal mapped Debug AppHost before code edits; stop only the created instance. Unhealthy baseline stops edits.
-- [ ] `_bmad/scripts/qualify_epic16_published_artifact.py`, `tests/tooling/test_epic16_published_artifact_qualification.py` — add explicit candidate-only/planning-input/predecessor/package selection; preserve legacy defaults and provenance-before-execution. Separate prepared identity, recorded identity and acceptance; verify available declared evidence carriers.
+- [x] `module/validation/epic-16-published-artifact-qualification/` — create a fresh attempt, capture protected inputs and inspect the normal mapped Debug AppHost before code edits; stop only the created instance. Unhealthy baseline stops edits.
+- [x] `_bmad/scripts/qualify_epic16_published_artifact.py`, `tests/tooling/test_epic16_published_artifact_qualification.py` — add explicit candidate-only/planning-input/predecessor/package selection; preserve legacy defaults and provenance-before-execution. Separate prepared identity, recorded identity and acceptance; verify available declared evidence carriers.
 - [ ] Same attempt — collect exact 4.38.3 artifact/source/CI/schema/catalog identity, two positive and 36 malformed-key controls, both adoption formats and package/action observations; retain all failure deltas and owner gates.
-- [ ] `_bmad-output/planning-artifacts/epic-16-tooling-v3/`, `_bmad/schemas/epic-16-tooling-v3.schema.json`, `_bmad/scripts/epic16_packages_v3.py`, `epic16_trust_v3.py` — add immutable held contracts/policy, predecessor pins and complete source binding; preserve every measurement obligation.
-- [ ] `_bmad/scripts/epic16_tooling.py`, `generate_story_record.py`, `verify_story_16_{1,2,3}.py` — add exact lazy v3 routing and import/schema handling; retain legacy selection without fallback.
+- [x] `_bmad-output/planning-artifacts/epic-16-tooling-v3/`, `_bmad/schemas/epic-16-tooling-v3.schema.json`, `_bmad/scripts/epic16_packages_v3.py`, `epic16_trust_v3.py` — add immutable held contracts/policy, predecessor pins and complete source binding; preserve every measurement obligation.
+- [x] `_bmad/scripts/epic16_tooling.py`, `generate_story_record.py`, `verify_story_16_{1,2,3}.py` — add exact lazy v3 routing and import/schema handling; retain legacy selection without fallback.
 - [ ] `_bmad/scripts/tests/test_epic16_tooling_v3.py`, `test_epic16_tooling_v2.py`, `test_epic16_tooling.py` — cover the matrix, 15 native fixture routes, three deterministic final pairs, fault restoration and historical v1/v2 behavior. Actual current legacy commands retain SOURCE_DRIFT.
-- [ ] `module/platform-handoff.md`, runtime 16.1 draft and fresh attempt — link measured qualification/held-command ledgers and exact next owner actions; retain draft/backlog and accepted evidence.
+- [x] `module/platform-handoff.md`, runtime 16.1 draft and fresh attempt — link measured qualification/held-command ledgers and exact next owner actions; retain draft/backlog and accepted evidence.
 
 **Acceptance Criteria:**
 
@@ -62,6 +63,32 @@ The plan and [input inventory](epic-16-4-38-3-qualification-inputs.json) bind ex
 - Given completion of this bounded prerequisite, when the handoff is validated, then source/stream hashes, exact inventories, unchanged protected state and absent runtime outputs are proven. Neither root adoption nor runtime readiness follows.
 
 ## Implementation Notes
+
+2026-10-31 isolation correction and qualification continuation: The separately
+authorized Admin Web endpoint correction passes the complete fresh mapped Debug
+baseline, all required health waits, discovered `/health` and eight focused
+topology tests in [attempt 03](../../module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/README.md).
+Exact published 4.38.3 artifact/source/schema/catalog and unsigned CI payload
+identity pass, as do both positive formats and all 36 malformed-key controls.
+The current adoption inventory is 29 rows (7 PASS/22 FAIL), with exact ordered
+deltas and owner dispositions retained. Platform recorded/prepared identity
+remains FAIL, independent from prepared tuple agreement and pending acceptance.
+
+The exact CI/Release run inventories contain zero artifacts; all 55 declared
+qualificationEvidence files remain unavailable and BLOCKED. This is a required
+completion blocker. Additive held v3 and exact lazy routing preserve the accepted
+v1/v2 bytes and all obligations. Source/fixture/held-route verification and the
+final preservation disposition are retained in the attempt ledger. The spec
+remains in-progress; no formal review/done transition or runtime implementation
+is authorized by these measurements. Root pin 4.38.3, all gitlinks/checkouts,
+accepted evidence, draft/backlog, null entry, empty trust, ACTIVE hold and four
+false flags remain preserved. The exact planned broad regression command
+collected 4,775 cases but timed out at 1,800 seconds (native exit 143); its
+partial result remains incomplete. Focused current SDK/consumer/generator/
+adoption partitions provide separate verification. Existing SDK-positive test
+inputs were aligned with the unchanged 10.0.403 policy, including an explicit
+10.0.402 rejection; helper policy and accepted fixtures were preserved. Earlier
+notes below retain their historical scope.
 
 2026-10-31: Implementation stopped at the required normal mapped Debug AppHost
 baseline. The [fresh attempt](../../module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-01/README.md)
@@ -91,6 +118,16 @@ fresh attempt before code edits. Pins, gitlinks, accepted evidence, null entry,
 empty trust, draft/backlog and ACTIVE hold remain unchanged.
 
 ## Spec Change Log
+
+2026-10-31 hosting repair authorization: The user explicitly authorized the
+separate [Admin Web isolation correction](epic-16-admin-web-isolation-correction.md)
+against the retained attempt-02 failure, followed by fresh source preparation
+and the complete mapped Debug baseline. This limited hosting repair may precede
+that fresh baseline; collector/v3 edits remain gated on its passing result.
+The frozen approval block above remains byte-identical. Preserve the actual
+entry tool pin (currently 4.38.3), all gitlinks/checkouts and accepted evidence;
+historical references to 4.38.2 do not authorize restoring or changing the pin.
+After a passing baseline, continue all existing approved prerequisite tasks.
 
 2026-10-31 resume: The user authorized a targeted, nonrecursive fetch of the
 Platform-recorded Builds commit while preserving pins, gitlinks and checkouts.

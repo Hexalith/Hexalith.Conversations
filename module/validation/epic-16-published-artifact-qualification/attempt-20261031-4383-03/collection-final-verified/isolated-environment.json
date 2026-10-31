@@ -1,0 +1,8 @@
+{
+  "NUGET_PACKAGES": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/collection-final-verified/isolated/packages",
+  "NUGET_HTTP_CACHE_PATH": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/collection-final-verified/isolated/http-cache",
+  "DOTNET_CLI_HOME": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/collection-final-verified/isolated/dotnet-home",
+  "DOTNET_NOLOGO": "1",
+  "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
+  "NUGET_CERT_REVOCATION_MODE": "online"
+}

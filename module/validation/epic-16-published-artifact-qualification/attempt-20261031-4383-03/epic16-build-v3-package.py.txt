@@ -1,0 +1,47 @@
+import ast,hashlib,json,pathlib
+R=pathlib.Path('/home/administrator/projects/hexalith/conversations');B=R/'_bmad-output/planning-artifacts/epic-16-tooling-v3';A=R/'module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/collection-measured'
+def digest(p):return hashlib.sha256((R/p).read_bytes()).hexdigest()
+def dump(p,d): (R/p).write_text(json.dumps(d,indent=2)+'\n')
+commands=json.loads((A/'commands.json').read_bytes());ledger=json.loads((A/'qualification-ledger.json').read_bytes());identity=json.loads((A/'identity.json').read_bytes())
+summary={'schemaVersion':'hexalith.conversations.epic16-candidate-observation.v1','purpose':'held-candidate-measurement-only','candidateVersion':'4.38.3','candidateSource':'d1931b1e803144048d927fff16cb8119afde541e','rootPin':identity['rootPin'],'state':ledger['state'],'entry':None,'trustedEntries':[],'authority':{'implementationHold':'ACTIVE','executionAllowed':False,'ownerApprovalClaimed':False,'releaseAuthorized':False,'pushAuthorized':False},'artifactIdentity':identity,'ledger':ledger['ledger'],'boundFiles':[{'path':str((A/p).relative_to(R)),'sha256':digest(str((A/p).relative_to(R)))} for p in ['qualification-ledger.json','identity.json','commands.json','malformed-controls.json','adoption-comparison.json','adoption-inventories.json','adoption-dispositions.json','producer-qualification-evidence.json','producer-qualification-carriers.json']],'streams':[{'path':str((A/row[key]['path']).relative_to(R)),'sha256':row[key]['sha256'],'sizeBytes':row[key]['bytes']} for row in commands for key in ['stdout','stderr']],'qualification':'Artifact and all 36 controls PASS; missing declared producer evidence BLOCKED; adoption and Platform recorded identity FAIL; no acceptance or runtime entry.'}
+dump('_bmad-output/planning-artifacts/epic-16-tooling-v3/candidate-observation.json',summary)
+(B/'README.md').write_text('''# Epic 16 held prerequisite tooling v3
+
+Select one of the three exact `story-contracts/{16.1,16.2,16.3}.json` paths.
+There is no latest-version selection or fallback. This package binds current
+consumer sources while preserving the accepted v1/v2 carriers, policies, trust
+and schemas byte for byte. Each v3 contract names its corresponding v2 predecessor.
+
+All 18 ACs, 32 requirement identities, 38 graph nodes, 61 edges, predecessor
+order, rollback, nine product owners, five upstream API comparisons, native
+identities, fault controls and final-record wire rules remain unchanged.
+
+`candidate-observation.json` binds the actual isolated 4.38.3 measurement,
+including exact ledger, identity and stream digests. The root manifest was already
+4.38.3 at implementation entry and remains unchanged; agreement does not grant
+adoption. Signed artifact identity and all 36 malformed-key controls passed.
+Missing declared producer evidence remains BLOCKED. Adoption and Platform's
+recorded/prepared Builds source inequality remain FAIL. External owner acceptance,
+Platform publication, package/action preparation and native host gates stay held.
+
+Independent contract/schema/predecessor pins precede executable source binding.
+The complete source inventory includes the selected policy/trust and immutable
+candidate summary. It excludes the binding itself, whose full bytes are separately
+bound during candidate evaluation. Mutable handoff and final collection evidence
+remain outside this source inventory.
+
+Entry is null, independent trust is empty, hold ACTIVE and all four authority
+flags false. All selected runtime commands return BLOCKED/2 with
+ENTRY_QUALIFICATION_PENDING, measure zero runtime tests and preserve runtime
+and final output absence. Disposable native fixtures confer no runtime authority.
+''')
+source=(R/'_bmad/scripts/epic16_packages.py').read_text()
+# Copy the immutable policy shape, replacing only its own versioned carriers.
+source=source.replace('exact v2','exact v3').replace('epic16_trust_v2','epic16_trust_v3').replace('epic-16-tooling-v2','epic-16-tooling-v3').replace('epic16-tooling-contract.v2','epic16-tooling-contract.v3').replace('epic16-tooling-binding.v2','epic16-tooling-binding.v3').replace('_bmad/scripts/epic16_packages.py','_bmad/scripts/epic16_packages_v3.py')
+tree=ast.parse(source);node=next(n for n in tree.body if isinstance(n,ast.Assign) and n.targets[0].id=='TOOL_SOURCES');paths=ast.literal_eval(node.value)+('_bmad-output/planning-artifacts/epic-16-tooling-v3/candidate-observation.json',)
+lines=source.splitlines();lines[node.lineno-1:node.end_lineno]=['TOOL_SOURCES = '+repr(paths)];source='\n'.join(lines)+'\n';(R/'_bmad/scripts/epic16_packages_v3.py').write_text(source)
+trust=ast.parse((R/'_bmad/scripts/epic16_trust_v2.py').read_text());old=next(n for n in trust.body if isinstance(n,ast.Assign) and n.targets[0].id=='PREDECESSOR_PINS');predecessors=ast.literal_eval(old.value.args[0]);predecessors.update({p:digest(p) for p in ['_bmad/scripts/epic16_packages.py','_bmad/scripts/epic16_trust_v2.py','_bmad/schemas/epic-16-tooling-v2.schema.json',*[str(p.relative_to(R)) for p in (R/'_bmad-output/planning-artifacts/epic-16-tooling-v2').rglob('*') if p.is_file()]]})
+contracts={f'_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/{s}.json':digest(f'_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/{s}.json') for s in ['16.1','16.2','16.3']};schema='_bmad/schemas/epic-16-tooling-v3.schema.json'
+(R/'_bmad/scripts/epic16_trust_v3.py').write_text('"""Independent pins for the explicitly selected held v3 package."""\nfrom types import MappingProxyType\n\nCONTRACT_PINS = MappingProxyType('+repr(contracts)+')\nPREDECESSOR_PINS = MappingProxyType('+repr(predecessors)+')\nSCHEMA_PIN = '+repr(digest(schema))+'\nTRUSTED_ENTRIES = MappingProxyType({})\n')
+paths=sorted((*paths,*contracts,*predecessors));assert len(paths)==len(set(paths));dump('_bmad-output/planning-artifacts/epic-16-tooling-v3/binding.json',{'authority':summary['authority'],'entry':None,'purpose':'prerequisite-tooling-only','schemaVersion':'hexalith.conversations.epic16-tooling-binding.v3','sources':[{'path':p,'sha256':digest(p)} for p in paths]})
+print('v3 source rows',len(paths),'stream bindings',len(summary['streams']))

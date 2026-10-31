@@ -1,0 +1,25 @@
+import json,os,pathlib,runpy,sys
+phase=sys.argv[1];sys.argv=['capture','noop'];n=runpy.run_path('/tmp/epic16-4383-isolation-baseline.py');a=n['ATTEMPT'];r=n['ROOT'];run=n['run'];write=n['write'];app=n['APP'];env=os.environ.copy();env.update(json.loads((a/'source-prepare.stdout.txt').read_bytes())['buildPreparation']['environment']);owned=json.loads((a/'apphost-run.stdout.txt').read_bytes());assert owned['appHostPath']==str(r/app)
+if phase=='inspect':
+ run('aspire-ps-running',['aspire','ps','--format','Json','--non-interactive'],env=env)
+ sessions=json.loads((a/'aspire-ps-running.stdout.txt').read_bytes());selected=[s for s in sessions if s['appHostPath']==str(r/app)];assert len(selected)==1 and all(selected[0][k]==owned[k] for k in ['appHostPid','cliPid'])
+ write('owned-apphost.json',{k:owned[k] for k in ['appHostPath','appHostPid','cliPid','logFile']})
+ run('apphost-describe-initial',['aspire','describe','--apphost',app,'--include-hidden','--format','Json','--non-interactive'],60,env=env)
+ for resource in ['conversations','eventstore','conversations-admin-web']:
+  run('apphost-wait-'+resource,['aspire','wait',resource,'--apphost',app,'--status','healthy','--timeout','120','--non-interactive'],135,env=env)
+ run('apphost-describe-final',['aspire','describe','--apphost',app,'--include-hidden','--format','Json','--non-interactive'],60,env=env)
+elif phase=='test':
+ run('focused-apphost-test-debug-build',['dotnet','build','tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj','--configuration','Debug','--nologo','-m:1'],600,env=env)
+ if json.loads((a/'focused-apphost-test-debug-build.json').read_bytes())['exitCode']==0:
+  run('focused-topology-tests',['dotnet','tests/Hexalith.Conversations.AppHost.Tests/bin/Debug/net10.0/Hexalith.Conversations.AppHost.Tests.dll','-class','Hexalith.Conversations.AppHost.Tests.ConversationsAppHostTopologyTest'],180,env=env)
+elif phase=='cleanup':
+ run('aspire-ps-before-cleanup',['aspire','ps','--format','Json','--non-interactive'],env=env)
+ sessions=json.loads((a/'aspire-ps-before-cleanup.stdout.txt').read_bytes());selected=[s for s in sessions if s['appHostPath']==str(r/app)];assert len(selected)==1 and all(selected[0][k]==owned[k] for k in ['appHostPid','cliPid'])
+ identities=[]
+ for key in ['appHostPid','cliPid']:
+  p=pathlib.Path('/proc')/str(owned[key]);identities.append(dict(kind=key,pid=owned[key],cmdline=(p/'cmdline').read_bytes().replace(b'\0',b' ').decode(),startTime=(p/'stat').read_text().split()[21]))
+ assert str(r/'src/Hexalith.Conversations.AppHost/bin/Debug/net10.0/Hexalith.Conversations.AppHost') in identities[0]['cmdline']
+ assert 'detach-child' in identities[1]['cmdline']
+ write('cleanup-target-verification.json',dict(owned=selected,processes=identities,verified=True))
+ run('apphost-stop',['aspire','stop','--apphost',app,'--format','Json','--non-interactive'],90,env=env)
+ run('aspire-ps-after',['aspire','ps','--format','Json','--non-interactive'],env=env)

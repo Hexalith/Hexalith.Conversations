@@ -107,6 +107,7 @@ public static class ConversationsAppHostTopology
 
         IResourceBuilder<ProjectResource> adminWeb = builder
             .AddProject<Projects.Hexalith_Conversations_Admin_Web>(AdminWebResourceName)
+            .WithHttpEndpoint()
             .WithReference(conversationsServer)
             .WaitFor(conversationsServer);
 

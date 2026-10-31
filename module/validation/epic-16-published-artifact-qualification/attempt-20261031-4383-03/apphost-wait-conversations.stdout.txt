@@ -1,0 +1,3 @@
+Waiting for resource 'conversations' to be healthy...
+
+✅ Resource 'conversations' is healthy. (19.6s)

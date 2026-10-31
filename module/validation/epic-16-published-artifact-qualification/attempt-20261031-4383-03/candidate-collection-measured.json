@@ -1,0 +1,53 @@
+{
+  "name": "candidate-collection-measured",
+  "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "_bmad/scripts/qualify_epic16_published_artifact.py",
+    "--conversations",
+    ".",
+    "--builds",
+    "references/Hexalith.Builds",
+    "--platform",
+    "references/Hexalith.Platform",
+    "--version",
+    "4.38.3",
+    "--release-sha",
+    "d1931b1e803144048d927fff16cb8119afde541e",
+    "--inventory",
+    "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/g4-tool-package-inventory.json",
+    "--output",
+    "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/collection-measured",
+    "--candidate-only",
+    "--planning-inputs",
+    "_bmad-output/implementation-artifacts/epic-16-4-38-3-qualification-inputs.json",
+    "--adoption-predecessor",
+    "module/validation/epic-16-published-artifact-qualification/entry-20261030-story161-01/adoption-json.stdout.txt",
+    "--tooling-contract",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 2264712,
+  "startedAtUtc": "2026-10-31T16:18:51.579789+00:00",
+  "durationSeconds": 70.304,
+  "timeoutSeconds": 1850,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 1,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "candidate-collection-measured.stdout.txt",
+    "bytes": 224,
+    "sha256": "adbf2ca2731c3c05f9407b63b85d17878e475f0d607cd803b9d0436799192724"
+  },
+  "stderr": {
+    "path": "candidate-collection-measured.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

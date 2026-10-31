@@ -1,0 +1,25 @@
+import hashlib,json,os,pathlib,runpy,shutil,sys,tempfile
+sys.argv=['capture','noop'];n=runpy.run_path('/tmp/epic16-4383-isolation-baseline.py');A=n['ATTEMPT'];R=n['ROOT']
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+originals={f'artifacts/v9/7.3/{ac}.json':sha(R/f'artifacts/v9/7.3/{ac}.json') for ac in ('AC-7.3-01','AC-7.3-02')}
+parent=pathlib.Path(tempfile.mkdtemp(prefix='epic16-4383-story73-'));repo=parent/'measurement';result=n['run']('story73-local-shared-clone',['git','clone','--shared','--no-checkout',str(R),str(repo)],60);assert result['exitCode']==0
+paths=[]
+for prefix in ('_bmad/scripts','_bmad/schemas','_bmad/custom','.agents/skills','.claude/skills'):
+ for source in sorted((R/prefix).rglob('*')):
+  if source.is_file() and not {'__pycache__','.pytest_cache','bin','obj'}.intersection(source.relative_to(R).parts):paths.append(source.relative_to(R).as_posix())
+paths += ['_bmad/config.toml','_bmad-output/planning-artifacts/v9/story-contracts/7.3.json','.gitattributes','.gitmodules','pyproject.toml','uv.lock']
+paths=sorted(set(paths));rows=[]
+for path in paths:
+ source=R/path;target=repo/path;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,target);assert source.read_bytes()==target.read_bytes();rows.append(dict(path=path,sha256=sha(source),sizeBytes=source.stat().st_size))
+head=n['git']('rev-parse','HEAD')['stdout'].strip();assert n['git']('rev-parse','HEAD',cwd=repo)['stdout'].strip()==head
+n['write']('story73-measurement-inputs.json',dict(state='PASS',measurementRepository=str(repo),candidate=head,originalRootOutputs=originals,copiedInputFiles=rows,completeByteEquality=True,submodulesInitialized=False))
+for ac in ('AC-7.3-01','AC-7.3-02'):
+ command=['python3','_bmad/scripts/verify_story_completion_workflows.py','--repository','.','--contract','_bmad-output/planning-artifacts/v9/story-contracts/7.3.json','--scenario',ac,'--output',f'artifacts/v9/7.3/{ac}.json']
+ native=n['run']('story73-'+ac,command,120,cwd=repo,env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1'));assert native['exitCode']==0
+ raw=(repo/f'artifacts/v9/7.3/{ac}.json').read_bytes();receipt=json.loads(raw);assert receipt['result']=='PASS' and receipt['assertionLedger'];assert receipt['candidate']==head
+ for row in receipt['inputs']:assert sha(R/row['path'])==row['sha256']
+ (A/('story73-'+ac+'.receipt.json')).write_bytes(raw)
+assert originals=={path:sha(R/path) for path in originals}
+assert all(sha(R/row['path'])==row['sha256']==sha(repo/row['path']) for row in rows)
+n['write']('story73-preservation.json',dict(state='PASS',rootOutputsUnchanged=True,originalRootOutputs=originals,currentRootInputsByteExact=True,copiedInputCount=len(rows),measurementRepository=str(repo),actualGuardCommands=2))
+print('Both exact Story 7.3 guards passed against byte-exact current inputs; original outputs preserved.')

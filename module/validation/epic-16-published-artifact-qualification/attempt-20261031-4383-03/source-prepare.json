@@ -1,0 +1,37 @@
+{
+  "name": "source-prepare",
+  "command": [
+    "dotnet",
+    "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds/src/libraries/Hexalith.Builds.Module.Cli/bin/Debug/net10.0/Hexalith.Builds.Module.Cli.dll",
+    "prepare-build",
+    "--manifest",
+    "module/hexalith.module-manifest.v2.json",
+    "--mode",
+    "source",
+    "--output",
+    "json",
+    "--workspace",
+    "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 1870057,
+  "startedAtUtc": "2026-10-31T16:11:11.212602+00:00",
+  "durationSeconds": 1.403,
+  "timeoutSeconds": 120,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "source-prepare.stdout.txt",
+    "bytes": 2416,
+    "sha256": "c14bdc2bd830f8452bdc3ab00c095e96057e2f67f00251ef9dda04cb890241c0"
+  },
+  "stderr": {
+    "path": "source-prepare.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

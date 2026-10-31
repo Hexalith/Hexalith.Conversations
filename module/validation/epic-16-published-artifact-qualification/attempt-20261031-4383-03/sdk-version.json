@@ -1,0 +1,28 @@
+{
+  "name": "sdk-version",
+  "command": [
+    "dotnet",
+    "--version"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 1794324,
+  "startedAtUtc": "2026-10-31T16:09:59.398966+00:00",
+  "durationSeconds": 0.201,
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "sdk-version.stdout.txt",
+    "bytes": 9,
+    "sha256": "00922204861c9366b1259b84337ee228d58ec876604bb149e82c077108ce3be2"
+  },
+  "stderr": {
+    "path": "sdk-version.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

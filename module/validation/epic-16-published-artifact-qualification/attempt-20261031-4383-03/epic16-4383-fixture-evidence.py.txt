@@ -1,0 +1,35 @@
+import hashlib,json,os,pathlib,runpy,shutil,sys,tempfile
+sys.argv=['capture','noop'];n=runpy.run_path('/tmp/epic16-4383-isolation-baseline.py');R=n['ROOT'];A=n['ATTEMPT'];sys.path[:0]=[str(R/'_bmad/scripts'),str(R/'_bmad/scripts/tests')];os.environ['EPIC16_COMMITLINT_EVIDENCE']=str(A/'native-fixture-commitlint.json')
+import test_epic16_tooling_v3 as selected
+import epic16_tooling as tooling
+from epic16_packages_v3 import POLICY
+parent=pathlib.Path(tempfile.mkdtemp(prefix='epic16-v3-native-fixture-'))
+class Factory:
+ def mktemp(self,name):
+  path=parent/name;path.mkdir();return path
+repo=selected.selected_repository.__wrapped__(Factory());candidate=selected.legacy.git(repo,'rev-parse','HEAD');rows=[];env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')
+def invoke(label,story,scenario=None,generator=False,extra=()):
+ script='generate_story_record.py' if generator else 'verify_story_16_'+story[-1]+'.py'
+ command=['python3',str(repo/'_bmad/scripts'/script),'--repository',str(repo),'--contract',tooling.contract_path(story,POLICY),'--scope','tooling-fixture']
+ command += ['--format','bundle'] if generator else ['--scenario',scenario]
+ native=n['run'](label,command+list(extra),180,cwd=repo,env=env);data=json.loads((A/(label+'.stdout.txt')).read_bytes());assert native['exitCode']==0 and data['result']=='PASS' and data['runtimeQualified'] is False,(label,data)
+ rows.append(dict(name=label,storyId=story,scenarioId=scenario,command=command+list(extra),nativeExitCode=native['exitCode'],result=data['result'],runtimeQualified=False,assertionCount=len(data.get('assertionLedger',[])),stdout=native['stdout'],stderr=native['stderr']))
+ return data
+for scenario in tooling.measurements.SCENARIOS:
+ invoke('fixture-'+scenario,scenario[3:7],scenario,extra=['--output',tooling.receipt_path('tooling-fixture',scenario)])
+pairs=[]
+for story in tooling.measurements.STORIES:
+ invoke('fixture-final-'+story,story,generator=True);paths=tooling.final_paths('tooling-fixture',story);before=[(repo/p).read_bytes() for p in paths]
+ invoke('fixture-final-repeat-'+story,story,generator=True);assert before==[(repo/p).read_bytes() for p in paths]
+ pairs.append(dict(storyId=story,deterministic=True,files=[dict(path=p,sha256=hashlib.sha256(raw).hexdigest(),sizeBytes=len(raw)) for p,raw in zip(paths,before)]))
+spec=repo/'fixture-spec.md';before=spec.read_bytes();markdown=(repo/tooling.final_paths('tooling-fixture','16.1')[1]).read_bytes()
+try:
+ spec.write_bytes(before+b'\n<!-- STORY-FINAL-RECORD:BEGIN -->\n'+markdown+b'<!-- STORY-FINAL-RECORD:END -->\n');invoke('fixture-inserted-record','16.1',generator=True,extra=['--verify-inserted-record','fixture-spec.md'])
+finally:spec.write_bytes(before)
+assert spec.read_bytes()==before
+out=A/'native-fixture-evidence';out.mkdir(exist_ok=False);shutil.copytree(repo/'artifacts',out/'artifacts')
+for name,target in [('root',repo),*[(path.replace('/','-'),repo/path) for path in selected.legacy.git(repo,'config','--file','.gitmodules','--get-regexp','path').splitlines() for path in [path.split(None,1)[1]]]]:
+ result=n['run']('fixture-bundle-'+name,['git','bundle','create',str(out/(name+'.bundle')),'--all'],120,cwd=target);assert result['exitCode']==0
+files=[dict(path=p.relative_to(A).as_posix(),sha256=hashlib.sha256(p.read_bytes()).hexdigest(),sizeBytes=p.stat().st_size) for p in sorted(out.rglob('*')) if p.is_file()]
+n['write']('native-fixture-ledger.json',dict(state='PASS',scope='disposable-tooling-fixture-only',runtimeQualified=False,measuredRuntimeTests=0,fixtureRepository=str(repo),fixtureCandidate=candidate,nativeRoutes=15,deterministicFinalPairs=pairs,insertedRecordVerified=True,inputsRestored=True,commands=rows,retainedFiles=files))
+print('15 actual native fixture routes, 3 deterministic pairs and inserted-record verification retained; no runtime authority.')

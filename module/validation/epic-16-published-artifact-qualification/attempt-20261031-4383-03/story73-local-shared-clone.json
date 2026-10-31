@@ -1,0 +1,32 @@
+{
+  "name": "story73-local-shared-clone",
+  "command": [
+    "git",
+    "clone",
+    "--shared",
+    "--no-checkout",
+    "/home/administrator/projects/hexalith/conversations",
+    "/tmp/epic16-4383-story73-5m2cw7yf/measurement"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 3280331,
+  "startedAtUtc": "2026-10-31T16:46:13.742879+00:00",
+  "durationSeconds": 0.101,
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "story73-local-shared-clone.stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "story73-local-shared-clone.stderr.txt",
+    "bytes": 70,
+    "sha256": "e0562c1588636c91c75fceab35baecf83c5c9eeda9ea226eb354135b2ec889ad"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "aspire-http-endpoint-api",
+  "command": [
+    "aspire",
+    "docs",
+    "api",
+    "get",
+    "csharp/aspire.hosting/resourcebuilderextensions/methods#withhttpendpoint-965ef192"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 1816224,
+  "startedAtUtc": "2026-10-31T16:10:17.550657+00:00",
+  "durationSeconds": 1.704,
+  "timeoutSeconds": 60,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "aspire-http-endpoint-api.stdout.txt",
+    "bytes": 311453,
+    "sha256": "fc1b17f18589a14f5248b9b24098b17a3da6205814524aa49d75bf7e3089eb34"
+  },
+  "stderr": {
+    "path": "aspire-http-endpoint-api.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

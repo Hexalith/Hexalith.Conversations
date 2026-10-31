@@ -1,0 +1,186 @@
+{
+  "schemaVersion": "hexalith.conversations.epic16-4383-prerequisite-attempt.v1",
+  "state": "BLOCKED",
+  "completed": false,
+  "attemptScope": "authorized hosting correction, exact published candidate measurement and additive held v3 source binding",
+  "entryCandidate": "8a26cb03ee1d5413c034eb60aee71618f3ebd31a",
+  "entryTree": "87a6d640180d4c23fdb081f15faf6faeaa6e7daa",
+  "rootToolPin": "4.38.3",
+  "rootToolPinRollForward": false,
+  "candidateVersion": "4.38.3",
+  "candidateSource": "d1931b1e803144048d927fff16cb8119afde541e",
+  "authority": {
+    "implementationHold": "ACTIVE",
+    "executionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  },
+  "entry": null,
+  "trustedEntries": [],
+  "runtimeQualified": false,
+  "measuredRuntimeTests": 0,
+  "ledger": [
+    {
+      "gate": "direct-dependency-preflight",
+      "state": "PASS",
+      "evidence": "dependency-preflight.json"
+    },
+    {
+      "gate": "authorized-admin-web-isolation-correction",
+      "state": "PASS",
+      "evidence": [
+        "admin-web-endpoint.json",
+        "admin-web-health.json",
+        "focused-topology-tests.json"
+      ],
+      "detail": "Aspire-managed HTTP endpoint without fixed ports; eight topology tests pass; discovered /health returns 200"
+    },
+    {
+      "gate": "complete-normal-mapped-debug-baseline",
+      "state": "PASS",
+      "evidence": [
+        "source-prepare.json",
+        "apphost-run.json",
+        "resource-summary.json",
+        "apphost-wait-conversations.json",
+        "apphost-wait-eventstore.json",
+        "apphost-wait-conversations-admin-web.json"
+      ]
+    },
+    {
+      "gate": "collector-current-regressions",
+      "state": "PASS",
+      "evaluatedTests": 103,
+      "evidence": "collector-final-metadata-regressions.json"
+    },
+    {
+      "gate": "v3-native-matrix-and-independent-pins",
+      "state": "PASS",
+      "evidence": [
+        "collector-v3-focused-final.json",
+        "collector-v3-all-pins-retry.json",
+        "native-fixture-ledger.json",
+        "root-v3-audit.json"
+      ],
+      "detail": "194 passing combined cases retained; two test-harness selector faults corrected by matching story selection and all 45 pin cases pass; actual 15 native fixture routes, three deterministic pairs and inserted record retained"
+    },
+    {
+      "gate": "current-sdk-policy-regressions",
+      "state": "PASS",
+      "evaluatedTests": 14,
+      "evidence": [
+        "legacy-sdk-policy-before-fix.json",
+        "legacy-sdk-policy-final.json"
+      ],
+      "detail": "Five stale positive/mock SDK inputs reproduced and corrected to unchanged 10.0.403 policy; explicit 10.0.402 rejection retained; helper and pin unchanged"
+    },
+    {
+      "gate": "current-focused-legacy-consumer-generator-adoption",
+      "state": "PASS",
+      "evaluatedTests": {
+        "v1": 30,
+        "v2": 64,
+        "generator": 43,
+        "adoption": 293
+      },
+      "evidence": [
+        "legacy-v1-current-focused.json",
+        "legacy-v2-current-focused.json",
+        "generator-current-focused.json",
+        "adoption-v1-v2-current-focused.json"
+      ]
+    },
+    {
+      "gate": "planned-broad-regression-run",
+      "state": "BLOCKED",
+      "code": "BROAD_REGRESSION_TIMEOUT",
+      "nativeExitCode": 143,
+      "timeoutSeconds": 1800,
+      "collectedTests": 4775,
+      "evidence": [
+        "legacy-tooling-generator-adoption-exact.json",
+        "broad-regression-disposition.json"
+      ],
+      "detail": "Incomplete broad run retained independently; focused passing partitions do not claim its completion"
+    },
+    {
+      "gate": "actual-held-command-routing",
+      "state": "PASS",
+      "evidence": "held-command-ledger.json",
+      "commands": 30,
+      "v3": 18,
+      "legacy": 12,
+      "measuredRuntimeTests": 0
+    },
+    {
+      "gate": "independent-story-7.3-guards",
+      "state": "PASS",
+      "evidence": [
+        "story 73-final-AC-7.3-01.json",
+        "story 73-final-AC-7.3-02.json",
+        "story 73-final-measurement-inputs.json",
+        "story 73-final-preservation.json"
+      ],
+      "detail": "Exact commands run against byte-exact current inputs in a shared local measurement checkout; existing root outputs unchanged"
+    },
+    {
+      "gate": "required-producer-qualification-evidence",
+      "state": "BLOCKED",
+      "code": "QUALIFICATION_EVIDENCE_UNAVAILABLE",
+      "declaredFiles": 55,
+      "evidence": "collection-final-source/producer-qualification-evidence.json",
+      "detail": "Exact source CI and Release artifact inventories are empty; no broad native summary substitutes for declared file/hash/size evidence"
+    },
+    {
+      "gate": "candidate-qualification-overall",
+      "state": "FAIL",
+      "nativeExitCode": 1,
+      "evidence": "collection-final-source/qualification-ledger.json",
+      "detail": "Artifact and all 36 controls PASS; adoption and recorded Platform source identity FAIL; missing producer and owner evidence BLOCKED"
+    },
+    {
+      "gate": "preservation-and-exact-owned-boundary",
+      "state": "PASS",
+      "evidence": [
+        "preservation-check.json",
+        "evidence-integrity-check.json",
+        "owned-paths.json",
+        "root-protected-audit.json"
+      ]
+    },
+    {
+      "gate": "runtime-entry",
+      "state": "BLOCKED",
+      "code": "ENTRY_QUALIFICATION_PENDING",
+      "entry": null,
+      "trustedEntries": [],
+      "measuredRuntimeTests": 0
+    },
+    {
+      "gate": "historical-boundary-replay-and-runtime-publication",
+      "state": "not-applicable",
+      "code": "OUTSIDE_PREREQUISITE"
+    }
+  ],
+  "finalCollection": "collection-final-source",
+  "intermediateCollections": [
+    "collection-initial",
+    "collection-measured",
+    "collection-final-code",
+    "collection-final-verified"
+  ],
+  "immutableV3ObservationSource": "collection-measured",
+  "remainingTasks": [
+    "Obtain exact 55 declared producer evidence files or separately reviewed evidence successor",
+    "Complete the timed-out broad regression scope; focused current checks are separate passing evidence"
+  ],
+  "nextOwnerActions": [
+    "Builds release owner supplies every declared file with matching inventory hash and size; preserve existing inventories and evidence",
+    "Platform owner reconciles recorded cc0db51b800be1d0d5badc3780395cfb5953d0f5 with prepared d1931b1e803144048d927fff16cb8119afde541e, publishes a qualified identity and supplies authenticated acceptance with distinct generated/direct-host evidence",
+    "Conversations and producer policy owners disposition all 22 adoption failures without scanner exclusions or accepted fixture changes",
+    "Complete native Windows/macOS, provider/AD-5/recovery/operator/capacity/registration/human SM-2 and trusted owner-entry qualifications before runtime work"
+  ],
+  "historicalBoundaryReplay": "not-applicable",
+  "runtimePublication": "not-applicable"
+}

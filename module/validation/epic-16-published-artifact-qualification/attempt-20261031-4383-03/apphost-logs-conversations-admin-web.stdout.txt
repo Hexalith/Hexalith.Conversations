@@ -1,0 +1,124 @@
+{
+  "logs": [
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "Waiting for resource 'conversations' to enter the 'Running' state.",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "Waiting for resource ready to execute for 'conversations'.",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "Finished waiting for resource 'conversations'.",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "[sys] Starting process...: Cmd = /home/administrator/.dotnet/dotnet, Args = [\"run\", \"--project\", \"/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Admin.Web/Hexalith.Conversations.Admin.Web.csproj\", \"--no-build\", \"--configuration\", \"Debug\", \"--no-launch-profile\"]",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "\u001B[40m\u001B[32minfo\u001B[39m\u001B[22m\u001B[49m: Microsoft.Hosting.Lifetime[14]",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "      Now listening on: http://localhost:32084",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "\u001B[40m\u001B[32minfo\u001B[39m\u001B[22m\u001B[49m: Microsoft.Hosting.Lifetime[0]",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "      Application started. Press Ctrl+C to shut down.",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "\u001B[40m\u001B[32minfo\u001B[39m\u001B[22m\u001B[49m: Microsoft.Hosting.Lifetime[0]",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "      Hosting environment: Production",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "\u001B[40m\u001B[32minfo\u001B[39m\u001B[22m\u001B[49m: Microsoft.Hosting.Lifetime[0]",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "      Content root path: /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Admin.Web",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "\u001B[40m\u001B[32minfo\u001B[39m\u001B[22m\u001B[49m: Microsoft.AspNetCore.Hosting.Diagnostics[1]",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "      Request starting HTTP/1.1 GET http://localhost:36277/health - - -",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "\u001B[40m\u001B[32minfo\u001B[39m\u001B[22m\u001B[49m: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "      Executing endpoint 'HTTP: GET /health'",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "\u001B[40m\u001B[32minfo\u001B[39m\u001B[22m\u001B[49m: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "      Setting HTTP status code 200.",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "\u001B[40m\u001B[32minfo\u001B[39m\u001B[22m\u001B[49m: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "      Writing value of type '<>f__AnonymousType0`1' as Json.",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "\u001B[40m\u001B[32minfo\u001B[39m\u001B[22m\u001B[49m: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "      Executed endpoint 'HTTP: GET /health'",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "\u001B[40m\u001B[32minfo\u001B[39m\u001B[22m\u001B[49m: Microsoft.AspNetCore.Hosting.Diagnostics[2]",
+      "isError": false
+    },
+    {
+      "resourceName": "conversations-admin-web",
+      "content": "      Request finished HTTP/1.1 GET http://localhost:36277/health - 200 - application/json;+charset=utf-8 58.5652ms",
+      "isError": false
+    }
+  ]
+}

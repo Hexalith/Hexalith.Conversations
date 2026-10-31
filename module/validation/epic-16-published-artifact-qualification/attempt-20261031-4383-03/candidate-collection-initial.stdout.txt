@@ -1,0 +1,1 @@
+{"state": "BLOCKED", "collectorExitCode": 2, "gates": 9, "output": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/collection-initial"}

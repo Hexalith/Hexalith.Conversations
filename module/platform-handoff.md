@@ -1,5 +1,47 @@
 # Conversations Platform registration handoff — pending
 
+## 4.38.3 measured candidate and held v3 — 2026-10-31
+
+[The fresh isolation/qualification attempt](validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/README.md)
+repairs Admin Web with an Aspire-managed HTTP endpoint. The complete mapped
+Debug baseline, all three health waits and the discovered Admin Web `/health`
+request pass. All required active resources are healthy; abstract sidecars and
+unstarted rebuilders retain their native states. Eight focused topology tests
+pass. Only the verified created instance was stopped. The first rejected stop
+command and supported retry are retained; the final session inventory matches
+entry, with the transient external Memories session recorded separately.
+
+The [measured candidate ledger](validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/collection-measured/qualification-ledger.json)
+retains passing exact 4.38.3 signed artifact/source/schema/catalog identity,
+producer-CI Release payload/native observations, both positive formats and all
+36 malformed-key controls. Adoption is now **29 rows: 7 PASS / 22 FAIL**;
+[ordered deltas and owner dispositions](validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/collection-measured/adoption-dispositions.json)
+retain every observation without waivers. The exact CI and Release run artifact
+inventories are empty. All **55 declared qualificationEvidence files remain
+BLOCKED**, independently of broad producer success.
+
+[Held tooling v3](../_bmad-output/planning-artifacts/epic-16-tooling-v3/README.md)
+binds current sources and the immutable measured candidate summary while
+preserving v1/v2 carriers and every runtime/native obligation. The root tool
+manifest was already 4.38.3 at entry and is unchanged; version agreement grants
+no adoption. The [attempt ledger](validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/qualification-ledger.json)
+and [held-command ledger](validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/held-command-ledger.json) retain the current verification disposition.
+
+Builds owners must supply the exact 55 declared files with matching inventory
+hashes/sizes or publish a separately reviewed evidence successor. Platform owners
+must reconcile recorded Builds `cc0db51b800be1d0d5badc3780395cfb5953d0f5` with
+prepared source `d1931b1e803144048d927fff16cb8119afde541e`, publish a qualified
+Platform identity, and supply authenticated candidate acceptance with distinct
+generated/direct-host qualification. Conversations/policy owners retain all
+22 adoption failures. Package preparation/action export, native Windows/macOS,
+provider/AD-5/recovery/operator/capacity, registration, human SM-2 and trusted
+owner entry remain separate required work. No pin/gitlink selection was changed.
+Story 16.1 stays draft/backlog, entry null, trust empty and hold ACTIVE with all
+four flags false. Missing required producer evidence blocks completion of this
+prerequisite. The exact 4,775-case broad regression command reached its
+1,800-second bound (exit 143) before completion; its partial output and focused
+current regression fallback remain separate evidence. Earlier dated observations retain their original scopes.
+
 ## 4.38.3 prerequisite resume: source prepared, baseline failed — 2026-10-31
 
 [The fresh resume attempt](validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/README.md)

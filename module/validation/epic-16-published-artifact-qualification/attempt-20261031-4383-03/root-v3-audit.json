@@ -1,0 +1,719 @@
+{
+  "state": "PASS",
+  "evaluated": 143,
+  "sourceRows": 90,
+  "checks": [
+    {
+      "check": "CONTRACT_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+      "passed": true
+    },
+    {
+      "check": "CONTRACT_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+      "passed": true
+    },
+    {
+      "check": "CONTRACT_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/README.md",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/execution-graph.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/inventories.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.1.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.3.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/README.md",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/execution-graph.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/inventories.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/package.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.1.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.2.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.3.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/epic.md",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/execution-graph.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/inventories.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/package.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.1.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.2.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.3.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad/schemas/epic-16-adoption-v1.schema.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad/schemas/epic-16-adoption-v2.schema.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad/schemas/epic-16-prerequisites-v1.schema.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad/scripts/verify_epic_16_adoption.py",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad/scripts/verify_epic_16_adoption_v2.py",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad/scripts/verify_epic_16_prerequisites.py",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad/schemas/epic-16-tooling-v1.schema.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad/scripts/epic16_packages.py",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad/scripts/epic16_trust_v2.py",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad/schemas/epic-16-tooling-v2.schema.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/README.md",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/binding.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.2.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.3.json",
+      "passed": true
+    },
+    {
+      "check": "PREDECESSOR_PINS",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "passed": true
+    },
+    {
+      "check": "schema-pin",
+      "passed": true
+    },
+    {
+      "check": "exact-source-inventory",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": ".config/dotnet-tools.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": ".gitattributes",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/README.md",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/execution-graph.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/inventories.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/package.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.1.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.2.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v1/story-contracts/16.3.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/README.md",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/execution-graph.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/inventories.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/package.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.1.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.2.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-adoption-v2/story-contracts/16.3.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/epic.md",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/execution-graph.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/inventories.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/package.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.1.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.2.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-prerequisites-v1/story-contracts/16.3.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/README.md",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/binding.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.2.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.3.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v3/README.md",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v3/candidate-observation.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.1.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/schemas/.gitattributes",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/schemas/epic-16-adoption-v1.schema.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/schemas/epic-16-adoption-v2.schema.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/schemas/epic-16-prerequisites-v1.schema.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/schemas/epic-16-tooling-v1.schema.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/schemas/epic-16-tooling-v2.schema.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/schemas/epic-16-tooling-v3.schema.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/authoring_outputs.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/config_utils.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/contained_reader.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_capture.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_domain.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_execution.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_faults.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_lifecycle.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_measurements.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_native.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_native_helper/Epic16.NativeHelper.csproj",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_native_helper/EventStore-LICENSE",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_native_helper/ProductMetadata.cs",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_native_helper/Program.cs",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_native_helper/README.md",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_native_helper/ReadModelBatchCanonicalJson.cs",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_native_helper/SignatureNames.cs",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_native_helper/TestConstruction.cs",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_packages.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_packages_v3.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_products.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_relationships.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_schedules.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_tooling.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_trust.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_trust_v2.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/epic16_trust_v3.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/evidence_boundary_current.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/generate_story_record.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/tests/fixtures/epic16-contract-wire-goldens.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/tests/fixtures/epic16-contract-wire-provenance.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/tests/fixtures/epic16-domain-sources.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/tests/fixtures/epic16-protocol-goldens.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/verify_epic_16_adoption.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/verify_epic_16_adoption_v2.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/verify_epic_16_prerequisites.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/verify_story_16_1.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/verify_story_16_2.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/verify_story_16_3.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "_bmad/scripts/verify_story_completion_workflows.py",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "docs/runbooks/current-change-validation.md",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "global.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "module/hexalith.module-manifest.v2.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "module/hosting-inventory.json",
+      "passed": true
+    },
+    {
+      "check": "source-hash-and-containment",
+      "path": "module/sm-2-checklist.md",
+      "passed": true
+    },
+    {
+      "check": "preservedContract",
+      "story": "16.1",
+      "passed": true
+    },
+    {
+      "check": "nativeProtocol",
+      "story": "16.1",
+      "passed": true
+    },
+    {
+      "check": "preservedContract",
+      "story": "16.2",
+      "passed": true
+    },
+    {
+      "check": "nativeProtocol",
+      "story": "16.2",
+      "passed": true
+    },
+    {
+      "check": "preservedContract",
+      "story": "16.3",
+      "passed": true
+    },
+    {
+      "check": "nativeProtocol",
+      "story": "16.3",
+      "passed": true
+    },
+    {
+      "check": "held-entry-and-independent-trust",
+      "passed": true
+    }
+  ]
+}

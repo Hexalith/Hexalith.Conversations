@@ -62,6 +62,7 @@ def bare_collector(tmp_path, fresh):
     collector.readers = ExitStack()
     collector.env, collector.tool = {}, tmp_path / "candidate-tool"
     collector.runner = Namespace(commands=[])
+    collector.api = lambda *_args: dict(workflow_runs=[])
     return collector
 
 
@@ -707,6 +708,7 @@ def test_producer_payload_native_and_declared_evidence_are_independent(tmp_path,
             archive.writestr("qualification-evidence/control.json", body if valid else b"substituted")
     collector.runner.checked = lambda *_args, **_kwargs: data.getvalue()
     collector.producer_native()
+    collector.qualification_evidence()
     gates = {row["gate"]: row["state"] for row in collector.ledger}
     assert gates["producer-payload-binding"] == "PASS"
     assert gates["producer-native"] == ("PASS" if native else "BLOCKED")
@@ -735,13 +737,16 @@ def test_platform_pair_caller_keeps_mismatch_fail_and_missing_tag_blocked(tmp_pa
     collector = bare_collector(tmp_path, fresh)
     inputs = {".config/dotnet-tools.json": json.dumps(dict(tools={"hexalith.builds.module.cli": dict(version="4.35.2", rollForward=False)})).encode(),
               "hexalith-platform.json": b'{"toolVersionRange":"[4.35.2, 5.0.0-0)"}',
-              "README.md": ("catalog commit is `" + "d" * 40 + "`").encode()}
+              "README.md": b"Version agreement alone is not acceptance.",
+              "eng/prepare_builds_artifacts.py": ('VERSION = "4.38.1"\nSOURCE = "' + "b" * 40 + '"\nARCHIVE_SHA256 = "' + "c" * 64 + '"\nTOOLING_SHA256 = "' + "d" * 64 + '"\n').encode()}
     collector.platform_reader = Namespace(read=lambda path: inputs[path])
     values = {"platform-head": b"e" * 40, "platform-tags": b"", "platform-builds-gitlink": ("160000 commit " + "a" * 40 + "\treferences/Hexalith.Builds").encode(), "platform-documented-builds-tag": b"d" * 40}
     collector.git = lambda label, *_args: values[label]
     collector.gate("platform-pair", collector.platform_pair)
     gates = {row["gate"]: row["state"] for row in collector.ledger}
-    assert gates == {"platform-recorded-catalog": "FAIL", "platform-pair": "BLOCKED"}
+    assert gates["platform-recorded-catalog"] == "FAIL"
+    assert gates["platform-pair"] == gates["platform-release-identity"] == "BLOCKED"
+    assert gates["platform-prepared-identity"] == "FAIL"
     assert qualification.verdict(collector.ledger) == ("FAIL", 1)
 
 
@@ -776,3 +781,102 @@ def test_artifact_path_rejects_each_schema_identity_substitution(tmp_path, fresh
     collector.gate("published-artifact", collector.artifact)
     assert collector.ledger[-1]["state"] == ("PASS" if substitution is None else "FAIL")
     assert getattr(collector, "artifact_validated", False) is (substitution is None)
+
+
+@pytest.mark.parametrize("candidate_only", [False, True])
+@pytest.mark.parametrize("root_version", ["4.35.2", "4.35.2-preview.1", None, False, 42, {}, [], "", "latest", "4.38", "4.38.3\n", "4.38.3/escape"])
+def test_candidate_only_separates_root_pin_and_retains_planning_and_selected_inputs(tmp_path, fresh, candidate_only, root_version):
+    collector = bare_collector(tmp_path, fresh)
+    collector.args.candidate_only = candidate_only
+    collector.planning_inputs, collector.adoption_predecessor = "planning.json", "previous.json"
+    collector.tooling_contract = qualification.TOOLING_CONTRACT
+    binding = str(Path(collector.tooling_contract).parent.parent / "binding.json")
+    pin = json.dumps(dict(tools={"hexalith.builds.module.cli": dict(version=root_version, rollForward=False)})).encode()
+    inputs = {path: b"unchanged" for path in [qualification.MANIFEST, ".gitmodules", ".gitattributes", "_bmad/scripts/epic16_trust_v2.py", "_bmad/scripts/qualify_epic16_published_artifact.py", "tests/tooling/test_epic16_published_artifact_qualification.py", collector.tooling_contract, "previous.json", "planned-source.txt"]}
+    inputs.update({".config/dotnet-tools.json": pin, binding: b'{"sources":[]}', "planning.json": b'{"sources":[{"path":"planned-source.txt","sha256":"0000"}]}'})
+    collector.reader = Namespace(read=lambda path: inputs[path])
+    links = b"".join(b"160000 " + b"b" * 40 + b" 0\t" + path.encode() + b"\0" for path in ["references/Hexalith.Builds", "references/Hexalith.Platform"])
+    collector.index_digest = lambda _label: "a" * 64
+    def git(label, repository, *args):
+        if label == "root-identity" or label.startswith("dependency-root-"):
+            return str(repository).encode()
+        if label == "root-gitlinks": return links
+        if label == "root-index-modes": return b"160000 " + b"b" * 40 + b" 0\0" + b"160000 " + b"b" * 40 + b" 0\0"
+        if label.startswith("dependency-head-"): return b"b" * 40
+        return b""
+    collector.git = git
+    if candidate_only and root_version in ("4.35.2", "4.35.2-preview.1"):
+        collector.entry()
+        assert collector.identity["rootPin"]["versionsEqual"] is False
+        assert collector.identity["rootPin"]["adoptionAccepted"] is False
+        assert [row["state"] for row in collector.ledger] == ["PASS", "FAIL"]
+        actual = json.loads((fresh.path / "entry-identities.json").read_bytes())
+        assert actual["planningDifferences"] and actual["toolingContract"] == qualification.TOOLING_CONTRACT
+        assert actual["adoptionPredecessor"] == "previous.json"
+    else:
+        error_code("IDENTITY_MISMATCH", collector.entry)
+    assert inputs[".config/dotnet-tools.json"] == pin
+    # Candidate-only never bypasses unrelated provenance/execution prerequisites.
+    with pytest.raises(qualification.QualificationError) as caught:
+        collector.require_candidate_prerequisites(version=False)
+    assert caught.value.state == "BLOCKED" and caught.value.code == "CANDIDATE_EXECUTION_BLOCKED"
+
+
+@pytest.mark.parametrize("prepared_match", [False, True])
+def test_prepared_platform_tuple_and_readme_never_supply_acceptance(tmp_path, fresh, prepared_match):
+    collector = bare_collector(tmp_path, fresh)
+    prepared = "b" * 40 if prepared_match else "a" * 40
+    inputs = {".config/dotnet-tools.json": b'{"tools":{"hexalith.builds.module.cli":{"version":"4.38.1","rollForward":false}}}',
+              "hexalith-platform.json": b'{"toolVersionRange":"[4.38.1, 5.0.0-0)"}',
+              "README.md": ("catalog commit is `" + prepared + "` and approved source agrees").encode(),
+              "eng/prepare_builds_artifacts.py": ('VERSION="4.38.1"\nSOURCE="'+prepared+'"\nARCHIVE_SHA256="'+"c"*64+'"\nTOOLING_SHA256="'+"d"*64+'"\n').encode()}
+    collector.platform_reader = Namespace(read=lambda path: inputs[path])
+    values = {"platform-head": b"e" * 40, "platform-tags": b"v1.0.0", "platform-builds-gitlink": ("160000 commit " + prepared + "\treferences/Hexalith.Builds").encode()}
+    collector.git = lambda label, *_args: values[label]
+    collector.platform_pair()
+    states = {row["gate"]: row["state"] for row in collector.ledger}
+    assert states["platform-prepared-identity"] == ("PASS" if prepared_match else "FAIL")
+    assert states["platform-recorded-catalog"] == "PASS" and states["platform-pair"] == "BLOCKED"
+    assert json.loads((fresh.path / "platform-pair.json").read_bytes())["acceptance"]["evidence"] is None
+
+
+@pytest.mark.parametrize("fault", [None, "missing", "substituted", "archive-digest", "duplicate"])
+def test_exact_ci_evidence_carriers_preserve_missing_substituted_and_duplicate_states(tmp_path, fresh, fault):
+    collector = bare_collector(tmp_path, fresh)
+    name, body = "qualification-evidence/control.json", b'{"passed":true}'
+    collector.inventory = dict(qualificationEvidence=[dict(file=name, sha256=qualification.sha(body), sizeBytes=len(body))])
+    collector.producer_runs = [dict(id=1, head_sha="b" * 40)]
+    data = io.BytesIO()
+    with zipfile.ZipFile(data, "w") as archive:
+        archive.writestr("unrelated.txt", b"no qualification credit")
+        if fault != "missing": archive.writestr(name, b"substituted" if fault == "substituted" else body)
+        if fault == "duplicate":
+            with pytest.warns(UserWarning): archive.writestr(name, body)
+    raw = data.getvalue()
+    artifact = dict(id=2, expired=False, size_in_bytes=len(raw), digest="sha256:" + ("0" * 64 if fault == "archive-digest" else qualification.sha(raw)))
+    collector.api = lambda *_args: dict(total_count=1, artifacts=[artifact])
+    collector.runner.run = lambda *_args, **_kwargs: (dict(exitCode=0, termination=None), raw)
+    collector.gate("producer-qualification-carriers", collector.qualification_evidence)
+    rows = json.loads((fresh.path / "producer-qualification-evidence.json").read_bytes())
+    expected = "PASS" if fault is None else "FAIL" if fault == "substituted" else "BLOCKED"
+    assert rows[0]["state"] == expected
+    state, _ = qualification.verdict(collector.ledger)
+    assert state == ("PASS" if fault is None else "BLOCKED" if fault == "missing" else "FAIL")
+    assert collector.ledger
+
+
+def test_duplicate_adoption_rows_retain_every_native_row_and_owner_disposition(tmp_path, fresh):
+    collector = bare_collector(tmp_path, fresh)
+    ready_candidate(collector)
+    collector.artifact_validated = True
+    row = dict(requirement="tool-pin", passed=False, file=".config/dotnet-tools.json", reason="pin mismatch")
+    report = json.dumps(dict(adoption=[row, row])).encode()
+    collector.reader = Namespace(read=lambda _path: json.dumps(dict(adoption=[row])).encode())
+    human = b"FAIL tool-pin file=.config/dotnet-tools.json: pin mismatch\n" * 2
+    collector.runner.run = lambda name, *_args, **_kwargs: (dict(exitCode=1, termination=None), report if name.endswith("json") else human)
+    collector.gate("adoption", collector.adoption)
+    retained = json.loads((fresh.path / "adoption-inventories.json").read_bytes())
+    assert retained["currentRows"] == [row, row]
+    assert len(retained["failures"]) == len(retained["currentDispositions"]) == 2
+    assert all(row["acceptanceState"] == "pending" and row["ownerScope"] for row in retained["currentDispositions"])
+    assert qualification.verdict(collector.ledger) == ("FAIL", 1)

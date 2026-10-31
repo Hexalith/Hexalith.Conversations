@@ -1,0 +1,10 @@
+{
+  "resource": "conversations-admin-web-smxzehux",
+  "urls": [
+    {
+      "name": "http",
+      "url": "http://localhost:36277"
+    }
+  ],
+  "healthUrl": "http://localhost:36277/health"
+}

@@ -1,0 +1,42 @@
+{
+  "name": "legacy-tooling-generator-adoption-exact",
+  "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "-ra",
+    "-p",
+    "no:cacheprovider",
+    "_bmad/scripts/tests/test_epic16_tooling.py",
+    "_bmad/scripts/tests/test_epic16_tooling_v2.py",
+    "_bmad/scripts/tests/test_generate_story_record.py",
+    "_bmad/scripts/tests/test_verify_epic_16_adoption.py",
+    "_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 2701231,
+  "startedAtUtc": "2026-10-31T16:32:04.623672+00:00",
+  "durationSeconds": 1800.135,
+  "timeoutSeconds": 1800,
+  "outputLimitBytes": 8388608,
+  "termination": "timeout",
+  "exitCode": 143,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "legacy-tooling-generator-adoption-exact.stdout.txt",
+    "bytes": 2194,
+    "sha256": "f6a1d156d3f52b3b7162e4edbbb3bd2215c5924d89c96bf0820dd3245cf89f87"
+  },
+  "stderr": {
+    "path": "legacy-tooling-generator-adoption-exact.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

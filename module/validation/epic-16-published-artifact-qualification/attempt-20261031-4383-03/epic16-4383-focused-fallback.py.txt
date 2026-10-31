@@ -1,0 +1,11 @@
+import os,runpy,sys
+sys.argv=['capture','noop'];n=runpy.run_path('/tmp/epic16-4383-isolation-baseline.py');A=n['ATTEMPT'];base=['uv','run','--frozen','--no-sync','python3','-m','pytest','-q','-ra','-p','no:cacheprovider'];env=dict(os.environ,EPIC16_COMMITLINT_EVIDENCE=str(A/'fallback-fixture-commitlint.json'))
+partitions=[
+ ('legacy-v1-current-focused',['_bmad/scripts/tests/test_epic16_tooling.py','-k','all_fifteen_measured_routes_pass_only_as_disposable_fixtures or final_record_derives_sixth_after_five_and_is_deterministic or runtime_and_generator_remain_blocked_even_with_all_fixture_proofs or contract_schema_predecessor_and_source_pins_are_independent or dispatch_rejects_other_story_and_runs_no_artifact_commands or package_preparation_preserves_all_obligations_and_has_no_entry or standalone_generator_preserves_legacy_dispatch_without_successor_modules or protected_and_escaping_outputs_never_write_even_while_held or artifact_cannot_nominate_its_own_entry_trust']),
+ ('legacy-v2-current-focused',['_bmad/scripts/tests/test_epic16_tooling_v2.py']),
+ ('generator-current-focused',['_bmad/scripts/tests/test_generate_story_record.py','-k','(successor or optional or tooling or standalone or epic16 or dialect) and not story_113_']),
+ ('adoption-v1-v2-current-focused',['_bmad/scripts/tests/test_verify_epic_16_adoption.py','_bmad/scripts/tests/test_verify_epic_16_adoption_v2.py'])]
+for name,args in partitions:
+ result=n['run'](name,base+args,900,env=env)
+ assert result['exitCode']==0,(name,result['exitCode'])
+ print(name,(A/(name+'.stdout.txt')).read_text().splitlines()[-1],flush=True)

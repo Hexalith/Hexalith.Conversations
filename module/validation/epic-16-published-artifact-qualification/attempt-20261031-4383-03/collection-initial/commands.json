@@ -1,0 +1,61 @@
+[
+  {
+    "name": "root-identity",
+    "command": [
+      "git",
+      "rev-parse",
+      "--show-toplevel"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": 0,
+    "termination": null,
+    "processId": 2217097,
+    "processGroup": 2217097,
+    "durationSeconds": 0.013015,
+    "stdout": {
+      "path": "root-identity.stdout.txt",
+      "bytes": 52,
+      "sha256": "0d3c7f3d20035549d774ecf25dfac9b4be23c6d1eacd8c6407520156fd155f2b",
+      "complete": true
+    },
+    "stderr": {
+      "path": "root-identity.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": true
+    }
+  },
+  {
+    "name": "root-gitlinks",
+    "command": [
+      "git",
+      "ls-files",
+      "--stage",
+      "-z"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "environment": {},
+    "timeoutSeconds": 60,
+    "streamLimitBytes": 8388608,
+    "exitCode": -9,
+    "termination": "CAPTURE_LIMIT",
+    "processId": 2217121,
+    "processGroup": 2217121,
+    "durationSeconds": 0.058214,
+    "stdout": {
+      "path": "root-gitlinks.stdout.txt",
+      "bytes": 8384512,
+      "sha256": "2c82087ef76c01a0952568e2eb85b03d2d9599765a6ada53bcd3621e836ec016",
+      "complete": false
+    },
+    "stderr": {
+      "path": "root-gitlinks.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "complete": false
+    }
+  }
+]

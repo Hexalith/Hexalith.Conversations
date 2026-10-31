@@ -1,0 +1,70 @@
+........................................................................ [ 36%]
+........................................................................ [ 73%]
+.......FF...........................................                     [100%]
+=================================== FAILURES ===================================
+_ test_every_independent_pin_rejects_drift_and_restores_exactly[_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json-CONTRACT_DRIFT] _
+
+selected_repository = PosixPath('/tmp/pytest-of-administrator/pytest-2/tooling-v30/fixture')
+path = '_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json'
+code = 'CONTRACT_DRIFT'
+
+    @pytest.mark.parametrize('path,code', [
+        *[(path, 'CONTRACT_DRIFT') for path in POLICY.contract_pins],
+        *[(path, 'PREDECESSOR_DRIFT') for path in POLICY.predecessor_pins],
+        (POLICY.schema, 'SCHEMA_DRIFT'),
+    ])
+    def test_every_independent_pin_rejects_drift_and_restores_exactly(selected_repository, path, code):
+        target = selected_repository / path
+        original = target.read_bytes()
+        try:
+            target.write_bytes(original + b'\n')
+>           legacy.rejected(evaluate(selected_repository), code)
+
+_bmad/scripts/tests/test_epic16_tooling_v3.py:407: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'CONTRACT_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+        assert result['result'] == state, result
+>       assert code in result['blockers'], result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'CONTRACT_DRIFT' in ['SOURCE_DRIFT']
+
+_bmad/scripts/tests/test_epic16_tooling.py:119: AssertionError
+_ test_every_independent_pin_rejects_drift_and_restores_exactly[_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json-CONTRACT_DRIFT] _
+
+selected_repository = PosixPath('/tmp/pytest-of-administrator/pytest-2/tooling-v30/fixture')
+path = '_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json'
+code = 'CONTRACT_DRIFT'
+
+    @pytest.mark.parametrize('path,code', [
+        *[(path, 'CONTRACT_DRIFT') for path in POLICY.contract_pins],
+        *[(path, 'PREDECESSOR_DRIFT') for path in POLICY.predecessor_pins],
+        (POLICY.schema, 'SCHEMA_DRIFT'),
+    ])
+    def test_every_independent_pin_rejects_drift_and_restores_exactly(selected_repository, path, code):
+        target = selected_repository / path
+        original = target.read_bytes()
+        try:
+            target.write_bytes(original + b'\n')
+>           legacy.rejected(evaluate(selected_repository), code)
+
+_bmad/scripts/tests/test_epic16_tooling_v3.py:407: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+result = {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+code = 'CONTRACT_DRIFT', state = 'FAIL'
+
+    def rejected(result, code, state='FAIL'):
+        assert result['result'] == state, result
+>       assert code in result['blockers'], result
+E       AssertionError: {'schemaVersion': 'hexalith.conversations.epic16-measured-result.v1', 'storyId': '16.1', 'scenarioId': 'AC-16.1-01', 'validationScope': 'tooling-fixture', ...}
+E       assert 'CONTRACT_DRIFT' in ['SOURCE_DRIFT']
+
+_bmad/scripts/tests/test_epic16_tooling.py:119: AssertionError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling_v3.py::test_every_independent_pin_rejects_drift_and_restores_exactly[_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json-CONTRACT_DRIFT]
+FAILED _bmad/scripts/tests/test_epic16_tooling_v3.py::test_every_independent_pin_rejects_drift_and_restores_exactly[_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json-CONTRACT_DRIFT]
+2 failed, 194 passed in 215.55s (0:03:35)

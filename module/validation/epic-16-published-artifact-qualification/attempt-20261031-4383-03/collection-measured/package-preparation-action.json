@@ -1,0 +1,7 @@
+{
+  "nativeExitCode": 2,
+  "termination": null,
+  "result": "BLOCKED",
+  "reason": "Exact published package-mode preparation did not produce a supported complete Release mapping; no source-mode substitution.",
+  "actionExports": "BLOCKED: no successful published package preparation to export"
+}

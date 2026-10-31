@@ -11100,7 +11100,7 @@ def main(arguments: Sequence[str] | None = None) -> int:
         ]
         successors = {
             f"_bmad-output/planning-artifacts/epic-16-tooling-{version}/story-contracts/{story}.json"
-            for version in ("v1", "v2") for story in ("16.1", "16.2", "16.3")
+            for version in ("v1", "v2", "v3") for story in ("16.1", "16.2", "16.3")
         }
         # --scope is an explicit tooling-dialect option, never a package selector.
         # Unknown contracts in that dialect receive its nonempty rejection ledger.
@@ -11112,7 +11112,7 @@ def main(arguments: Sequence[str] | None = None) -> int:
                 return epic16_tooling.main(raw_arguments, generator=True)
             except ModuleNotFoundError as error:
                 declared = {
-                    'epic16_tooling', 'epic16_trust', 'epic16_packages', 'epic16_trust_v2', 'epic16_measurements', 'epic16_native',
+                    'epic16_tooling', 'epic16_trust', 'epic16_packages', 'epic16_trust_v2', 'epic16_packages_v3', 'epic16_trust_v3', 'epic16_measurements', 'epic16_native',
                     'epic16_domain', 'epic16_lifecycle', 'epic16_schedules', 'epic16_capture',
                     'epic16_faults', 'epic16_relationships', 'epic16_execution', 'epic16_products',
                     'jsonschema', 'attrs', 'attr', 'referencing', 'rpds', 'jsonschema_specifications',

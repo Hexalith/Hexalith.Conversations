@@ -1,0 +1,38 @@
+{
+  "name": "collector-final-metadata-regressions",
+  "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "-ra",
+    "-p",
+    "no:cacheprovider",
+    "tests/tooling/test_epic16_published_artifact_qualification.py"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 3081101,
+  "startedAtUtc": "2026-10-31T16:41:50.975123+00:00",
+  "durationSeconds": 13.75,
+  "timeoutSeconds": 600,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "collector-final-metadata-regressions.stdout.txt",
+    "bytes": 181,
+    "sha256": "f647f2b8f29f1b0755c03ae604271526ac8f24940aecb9d37c52e7f77054420c"
+  },
+  "stderr": {
+    "path": "collector-final-metadata-regressions.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

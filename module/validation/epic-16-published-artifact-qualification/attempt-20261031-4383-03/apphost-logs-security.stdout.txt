@@ -1,0 +1,339 @@
+{
+  "logs": [
+    {
+      "resourceName": "security",
+      "content": "d0a06acef05c587fd12cd4cc8b574da81e613d81da431a69ccd90e7031283093",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "d0a06acef05c587fd12cd4cc8b574da81e613d81da431a69ccd90e7031283093",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "[sys] Added new ContainerNetworkConnection: ContainerName = security-qtbsnszv",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "Updating the configuration and installing your custom providers, if any. Please wait.",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:00,188 INFO  [io.quarkus.deployment.QuarkusAugmentor] (main) Quarkus augmentation completed in 12985ms",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "Running the server in development mode. DO NOT use this configuration in production.",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:04,635 INFO  [org.infinispan.CONTAINER] (main) ISPN000974: Virtual threads support: enabled",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:05,696 INFO  [org.hibernate.orm.jdbc.batch] (JPA Startup Thread) HHH100501: Automatic JDBC statement batching enabled (maximum batch size 32)",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:06,825 INFO  [org.keycloak.quarkus.runtime.storage.database.liquibase.QuarkusJpaUpdaterProvider] (main) Initializing database schema. Using changelog META-INF/jpa-changelog-master.xml",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:10,953 INFO  [org.infinispan.CONTAINER] (main) ISPN000556: Starting user marshaller 'org.infinispan.commons.marshall.ImmutableProtoStreamMarshaller'",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:11,476 INFO  [org.keycloak.connections.infinispan.DefaultInfinispanConnectionProviderFactory] (main) Node name: node_6310, Site name: null",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:11,703 INFO  [org.keycloak.models.workflow.WorkflowsEventListenerFactory] (main) Workflow runner task scheduled: next execution at 04:12:11, then every PT12H",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:11,888 INFO  [org.keycloak.exportimport.dir.DirImportProvider] (main) Importing from directory /opt/keycloak/bin/../data/import",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:11,897 INFO  [org.keycloak.services] (main) KC-SERVICES0050: Initializing master realm",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:13,003 INFO  [org.keycloak.services] (main) KC-SERVICES0030: Full model import requested. Strategy: IGNORE_EXISTING",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:13,993 INFO  [org.keycloak.exportimport.util.ImportUtils] (main) Realm 'hexalith' imported",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:13,998 INFO  [org.keycloak.services] (main) KC-SERVICES0032: Import finished successfully",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:14,069 INFO  [org.keycloak.services] (main) KC-SERVICES0077: Created temporary admin user with username admin",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:14,234 INFO  [org.keycloak.services.resources.KeycloakApplication] (main) Bootstrap completed in 8.497000 seconds",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:14,400 INFO  [io.quarkus] (main) Keycloak 26.6.2 on JVM (powered by Quarkus 3.33.1.1) started in 13.973s. Listening on: http://0.0.0.0:8080 and https://0.0.0.0:8443. Management interface listening on https://0.0.0.0:9000.",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:14,400 INFO  [io.quarkus] (main) Profile dev activated. ",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:14,400 INFO  [io.quarkus] (main) Installed features: [agroal, cdi, hibernate-orm, jdbc-h2, keycloak, narayana-jta, opentelemetry, reactive-routes, rest, rest-jackson, smallrye-context-propagation, smallrye-health, vertx]",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:18,071 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"08829850-3493-4f3d-8770-ad3c09fdb3dc\", ipAddress=\"172.18.0.1\", error=\"invalid_request\", reason=\"Invalid scopes: eventstore-audience.sample eventstore-operation.domain-service.metadata\", grant_type=\"client_credentials\", client_auth_method=\"client-secret\", username=\"service-account-eventstore\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:18,102 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"08829850-3493-4f3d-8770-ad3c09fdb3dc\", ipAddress=\"172.18.0.1\", error=\"invalid_request\", reason=\"Invalid scopes: eventstore-audience.sample eventstore-operation.domain-service.metadata\", grant_type=\"client_credentials\", client_auth_method=\"client-secret\", username=\"service-account-eventstore\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:18,115 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"08829850-3493-4f3d-8770-ad3c09fdb3dc\", ipAddress=\"172.18.0.1\", error=\"invalid_request\", reason=\"Invalid scopes: eventstore-audience.tenants eventstore-operation.domain-service.metadata\", grant_type=\"client_credentials\", client_auth_method=\"client-secret\", username=\"service-account-eventstore\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:18,125 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"08829850-3493-4f3d-8770-ad3c09fdb3dc\", ipAddress=\"172.18.0.1\", error=\"invalid_request\", reason=\"Invalid scopes: eventstore-audience.tenants eventstore-operation.domain-service.metadata\", grant_type=\"client_credentials\", client_auth_method=\"client-secret\", username=\"service-account-eventstore\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:18,264 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:18,292 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:19,102 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:19,115 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:19,126 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:19,139 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:19,147 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:19,162 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:20,123 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:20,142 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:22,125 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:22,138 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:24,129 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:24,142 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:26,123 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:26,136 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:28,127 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:28,153 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:30,124 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:30,138 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:32,120 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:32,132 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:34,122 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:34,134 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:36,133 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:36,162 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:37,098 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:37,108 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:37,117 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:37,129 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:38,124 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:38,147 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:40,122 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:40,136 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:42,131 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:42,143 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:44,131 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:44,143 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:46,120 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    },
+    {
+      "resourceName": "security",
+      "content": "2026-10-31 16:12:46,156 WARN  [org.keycloak.events] (executor-thread-1) type=\"CLIENT_LOGIN_ERROR\", realmId=\"8f76a570-fc33-4994-81a6-373111e32d90\", realmName=\"hexalith\", clientId=\"eventstore\", userId=\"null\", ipAddress=\"172.18.0.1\", error=\"invalid_client_credentials\", grant_type=\"client_credentials\"",
+      "isError": false
+    }
+  ]
+}

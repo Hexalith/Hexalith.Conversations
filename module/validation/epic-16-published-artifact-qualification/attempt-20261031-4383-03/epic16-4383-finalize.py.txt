@@ -1,0 +1,122 @@
+from pathlib import Path
+import datetime,hashlib,json,os,re,runpy,sys,unicodedata
+sys.argv=['capture','noop'];n=runpy.run_path('/tmp/epic16-4383-isolation-baseline.py');R=n['ROOT'];A=n['ATTEMPT'];write=n['write'];git=n['git']
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def load(name):return json.loads((A/name).read_bytes())
+def block(raw):
+ start=raw.index(b'<frozen-after-approval');end=raw.index(b'</frozen-after-approval>',start)+len(b'</frozen-after-approval>');return raw[start:end]
+checks=[]
+def check(identity, condition, **facts):
+ checks.append(dict(id=identity,state='PASS' if condition else 'FAIL',**facts))
+ if not condition:raise AssertionError(identity+': '+json.dumps(facts))
+# Preserve this driver and every remaining procedural input in the fresh attempt.
+for name in ['epic16-4383-finalize.py','epic16-4383-held-commands.py','epic16-4383-story73.py','epic16-4383-story73-final.py','epic16-4383-fixture-evidence.py','epic16-4383-focused-fallback.py','epic16-4383-write-handoff.py']:
+ (A/(name+'.txt')).write_bytes((Path('/tmp')/name).read_bytes())
+reference=Path('/tmp/epic16-root-authorized-spec-entry.md').read_bytes();(A/'authorization-entry-reconstructed.md.txt').write_bytes(reference)
+# Redact only ephemeral credentials in the fresh attempt; preserve raw digests.
+credentials=set()
+for p in A.glob('*.stdout.txt'):
+ raw=p.read_bytes();credentials.update(m.group(0) for m in re.finditer(rb'(?<=/login\?t=)[^\s"&]+',raw))
+ try:document=json.loads(raw)
+ except (ValueError,UnicodeError):continue
+ if isinstance(document,dict):
+  for resource in document.get('resources',[]):
+   for key,value in resource.get('environment',{}).items():
+    if key in ('DASHBOARD__API__PRIMARYAPIKEY','DASHBOARD__FRONTEND__BROWSERTOKEN','DASHBOARD__OTLP__PRIMARYAPIKEY','DASHBOARD__RESOURCESERVICECLIENT__APIKEY') and isinstance(value,str) and value:credentials.add(value.encode())
+redactions=[]
+for p in sorted(A.glob('*')):
+ if not p.is_file() or p.suffix not in ('.txt','.json'):continue
+ raw=p.read_bytes()
+ try:raw.decode('utf-8')
+ except UnicodeError:continue
+ safe=raw
+ for value in sorted(credentials,key=len,reverse=True):safe=safe.replace(value,b'[REDACTED]')
+ if safe!=raw:
+  p.write_bytes(safe);redactions.append(dict(path=p.name,rawSha256=sha(raw),rawBytes=len(raw),retainedSha256=sha(safe),retainedBytes=len(safe)))
+commands=[]
+for p in sorted(A.glob('*.json')):
+ row=json.loads(p.read_bytes())
+ if not isinstance(row,dict) or not {'name','command','stdout','stderr'}<=set(row):continue
+ for key in ('stdout','stderr'):
+  meta=row[key];raw=(A/meta['path']).read_bytes();replacement=next((r for r in redactions if r['path']==meta['path']),None)
+  if replacement:
+   meta['capturedRaw']=dict(bytes=replacement['rawBytes'],sha256=replacement['rawSha256']);meta.update(bytes=len(raw),sha256=sha(raw),ephemeralCredentialsRedacted=True)
+  check('native-stream-digest',len(raw)==meta['bytes'] and sha(raw)==meta['sha256'],command=row['name'],stream=key)
+ write(p.name,row);commands.append(row)
+write('commands.json',commands);write('safe-diagnostic-redactions.json',dict(scope='ephemeral dashboard login tokens and generated dashboard credential values in this fresh attempt only',files=redactions))
+entry=load('entry-state.json');final=n['snapshot']();write('final-state.json',final)
+for key in ('head','tree','branch','indexSha256','indexEntriesSha256','stagedDiff','rootGitlinks','runtimeOutputs','frozenBlocks'):
+ check('entry-state-preserved-'+key,entry[key]==final[key])
+changed_sources={
+ '_bmad/scripts/qualify_epic16_published_artifact.py','tests/tooling/test_epic16_published_artifact_qualification.py',
+ '_bmad/scripts/epic16_tooling.py','_bmad/scripts/generate_story_record.py','_bmad/scripts/verify_story_16_1.py','_bmad/scripts/verify_story_16_2.py','_bmad/scripts/verify_story_16_3.py',
+ '_bmad/scripts/tests/test_epic16_tooling.py','_bmad/scripts/tests/test_epic16_tooling_v2.py','_bmad/schemas/.gitattributes',
+ 'src/Hexalith.Conversations.AppHost/ConversationsAppHostTopology.cs','tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs'}
+for path,expected in entry['protectedFiles'].items():
+ if path not in changed_sources:check('protected-input-preserved',sha((R/path).read_bytes())==expected,path=path,sha256=expected)
+# The two authorization entry files were not prehashed. Label reconstruction accurately.
+spec='_bmad-output/implementation-artifacts/spec-epic-16-4-38-3-qualification-and-binding-refresh.md';raw=(R/spec).read_bytes();start=raw.index(b'2026-10-31 isolation correction and qualification continuation:');end=raw.index(b'2026-10-31: Implementation stopped',start);reconstituted=raw[:start]+raw[end:]
+begin=reconstituted.index(b'## Tasks & Acceptance');end=reconstituted.index(b'## Implementation Notes',begin);reconstituted=reconstituted[:begin]+reconstituted[begin:end].replace(b'- [x]',b'- [ ]')+reconstituted[end:]
+check('reconstructed-authorization-entry',reconstituted==reference and sha(reference)=='76b12084b503702f97a3e60aff6add5becf1b0f5c498b3e2a3ad59bec8b055d2',evidenceKind='reconstructed from HEAD and exact root authorization patch, not precaptured',bytes=len(reference))
+story='_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md';raw=(R/story).read_bytes();original=git('show','HEAD:'+story)['stdout'].encode();check('runtime-frozen-intent-preserved',block(raw)==block(original));note_start=raw.index(b'The [fresh 2026-10-31 qualification and held v3 attempt]');note_end=raw.index(b'The retained [entry investigation]',note_start);check('runtime-draft-inherited-bytes-preserved',raw[:note_start]+raw[note_end:]==original);check('runtime-draft-preserved',b"status: 'draft'\n" in raw)
+check('runtime-backlog-preserved','  16-1-persist-tenant-access-projection-state-and-prove-convergence: backlog' in (R/'_bmad-output/implementation-artifacts/sprint-status.yaml').read_text())
+handoff='module/platform-handoff.md';hraw=(R/handoff).read_bytes();hstart=hraw.index('## 4.38.3 measured candidate and held v3'.encode());hend=hraw.index('## 4.38.3 prerequisite resume:'.encode(),hstart);check('handoff-inherited-bytes-preserved',hraw[:hstart]+hraw[hend:]==git('show','HEAD:'+handoff)['stdout'].encode())
+check('sprint-status-unchanged',git('diff','HEAD','--','_bmad-output/implementation-artifacts/sprint-status.yaml')['stdout']=='')
+check('runtime-output-absence',not any(final['runtimeOutputs'].values()))
+for version in ('v1','v2','v3'):
+ d=json.loads((R/f'_bmad-output/planning-artifacts/epic-16-tooling-{version}/binding.json').read_bytes());check('held-package-authority',d['entry'] is None and d['authority']['implementationHold']=='ACTIVE' and all(d['authority'][k] is False for k in ['executionAllowed','ownerApprovalClaimed','releaseAuthorized','pushAuthorized']),version=version)
+sys.path.insert(0,str(R/'_bmad/scripts'));import epic16_tooling as tooling
+from epic16_packages_v3 import POLICY
+from contained_reader import ContainedReader
+with ContainedReader(R) as reader:contract,binding=tooling.validate_package(reader,'16.1',POLICY)
+check('complete-v3-independent-source-binding',bool(binding['sources']) and len(binding['sources'])==len({r['path'] for r in binding['sources']}) and POLICY.binding not in {r['path'] for r in binding['sources']},sourceRows=len(binding['sources']))
+check('empty-independent-trust',not POLICY.trusted_entries)
+check('independent-root-v3-audit',load('root-v3-audit.json')['state']=='PASS')
+for row in json.loads((R/POLICY.base/'candidate-observation.json').read_bytes())['boundFiles']+json.loads((R/POLICY.base/'candidate-observation.json').read_bytes())['streams']:
+ check('candidate-observation-binding',sha((R/row['path']).read_bytes())==row['sha256'],path=row['path'])
+for collection in ['collection-initial','collection-measured','collection-final-code','collection-final-verified','collection-final-source']:
+ p=A/collection/'commands.json'
+ for command in json.loads(p.read_bytes()):
+  for key in ('stdout','stderr'):
+   meta=command[key];raw=(p.parent/meta['path']).read_bytes();check('collector-stream-digest',len(raw)==meta['bytes'] and sha(raw)==meta['sha256'],collection=collection,command=command['name'],stream=key)
+  check('collector-stream-bounds',all(command[k]['bytes']<=command['streamLimitBytes'] for k in ('stdout','stderr')),collection=collection,command=command['name'])
+measured=load('collection-final-source/qualification-ledger.json');states={r['gate']:r['state'] for r in measured['ledger']}
+for gate in ('entry','producer-provenance','isolated-restore','published-artifact','qualified-unsigned-archive','malformed-key-controls','restoration'):check('final-candidate-gate',states[gate]=='PASS',gate=gate)
+check('all-36-final-controls',len(load('collection-final-source/malformed-controls.json'))==36)
+check('required-evidence-blocked',states['producer-qualification-evidence']=='BLOCKED' and len(load('collection-final-source/producer-qualification-evidence.json'))==55)
+check('measured-owner-failures-retained',states['adoption-acceptance']==states['platform-recorded-catalog']=='FAIL')
+check('prepared-does-not-grant-acceptance',states['platform-prepared-identity']=='PASS' and states['platform-pair']=='BLOCKED')
+held=load('held-command-ledger.json');check('all-30-actual-held-routes',held['state']=='PASS' and held['evaluatedCommands']==30 and held['measuredRuntimeTests']==0 and held['runtimeOutputsAbsent'])
+fixture=load('native-fixture-ledger.json');check('actual-native-fixture-ledger',fixture['state']=='PASS' and fixture['nativeRoutes']==15 and len(fixture['deterministicFinalPairs'])==3 and fixture['insertedRecordVerified'] and fixture['inputsRestored'] and fixture['runtimeQualified'] is False)
+for row in fixture['retainedFiles']:check('retained-native-fixture-digest',sha((A/row['path']).read_bytes())==row['sha256'],path=row['path'])
+check('story73-original-output-preservation',load('story73-final-preservation.json')['rootOutputsUnchanged'])
+for ac in ('AC-7.3-01','AC-7.3-02'):
+ receipt=load('story73-final-'+ac+'.receipt.json');check('independent-story73',receipt['result']=='PASS' and bool(receipt['assertionLedger']),scenario=ac)
+ check('story73-original-output-digest',sha((R/f'artifacts/v9/7.3/{ac}.json').read_bytes())==load('story73-final-preservation.json')['originalRootOutputs'][f'artifacts/v9/7.3/{ac}.json'],scenario=ac)
+for row in load('story73-final-measurement-inputs.json')['copiedInputFiles']:check('story73-current-input-digest',sha((R/row['path']).read_bytes())==row['sha256'],path=row['path'])
+check('owned-cleanup-verified',load('cleanup-target-verification-retry.json')['state']=='PASS' and load('apphost-stop-retry.json')['exitCode']==0)
+check('failed-cleanup-command-retained',load('apphost-stop.json')['exitCode']==1)
+check('entry-sessions-restored',load('aspire-ps-before.stdout.txt')==load('aspire-ps-after-cleanup-retry.stdout.txt'))
+check('raw-entry-session-streams-identical',load('aspire-ps-before.json')['stdout'].get('capturedRaw',load('aspire-ps-before.json')['stdout'])['sha256']==load('aspire-ps-after-cleanup-retry.json')['stdout'].get('capturedRaw',load('aspire-ps-after-cleanup-retry.json')['stdout'])['sha256'])
+check('independent-root-protected-audit',load('root-protected-audit.json')['state']=='PASS' and load('root-protected-audit.json')['evaluated']==178)
+check('all-active-resources-healthy',all(row['healthStatus']=='Healthy' and row['state']=='Running' for row in load('resource-summary.json') if row['resourceType'] not in ('DaprSidecar',) and not row['displayName'].endswith('-rebuilder')))
+for command in ('apphost-wait-conversations','apphost-wait-eventstore','apphost-wait-conversations-admin-web','admin-web-health','focused-topology-tests','collector-final-metadata-regressions','collector-v3-all-pins-retry','legacy-sdk-policy-final','legacy-v1-current-focused','legacy-v2-current-focused','generator-current-focused','adoption-v1-v2-current-focused'):
+ check('native-positive-result',load(command+'.json')['exitCode']==0,command=command)
+write('preservation-check.json',dict(state='PASS',evaluatedChecks=len(checks),assertionLedger=checks,measuredRuntimeTests=0,protectedInputs=len(entry['protectedFiles']),sourceRows=len(binding['sources']),authorizationEntryEvidence='reconstructed, not precaptured'))
+# Exact changed paths: an explicit source set plus every newly owned observation
+# leaf, with ignored local restore caches listed independently rather than hidden.
+root_expected={spec,story,'module/platform-handoff.md','_bmad-output/implementation-artifacts/epic-16-admin-web-isolation-correction.md',*changed_sources,
+ '_bmad/scripts/epic16_packages_v3.py','_bmad/scripts/epic16_trust_v3.py','_bmad/scripts/tests/test_epic16_tooling_v3.py','_bmad/schemas/epic-16-tooling-v3.schema.json',
+ *[f'_bmad-output/planning-artifacts/epic-16-tooling-v3/{p}' for p in ['README.md','binding.json','candidate-observation.json','story-contracts/16.1.json','story-contracts/16.2.json','story-contracts/16.3.json']]}
+for name in ['owned-paths.json','evidence-integrity-check.json']:(A/name).write_text('{}\n')
+all_attempt={p.relative_to(R).as_posix() for p in A.rglob('*') if p.is_file()}
+# The ignore query receives path data over stdin, never shell interpolation.
+import subprocess
+query=subprocess.run(['git','check-ignore','--stdin'],cwd=R,input=('\n'.join(sorted(all_attempt))+'\n').encode(),capture_output=True,timeout=30);check('ignore-inventory-query',query.returncode in (0,1));ignored=set(query.stdout.decode().splitlines())
+expected=root_expected|(all_attempt-ignored);actual=set(git('diff','--name-only')['stdout'].splitlines())|set(git('ls-files','--others','--exclude-standard')['stdout'].splitlines())
+check('exact-changed-path-equality',expected==actual,missing=sorted(expected-actual),unexpected=sorted(actual-expected))
+write('owned-paths.json',dict(state='PASS',paths=sorted(expected),pathListSha256=sha(('\n'.join(unicodedata.normalize('NFC',p) for p in sorted(expected))+'\n').encode()),ignoredLocalRestorePaths=sorted(ignored),entryHead=entry['head']))
+exclusions={'evidence-integrity-check.json','owned-paths.json','preservation-check.json'}
+files=[dict(path=p.relative_to(R).as_posix(),bytes=p.stat().st_size,sha256=sha(p.read_bytes())) for p in sorted(A.rglob('*')) if p.is_file() and p.name not in exclusions]
+write('evidence-integrity-check.json',dict(state='PASS',evaluatedChecks=len(checks),assertionLedger=checks,retainedFiles=files,inventoryExclusions=sorted(exclusions),changedPathInventory='owned-paths.json',sourceBoundaryFiles=[dict(path=p,sha256=sha((R/p).read_bytes())) for p in sorted(root_expected)],historicalBoundaryReplay='not-applicable',runtimePublication='not-applicable',completion='BLOCKED'))
+print(json.dumps(dict(preservation='PASS',checks=len(checks),retainedFiles=len(files),changedPaths=len(expected),protectedInputs=len(entry['protectedFiles']),sourceRows=len(binding['sources']),qualification=measured['state'],completion='BLOCKED',runtimeTests=0)))

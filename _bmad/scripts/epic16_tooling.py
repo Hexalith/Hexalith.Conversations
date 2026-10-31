@@ -98,15 +98,21 @@ def package_policy(package=None):
 _V2_CONTRACTS = tuple(
     f'_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/{story}.json'
     for story in ('16.1', '16.2', '16.3'))
+_V3_CONTRACTS = tuple(
+    f'_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/{story}.json'
+    for story in ('16.1', '16.2', '16.3'))
 
 
 def select_package(path):
     if path in CONTRACT_PINS:
         return package_policy()
-    need(path in _V2_CONTRACTS, 'CONTRACT_UNKNOWN', path)
+    need(path in (*_V2_CONTRACTS, *_V3_CONTRACTS), 'CONTRACT_UNKNOWN', path)
     # Import only after exact independent selection. V1 retains its old closure/order.
     try:
-        from epic16_packages import POLICY
+        if path in _V3_CONTRACTS:
+            from epic16_packages_v3 import POLICY
+        else:
+            from epic16_packages import POLICY
     except ReadError as error:
         # Secure capture can fail while loading the lazy selected package.
         # Preserve invalid-input FAIL versus unavailable-platform BLOCKED.
@@ -227,7 +233,7 @@ def validate_package(reader, story, package=None):
     need(set(binding) == {'schemaVersion', 'purpose', 'authority', 'sources', 'entry'}, 'BINDING_INVALID', package.binding)
     need(binding['schemaVersion'] == package.binding_schema
          and binding['purpose'] == 'prerequisite-tooling-only' and canonical(binding['authority']) == canonical(AUTHORITY), 'AUTHORITY_INVALID', package.binding)
-    if package.binding_schema.endswith('.v2'):
+    if package.binding_schema in ('hexalith.conversations.epic16-tooling-binding.v2', 'hexalith.conversations.epic16-tooling-binding.v3'):
         try:
             jsonschema.validate(binding, schema['$defs']['binding'])
         except jsonschema.ValidationError:
@@ -715,8 +721,8 @@ def verify_inserted(repository, story, path, scope, package=None):
 
 def is_invocation(arguments):
     for i, value in enumerate(arguments):
-        if value == '--contract' and i + 1 < len(arguments) and arguments[i + 1] in (*CONTRACT_PINS, *_V2_CONTRACTS): return True
-        if value.startswith('--contract=') and value.split('=', 1)[1] in (*CONTRACT_PINS, *_V2_CONTRACTS): return True
+        if value == '--contract' and i + 1 < len(arguments) and arguments[i + 1] in (*CONTRACT_PINS, *_V2_CONTRACTS, *_V3_CONTRACTS): return True
+        if value.startswith('--contract=') and value.split('=', 1)[1] in (*CONTRACT_PINS, *_V2_CONTRACTS, *_V3_CONTRACTS): return True
     return False
 
 

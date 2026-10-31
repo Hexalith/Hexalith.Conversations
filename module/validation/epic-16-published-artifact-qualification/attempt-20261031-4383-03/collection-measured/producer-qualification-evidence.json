@@ -1,0 +1,442 @@
+[
+  {
+    "file": "qualification-evidence/evidence-negative-artifact-command-filter-mismatch-output.json",
+    "sha256": "43B4403957C144E16C1336CDA259EC54993683CC3A5EA6CBFD061351F86AACBB",
+    "sizeBytes": 696,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-artifact-command-manifest-mismatch-output.json",
+    "sha256": "80AB4E0C12A49DF7B3D41EF849B3278D0BEF2134CA8903BF3D22372E9BD18E54",
+    "sizeBytes": 700,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-artifact-command-profile-mismatch-output.json",
+    "sha256": "FD33602FA1288C1B0C0AE9883B82EDADAEA3EE6A462A17B508334E51010BDB09",
+    "sizeBytes": 698,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-artifact-duplicate-option-mismatch-output.json",
+    "sha256": "46270271C03CD72072499393D8B46D349D05CF20A3328C876D0C136F5361C2CE",
+    "sizeBytes": 708,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-artifact-hash-mismatch-output.json",
+    "sha256": "BC1F644E1746B224506BA5D8D860263D3E15FAB22347C604E6DB40C0081457B8",
+    "sizeBytes": 497,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-artifact-raw-filter-equals-mismatch-output.json",
+    "sha256": "7152AB78185E588D46F94DF60899055E5D26BF496BA7C6E9093872B9FF35A022",
+    "sizeBytes": 710,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-artifact-raw-filter-mismatch-output.json",
+    "sha256": "7A575B69F487CAD3B5525C72BAAA284C4ACE108EF492F03901586055A28B1C58",
+    "sizeBytes": 696,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-binding-mismatch-output.json",
+    "sha256": "FA7D0CE70844ABD512961EE59A20030B008DB0DF3FA1A31F47CE0F04831DD073",
+    "sizeBytes": 672,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-coverage-shortfall-output.json",
+    "sha256": "3EDB90D45371B0DC5131459A1F78E59E1E653A963D7BAEB3E18790B803ACB34B",
+    "sizeBytes": 485,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-duplicate-key-output.json",
+    "sha256": "C83ACEB948685902032666A9FD0ACE2B18A4C44C7EBA9BBD194DF8201447B355",
+    "sizeBytes": 448,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-filter-hash-mismatch-output.json",
+    "sha256": "6D51A763F41594EA7AAD8589AC900E648D7581DA1829A3507F9E72CD8D8E6DEB",
+    "sizeBytes": 680,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-fixture-hash-mismatch-output.json",
+    "sha256": "82AE1CD04130462F15BB2201A2E2DE9BD9848C4CB002E92D2BE945AA4B95AF5D",
+    "sizeBytes": 682,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-fixture-path-mismatch-output.json",
+    "sha256": "ADD0B71E109C8408CAFDD1A156E46CE702E8E3DFC194322367E3D86C8417533E",
+    "sizeBytes": 682,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-invalid-artifact-output.json",
+    "sha256": "ACC944160C82558089CBA27D76C6F057C2FEB3FD301830B3C0AB0DB389FC03E0",
+    "sizeBytes": 510,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-malformed-row-option-mismatch-output.json",
+    "sha256": "E0033DDAE5C96697864E1AF133FAC44DD8CA1B238FE504CCD84CC65733E86180",
+    "sizeBytes": 698,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-manifest-hash-mismatch-output.json",
+    "sha256": "2335DBE9C3BD8CD0043916FA9A1AC7CA934C7BD0746B27E74847B39176831B13",
+    "sizeBytes": 684,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-manifest-path-mismatch-output.json",
+    "sha256": "44C2339EB3B845B76E63CDF7CEA171FA9DF788C445DE9C69186EC4B46BD4C340",
+    "sizeBytes": 684,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-manifest-profile-fixture-mismatch-output.json",
+    "sha256": "C70E96808D2EB68F4ACE6179AB86266D32CB077093CF0B149240ED5D651A9066",
+    "sizeBytes": 706,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-missing-artifact-metadata-output.json",
+    "sha256": "B864DF33388D942F3BEB78F1C65CAFA99E7A7E666C2C43C31BF7ABC8C889EE82",
+    "sizeBytes": 507,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-no-executed-tests-output.json",
+    "sha256": "C1600C1D9A68D15DCE78ED021D9D8A9634FF4867C0F2835525A9FEF1AA960231",
+    "sizeBytes": 526,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-outcome-mismatch-output.json",
+    "sha256": "CE00006B4BAE7BEEB5549680ADA25AD097A77E98475B0B1741843551FCAA3EB7",
+    "sizeBytes": 465,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-policy-controls-output.json",
+    "sha256": "A98B43A1E85A1DDDC7265C63AFF9DBF1ADA9122BE9DF135FE847449926B605C8",
+    "sizeBytes": 3192,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-row-duplicate-option-mismatch-output.json",
+    "sha256": "28420206801221FD634CC3D95D783BD291F09DB37A3FE85BE30763A006C30AC7",
+    "sizeBytes": 698,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-row-missing-filter-mismatch-output.json",
+    "sha256": "C74E6DE65025CB8681E7292FA72949AAA11184BE4D3627C9798AED2651B73D4B",
+    "sizeBytes": 694,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-row-missing-manifest-mismatch-output.json",
+    "sha256": "753813A24B3859E32503AA2C596E6479959B11F574EB0121846EC1AC942E52EB",
+    "sizeBytes": 698,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-row-profile-mismatch-output.json",
+    "sha256": "3B9FC32475257D7FDD62E523C565B2BCEAD1E70C5F664298F829682624D3A1E1",
+    "sizeBytes": 680,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-secret-metadata-output.json",
+    "sha256": "446BF4BA80B577A8BC843F7C23C8AA23EBD4C81AE93A8EB6EF8B114223DAEC9E",
+    "sizeBytes": 499,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-unknown-field-output.json",
+    "sha256": "5E84FE9093A836B9EAE3F6689958C03DEE31DD87A370F667868E8607E0B406C4",
+    "sizeBytes": 1902,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/evidence-negative-unsupported-schema-output.json",
+    "sha256": "5CC7344698AE18C1DCFCA987B8B68F07165C96A678AC8619BA8406CFBFD6104D",
+    "sizeBytes": 2200,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/module-negative-absolute-path-output.json",
+    "sha256": "4F10F5547EE25817ED75622A4D9754212587EF6BFCCB55234266822F72AB2E3F",
+    "sizeBytes": 426,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/module-negative-duplicate-id-output.json",
+    "sha256": "612BD4ADC29270225992534F2974E282A9A2779080275FCFC4CE4DB894B6B8FE",
+    "sizeBytes": 378,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/module-negative-duplicate-json-key-output.json",
+    "sha256": "6F666C2CED51DFDFE955DC07506694F6CAD06EB185DE7EE9721362FA8F9162D1",
+    "sizeBytes": 364,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/module-negative-invalid-profile-output.json",
+    "sha256": "1CADCE9A8508BA7D4B201854FE1F3639B4E2ACE8CB0C579F45384C344AFE855F",
+    "sizeBytes": 392,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/module-negative-malformed-dependency-output.json",
+    "sha256": "F3C8AD178D40897A33C5C8285B6F021849A00F32E54A67F303D71350B3FBA51B",
+    "sizeBytes": 399,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/module-negative-missing-descriptor-output.json",
+    "sha256": "D77AB16BD3D8E80F49F5BE5DB3D5248AA828880B1B5CDA9689AC7C56E5AE1798",
+    "sizeBytes": 416,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/module-negative-missing-required-value-output.json",
+    "sha256": "23C286D6A4067ED450A0C051A87B6D06F6E9BCD5B81030AA05B2F59D6D93F50A",
+    "sizeBytes": 369,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/module-negative-path-escape-output.json",
+    "sha256": "4F10F5547EE25817ED75622A4D9754212587EF6BFCCB55234266822F72AB2E3F",
+    "sizeBytes": 426,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/module-negative-placeholder-output.json",
+    "sha256": "B879D28F56205DA197AD4BDFED0EA5B51F9D51D8D37941E4297CB6CFE411DBA3",
+    "sizeBytes": 370,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/module-negative-secret-bearing-output.json",
+    "sha256": "C5CA6EB5C7B0CA93E3E495B6767D6587DBF4ED61E062E527A2FFE678DB8371B2",
+    "sizeBytes": 392,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/module-negative-superseded-frontcomposer-pin-output.json",
+    "sha256": "E871F92724E5E88E9BA7E4E843C938306948AFC1B4977D78FF7B27A051B9F5D9",
+    "sizeBytes": 428,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/module-negative-superseded-platform-pin-output.json",
+    "sha256": "846AD454E9B7EF3C8FCCD413CE21C81898FA6EE547F265398993663250EEE953",
+    "sizeBytes": 425,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/module-negative-tampered-platform-pin-output.json",
+    "sha256": "846AD454E9B7EF3C8FCCD413CE21C81898FA6EE547F265398993663250EEE953",
+    "sizeBytes": 425,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/module-negative-unknown-field-output.json",
+    "sha256": "2952195D8F141E0E715FA4E71DCC341D6D821A255074C4E61632BBD12DBCA067",
+    "sizeBytes": 370,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/module-negative-unknown-schema-output.json",
+    "sha256": "D6E150761CBB232E34AF9B5767E56F330DA29E75077BCFC7C5D5505F06653D64",
+    "sizeBytes": 345,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/module-negative-unsupported-profile-class-output.json",
+    "sha256": "9846C3837C5EF4B0175ADB8C360C294CD6759EAD3F9B3A40F15DDA701F8FE578",
+    "sizeBytes": 378,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/packaged-down-evidence.json",
+    "sha256": "BA2F05111E67581ACD7E8F14D9CAC985F1FDB8EEDDD1667BCE3F94755E25D2E0",
+    "sizeBytes": 1952,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/packaged-down-output.json",
+    "sha256": "B9780D4EBE1AC8A4257C7804EF3CB5154F10416E6E34B14BE743682136C3707D",
+    "sizeBytes": 298,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/packaged-readiness-output.json",
+    "sha256": "AF53783C40A07275D1701A7493907BCEE2B7D8FE50C1BF571C33BD7C4B241BA1",
+    "sizeBytes": 117,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/packaged-seed-subscriptions.json",
+    "sha256": "63E19B731A136C9F633DFFCA09768EF425AD5A7EF67FA88F0D094963FC8B4C9B",
+    "sizeBytes": 985,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/packaged-test-evidence.json",
+    "sha256": "F1F93F5BFDDC82FB78647052AE543B0DDD477D821227F47A86C50116B327F78C",
+    "sizeBytes": 2011,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/packaged-test-output.json",
+    "sha256": "BB9F45B31F341BF2EF83142C24BEA6B0045DDF58A0B395507708A1E2DA5DDF66",
+    "sizeBytes": 460,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/packaged-unavailable-evidence.json",
+    "sha256": "2F5C23CBD9FFF8E604DFE7DCE0395F139A2CE1A29E5C9129C6BB26273B8D8139",
+    "sizeBytes": 1872,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/packaged-unavailable-output.json",
+    "sha256": "BB9F45B31F341BF2EF83142C24BEA6B0045DDF58A0B395507708A1E2DA5DDF66",
+    "sizeBytes": 460,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/qualification.log",
+    "sha256": "27FFA62C2315017F2C84C67471D9BC206B992503F8833D8B8D3B8A45B1E00455",
+    "sizeBytes": 189744,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  },
+  {
+    "file": "qualification-evidence/source-release-passed.json",
+    "sha256": "103685E3341552694292FA230B8A132A3914A2694888095DF0E54385BCF5EEEC",
+    "sizeBytes": 1835,
+    "state": "BLOCKED",
+    "observedSha256": null,
+    "observedSizeBytes": null
+  }
+]

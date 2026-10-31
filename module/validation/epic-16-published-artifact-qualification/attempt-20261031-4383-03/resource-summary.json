@@ -1,0 +1,154 @@
+[
+  {
+    "name": "aspire-dashboard-zwuduytd",
+    "displayName": "aspire-dashboard",
+    "resourceType": "Executable",
+    "state": "Running",
+    "healthStatus": "Healthy",
+    "exitCode": null
+  },
+  {
+    "name": "conversations-admin-web-rebuilder-tnubvxku",
+    "displayName": "conversations-admin-web-rebuilder",
+    "resourceType": "Executable",
+    "state": "NotStarted",
+    "healthStatus": null,
+    "exitCode": null
+  },
+  {
+    "name": "conversations-admin-web-smxzehux",
+    "displayName": "conversations-admin-web",
+    "resourceType": "Project",
+    "state": "Running",
+    "healthStatus": "Healthy",
+    "exitCode": null
+  },
+  {
+    "name": "conversations-app-api-token",
+    "displayName": "conversations-app-api-token",
+    "resourceType": "Parameter",
+    "state": "Running",
+    "healthStatus": "Healthy",
+    "exitCode": null
+  },
+  {
+    "name": "conversations-dapr",
+    "displayName": "conversations-dapr",
+    "resourceType": "DaprSidecar",
+    "state": null,
+    "healthStatus": null,
+    "exitCode": null
+  },
+  {
+    "name": "conversations-dapr-cli-veskcexd",
+    "displayName": "conversations-dapr-cli",
+    "resourceType": "Executable",
+    "state": "Running",
+    "healthStatus": "Healthy",
+    "exitCode": null
+  },
+  {
+    "name": "conversations-rebuilder-namykdkq",
+    "displayName": "conversations-rebuilder",
+    "resourceType": "Executable",
+    "state": "NotStarted",
+    "healthStatus": null,
+    "exitCode": null
+  },
+  {
+    "name": "conversations-tsezzvkc",
+    "displayName": "conversations",
+    "resourceType": "Project",
+    "state": "Running",
+    "healthStatus": "Healthy",
+    "exitCode": null
+  },
+  {
+    "name": "eventstore-app-api-token",
+    "displayName": "eventstore-app-api-token",
+    "resourceType": "Parameter",
+    "state": "Running",
+    "healthStatus": "Healthy",
+    "exitCode": null
+  },
+  {
+    "name": "eventstore-dapr",
+    "displayName": "eventstore-dapr",
+    "resourceType": "DaprSidecar",
+    "state": null,
+    "healthStatus": null,
+    "exitCode": null
+  },
+  {
+    "name": "eventstore-dapr-cli-udgngsqg",
+    "displayName": "eventstore-dapr-cli",
+    "resourceType": "Executable",
+    "state": "Running",
+    "healthStatus": "Healthy",
+    "exitCode": null
+  },
+  {
+    "name": "eventstore-mpvqnsgv",
+    "displayName": "eventstore",
+    "resourceType": "Project",
+    "state": "Running",
+    "healthStatus": "Healthy",
+    "exitCode": null
+  },
+  {
+    "name": "eventstore-rebuilder-vhbqdqmk",
+    "displayName": "eventstore-rebuilder",
+    "resourceType": "Executable",
+    "state": "NotStarted",
+    "healthStatus": null,
+    "exitCode": null
+  },
+  {
+    "name": "eventstore-workload-client-secret",
+    "displayName": "eventstore-workload-client-secret",
+    "resourceType": "Parameter",
+    "state": "Running",
+    "healthStatus": "Healthy",
+    "exitCode": null
+  },
+  {
+    "name": "pubsub",
+    "displayName": "pubsub",
+    "resourceType": "DaprComponent",
+    "state": "Running",
+    "healthStatus": "Healthy",
+    "exitCode": null
+  },
+  {
+    "name": "security-eventstore-client-password",
+    "displayName": "security-eventstore-client-password",
+    "resourceType": "Parameter",
+    "state": "Running",
+    "healthStatus": "Healthy",
+    "exitCode": null
+  },
+  {
+    "name": "security-eventstore-client-username",
+    "displayName": "security-eventstore-client-username",
+    "resourceType": "Parameter",
+    "state": "Running",
+    "healthStatus": "Healthy",
+    "exitCode": null
+  },
+  {
+    "name": "security-qtbsnszv",
+    "displayName": "security",
+    "resourceType": "Container",
+    "state": "Running",
+    "healthStatus": "Healthy",
+    "exitCode": null
+  },
+  {
+    "name": "statestore",
+    "displayName": "statestore",
+    "resourceType": "DaprComponent",
+    "state": "Running",
+    "healthStatus": "Healthy",
+    "exitCode": null
+  }
+]

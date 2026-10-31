@@ -1,0 +1,11 @@
+{
+  "state": "BLOCKED",
+  "code": "BROAD_REGRESSION_TIMEOUT",
+  "commandReceipt": "legacy-tooling-generator-adoption-exact.json",
+  "collectedTests": 4775,
+  "finishedProgressMarkers": 1978,
+  "passingMarkers": 1977,
+  "failureMarkers": 1,
+  "scope": "Incomplete broad run; progress markers are not a completed test verdict or full coverage claim",
+  "fallback": "Focused current consumer, SDK, v2, generator and adoption partitions follow without repeating the broad run"
+}

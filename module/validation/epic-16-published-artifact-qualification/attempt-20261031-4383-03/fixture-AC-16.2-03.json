@@ -1,0 +1,38 @@
+{
+  "name": "fixture-AC-16.2-03",
+  "command": [
+    "python3",
+    "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/verify_story_16_2.py",
+    "--repository",
+    "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "--contract",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+    "--scope",
+    "tooling-fixture",
+    "--scenario",
+    "AC-16.2-03",
+    "--output",
+    "artifacts/epic16-tooling-fixture/16.2/AC-16.2-03.json"
+  ],
+  "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+  "pid": 113699,
+  "startedAtUtc": "2026-10-31T17:12:45.929622+00:00",
+  "durationSeconds": 1.209,
+  "timeoutSeconds": 180,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "fixture-AC-16.2-03.stdout.txt",
+    "bytes": 19128,
+    "sha256": "04971cddf43d8bc6f8508f54bc57761766db67f0f9e2f05346613af03ee42f30"
+  },
+  "stderr": {
+    "path": "fixture-AC-16.2-03.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "test: retain synthetic product source fixtures": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: initialize disposable fixture": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: bind disposable fixture sources": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "test: bind explicit successor fixture": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

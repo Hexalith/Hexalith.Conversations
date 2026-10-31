@@ -1,0 +1,5 @@
+{
+  "state": "BLOCKED",
+  "code": "PROCESS_UNAVAILABLE",
+  "detail": "Evidence driver supplied only EPIC16_COMMITLINT_EVIDENCE without inherited PATH; uv was not launched. Corrected by inheriting full environment in the retry."
+}

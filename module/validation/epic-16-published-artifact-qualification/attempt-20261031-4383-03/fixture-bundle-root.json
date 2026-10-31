@@ -1,0 +1,31 @@
+{
+  "name": "fixture-bundle-root",
+  "command": [
+    "git",
+    "bundle",
+    "create",
+    "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/native-fixture-evidence/root.bundle",
+    "--all"
+  ],
+  "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+  "pid": 202584,
+  "startedAtUtc": "2026-10-31T17:14:50.429941+00:00",
+  "durationSeconds": 0.201,
+  "timeoutSeconds": 120,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "fixture-bundle-root.stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "fixture-bundle-root.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "name": "story73-final-AC-7.3-01",
+  "command": [
+    "python3",
+    "_bmad/scripts/verify_story_completion_workflows.py",
+    "--repository",
+    ".",
+    "--contract",
+    "_bmad-output/planning-artifacts/v9/story-contracts/7.3.json",
+    "--scenario",
+    "AC-7.3-01",
+    "--output",
+    "artifacts/v9/7.3/AC-7.3-01.json"
+  ],
+  "cwd": "/tmp/epic16-4383-story73-kh6ksy5g/measurement",
+  "pid": 293757,
+  "startedAtUtc": "2026-10-31T17:17:16.733871+00:00",
+  "durationSeconds": 0.201,
+  "timeoutSeconds": 120,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "story73-final-AC-7.3-01.stdout.txt",
+    "bytes": 7341,
+    "sha256": "b5f253949af98b78be18ecdc5d77efc8d9a62749b8eed2517ac2280c0c571c3b"
+  },
+  "stderr": {
+    "path": "story73-final-AC-7.3-01.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

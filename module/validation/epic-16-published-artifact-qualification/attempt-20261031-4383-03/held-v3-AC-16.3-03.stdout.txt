@@ -1,0 +1,39 @@
+{
+  "assertionLedger": [
+    {
+      "id": "preservation",
+      "state": "PASS",
+      "subject": "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.3.json"
+    },
+    {
+      "id": "ENTRY_QUALIFICATION_PENDING",
+      "state": "BLOCKED",
+      "subject": "16.3"
+    }
+  ],
+  "authority": {
+    "executionAllowed": false,
+    "implementationHold": "ACTIVE",
+    "ownerApprovalClaimed": false,
+    "pushAuthorized": false,
+    "releaseAuthorized": false
+  },
+  "bindings": {},
+  "blockers": [
+    "ENTRY_QUALIFICATION_PENDING"
+  ],
+  "candidate": null,
+  "counts": {
+    "failed": 0,
+    "passed": 0,
+    "skipped": 0,
+    "total": 0
+  },
+  "exitCode": 2,
+  "result": "BLOCKED",
+  "runtimeQualified": false,
+  "scenarioId": "AC-16.3-03",
+  "schemaVersion": "hexalith.conversations.epic16-measured-result.v1",
+  "storyId": "16.3",
+  "validationScope": "runtime"
+}

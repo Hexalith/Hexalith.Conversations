@@ -1,0 +1,1075 @@
+{
+  "state": "PASS",
+  "baselineRevision": "8a26cb03ee1d5413c034eb60aee71618f3ebd31a",
+  "evaluated": 178,
+  "checks": [
+    {
+      "path": ".config/dotnet-tools.json",
+      "expectedGitBlob": "40b08a2ab2770b1b937763e518ee2b6525a97f61",
+      "actualGitBlob": "40b08a2ab2770b1b937763e518ee2b6525a97f61",
+      "passed": true
+    },
+    {
+      "path": ".gitmodules",
+      "expectedGitBlob": "9ebcefaab9e94c90afca2929c5c47dcd49dc76b4",
+      "actualGitBlob": "9ebcefaab9e94c90afca2929c5c47dcd49dc76b4",
+      "passed": true
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/README.md",
+      "expectedGitBlob": "8c5b65817c0336e02a9a07a73d0a94695dad9125",
+      "actualGitBlob": "8c5b65817c0336e02a9a07a73d0a94695dad9125",
+      "passed": true
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/binding.json",
+      "expectedGitBlob": "5c59008a689f091e3e85ce496f85a2ab435b99f0",
+      "actualGitBlob": "5c59008a689f091e3e85ce496f85a2ab435b99f0",
+      "passed": true
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.1.json",
+      "expectedGitBlob": "4d55263a9439bc15aa8f06ad6b8bc13b6b44da09",
+      "actualGitBlob": "4d55263a9439bc15aa8f06ad6b8bc13b6b44da09",
+      "passed": true
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.2.json",
+      "expectedGitBlob": "d7a48d0564e511f922f89a45bacd546b6c365438",
+      "actualGitBlob": "d7a48d0564e511f922f89a45bacd546b6c365438",
+      "passed": true
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v1/story-contracts/16.3.json",
+      "expectedGitBlob": "43e5620ffabdf1f0d7745e7974e34c80b20eb97a",
+      "actualGitBlob": "43e5620ffabdf1f0d7745e7974e34c80b20eb97a",
+      "passed": true
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/README.md",
+      "expectedGitBlob": "61ae81d2820ebad97f37a825155ff2c71b1fcba6",
+      "actualGitBlob": "61ae81d2820ebad97f37a825155ff2c71b1fcba6",
+      "passed": true
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/binding.json",
+      "expectedGitBlob": "8f52f0cfbcf8e4bdf835edfefaa4e9bee2ae1755",
+      "actualGitBlob": "8f52f0cfbcf8e4bdf835edfefaa4e9bee2ae1755",
+      "passed": true
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.1.json",
+      "expectedGitBlob": "00b9f6916e97ba8e5ebb5a19c587c2795417b6f8",
+      "actualGitBlob": "00b9f6916e97ba8e5ebb5a19c587c2795417b6f8",
+      "passed": true
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.2.json",
+      "expectedGitBlob": "2043a2be85eb8cebdf82ecb6dcf5937007284da0",
+      "actualGitBlob": "2043a2be85eb8cebdf82ecb6dcf5937007284da0",
+      "passed": true
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epic-16-tooling-v2/story-contracts/16.3.json",
+      "expectedGitBlob": "639ceb44635201a736cd3d0490107c4cb89613de",
+      "actualGitBlob": "639ceb44635201a736cd3d0490107c4cb89613de",
+      "passed": true
+    },
+    {
+      "path": "_bmad/schemas/epic-16-tooling-v1.schema.json",
+      "expectedGitBlob": "2ed70e8afcb947d0492a3fe8f45e294805f22b66",
+      "actualGitBlob": "2ed70e8afcb947d0492a3fe8f45e294805f22b66",
+      "passed": true
+    },
+    {
+      "path": "_bmad/schemas/epic-16-tooling-v2.schema.json",
+      "expectedGitBlob": "469a66a033591ab67389c8a4185f4f0426008dc3",
+      "actualGitBlob": "469a66a033591ab67389c8a4185f4f0426008dc3",
+      "passed": true
+    },
+    {
+      "path": "_bmad/scripts/epic16_packages.py",
+      "expectedGitBlob": "fdf19ea6d4d4c5e7796d12f2ab9d5df932e15852",
+      "actualGitBlob": "fdf19ea6d4d4c5e7796d12f2ab9d5df932e15852",
+      "passed": true
+    },
+    {
+      "path": "_bmad/scripts/epic16_trust_v2.py",
+      "expectedGitBlob": "124fee3555846c35821d61affd9f9fffc2402bb9",
+      "actualGitBlob": "124fee3555846c35821d61affd9f9fffc2402bb9",
+      "passed": true
+    },
+    {
+      "path": "global.json",
+      "expectedGitBlob": "bad1806f68f26e0e8c3af8a2a5d65689e51c9e1d",
+      "actualGitBlob": "bad1806f68f26e0e8c3af8a2a5d65689e51c9e1d",
+      "passed": true
+    },
+    {
+      "path": "module/hexalith.module-manifest.v2.json",
+      "expectedGitBlob": "d41bb2241ee1501f38894deb93806572de1da7a8",
+      "actualGitBlob": "d41bb2241ee1501f38894deb93806572de1da7a8",
+      "passed": true
+    },
+    {
+      "path": "module/hosting-inventory.json",
+      "expectedGitBlob": "f874b87b4c2abce7f123c9950d8a69864c6e5ded",
+      "actualGitBlob": "f874b87b4c2abce7f123c9950d8a69864c6e5ded",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/.gitattributes",
+      "expectedGitBlob": "e67b2a563802e1aba5fa8e8fc32645dd284eb74a",
+      "actualGitBlob": "e67b2a563802e1aba5fa8e8fc32645dd284eb74a",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/README.md",
+      "expectedGitBlob": "a8abb5dbb52ed00978b727e2ce04cc760d4c0d83",
+      "actualGitBlob": "a8abb5dbb52ed00978b727e2ce04cc760d4c0d83",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/after-fetch-state.json",
+      "expectedGitBlob": "5759977afd19e714327da5fb584ddf0bc8447567",
+      "actualGitBlob": "5759977afd19e714327da5fb584ddf0bc8447567",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-describe-final.json",
+      "expectedGitBlob": "c7d4d74f2a923e0408a5e87dc12ad07bb87ae75b",
+      "actualGitBlob": "c7d4d74f2a923e0408a5e87dc12ad07bb87ae75b",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-describe-final.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-describe-final.stdout.txt",
+      "expectedGitBlob": "d2074eee2c51ab8e36a44467cd1b66c8d9d587f1",
+      "actualGitBlob": "d2074eee2c51ab8e36a44467cd1b66c8d9d587f1",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-describe-initial.json",
+      "expectedGitBlob": "0b5c8219e90238e571f0823ade06f7c529fc5e99",
+      "actualGitBlob": "0b5c8219e90238e571f0823ade06f7c529fc5e99",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-describe-initial.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-describe-initial.stdout.txt",
+      "expectedGitBlob": "c1da94716779fe1b407fb5c6085b731c5e49405b",
+      "actualGitBlob": "c1da94716779fe1b407fb5c6085b731c5e49405b",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-logs-conversations-admin-web.json",
+      "expectedGitBlob": "06e2712e91af66383b7f870de6ce0ae3226eb3ec",
+      "actualGitBlob": "06e2712e91af66383b7f870de6ce0ae3226eb3ec",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-logs-conversations-admin-web.stderr.txt",
+      "expectedGitBlob": "8f7614c82948c266771eb8382f39a509ff8316f3",
+      "actualGitBlob": "8f7614c82948c266771eb8382f39a509ff8316f3",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-logs-conversations-admin-web.stdout.txt",
+      "expectedGitBlob": "c4316f6f75bd59f99a1379d7c559805b93a6bbcf",
+      "actualGitBlob": "c4316f6f75bd59f99a1379d7c559805b93a6bbcf",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-logs-conversations.json",
+      "expectedGitBlob": "0faaa424ccaa1188a81eeb8e954e0f634b48947a",
+      "actualGitBlob": "0faaa424ccaa1188a81eeb8e954e0f634b48947a",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-logs-conversations.stderr.txt",
+      "expectedGitBlob": "8f7614c82948c266771eb8382f39a509ff8316f3",
+      "actualGitBlob": "8f7614c82948c266771eb8382f39a509ff8316f3",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-logs-conversations.stdout.txt",
+      "expectedGitBlob": "f14128799d838c70a1e6da3fc60600ca235c9d08",
+      "actualGitBlob": "f14128799d838c70a1e6da3fc60600ca235c9d08",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-logs-eventstore.json",
+      "expectedGitBlob": "e8df2abb1e57d11de35e11819586163aa867bda4",
+      "actualGitBlob": "e8df2abb1e57d11de35e11819586163aa867bda4",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-logs-eventstore.stderr.txt",
+      "expectedGitBlob": "8f7614c82948c266771eb8382f39a509ff8316f3",
+      "actualGitBlob": "8f7614c82948c266771eb8382f39a509ff8316f3",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-logs-eventstore.stdout.txt",
+      "expectedGitBlob": "7ae206b8ec159af62a2de23924753f56e433ad71",
+      "actualGitBlob": "7ae206b8ec159af62a2de23924753f56e433ad71",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-logs-security.json",
+      "expectedGitBlob": "202c3245500039fbdfe9b23578a08a07a2e4d786",
+      "actualGitBlob": "202c3245500039fbdfe9b23578a08a07a2e4d786",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-logs-security.stderr.txt",
+      "expectedGitBlob": "8f7614c82948c266771eb8382f39a509ff8316f3",
+      "actualGitBlob": "8f7614c82948c266771eb8382f39a509ff8316f3",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-logs-security.stdout.txt",
+      "expectedGitBlob": "92c0fea943b20c05b6cf1080b219413dfa0d0358",
+      "actualGitBlob": "92c0fea943b20c05b6cf1080b219413dfa0d0358",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-run.json",
+      "expectedGitBlob": "bf089451ac421c0b166fedd94b3ffd49a96d32b8",
+      "actualGitBlob": "bf089451ac421c0b166fedd94b3ffd49a96d32b8",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-run.stderr.txt",
+      "expectedGitBlob": "1aeb7c8efc164227c1f74dec150852133b30c884",
+      "actualGitBlob": "1aeb7c8efc164227c1f74dec150852133b30c884",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-run.stdout.txt",
+      "expectedGitBlob": "006ceaf1528b2a372b6bfb500a1d8ecc4e7da96b",
+      "actualGitBlob": "006ceaf1528b2a372b6bfb500a1d8ecc4e7da96b",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-stop.json",
+      "expectedGitBlob": "b04df3291831a2103a7634ea6a853aa789d6627a",
+      "actualGitBlob": "b04df3291831a2103a7634ea6a853aa789d6627a",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-stop.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-stop.stdout.txt",
+      "expectedGitBlob": "bae7d4af8d3903df9c20beb4013a106c2dac86fb",
+      "actualGitBlob": "bae7d4af8d3903df9c20beb4013a106c2dac86fb",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-wait-conversations-admin-web.json",
+      "expectedGitBlob": "5fb81ec0f1e3be9b7d32e6cb523bc1f3604ef10f",
+      "actualGitBlob": "5fb81ec0f1e3be9b7d32e6cb523bc1f3604ef10f",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-wait-conversations-admin-web.stderr.txt",
+      "expectedGitBlob": "c07ae9d0ef0e3db41ff7acf5dcfc3a69972bd329",
+      "actualGitBlob": "c07ae9d0ef0e3db41ff7acf5dcfc3a69972bd329",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-wait-conversations-admin-web.stdout.txt",
+      "expectedGitBlob": "90bd0f4f669fc6b6acca509d65a90c99f9cf46bf",
+      "actualGitBlob": "90bd0f4f669fc6b6acca509d65a90c99f9cf46bf",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-wait-conversations.json",
+      "expectedGitBlob": "916555e8260ec2ed8b978bfc3e78c2632b02a549",
+      "actualGitBlob": "916555e8260ec2ed8b978bfc3e78c2632b02a549",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-wait-conversations.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-wait-conversations.stdout.txt",
+      "expectedGitBlob": "a6c56db1a2d703dddf9c4c668109b9b535fb9134",
+      "actualGitBlob": "a6c56db1a2d703dddf9c4c668109b9b535fb9134",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-wait-eventstore.json",
+      "expectedGitBlob": "ac30a54834e56d0ac85095e7dc6ac48b2b63b8b1",
+      "actualGitBlob": "ac30a54834e56d0ac85095e7dc6ac48b2b63b8b1",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-wait-eventstore.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/apphost-wait-eventstore.stdout.txt",
+      "expectedGitBlob": "3720b51985c75f624ea08c9ca5501db4564dab2c",
+      "actualGitBlob": "3720b51985c75f624ea08c9ca5501db4564dab2c",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-describe-help.json",
+      "expectedGitBlob": "c33969c40d64f5f96467b326064bb0d084ef743a",
+      "actualGitBlob": "c33969c40d64f5f96467b326064bb0d084ef743a",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-describe-help.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-describe-help.stdout.txt",
+      "expectedGitBlob": "75594be02c98aaa438054ab081c1ea95baf8412e",
+      "actualGitBlob": "75594be02c98aaa438054ab081c1ea95baf8412e",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-logs-help.json",
+      "expectedGitBlob": "98fdff182c11309cd46b3e117aa94941b0b5fdd2",
+      "actualGitBlob": "98fdff182c11309cd46b3e117aa94941b0b5fdd2",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-logs-help.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-logs-help.stdout.txt",
+      "expectedGitBlob": "2e53c4b80e98d65d2663939c24615194aab745b5",
+      "actualGitBlob": "2e53c4b80e98d65d2663939c24615194aab745b5",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-ps-after.json",
+      "expectedGitBlob": "7d6438e4e966c99171b676c88f8a9a7c09ca8da2",
+      "actualGitBlob": "7d6438e4e966c99171b676c88f8a9a7c09ca8da2",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-ps-after.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-ps-after.stdout.txt",
+      "expectedGitBlob": "ed14b112ec34b31b2259cc33569d0d2983f3047f",
+      "actualGitBlob": "ed14b112ec34b31b2259cc33569d0d2983f3047f",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-ps-before-cleanup.json",
+      "expectedGitBlob": "1e123fda6cf403e665261f92756e4a983719a612",
+      "actualGitBlob": "1e123fda6cf403e665261f92756e4a983719a612",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-ps-before-cleanup.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-ps-before-cleanup.stdout.txt",
+      "expectedGitBlob": "911f460b9d0c573a50b16b6a7ac563152223bc74",
+      "actualGitBlob": "911f460b9d0c573a50b16b6a7ac563152223bc74",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-ps-before.json",
+      "expectedGitBlob": "43a1b9112ef4d56398a79d98f34b77cc3f3dc5da",
+      "actualGitBlob": "43a1b9112ef4d56398a79d98f34b77cc3f3dc5da",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-ps-before.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-ps-before.stdout.txt",
+      "expectedGitBlob": "ed14b112ec34b31b2259cc33569d0d2983f3047f",
+      "actualGitBlob": "ed14b112ec34b31b2259cc33569d0d2983f3047f",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-ps-help.json",
+      "expectedGitBlob": "d04db936451c1c3ecf0356b9b5fd6700d8211d34",
+      "actualGitBlob": "d04db936451c1c3ecf0356b9b5fd6700d8211d34",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-ps-help.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-ps-help.stdout.txt",
+      "expectedGitBlob": "0f2c53c2382d5a4efd265683fe2c48aa9e4e0e27",
+      "actualGitBlob": "0f2c53c2382d5a4efd265683fe2c48aa9e4e0e27",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-ps-running.json",
+      "expectedGitBlob": "b841bbac5d56cbc065f3271c2413c11ec6935d31",
+      "actualGitBlob": "b841bbac5d56cbc065f3271c2413c11ec6935d31",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-ps-running.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-ps-running.stdout.txt",
+      "expectedGitBlob": "8318ff144839ee766f7c7dddadc21b6c5b5ddcc5",
+      "actualGitBlob": "8318ff144839ee766f7c7dddadc21b6c5b5ddcc5",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-run-help.json",
+      "expectedGitBlob": "9799eadce703bd3a30f149fd0b00e2bc36133c39",
+      "actualGitBlob": "9799eadce703bd3a30f149fd0b00e2bc36133c39",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-run-help.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-run-help.stdout.txt",
+      "expectedGitBlob": "3c37e5b91411bd1f9b8112fabf470e211cb4e823",
+      "actualGitBlob": "3c37e5b91411bd1f9b8112fabf470e211cb4e823",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-stop-help.json",
+      "expectedGitBlob": "55a7ef712e2bf3fba167318b59bd784f1127f52b",
+      "actualGitBlob": "55a7ef712e2bf3fba167318b59bd784f1127f52b",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-stop-help.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-stop-help.stdout.txt",
+      "expectedGitBlob": "a906f1c277c55462d7ea3892d542b48358a135f5",
+      "actualGitBlob": "a906f1c277c55462d7ea3892d542b48358a135f5",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-version.json",
+      "expectedGitBlob": "05f140baa1e36a17e9ee944f9d092b8a62588933",
+      "actualGitBlob": "05f140baa1e36a17e9ee944f9d092b8a62588933",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-version.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-version.stdout.txt",
+      "expectedGitBlob": "f6fc79e1f5b53dcd14b560f0c5fb9c02f5c73592",
+      "actualGitBlob": "f6fc79e1f5b53dcd14b560f0c5fb9c02f5c73592",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-wait-help.json",
+      "expectedGitBlob": "6d6c7a3dc4bda543d5f4f24e7b72c3ac8b86add9",
+      "actualGitBlob": "6d6c7a3dc4bda543d5f4f24e7b72c3ac8b86add9",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-wait-help.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/aspire-wait-help.stdout.txt",
+      "expectedGitBlob": "a766ec057470f26611ff13842e5d669809fd14f6",
+      "actualGitBlob": "a766ec057470f26611ff13842e5d669809fd14f6",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/baseline-driver.py.txt",
+      "expectedGitBlob": "9cf335432a003f9209d109cc840d117d3e812393",
+      "actualGitBlob": "9cf335432a003f9209d109cc840d117d3e812393",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/baseline-driver.py.txt.json",
+      "expectedGitBlob": "6cba2317465d0e3e632f089c35486360cc2f11b0",
+      "actualGitBlob": "6cba2317465d0e3e632f089c35486360cc2f11b0",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/builds-context.json",
+      "expectedGitBlob": "b851902bff1f4f0260f1141760fc601f37cda6e5",
+      "actualGitBlob": "b851902bff1f4f0260f1141760fc601f37cda6e5",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/builds-context.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/builds-context.stdout.txt",
+      "expectedGitBlob": "fe85394b89be39ef6a4f6d1a408f2462a476b34f",
+      "actualGitBlob": "fe85394b89be39ef6a4f6d1a408f2462a476b34f",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/builds-history.json",
+      "expectedGitBlob": "05b374c99232dce3b5f5476be8c05853a5845b45",
+      "actualGitBlob": "05b374c99232dce3b5f5476be8c05853a5845b45",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/builds-history.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/builds-history.stdout.txt",
+      "expectedGitBlob": "3004ad295d2c56c05fc10438670f4546bf62a5a0",
+      "actualGitBlob": "3004ad295d2c56c05fc10438670f4546bf62a5a0",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/builds-remotes.json",
+      "expectedGitBlob": "746ce582849eadc38f2ccbd2edb38eab9688fcb2",
+      "actualGitBlob": "746ce582849eadc38f2ccbd2edb38eab9688fcb2",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/builds-remotes.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/builds-remotes.stdout.txt",
+      "expectedGitBlob": "8ba6ffd0a0270c3b4a70840ac028c7876f1fa44e",
+      "actualGitBlob": "8ba6ffd0a0270c3b4a70840ac028c7876f1fa44e",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/builds-shallow-state.json",
+      "expectedGitBlob": "008e977e1de43028c5fbf5554da69c142a85a752",
+      "actualGitBlob": "008e977e1de43028c5fbf5554da69c142a85a752",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/builds-shallow-state.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/builds-shallow-state.stdout.txt",
+      "expectedGitBlob": "c508d5366f70bba37fcc09d128b6537c4adb2c79",
+      "actualGitBlob": "c508d5366f70bba37fcc09d128b6537c4adb2c79",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/canonical-builds-advertised-refs.json",
+      "expectedGitBlob": "40b039f454a0959e4ad7795ef151ff7babce1339",
+      "actualGitBlob": "40b039f454a0959e4ad7795ef151ff7babce1339",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/canonical-builds-advertised-refs.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/canonical-builds-advertised-refs.stdout.txt",
+      "expectedGitBlob": "20230ff8a2abded1bc7e5ac7c5009f0f834d6b45",
+      "actualGitBlob": "20230ff8a2abded1bc7e5ac7c5009f0f834d6b45",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/canonical-remote.json",
+      "expectedGitBlob": "3f855329d2ff910970154042e93426d9111a6c55",
+      "actualGitBlob": "3f855329d2ff910970154042e93426d9111a6c55",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/capture-driver.py.txt",
+      "expectedGitBlob": "5c21d4628b27597ba8d0a2556199d90c222ca337",
+      "actualGitBlob": "5c21d4628b27597ba8d0a2556199d90c222ca337",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/cleanup-target-verification.json",
+      "expectedGitBlob": "4c887830ba62e3035f228292fb83a91617764515",
+      "actualGitBlob": "4c887830ba62e3035f228292fb83a91617764515",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/commands.json",
+      "expectedGitBlob": "82ac053cbc71192ddebe2d84e19a5ce46aed08f5",
+      "actualGitBlob": "82ac053cbc71192ddebe2d84e19a5ce46aed08f5",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/dependency-preflight.json",
+      "expectedGitBlob": "aa306f89f404769c2077c00ad0ae3a447b06eeaa",
+      "actualGitBlob": "aa306f89f404769c2077c00ad0ae3a447b06eeaa",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/diff-check.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/diff-check.stdout.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/entry-state.json",
+      "expectedGitBlob": "389d8a50aad61d47854cb78cf32bdd4771e0b3e1",
+      "actualGitBlob": "389d8a50aad61d47854cb78cf32bdd4771e0b3e1",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/epic16-4383-baseline-resume.py.txt",
+      "expectedGitBlob": "66ffdb6de44950445ad66896d94ab5d4362aad27",
+      "actualGitBlob": "66ffdb6de44950445ad66896d94ab5d4362aad27",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/epic16-4383-inspect-baseline.py.txt",
+      "expectedGitBlob": "efd78d9957e20921e57fad893c0752ce568dca38",
+      "actualGitBlob": "efd78d9957e20921e57fad893c0752ce568dca38",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/evidence-integrity-check.json",
+      "expectedGitBlob": "8a37f98418eec8c8c672cc19b4dcf2b5eebfc12c",
+      "actualGitBlob": "8a37f98418eec8c8c672cc19b4dcf2b5eebfc12c",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/exact-builds-fetch.json",
+      "expectedGitBlob": "007b9928d95e7be0a0d929ab6a7f12e4aed277f7",
+      "actualGitBlob": "007b9928d95e7be0a0d929ab6a7f12e4aed277f7",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/exact-builds-fetch.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/exact-builds-fetch.stdout.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/exit-state.json",
+      "expectedGitBlob": "c274bbe6ad9df3621f16b079f769f280adc2b4f1",
+      "actualGitBlob": "c274bbe6ad9df3621f16b079f769f280adc2b4f1",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/final-state.json",
+      "expectedGitBlob": "6f8773a356ed9e7dd3d85b6ff91ba5a5bdd75c38",
+      "actualGitBlob": "6f8773a356ed9e7dd3d85b6ff91ba5a5bdd75c38",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/finalization-driver.py.txt",
+      "expectedGitBlob": "dc0c429012a6b32fd115d614cbaaebfbecff2d0c",
+      "actualGitBlob": "dc0c429012a6b32fd115d614cbaaebfbecff2d0c",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/owned-apphost.json",
+      "expectedGitBlob": "c79f7d565546193fa327885c446449b5d6273614",
+      "actualGitBlob": "c79f7d565546193fa327885c446449b5d6273614",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/owned-paths.json",
+      "expectedGitBlob": "a6c1bd42cd805df117f6f0c00297b7e3a7ab2254",
+      "actualGitBlob": "a6c1bd42cd805df117f6f0c00297b7e3a7ab2254",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/platform-prepared-identity.json",
+      "expectedGitBlob": "a8dba69d1f845ee6523dce59cb459f9ac24af868",
+      "actualGitBlob": "a8dba69d1f845ee6523dce59cb459f9ac24af868",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/platform-prepared-identity.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/platform-prepared-identity.stdout.txt",
+      "expectedGitBlob": "886d0a5bdb2b800b39e291fe58b90e499864a1d7",
+      "actualGitBlob": "886d0a5bdb2b800b39e291fe58b90e499864a1d7",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/platform-recorded-builds.json",
+      "expectedGitBlob": "cf032c2c407c6cc8986bb418bda766752b3afc63",
+      "actualGitBlob": "cf032c2c407c6cc8986bb418bda766752b3afc63",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/platform-recorded-builds.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/platform-recorded-builds.stdout.txt",
+      "expectedGitBlob": "d19f8406959f726f6c119426ef65442d493338d4",
+      "actualGitBlob": "d19f8406959f726f6c119426ef65442d493338d4",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/port-5000-listener.json",
+      "expectedGitBlob": "b9df9942683a79373b40afbd7227214c09c82817",
+      "actualGitBlob": "b9df9942683a79373b40afbd7227214c09c82817",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/port-5000-listener.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/port-5000-listener.stdout.txt",
+      "expectedGitBlob": "fcf3947767dd5de19d7a9c9e53a4abb0a12d68a9",
+      "actualGitBlob": "fcf3947767dd5de19d7a9c9e53a4abb0a12d68a9",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/prepared-source-mapping/Hexalith.Folders.Aspire.proj",
+      "expectedGitBlob": "e5fe05d870b71e7a80e5ac411bbcd218757ed332",
+      "actualGitBlob": "e5fe05d870b71e7a80e5ac411bbcd218757ed332",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/prepared-source-mapping/SourceMapping.before-targets.props",
+      "expectedGitBlob": "cdb5c95b046df705efeaceb411b6cb8029089ebe",
+      "actualGitBlob": "cdb5c95b046df705efeaceb411b6cb8029089ebe",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/prepared-source-mapping/SourceMapping.final.targets",
+      "expectedGitBlob": "7fa09eac8f198dc73193d80dff581279f716a0fa",
+      "actualGitBlob": "7fa09eac8f198dc73193d80dff581279f716a0fa",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/prepared-source-mapping/SourceMapping.late.props",
+      "expectedGitBlob": "72d7d01424d0209ccd5331cd41a21f0cd70aca7b",
+      "actualGitBlob": "72d7d01424d0209ccd5331cd41a21f0cd70aca7b",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/prepared-source-mapping/SourceMapping.props",
+      "expectedGitBlob": "5b21355087d8b7e16a531f2dc0006a9fa55fb4ee",
+      "actualGitBlob": "5b21355087d8b7e16a531f2dc0006a9fa55fb4ee",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/prepared-source-mapping/SourceMapping.targets",
+      "expectedGitBlob": "2de571293ad6f0db3cbbf5c0efda7a479241a7bc",
+      "actualGitBlob": "2de571293ad6f0db3cbbf5c0efda7a479241a7bc",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/prepared-source-mapping/SourceMapping.values.props",
+      "expectedGitBlob": "1bdd21a108e8b85d1775f418c4378675af6454f5",
+      "actualGitBlob": "1bdd21a108e8b85d1775f418c4378675af6454f5",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/prepared-source-mapping/SourceMapping.values.targets",
+      "expectedGitBlob": "ccab7f7c9dba7f50b546961e9490d48acbed5c98",
+      "actualGitBlob": "ccab7f7c9dba7f50b546961e9490d48acbed5c98",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/prepared-source-mapping/__HXW_DefaultCatalog__.proj",
+      "expectedGitBlob": "e5fe05d870b71e7a80e5ac411bbcd218757ed332",
+      "actualGitBlob": "e5fe05d870b71e7a80e5ac411bbcd218757ed332",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/prepared-source-mapping/catalog-versions.json",
+      "expectedGitBlob": "99855a26c29f8b43ffe098a35f1cded388f18f70",
+      "actualGitBlob": "99855a26c29f8b43ffe098a35f1cded388f18f70",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/prepared-source-mapping/mapping.json",
+      "expectedGitBlob": "4d590e6f72f4fb5f33e3e0489a83d50f89f17501",
+      "actualGitBlob": "4d590e6f72f4fb5f33e3e0489a83d50f89f17501",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/prepared-source-mapping/pinned-tree/Props/Directory.Packages.props",
+      "expectedGitBlob": "5e52be14459dd50056a3eedce9978922c326667d",
+      "actualGitBlob": "5e52be14459dd50056a3eedce9978922c326667d",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/preservation-check.json",
+      "expectedGitBlob": "ae5cecdcb7bf086aa28dfb0a292df4b2555b1143",
+      "actualGitBlob": "ae5cecdcb7bf086aa28dfb0a292df4b2555b1143",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/producer-cli-debug-build.json",
+      "expectedGitBlob": "8cdf9d76e37892aae3351633614331d8911a427b",
+      "actualGitBlob": "8cdf9d76e37892aae3351633614331d8911a427b",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/producer-cli-debug-build.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/producer-cli-debug-build.stdout.txt",
+      "expectedGitBlob": "2ac4830271041bfece1babb7b41dac781f135971",
+      "actualGitBlob": "2ac4830271041bfece1babb7b41dac781f135971",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/qualification-ledger.json",
+      "expectedGitBlob": "05fbdfda26273edbdf9fb4373508e05b8ed9d914",
+      "actualGitBlob": "05fbdfda26273edbdf9fb4373508e05b8ed9d914",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/recorded-builds-commit.json",
+      "expectedGitBlob": "a4881b0d85eb1a15425e7974e24677a858e7964d",
+      "actualGitBlob": "a4881b0d85eb1a15425e7974e24677a858e7964d",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/recorded-builds-commit.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/recorded-builds-commit.stdout.txt",
+      "expectedGitBlob": "b93ad15b409975b00526b62c2fbfba9d28945a1b",
+      "actualGitBlob": "b93ad15b409975b00526b62c2fbfba9d28945a1b",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/recorded-builds-main-ancestry.json",
+      "expectedGitBlob": "2428442fd194ea38551a9701909640591229fc51",
+      "actualGitBlob": "2428442fd194ea38551a9701909640591229fc51",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/recorded-builds-main-ancestry.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/recorded-builds-main-ancestry.stdout.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/recorded-builds-object-after.json",
+      "expectedGitBlob": "b919be59be76cb2f78d8c0cafeeb6dc7d72ee5df",
+      "actualGitBlob": "b919be59be76cb2f78d8c0cafeeb6dc7d72ee5df",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/recorded-builds-object-after.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/recorded-builds-object-after.stdout.txt",
+      "expectedGitBlob": "01f9a2aac3e315c5caa00db4019f1d934171dba0",
+      "actualGitBlob": "01f9a2aac3e315c5caa00db4019f1d934171dba0",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/recorded-builds-object-before.json",
+      "expectedGitBlob": "0beaa5a5678ff2eba2036627574693854b119e3b",
+      "actualGitBlob": "0beaa5a5678ff2eba2036627574693854b119e3b",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/recorded-builds-object-before.stderr.txt",
+      "expectedGitBlob": "a5e019628422520bc18478a88111d3deb7c4ab9f",
+      "actualGitBlob": "a5e019628422520bc18478a88111d3deb7c4ab9f",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/recorded-builds-object-before.stdout.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/recorded-builds-props.json",
+      "expectedGitBlob": "4d43fd76440f319d2cbb6313890d2df68f166979",
+      "actualGitBlob": "4d43fd76440f319d2cbb6313890d2df68f166979",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/recorded-builds-props.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/recorded-builds-props.stdout.txt",
+      "expectedGitBlob": "52c61818bc0a0f62489cb8bf91de143d73a7d07e",
+      "actualGitBlob": "52c61818bc0a0f62489cb8bf91de143d73a7d07e",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/recorded-builds-tree.json",
+      "expectedGitBlob": "1a783f69d77bd230c054be512b5bd0328967b5da",
+      "actualGitBlob": "1a783f69d77bd230c054be512b5bd0328967b5da",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/recorded-builds-tree.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/recorded-builds-tree.stdout.txt",
+      "expectedGitBlob": "611b410768cf13cb24dd4e9cd4d008b8acf7287d",
+      "actualGitBlob": "611b410768cf13cb24dd4e9cd4d008b8acf7287d",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/resource-summary.json",
+      "expectedGitBlob": "01523ae6d5eeea15bec8c788ebec1bd051db8390",
+      "actualGitBlob": "01523ae6d5eeea15bec8c788ebec1bd051db8390",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/safe-diagnostic-redactions.json",
+      "expectedGitBlob": "593a0f80c5eaa1b4aee21e713a40c5c63c2e228b",
+      "actualGitBlob": "593a0f80c5eaa1b4aee21e713a40c5c63c2e228b",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/sdk-version.json",
+      "expectedGitBlob": "9d1e5763f07f31a8130b9c0d56f1f8af21c3e299",
+      "actualGitBlob": "9d1e5763f07f31a8130b9c0d56f1f8af21c3e299",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/sdk-version.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/sdk-version.stdout.txt",
+      "expectedGitBlob": "f9ec7b2d3f50d65b485086121069102d16590b55",
+      "actualGitBlob": "f9ec7b2d3f50d65b485086121069102d16590b55",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/source-environment.json",
+      "expectedGitBlob": "6c47824dab35aa68f5d5e28e999169e18502879e",
+      "actualGitBlob": "6c47824dab35aa68f5d5e28e999169e18502879e",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/source-prepare.json",
+      "expectedGitBlob": "8c83a0b95327aa652e29a4a17e09370a6454f23e",
+      "actualGitBlob": "8c83a0b95327aa652e29a4a17e09370a6454f23e",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/source-prepare.stderr.txt",
+      "expectedGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "actualGitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/source-prepare.stdout.txt",
+      "expectedGitBlob": "08126b72b44af2d3d9c508632656623e6fdd34a2",
+      "actualGitBlob": "08126b72b44af2d3d9c508632656623e6fdd34a2",
+      "passed": true
+    },
+    {
+      "path": "module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-02/temporary-workspace.json",
+      "expectedGitBlob": "c73379fba7266d209019467e57c7fc6d0ab0ca32",
+      "actualGitBlob": "c73379fba7266d209019467e57c7fc6d0ab0ca32",
+      "passed": true
+    }
+  ]
+}

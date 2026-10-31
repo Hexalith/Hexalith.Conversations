@@ -266,6 +266,13 @@ public sealed class ConversationsAppHostTopologyTest
 
         ResourceNamesReferencedBy(resources.AdminWeb.Resource).ShouldContain(ConversationsAppHostTopology.ConversationsResourceName);
         ResourceNamesWaitedOnBy(resources.AdminWeb.Resource).ShouldContain(ConversationsAppHostTopology.ConversationsResourceName);
+
+        EndpointAnnotation endpoint = resources.AdminWeb.Resource.Annotations.OfType<EndpointAnnotation>().ShouldHaveSingleItem();
+        endpoint.Name.ShouldBe("http");
+        endpoint.UriScheme.ShouldBe("http");
+        endpoint.Port.ShouldBeNull();
+        endpoint.TargetPort.ShouldBeNull();
+        endpoint.IsProxied.ShouldBeTrue();
     }
 
     [Fact]

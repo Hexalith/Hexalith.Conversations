@@ -1,0 +1,40 @@
+{
+  "name": "legacy-v1-current-focused",
+  "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "-ra",
+    "-p",
+    "no:cacheprovider",
+    "_bmad/scripts/tests/test_epic16_tooling.py",
+    "-k",
+    "all_fifteen_measured_routes_pass_only_as_disposable_fixtures or final_record_derives_sixth_after_five_and_is_deterministic or runtime_and_generator_remain_blocked_even_with_all_fixture_proofs or contract_schema_predecessor_and_source_pins_are_independent or dispatch_rejects_other_story_and_runs_no_artifact_commands or package_preparation_preserves_all_obligations_and_has_no_entry or standalone_generator_preserves_legacy_dispatch_without_successor_modules or protected_and_escaping_outputs_never_write_even_while_held or artifact_cannot_nominate_its_own_entry_trust"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 4125076,
+  "startedAtUtc": "2026-10-31T17:07:34.553671+00:00",
+  "durationSeconds": 44.72,
+  "timeoutSeconds": 900,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "legacy-v1-current-focused.stdout.txt",
+    "bytes": 117,
+    "sha256": "35327cd820f7bf401be6a38b82b2b1ca1fe6df581e35a8168a3574671d8fc2ea"
+  },
+  "stderr": {
+    "path": "legacy-v1-current-focused.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

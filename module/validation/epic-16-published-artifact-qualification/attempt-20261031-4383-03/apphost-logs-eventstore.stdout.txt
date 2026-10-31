@@ -1,0 +1,369 @@
+{
+  "logs": [
+    {
+      "resourceName": "eventstore",
+      "content": "Waiting for resource 'security' to enter the 'Running' state.",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "Waiting for resource 'security' to become healthy.",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "Waiting for resource ready to execute for 'security'.",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "Finished waiting for resource 'security'.",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "[sys] Starting process...: Cmd = /home/administrator/.dotnet/dotnet, Args = [\"run\", \"--project\", \"/home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore/Hexalith.EventStore.csproj\", \"--no-build\", \"--configuration\", \"Debug\", \"--no-launch-profile\"]",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-domain-metadata:sample.LogicalHandler\",\"Message\":\"Start processing HTTP request POST http://localhost:36335/v1.0/invoke/sample/method/admin/operational-index-metadata\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"http://localhost:36335/v1.0/invoke/sample/method/admin/operational-index-metadata\",\"{OriginalFormat}\":\"Start processing HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"Start processing HTTP request GET https://localhost:8180/realms/hexalith/.well-known/openid-configuration\",\"State\":{\"HttpMethod\":\"GET\",\"Uri\":\"https://localhost:8180/realms/hexalith/.well-known/openid-configuration\",\"{OriginalFormat}\":\"Start processing HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Sending HTTP request GET https://localhost:8180/realms/hexalith/.well-known/openid-configuration\",\"State\":{\"HttpMethod\":\"GET\",\"Uri\":\"https://localhost:8180/realms/hexalith/.well-known/openid-configuration\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Received HTTP response headers after 173.5604ms - 200\",\"State\":{\"ElapsedMilliseconds\":173.5604,\"StatusCode\":200,\"{OriginalFormat}\":\"Received HTTP response headers after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":3,\"LogLevel\":\"Information\",\"Category\":\"Polly\",\"Message\":\"Execution attempt. Source: \\u0027-standard/https://localhost:8180/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027200\\u0027, Handled: \\u0027False\\u0027, Attempt: \\u00270\\u0027, Execution Time: 182.5476ms\",\"State\":{\"PipelineName\":\"-standard\",\"PipelineInstance\":\"https://localhost:8180\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":200,\"Handled\":false,\"Attempt\":0,\"ExecutionTimeMs\":182.5476,\"{OriginalFormat}\":\"Execution attempt. Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027, Handled: \\u0027{Handled}\\u0027, Attempt: \\u0027{Attempt}\\u0027, Execution Time: {ExecutionTimeMs}ms\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"End processing HTTP request after 191.0502ms - 200\",\"State\":{\"ElapsedMilliseconds\":191.0502,\"StatusCode\":200,\"{OriginalFormat}\":\"End processing HTTP request after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"Start processing HTTP request GET https://localhost:8180/realms/hexalith/protocol/openid-connect/certs\",\"State\":{\"HttpMethod\":\"GET\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/certs\",\"{OriginalFormat}\":\"Start processing HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Sending HTTP request GET https://localhost:8180/realms/hexalith/protocol/openid-connect/certs\",\"State\":{\"HttpMethod\":\"GET\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/certs\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Received HTTP response headers after 36.4881ms - 200\",\"State\":{\"ElapsedMilliseconds\":36.4881,\"StatusCode\":200,\"{OriginalFormat}\":\"Received HTTP response headers after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":3,\"LogLevel\":\"Information\",\"Category\":\"Polly\",\"Message\":\"Execution attempt. Source: \\u0027-standard/https://localhost:8180/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027200\\u0027, Handled: \\u0027False\\u0027, Attempt: \\u00270\\u0027, Execution Time: 36.893ms\",\"State\":{\"PipelineName\":\"-standard\",\"PipelineInstance\":\"https://localhost:8180\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":200,\"Handled\":false,\"Attempt\":0,\"ExecutionTimeMs\":36.893,\"{OriginalFormat}\":\"Execution attempt. Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027, Handled: \\u0027{Handled}\\u0027, Attempt: \\u0027{Attempt}\\u0027, Execution Time: {ExecutionTimeMs}ms\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"End processing HTTP request after 37.3433ms - 200\",\"State\":{\"ElapsedMilliseconds\":37.3433,\"StatusCode\":200,\"{OriginalFormat}\":\"End processing HTTP request after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"Start processing HTTP request POST https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"{OriginalFormat}\":\"Start processing HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Sending HTTP request POST https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Received HTTP response headers after 60.1197ms - 400\",\"State\":{\"ElapsedMilliseconds\":60.1197,\"StatusCode\":400,\"{OriginalFormat}\":\"Received HTTP response headers after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":3,\"LogLevel\":\"Information\",\"Category\":\"Polly\",\"Message\":\"Execution attempt. Source: \\u0027-standard/https://localhost:8180/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027400\\u0027, Handled: \\u0027False\\u0027, Attempt: \\u00270\\u0027, Execution Time: 60.426ms\",\"State\":{\"PipelineName\":\"-standard\",\"PipelineInstance\":\"https://localhost:8180\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":400,\"Handled\":false,\"Attempt\":0,\"ExecutionTimeMs\":60.426,\"{OriginalFormat}\":\"Execution attempt. Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027, Handled: \\u0027{Handled}\\u0027, Attempt: \\u0027{Attempt}\\u0027, Execution Time: {ExecutionTimeMs}ms\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"End processing HTTP request after 60.7984ms - 400\",\"State\":{\"ElapsedMilliseconds\":60.7984,\"StatusCode\":400,\"{OriginalFormat}\":\"End processing HTTP request after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":5512,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.ServiceDefaults.Authentication.JwtWorkloadAssertionIssuer\",\"Message\":\"Workload assertion token request failed: StatusCode=400.\",\"State\":{\"Message\":\"StatusCode=400,{OriginalFormat}=Workload assertion token request failed: StatusCode={StatusCode}.\",\"StatusCode\":400,\"{OriginalFormat}\":\"Workload assertion token request failed: StatusCode={StatusCode}.\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":5541,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.Server.DomainServices.DomainServiceWorkloadAssertionHandler\",\"Message\":\"Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation=domain-service:metadata\",\"State\":{\"Message\":\"Operation=domain-service:metadata,{OriginalFormat}=Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation={Operation}\",\"Operation\":\"domain-service:metadata\",\"{OriginalFormat}\":\"Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation={Operation}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-domain-metadata:sample.ClientHandler\",\"Message\":\"Sending HTTP request POST http://localhost:36335/v1.0/invoke/sample/method/admin/operational-index-metadata\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"http://localhost:36335/v1.0/invoke/sample/method/admin/operational-index-metadata\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":3,\"LogLevel\":\"Information\",\"Category\":\"Polly\",\"Message\":\"Execution attempt. Source: \\u0027-standard/http://localhost:36335/v1.0/invoke/sample/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027An independently bound local catalog host identity and profile are required.\\u0027, Handled: \\u0027False\\u0027, Attempt: \\u00270\\u0027, Execution Time: 348.0309ms\",\"Exception\":\"Hexalith.EventStore.ServiceDefaults.Routing.RouteCatalogUnavailableException: An independently bound local catalog host identity and profile are required.\\n   at Hexalith.EventStore.ServiceDefaults.Routing.RouteCatalogAuthority.RequireLocalIdentity() in /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Routing/RouteCatalogAuthority.cs:line 195\\n   at Hexalith.EventStore.ServiceDefaults.Routing.RouteCatalogAuthority.AcquireAsync(CancellationToken cancellationToken) in /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Routing/RouteCatalogAuthority.cs:line 125\\n   at Hexalith.EventStore.ServiceDefaults.Routing.RouteCatalogInvocationHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) in /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Routing/RouteCatalogInvocationHandler.cs:line 133\\n   at Microsoft.Extensions.Http.Logging.LoggingHttpMessageHandler.\\u003CSendCoreAsync\\u003Eg__Core|4_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)\\n   at Hexalith.EventStore.Server.DomainServices.DomainServiceWorkloadAssertionHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) in /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.Server/DomainServices/DomainServiceWorkloadAssertionHandler.cs:line 94\\n   at Microsoft.Extensions.ServiceDiscovery.Http.ResolvingHttpDelegatingHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)\\n   at Microsoft.Extensions.Http.Resilience.ResilienceHandler.\\u003C\\u003Ec.\\u003C\\u003CSendAsync\\u003Eb__3_0\\u003Ed.MoveNext()\",\"State\":{\"PipelineName\":\"-standard\",\"PipelineInstance\":\"http://localhost:36335/v1.0/invoke/sample\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":\"An independently bound local catalog host identity and profile are required.\",\"Handled\":false,\"Attempt\":0,\"ExecutionTimeMs\":348.0309,\"{OriginalFormat}\":\"Execution attempt. Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027, Handled: \\u0027{Handled}\\u0027, Attempt: \\u0027{Attempt}\\u0027, Execution Time: {ExecutionTimeMs}ms\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":6100,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.Indexes.AdminOperationalIndexHostedService\",\"Message\":\"Operational index metadata unavailable from domain service AppId=sample; type catalog entries for that app may be incomplete. ExceptionType=RouteCatalogUnavailableException\",\"State\":{\"Message\":\"ExceptionType=RouteCatalogUnavailableException,AppId=sample,{OriginalFormat}=Operational index metadata unavailable from domain service AppId={AppId}; type catalog entries for that app may be incomplete. ExceptionType={ExceptionType}\",\"ExceptionType\":\"RouteCatalogUnavailableException\",\"AppId\":\"sample\",\"{OriginalFormat}\":\"Operational index metadata unavailable from domain service AppId={AppId}; type catalog entries for that app may be incomplete. ExceptionType={ExceptionType}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-domain-metadata:sample.LogicalHandler\",\"Message\":\"Start processing HTTP request POST http://localhost:36335/v1.0/invoke/sample/method/admin/operational-index-metadata\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"http://localhost:36335/v1.0/invoke/sample/method/admin/operational-index-metadata\",\"{OriginalFormat}\":\"Start processing HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"Start processing HTTP request POST https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"{OriginalFormat}\":\"Start processing HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Sending HTTP request POST https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Received HTTP response headers after 8.5288ms - 400\",\"State\":{\"ElapsedMilliseconds\":8.5288,\"StatusCode\":400,\"{OriginalFormat}\":\"Received HTTP response headers after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":3,\"LogLevel\":\"Information\",\"Category\":\"Polly\",\"Message\":\"Execution attempt. Source: \\u0027-standard/https://localhost:8180/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027400\\u0027, Handled: \\u0027False\\u0027, Attempt: \\u00270\\u0027, Execution Time: 8.8611ms\",\"State\":{\"PipelineName\":\"-standard\",\"PipelineInstance\":\"https://localhost:8180\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":400,\"Handled\":false,\"Attempt\":0,\"ExecutionTimeMs\":8.8611,\"{OriginalFormat}\":\"Execution attempt. Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027, Handled: \\u0027{Handled}\\u0027, Attempt: \\u0027{Attempt}\\u0027, Execution Time: {ExecutionTimeMs}ms\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"End processing HTTP request after 9.2181ms - 400\",\"State\":{\"ElapsedMilliseconds\":9.2181,\"StatusCode\":400,\"{OriginalFormat}\":\"End processing HTTP request after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":5512,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.ServiceDefaults.Authentication.JwtWorkloadAssertionIssuer\",\"Message\":\"Workload assertion token request failed: StatusCode=400.\",\"State\":{\"Message\":\"StatusCode=400,{OriginalFormat}=Workload assertion token request failed: StatusCode={StatusCode}.\",\"StatusCode\":400,\"{OriginalFormat}\":\"Workload assertion token request failed: StatusCode={StatusCode}.\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":5541,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.Server.DomainServices.DomainServiceWorkloadAssertionHandler\",\"Message\":\"Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation=domain-service:metadata\",\"State\":{\"Message\":\"Operation=domain-service:metadata,{OriginalFormat}=Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation={Operation}\",\"Operation\":\"domain-service:metadata\",\"{OriginalFormat}\":\"Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation={Operation}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-domain-metadata:sample.ClientHandler\",\"Message\":\"Sending HTTP request POST http://localhost:36335/v1.0/invoke/sample/method/admin/operational-index-metadata\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"http://localhost:36335/v1.0/invoke/sample/method/admin/operational-index-metadata\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":3,\"LogLevel\":\"Information\",\"Category\":\"Polly\",\"Message\":\"Execution attempt. Source: \\u0027-standard/http://localhost:36335/v1.0/invoke/sample/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027An independently bound local catalog host identity and profile are required.\\u0027, Handled: \\u0027False\\u0027, Attempt: \\u00270\\u0027, Execution Time: 10.4639ms\",\"Exception\":\"Hexalith.EventStore.ServiceDefaults.Routing.RouteCatalogUnavailableException: An independently bound local catalog host identity and profile are required.\\n   at Hexalith.EventStore.ServiceDefaults.Routing.RouteCatalogAuthority.RequireLocalIdentity() in /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Routing/RouteCatalogAuthority.cs:line 195\\n   at Hexalith.EventStore.ServiceDefaults.Routing.RouteCatalogAuthority.AcquireAsync(CancellationToken cancellationToken) in /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Routing/RouteCatalogAuthority.cs:line 125\\n   at Hexalith.EventStore.ServiceDefaults.Routing.RouteCatalogInvocationHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) in /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Routing/RouteCatalogInvocationHandler.cs:line 133\\n   at Microsoft.Extensions.Http.Logging.LoggingHttpMessageHandler.\\u003CSendCoreAsync\\u003Eg__Core|4_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)\\n   at Hexalith.EventStore.Server.DomainServices.DomainServiceWorkloadAssertionHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) in /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.Server/DomainServices/DomainServiceWorkloadAssertionHandler.cs:line 94\\n   at Microsoft.Extensions.ServiceDiscovery.Http.ResolvingHttpDelegatingHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)\\n   at Microsoft.Extensions.Http.Resilience.ResilienceHandler.\\u003C\\u003Ec.\\u003C\\u003CSendAsync\\u003Eb__3_0\\u003Ed.MoveNext()\",\"State\":{\"PipelineName\":\"-standard\",\"PipelineInstance\":\"http://localhost:36335/v1.0/invoke/sample\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":\"An independently bound local catalog host identity and profile are required.\",\"Handled\":false,\"Attempt\":0,\"ExecutionTimeMs\":10.4639,\"{OriginalFormat}\":\"Execution attempt. Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027, Handled: \\u0027{Handled}\\u0027, Attempt: \\u0027{Attempt}\\u0027, Execution Time: {ExecutionTimeMs}ms\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":6100,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.Indexes.AdminOperationalIndexHostedService\",\"Message\":\"Operational index metadata unavailable from domain service AppId=sample; type catalog entries for that app may be incomplete. ExceptionType=RouteCatalogUnavailableException\",\"State\":{\"Message\":\"ExceptionType=RouteCatalogUnavailableException,AppId=sample,{OriginalFormat}=Operational index metadata unavailable from domain service AppId={AppId}; type catalog entries for that app may be incomplete. ExceptionType={ExceptionType}\",\"ExceptionType\":\"RouteCatalogUnavailableException\",\"AppId\":\"sample\",\"{OriginalFormat}\":\"Operational index metadata unavailable from domain service AppId={AppId}; type catalog entries for that app may be incomplete. ExceptionType={ExceptionType}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-domain-metadata:tenants.LogicalHandler\",\"Message\":\"Start processing HTTP request POST http://localhost:36335/v1.0/invoke/tenants/method/admin/operational-index-metadata\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"http://localhost:36335/v1.0/invoke/tenants/method/admin/operational-index-metadata\",\"{OriginalFormat}\":\"Start processing HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"Start processing HTTP request POST https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"{OriginalFormat}\":\"Start processing HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Sending HTTP request POST https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Received HTTP response headers after 9.2014ms - 400\",\"State\":{\"ElapsedMilliseconds\":9.2014,\"StatusCode\":400,\"{OriginalFormat}\":\"Received HTTP response headers after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":3,\"LogLevel\":\"Information\",\"Category\":\"Polly\",\"Message\":\"Execution attempt. Source: \\u0027-standard/https://localhost:8180/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027400\\u0027, Handled: \\u0027False\\u0027, Attempt: \\u00270\\u0027, Execution Time: 9.4231ms\",\"State\":{\"PipelineName\":\"-standard\",\"PipelineInstance\":\"https://localhost:8180\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":400,\"Handled\":false,\"Attempt\":0,\"ExecutionTimeMs\":9.4231,\"{OriginalFormat}\":\"Execution attempt. Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027, Handled: \\u0027{Handled}\\u0027, Attempt: \\u0027{Attempt}\\u0027, Execution Time: {ExecutionTimeMs}ms\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"End processing HTTP request after 9.673ms - 400\",\"State\":{\"ElapsedMilliseconds\":9.673,\"StatusCode\":400,\"{OriginalFormat}\":\"End processing HTTP request after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":5512,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.ServiceDefaults.Authentication.JwtWorkloadAssertionIssuer\",\"Message\":\"Workload assertion token request failed: StatusCode=400.\",\"State\":{\"Message\":\"StatusCode=400,{OriginalFormat}=Workload assertion token request failed: StatusCode={StatusCode}.\",\"StatusCode\":400,\"{OriginalFormat}\":\"Workload assertion token request failed: StatusCode={StatusCode}.\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":5541,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.Server.DomainServices.DomainServiceWorkloadAssertionHandler\",\"Message\":\"Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation=domain-service:metadata\",\"State\":{\"Message\":\"Operation=domain-service:metadata,{OriginalFormat}=Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation={Operation}\",\"Operation\":\"domain-service:metadata\",\"{OriginalFormat}\":\"Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation={Operation}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-domain-metadata:tenants.ClientHandler\",\"Message\":\"Sending HTTP request POST http://localhost:36335/v1.0/invoke/tenants/method/admin/operational-index-metadata\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"http://localhost:36335/v1.0/invoke/tenants/method/admin/operational-index-metadata\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":3,\"LogLevel\":\"Information\",\"Category\":\"Polly\",\"Message\":\"Execution attempt. Source: \\u0027-standard/http://localhost:36335/v1.0/invoke/tenants/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027An independently bound local catalog host identity and profile are required.\\u0027, Handled: \\u0027False\\u0027, Attempt: \\u00270\\u0027, Execution Time: 10.7362ms\",\"Exception\":\"Hexalith.EventStore.ServiceDefaults.Routing.RouteCatalogUnavailableException: An independently bound local catalog host identity and profile are required.\\n   at Hexalith.EventStore.ServiceDefaults.Routing.RouteCatalogAuthority.RequireLocalIdentity() in /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Routing/RouteCatalogAuthority.cs:line 195\\n   at Hexalith.EventStore.ServiceDefaults.Routing.RouteCatalogAuthority.AcquireAsync(CancellationToken cancellationToken) in /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Routing/RouteCatalogAuthority.cs:line 125\\n   at Hexalith.EventStore.ServiceDefaults.Routing.RouteCatalogInvocationHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) in /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Routing/RouteCatalogInvocationHandler.cs:line 133\\n   at Microsoft.Extensions.Http.Logging.LoggingHttpMessageHandler.\\u003CSendCoreAsync\\u003Eg__Core|4_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)\\n   at Hexalith.EventStore.Server.DomainServices.DomainServiceWorkloadAssertionHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) in /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.Server/DomainServices/DomainServiceWorkloadAssertionHandler.cs:line 94\\n   at Microsoft.Extensions.ServiceDiscovery.Http.ResolvingHttpDelegatingHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)\\n   at Microsoft.Extensions.Http.Resilience.ResilienceHandler.\\u003C\\u003Ec.\\u003C\\u003CSendAsync\\u003Eb__3_0\\u003Ed.MoveNext()\",\"State\":{\"PipelineName\":\"-standard\",\"PipelineInstance\":\"http://localhost:36335/v1.0/invoke/tenants\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":\"An independently bound local catalog host identity and profile are required.\",\"Handled\":false,\"Attempt\":0,\"ExecutionTimeMs\":10.7362,\"{OriginalFormat}\":\"Execution attempt. Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027, Handled: \\u0027{Handled}\\u0027, Attempt: \\u0027{Attempt}\\u0027, Execution Time: {ExecutionTimeMs}ms\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":6100,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.Indexes.AdminOperationalIndexHostedService\",\"Message\":\"Operational index metadata unavailable from domain service AppId=tenants; type catalog entries for that app may be incomplete. ExceptionType=RouteCatalogUnavailableException\",\"State\":{\"Message\":\"ExceptionType=RouteCatalogUnavailableException,AppId=tenants,{OriginalFormat}=Operational index metadata unavailable from domain service AppId={AppId}; type catalog entries for that app may be incomplete. ExceptionType={ExceptionType}\",\"ExceptionType\":\"RouteCatalogUnavailableException\",\"AppId\":\"tenants\",\"{OriginalFormat}\":\"Operational index metadata unavailable from domain service AppId={AppId}; type catalog entries for that app may be incomplete. ExceptionType={ExceptionType}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-domain-metadata:tenants.LogicalHandler\",\"Message\":\"Start processing HTTP request POST http://localhost:36335/v1.0/invoke/tenants/method/admin/operational-index-metadata\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"http://localhost:36335/v1.0/invoke/tenants/method/admin/operational-index-metadata\",\"{OriginalFormat}\":\"Start processing HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"Start processing HTTP request POST https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"{OriginalFormat}\":\"Start processing HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Sending HTTP request POST https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"https://localhost:8180/realms/hexalith/protocol/openid-connect/token\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.ClientHandler\",\"Message\":\"Received HTTP response headers after 7.1417ms - 400\",\"State\":{\"ElapsedMilliseconds\":7.1417,\"StatusCode\":400,\"{OriginalFormat}\":\"Received HTTP response headers after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":3,\"LogLevel\":\"Information\",\"Category\":\"Polly\",\"Message\":\"Execution attempt. Source: \\u0027-standard/https://localhost:8180/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027400\\u0027, Handled: \\u0027False\\u0027, Attempt: \\u00270\\u0027, Execution Time: 7.3123ms\",\"State\":{\"PipelineName\":\"-standard\",\"PipelineInstance\":\"https://localhost:8180\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":400,\"Handled\":false,\"Attempt\":0,\"ExecutionTimeMs\":7.3123,\"{OriginalFormat}\":\"Execution attempt. Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027, Handled: \\u0027{Handled}\\u0027, Attempt: \\u0027{Attempt}\\u0027, Execution Time: {ExecutionTimeMs}ms\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":101,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-workload-assertion-issuer.LogicalHandler\",\"Message\":\"End processing HTTP request after 7.4889ms - 400\",\"State\":{\"ElapsedMilliseconds\":7.4889,\"StatusCode\":400,\"{OriginalFormat}\":\"End processing HTTP request after {ElapsedMilliseconds}ms - {StatusCode}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":5512,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.ServiceDefaults.Authentication.JwtWorkloadAssertionIssuer\",\"Message\":\"Workload assertion token request failed: StatusCode=400.\",\"State\":{\"Message\":\"StatusCode=400,{OriginalFormat}=Workload assertion token request failed: StatusCode={StatusCode}.\",\"StatusCode\":400,\"{OriginalFormat}\":\"Workload assertion token request failed: StatusCode={StatusCode}.\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":5541,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.Server.DomainServices.DomainServiceWorkloadAssertionHandler\",\"Message\":\"Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation=domain-service:metadata\",\"State\":{\"Message\":\"Operation=domain-service:metadata,{OriginalFormat}=Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation={Operation}\",\"Operation\":\"domain-service:metadata\",\"{OriginalFormat}\":\"Domain-service invocation sent without a workload assertion; the receiver will deny it. Operation={Operation}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":100,\"LogLevel\":\"Information\",\"Category\":\"System.Net.Http.HttpClient.eventstore-domain-metadata:tenants.ClientHandler\",\"Message\":\"Sending HTTP request POST http://localhost:36335/v1.0/invoke/tenants/method/admin/operational-index-metadata\",\"State\":{\"HttpMethod\":\"POST\",\"Uri\":\"http://localhost:36335/v1.0/invoke/tenants/method/admin/operational-index-metadata\",\"{OriginalFormat}\":\"Sending HTTP request {HttpMethod} {Uri}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":3,\"LogLevel\":\"Information\",\"Category\":\"Polly\",\"Message\":\"Execution attempt. Source: \\u0027-standard/http://localhost:36335/v1.0/invoke/tenants/Standard-Retry\\u0027, Operation Key: \\u0027\\u0027, Result: \\u0027An independently bound local catalog host identity and profile are required.\\u0027, Handled: \\u0027False\\u0027, Attempt: \\u00270\\u0027, Execution Time: 7.9424ms\",\"Exception\":\"Hexalith.EventStore.ServiceDefaults.Routing.RouteCatalogUnavailableException: An independently bound local catalog host identity and profile are required.\\n   at Hexalith.EventStore.ServiceDefaults.Routing.RouteCatalogAuthority.RequireLocalIdentity() in /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Routing/RouteCatalogAuthority.cs:line 195\\n   at Hexalith.EventStore.ServiceDefaults.Routing.RouteCatalogAuthority.AcquireAsync(CancellationToken cancellationToken) in /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Routing/RouteCatalogAuthority.cs:line 125\\n   at Hexalith.EventStore.ServiceDefaults.Routing.RouteCatalogInvocationHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) in /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Routing/RouteCatalogInvocationHandler.cs:line 133\\n   at Microsoft.Extensions.Http.Logging.LoggingHttpMessageHandler.\\u003CSendCoreAsync\\u003Eg__Core|4_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)\\n   at Hexalith.EventStore.Server.DomainServices.DomainServiceWorkloadAssertionHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) in /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.Server/DomainServices/DomainServiceWorkloadAssertionHandler.cs:line 94\\n   at Microsoft.Extensions.ServiceDiscovery.Http.ResolvingHttpDelegatingHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)\\n   at Microsoft.Extensions.Http.Resilience.ResilienceHandler.\\u003C\\u003Ec.\\u003C\\u003CSendAsync\\u003Eb__3_0\\u003Ed.MoveNext()\",\"State\":{\"PipelineName\":\"-standard\",\"PipelineInstance\":\"http://localhost:36335/v1.0/invoke/tenants\",\"StrategyName\":\"Standard-Retry\",\"OperationKey\":null,\"Result\":\"An independently bound local catalog host identity and profile are required.\",\"Handled\":false,\"Attempt\":0,\"ExecutionTimeMs\":7.9424,\"{OriginalFormat}\":\"Execution attempt. Source: \\u0027{PipelineName}/{PipelineInstance}/{StrategyName}\\u0027, Operation Key: \\u0027{OperationKey}\\u0027, Result: \\u0027{Result}\\u0027, Handled: \\u0027{Handled}\\u0027, Attempt: \\u0027{Attempt}\\u0027, Execution Time: {ExecutionTimeMs}ms\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":6100,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.Indexes.AdminOperationalIndexHostedService\",\"Message\":\"Operational index metadata unavailable from domain service AppId=tenants; type catalog entries for that app may be incomplete. ExceptionType=RouteCatalogUnavailableException\",\"State\":{\"Message\":\"ExceptionType=RouteCatalogUnavailableException,AppId=tenants,{OriginalFormat}=Operational index metadata unavailable from domain service AppId={AppId}; type catalog entries for that app may be incomplete. ExceptionType={ExceptionType}\",\"ExceptionType\":\"RouteCatalogUnavailableException\",\"AppId\":\"tenants\",\"{OriginalFormat}\":\"Operational index metadata unavailable from domain service AppId={AppId}; type catalog entries for that app may be incomplete. ExceptionType={ExceptionType}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":6101,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.Indexes.AdminOperationalIndexHostedService\",\"Message\":\"Skipping admin projection and type-catalog index writes because one or more domain metadata sources failed. Existing projection and type-catalog indexes are preserved.\",\"State\":{\"Message\":\"{OriginalFormat}=Skipping admin projection and type-catalog index writes because one or more domain metadata sources failed. Existing projection and type-catalog indexes are preserved.\",\"{OriginalFormat}\":\"Skipping admin projection and type-catalog index writes because one or more domain metadata sources failed. Existing projection and type-catalog indexes are preserved.\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":7105,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.Server.Configuration.FoldedSnapshotQualificationHostedService\",\"Message\":\"Folded snapshot qualification is not registered on the actor host; automatic snapshots are skipped and manual snapshot creation is unsupported. Enroll reviewed profiles on both hosts. Legacy history-bearing snapshots require full event replay. FailureClass=SnapshotCaptureUnsupported, Stage=FoldedSnapshotQualificationAbsent\",\"State\":{\"Message\":\"{OriginalFormat}=Folded snapshot qualification is not registered on the actor host; automatic snapshots are skipped and manual snapshot creation is unsupported. Enroll reviewed profiles on both hosts. Legacy history-bearing snapshots require full event replay. FailureClass=SnapshotCaptureUnsupported, Stage=FoldedSnapshotQualificationAbsent\",\"{OriginalFormat}\":\"Folded snapshot qualification is not registered on the actor host; automatic snapshots are skipped and manual snapshot creation is unsupported. Enroll reviewed profiles on both hosts. Legacy history-bearing snapshots require full event replay. FailureClass=SnapshotCaptureUnsupported, Stage=FoldedSnapshotQualificationAbsent\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":1121,\"LogLevel\":\"Information\",\"Category\":\"Hexalith.EventStore.Server.Projections.ProjectionDiscoveryHostedService\",\"Message\":\"Projection discovery: domain \\u0027counter\\u0027 -\\u003E immediate mode (fire-and-forget after persistence)\",\"State\":{\"Message\":\"Domain=counter,{OriginalFormat}=Projection discovery: domain \\u0027{Domain}\\u0027 -\\u003E immediate mode (fire-and-forget after persistence)\",\"Domain\":\"counter\",\"{OriginalFormat}\":\"Projection discovery: domain \\u0027{Domain}\\u0027 -\\u003E immediate mode (fire-and-forget after persistence)\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":1121,\"LogLevel\":\"Information\",\"Category\":\"Hexalith.EventStore.Server.Projections.ProjectionDiscoveryHostedService\",\"Message\":\"Projection discovery: domain \\u0027global-administrators\\u0027 -\\u003E immediate mode (fire-and-forget after persistence)\",\"State\":{\"Message\":\"Domain=global-administrators,{OriginalFormat}=Projection discovery: domain \\u0027{Domain}\\u0027 -\\u003E immediate mode (fire-and-forget after persistence)\",\"Domain\":\"global-administrators\",\"{OriginalFormat}\":\"Projection discovery: domain \\u0027{Domain}\\u0027 -\\u003E immediate mode (fire-and-forget after persistence)\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":1121,\"LogLevel\":\"Information\",\"Category\":\"Hexalith.EventStore.Server.Projections.ProjectionDiscoveryHostedService\",\"Message\":\"Projection discovery: domain \\u0027greeting\\u0027 -\\u003E immediate mode (fire-and-forget after persistence)\",\"State\":{\"Message\":\"Domain=greeting,{OriginalFormat}=Projection discovery: domain \\u0027{Domain}\\u0027 -\\u003E immediate mode (fire-and-forget after persistence)\",\"Domain\":\"greeting\",\"{OriginalFormat}\":\"Projection discovery: domain \\u0027{Domain}\\u0027 -\\u003E immediate mode (fire-and-forget after persistence)\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":1121,\"LogLevel\":\"Information\",\"Category\":\"Hexalith.EventStore.Server.Projections.ProjectionDiscoveryHostedService\",\"Message\":\"Projection discovery: domain \\u0027tenants\\u0027 -\\u003E immediate mode (fire-and-forget after persistence)\",\"State\":{\"Message\":\"Domain=tenants,{OriginalFormat}=Projection discovery: domain \\u0027{Domain}\\u0027 -\\u003E immediate mode (fire-and-forget after persistence)\",\"Domain\":\"tenants\",\"{OriginalFormat}\":\"Projection discovery: domain \\u0027{Domain}\\u0027 -\\u003E immediate mode (fire-and-forget after persistence)\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":1124,\"LogLevel\":\"Information\",\"Category\":\"Hexalith.EventStore.Server.Projections.ProjectionDiscoveryHostedService\",\"Message\":\"Projection discovery complete: 4 domains discovered. Default refresh interval: 0ms (0=immediate).\",\"State\":{\"Message\":\"DefaultRefreshIntervalMs=0,DomainCount=4,{OriginalFormat}=Projection discovery complete: {DomainCount} domains discovered. Default refresh interval: {DefaultRefreshIntervalMs}ms (0=immediate).\",\"DefaultRefreshIntervalMs\":0,\"DomainCount\":4,\"{OriginalFormat}\":\"Projection discovery complete: {DomainCount} domains discovered. Default refresh interval: {DefaultRefreshIntervalMs}ms (0=immediate).\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":1200,\"LogLevel\":\"Information\",\"Category\":\"Hexalith.EventStore.Server.Projections.ActiveRebuildIndexCleanupService\",\"Message\":\"Active-rebuild-index cleanup service started: CadenceSeconds=60, Stage=ActiveRebuildIndexCleanupServiceStarted\",\"State\":{\"Message\":\"CadenceSeconds=60,{OriginalFormat}=Active-rebuild-index cleanup service started: CadenceSeconds={CadenceSeconds}, Stage=ActiveRebuildIndexCleanupServiceStarted\",\"CadenceSeconds\":60,\"{OriginalFormat}\":\"Active-rebuild-index cleanup service started: CadenceSeconds={CadenceSeconds}, Stage=ActiveRebuildIndexCleanupServiceStarted\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":14,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.Hosting.Lifetime\",\"Message\":\"Now listening on: https://localhost:32087\",\"State\":{\"address\":\"https://localhost:32087\",\"{OriginalFormat}\":\"Now listening on: {address}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":14,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.Hosting.Lifetime\",\"Message\":\"Now listening on: http://localhost:32086\",\"State\":{\"address\":\"http://localhost:32086\",\"{OriginalFormat}\":\"Now listening on: {address}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":0,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.Hosting.Lifetime\",\"Message\":\"Application started. Press Ctrl\\u002BC to shut down.\",\"State\":{\"{OriginalFormat}\":\"Application started. Press Ctrl\\u002BC to shut down.\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":0,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.Hosting.Lifetime\",\"Message\":\"Hosting environment: Development\",\"State\":{\"EnvName\":\"Development\",\"{OriginalFormat}\":\"Hosting environment: {EnvName}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":0,\"LogLevel\":\"Information\",\"Category\":\"Microsoft.Hosting.Lifetime\",\"Message\":\"Content root path: /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore\",\"State\":{\"ContentRoot\":\"/home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore\",\"{OriginalFormat}\":\"Content root path: {ContentRoot}\"}}",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "{\"EventId\":0,\"LogLevel\":\"Warning\",\"Category\":\"Hexalith.EventStore.Configuration.DaprRateLimitConfigSync\",\"Message\":\"DAPR config store unavailable for rate limit sync. Falling back to appsettings.json values.\",\"Exception\":\"Dapr.DaprException: GetConfiguration operation failed: the Dapr endpoint indicated a failure. See InnerException for details.\\n ---\\u003E Grpc.Core.RpcException: Status(StatusCode=\\u0022FailedPrecondition\\u0022, Detail=\\u0022configuration stores not configured\\u0022)\\n   at Dapr.Client.DaprClientGrpc.GetConfiguration(String storeName, IReadOnlyList\\u00601 keys, IReadOnlyDictionary\\u00602 metadata, CancellationToken cancellationToken)\\n   --- End of inner exception stack trace ---\\n   at Dapr.Client.DaprClientGrpc.GetConfiguration(String storeName, IReadOnlyList\\u00601 keys, IReadOnlyDictionary\\u00602 metadata, CancellationToken cancellationToken)\\n   at Hexalith.EventStore.Configuration.DaprRateLimitConfigSync.FetchConfigurationAsync(DaprClient daprClient, String[] keys, CancellationToken cancellationToken) in /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore/Configuration/DaprRateLimitConfigSync.cs:line 70\\n   at Hexalith.EventStore.Configuration.DaprRateLimitConfigSync.LoadTenantIdsAsync(DaprClient daprClient, CancellationToken cancellationToken) in /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore/Configuration/DaprRateLimitConfigSync.cs:line 80\\n   at Hexalith.EventStore.Configuration.DaprRateLimitConfigSync.SyncTenantOverridesAsync(DaprClient daprClient, CancellationToken cancellationToken) in /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore/Configuration/DaprRateLimitConfigSync.cs:line 158\",\"State\":{\"{OriginalFormat}\":\"DAPR config store unavailable for rate limit sync. Falling back to appsettings.json values.\"}}",
+      "isError": false
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "scope": "ephemeral dashboard login tokens and generated dashboard credential values in this fresh attempt only",
+  "files": [
+    {
+      "path": "apphost-describe-final.stdout.txt",
+      "rawSha256": "c2cd103f2dc3613db8580431eac78899badcf25326b3b5e0ce7fc1f56fe65bab",
+      "rawBytes": 43685,
+      "retainedSha256": "93e678d04792feef1a0968011e349d901a9988aaff2ddf39cd35ce50966ce422",
+      "retainedBytes": 43421
+    },
+    {
+      "path": "apphost-describe-initial.stdout.txt",
+      "rawSha256": "4c3fdaca3fb85fffd0e26f9054ed141ddf7b69144c258bb939623cbeb6e5983f",
+      "rawBytes": 34402,
+      "retainedSha256": "46339caf1aae0121640e743546ac87361a8c37ca10c586b4670df9cc3c8589db",
+      "retainedBytes": 34248
+    },
+    {
+      "path": "apphost-run.stdout.txt",
+      "rawSha256": "184c7f5f9eb83e779913b2626a9683de82ceff5e37f0efc776fad9a20b6a151a",
+      "rawBytes": 402,
+      "retainedSha256": "a4d9254c630bbcb8eaeddee444b1dcf8ddde84aa2ead764064c52dde915e7c7e",
+      "retainedBytes": 380
+    },
+    {
+      "path": "aspire-ps-after-cleanup-retry.stdout.txt",
+      "rawSha256": "8bfbc9eddd4924c374d385b889c78ac901f021ca2a0ce4d61684c6cab89acd34",
+      "rawBytes": 457,
+      "retainedSha256": "8c59e83d9bca319290f373f4523750cdab0242dcb0054b9af9cfcaa40945ed01",
+      "retainedBytes": 435
+    },
+    {
+      "path": "aspire-ps-after.stdout.txt",
+      "rawSha256": "8f68a3aaa390b5c9d425bf05cf7f62ea9f66ad433001157d19e9c1edc3b7d88b",
+      "rawBytes": 931,
+      "retainedSha256": "326607481d530eb42ddb79e183a8cd07dd8722951618a6a4b4aff355275206f6",
+      "retainedBytes": 887
+    },
+    {
+      "path": "aspire-ps-before-cleanup-retry.stdout.txt",
+      "rawSha256": "8f68a3aaa390b5c9d425bf05cf7f62ea9f66ad433001157d19e9c1edc3b7d88b",
+      "rawBytes": 931,
+      "retainedSha256": "326607481d530eb42ddb79e183a8cd07dd8722951618a6a4b4aff355275206f6",
+      "retainedBytes": 887
+    },
+    {
+      "path": "aspire-ps-before-cleanup.stdout.txt",
+      "rawSha256": "8f68a3aaa390b5c9d425bf05cf7f62ea9f66ad433001157d19e9c1edc3b7d88b",
+      "rawBytes": 931,
+      "retainedSha256": "326607481d530eb42ddb79e183a8cd07dd8722951618a6a4b4aff355275206f6",
+      "retainedBytes": 887
+    },
+    {
+      "path": "aspire-ps-before.stdout.txt",
+      "rawSha256": "8bfbc9eddd4924c374d385b889c78ac901f021ca2a0ce4d61684c6cab89acd34",
+      "rawBytes": 457,
+      "retainedSha256": "8c59e83d9bca319290f373f4523750cdab0242dcb0054b9af9cfcaa40945ed01",
+      "retainedBytes": 435
+    },
+    {
+      "path": "aspire-ps-running.stdout.txt",
+      "rawSha256": "53194e899cfcf946949e16f473b0d5cca36e19a121d2cf10cc24cd40fa943f07",
+      "rawBytes": 1390,
+      "retainedSha256": "707b8953f87f8be46062b294a6c3d36ede3228da9435ca96a59c11661d8e3546",
+      "retainedBytes": 1324
+    },
+    {
+      "path": "cleanup-target-verification-retry.json",
+      "rawSha256": "620e3880193425c0d9128efb0b993c562aa07a8bc5e6e5e4ae2d4f7b491b8e2e",
+      "rawBytes": 1256,
+      "retainedSha256": "febce3be08303b92cd85edea3cdfccf851982d10a3fbce1b96534733e2761fd3",
+      "retainedBytes": 1234
+    },
+    {
+      "path": "cleanup-target-verification.json",
+      "rawSha256": "37e3d5f0d5559a094467f57ec2d79d33299ccf2d270cb5ed6b1ab8bbf2219cc6",
+      "rawBytes": 1237,
+      "retainedSha256": "8ad13bdadbd262d6be878bda05515e2bebb8d8310f15d3d9b5f2a4623f704808",
+      "retainedBytes": 1215
+    }
+  ]
+}

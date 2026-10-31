@@ -1,0 +1,3 @@
+-9b78aa008cfc62cd88ad0ea4b39b1f07311956ce references/Hexalith.AI.Tools
+-a6cd5532cf3003a12c89f05fb0e08d8cbc5c4b25 references/Hexalith.Builds
+-92ede24cc11129379efe52cfe7fd2c820c567f7f references/Hexalith.PolymorphicSerializations

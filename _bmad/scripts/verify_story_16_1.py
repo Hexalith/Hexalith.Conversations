@@ -12,7 +12,7 @@ except ModuleNotFoundError as error:
     # Only unavailable declared imports are prerequisites. Other import defects
     # retain their traceback instead of being disguised as evidence unavailability.
     declared = {
-        'epic16_tooling', 'epic16_trust', 'epic16_packages', 'epic16_trust_v2', 'epic16_measurements', 'epic16_native',
+        'epic16_tooling', 'epic16_trust', 'epic16_packages', 'epic16_trust_v2', 'epic16_packages_v3', 'epic16_trust_v3', 'epic16_measurements', 'epic16_native',
         'epic16_domain', 'epic16_lifecycle', 'epic16_schedules', 'epic16_capture',
         'epic16_faults', 'epic16_relationships', 'epic16_execution', 'epic16_products',
         'jsonschema', 'attrs', 'attr', 'referencing', 'rpds', 'jsonschema_specifications',

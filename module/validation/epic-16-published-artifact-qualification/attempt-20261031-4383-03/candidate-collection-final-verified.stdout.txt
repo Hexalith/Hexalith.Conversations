@@ -1,0 +1,1 @@
+{"state": "FAIL", "collectorExitCode": 1, "gates": 41, "output": "/home/administrator/projects/hexalith/conversations/module/validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/collection-final-verified"}

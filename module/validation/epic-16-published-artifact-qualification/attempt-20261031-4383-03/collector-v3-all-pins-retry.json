@@ -1,0 +1,38 @@
+{
+  "name": "collector-v3-all-pins-retry",
+  "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "-ra",
+    "-p",
+    "no:cacheprovider",
+    "_bmad/scripts/tests/test_epic16_tooling_v3.py::test_every_independent_pin_rejects_drift_and_restores_exactly"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 2667536,
+  "startedAtUtc": "2026-10-31T16:31:07.975990+00:00",
+  "durationSeconds": 48.751,
+  "timeoutSeconds": 600,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "collector-v3-all-pins-retry.stdout.txt",
+    "bytes": 100,
+    "sha256": "17605f36fe825caedc0c97dbdef917d7f9eedc700c3afb1343ce75b3fe12ffbf"
+  },
+  "stderr": {
+    "path": "collector-v3-all-pins-retry.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

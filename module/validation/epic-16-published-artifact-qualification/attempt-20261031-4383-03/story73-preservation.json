@@ -1,0 +1,12 @@
+{
+  "state": "PASS",
+  "rootOutputsUnchanged": true,
+  "originalRootOutputs": {
+    "artifacts/v9/7.3/AC-7.3-01.json": "eeb0a0fe17be249f19ba1d2a890e146abe95ee601ba9e8791c8bb4ea9d931eec",
+    "artifacts/v9/7.3/AC-7.3-02.json": "90c40574114b17d516f7e55989e2ca16abc4bc8340fe7a6df2c968e8c0fcd30e"
+  },
+  "currentRootInputsByteExact": true,
+  "copiedInputCount": 2407,
+  "measurementRepository": "/tmp/epic16-4383-story73-5m2cw7yf/measurement",
+  "actualGuardCommands": 2
+}

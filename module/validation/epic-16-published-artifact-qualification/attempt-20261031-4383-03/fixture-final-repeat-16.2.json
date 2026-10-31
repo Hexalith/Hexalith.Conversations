@@ -1,0 +1,36 @@
+{
+  "name": "fixture-final-repeat-16.2",
+  "command": [
+    "python3",
+    "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture/_bmad/scripts/generate_story_record.py",
+    "--repository",
+    "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+    "--contract",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+    "--scope",
+    "tooling-fixture",
+    "--format",
+    "bundle"
+  ],
+  "cwd": "/tmp/epic16-v3-native-fixture-3mg_y9fi/tooling-v3/fixture",
+  "pid": 166775,
+  "startedAtUtc": "2026-10-31T17:13:56.361870+00:00",
+  "durationSeconds": 12.996,
+  "timeoutSeconds": 180,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "fixture-final-repeat-16.2.stdout.txt",
+    "bytes": 116216,
+    "sha256": "9e32f044963e7adda1c0865ee2e29445a6e6baf610d71a1d8331e130f072683d"
+  },
+  "stderr": {
+    "path": "fixture-final-repeat-16.2.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

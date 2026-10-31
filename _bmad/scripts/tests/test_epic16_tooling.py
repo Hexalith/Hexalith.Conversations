@@ -2517,9 +2517,14 @@ def test_round7_runtime_consumer_blocks_unavailable_or_mismatched_helper_sdk(qua
     rejected(runtime_evaluate(qualified_runtime),'NATIVE_HELPER_UNAVAILABLE','BLOCKED')
 
 
-@pytest.mark.parametrize('selected',['10.0.402','10.0.403','10.0.499'])
+@pytest.mark.parametrize('selected',['10.0.403','10.0.404','10.0.499'])
 def test_round7_latest_patch_policy_permits_only_approved_feature_band(selected):
     tooling.native_helper.validate_sdk((ROOT/'global.json').read_bytes(),selected)
+
+
+def test_round7_current_sdk_policy_rejects_preceding_patch():
+    with pytest.raises(tooling.native_helper.HelperUnavailable):
+        tooling.native_helper.validate_sdk((ROOT/'global.json').read_bytes(),'10.0.402')
 
 
 @pytest.mark.parametrize('policy',[b'not json',b'{"sdk":{"version":"10.0.402","rollForward":"latestMajor"}}',b'{"sdk":{"version":10,"rollForward":"latestPatch"}}'])
@@ -4357,7 +4362,7 @@ def test_round12_enqueue_transaction_cannot_reuse_lifecycle_commit(repository,in
 def test_round12_helper_prerequisite_failure_retains_bounded_streams_and_exit(monkeypatch,stage,stream):
     native=tooling.native_helper;native._helper.cache_clear();code=41 if stage=='sdk' else 42
     def run(argv,**kwargs):
-        if argv==['dotnet','--version'] and stage=='build':return subprocess.CompletedProcess(argv,0,b'10.0.402\n',b'')
+        if argv==['dotnet','--version'] and stage=='build':return subprocess.CompletedProcess(argv,0,b'10.0.403\n',b'')
         stdout=b'OUT-END' if stream in ('stdout','both') else b'X'*9000+b'OUT-END' if stream=='oversized' else b''
         stderr=b'ERR-END' if stream in ('stderr','both') else b'Y'*9000+b'ERR-END' if stream=='oversized' else b''
         return subprocess.CompletedProcess(argv,code,stdout,stderr)
@@ -4432,7 +4437,7 @@ def test_round12_native_framework_identity_matches_supported_source_return_and_p
 def test_round12_helper_prerequisite_diagnostics_remain_structured_blocked(qualified_runtime,monkeypatch,stage):
     native=tooling.native_helper;native._helper.cache_clear();real=native.subprocess.run
     def run(argv,**kwargs):
-        if argv==['dotnet','--version']:return subprocess.CompletedProcess(argv,41,b'',b'SDK stderr detail') if stage=='sdk' else subprocess.CompletedProcess(argv,0,b'10.0.402\n',b'')
+        if argv==['dotnet','--version']:return subprocess.CompletedProcess(argv,41,b'',b'SDK stderr detail') if stage=='sdk' else subprocess.CompletedProcess(argv,0,b'10.0.403\n',b'')
         if argv[:2]==['dotnet','build']:return subprocess.CompletedProcess(argv,42,b'',b'build stderr detail')
         return real(argv,**kwargs)
     monkeypatch.setattr(native.subprocess,'run',run)

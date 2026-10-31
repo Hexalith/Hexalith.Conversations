@@ -1,0 +1,29 @@
+{
+  "state": "PASS",
+  "owned": [
+    {
+      "appHostPath": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "appHostPid": 1897766,
+      "status": "running",
+      "sdkVersion": "13.6.4",
+      "cliPid": 1884469,
+      "dashboardUrl": "https://localhost:46303/login?t=[REDACTED]",
+      "logFilePath": "/home/administrator/.aspire/logs/cli_20261031T161124642_detach-child_4853f58aadfd4fce99c9fbd8752cd97c.log"
+    }
+  ],
+  "processes": [
+    {
+      "kind": "appHostPid",
+      "pid": 1897766,
+      "cmdline": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.AppHost/bin/Debug/net10.0/Hexalith.Conversations.AppHost ",
+      "startTime": "20415664"
+    },
+    {
+      "kind": "cliPid",
+      "pid": 1884469,
+      "cmdline": "/home/administrator/.aspire/bin/aspire run --non-interactive --apphost /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj --log-file /home/administrator/.aspire/logs/cli_20261031T161124642_detach-child_4853f58aadfd4fce99c9fbd8752cd97c.log --isolated ",
+      "startTime": "20414359"
+    }
+  ],
+  "verified": true
+}

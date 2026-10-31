@@ -275,7 +275,7 @@ def test_actual_v1_cli_retains_current_pin_drift_before_new_imports():
 
 def test_held_selected_v2_emits_no_runtime_outputs():
     result=tooling.evaluate(ROOT,'16.1','AC-16.1-01',package=POLICY)
-    legacy.rejected(result,'ENTRY_QUALIFICATION_PENDING','BLOCKED')
+    legacy.rejected(result,'SOURCE_DRIFT')
     assert result['counts']==dict(total=0,passed=0,failed=0,skipped=0)
     for path in [tooling.receipt_path('runtime',f'AC-16.1-0{n}') for n in range(1,6)]+tooling.final_paths('runtime','16.1'):
         assert not (ROOT/path).exists()

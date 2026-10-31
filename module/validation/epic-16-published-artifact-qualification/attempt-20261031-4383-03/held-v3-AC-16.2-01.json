@@ -1,0 +1,38 @@
+{
+  "name": "held-v3-AC-16.2-01",
+  "command": [
+    "python3",
+    "_bmad/scripts/verify_story_16_2.py",
+    "--repository",
+    ".",
+    "--contract",
+    "_bmad-output/planning-artifacts/epic-16-tooling-v3/story-contracts/16.2.json",
+    "--scenario",
+    "AC-16.2-01",
+    "--candidate",
+    "HEAD",
+    "--output",
+    "artifacts/epic16-runtime/16.2/AC-16.2-01.json"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 3235050,
+  "startedAtUtc": "2026-10-31T16:45:17.286875+00:00",
+  "durationSeconds": 0.301,
+  "timeoutSeconds": 120,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 2,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "held-v3-AC-16.2-01.stdout.txt",
+    "bytes": 883,
+    "sha256": "b3caa777409af9f91956bc42efe21dcca9254fd371cf59115b80cb64c09e9fd5"
+  },
+  "stderr": {
+    "path": "held-v3-AC-16.2-01.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

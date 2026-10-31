@@ -1,0 +1,40 @@
+{
+  "name": "focused-apphost-test-debug-build",
+  "command": [
+    "dotnet",
+    "build",
+    "tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj",
+    "--configuration",
+    "Debug",
+    "--nologo",
+    "-m:1"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 1974028,
+  "startedAtUtc": "2026-10-31T16:12:49.864121+00:00",
+  "durationSeconds": 8.533,
+  "timeoutSeconds": 600,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7",
+    "CustomBeforeDirectoryBuildProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.targets",
+    "CustomAfterMicrosoftCommonProps": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.props",
+    "CustomBeforeDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.before-targets.props",
+    "CustomAfterDirectoryBuildTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.late.props",
+    "AfterMicrosoftNETSdkTargets": "/tmp/epic16-4383-isolation-ppeil7mq/source-preparation/source-mapping/SourceMapping.final.targets",
+    "HEXALITH_SOURCE_MAPPING_HASH": "2c37ec7359a53088441e469b5d266c19394f394d3e602fac851d23c1f0a46395",
+    "Configuration": "Debug"
+  },
+  "stdout": {
+    "path": "focused-apphost-test-debug-build.stdout.txt",
+    "bytes": 5561,
+    "sha256": "1dadf12822be467dc4e5804b5e36a0b5303ededb181c57c700483f6323f64012"
+  },
+  "stderr": {
+    "path": "focused-apphost-test-debug-build.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "collector-regression-initial",
+  "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--no-sync",
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "-ra",
+    "-p",
+    "no:cacheprovider",
+    "tests/tooling/test_epic16_published_artifact_qualification.py"
+  ],
+  "cwd": "/home/administrator/projects/hexalith/conversations",
+  "pid": 2189625,
+  "startedAtUtc": "2026-10-31T16:16:49.363970+00:00",
+  "durationSeconds": 8.349,
+  "timeoutSeconds": 600,
+  "outputLimitBytes": 8388608,
+  "termination": null,
+  "exitCode": 0,
+  "mappingEnvironment": {
+    "HEXALITH_DAPR_HOME": "/home/administrator/.hexalith/dapr/cli-1.18.2-runtime-1.18.7"
+  },
+  "stdout": {
+    "path": "collector-regression-initial.stdout.txt",
+    "bytes": 99,
+    "sha256": "3868a6ae3dc183e25ad7ad20063773928296485bf1b78648f3f7fafb336d1413"
+  },
+  "stderr": {
+    "path": "collector-regression-initial.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

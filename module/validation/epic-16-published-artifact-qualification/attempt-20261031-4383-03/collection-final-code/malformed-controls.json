@@ -1,0 +1,326 @@
+[
+  {
+    "field": "modules[0].integration.secrets[1].configurationKey",
+    "value": "",
+    "format": "human",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "c9e91820990f6dd06933d2c0bef9732ec1ccbb5335cd5151b0bf4091bb8383dc",
+    "passed": true
+  },
+  {
+    "field": "modules[0].integration.secrets[1].configurationKey",
+    "value": "",
+    "format": "json",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "c9e91820990f6dd06933d2c0bef9732ec1ccbb5335cd5151b0bf4091bb8383dc",
+    "passed": true
+  },
+  {
+    "field": "modules[0].integration.secrets[1].configurationKey",
+    "value": " ",
+    "format": "human",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "bc25ad66519950a1b24c6da0dd08702f5d545fab6f84369f5c582c6a5432eb0c",
+    "passed": true
+  },
+  {
+    "field": "modules[0].integration.secrets[1].configurationKey",
+    "value": " ",
+    "format": "json",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "bc25ad66519950a1b24c6da0dd08702f5d545fab6f84369f5c582c6a5432eb0c",
+    "passed": true
+  },
+  {
+    "field": "modules[0].integration.secrets[1].configurationKey",
+    "value": "1TOKEN",
+    "format": "human",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "6e91e105dada3cc47765482333c0543a213efb3db42f7a29880e61cb14aba154",
+    "passed": true
+  },
+  {
+    "field": "modules[0].integration.secrets[1].configurationKey",
+    "value": "1TOKEN",
+    "format": "json",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "6e91e105dada3cc47765482333c0543a213efb3db42f7a29880e61cb14aba154",
+    "passed": true
+  },
+  {
+    "field": "modules[0].integration.secrets[1].configurationKey",
+    "value": "_TOKEN",
+    "format": "human",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "d3327743fe096b64b6199cb6199da6628a59132013b543238da6ea5b7b7e2382",
+    "passed": true
+  },
+  {
+    "field": "modules[0].integration.secrets[1].configurationKey",
+    "value": "_TOKEN",
+    "format": "json",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "d3327743fe096b64b6199cb6199da6628a59132013b543238da6ea5b7b7e2382",
+    "passed": true
+  },
+  {
+    "field": "modules[0].integration.secrets[1].configurationKey",
+    "value": "TOKEN_",
+    "format": "human",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "907f8c563ac2e8f6f4051b5267829a5b6594cd7e427ccf42f7cb1b2dcc0a5ac5",
+    "passed": true
+  },
+  {
+    "field": "modules[0].integration.secrets[1].configurationKey",
+    "value": "TOKEN_",
+    "format": "json",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "907f8c563ac2e8f6f4051b5267829a5b6594cd7e427ccf42f7cb1b2dcc0a5ac5",
+    "passed": true
+  },
+  {
+    "field": "modules[0].integration.secrets[1].configurationKey",
+    "value": "APP__API_TOKEN",
+    "format": "human",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "6bcc23f674e5d1318034f816299ca45822c0a5b3d034e71549fd3ba7cb97775e",
+    "passed": true
+  },
+  {
+    "field": "modules[0].integration.secrets[1].configurationKey",
+    "value": "APP__API_TOKEN",
+    "format": "json",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "6bcc23f674e5d1318034f816299ca45822c0a5b3d034e71549fd3ba7cb97775e",
+    "passed": true
+  },
+  {
+    "field": "modules[0].integration.secrets[1].configurationKey",
+    "value": "App::Token",
+    "format": "human",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "6be5d8118edb69ed8733f239cef82d370452b39eabf9df4539b39403049ea281",
+    "passed": true
+  },
+  {
+    "field": "modules[0].integration.secrets[1].configurationKey",
+    "value": "App::Token",
+    "format": "json",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "6be5d8118edb69ed8733f239cef82d370452b39eabf9df4539b39403049ea281",
+    "passed": true
+  },
+  {
+    "field": "modules[0].integration.secrets[1].configurationKey",
+    "value": "APP_API_TOKEN\n",
+    "format": "human",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "05976c4c8da1ab6b693331fcf400e6fcf3a2c90c9b6e3a60b25013567a855a88",
+    "passed": true
+  },
+  {
+    "field": "modules[0].integration.secrets[1].configurationKey",
+    "value": "APP_API_TOKEN\n",
+    "format": "json",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "05976c4c8da1ab6b693331fcf400e6fcf3a2c90c9b6e3a60b25013567a855a88",
+    "passed": true
+  },
+  {
+    "field": "modules[0].integration.secrets[1].configurationKey",
+    "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "format": "human",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "4481a1f016cafa07e9d22614eea43c0a827760a8b667e731fce67d6dae611afd",
+    "passed": true
+  },
+  {
+    "field": "modules[0].integration.secrets[1].configurationKey",
+    "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "format": "json",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "4481a1f016cafa07e9d22614eea43c0a827760a8b667e731fce67d6dae611afd",
+    "passed": true
+  },
+  {
+    "field": "modules[0].runtime.extensions[0].configurationInputs[12].key",
+    "value": "",
+    "format": "human",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "d82d68b116f3e1140aa2436d1c2dca7b6d7952b490773dc78c582b0bb0de828e",
+    "passed": true
+  },
+  {
+    "field": "modules[0].runtime.extensions[0].configurationInputs[12].key",
+    "value": "",
+    "format": "json",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "d82d68b116f3e1140aa2436d1c2dca7b6d7952b490773dc78c582b0bb0de828e",
+    "passed": true
+  },
+  {
+    "field": "modules[0].runtime.extensions[0].configurationInputs[12].key",
+    "value": " ",
+    "format": "human",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "7d299beda0fa04396fa7198f81521bab6220b3152a75ba11439ccd73702a9f65",
+    "passed": true
+  },
+  {
+    "field": "modules[0].runtime.extensions[0].configurationInputs[12].key",
+    "value": " ",
+    "format": "json",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "7d299beda0fa04396fa7198f81521bab6220b3152a75ba11439ccd73702a9f65",
+    "passed": true
+  },
+  {
+    "field": "modules[0].runtime.extensions[0].configurationInputs[12].key",
+    "value": "1TOKEN",
+    "format": "human",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "d4028d2b64fce926f712b7e1d140a7346766b0044c8df96b68662e890943d2e4",
+    "passed": true
+  },
+  {
+    "field": "modules[0].runtime.extensions[0].configurationInputs[12].key",
+    "value": "1TOKEN",
+    "format": "json",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "d4028d2b64fce926f712b7e1d140a7346766b0044c8df96b68662e890943d2e4",
+    "passed": true
+  },
+  {
+    "field": "modules[0].runtime.extensions[0].configurationInputs[12].key",
+    "value": "_TOKEN",
+    "format": "human",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "7b80c3f858eeae427f9c3c525d77ef7468c9206adc7edbfef8c0be4cb0884ea9",
+    "passed": true
+  },
+  {
+    "field": "modules[0].runtime.extensions[0].configurationInputs[12].key",
+    "value": "_TOKEN",
+    "format": "json",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "7b80c3f858eeae427f9c3c525d77ef7468c9206adc7edbfef8c0be4cb0884ea9",
+    "passed": true
+  },
+  {
+    "field": "modules[0].runtime.extensions[0].configurationInputs[12].key",
+    "value": "TOKEN_",
+    "format": "human",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "2244fe3e5054e5e207c682fea3bb258ccd7e14521fbf038a2c2277781ed8dbeb",
+    "passed": true
+  },
+  {
+    "field": "modules[0].runtime.extensions[0].configurationInputs[12].key",
+    "value": "TOKEN_",
+    "format": "json",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "2244fe3e5054e5e207c682fea3bb258ccd7e14521fbf038a2c2277781ed8dbeb",
+    "passed": true
+  },
+  {
+    "field": "modules[0].runtime.extensions[0].configurationInputs[12].key",
+    "value": "APP__API_TOKEN",
+    "format": "human",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "16fdac2ad1340261282c831e7f57d608085358d38e365aae63f27ac6d2603937",
+    "passed": true
+  },
+  {
+    "field": "modules[0].runtime.extensions[0].configurationInputs[12].key",
+    "value": "APP__API_TOKEN",
+    "format": "json",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "16fdac2ad1340261282c831e7f57d608085358d38e365aae63f27ac6d2603937",
+    "passed": true
+  },
+  {
+    "field": "modules[0].runtime.extensions[0].configurationInputs[12].key",
+    "value": "App::Token",
+    "format": "human",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "1c0396e702a1a2725335d7866568ddca27b2d233c073beb0d9c553b204171658",
+    "passed": true
+  },
+  {
+    "field": "modules[0].runtime.extensions[0].configurationInputs[12].key",
+    "value": "App::Token",
+    "format": "json",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "1c0396e702a1a2725335d7866568ddca27b2d233c073beb0d9c553b204171658",
+    "passed": true
+  },
+  {
+    "field": "modules[0].runtime.extensions[0].configurationInputs[12].key",
+    "value": "APP_API_TOKEN\n",
+    "format": "human",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "cb0f503d3bd6ce7ae70fb763c31f4127f8332f7dec6d1c009f699db13351034b",
+    "passed": true
+  },
+  {
+    "field": "modules[0].runtime.extensions[0].configurationInputs[12].key",
+    "value": "APP_API_TOKEN\n",
+    "format": "json",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "cb0f503d3bd6ce7ae70fb763c31f4127f8332f7dec6d1c009f699db13351034b",
+    "passed": true
+  },
+  {
+    "field": "modules[0].runtime.extensions[0].configurationInputs[12].key",
+    "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "format": "human",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "7d6a4b1511bc187bbfd297746f5909feef40e1044ae91fd2a793d427e62a2596",
+    "passed": true
+  },
+  {
+    "field": "modules[0].runtime.extensions[0].configurationInputs[12].key",
+    "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "format": "json",
+    "nativeExitCode": 1,
+    "ruleId": "HXP002",
+    "inputSha256": "7d6a4b1511bc187bbfd297746f5909feef40e1044ae91fd2a793d427e62a2596",
+    "passed": true
+  }
+]

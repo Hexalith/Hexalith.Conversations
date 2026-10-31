@@ -1,0 +1,33 @@
+{
+  "url": "https://api.nuget.org/v3-flatcontainer/hexalith.builds.module.cli/4.38.3/hexalith.builds.module.cli.nuspec",
+  "bytes": 896,
+  "sha256": "3176bbbffa8a5c5faa753a967817d5e29871bf07e7cf9e20efb4c6a57f1eb739",
+  "timeoutSeconds": 300,
+  "limitBytes": 8388608,
+  "complete": true,
+  "state": "PASS",
+  "workerCommand": "network-feed.nuspec",
+  "headers": {
+    "Date": "Sat, 31 Oct 2026 16:43:05 GMT",
+    "Content-Type": "text/xml",
+    "Content-Length": "896",
+    "Connection": "close",
+    "Cache-Control": "public, max-age=86400",
+    "Last-Modified": "Wed, 28 Oct 2026 11:53:46 GMT",
+    "ETag": "0x8DF34EA1F3F7F3A",
+    "x-ms-request-id": "a098e334-001e-0070-2d56-690400000000",
+    "x-ms-version": "2009-09-19",
+    "x-ms-lease-status": "unlocked",
+    "x-ms-blob-type": "BlockBlob",
+    "Access-Control-Expose-Headers": "x-ms-request-id,Server,x-ms-version,Content-Type,Cache-Control,ETag,Last-Modified,x-ms-lease-status,x-ms-blob-type,Content-Length,Date,Transfer-Encoding",
+    "Access-Control-Allow-Origin": "*",
+    "x-azure-ref": "20261031T164305Z-1594545dbc7nj7fshS1PARqxn400000005m0000000007af4",
+    "x-fd-int-roxy-purgeid": "0",
+    "X-Cache-Info": "L1_T2",
+    "X-Cache": "TCP_HIT",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+    "X-Content-Type-Options": "nosniff",
+    "Accept-Ranges": "bytes"
+  },
+  "responseUrl": "https://api.nuget.org/v3-flatcontainer/hexalith.builds.module.cli/4.38.3/hexalith.builds.module.cli.nuspec"
+}

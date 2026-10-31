@@ -1,0 +1,20 @@
+........................................................................ [ 51%]
+..........................................................F.........     [100%]
+=================================== FAILURES ===================================
+_________________ test_loaded_policy_module_location_is_bound __________________
+
+selected_repository = PosixPath('/tmp/pytest-of-administrator/pytest-1/tooling-v30/fixture')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x77a6932c6ed0>
+tmp_path = PosixPath('/tmp/pytest-of-administrator/pytest-1/test_loaded_policy_module_loca0')
+
+    def test_loaded_policy_module_location_is_bound(selected_repository,monkeypatch,tmp_path):
+        assert evaluate(selected_repository)['result']=='PASS'
+        with monkeypatch.context() as changed:
+>           changed.setattr(sys.modules['epic16_packages'],'__file__',str(tmp_path/'epic16_packages_v3.py'))
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'epic16_packages'
+
+_bmad/scripts/tests/test_epic16_tooling_v3.py:326: KeyError
+=========================== short test summary info ============================
+FAILED _bmad/scripts/tests/test_epic16_tooling_v3.py::test_loaded_policy_module_location_is_bound
+1 failed, 139 passed in 215.40s (0:03:35)
