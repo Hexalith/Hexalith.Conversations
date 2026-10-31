@@ -5,6 +5,7 @@ import hashlib
 import io
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -689,6 +690,26 @@ class ReleaseToolingTests(unittest.TestCase):
                             f"external source edge is not Debug-only: {project}: {include}",
                         )
 
+    def test_windows_checkout_excludes_only_historical_http_cache(self) -> None:
+        workflow = (ROOT / ".github/workflows/ci.yml").read_text()
+        job = workflow.split("\n  testsupport-windows:\n", 1)[1].split("\n  repository:\n", 1)[0]
+        checkout = job.split("      - name: Check out source\n", 1)[1].split("\n      - ", 1)[0]
+        patterns = re.search(r"(?m)^          sparse-checkout: \|\n((?:            .*\n)+)", checkout)
+        self.assertIsNotNone(patterns)
+        rules = "\n".join(line[12:] for line in patterns[1].splitlines()) + "\n"
+        with tempfile.TemporaryDirectory(prefix="conversations-windows-checkout-") as temporary:
+            subprocess.run(["git", "clone", "--shared", "--no-checkout", str(ROOT), temporary], check=True, capture_output=True)
+            subprocess.run(["git", "sparse-checkout", "set", "--no-cone", "--stdin"], input=rules,
+                           text=True, cwd=temporary, check=True, capture_output=True)
+            subprocess.run(["git", "checkout", "HEAD"], cwd=temporary, check=True, capture_output=True)
+            files = subprocess.check_output(["git", "ls-files", "-v", "-z"], cwd=temporary).decode().split("\0")
+            excluded = {entry[2:] for entry in files if entry.startswith("S ")}
+            cache = {entry[2:] for entry in files if entry and "/isolated/http-cache/" in entry[2:]}
+            self.assertTrue(cache)
+            self.assertEqual(cache, excluded, "Every current source, test, workflow and other archived file must be checked out")
+            self.assertTrue(all(":" in name for name in excluded))
+            self.assertTrue((Path(temporary) / "tests/Hexalith.Conversations.TestSupport.Tests/Hexalith.Conversations.TestSupport.Tests.csproj").is_file())
+
     def test_ci_and_security_automation_cover_release_boundary(self) -> None:
         ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
         tooling_job = ci.split("  tooling:", maxsplit=1)[1]
@@ -697,7 +718,8 @@ class ReleaseToolingTests(unittest.TestCase):
         self.assertLess(windows_job.index("git config --global core.longpaths true"), windows_job.index("      - name: Check out source\n"))
         self.assertIn("uses: actions/checkout@", windows_checkout)
         self.assertIn("          fetch-depth: 0\n", windows_checkout)
-        self.assertNotIn("sparse-checkout", windows_checkout)
+        self.assertIn("          sparse-checkout-cone-mode: false\n", windows_checkout)
+        self.assertIn("            /*\n            !/module/validation/**/isolated/http-cache/\n", windows_checkout)
         self.assertIn("domain-ci.yml@main", ci)
         self.assertIn("run-consumer-validation: true", ci)
         unit_projects = ci.split("      unit-test-projects: |", maxsplit=1)[1].split("      integration-test-projects:", maxsplit=1)[0]

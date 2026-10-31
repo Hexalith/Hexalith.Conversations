@@ -11,8 +11,8 @@
     "verify:release-plan": "node scripts/verify-semantic-release-plan.mjs"
   },
   "devDependencies": {
-    "@commitlint/cli": "21.2.3",
-    "@commitlint/config-conventional": "21.2.3",
+    "@commitlint/cli": "21.2.4",
+    "@commitlint/config-conventional": "21.2.4",
     "@semantic-release/commit-analyzer": "13.0.1",
     "@semantic-release/exec": "7.1.0",
     "@semantic-release/github": "12.0.10",

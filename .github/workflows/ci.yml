@@ -111,6 +111,12 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
           submodules: false
+          # Preserve historical NuGet cache bytes in Git; Windows cannot check out ':' names.
+          # This lane compiles current TestSupport source and does not consume archived HTTP caches.
+          sparse-checkout: |
+            /*
+            !/module/validation/**/isolated/http-cache/
+          sparse-checkout-cone-mode: false
 
       - name: Initialize root-declared build identity dependencies
         run: git submodule update --init -- references/Hexalith.Builds references/Hexalith.Platform
