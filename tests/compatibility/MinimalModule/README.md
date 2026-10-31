@@ -2,7 +2,7 @@
 
 This CI-only compatibility suite compiles and runs the frozen Story 11.2 fixture against
 the external package compatibility selection in `RegisteredCommand.targets` (EventStore
-3.128.3, matching the selected Builds catalog). It runs the original six tests and
+3.130.1, matching the selected Builds catalog). It runs the original six tests and
 adds one registered-command assertion through the public in-process domain router.
 The assertion resolves the keyed processor, checks the serialized creation event,
 replays it through the public in-process router in a fresh service scope, and checks
@@ -13,11 +13,12 @@ observe `Title` after rehydration or establish persistence. The serialized title
 checked at the replay output boundary.
 
 The external `RegisteredCommand.targets` import adds the assertion only to the fixture
-test project. With `MinimalModuleCompatibilityMode=package`, its initial target replaces
-only external EventStore project edges with exact package references. Internal fixture
-project edges stay intact. A separate read-only MSBuild catalog evaluation compares
-that deliberately qualified selection with the direct pinned Builds catalog and refuses
-drift before restore/build; it never refreshes the successor locks. The compatibility
+test project. With `MinimalModuleCompatibilityMode=package`, the overlay aligns the
+AppHost's Dapr hosting package to EventStore.Aspire's published 13.6.2-beta.959 dependency.
+Its initial target replaces only external EventStore project edges with exact package
+references. Internal fixture project edges stay intact. A separate read-only MSBuild
+catalog evaluation compares that deliberately qualified selection with the direct pinned
+Builds catalog and refuses drift before restore/build; it never refreshes the successor locks. The compatibility
 job initializes only that direct Builds checkout, keeping all EventStore edges as packages.
 `MinimalModuleCompatibilityUseSuccessorLocks=true` selects
 `locks/package/<project>.packages.lock.json` for the four fixture projects. Omitting
@@ -69,3 +70,21 @@ The locked package graph built in Release with zero warnings or errors, and the
 native result verifier required all original six assertions plus the registered
 command assertion: seven passed, with zero failures, skips, or errors. CI retains
 locked mode and package content-hash validation.
+
+## Dependency qualification (2026-11-01)
+
+The external selection now qualifies EventStore 3.130.1 from the direct Builds
+catalog. Its published Aspire package requires Dapr hosting 13.6.2-beta.959;
+the overlay selects that version to avoid NU1605 without changing the frozen
+AppHost's SDK 13.6.1 or any other measured fixture bytes.
+
+All four external locks were regenerated with the explicit package overlay and
+`--force-evaluate` in an isolated copy configured to use only nuget.org. An
+independent empty package and HTTP cache then passed `--locked-mode` without
+changing those locks. The five EventStore 3.130.1 package metadata records
+identify nuget.org as their source.
+
+The locked graph built in Release with zero warnings or errors. Native xUnit
+execution and `verify_results.py` required and passed all seven assertions,
+with zero failures, skips, or errors. All 17 measured fixture files, including
+their four original locks, remain byte-for-byte unchanged.

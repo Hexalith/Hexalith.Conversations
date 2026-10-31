@@ -102,8 +102,11 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 15
     steps:
-      - name: Enable long paths before source checkout
-        run: git config --global core.longpaths true
+      - name: Configure Windows paths before source checkout
+        run: |
+          git config --global core.longpaths true
+          # Git validates archived ':' paths before applying the sparse checkout exclusions.
+          git config --global core.protectNTFS false
 
       - name: Check out source
         uses: actions/checkout@v7
@@ -117,6 +120,9 @@ jobs:
             /*
             !/module/validation/**/isolated/http-cache/
           sparse-checkout-cone-mode: false
+
+      - name: Restore NTFS path protection
+        run: git config --global core.protectNTFS true
 
       - name: Initialize root-declared build identity dependencies
         run: git submodule update --init -- references/Hexalith.Builds references/Hexalith.Platform

@@ -715,7 +715,12 @@ class ReleaseToolingTests(unittest.TestCase):
         tooling_job = ci.split("  tooling:", maxsplit=1)[1]
         windows_job = ci.split("\n  testsupport-windows:\n", maxsplit=1)[1].split("\n  repository:\n", maxsplit=1)[0]
         windows_checkout = windows_job.split("      - name: Check out source\n", maxsplit=1)[1].split("\n      - ", maxsplit=1)[0]
-        self.assertLess(windows_job.index("git config --global core.longpaths true"), windows_job.index("      - name: Check out source\n"))
+        before_checkout = windows_job.split("      - name: Check out source\n", maxsplit=1)[0]
+        self.assertIn("git config --global core.longpaths true", before_checkout)
+        self.assertIn("git config --global core.protectNTFS false", before_checkout)
+        restore_ntfs = windows_job.index("git config --global core.protectNTFS true")
+        self.assertLess(windows_job.index("      - name: Check out source\n"), restore_ntfs)
+        self.assertLess(restore_ntfs, windows_job.index("      - name: Initialize root-declared build identity dependencies\n"))
         self.assertIn("uses: actions/checkout@", windows_checkout)
         self.assertIn("          fetch-depth: 0\n", windows_checkout)
         self.assertIn("          sparse-checkout-cone-mode: false\n", windows_checkout)

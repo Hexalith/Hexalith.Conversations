@@ -5,7 +5,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(MinimalModuleCompatibilityMode)' == 'package'">
     <!-- Qualified dependency selection for this external compatibility graph, independent of product imports. -->
-    <MinimalModuleCompatibilityEventStoreVersion>3.128.3</MinimalModuleCompatibilityEventStoreVersion>
+    <MinimalModuleCompatibilityEventStoreVersion>3.130.1</MinimalModuleCompatibilityEventStoreVersion>
+    <!-- Match the published EventStore.Aspire dependency without changing the frozen AppHost. -->
+    <AspireDaprVersion>13.6.2-beta.959</AspireDaprVersion>
   </PropertyGroup>
   <Target Name="MinimalModuleCompatibilitySelectPackages" BeforeTargets="CollectPackageReferences;_GenerateRestoreGraphProjectEntry;_GetProjectReferenceTargetFrameworkProperties;AssignProjectConfiguration" Condition="'$(MinimalModuleCompatibilityMode)' == 'package'">
     <MSBuild Projects="$(MSBuildThisFileDirectory)CatalogVersion.proj" Targets="ReadMinimalModuleCompatibilityCatalog" RemoveProperties="HexalithEventStoreVersion;UseHexalithProjectReferences">
