@@ -368,9 +368,11 @@ local/CI/staging/production provider parity, backup/restore/rebuild and recovery
 drills, targets/deadlines, named operators and recovery deputies with verified
 access, resource/capacity limits, and any scoped, expiring Release-owned waiver.
 Human breakpoint/edit, readiness and stop/cleanup evidence remains separately
-pending. The in-memory tenant projection is still per-replica and lost on
-restart; the SINGLE-REPLICA-ONLY warning remains. Durable tenant-projection
-implementation and Story 16.1 lifecycle work remain outside this slice.
+pending. Story 16.1 (2026-11-01) replaced the per-replica in-memory tenant
+projection on the enrolled path with the durable checkpointed record in the
+enrolled read-model state store. Native xUnit restart and two-replica proofs
+passed against a local Dapr/Redis topology, so the single-replica warning is
+removed; deployment and the waived AD-5 envelope remain outside that change.
 
 - [ ] Named module and Platform owners reviewed the exact implementation revision and every binding/adapter.
 - [ ] The reviewed gateway tuple survives selection and disappears when its appId is unselected.

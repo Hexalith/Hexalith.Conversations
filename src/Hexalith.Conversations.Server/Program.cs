@@ -47,10 +47,10 @@ WebApplication app = builder.Build();
 // unwrapping and the protected /tenants/events POST route. The required enrolled declarative switch
 // suppresses subscription discovery; Platform owns subscription/dead-letter/ACL configuration.
 //
-// DISCLOSED (pass-10 decision D2): having that projection fed does not make it durable. It resolves to the
-// platform default InMemoryTenantProjectionStore, so it is per-replica and lost on restart, and DAPR does
-// not redeliver acked events. Conversations is SINGLE-REPLICA-ONLY until the deferred durable tenant
-// access projection lands; a restart or a second replica leaves that instance denying legitimate callers.
+// The enrolled AddConversationTenantAccess path persists that projection in the configured read-model state
+// store through the EventStore checkpointed writer (Story 16.1). Each tenant record holds state, health, and
+// checkpoint under one compare-and-swap, so a restarted host or another replica reads the same persisted
+// decision without redelivery, and only a healthy record authorizes.
 app.UseEventStoreDomainService();
 if (deletionRuntimeEnabled)
 {

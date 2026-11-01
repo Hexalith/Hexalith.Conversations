@@ -11,8 +11,9 @@ namespace Hexalith.Conversations.Server.TenantAccess;
 
 /// <summary>
 /// Default projection signal that delegates to the registered <see cref="ITenantProjectionStore"/>
-/// when it implements <see cref="IConversationTenantProjectionSignal"/>, and otherwise reports
-/// healthy state while logging a warning so operators see that freshness/poisoning checks are absent.
+/// when it implements <see cref="IConversationTenantProjectionSignal"/>, reports the persisted health of a
+/// durable <see cref="ITenantProjectionSnapshotStore"/>, and otherwise reports healthy state while logging a
+/// warning so operators see that freshness/poisoning checks are absent.
 /// </summary>
 /// <param name="projectionStore">The registered tenant projection store.</param>
 /// <param name="logger">The signal logger.</param>
@@ -39,6 +40,12 @@ public sealed class DefaultConversationTenantProjectionSignal(
             return underlyingSignal.GetProjectionHealthAsync(tenantId, cancellationToken);
         }
 
+        if (_projectionStore is ITenantProjectionSnapshotStore snapshotStore)
+        {
+            // The durable projection persists its own health; report it and never synthesize Healthy.
+            return ReadSnapshotHealthAsync(snapshotStore, tenantId, cancellationToken);
+        }
+
         if (Interlocked.Exchange(ref _warned, 1) == 0)
         {
             // Production deployments must wire a tenant projection store that surfaces freshness,
@@ -54,4 +61,12 @@ public sealed class DefaultConversationTenantProjectionSignal(
 
         return ValueTask.FromResult(ConversationTenantProjectionHealth.Healthy);
     }
+
+    private static async ValueTask<ConversationTenantProjectionHealth> ReadSnapshotHealthAsync(
+        ITenantProjectionSnapshotStore snapshotStore,
+        string tenantId,
+        CancellationToken cancellationToken)
+        => ConversationTenantSnapshotHealth.From(
+            await snapshotStore.GetSnapshotAsync(tenantId, cancellationToken).ConfigureAwait(false),
+            tenantId);
 }

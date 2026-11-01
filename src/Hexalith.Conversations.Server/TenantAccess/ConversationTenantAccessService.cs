@@ -15,6 +15,11 @@ namespace Hexalith.Conversations.Server.TenantAccess;
 /// <summary>
 /// Checks Conversations tenant access from the local Tenants projection.
 /// </summary>
+/// <remarks>
+/// With a durable <see cref="ITenantProjectionSnapshotStore"/>, every evaluation reads exactly one persisted
+/// state/health/checkpoint snapshot and binds both shared adapters to it; only a healthy snapshot can allow.
+/// Without one, the store and the Conversations projection signal are read as before.
+/// </remarks>
 /// <param name="projectionStore">The local tenant projection store.</param>
 /// <param name="projectionSignal">The Conversations-owned projection signal for freshness, gap, rollback, and poisoning detection.</param>
 /// <param name="logger">The service logger.</param>
@@ -34,6 +39,11 @@ public sealed class ConversationTenantAccessService(
         new ConversationTenantAccessStateStore(
             projectionStore ?? throw new ArgumentNullException(nameof(projectionStore)));
 
+    // A durable Tenants projection persists state, health, and checkpoint in one record. When it is present,
+    // each evaluation reads that record once and both shared adapters see the same snapshot; nothing
+    // synthesizes health from a separate signal.
+    private readonly ITenantProjectionSnapshotStore? _snapshotStore = projectionStore as ITenantProjectionSnapshotStore;
+
     /// <inheritdoc />
     public async ValueTask<ConversationTenantAccessDecision> CheckAccessAsync(
         ConversationTenantAccessRequirement requirement,
@@ -46,7 +56,10 @@ public sealed class ConversationTenantAccessService(
         TenantId? idempotencyTenantId = null,
         CancellationToken cancellationToken = default)
     {
-        ConversationTenantProjectionHealthProvider projectionHealth = new(_projectionSignal);
+        ConversationTenantAccessSnapshot? snapshot = _snapshotStore is null ? null : new(_snapshotStore);
+        ConversationTenantProjectionHealthProvider? signalHealth = snapshot is null ? new(_projectionSignal) : null;
+        ITenantAccessStateStore stateStore = snapshot is null ? _stateStore : snapshot;
+        ITenantAccessProjectionHealthProvider projectionHealth = snapshot is null ? signalHealth! : snapshot;
         TenantAccessEvaluation<ConversationTenantAccessRequirement> evaluation =
             await TenantAccessEvaluator.EvaluateAsync(
                 requirement,
@@ -59,7 +72,7 @@ public sealed class ConversationTenantAccessService(
                     idempotencyTenantId?.Value,
                 ],
                 callerPrincipalId,
-                _stateStore,
+                stateStore,
                 projectionHealth,
                 static requirement => Enum.IsDefined(requirement),
                 static status => Enum.IsDefined((TenantStatus)status),
@@ -72,7 +85,7 @@ public sealed class ConversationTenantAccessService(
 
         // The shared evaluator carries health evidence only on health denials. Preserve the same
         // observation it evaluated for an allowed decision, isolated to this invocation.
-        if (evaluation.IsAllowed && projectionHealth.ObservedHealth is { } health)
+        if (evaluation.IsAllowed && (snapshot?.ObservedHealth ?? signalHealth?.ObservedHealth) is { } health)
         {
             evaluation = evaluation with { ProjectionVersion = health.Version, ProjectionWatermark = health.Watermark };
         }

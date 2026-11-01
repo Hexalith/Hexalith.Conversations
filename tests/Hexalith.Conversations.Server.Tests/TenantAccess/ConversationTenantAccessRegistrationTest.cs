@@ -6,9 +6,13 @@
 using System.Text.Json;
 
 using Hexalith.Commons.UniqueIds;
+using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.TenantAccess;
+using Hexalith.EventStore.Client.Projections;
+using Hexalith.EventStore.Client.Projections.Checkpointed;
 using Hexalith.EventStore.Contracts.Events;
 using Hexalith.EventStore.Client.Subscriptions;
+using Hexalith.EventStore.Testing.Fakes;
 using Hexalith.Tenants.Contracts.Events;
 using Hexalith.Tenants.Client.Handlers;
 using Hexalith.Tenants.Client.Projections;
@@ -73,6 +77,8 @@ public sealed class ConversationTenantAccessRegistrationTest
     {
         ServiceCollection services = new();
         services.AddLogging();
+        InMemoryReadModelStore readModels = new();
+        services.AddSingleton<IReadModelStore>(readModels);
         services.AddConversationTenantAccess(EnrolledConfiguration());
         using ServiceProvider provider = services.BuildServiceProvider();
         EventStoreDomainEventsOptions options = provider.GetRequiredService<IOptions<EventStoreDomainEventsOptions>>().Value;
@@ -93,9 +99,20 @@ public sealed class ConversationTenantAccessRegistrationTest
             .ShouldBe(EventStoreDomainEventProcessingResult.Processed);
         (await provider.GetRequiredService<ITenantProjectionStore>().GetAsync(created.TenantId, TestContext.Current.CancellationToken))!
             .Name.ShouldBe(created.Name);
+
+        // The enrolled projection is the durable record in the enrolled read-model state store.
+        provider.GetRequiredService<ITenantProjectionStore>().ShouldBeOfType<DurableTenantProjectionStore>();
+        CheckpointedProjectionRecord<TenantLocalState> record = readModels
+            .Snapshot<CheckpointedProjectionRecord<TenantLocalState>>(
+                ConversationProjectionStoreOptions.FromConfiguration(EnrolledConfiguration()).StateStoreName,
+                DurableTenantProjectionStore.KeyFor(created.TenantId))
+            .ShouldNotBeNull();
+        record.Health.ShouldBe(CheckpointedProjectionHealth.Healthy);
+        record.LastContiguousSequence.ShouldBe(1);
+        record.State.ShouldNotBeNull().Name.ShouldBe(created.Name);
     }
 
-    /// <summary>Missing enrolled pub/sub, topic, or declarative configuration refuses before delivery registration.</summary>
+    /// <summary>Missing enrolled pub/sub, topic, declarative, or read-model store configuration refuses before delivery registration.</summary>
     /// <param name="key">The missing input.</param>
     /// <param name="value">The absent or invalid value.</param>
     [Theory]
@@ -106,6 +123,8 @@ public sealed class ConversationTenantAccessRegistrationTest
     [InlineData("Dapr:DeclarativeSubscriptions", null)]
     [InlineData("Dapr:DeclarativeSubscriptions", " ")]
     [InlineData("Dapr:DeclarativeSubscriptions", "false")]
+    [InlineData("EventStore:Projections:ReadModelStateStoreName", null)]
+    [InlineData("EventStore:Projections:ReadModelStateStoreName", " ")]
     public void MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(string key, string? value)
     {
         ArgumentNullException.ThrowIfNull(key);
@@ -122,6 +141,7 @@ public sealed class ConversationTenantAccessRegistrationTest
             ["Tenants:PubSubName"] = "enrolled-tenant-events",
             ["Tenants:TopicName"] = "enrolled-tenant-topic",
             ["Dapr:DeclarativeSubscriptions"] = "true",
+            ["EventStore:Projections:ReadModelStateStoreName"] = "enrolled-read-model-state",
         };
         if (key is not null) values[key] = value;
         return new ConfigurationBuilder().AddInMemoryCollection(values).Build();

@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Commons.TenantAccess;
+using Hexalith.Conversations.Server.Projections;
 using Hexalith.Tenants.Client.Registration;
 
 using Microsoft.Extensions.Configuration;
@@ -32,7 +33,10 @@ public static class ConversationTenantAccessServiceCollectionExtensions
             ConversationTenantAccessService>(static services => services.AddHexalithTenants());
     }
 
-    /// <summary>Registers the Tenants SDK consumer with required enrolled delivery inputs.</summary>
+    /// <summary>
+    /// Registers the Tenants SDK consumer with required enrolled delivery inputs and the durable tenant
+    /// projection over the enrolled read-model state store.
+    /// </summary>
     /// <param name="services">The service collection.</param>
     /// <param name="configuration">The enrolled host configuration.</param>
     /// <returns>The service collection.</returns>
@@ -52,15 +56,23 @@ public static class ConversationTenantAccessServiceCollectionExtensions
             throw new InvalidOperationException("Enrollment requires 'Dapr:DeclarativeSubscriptions=true'.");
         }
 
+        // The enrolled host persists the Tenants projection in its existing read-model state store, so every
+        // replica and every restart reads the same checkpointed state, health, and checkpoint.
+        string readModelStateStore = ConversationProjectionStoreOptions.FromConfiguration(configuration).StateStoreName;
+
         return services.AddTenantAccess<
             IConversationTenantProjectionSignal,
             DefaultConversationTenantProjectionSignal,
             IConversationTenantAccessService,
-            ConversationTenantAccessService>(collection => collection.AddHexalithTenants(options =>
+            ConversationTenantAccessService>(collection =>
             {
-                options.PubSubName = pubSub;
-                options.TopicName = topic;
-            }));
+                collection.AddHexalithTenantsDurableProjection(readModelStateStore);
+                collection.AddHexalithTenants(options =>
+                {
+                    options.PubSubName = pubSub;
+                    options.TopicName = topic;
+                });
+            });
     }
 
 }

@@ -203,7 +203,8 @@ Dapr fake, and assert configured projection-store contents. They do not
 qualify live delivery, persistent key-ring restart behavior, workload middleware,
 provider parity or multi-replica tenant access. Explicit ephemeral SDK test mode
 is not production restart evidence. Those owner gates remain pending in the
-handoff, and the single-replica/restart warning remains unchanged.
+handoff. Story 16.1 later made the enrolled tenant projection durable and removed
+the single-replica/restart warning; see the handoff's outstanding gates.
 
 ## Retained additive refresh (2026-10-25)
 
