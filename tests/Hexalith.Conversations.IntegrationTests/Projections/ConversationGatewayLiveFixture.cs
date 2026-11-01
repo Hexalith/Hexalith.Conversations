@@ -92,9 +92,10 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
     private readonly ConversationGatewayCommandAuthority _commandAuthority = new();
     private readonly StringBuilder _daprStandardError = new();
     private readonly StringBuilder _daprStandardOutput = new();
-    private readonly RecordingLoggerProvider _recordingLoggerProvider = new();
+    private readonly ConversationGatewayRecordingLoggerProvider _recordingLoggerProvider = new();
     private int _appPort;
     private string? _componentsDirectory;
+    private ConversationGatewayRouteCatalog? _routeCatalog;
     private int _daprGrpcPort;
     private int _daprHttpPort;
     private int _daprInternalGrpcPort;
@@ -129,6 +130,7 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
     {
         HttpRequestMessage request = new(method ?? HttpMethod.Get, ApplicationHttpEndpoint + path);
         request.Headers.Add(DaprAppChannelToken.HeaderName, _appChannelToken);
+        _routeCatalog!.Bind(request);
         return request;
     }
 
@@ -219,6 +221,7 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
                 await WarmUpActorRuntimeAsync().ConfigureAwait(false);
 
                 await ActivateProjectionDeliveryWriterProtocolAsync().ConfigureAwait(false);
+                await _routeCatalog!.ActivateAsync().ConfigureAwait(false);
                 await DiscoverNamedProjectionRoutesAsync().ConfigureAwait(false);
                 IsAvailable = true;
                 return;
@@ -364,6 +367,7 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
 
         File.WriteAllText(Path.Combine(directory, StateStoreName + ".yaml"), stateStore);
         File.WriteAllText(Path.Combine(directory, PubSubName + ".yaml"), pubSub);
+        _routeCatalog = new ConversationGatewayRouteCatalog(AppId, directory, DaprHttpEndpoint);
         return directory;
     }
 
@@ -371,7 +375,7 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(new WebApplicationOptions
         {
-            EnvironmentName = "Testing",
+            EnvironmentName = "Development",
         });
 
         string httpPort = _daprHttpPort.ToString(System.Globalization.CultureInfo.InvariantCulture);
@@ -411,12 +415,14 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
         builder.Configuration["Authentication:WorkloadIssuer:Workload"] = AppId;
         builder.Configuration["Logging:LogLevel:Default"] = "Warning";
         builder.Logging.AddProvider(_recordingLoggerProvider);
-        builder.Logging.AddFilter<RecordingLoggerProvider>(category: null, LogLevel.Debug);
+        builder.Logging.AddFilter<ConversationGatewayRecordingLoggerProvider>(category: null, LogLevel.Debug);
 
         _ = builder.WebHost.ConfigureKestrel(options => options.Listen(
             IPAddress.Loopback,
             0,
             listen => listen.Protocols = HttpProtocols.Http1));
+
+        _routeCatalog!.Configure(builder);
 
         // Registered before the SDK so the canonical registration keeps a host-supplied client authoritative.
         _ = builder.Services.AddSingleton(new DaprClientBuilder()
@@ -436,7 +442,7 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
 
         // Read-side tenant admission is the other external authority seam: it needs a live Tenants projection, is
         // orthogonal to projection delivery, and gates only the read side. Recorded in the v2 proof evidence.
-        _ = builder.Services.AddSingleton<IConversationTenantAccessService>(new AllowConfiguredTenantAccessService());
+        _ = builder.Services.AddSingleton<IConversationTenantAccessService>(new ConversationGatewayTenantAccessService());
 
         // The platform gateway that owns the production dispatch path under proof: the actor runtime, the
         // projection update orchestrator, and the named projection dispatch coordinator.
@@ -467,6 +473,7 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
         // Maps /process, /project, /project/v2, the rebuild routes, and the operational-index metadata the
         // gateway's catalog refresher reads. This is the production mapping, not a test-local shim.
         _ = _testHost.UseEventStoreDomainService();
+        _routeCatalog.Attach(_testHost);
 
         await _testHost.StartAsync().ConfigureAwait(false);
 
@@ -513,6 +520,8 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
                     _daprMetricsPort,
                     "--profile-port",
                     _daprProfilePort,
+                    "--config",
+                    $"\"{_routeCatalog!.ConfigurationPath}\"",
                     "--resources-path",
                     $"\"{_componentsDirectory}\"",
                     "--log-level",
@@ -571,44 +580,6 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
         lock (buffer)
         {
             _ = buffer.Clear();
-        }
-    }
-
-    private sealed class RecordingLoggerProvider : ILoggerProvider
-    {
-        private readonly System.Collections.Concurrent.ConcurrentDictionary<string, byte> _categories =
-            new(StringComparer.Ordinal);
-
-        public ILogger CreateLogger(string categoryName) => new RecordingLogger(categoryName, _categories);
-
-        public bool HasCategory(string category) => _categories.ContainsKey(category);
-
-        public void Dispose()
-        {
-        }
-
-        private sealed class RecordingLogger(
-            string category,
-            System.Collections.Concurrent.ConcurrentDictionary<string, byte> categories) : ILogger
-        {
-            public IDisposable? BeginScope<TState>(TState state)
-                where TState : notnull
-                => null;
-
-            public bool IsEnabled(LogLevel logLevel) => logLevel >= LogLevel.Debug;
-
-            public void Log<TState>(
-                LogLevel logLevel,
-                EventId eventId,
-                TState state,
-                Exception? exception,
-                Func<TState, Exception?, string> formatter)
-            {
-                if (IsEnabled(logLevel))
-                {
-                    categories[category] = 0;
-                }
-            }
         }
     }
 
@@ -860,6 +831,8 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
         }
 
         _componentsDirectory = null;
+        _routeCatalog?.Dispose();
+        _routeCatalog = null;
     }
 
     private void RestoreDaprPortEnvironment()
@@ -868,27 +841,4 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
         Environment.SetEnvironmentVariable("DAPR_GRPC_PORT", _previousDaprGrpcPort);
     }
 
-    private sealed class AllowConfiguredTenantAccessService : IConversationTenantAccessService
-    {
-        public ValueTask<ConversationTenantAccessDecision> CheckAccessAsync(
-            ConversationTenantAccessRequirement requirement,
-            TenantId? trustedTenantId,
-            string? callerPrincipalId,
-            TenantId? routeTenantId = null,
-            TenantId? commandTenantId = null,
-            TenantId? aggregateTenantId = null,
-            TenantId? projectionTenantId = null,
-            TenantId? idempotencyTenantId = null,
-            CancellationToken cancellationToken = default)
-            => ValueTask.FromResult(
-                trustedTenantId is not null
-                && routeTenantId == trustedTenantId
-                && !string.IsNullOrWhiteSpace(callerPrincipalId)
-                    ? ConversationTenantAccessDecision.Allowed(requirement, trustedTenantId, callerPrincipalId)
-                    : ConversationTenantAccessDecision.Denied(
-                        requirement,
-                        trustedTenantId,
-                        callerPrincipalId,
-                        ConversationTenantAccessDenialReason.TenantMismatch));
-    }
 }

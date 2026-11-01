@@ -181,8 +181,27 @@ public sealed class ContractPackageInventoryTest
         Task<string> error = process.StandardError.ReadToEndAsync(TestContext.Current.CancellationToken);
         process.WaitForExit();
         process.ExitCode.ShouldBe(0, output.GetAwaiter().GetResult() + error.GetAwaiter().GetResult());
-        return "2.30.3";
+        return ReadSelectedCommonsVersion(repositoryRoot, projectPath);
 #endif
+    }
+
+    private static string ReadSelectedCommonsVersion(string repositoryRoot, string projectPath)
+    {
+        using Process versionProcess = Process.Start(new ProcessStartInfo("dotnet")
+        {
+            ArgumentList = { "msbuild", projectPath, "-nologo", "-getProperty:HexalithCommonsVersion" },
+            WorkingDirectory = repositoryRoot,
+            RedirectStandardError = true,
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+        }) ?? throw new InvalidOperationException("Unable to inspect the selected Commons package version.");
+        Task<string> versionOutput = versionProcess.StandardOutput.ReadToEndAsync(TestContext.Current.CancellationToken);
+        Task<string> versionError = versionProcess.StandardError.ReadToEndAsync(TestContext.Current.CancellationToken);
+        versionProcess.WaitForExit();
+        versionProcess.ExitCode.ShouldBe(0, versionOutput.GetAwaiter().GetResult() + versionError.GetAwaiter().GetResult());
+        string selectedVersion = versionOutput.GetAwaiter().GetResult().Trim();
+        selectedVersion.ShouldNotBeNullOrWhiteSpace("the package/Release project must resolve its version from the selected catalog");
+        return selectedVersion;
     }
 
     private static string FindRepositoryRoot()
