@@ -238,12 +238,46 @@ public sealed class ConversationsAppHostTopologyTest
         environment["Tenants__TopicName"].ShouldBe("tenants.events");
         environment["Dapr__DeclarativeSubscriptions"].ShouldBe("true");
 
+        // The enrolled tenant access reads Tenants history through the gateway with its own worker authority; the
+        // host refuses to start without these values.
+        EndpointReference gateway = environment[ConversationsAppHostTopology.TenantAccessGatewayBaseAddressVariable]
+            .ShouldBeOfType<EndpointReference>();
+        gateway.Resource.Name.ShouldBe(ConversationsAppHostTopology.EventStoreResourceName);
+        gateway.EndpointName.ShouldBe("http");
+        environment["EventStore__Authentication__Authority"].ShouldBeOfType<ReferenceExpression>();
+        environment["EventStore__Authentication__TokenEndpoint"].ShouldBeOfType<ReferenceExpression>()
+            .Format.ShouldEndWith("/protocol/openid-connect/token");
+        environment["EventStore__Authentication__GrantType"].ShouldBe("client_credentials");
+        environment["EventStore__Authentication__ClientId"].ShouldBe(ConversationsAppHostTopology.TenantAccessWorkerClientId);
+        ParameterResource secret = environment["EventStore__Authentication__ClientSecret"].ShouldBeOfType<ParameterResource>();
+        secret.Secret.ShouldBeTrue();
+        secret.Name.ShouldBe("conversations-tenant-access-client-secret");
+        Dictionary<string, object> keycloak = await EnvironmentOfAsync(resources.Security.ShouldNotBeNull().Keycloak.Resource);
+        keycloak["CONVERSATIONS_TENANT_ACCESS_CLIENT_SECRET"].ShouldBeSameAs(secret);
+
         ResourceNamesReferencedBySidecar(resources.ConversationsServer.Resource).ShouldContain(ConversationsAppHostTopology.StateStoreComponentName);
         ResourceNamesReferencedBySidecar(resources.ConversationsServer.Resource).ShouldContain(ConversationsAppHostTopology.PubSubComponentName);
         ResourceNamesReferencedBy(resources.ConversationsServer.Resource).ShouldContain(ConversationsAppHostTopology.EventStoreResourceName);
         ResourceNamesWaitedOnBy(resources.ConversationsServer.Resource).ShouldContain(ConversationsAppHostTopology.EventStoreResourceName);
         ResourceNamesReferencedBy(resources.ConversationsServer.Resource).ShouldContain(HexalithEventStoreSecurityOptions.DefaultResourceName);
         ResourceNamesWaitedOnBy(resources.ConversationsServer.Resource).ShouldContain(HexalithEventStoreSecurityOptions.DefaultResourceName);
+    }
+
+    /// <summary>The local realm declares the dedicated tenant-access worker client without a literal secret.</summary>
+    [Fact]
+    public void RealmShouldDeclareTheTenantAccessWorkerClientWithAnInjectedSecret()
+    {
+        string realm = Path.Combine(FindRepositoryRoot(), "src", "Hexalith.Conversations.AppHost", "KeycloakRealms", "hexalith-realm.json");
+        using JsonDocument document = JsonDocument.Parse(File.ReadAllText(realm));
+
+        JsonElement client = document.RootElement.GetProperty("clients").EnumerateArray()
+            .Single(static element => element.GetProperty("clientId").GetString() == ConversationsAppHostTopology.TenantAccessWorkerClientId);
+
+        client.GetProperty("publicClient").GetBoolean().ShouldBeFalse();
+        client.GetProperty("serviceAccountsEnabled").GetBoolean().ShouldBeTrue();
+        client.GetProperty("directAccessGrantsEnabled").GetBoolean().ShouldBeFalse();
+        client.GetProperty("standardFlowEnabled").GetBoolean().ShouldBeFalse();
+        client.GetProperty("secret").GetString().ShouldBe("${CONVERSATIONS_TENANT_ACCESS_CLIENT_SECRET}");
     }
 
     [Fact]
@@ -338,6 +372,22 @@ public sealed class ConversationsAppHostTopologyTest
             .SelectMany(static sidecar => sidecar.Sidecar.Annotations.OfType<DaprSidecarOptionsAnnotation>())
             .Select(static annotation => annotation.Options)
             .Single();
+
+    private static async Task<Dictionary<string, object>> EnvironmentOfAsync(IResource resource)
+    {
+        Dictionary<string, object> environment = new(StringComparer.Ordinal);
+        EnvironmentCallbackContext context = new(
+            new DistributedApplicationExecutionContext(DistributedApplicationOperation.Run),
+            resource,
+            environment,
+            TestContext.Current.CancellationToken);
+        foreach (EnvironmentCallbackAnnotation annotation in resource.Annotations.OfType<EnvironmentCallbackAnnotation>())
+        {
+            await annotation.Callback(context);
+        }
+
+        return environment;
+    }
 
     private static string[] ResourceNamesReferencedBySidecar(ProjectResource resource)
         => [.. resource.Annotations

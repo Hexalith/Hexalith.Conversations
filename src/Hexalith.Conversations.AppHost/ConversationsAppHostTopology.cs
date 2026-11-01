@@ -54,6 +54,18 @@ public static class ConversationsAppHostTopology
     /// </summary>
     public const string PubSubComponentName = "pubsub";
 
+    /// <summary>
+    /// The local realm client the Conversations tenant access uses as its EventStore gateway worker authority.
+    /// </summary>
+    /// <remarks>
+    /// A dedicated confidential service-account client, so Conversations never borrows the EventStore workload
+    /// identity. Its secret is a generated AppHost parameter injected into Keycloak, never a literal value.
+    /// </remarks>
+    public const string TenantAccessWorkerClientId = "conversations-tenant-access";
+
+    /// <summary>The environment variable carrying the tenant-access gateway origin into the Conversations server.</summary>
+    public const string TenantAccessGatewayBaseAddressVariable = "Hexalith__Conversations__TenantAccess__GatewayBaseAddress";
+
     /// <summary>The test-only switch selecting the prebuilt Builds-owned package gateway host.</summary>
     public const string TestingUseBuildsGatewayConfigurationKey = "Conversations:Testing:UseBuildsGateway";
 
@@ -92,6 +104,9 @@ public static class ConversationsAppHostTopology
             .WithEnvironment("Tenants__PubSubName", PubSubComponentName)
             .WithEnvironment("Tenants__TopicName", "tenants.events")
             .WithEnvironment("Dapr__DeclarativeSubscriptions", "true")
+
+            // The enrolled tenant access reads Tenants history through this gateway and refuses to start without it.
+            .WithEnvironment(TenantAccessGatewayBaseAddressVariable, eventStoreResources.EventStore.GetEndpoint("http"))
             .WithHttpEndpoint();
         _ = conversationsServer.AddEventStoreDomainModule(eventStoreResources, ConversationsDaprAppId);
         _ = eventStoreResources.EventStore.WithGeneratedEventStoreAppChannelToken();
@@ -110,6 +125,23 @@ public static class ConversationsAppHostTopology
             _ = eventStoreResources.EventStore.WithEventStoreWorkloadClientCredentials(EventStoreResourceName, workloadSecret);
             _ = eventStoreResources.EventStore.WithJwtBearerSecurity(security);
             _ = conversationsServer.WithJwtBearerSecurity(security);
+
+            // The tenant-access gateway worker authority: the same generated-secret plumbing as the EventStore
+            // workload, for the dedicated realm client, with the client-credentials grant the enrolled host requires.
+            IResourceBuilder<ParameterResource> tenantAccessSecret = builder.AddParameter(
+                "conversations-tenant-access-client-secret",
+                new GenerateParameterDefault { MinLength = 32, Lower = true, Upper = true, Numeric = true, Special = false },
+                secret: true,
+                persist: persistent);
+            _ = security.Keycloak.WithEnvironment("CONVERSATIONS_TENANT_ACCESS_CLIENT_SECRET", tenantAccessSecret);
+            _ = conversationsServer
+                .WithEnvironment("EventStore__Authentication__Authority", security.RealmUrl)
+                .WithEnvironment(
+                    "EventStore__Authentication__TokenEndpoint",
+                    ReferenceExpression.Create($"{security.RealmUrl}/protocol/openid-connect/token"))
+                .WithEnvironment("EventStore__Authentication__GrantType", "client_credentials")
+                .WithEnvironment("EventStore__Authentication__ClientId", TenantAccessWorkerClientId)
+                .WithEnvironment("EventStore__Authentication__ClientSecret", tenantAccessSecret);
         }
 
         IResourceBuilder<ProjectResource> adminWeb = builder

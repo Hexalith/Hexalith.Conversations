@@ -370,6 +370,25 @@
         "eventstore-operation.domain-service.project",
         "eventstore-operation.domain-service.metadata"
       ]
+    },
+    {
+      "clientId": "conversations-tenant-access",
+      "name": "Hexalith Conversations tenant-access worker",
+      "description": "Service-account worker client: the Conversations host reads authoritative Tenants history through the EventStore gateway (Story 16.1). Grants no audience, tenant or domain by default; the tenants-stream read grant is an owner action.",
+      "enabled": true,
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "${CONVERSATIONS_TENANT_ACCESS_CLIENT_SECRET}",
+      "directAccessGrantsEnabled": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": true,
+      "fullScopeAllowed": false,
+      "attributes": {
+        "access.token.lifespan": "300"
+      },
+      "defaultClientScopes": [],
+      "optionalClientScopes": []
     }
   ],
   "users": [
