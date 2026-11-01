@@ -102,30 +102,43 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 15
     steps:
-      - name: Configure Windows paths before source checkout
-        run: |
-          git config --global core.longpaths true
-          # Git validates archived ':' paths before applying the sparse checkout exclusions.
-          git config --global core.protectNTFS false
-
-      - name: Check out source
-        uses: actions/checkout@v7
+      - name: Set up Python for protected checkout and the process fixture
+        uses: actions/setup-python@v7.0.0
         with:
-          fetch-depth: 0
-          persist-credentials: false
-          submodules: false
-          # Preserve historical NuGet cache bytes in Git; Windows cannot check out ':' names.
-          # This lane compiles current TestSupport source and does not consume archived HTTP caches.
-          sparse-checkout: |
-            /*
-            !/module/validation/**/isolated/http-cache/
-          sparse-checkout-cone-mode: false
+          python-version: '3.11'
 
-      - name: Restore NTFS path protection
-        run: git config --global core.protectNTFS true
+      - name: Validate complete Windows paths before historical sparse checkout
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $revision = $env:GITHUB_SHA
+          if ($revision -cnotmatch '^[0-9a-f]{40}$') { throw 'An exact candidate SHA is required.' }
+          if (Test-Path .git) { throw 'Protected bootstrap requires a fresh workspace.' }
+          git init .
+          if ($LASTEXITCODE -ne 0) { throw 'Git initialization failed.' }
+          git remote add origin https://github.com/Hexalith/Hexalith.Conversations.git
+          if ($LASTEXITCODE -ne 0) { throw 'Origin initialization failed.' }
+          # Fetch only metadata/objects. No worktree or source index is expanded here.
+          git -c submodule.recurse=false fetch --no-recurse-submodules --no-tags origin '+refs/heads/*:refs/remotes/origin/*' '+refs/tags/*:refs/tags/*'
+          if ($LASTEXITCODE -ne 0) { throw 'Full history fetch failed.' }
+          git -c submodule.recurse=false fetch --no-recurse-submodules --no-tags origin $revision
+          if ($LASTEXITCODE -ne 0) { throw 'Exact candidate fetch failed.' }
+          $source = & git show "$($revision):tools/checkout-windows.py"
+          if ($LASTEXITCODE -ne 0) { throw 'The candidate Windows guard is unavailable.' }
+          $owned = Join-Path $env:RUNNER_TEMP ('conversations-checkout-' + [Guid]::NewGuid().ToString('N'))
+          New-Item -ItemType Directory -Path $owned | Out-Null
+          $guard = Join-Path $owned 'checkout-windows.py'
+          [IO.File]::WriteAllText($guard, ($source -join "`n"), [Text.UTF8Encoding]::new($false))
+          # The guard validates every non-archive entry using a protected temporary native
+          # index and exact readback parity BEFORE its single command-scoped exception.
+          python $guard --repository $env:GITHUB_WORKSPACE --revision $revision
+          if ($LASTEXITCODE -ne 0) { throw 'Protected sparse checkout refused the candidate.' }
+
+      - name: Test Windows checkout refusal controls
+        run: python -m unittest discover -s tools/tests -p 'test_checkout_windows.py' -v
 
       - name: Initialize root-declared build identity dependencies
-        run: git submodule update --init -- references/Hexalith.Builds references/Hexalith.Platform
+        run: git -c submodule.recurse=false submodule update --init --checkout -- references/Hexalith.Builds references/Hexalith.Platform
 
       - name: Initialize .NET
         uses: actions/setup-dotnet@v6.0.0
@@ -136,11 +149,6 @@ jobs:
         uses: ./references/Hexalith.Builds/Github/prepare-module-build
         with:
           manifest: module/hexalith.module-manifest.v2.json
-
-      - name: Set up Python for the process fixture
-        uses: actions/setup-python@v7.0.0
-        with:
-          python-version: '3.11'
 
       - name: Build TestSupport tests
         run: dotnet build tests/Hexalith.Conversations.TestSupport.Tests/Hexalith.Conversations.TestSupport.Tests.csproj --configuration Release
@@ -179,6 +187,9 @@ jobs:
 
       - name: Check root submodule declarations and gitlinks
         run: python3 scripts/check-root-submodules.py --repository .
+
+      - name: Test Windows checkout refusal controls
+        run: python3 -m unittest discover -s tools/tests -p 'test_checkout_windows.py' -v
 
       - name: Test root submodule check
         run: python3 -m unittest discover -s tests/tooling -p 'test_check_root_submodules.py'

@@ -693,10 +693,15 @@ class ReleaseToolingTests(unittest.TestCase):
     def test_windows_checkout_excludes_only_historical_http_cache(self) -> None:
         workflow = (ROOT / ".github/workflows/ci.yml").read_text()
         job = workflow.split("\n  testsupport-windows:\n", 1)[1].split("\n  repository:\n", 1)[0]
-        checkout = job.split("      - name: Check out source\n", 1)[1].split("\n      - ", 1)[0]
-        patterns = re.search(r"(?m)^          sparse-checkout: \|\n((?:            .*\n)+)", checkout)
-        self.assertIsNotNone(patterns)
-        rules = "\n".join(line[12:] for line in patterns[1].splitlines()) + "\n"
+        spec = importlib.util.spec_from_file_location("checkout_windows_policy", ROOT / "tools/checkout-windows.py")
+        guard = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(guard)
+        self.assertIn("python $guard --repository $env:GITHUB_WORKSPACE --revision $revision", job)
+        rules = guard.SPARSE.decode("utf-8")
+        records = guard.tree_records(subprocess.check_output(["git", "ls-tree", "-r", "--full-tree", "-z", "HEAD"], cwd=ROOT))
+        guard.require_archives(ROOT, records)
+        expected_archives = {path.decode("utf-8") for path in guard.ARCHIVES}
+        self.assertEqual(18, len(expected_archives))
         with tempfile.TemporaryDirectory(prefix="conversations-windows-checkout-") as temporary:
             subprocess.run(["git", "clone", "--shared", "--no-checkout", str(ROOT), temporary], check=True, capture_output=True)
             subprocess.run(["git", "sparse-checkout", "set", "--no-cone", "--stdin"], input=rules,
@@ -704,9 +709,7 @@ class ReleaseToolingTests(unittest.TestCase):
             subprocess.run(["git", "checkout", "HEAD"], cwd=temporary, check=True, capture_output=True)
             files = subprocess.check_output(["git", "ls-files", "-v", "-z"], cwd=temporary).decode().split("\0")
             excluded = {entry[2:] for entry in files if entry.startswith("S ")}
-            cache = {entry[2:] for entry in files if entry and "/isolated/http-cache/" in entry[2:]}
-            self.assertTrue(cache)
-            self.assertEqual(cache, excluded, "Every current source, test, workflow and other archived file must be checked out")
+            self.assertEqual(expected_archives, excluded, "Only the eighteen exact immutable archives may be omitted")
             self.assertTrue(all(":" in name for name in excluded))
             self.assertTrue((Path(temporary) / "tests/Hexalith.Conversations.TestSupport.Tests/Hexalith.Conversations.TestSupport.Tests.csproj").is_file())
 
@@ -714,17 +717,16 @@ class ReleaseToolingTests(unittest.TestCase):
         ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
         tooling_job = ci.split("  tooling:", maxsplit=1)[1]
         windows_job = ci.split("\n  testsupport-windows:\n", maxsplit=1)[1].split("\n  repository:\n", maxsplit=1)[0]
-        windows_checkout = windows_job.split("      - name: Check out source\n", maxsplit=1)[1].split("\n      - ", maxsplit=1)[0]
-        before_checkout = windows_job.split("      - name: Check out source\n", maxsplit=1)[0]
-        self.assertIn("git config --global core.longpaths true", before_checkout)
-        self.assertIn("git config --global core.protectNTFS false", before_checkout)
-        restore_ntfs = windows_job.index("git config --global core.protectNTFS true")
-        self.assertLess(windows_job.index("      - name: Check out source\n"), restore_ntfs)
-        self.assertLess(restore_ntfs, windows_job.index("      - name: Initialize root-declared build identity dependencies\n"))
-        self.assertIn("uses: actions/checkout@", windows_checkout)
-        self.assertIn("          fetch-depth: 0\n", windows_checkout)
-        self.assertIn("          sparse-checkout-cone-mode: false\n", windows_checkout)
-        self.assertIn("            /*\n            !/module/validation/**/isolated/http-cache/\n", windows_checkout)
+        checkout_name = "      - name: Validate complete Windows paths before historical sparse checkout\n"
+        windows_checkout = windows_job.split(checkout_name, maxsplit=1)[1].split("\n      - ", maxsplit=1)[0]
+        self.assertNotIn("git config --global core.protectNTFS false", windows_job)
+        self.assertIn("git init .", windows_checkout)
+        self.assertIn("$revision = $env:GITHUB_SHA", windows_checkout)
+        self.assertIn("git -c submodule.recurse=false fetch --no-recurse-submodules", windows_checkout)
+        self.assertIn("python $guard --repository $env:GITHUB_WORKSPACE --revision $revision", windows_checkout)
+        self.assertLess(windows_job.index(checkout_name), windows_job.index("      - name: Initialize root-declared build identity dependencies\n"))
+        self.assertIn("git -c submodule.recurse=false submodule update --init --checkout -- references/Hexalith.Builds references/Hexalith.Platform", windows_job)
+        self.assertIn("python -m unittest discover -s tools/tests -p 'test_checkout_windows.py' -v", windows_job)
         self.assertIn(
             "uses: Hexalith/Hexalith.Builds/.github/workflows/domain-ci.yml@1cc94bbb932be0d08a31b4e1393fcfc450a0b1c9",
             ci,

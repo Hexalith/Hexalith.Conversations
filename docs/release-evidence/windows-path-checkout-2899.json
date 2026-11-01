@@ -1,0 +1,22 @@
+{
+  "seconds": 69.45982590000494,
+  "exitCode": 0,
+  "stderr": "",
+  "scope": "path/index policy only; source execution not performed",
+  "receipt": {
+    "candidate": "2899c7ac67ee0bf726b82186b51deadb23063a23",
+    "candidateAcceptance": false,
+    "exactArchiveEntries": 18,
+    "fullIndexParity": true,
+    "fullTreeEntries": 50996,
+    "gitVersion": "git version 2.55.0.windows.4",
+    "protectedNativeEntries": 50978,
+    "protectedStatusClean": true,
+    "qualification": "path/index policy only",
+    "skippedArchiveEntries": 18,
+    "sourceExecution": "not performed"
+  },
+  "root": "/mnt/c/Users/JeromePiquot/AppData/Local/Temp/works-convo-full2899-0f33vtx4",
+  "guardSha256": "8a702970f78782819fcf1566fd39497247a56e61397e477d0b9e4873d8a167b5",
+  "tests": "4passed;90 full-tuple missing/rename/blob/mode negative subcases"
+}
