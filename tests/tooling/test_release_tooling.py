@@ -720,6 +720,7 @@ class ReleaseToolingTests(unittest.TestCase):
         checkout_name = "      - name: Validate complete Windows paths before historical sparse checkout\n"
         windows_checkout = windows_job.split(checkout_name, maxsplit=1)[1].split("\n      - ", maxsplit=1)[0]
         self.assertNotIn("git config --global core.protectNTFS false", windows_job)
+        self.assertIn("git config --global core.longpaths true", windows_job.split(checkout_name, maxsplit=1)[0])
         self.assertIn("git init .", windows_checkout)
         self.assertIn("$revision = $env:GITHUB_SHA", windows_checkout)
         self.assertIn("git -c submodule.recurse=false fetch --no-recurse-submodules", windows_checkout)

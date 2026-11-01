@@ -107,6 +107,9 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Enable Windows long paths for dependency checkouts
+        run: git config --global core.longpaths true
+
       - name: Validate complete Windows paths before historical sparse checkout
         shell: pwsh
         run: |

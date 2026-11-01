@@ -35,3 +35,5 @@ The existing Linux sparse-selection test and the workflow-boundary check both pa
 - `tests/tooling/test_release_tooling.py`
 - `docs/release-evidence/windows-path-checkout-2899.json`
 - `_bmad-output/implementation-artifacts/spec-protect-windows-source-checkout.md`
+
+The current candidate's native protected root checkout and four refusal controls passed in Windows CI41298680368. The next step failed because the dependency checkouts need Windows long paths too. Restore only the original safe long-path setting on the disposable runner; NTFS protection remains enabled. The focused workflow contract passes after this change. Full current Windows build/test qualification remains open.
