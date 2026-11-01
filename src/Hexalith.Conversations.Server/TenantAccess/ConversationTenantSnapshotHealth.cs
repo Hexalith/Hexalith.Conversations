@@ -12,15 +12,26 @@ namespace Hexalith.Conversations.Server.TenantAccess;
 /// Maps one durable Tenants projection snapshot to the Conversations projection health signal.
 /// </summary>
 /// <remarks>
+/// <para>
 /// Only a persisted <see cref="CheckpointedProjectionHealth.Healthy"/> record whose state names the requested
-/// tenant reports healthy. A missing, malformed, unavailable, or untrusted snapshot reports stale without any
-/// version or watermark, so those denials are indistinguishable and never disclose whether the tenant exists.
-/// Gapped and corrupt records report a gap and poisoning respectively. Nothing here synthesizes health.
+/// tenant reports healthy, with its checkpoint as the version. Gapped and corrupt records report a gap and
+/// poisoning; a malformed, unavailable, or untrusted record reports stale. None of them carries a version or
+/// watermark, and none of them exposes state, so they always deny.
+/// </para>
+/// <para>
+/// A missing record reports no projection fault and no version: the projection holds no tenant to vouch for, so
+/// the shared evaluator finds no state and denies with <c>UnknownTenant</c> — non-retryable with the same public
+/// code as a non-member of an existing tenant — and never discloses whether the tenant exists. This is an absence,
+/// not synthesized health: it can never allow, because only a healthy record exposes state.
+/// </para>
 /// </remarks>
 internal static class ConversationTenantSnapshotHealth
 {
-    /// <summary>The non-disclosing health reported for missing, malformed, and unavailable snapshots.</summary>
+    /// <summary>The non-disclosing health reported for malformed, unavailable, and untrusted snapshots.</summary>
     internal static ConversationTenantProjectionHealth Unproven { get; } = new(IsStale: true);
+
+    /// <summary>The health reported when no record exists, which leaves the denial to the absent state.</summary>
+    internal static ConversationTenantProjectionHealth Absent { get; } = new();
 
     /// <summary>
     /// Maps a snapshot to projection health.
@@ -30,7 +41,12 @@ internal static class ConversationTenantSnapshotHealth
     /// <returns>The projection health.</returns>
     internal static ConversationTenantProjectionHealth From(TenantProjectionSnapshot? snapshot, string tenantId)
     {
-        if (snapshot is null || !string.Equals(snapshot.TenantId, tenantId, StringComparison.Ordinal))
+        if (snapshot is null)
+        {
+            return Absent;
+        }
+
+        if (!string.Equals(snapshot.TenantId, tenantId, StringComparison.Ordinal))
         {
             return Unproven;
         }

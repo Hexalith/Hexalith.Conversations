@@ -385,6 +385,11 @@ public sealed class ConversationsDomainServiceHostCompositionTest
         builder.Configuration["Tenants:PubSubName"] = "host-composition-events";
         builder.Configuration["Tenants:TopicName"] = "host-composition-tenants";
         builder.Configuration["Dapr:DeclarativeSubscriptions"] = "true";
+        builder.Configuration[ConversationTenantAccessServiceCollectionExtensions.GatewayBaseAddressKey] = "https://gateway.test/";
+        builder.Configuration["EventStore:Authentication:Authority"] = "https://authority.test/";
+        builder.Configuration["EventStore:Authentication:TokenEndpoint"] = "https://authority.test/connect/token";
+        builder.Configuration["EventStore:Authentication:ClientId"] = "host-composition-worker";
+        builder.Configuration["EventStore:Authentication:ClientSecret"] = "host-composition-worker-secret";
     }
 
 }

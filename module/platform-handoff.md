@@ -369,10 +369,29 @@ drills, targets/deadlines, named operators and recovery deputies with verified
 access, resource/capacity limits, and any scoped, expiring Release-owned waiver.
 Human breakpoint/edit, readiness and stop/cleanup evidence remains separately
 pending. Story 16.1 (2026-11-01) replaced the per-replica in-memory tenant
-projection on the enrolled path with the durable checkpointed record in the
-enrolled read-model state store. Native xUnit restart and two-replica proofs
-passed against a local Dapr/Redis topology, so the single-replica warning is
-removed; deployment and the waived AD-5 envelope remain outside that change.
+projection on the enrolled path with a durable checkpointed record per tenant
+in the enrolled read-model state store. Native xUnit tests prove, against a
+local Dapr/Redis state store with deliveries and Tenants history supplied in
+process, that a restarted host and a second replica read the same persisted
+state, health and checkpoint, and that gaps, lagging history and racing first
+writes converge. They do not prove Platform pub/sub delivery, the gateway
+history grant or deployment, and the AD-5 envelope stays waived.
+
+Story 16.1 owner actions:
+
+- [ ] Platform grants the Conversations workload read access to the tenant
+  `system`, domain `tenants` stream through the EventStore gateway. The enrolled
+  host refuses to start without `Hexalith:Conversations:TenantAccess:GatewayBaseAddress`
+  and the `EventStore:Authentication` worker credentials; the frozen local
+  AppHost does not inject them yet.
+- [ ] Platform configures the tenants subscription to retry without limit and
+  without dead-lettering. Gap recovery runs only when a delivery is redelivered.
+- [ ] Operators rebuild the tenant projection records (`tenants-projection:v1:*`)
+  after a state-store restore; a restored older Healthy record is not detected.
+- [ ] Follow the release train: publish EventStore, then Tenants with the
+  EventStore bump, then bump the Conversations package versions in
+  `Directory.Packages.props`. Until then Conversations CI cannot compile in
+  package mode.
 
 - [ ] Named module and Platform owners reviewed the exact implementation revision and every binding/adapter.
 - [ ] The reviewed gateway tuple survives selection and disappears when its appId is unselected.

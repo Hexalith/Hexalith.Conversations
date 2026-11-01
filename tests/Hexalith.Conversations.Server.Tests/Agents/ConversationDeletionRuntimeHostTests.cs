@@ -18,6 +18,7 @@ using Hexalith.Conversations.Server.Agents;
 using Hexalith.Conversations.Server.Api;
 using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
+using Hexalith.EventStore.Client.Gateway;
 using Hexalith.EventStore.Client.Streams;
 using Hexalith.EventStore.Contracts.Identity;
 using Hexalith.EventStore.Contracts.Streams;
@@ -73,6 +74,29 @@ public sealed class ConversationDeletionRuntimeHostTests
         host.Services.GetRequiredService<IConversationAgentAuthority>().ShouldBeOfType<UnavailableConversationAgentAuthority>();
         Routes(host).Keys.ShouldNotContain(IdentityRoute);
         Routes(host).Keys.ShouldNotContain(ParticipantRoute);
+    }
+
+    /// <summary>The enabled runtime reuses the enrolled tenant-access gateway client instead of registering a second one.</summary>
+    [Fact]
+    public async Task EnabledRuntimeReusesTheTenantAccessGatewayClient()
+    {
+        List<ServiceDescriptor> descriptors = [];
+        await using WebApplication host = ComposeLikeProgram(S.Configuration(), InstallAll(), optIn: true, descriptors: descriptors);
+
+        descriptors.Count(static descriptor => descriptor.ServiceType == typeof(IEventStoreGatewayClient)).ShouldBe(1);
+        descriptors.Count(static descriptor => descriptor.ServiceType == typeof(ConversationEventStoreGatewayRegistration)).ShouldBe(1);
+        host.Services.GetRequiredService<ConversationEventStoreGatewayRegistration>().BaseAddress.ShouldBe(new Uri(S.Gateway));
+    }
+
+    /// <summary>Tenant access and the deletion runtime refuse to start against two different gateway origins.</summary>
+    [Fact]
+    public void EnabledRuntimeRefusesADifferentTenantAccessGatewayOrigin()
+    {
+        Dictionary<string, string?> settings = S.Configuration();
+        settings[ConversationTenantAccessServiceCollectionExtensions.GatewayBaseAddressKey] = "https://other-gateway.test/";
+
+        Should.Throw<InvalidOperationException>(() => ComposeLikeProgram(settings, InstallAll(), optIn: true))
+            .Message.ShouldContain("one EventStore gateway origin");
     }
 
     /// <summary>Each incomplete or unsafe value refuses before any provider check, naming its key without echoing the value.</summary>

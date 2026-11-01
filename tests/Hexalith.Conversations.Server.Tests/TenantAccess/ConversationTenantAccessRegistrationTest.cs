@@ -8,6 +8,7 @@ using System.Text.Json;
 using Hexalith.Commons.UniqueIds;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.TenantAccess;
+using Hexalith.EventStore.Client.Gateway;
 using Hexalith.EventStore.Client.Projections;
 using Hexalith.EventStore.Client.Projections.Checkpointed;
 using Hexalith.EventStore.Contracts.Events;
@@ -110,9 +111,17 @@ public sealed class ConversationTenantAccessRegistrationTest
         record.Health.ShouldBe(CheckpointedProjectionHealth.Healthy);
         record.LastContiguousSequence.ShouldBe(1);
         record.State.ShouldNotBeNull().Name.ShouldBe(created.Name);
+
+        // The enrolled history reader is the SDK gateway client on the worker authority transport.
+        services.Count(static descriptor => descriptor.ServiceType == typeof(IEventStoreGatewayClient)).ShouldBe(1);
+        using IServiceScope scope = provider.CreateScope();
+        scope.ServiceProvider.GetRequiredService<IEventStoreGatewayClient>().ShouldBeOfType<EventStoreGatewayClient>();
     }
 
-    /// <summary>Missing enrolled pub/sub, topic, declarative, or read-model store configuration refuses before delivery registration.</summary>
+    /// <summary>
+    /// Missing enrolled pub/sub, topic, declarative, read-model store, gateway origin, or gateway worker authority
+    /// configuration refuses before delivery registration.
+    /// </summary>
     /// <param name="key">The missing input.</param>
     /// <param name="value">The absent or invalid value.</param>
     [Theory]
@@ -125,13 +134,24 @@ public sealed class ConversationTenantAccessRegistrationTest
     [InlineData("Dapr:DeclarativeSubscriptions", "false")]
     [InlineData("EventStore:Projections:ReadModelStateStoreName", null)]
     [InlineData("EventStore:Projections:ReadModelStateStoreName", " ")]
+    [InlineData(ConversationTenantAccessServiceCollectionExtensions.GatewayBaseAddressKey, null)]
+    [InlineData(ConversationTenantAccessServiceCollectionExtensions.GatewayBaseAddressKey, "http://gateway.example/")]
+    [InlineData(ConversationTenantAccessServiceCollectionExtensions.GatewayBaseAddressKey, "https://gateway.test/api/")]
+    [InlineData("EventStore:Authentication:Authority", null)]
+    [InlineData("EventStore:Authentication:TokenEndpoint", null)]
+    [InlineData("EventStore:Authentication:ClientId", null)]
+    [InlineData("EventStore:Authentication:ClientSecret", null)]
+    [InlineData("EventStore:Authentication:GrantType", "password")]
     public void MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(string key, string? value)
     {
         ArgumentNullException.ThrowIfNull(key);
         ServiceCollection services = new();
-        Should.Throw<InvalidOperationException>(() => services.AddConversationTenantAccess(EnrolledConfiguration(key, value)))
-            .Message.ShouldContain(key.Split(':')[0]);
+        string message = Should.Throw<InvalidOperationException>(() => services.AddConversationTenantAccess(EnrolledConfiguration(key, value)))
+            .Message;
+        message.ShouldContain(key.Split(':')[0]);
+        message.ShouldNotContain("enrolled-worker-secret");
         services.ShouldNotContain(descriptor => descriptor.ServiceType == typeof(EventStoreDomainEventProcessor));
+        services.ShouldNotContain(descriptor => descriptor.ServiceType == typeof(IEventStoreGatewayClient));
     }
 
     private static IConfiguration EnrolledConfiguration(string? key = null, string? value = null)
@@ -142,6 +162,11 @@ public sealed class ConversationTenantAccessRegistrationTest
             ["Tenants:TopicName"] = "enrolled-tenant-topic",
             ["Dapr:DeclarativeSubscriptions"] = "true",
             ["EventStore:Projections:ReadModelStateStoreName"] = "enrolled-read-model-state",
+            [ConversationTenantAccessServiceCollectionExtensions.GatewayBaseAddressKey] = "https://gateway.test/",
+            ["EventStore:Authentication:Authority"] = "https://authority.test/",
+            ["EventStore:Authentication:TokenEndpoint"] = "https://authority.test/connect/token",
+            ["EventStore:Authentication:ClientId"] = "enrolled-worker",
+            ["EventStore:Authentication:ClientSecret"] = "enrolled-worker-secret",
         };
         if (key is not null) values[key] = value;
         return new ConfigurationBuilder().AddInMemoryCollection(values).Build();

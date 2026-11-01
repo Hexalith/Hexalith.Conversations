@@ -12,6 +12,9 @@ Commit `0db6207`, the owner's accepted routine-change simplification (see
   live preservation-manifest binding checks from CI. The V18 suite still passes;
   the preservation-traceability rc2 suite rebinds published Epic 6 evidence to the
   live routes and SDK pin, so any route or SDK change turns it red.
+* Story 16.1 review loop 1 (2026-11-01) retires the frozen-state Epic 16 adoption
+  v2 suite: its pinned sprint status records 16.1 as backlog, which the 16.1
+  sprint transition invalidates.
 * The owner's 2026-10-21 Story 11.3 review decision retires its live-candidate
   measurement suite and dependent record cases from routine collection. They
   measure the live `HEAD`, so name either test file explicitly at the accepted
@@ -50,6 +53,11 @@ collect_ignore = [
     # cannot pass in the Python-only lane (owner decision 2026-10-10).
     "test_verify_story92_successor_v3_scope.py",
     "test_verify_story92_successor_v4_acceptance.py",
+    # The Epic 16 adoption v2 package pins frozen pre-runtime sources, including a
+    # sprint-status.yaml that records Story 16.1 as backlog. The 16.1 sprint
+    # transition invalidates that frozen state, so the suite retires from routine
+    # collection (Story 16.1 review loop 1, 2026-11-01). Name the file to reproduce it.
+    "test_verify_epic_16_adoption_v2.py",
 ]
 
 

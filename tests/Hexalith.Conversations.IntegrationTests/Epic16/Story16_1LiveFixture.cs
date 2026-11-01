@@ -6,6 +6,7 @@
 using Dapr.Client;
 
 using Hexalith.Conversations.Server.Projections;
+using Hexalith.Conversations.Server.TenantAccess;
 
 using Microsoft.Extensions.Configuration;
 
@@ -34,6 +35,14 @@ public sealed class Story16_1LiveFixture : IAsyncLifetime
                 ["Tenants:TopicName"] = "tenants.events",
                 ["Dapr:DeclarativeSubscriptions"] = "true",
                 [ConversationProjectionStoreOptions.ConfigurationKey] = $"story161-tenant-state-{Guid.NewGuid():N}",
+
+                // Enrollment requires the gateway origin and worker authority; every replica here supplies its own
+                // history client, which the enrolled registration keeps, so neither is ever contacted.
+                [ConversationTenantAccessServiceCollectionExtensions.GatewayBaseAddressKey] = "https://gateway.test/",
+                ["EventStore:Authentication:Authority"] = "https://authority.test/",
+                ["EventStore:Authentication:TokenEndpoint"] = "https://authority.test/connect/token",
+                ["EventStore:Authentication:ClientId"] = "story161-worker",
+                ["EventStore:Authentication:ClientSecret"] = $"story161-{Guid.NewGuid():N}",
             })
             .Build();
         ReplicaA = new Story16_1LiveSidecar(AppId, _componentsDirectory);

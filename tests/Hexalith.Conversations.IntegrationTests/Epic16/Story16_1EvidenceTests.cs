@@ -201,8 +201,94 @@ public sealed class Story16_1EvidenceTests(Story16_1LiveFixture fixture)
         recovered.GetProperty("health").GetInt32().ShouldBe((int)CheckpointedProjectionHealth.Healthy);
         recovered.GetProperty("lastContiguousSequence").GetInt64().ShouldBe(3);
         recovered.GetProperty("lease").ValueKind.ShouldBe(JsonValueKind.Null);
-        recovered.GetProperty("lastFencingToken").GetInt64().ShouldBe(1);
+        recovered.GetProperty("lastFencingToken").GetInt64().ShouldBe(2, "the isolated replica's failed recovery fenced token 1 and released it");
         (await isolated.CheckAsync(ConversationTenantAccessRequirement.Admin, tenant, Caller)).IsAllowed.ShouldBeTrue();
+    }
+
+    /// <summary>
+    /// Authoritative history that lags behind delivery keeps the persisted gap retryable instead of corrupting it,
+    /// and the redelivery recovers once history catches up.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Fact]
+    public async Task HistoryLaggingBehindDeliveryStaysRetryableUntilItCatchesUp()
+    {
+        string tenant = NewTenant();
+        EventStoreDomainEventEnvelope created = Persist(new TenantCreated(tenant, "Lagging", null, At), tenant, 1);
+        EventStoreDomainEventEnvelope member = Envelope(new UserAddedToTenant(tenant, Caller, TenantRole.TenantOwner), tenant, 2);
+        EventStoreDomainEventEnvelope renamed = Envelope(new TenantUpdated(tenant, "Lagging renamed", null, At), tenant, 3);
+        using Story16_1Replica a = new(fixture, fixture.ReplicaA);
+        using Story16_1Replica b = new(fixture, fixture.ReplicaB);
+        (await a.DeliverOnceAsync(created)).ShouldBe(EventStoreDomainEventProcessingResult.Processed);
+
+        // Delivery overtakes the authoritative read model, which still ends at sequence 1.
+        CheckpointedProjectionUnavailableException lagging = await Should.ThrowAsync<CheckpointedProjectionUnavailableException>(
+            () => b.DeliverOnceAsync(renamed));
+
+        lagging.Reason.ShouldBe(CheckpointedProjectionUnavailableReason.HistoryUnavailable);
+        JsonElement gapped = await a.ReadPersistedAsync(tenant);
+        gapped.GetProperty("health").GetInt32().ShouldBe((int)CheckpointedProjectionHealth.Gapped);
+        gapped.GetProperty("corruptionReason").ValueKind.ShouldBe(JsonValueKind.Null);
+        gapped.GetProperty("lease").ValueKind.ShouldBe(JsonValueKind.Null, "a failed recovery releases its lease");
+        (await a.CheckAsync(ConversationTenantAccessRequirement.Read, tenant, Caller)).DenialReason
+            .ShouldBe(ConversationTenantAccessDenialReason.TenantAccessGapDetected);
+
+        fixture.History.Append(member);
+        fixture.History.Append(renamed);
+        (EventStoreDomainEventProcessingResult result, _) = await a.DeliverUntilAcknowledgedAsync(renamed);
+
+        result.ShouldBe(EventStoreDomainEventProcessingResult.Processed);
+        JsonElement recovered = await b.ReadPersistedAsync(tenant);
+        recovered.GetProperty("health").GetInt32().ShouldBe((int)CheckpointedProjectionHealth.Healthy);
+        recovered.GetProperty("lastContiguousSequence").GetInt64().ShouldBe(3);
+        recovered.GetProperty("state").GetProperty("name").GetString().ShouldBe("Lagging renamed");
+        (await b.CheckAsync(ConversationTenantAccessRequirement.Admin, tenant, Caller)).IsAllowed.ShouldBeTrue();
+    }
+
+    /// <summary>
+    /// Two replicas racing on the first write of the same empty key through Redis: exactly one create wins, the
+    /// other retries, and both converge on one persisted record and decision.
+    /// </summary>
+    /// <param name="sameEvent">Whether both replicas receive the same first event or two different events.</param>
+    /// <returns>A task.</returns>
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task TwoReplicasRacingOnTheFirstWriteConverge(bool sameEvent)
+    {
+        string tenant = NewTenant();
+        EventStoreDomainEventEnvelope created = Persist(new TenantCreated(tenant, "Raced", null, At), tenant, 1);
+        EventStoreDomainEventEnvelope member = Persist(new UserAddedToTenant(tenant, Caller, TenantRole.TenantContributor), tenant, 2);
+        Story16_1FirstWriteRendezvous rendezvous = new(DurableTenantProjectionStore.KeyFor(tenant), participants: 2);
+        using Story16_1Replica a = new(fixture, fixture.ReplicaA, rendezvous: rendezvous);
+        using Story16_1Replica b = new(fixture, fixture.ReplicaB, rendezvous: rendezvous);
+
+        (EventStoreDomainEventProcessingResult Result, int Deliveries)[] raced = await Task.WhenAll(
+            a.DeliverUntilAcknowledgedAsync(created),
+            b.DeliverUntilAcknowledgedAsync(sameEvent ? created : member));
+
+        raced.ShouldAllBe(static delivery => delivery.Result == EventStoreDomainEventProcessingResult.Processed);
+        rendezvous.Arrivals.ShouldBe(2, "both replicas attempted the first create of the empty key");
+        rendezvous.Won.ShouldBe(1, "Redis accepted exactly one first create");
+        rendezvous.Lost.ShouldBe(1);
+        if (sameEvent)
+        {
+            _ = await a.DeliverUntilAcknowledgedAsync(member);
+        }
+
+        TenantProjectionSnapshot fromA = (await a.SnapshotAsync(tenant)).ShouldNotBeNull();
+        TenantProjectionSnapshot fromB = (await b.SnapshotAsync(tenant)).ShouldNotBeNull();
+        fromA.IsHealthy.ShouldBeTrue();
+        fromA.Checkpoint.ShouldBe(2);
+        fromB.RecordVersion.ShouldBe(fromA.RecordVersion);
+        fromB.State.ShouldNotBeNull().Members[Caller].ShouldBe(TenantRole.TenantContributor);
+        (await b.ReadPersistedAsync(tenant)).GetRawText().ShouldBe((await a.ReadPersistedAsync(tenant)).GetRawText());
+        foreach (Story16_1Replica replica in new[] { a, b })
+        {
+            ConversationTenantAccessDecision write = await replica.CheckAsync(ConversationTenantAccessRequirement.Write, tenant, Caller);
+            write.IsAllowed.ShouldBeTrue();
+            write.ProjectionVersion.ShouldBe(2);
+        }
     }
 
     private string NewTenant()
@@ -215,7 +301,15 @@ public sealed class Story16_1EvidenceTests(Story16_1LiveFixture fixture)
     private EventStoreDomainEventEnvelope Persist<TEvent>(TEvent @event, string tenantId, long sequence)
         where TEvent : IEventPayload
     {
-        EventStoreDomainEventEnvelope envelope = new(
+        EventStoreDomainEventEnvelope envelope = Envelope(@event, tenantId, sequence);
+        fixture.History.Append(envelope);
+        return envelope;
+    }
+
+    private static EventStoreDomainEventEnvelope Envelope<TEvent>(TEvent @event, string tenantId, long sequence)
+        where TEvent : IEventPayload
+    {
+        return new(
             UniqueIdHelper.GenerateSortableUniqueStringId(),
             tenantId,
             "system",
@@ -229,7 +323,5 @@ public sealed class Story16_1EvidenceTests(Story16_1LiveFixture fixture)
             Domain = "tenants",
             UserId = "tenants-producer",
         };
-        fixture.History.Append(envelope);
-        return envelope;
     }
 }

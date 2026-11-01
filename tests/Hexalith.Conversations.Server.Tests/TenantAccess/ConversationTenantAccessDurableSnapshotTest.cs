@@ -166,10 +166,48 @@ public sealed class ConversationTenantAccessDurableSnapshotTest
         decision.IsRetryable.ShouldBeTrue();
     }
 
-    /// <summary>Missing, malformed, and unavailable snapshots deny with one indistinguishable, non-disclosing result.</summary>
+    /// <summary>
+    /// A missing record denies exactly like a non-member of an existing tenant: <c>UnknownTenant</c>, non-retryable,
+    /// with the same public error and rejection, so the decision never discloses whether the tenant exists.
+    /// </summary>
     /// <returns>A task.</returns>
     [Fact]
-    public async Task MissingMalformedAndUnavailableSnapshotsDenyWithoutDisclosingTenantExistence()
+    public async Task MissingRecordDeniesExactlyLikeANonMemberOfAnExistingTenant()
+    {
+        DurableTenantAccessHarness harness = new();
+        using ServiceProvider host = harness.CreateHost();
+        await DeliverMemberTenantAsync(harness, host);
+
+        ConversationTenantAccessDecision missing = await DurableTenantAccessHarness.Access(host).CheckAccessAsync(
+            ConversationTenantAccessRequirement.Read,
+            new TenantId("tenant-never-projected"),
+            Caller,
+            commandTenantId: new TenantId("tenant-never-projected"),
+            cancellationToken: TestContext.Current.CancellationToken);
+        ConversationTenantAccessDecision nonMember = await DurableTenantAccessHarness.Access(host).CheckAccessAsync(
+            ConversationTenantAccessRequirement.Read,
+            Tenant,
+            "user-not-a-member",
+            commandTenantId: Tenant,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        missing.IsAllowed.ShouldBeFalse();
+        missing.DenialReason.ShouldBe(ConversationTenantAccessDenialReason.UnknownTenant);
+        missing.IsRetryable.ShouldBeFalse();
+        missing.ProjectionVersion.ShouldBeNull();
+        missing.ProjectionWatermark.ShouldBeNull();
+        nonMember.IsAllowed.ShouldBeFalse();
+        nonMember.DenialReason.ShouldBe(ConversationTenantAccessDenialReason.MissingMember);
+        nonMember.IsRetryable.ShouldBe(missing.IsRetryable);
+        nonMember.ProjectionVersion.ShouldBe(missing.ProjectionVersion);
+        PublicShape(missing).ShouldBe(PublicShape(nonMember));
+        harness.Gateway.Reads.ShouldBe(0, "authorization never starts recovery");
+    }
+
+    /// <summary>Malformed and unavailable snapshots deny with one retryable, non-disclosing result.</summary>
+    /// <returns>A task.</returns>
+    [Fact]
+    public async Task MalformedAndUnavailableSnapshotsDenyWithOneRetryableNonDisclosingResult()
     {
         DurableTenantAccessHarness harness = new();
         harness.Store.SeedRaw(
@@ -179,11 +217,12 @@ public sealed class ConversationTenantAccessDurableSnapshotTest
         using ServiceProvider host = harness.CreateHost();
         using ServiceProvider outage = harness.CreateHost(store: new UnavailableReadModelStore());
 
-        ConversationTenantAccessDecision missing = await CheckAsync(host, ConversationTenantAccessRequirement.Read, new TenantId("tenant-missing"));
         ConversationTenantAccessDecision malformed = await CheckAsync(host, ConversationTenantAccessRequirement.Read, new TenantId("tenant-malformed"));
         ConversationTenantAccessDecision unavailable = await CheckAsync(outage, ConversationTenantAccessRequirement.Read, new TenantId("tenant-malformed"));
 
-        foreach (ConversationTenantAccessDecision decision in new[] { missing, malformed, unavailable })
+        malformed.DenialReason.ShouldBe(ConversationTenantAccessDenialReason.TenantAccessStale);
+        unavailable.DenialReason.ShouldBe(ConversationTenantAccessDenialReason.TenantAccessUnavailable);
+        foreach (ConversationTenantAccessDecision decision in new[] { malformed, unavailable })
         {
             decision.IsAllowed.ShouldBeFalse();
             decision.IsRetryable.ShouldBeTrue();
@@ -191,10 +230,7 @@ public sealed class ConversationTenantAccessDurableSnapshotTest
             decision.ProjectionWatermark.ShouldBeNull();
         }
 
-        missing.DenialReason.ShouldBe(malformed.DenialReason);
-        string missingPublic = PublicShape(missing);
-        PublicShape(malformed).ShouldBe(missingPublic);
-        PublicShape(unavailable).ShouldBe(missingPublic);
+        PublicShape(unavailable).ShouldBe(PublicShape(malformed));
     }
 
     /// <summary>A restarted host and a second replica read the same persisted decision without redelivery.</summary>
@@ -267,7 +303,7 @@ public sealed class ConversationTenantAccessDurableSnapshotTest
     [InlineData((CheckpointedProjectionHealth)0, true, false, false)]
     public async Task DefaultSignalReportsPersistedHealthWithoutSynthesizingHealthy(CheckpointedProjectionHealth health, bool stale, bool gap, bool poisoned)
     {
-        SequencedSnapshotStore store = new([new TenantProjectionSnapshot(Tenant.Value, health, null, 4, 4)]);
+        SequencedSnapshotStore store = new([new TenantProjectionSnapshot(Tenant.Value, health, null, 4, 4)]) { ThrowOnStateRead = false };
         DefaultConversationTenantProjectionSignal signal = new(store, NullLogger<DefaultConversationTenantProjectionSignal>.Instance);
 
         ConversationTenantProjectionHealth observed = await signal.GetProjectionHealthAsync(Tenant.Value, TestContext.Current.CancellationToken);
@@ -275,8 +311,11 @@ public sealed class ConversationTenantAccessDurableSnapshotTest
 
         observed.ShouldBe(new ConversationTenantProjectionHealth(stale, gap, false, poisoned));
         observed.ShouldNotBe(ConversationTenantProjectionHealth.Healthy);
-        missing.IsStale.ShouldBeTrue();
+
+        // A missing record reports no fault and no version; with no state behind it, it can never allow.
+        missing.ShouldBe(new ConversationTenantProjectionHealth());
         missing.Version.ShouldBeNull();
+        (await store.GetAsync("tenant-unknown", TestContext.Current.CancellationToken)).ShouldBeNull();
     }
 
     private static TenantLocalState Member(TenantRole role)
@@ -331,8 +370,12 @@ public sealed class ConversationTenantAccessDurableSnapshotTest
         public Task<CheckpointedProjectionOutcome> ApplyAsync(IEventPayload @event, EventStoreDomainEventContext context, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
+        public bool ThrowOnStateRead { get; init; } = true;
+
         public Task<TenantLocalState?> GetAsync(string tenantId, CancellationToken cancellationToken = default)
-            => throw new NotSupportedException("A durable evaluation must never read state outside its snapshot.");
+            => ThrowOnStateRead
+                ? throw new NotSupportedException("A durable evaluation must never read state outside its snapshot.")
+                : Task.FromResult<TenantLocalState?>(null);
 
         public Task SaveAsync(TenantLocalState state, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();

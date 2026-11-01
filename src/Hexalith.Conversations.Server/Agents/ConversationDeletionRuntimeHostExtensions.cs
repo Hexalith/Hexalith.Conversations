@@ -8,6 +8,7 @@ using System.Security.Claims;
 using Hexalith.Conversations.Client;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Server.Api;
+using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.EventStore.Client.Gateway;
 using Hexalith.EventStore.Client.Registration;
 using Hexalith.EventStore.Client.Streams;
@@ -122,10 +123,9 @@ public static class ConversationDeletionRuntimeHostExtensions
         services.TryAddSingleton(WorkloadSecurityClock.System);
         services.AddHttpContextAccessor();
 
-        // SDK gateway client on the worker authority transport, and the SDK native-proof complete stream reader.
-        services.AddEventStoreGatewayClient(gatewayOptions => gatewayOptions.BaseAddress = gateway)
-            .ConfigurePrimaryHttpMessageHandler(CreateRedirectFreeHandler)
-            .AddEventStoreGatewayAuthorityTransport(configuration);
+        // SDK gateway client on the worker authority transport, and the SDK native-proof complete stream reader. The
+        // enrolled tenant access registers the same client first; reuse it when the origins match, never twice.
+        ConversationEventStoreGatewayRegistration.Add(services, gateway, configuration, keepHostClient: false);
         services.Replace(ServiceDescriptor.Scoped<IAuthoritativeEventStreamReader>(static provider => new AuthoritativeEventStreamReader(
             provider.GetRequiredService<IEventStoreGatewayClient>(), provider.GetRequiredService<TimeProvider>(), readTimeout: null,
             requireNativeProof: true)));

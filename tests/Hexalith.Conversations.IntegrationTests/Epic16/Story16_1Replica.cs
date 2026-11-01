@@ -10,11 +10,13 @@ using Dapr.Client;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.EventStore.Client.Gateway;
+using Hexalith.EventStore.Client.Projections;
 using Hexalith.EventStore.Client.Projections.Checkpointed;
 using Hexalith.EventStore.Client.Subscriptions;
 using Hexalith.Tenants.Client.Projections;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Hexalith.Conversations.IntegrationTests.Epic16;
 
@@ -34,19 +36,27 @@ internal sealed class Story16_1Replica : IDisposable
     /// <param name="fixture">The live fixture.</param>
     /// <param name="sidecar">The replica's sidecar.</param>
     /// <param name="withHistory">Whether the replica can read authoritative Tenants history.</param>
-    public Story16_1Replica(Story16_1LiveFixture fixture, Story16_1LiveSidecar sidecar, bool withHistory = true)
+    /// <param name="rendezvous">An optional rendezvous holding first writes so two replicas race through Redis.</param>
+    public Story16_1Replica(Story16_1LiveFixture fixture, Story16_1LiveSidecar sidecar, bool withHistory = true, Story16_1FirstWriteRendezvous? rendezvous = null)
     {
+        ArgumentNullException.ThrowIfNull(fixture);
+        ArgumentNullException.ThrowIfNull(sidecar);
         _client = sidecar.CreateClient();
         ServiceCollection services = new();
         services.AddLogging();
         services.AddSingleton(_client);
-        if (withHistory)
-        {
-            services.AddSingleton<IEventStoreGatewayClient>(fixture.History);
-        }
+
+        // The authoritative stream double; an unreachable one models a replica whose history reads fail.
+        services.AddSingleton<IEventStoreGatewayClient>(withHistory ? fixture.History : new Story16_1TenantHistory { Unavailable = true });
 
         // The production enrolled registration: it binds the durable projection to the Dapr-backed SDK store.
         services.AddConversationTenantAccess(fixture.Configuration);
+        if (rendezvous is not null)
+        {
+            services.Replace(ServiceDescriptor.Singleton<IReadModelStore>(provider =>
+                new Story16_1FirstWriteRendezvousStore(provider.GetRequiredService<DaprReadModelStore>(), rendezvous)));
+        }
+
         _services = services.BuildServiceProvider();
         StateStoreName = fixture.StateStoreName;
     }

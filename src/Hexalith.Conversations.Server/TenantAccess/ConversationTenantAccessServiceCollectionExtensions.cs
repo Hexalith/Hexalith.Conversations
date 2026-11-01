@@ -18,6 +18,11 @@ namespace Hexalith.Conversations.Server.TenantAccess;
 public static class ConversationTenantAccessServiceCollectionExtensions
 {
     /// <summary>
+    /// The configuration key of the EventStore gateway origin the enrolled host reads authoritative Tenants history from.
+    /// </summary>
+    public const string GatewayBaseAddressKey = "Hexalith:Conversations:TenantAccess:GatewayBaseAddress";
+
+    /// <summary>
     /// Adds the local Tenants projection client and Conversations tenant access boundary.
     /// </summary>
     /// <param name="services">The service collection.</param>
@@ -34,9 +39,14 @@ public static class ConversationTenantAccessServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Registers the Tenants SDK consumer with required enrolled delivery inputs and the durable tenant
-    /// projection over the enrolled read-model state store.
+    /// Registers the Tenants SDK consumer with required enrolled delivery inputs, the durable tenant projection over
+    /// the enrolled read-model state store, and the EventStore gateway client its history reads use.
     /// </summary>
+    /// <remarks>
+    /// The gateway client is registered once on the worker authority transport (<c>EventStore:Authentication</c>);
+    /// the opt-in deletion runtime reuses that registration when it targets the same origin. A gateway client the host
+    /// registered itself is kept. Startup refuses when the gateway origin or the worker authority is missing.
+    /// </remarks>
     /// <param name="services">The service collection.</param>
     /// <param name="configuration">The enrolled host configuration.</param>
     /// <returns>The service collection.</returns>
@@ -60,6 +70,21 @@ public static class ConversationTenantAccessServiceCollectionExtensions
         // replica and every restart reads the same checkpointed state, health, and checkpoint.
         string readModelStateStore = ConversationProjectionStoreOptions.FromConfiguration(configuration).StateStoreName;
 
+        // Older-delivery verification and gap recovery read authoritative Tenants history through the EventStore
+        // gateway on the worker authority transport; without it a gapped tenant could never recover, so refuse.
+        if (!ConversationEventStoreGatewayRegistration.TryParse(configuration[GatewayBaseAddressKey], out Uri gateway))
+        {
+            throw new InvalidOperationException(
+                $"Enrollment requires '{GatewayBaseAddressKey}' (an HTTPS, or loopback HTTP, gateway origin).");
+        }
+
+        IReadOnlyList<string> authority = ConversationEventStoreGatewayRegistration.AuthorityFailures(configuration);
+        if (authority.Count > 0)
+        {
+            throw new InvalidOperationException("Enrollment requires the gateway worker authority: " + string.Join(", ", authority) + ".");
+        }
+
+        ConversationEventStoreGatewayRegistration.Add(services, gateway, configuration, keepHostClient: true);
         return services.AddTenantAccess<
             IConversationTenantProjectionSignal,
             DefaultConversationTenantProjectionSignal,

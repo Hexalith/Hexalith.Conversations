@@ -17,10 +17,13 @@ namespace Hexalith.Conversations.Server.Tests.TenantAccess;
 internal sealed class TenantStreamHistoryGateway : IEventStoreGatewayClient
 {
     private readonly Lock _gate = new();
-    private readonly SortedDictionary<long, StreamReadEvent> _events = [];
+    private readonly Dictionary<string, SortedDictionary<long, StreamReadEvent>> _streams = new(StringComparer.Ordinal);
 
     /// <summary>Gets the number of authoritative range reads served.</summary>
     public int Reads { get; private set; }
+
+    /// <summary>Gets or sets a value indicating whether every read fails like an unreachable gateway.</summary>
+    public bool Unavailable { get; set; }
 
     /// <summary>Records a persisted event exactly as its delivery envelope carries it.</summary>
     /// <param name="envelope">The delivery envelope.</param>
@@ -29,7 +32,13 @@ internal sealed class TenantStreamHistoryGateway : IEventStoreGatewayClient
         ArgumentNullException.ThrowIfNull(envelope);
         lock (_gate)
         {
-            _events[envelope.SequenceNumber] = new StreamReadEvent(
+            if (!_streams.TryGetValue(envelope.AggregateId, out SortedDictionary<long, StreamReadEvent>? events))
+            {
+                events = [];
+                _streams[envelope.AggregateId] = events;
+            }
+
+            events[envelope.SequenceNumber] = new StreamReadEvent(
                 envelope.SequenceNumber,
                 envelope.EventTypeName,
                 envelope.Payload,
@@ -48,10 +57,24 @@ internal sealed class TenantStreamHistoryGateway : IEventStoreGatewayClient
     {
         ArgumentNullException.ThrowIfNull(request);
         cancellationToken.ThrowIfCancellationRequested();
+        if (Unavailable)
+        {
+            throw new HttpRequestException("Synthetic gateway outage.");
+        }
+
+        // Tenant events live in the system tenant's tenants domain; any other stream identity is a defect.
+        if (request.Tenant != "system" || request.Domain != "tenants" || string.IsNullOrWhiteSpace(request.AggregateId))
+        {
+            throw new InvalidOperationException($"Unexpected history stream {request.Tenant}/{request.Domain}/{request.AggregateId}.");
+        }
+
         lock (_gate)
         {
             Reads++;
-            StreamReadEvent[] events = [.. _events.Values.Where(e => e.SequenceNumber > request.FromSequence
+            SortedDictionary<long, StreamReadEvent> stream = _streams.TryGetValue(request.AggregateId!, out SortedDictionary<long, StreamReadEvent>? found)
+                ? found
+                : [];
+            StreamReadEvent[] events = [.. stream.Values.Where(e => e.SequenceNumber > request.FromSequence
                 && e.SequenceNumber <= (request.ToSequence ?? long.MaxValue))];
             return Task.FromResult(new StreamReadPage(
                 request.Tenant,
@@ -62,7 +85,7 @@ internal sealed class TenantStreamHistoryGateway : IEventStoreGatewayClient
                     request.FromSequence,
                     request.ToSequence,
                     events.Length == 0 ? null : events[^1].SequenceNumber,
-                    _events.Count == 0 ? 0 : _events.Keys.Max(),
+                    stream.Count == 0 ? 0 : stream.Keys.Max(),
                     events.Length,
                     false,
                     null)));

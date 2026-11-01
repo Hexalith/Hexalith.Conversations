@@ -41,6 +41,11 @@ internal sealed class DurableTenantAccessHarness
             ["Tenants:TopicName"] = "enrolled-tenant-topic",
             ["Dapr:DeclarativeSubscriptions"] = "true",
             [ConversationProjectionStoreOptions.ConfigurationKey] = "conversations-tenant-access-state",
+            [ConversationTenantAccessServiceCollectionExtensions.GatewayBaseAddressKey] = "https://gateway.test/",
+            ["EventStore:Authentication:Authority"] = "https://authority.test/",
+            ["EventStore:Authentication:TokenEndpoint"] = "https://authority.test/connect/token",
+            ["EventStore:Authentication:ClientId"] = "tenant-access-worker",
+            ["EventStore:Authentication:ClientSecret"] = "tenant-access-worker-secret",
         })
         .Build();
 
@@ -79,10 +84,10 @@ internal sealed class DurableTenantAccessHarness
         ServiceCollection services = new();
         services.AddLogging();
         services.AddSingleton(store ?? Store);
-        if (withHistory)
-        {
-            services.AddSingleton<IEventStoreGatewayClient>(Gateway);
-        }
+
+        // A host-supplied gateway client is kept by the enrolled registration; an unreachable one models a host
+        // whose history reads fail, without any network call.
+        services.AddSingleton<IEventStoreGatewayClient>(withHistory ? Gateway : new TenantStreamHistoryGateway { Unavailable = true });
 
         services.AddConversationTenantAccess(Configuration);
         return services.BuildServiceProvider();

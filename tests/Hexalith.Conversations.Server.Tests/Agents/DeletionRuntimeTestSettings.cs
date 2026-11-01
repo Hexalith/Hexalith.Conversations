@@ -11,6 +11,7 @@ using Hexalith.Conversations.Commands;
 using Hexalith.Conversations.Contracts.Agents;
 using Hexalith.Conversations.Server.Agents;
 using Hexalith.Conversations.Server.Projections;
+using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.EventStore.Contracts.Identity;
 
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -94,6 +95,13 @@ internal static class DeletionRuntimeTestSettings
             ["Tenants:PubSubName"] = "deletion-runtime-events",
             ["Tenants:TopicName"] = "deletion-runtime-tenants",
             ["Dapr:DeclarativeSubscriptions"] = "true",
+
+            // The enrolled tenant access reads Tenants history through the same gateway and worker authority.
+            [ConversationTenantAccessServiceCollectionExtensions.GatewayBaseAddressKey] = Gateway,
+            ["EventStore:Authentication:Authority"] = "https://authority.test/",
+            ["EventStore:Authentication:TokenEndpoint"] = TokenEndpoint,
+            ["EventStore:Authentication:ClientId"] = "worker-client",
+            ["EventStore:Authentication:ClientSecret"] = WorkerSecret,
         };
         if (!enabled)
         {
@@ -113,10 +121,6 @@ internal static class DeletionRuntimeTestSettings
         settings[s + ":IdentityReaderPrincipalId"] = Reader;
         settings[s + ":AcceptedTargetVersions:0"] = Target;
         settings[s + ":AcceptedTargetVersions:1"] = RolloverTarget;
-        settings["EventStore:Authentication:Authority"] = "https://authority.test/";
-        settings["EventStore:Authentication:TokenEndpoint"] = TokenEndpoint;
-        settings["EventStore:Authentication:ClientId"] = "worker-client";
-        settings["EventStore:Authentication:ClientSecret"] = WorkerSecret;
         settings["Authentication:JwtBearer:Authority"] = "https://authority.test/";
         settings["Authentication:JwtBearer:Issuer"] = "https://authority.test/";
         settings["Authentication:JwtBearer:Audience"] = "eventstore";

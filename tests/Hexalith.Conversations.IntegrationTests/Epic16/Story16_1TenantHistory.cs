@@ -19,6 +19,9 @@ internal sealed class Story16_1TenantHistory : IEventStoreGatewayClient
     private readonly Lock _gate = new();
     private readonly Dictionary<string, SortedDictionary<long, StreamReadEvent>> _streams = new(StringComparer.Ordinal);
 
+    /// <summary>Gets or sets a value indicating whether every read fails like an unreachable gateway.</summary>
+    public bool Unavailable { get; set; }
+
     /// <summary>Records a persisted event exactly as its delivery envelope carries it.</summary>
     /// <param name="envelope">The delivery envelope.</param>
     public void Append(EventStoreDomainEventEnvelope envelope)
@@ -51,6 +54,17 @@ internal sealed class Story16_1TenantHistory : IEventStoreGatewayClient
     {
         ArgumentNullException.ThrowIfNull(request);
         cancellationToken.ThrowIfCancellationRequested();
+        if (Unavailable)
+        {
+            throw new HttpRequestException("Synthetic gateway outage.");
+        }
+
+        // Tenant events live in the system tenant's tenants domain; any other stream identity is a defect.
+        if (request.Tenant != "system" || request.Domain != "tenants" || string.IsNullOrWhiteSpace(request.AggregateId))
+        {
+            throw new InvalidOperationException($"Unexpected history stream {request.Tenant}/{request.Domain}/{request.AggregateId}.");
+        }
+
         lock (_gate)
         {
             StreamReadEvent[] events = _streams.TryGetValue(request.AggregateId ?? string.Empty, out SortedDictionary<long, StreamReadEvent>? stream)

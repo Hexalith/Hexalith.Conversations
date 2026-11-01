@@ -48,9 +48,12 @@ WebApplication app = builder.Build();
 // suppresses subscription discovery; Platform owns subscription/dead-letter/ACL configuration.
 //
 // The enrolled AddConversationTenantAccess path persists that projection in the configured read-model state
-// store through the EventStore checkpointed writer (Story 16.1). Each tenant record holds state, health, and
-// checkpoint under one compare-and-swap, so a restarted host or another replica reads the same persisted
-// decision without redelivery, and only a healthy record authorizes.
+// store through the EventStore checkpointed writer (Story 16.1): one compare-and-swap record per tenant holds
+// state, health and checkpoint, and only a healthy record authorizes. Tests prove that a restarted host and a
+// second replica read the same record from a local Dapr/Redis store, with deliveries and Tenants history supplied
+// in process; they do not prove Platform pub/sub delivery or the gateway history grant. A gap recovers only when a
+// redelivery reads tenant `system`, domain `tenants` history through the EventStore gateway, so Platform must
+// grant that read and retry the tenants subscription without dead-lettering (module/platform-handoff.md).
 app.UseEventStoreDomainService();
 if (deletionRuntimeEnabled)
 {
