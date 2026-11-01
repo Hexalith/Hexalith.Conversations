@@ -15,11 +15,14 @@ using Hexalith.Conversations.Contracts.Commands;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.EventStore.Aspire;
+using Hexalith.EventStore.Server.Commands;
+using Hexalith.EventStore.ServiceDefaults.Authentication;
 
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -45,7 +48,7 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
             && string.Equals(Environment.GetEnvironmentVariable("CI"), "true", StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
-    /// Starts the real AppHost and proves unavailable command authority fails closed across both production hosts.
+    /// Starts the real AppHost and proves an un-enrolled catalog fails closed before command admission.
     /// </summary>
     /// <remarks>
     /// Keycloak is disabled so the test isolates the EventStore/Conversations hosting boundary under review.
@@ -53,15 +56,12 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
     [Fact(
         Skip = "Set HEXALITH_RUN_APPHOST_BOUNDARY_TESTS=true to run the real AppHost boundary lane.",
         SkipUnless = nameof(RuntimeBoundaryTestsEnabled))]
-    public async Task RetainedAppHostShouldRunEventStoreAndConversationsProductionBoundary()
+    public async Task RetainedAppHostShouldRefuseCommandsWithoutCatalogAuthority()
     {
-        // Separate budgets. The provenance prebuild stamps BOTH launchable configurations and can dominate a
-        // cold machine; sharing one token with the AppHost launch and the projection poll meant a slow
-        // prebuild surfaced either as a bare OperationCanceledException from Aspire startup or as a
-        // projection-boundary timeout, with nothing distinguishing "the prebuild ate the budget" from "the
-        // production boundary is broken" (pass-10 review).
+        // Keep owner-host compilation separate from the actual runtime boundary budget.
         using CancellationTokenSource prebuildTimeout = new(TimeSpan.FromMinutes(6));
         string gatewayProjectPath;
+        string referenceMode = ReadEnrollmentMetadata("EnrolledReferenceMode");
 
         try
         {
@@ -74,13 +74,17 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
                 + "machine problem, not a production-boundary failure: the AppHost was never started.");
         }
 
-        // Eight minutes for the runtime lane, started only after the prebuild so the boundary under proof
-        // always gets its full window: the AppHost starts, and the projection population poll runs after
-        // command completion.
+        // The real production hosts and sidecars receive their full runtime readiness budget.
         using CancellationTokenSource timeout = new(TimeSpan.FromMinutes(8));
+        List<string> arguments = [$"--{HexalithEventStoreSecurityOptions.DefaultEnableKeycloakConfigurationKey}=false"];
+        if (referenceMode == "package")
+        {
+            arguments.Add($"--{ConversationsAppHostTopology.TestingUseBuildsGatewayConfigurationKey}=true");
+        }
+
         IDistributedApplicationTestingBuilder builder =
             await DistributedApplicationTestingBuilder.CreateAsync<Projects.Hexalith_Conversations_AppHost>(
-                [$"--{HexalithEventStoreSecurityOptions.DefaultEnableKeycloakConfigurationKey}=false"],
+                [.. arguments],
                 timeout.Token);
 
         string signingKey = Convert.ToBase64String(RandomNumberGenerator.GetBytes(48));
@@ -127,7 +131,7 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
         IProjectMetadata gatewayMetadata = eventStoreResource.Annotations.OfType<IProjectMetadata>().Single();
         Path.GetFullPath(gatewayMetadata.ProjectPath).ShouldBe(
             Path.GetFullPath(gatewayProjectPath),
-            "Aspire must launch the same EventStore checkout the provenance prebuild stamped");
+            "Aspire must launch the same owner gateway project the provenance prebuild stamped");
         object? suppressBuild = gatewayMetadata.GetType()
             .GetProperty("SuppressBuild")?
             .GetValue(gatewayMetadata);
@@ -157,11 +161,7 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
                 HttpStatusCode.Unauthorized,
                 "the runtime harness must preserve EventStore's fail-closed authentication boundary");
         }
-
-        // Named-projection dispatch is refused with delivery_state_unavailable until the store-global v2
-        // writer protocol has been cut over — the documented operator maintenance action. Perform it through
-        // the production admin endpoint before the first command so the dispatch under proof is admitted.
-        await ActivateProjectionDeliveryAsync(eventStore, HarnessCutoverCommit, signingKey, timeout.Token);
+        await AssertConversationsWorkloadDeniedAsync(builder, application, conversationsResource, timeout.Token);
 
         string tenantId = $"apphost-{Guid.NewGuid():N}";
         string conversationId = $"conversation-{Guid.NewGuid():N}";
@@ -195,89 +195,89 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
             CorrelationId = correlationId,
         };
 
-        // Aspire reporting both resources healthy does not mean the gateway can invoke the domain service
-        // through DAPR yet: the sidecar's app registration settles independently, and until it does the
-        // gateway's standard resilience pipeline exhausts its attempt and total-request timeouts and returns
-        // 500. Measured, not assumed — this lane failed on roughly one run in four with exactly that
-        // signature, and the gateway logs showed Standard-AttemptTimeout followed by
-        // Standard-TotalRequestTimeout with no domain-side error at all.
-        //
-        // Retrying is safe rather than a mask: the command carries a fixed idempotency key and a fixed
-        // MessageId, so a redelivery is the platform's own idempotent path. Only 5xx is retried. A 400 or a
-        // 403 is a real rejection and fails on the first response, so a genuine refusal can never be
-        // retried into a timeout, and the attempt count is reported so a slow start is never mistaken for a
-        // broken boundary.
-        HttpStatusCode submissionStatus;
-        string submissionBody;
-        int attempts = 0;
-        DateTimeOffset readinessDeadline = DateTimeOffset.UtcNow + TimeSpan.FromSeconds(120);
-        while (true)
-        {
-            attempts++;
-            using HttpResponseMessage submission =
-                await eventStore.PostAsJsonAsync("/api/v1/commands", request, timeout.Token);
-            submissionStatus = submission.StatusCode;
-            submissionBody = await submission.Content.ReadAsStringAsync(timeout.Token);
-            if (submissionStatus != HttpStatusCode.InternalServerError
-                && submissionStatus != HttpStatusCode.BadGateway
-                && submissionStatus != HttpStatusCode.ServiceUnavailable
-                && submissionStatus != HttpStatusCode.GatewayTimeout)
-            {
-                break;
-            }
-
-            if (DateTimeOffset.UtcNow >= readinessDeadline)
-            {
-                break;
-            }
-
-            await Task.Delay(TimeSpan.FromSeconds(2), timeout.Token);
-        }
-
-        if (submissionStatus != HttpStatusCode.UnprocessableEntity)
+        using HttpResponseMessage submission = await eventStore.PostAsJsonAsync("/api/v1/commands", request, timeout.Token);
+        string submissionBody = await submission.Content.ReadAsStringAsync(timeout.Token);
+        if (submission.StatusCode != HttpStatusCode.ServiceUnavailable)
         {
             string resourceLogs = await ReadFailureLogsAsync(
                 application,
                 [correlationId, messageId, "error", "exception", "fail"],
                 timeout.Token);
-            submissionStatus.ShouldBe(
-                HttpStatusCode.UnprocessableEntity,
-                $"command submission did not reach the expected authority rejection after {attempts} attempt(s) across the "
-                + $"120-second DAPR invocation-readiness window.{Environment.NewLine}{submissionBody}"
-                + $"{Environment.NewLine}{resourceLogs}");
+            submission.StatusCode.ShouldBe(HttpStatusCode.ServiceUnavailable, submissionBody + Environment.NewLine + resourceLogs);
         }
 
+        // The retained production hosts are not enrolled in a live route catalog.
+        // The current SDK rejects this request before admission or domain dispatch;
+        // an arbitrary gateway failure must never satisfy this boundary assertion.
+        submission.Content.Headers.ContentType?.MediaType.ShouldBe("application/problem+json");
         JsonElement problem = JsonSerializer.Deserialize<JsonElement>(submissionBody);
-        problem.GetProperty("rejectionType").GetString()
-            .ShouldBe("Hexalith.Conversations.Events.ConversationRejectedDomainEvent");
-        problem.GetProperty("tenantId").GetString().ShouldBe(tenantId);
+        problem.GetProperty("status").GetInt32().ShouldBe(503);
+        problem.GetProperty("title").GetString().ShouldBe("Service Unavailable");
+        problem.GetProperty("detail").GetString().ShouldBe("Catalog authority cannot safely admit this operation.");
+        problem.GetProperty("type").GetString().ShouldBe("https://hexalith.io/problems/service-unavailable");
 
-        // The retained production host has no independently authenticated command authority provider.
-        // Assert its intentional fail-closed behavior; the live gateway fixture separately proves admitted
-        // commands persist and project through the same production admission/dispatch components.
-        JsonElement status = await PollUntilTerminalAsync(eventStore, messageId, timeout.Token);
-        status.GetProperty("status").GetString().ShouldBe("Rejected");
-        status.GetProperty("aggregateId").GetString().ShouldBe(conversationId);
-        status.GetProperty("eventCount").GetInt32().ShouldBe(1, "only the durable rejection audit may be recorded");
-        status.GetProperty("rejectionEventType").GetString()
-            .ShouldBe("Hexalith.Conversations.Events.ConversationRejectedDomainEvent");
+        using HttpResponseMessage status = await eventStore.GetAsync($"/api/v1/commands/status/{messageId}", timeout.Token);
+        string statusBody = await status.Content.ReadAsStringAsync(timeout.Token);
+        status.StatusCode.ShouldBe(HttpStatusCode.NotFound, statusBody);
+        status.Content.Headers.ContentType?.MediaType.ShouldBe("application/problem+json");
+        JsonElement missingStatus = JsonSerializer.Deserialize<JsonElement>(statusBody);
+        missingStatus.GetProperty("status").GetInt32().ShouldBe(404);
+        missingStatus.GetProperty("title").GetString().ShouldBe("Not Found");
+        missingStatus.GetProperty("type").GetString().ShouldBe("https://hexalith.io/problems/command-status-not-found");
+        missingStatus.GetProperty("detail").GetString().ShouldBe($"No command status found for message or correlation identifier '{messageId}'.");
+        await AssertCommandStateAbsentAsync(application, eventStoreResource, tenantId, messageId, timeout.Token);
     }
 
-    /// <summary>
-    /// The stable cutover identity this harness attests with.
-    /// </summary>
-    /// <remarks>
-    /// The writer-protocol marker is store-global and written once for the lifetime of the store; the
-    /// endpoint returns 200 for a re-activation at the same commit and 409 for a different one. Attesting
-    /// with the gateway revision made the attested value move with the EventStore worktree, so the run after
-    /// any gitlink advance hit its own previous marker and was refused — the local DAPR Redis is the shared
-    /// `dapr init` instance with `keyPrefix: none`, so the marker outlives the run that wrote it. Measured,
-    /// not inferred: the stored marker held `cutoverCommit e4618d91` from the pass-10 gitlink while the tree
-    /// was at `e6459019`. A stable harness identity makes re-activation genuinely idempotent and keeps 409
-    /// meaning what the endpoint documents — a *different* marker, i.e. a real operator cutover, which this
-    /// proof must not run against.
-    /// </remarks>
-    private const string HarnessCutoverCommit = "hexalith-conversations-apphost-boundary-harness";
+    private static async Task AssertConversationsWorkloadDeniedAsync(
+        IDistributedApplicationTestingBuilder builder,
+        DistributedApplication application,
+        ProjectResource resource,
+        CancellationToken cancellationToken)
+    {
+        Dictionary<string, object> environment = new(StringComparer.Ordinal);
+        EnvironmentCallbackContext context = new(builder.ExecutionContext, resource, environment, cancellationToken);
+        foreach (EnvironmentCallbackAnnotation annotation in resource.Annotations.OfType<EnvironmentCallbackAnnotation>())
+        {
+            await annotation.Callback(context);
+        }
+
+        object configuredToken = environment[DaprAppChannelToken.ConfigurationKey];
+        string? token = configuredToken is IValueProvider provider
+            ? await provider.GetValueAsync(cancellationToken)
+            : configuredToken.ToString();
+        token.ShouldNotBeNullOrWhiteSpace();
+        using HttpClient conversations = application.CreateHttpClient(resource.Name, "http");
+        using HttpRequestMessage request = new(HttpMethod.Post, "/process");
+        request.Headers.Add(DaprAppChannelToken.HeaderName, token);
+        request.Content = JsonContent.Create(new { });
+        using HttpResponseMessage response = await conversations.SendAsync(request, cancellationToken);
+        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized, "a valid sidecar channel alone must never grant workload authority");
+    }
+
+    private static async Task AssertCommandStateAbsentAsync(
+        DistributedApplication application,
+        ProjectResource resource,
+        string tenantId,
+        string messageId,
+        CancellationToken cancellationToken)
+    {
+        IDaprSidecarResource sidecar = resource.Annotations.OfType<DaprSidecarAnnotation>().Single().Sidecar;
+        using HttpClient dapr = application.CreateHttpClient(sidecar.Name + "-cli", "http");
+        using HttpResponseMessage response = await dapr.GetAsync("/v1.0/metadata", cancellationToken);
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        using JsonDocument metadata = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+        metadata.RootElement.GetProperty("id").GetString().ShouldBe(ConversationsAppHostTopology.EventStoreResourceName);
+        metadata.RootElement.GetProperty("components").EnumerateArray()
+            .Single(component => component.GetProperty("name").GetString() == ConversationsAppHostTopology.StateStoreComponentName)
+            .GetProperty("type").GetString().ShouldBe("state.redis");
+        foreach (string key in new[] { CommandStatusConstants.BuildKey(tenantId, messageId), CommandArchiveConstants.BuildKey(tenantId, messageId) })
+        {
+            using HttpResponseMessage state = await dapr.GetAsync(
+                $"/v1.0/state/{ConversationsAppHostTopology.StateStoreComponentName}/{Uri.EscapeDataString(key)}?consistency=strong",
+                cancellationToken);
+            state.StatusCode.ShouldBe(HttpStatusCode.NoContent, "the healthy state store must contain neither command status nor archive for a pre-admission refusal");
+        }
+    }
 
     private static async Task WaitForEndpointReadyAsync(
         HttpClient client,
@@ -346,7 +346,7 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
             """;
         string normalizedConfig = File.ReadAllText(configPath).Replace("\r\n", "\n", StringComparison.Ordinal);
         normalizedConfig.ShouldBe(
-            expectedConfig,
+            expectedConfig.Replace("\r\n", "\n", StringComparison.Ordinal),
             "the runtime-boundary profile must be the exact reviewed HotReload-disabled configuration");
 
         string[] projectNames =
@@ -378,103 +378,6 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
                 .Options
                 .Config
                 .ShouldBe(configPath);
-        }
-    }
-
-    private static async Task ActivateProjectionDeliveryAsync(
-        HttpClient eventStore,
-        string gatewayRevision,
-        string signingKey,
-        CancellationToken cancellationToken)
-    {
-        using HttpRequestMessage activation = new(
-            HttpMethod.Post,
-            "/api/v1/admin/projections/delivery-writer-protocol/activate");
-        activation.Headers.Authorization = new AuthenticationHeaderValue(
-            "Bearer",
-            CreateAdminAccessToken(signingKey));
-        activation.Content = JsonContent.Create(new
-        {
-            CutoverCommit = gatewayRevision,
-            BackupReference = "apphost-boundary-preflight",
-            WritersQuiesced = true,
-            RetryWorkersQuiesced = true,
-            DowngradeProhibitedAcknowledged = true,
-        });
-        using HttpResponseMessage response = await eventStore.SendAsync(activation, cancellationToken);
-        string body = await response.Content.ReadAsStringAsync(cancellationToken);
-
-        // 200 is the only success: ProjectionDeliveryCutoverStatus.Activated already covers "activated, or
-        // was already active for THIS exact commit". 409 is documented as a DIFFERENT marker being present,
-        // so it means the activation was genuinely refused and the boundary proof would then run against a
-        // protocol state it never established. Accepting it read a refusal as success (pass-10 review).
-        // With the stable harness identity above, a 409 can no longer be self-inflicted by a gitlink
-        // advance: it reports a marker this harness did not write, which is a real conflict.
-        response.StatusCode.ShouldBe(
-            HttpStatusCode.OK,
-            $"the delivery-writer-protocol activation must succeed for CutoverCommit {gatewayRevision}; a 409 "
-            + $"reports a different marker already present, not an idempotent re-activation. Body: {body}");
-    }
-
-    private static string CreateAdminAccessToken(string signingKey)
-    {
-        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        string header = Base64UrlEncode(JsonSerializer.SerializeToUtf8Bytes(new { alg = "HS256", typ = "JWT" }));
-        string payload = Base64UrlEncode(JsonSerializer.SerializeToUtf8Bytes(new
-        {
-            sub = "apphost-boundary-operator",
-            iss = "hexalith-dev",
-            aud = "hexalith-eventstore",
-            nbf = now - 30,
-            iat = now,
-            exp = now + 600,
-            global_admin = true,
-        }));
-        string unsignedToken = $"{header}.{payload}";
-        byte[] signature = HMACSHA256.HashData(
-            Encoding.UTF8.GetBytes(signingKey),
-            Encoding.ASCII.GetBytes(unsignedToken));
-        return $"{unsignedToken}.{Base64UrlEncode(signature)}";
-    }
-
-    private static async Task<JsonElement> PollUntilTerminalAsync(
-        HttpClient client,
-        string messageId,
-        CancellationToken cancellationToken)
-    {
-        string? lastBody = null;
-
-        // GetAsync and Task.Delay throw OperationCanceledException when the shared budget expires, so the
-        // informative timeout diagnostic is raised from the catch — a bare while-condition check could never
-        // reach it and the last response body would be lost.
-        try
-        {
-            while (true)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                using HttpResponseMessage response =
-                    await client.GetAsync($"/api/v1/commands/status/{messageId}", cancellationToken);
-                lastBody = await response.Content.ReadAsStringAsync(cancellationToken);
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    JsonElement status = JsonSerializer.Deserialize<JsonElement>(lastBody);
-                    string? state = status.GetProperty("status").GetString();
-                    if (state is "Completed" or "Rejected" or "PublishFailed" or "TimedOut")
-                    {
-                        return status;
-                    }
-                }
-                else if (response.StatusCode != HttpStatusCode.NotFound)
-                {
-                    response.StatusCode.ShouldBe(HttpStatusCode.OK, lastBody);
-                }
-
-                await Task.Delay(TimeSpan.FromMilliseconds(250), cancellationToken);
-            }
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            throw new TimeoutException($"Command {messageId} did not reach a terminal status. Last response: {lastBody}");
         }
     }
 
@@ -560,79 +463,97 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
 
     private static async Task<string> BuildEventStoreGatewayWithProvenanceAsync(CancellationToken cancellationToken)
     {
-        string repositoryRoot = FindRepositoryRoot();
-        string eventStoreRoot = Path.Combine(repositoryRoot, "references", "Hexalith.EventStore");
+        string referenceMode = ReadEnrollmentMetadata("EnrolledReferenceMode");
+        (string ownerRoot, string projectPath, string assemblyName, string ownerIdentity) = SelectGatewayHost(referenceMode);
         ProcessResult revision = await RunProcessAsync(
             "git",
             ["rev-parse", "HEAD"],
-            eventStoreRoot,
+            ownerRoot,
             cancellationToken);
         revision.ExitCode.ShouldBe(0, revision.StandardError);
         string headRevision = revision.StandardOutput.Trim();
         headRevision.ShouldNotBeNullOrWhiteSpace();
-        string sourceRevision = await ComputeWorkspaceRevisionAsync(
-            eventStoreRoot,
+        string ownerRevision = await ComputeWorkspaceRevisionAsync(
+            ownerRoot,
             headRevision,
             cancellationToken);
+        string sdkVersion = ReadEnrollmentMetadata("EnrolledEventStoreVersion");
+        string sourceRevision = $"{ownerIdentity}.{ownerRevision}.sdk.{sdkVersion}";
 
-        string projectPath = Path.Combine(
-            eventStoreRoot,
-            "src",
-            "Hexalith.EventStore",
-            "Hexalith.EventStore.csproj");
-
-        // Aspire launches with --no-build (SuppressBuild, asserted at the call site) and dotnet run resolves
-        // its own configuration, so the stamp must exist in EVERY configuration a launch could resolve —
-        // stamping only the test's configuration would let a stale, unstamped binary from the other one run
-        // while the assertion below stays green. An active source mapping fixes Configuration and rejects
-        // the other one, and the same environment reaches Aspire, so only the mapped configuration can launch.
-        string? mappedConfiguration = string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("HEXALITH_SOURCE_MAPPING_HASH"))
-            ? null
-            : Environment.GetEnvironmentVariable("Configuration");
-        HashSet<string> configurations = new([FindTestBuildConfiguration(), "Debug", "Release"], StringComparer.OrdinalIgnoreCase);
-        if (!string.IsNullOrWhiteSpace(mappedConfiguration))
+        // The producer selects the only configuration that this test and its
+        // launched children may use; an ambient fallback must not build another mode.
+        string? configuration = Environment.GetEnvironmentVariable("Configuration");
+        if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("HEXALITH_SOURCE_MAPPING_HASH"))
+            || configuration != (referenceMode == "source" ? "Debug" : "Release"))
         {
-            configurations.RemoveWhere(configuration => !string.Equals(configuration, mappedConfiguration, StringComparison.OrdinalIgnoreCase));
+            throw new InvalidOperationException("Gateway preparation requires the complete producer-selected build environment.");
         }
 
-        foreach (string configuration in configurations)
-        {
-            ProcessResult build = await RunProcessAsync(
-                "dotnet",
-                [
-                    "build",
-                    projectPath,
-                    "--configuration",
-                    configuration,
-                    "-m:1",
-                    $"-p:SourceRevisionId={sourceRevision}",
-                    $"-p:InformationalVersion=1.0.0+{sourceRevision}",
-                ],
-                eventStoreRoot,
-                cancellationToken);
-            build.ExitCode.ShouldBe(
-                0,
-                $"The {configuration} EventStore gateway prebuild failed.{Environment.NewLine}"
-                + $"{build.StandardOutput}{Environment.NewLine}{build.StandardError}");
-
-            string gatewayAssembly = Path.Combine(
-                eventStoreRoot,
-                "src",
-                "Hexalith.EventStore",
-                "bin",
+        ProcessResult build = await RunProcessAsync(
+            "dotnet",
+            [
+                "build",
+                projectPath,
+                "--configuration",
                 configuration,
-                "net10.0",
-                "Hexalith.EventStore.dll");
-            File.Exists(gatewayAssembly).ShouldBeTrue(gatewayAssembly);
-            string? productVersion = FileVersionInfo.GetVersionInfo(gatewayAssembly).ProductVersion;
-            productVersion.ShouldNotBeNullOrWhiteSpace();
-            productVersion.ShouldContain(
-                sourceRevision,
-                Case.Insensitive,
-                $"the {configuration} gateway binary Aspire may launch must carry the reviewed EventStore revision");
+                "-m:1",
+                $"-p:SourceRevisionId={sourceRevision}",
+                $"-p:InformationalVersion=1.0.0+{sourceRevision}",
+            ],
+            ownerRoot,
+            cancellationToken);
+        build.ExitCode.ShouldBe(
+            0,
+            $"The {configuration} EventStore gateway prebuild failed.{Environment.NewLine}"
+            + $"{build.StandardOutput}{Environment.NewLine}{build.StandardError}");
+
+        string gatewayAssembly = Path.Combine(
+            Path.GetDirectoryName(projectPath)!,
+            "bin",
+            configuration,
+            "net10.0",
+            assemblyName + ".dll");
+        File.Exists(gatewayAssembly).ShouldBeTrue(gatewayAssembly);
+        string? productVersion = FileVersionInfo.GetVersionInfo(gatewayAssembly).ProductVersion;
+        productVersion.ShouldNotBeNullOrWhiteSpace();
+        productVersion.ShouldContain(
+            sourceRevision,
+            Case.Insensitive,
+            $"the {configuration} gateway binary Aspire may launch must carry its actual {ownerIdentity} revision and selected SDK identity");
+        if (referenceMode == "package")
+        {
+            using JsonDocument dependencies = JsonDocument.Parse(await File.ReadAllTextAsync(
+                Path.ChangeExtension(gatewayAssembly, ".deps.json"), cancellationToken));
+            dependencies.RootElement.GetProperty("libraries").GetProperty($"Hexalith.EventStore.Gateway/{sdkVersion}")
+                .GetProperty("type").GetString().ShouldBe("package", "the Builds gateway host must consume the selected published SDK");
         }
 
         return projectPath;
+    }
+
+    private static (string OwnerRoot, string ProjectPath, string AssemblyName, string OwnerIdentity) SelectGatewayHost(string referenceMode)
+    {
+        if (referenceMode == "source")
+        {
+            string ownerRoot = ReadEnrollmentMetadata("EnrolledEventStoreRoot");
+            return (ownerRoot, Path.Combine(ownerRoot, "src", "Hexalith.EventStore", "Hexalith.EventStore.csproj"), "Hexalith.EventStore", "Hexalith.EventStore");
+        }
+
+        if (referenceMode == "package")
+        {
+            string ownerRoot = ReadEnrollmentMetadata("EnrolledBuildsRoot");
+            return (ownerRoot, Path.Combine(ownerRoot, "src", "hosts", "Hexalith.Builds.Module.EventStoreHost", "Hexalith.Builds.Module.EventStoreHost.csproj"), "Hexalith.Builds.Module.EventStoreHost", "Hexalith.Builds");
+        }
+
+        throw new InvalidOperationException($"An explicit producer-selected reference mode is required; observed '{referenceMode}'.");
+    }
+
+    private static string ReadEnrollmentMetadata(string key)
+    {
+        string? value = typeof(ConversationsAppHostRuntimeBoundaryTest).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
+            .Single(attribute => attribute.Key == key).Value;
+        ArgumentException.ThrowIfNullOrWhiteSpace(value);
+        return value;
     }
 
     private static async Task<string> ComputeWorkspaceRevisionAsync(
@@ -674,22 +595,6 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
 
         string workspaceHash = Convert.ToHexStringLower(hash.GetHashAndReset())[..12];
         return $"{headRevision}.dirty.{workspaceHash}";
-    }
-
-    private static string FindTestBuildConfiguration()
-    {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
-        while (directory?.Parent is not null)
-        {
-            if (string.Equals(directory.Parent.Name, "bin", StringComparison.OrdinalIgnoreCase))
-            {
-                return directory.Name;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException("Could not infer the active test build configuration.");
     }
 
     private static string FindRepositoryRoot()

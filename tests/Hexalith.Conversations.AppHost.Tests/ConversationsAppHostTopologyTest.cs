@@ -14,6 +14,7 @@ using Hexalith.EventStore.Aspire;
 using Microsoft.Extensions.Configuration;
 
 using System.Diagnostics;
+using System.Reflection;
 using System.Text.Json;
 
 namespace Hexalith.Conversations.AppHost.Tests;
@@ -292,6 +293,29 @@ public sealed class ConversationsAppHostTopologyTest
         ResourceNamesReferencedBy(resources.ConversationsServer.Resource).ShouldNotContain(HexalithEventStoreSecurityOptions.DefaultResourceName);
         ResourceNamesWaitedOnBy(resources.EventStore.Resource).ShouldNotContain(HexalithEventStoreSecurityOptions.DefaultResourceName);
         ResourceNamesWaitedOnBy(resources.ConversationsServer.Resource).ShouldNotContain(HexalithEventStoreSecurityOptions.DefaultResourceName);
+    }
+
+    /// <summary>Package-mode testing uses the existing owner host without rebuilding it during launch.</summary>
+    [Fact]
+    public void TestingGatewayShouldUsePrebuiltBuildsOwnedProject()
+    {
+        IDistributedApplicationBuilder builder = CreateBuilder(enableKeycloak: false);
+        _ = builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            [ConversationsAppHostTopology.TestingUseBuildsGatewayConfigurationKey] = "true",
+        });
+
+        ConversationsAppHostResources resources = ConversationsAppHostTopology.AddConversations(builder);
+        IProjectMetadata metadata = resources.EventStore.Resource.GetProjectMetadata();
+        string? buildsRoot = typeof(ConversationsAppHostTopology).Assembly
+            .GetCustomAttributes<System.Reflection.AssemblyMetadataAttribute>()
+            .Single(attribute => attribute.Key == "EnrolledBuildsRoot").Value;
+        buildsRoot.ShouldNotBeNullOrWhiteSpace();
+        metadata.ProjectPath.ShouldBe(Path.Combine(buildsRoot!, "src", "hosts", "Hexalith.Builds.Module.EventStoreHost", "Hexalith.Builds.Module.EventStoreHost.csproj"));
+        metadata.SuppressBuild.ShouldBeTrue();
+        EndpointAnnotation endpoint = resources.EventStore.Resource.Annotations.OfType<EndpointAnnotation>().ShouldHaveSingleItem();
+        endpoint.Name.ShouldBe("http");
+        endpoint.UriScheme.ShouldBe("http");
     }
 
     private static IDistributedApplicationBuilder CreateBuilder(bool enableKeycloak = true)

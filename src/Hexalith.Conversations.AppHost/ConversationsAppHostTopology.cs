@@ -10,6 +10,8 @@ using Aspire.Hosting.ApplicationModel;
 
 using Hexalith.EventStore.Aspire;
 
+using Microsoft.Extensions.Configuration;
+
 /// <summary>
 /// Composes the local Conversations Aspire topology.
 /// </summary>
@@ -52,6 +54,9 @@ public static class ConversationsAppHostTopology
     /// </summary>
     public const string PubSubComponentName = "pubsub";
 
+    /// <summary>The test-only switch selecting the prebuilt Builds-owned package gateway host.</summary>
+    public const string TestingUseBuildsGatewayConfigurationKey = "Conversations:Testing:UseBuildsGateway";
+
     /// <summary>
     /// Adds the local Conversations topology to an Aspire distributed application builder.
     /// </summary>
@@ -67,7 +72,9 @@ public static class ConversationsAppHostTopology
                 RealmImportPath = ResolveKeycloakRealmImportPath(builder.AppHostDirectory),
             });
 
-        IResourceBuilder<ProjectResource> eventStoreProject = builder.AddHexalithEventStoreGatewayProject(EventStoreResourceName);
+        IResourceBuilder<ProjectResource> eventStoreProject = builder.Configuration.GetValue<bool>(TestingUseBuildsGatewayConfigurationKey)
+            ? builder.AddProject<PrebuiltEventStoreGatewayProjectMetadata>(EventStoreResourceName).WithHttpEndpoint()
+            : builder.AddHexalithEventStoreGatewayProject(EventStoreResourceName);
         HexalithEventStoreResources eventStoreResources = builder.AddHexalithEventStore(
             eventStoreProject,
             adminServer: null,

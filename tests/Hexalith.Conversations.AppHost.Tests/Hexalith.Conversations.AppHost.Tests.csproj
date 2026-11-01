@@ -3,15 +3,23 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <AssemblyMetadata Include="EnrolledReferenceMode" Value="$(HexalithSourceMappingMode)" />
+    <AssemblyMetadata Include="EnrolledBuildsRoot" Value="$(HexalithBuildsRoot)" />
+    <AssemblyMetadata Include="EnrolledEventStoreRoot" Value="$(HexalithEventStoreRoot)" />
+    <AssemblyMetadata Include="EnrolledEventStoreVersion" Value="$(HexalithEventStoreVersion)" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Hexalith.Conversations.AppHost\Hexalith.Conversations.AppHost.csproj" />
     <ProjectReference Include="..\..\src\Hexalith.Conversations\Hexalith.Conversations.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(UseHexalithProjectReferences)' == 'true'">
     <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Aspire\Hexalith.EventStore.Aspire.csproj" IsAspireProjectResource="false" Condition="'$(HexalithEventStoreRoot)' != ''" />
+    <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Server\Hexalith.EventStore.Server.csproj" IsAspireProjectResource="false" Condition="'$(HexalithEventStoreRoot)' != ''" />
     <ProjectReference Include="..\..\references\Hexalith.EventStore\src\Hexalith.EventStore.Aspire\Hexalith.EventStore.Aspire.csproj" IsAspireProjectResource="false" Condition="'$(HexalithEventStoreRoot)' == ''" />
   </ItemGroup>
   <ItemGroup Condition="'$(UseHexalithProjectReferences)' != 'true'">
     <PackageReference Include="Hexalith.EventStore.Aspire" />
+    <PackageReference Include="Hexalith.EventStore.Server" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting" />

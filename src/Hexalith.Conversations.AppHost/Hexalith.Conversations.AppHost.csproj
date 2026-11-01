@@ -7,6 +7,9 @@
     <UserSecretsId>hexalith-conversations</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <AssemblyMetadata Include="EnrolledBuildsRoot" Value="$(HexalithBuildsRoot)" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Hexalith.Conversations.Admin.Web\Hexalith.Conversations.Admin.Web.csproj" />
     <ProjectReference Include="..\Hexalith.Conversations.Server\Hexalith.Conversations.Server.csproj" />
     <PackageReference Include="CommunityToolkit.Aspire.Hosting.Dapr" />
