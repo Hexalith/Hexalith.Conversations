@@ -2,7 +2,7 @@
 title: 'Synchronize current dependencies and publish a verified Conversations release'
 type: 'chore'
 created: '2026-11-01'
-status: 'in-review'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: 'fe530bf4f1fe8f5f387ca6b91b873f621464cc63'
@@ -30,7 +30,7 @@ context:
 
 - `global.json`: already pins Microsoft's current stable SDK 10.0.403; retain the exact pin unless official metadata changes.
 - `references/Hexalith.Builds/Props/Directory.Packages.props`: sole version authority; Commons now selects published 2.30.10. Other 27 active external references are current after synchronization.
-- `.config/dotnet-tools.json`: module CLI 4.39.0; latest published stable is 4.41.1.
+- `.config/dotnet-tools.json`: module CLI now pins latest published stable 4.41.1, with roll-forward disabled.
 - `package.json` / `package-lock.json`: seven direct npm dependencies already current; refresh compatible transitive pins if necessary and verify signatures.
 - `references/Hexalith.Platform/references/Hexalith.Builds`: gitlink belongs to Platform. Synchronize this pointer using Git index operations only, without initializing that nested checkout. The identity resolver requires it to match Conversations' root Builds.
 - `references/Hexalith.Platform/hexalith-platform.json`: permits CLI [4.38.3,5.0.0-0); no range change needed.
@@ -48,7 +48,7 @@ context:
 - [x] `references/Hexalith.Platform` -- update its recorded Builds gitlink to the selected catalog without materializing nested files; preserve qualification records -- allow a genuine matching catalog identity release.
 - [x] `.github/workflows/ci.yml`, `.github/workflows/release.yml`, relevant tooling tests -- fix concrete preparation/version regressions and tag fetching only where required -- keep package/Release validation intact.
 - [x] Current source/config changes -- run focused tooling and available source/Debug checks; independently inspect staged diffs and validate exact commit messages.
-- [ ] Dependency repositories and root -- commit dependency content before parent pointers and push linearly; establish real Platform release identity, verify exact-main CI, dispatch Conversations Release and verify all four packages plus symbols at official endpoints.
+- [x] Dependency repositories and root -- commit dependency content before parent pointers and push linearly; establish real Platform release identity, verify exact-main CI, dispatch Conversations Release and verify all four packages plus symbols at official endpoints.
 
 **Acceptance Criteria:**
 - Given current stable upstream versions, when dependency selection is inspected, then SDK and active package/tool pins are current or a concrete compatibility limitation is reported.
@@ -126,3 +126,34 @@ CI 41316233269 on `4c7fe22f26d8f40a66dc6e393c4e319a98d9bda9` passed the full sol
 Published 3.130.2 inspection also establishes the current un-enrolled AppHost contract: SubmitCommandHandler acquires catalog authority before admission or domain dispatch. Missing local identity returns the SDK's precise HTTP 503 problem (`https://hexalith.io/problems/service-unavailable`, detail `Catalog authority cannot safely admit this operation.`). The old 422 domain-rejection expectation cannot be reached without enrolling both production hosts. The retained runtime test therefore proves the actual earlier refusal, preserves authentication checks, and corroborates absent command state through the real sidecar rather than enrolling held production capabilities or accepting generic server errors. The separate live fixture still exercises admitted commands and projections. Obsolete administrative projection cutover and terminal-rejection polling are removed from this un-enrolled-host test. CodeQL on the prior source is successful.
 
 The selected host is now stamped with its actual owner revision and selected SDK identity, its exact project path and suppressed rebuild are checked, and package mode verifies the Gateway dependency in its real `.deps.json`. The existing Builds host has an explicit HTTP endpoint, covered by a model assertion. Independent inspection found no remaining mismatch with the exact published SDK. Source/Debug compilation reports zero warnings/errors, and the real runtime case passes without skips: gateway 401, valid-channel/no-workload Conversations 401, exact catalog 503, exact authenticated status 404, actual sidecar metadata and strong-consistency 204 for both canonical status/archive keys. Owned AppHost/sidecars are disposed; shared Dapr services remain running. CRLF raw-YAML comparisons normalize both sides without changing profile tokens.
+
+
+## Final Result
+
+Completed 2026-11-01. All twelve direct submodules and the root are synchronized and pushed. Microsoft's current stable SDK remains 10.0.403. Active package/tool updates are selected through the shared catalog; seven direct npm pins are current. The reported upstream npm 11.21.1 bundled advisories remain as documented above.
+
+Released source is `6269c71200bd5f8646f0a96159f7c67e9a28a5dc`. [Exact-source CI 41319564221](https://github.com/Hexalith/Hexalith.Conversations/actions/runs/41319564221) passed every blocking lane: 2,496 unit/integration cases plus ten AppHost cases, with zero failures; conformance, browser, Windows cleanup, tooling and compatibility jobs also passed. [CodeQL 41319564197](https://github.com/Hexalith/Hexalith.Conversations/actions/runs/41319564197) and commit policy 41319564037 passed.
+
+[Release workflow 41321273607](https://github.com/Hexalith/Hexalith.Conversations/actions/runs/41321273607) successfully published [v1.4.0](https://github.com/Hexalith/Hexalith.Conversations/releases/tag/v1.4.0) through trusted publishing, without a human approval pause. Its publication verifier passed. The real tag resolves to the exact released source. Independent official-endpoint checks downloaded and verified all four packages and all four symbols against the eight GitHub assets, including canonical package contents, nuspec identities/versions and PDB presence:
+
+| Package | Official version |
+| --- | --- |
+| Hexalith.Conversations | [1.4.0](https://www.nuget.org/packages/Hexalith.Conversations/1.4.0) |
+| Hexalith.Conversations.Contracts | [1.4.0](https://www.nuget.org/packages/Hexalith.Conversations.Contracts/1.4.0) |
+| Hexalith.Conversations.Client | [1.4.0](https://www.nuget.org/packages/Hexalith.Conversations.Client/1.4.0) |
+| Hexalith.Conversations.Testing | [1.4.0](https://www.nuget.org/packages/Hexalith.Conversations.Testing/1.4.0) |
+
+Local verification evidence is retained in `/tmp/conversations-maintenance-20261101/verify-publication-final.log`, `verify-symbols-final.log` and `nuget-symbols/verification.json`; downloaded official symbol archives are retained beside that manifest. Every maintenance commit candidate passed its owning repository's pinned commitlint; successful logs are retained in the same maintenance directory.
+
+The root release and required Builds/Platform prerequisites are green. A separate read-only audit found pre-existing failures in independent upstream workflows. Scope clarification was offered while the Conversations release continued; these independent pipelines were not part of its exact-source qualification:
+
+| Independent repository | Existing failed workflow |
+| --- | --- |
+| EventStore | [CI startup](https://github.com/Hexalith/Hexalith.EventStore/actions/runs/41305489008), [published compatibility](https://github.com/Hexalith/Hexalith.EventStore/actions/runs/41305488708) |
+| Projects | [CI and runtime qualification](https://github.com/Hexalith/Hexalith.Projects/actions/runs/41298330907) |
+| Folders | [CI](https://github.com/Hexalith/Hexalith.Folders/actions/runs/41306394415), [contract gates](https://github.com/Hexalith/Hexalith.Folders/actions/runs/41306394168) |
+| Tenants | [Source-reference integration](https://github.com/Hexalith/Hexalith.Tenants/actions/runs/41290951833); its main CI passed |
+| FrontComposer | [Dependency governance](https://github.com/Hexalith/Hexalith.FrontComposer/actions/runs/41289068887), [Quality](https://github.com/Hexalith/Hexalith.FrontComposer/actions/runs/41289068705) |
+| Memories | [Publication fixtures](https://github.com/Hexalith/Hexalith.Memories/actions/runs/41297849598), [earlier Release](https://github.com/Hexalith/Hexalith.Memories/actions/runs/41297849173) |
+
+The full read-only audit is retained at `/tmp/conversations-maintenance-20261101/submodule-ci-audit.json`. These failures are reported separately and no claim is made that every upstream repository is green. Historical held runtime/deployment records remain unchanged; this publication establishes the current package release only.
