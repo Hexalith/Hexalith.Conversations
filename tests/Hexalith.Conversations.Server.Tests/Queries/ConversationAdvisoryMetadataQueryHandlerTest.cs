@@ -219,6 +219,6 @@ public sealed partial class ConversationAdvisoryMetadataQueryHandlerTest
 
     private static ConversationAdvisoryMetadataResult Payload(QueryResult result)
     {
-        result.Success.ShouldBeTrue(); return result.GetPayload().Deserialize<ConversationAdvisoryMetadataResult>(JsonSerializerOptions.Web)!;
+        result.Success.ShouldBeTrue(); result.ProjectionType.ShouldBeNull(); return result.GetPayload().Deserialize<ConversationAdvisoryMetadataResult>(JsonSerializerOptions.Web)!;
     }
 }

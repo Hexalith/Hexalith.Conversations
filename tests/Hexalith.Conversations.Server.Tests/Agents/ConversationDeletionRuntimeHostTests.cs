@@ -4,6 +4,7 @@
 // </copyright>
 
 using System.Net;
+using System.Reflection;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
@@ -14,6 +15,7 @@ using Hexalith.Conversations.Contracts.Agents;
 using Hexalith.Conversations.Contracts.Commands;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Server.Agents;
+using Hexalith.Conversations.Server.Api;
 using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.EventStore.Client.Streams;
@@ -21,6 +23,7 @@ using Hexalith.EventStore.Contracts.Identity;
 using Hexalith.EventStore.Contracts.Streams;
 using Hexalith.EventStore.DomainService;
 using Hexalith.EventStore.ServiceDefaults.Authentication;
+using Hexalith.EventStore.ServiceDefaults.Routing;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -169,6 +172,7 @@ public sealed class ConversationDeletionRuntimeHostTests
             routes.Keys.ShouldContain(route);
             routes[route].Metadata.GetOrderedMetadata<IAuthorizeData>().Select(static data => data.Policy)
                 .ShouldContain(ConversationDeletionRuntimeHostExtensions.CallerPolicy);
+            routes[route].Metadata.GetOrderedMetadata<IAuthorizeData>().ShouldAllBe(static data => !string.IsNullOrWhiteSpace(data.Policy));
         }
     }
 
@@ -186,12 +190,91 @@ public sealed class ConversationDeletionRuntimeHostTests
                 handler = delegating.InnerHandler!;
             }
 
-            handler.ShouldBeOfType<SocketsHttpHandler>(name).AllowAutoRedirect.ShouldBeFalse(name);
+            RouteCatalogInvocationHandler guarded = handler.ShouldBeOfType<RouteCatalogInvocationHandler>(name);
+            typeof(RouteCatalogInvocationHandler).GetProperty("Transport", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .GetValue(guarded).ShouldBeOfType<SocketsHttpHandler>(name).AllowAutoRedirect.ShouldBeFalse(name);
         }
 
         JwtBearerOptions caller = host.Services.GetRequiredService<IOptionsMonitor<JwtBearerOptions>>()
             .Get(ConversationDeletionRuntimeHostExtensions.CallerScheme);
         caller.BackchannelHttpHandler.ShouldBeOfType<SocketsHttpHandler>().AllowAutoRedirect.ShouldBeFalse();
+    }
+
+    /// <summary>Preserves the original CLR signature and default policy while providing an explicit named-policy overload.</summary>
+    /// <param name="named">Whether the caller selects its existing named policy.</param>
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ParticipantMappingPreservesBinarySignatureAndSelectedPolicy(bool named)
+    {
+        typeof(ConversationCommandApi).GetMethod(nameof(ConversationCommandApi.MapConversationAgentParticipantApi),
+            [typeof(IEndpointRouteBuilder)]).ShouldNotBeNull();
+        MethodInfo overload = typeof(ConversationCommandApi).GetMethod(nameof(ConversationCommandApi.MapConversationAgentParticipantApi),
+            [typeof(IEndpointRouteBuilder), typeof(string)]).ShouldNotBeNull();
+        overload.GetParameters()[1].IsOptional.ShouldBeFalse();
+        WebApplicationBuilder builder = WebApplication.CreateBuilder();
+        builder.Services.AddSingleton<IConversationCommandApiHandler>(static _ =>
+            throw new InvalidOperationException("Metadata-only handler registration is never executed."));
+        await using WebApplication app = builder.Build();
+        if (named) app.MapConversationAgentParticipantApi(ConversationDeletionRuntimeHostExtensions.CallerPolicy);
+        else app.MapConversationAgentParticipantApi();
+        RouteEndpoint endpoint = Routes(app)[ParticipantRoute];
+        IAuthorizeData authorization = endpoint.Metadata.GetOrderedMetadata<IAuthorizeData>().ShouldHaveSingleItem();
+        if (named) authorization.Policy.ShouldBe(ConversationDeletionRuntimeHostExtensions.CallerPolicy);
+        else string.IsNullOrEmpty(authorization.Policy).ShouldBeTrue();
+    }
+
+    /// <summary>The configured native invocation transport cannot transfer lookup authority through a redirect.</summary>
+    [Fact]
+    public async Task LookupInvocationRefusesRedirectAndUncommittedTargetWithoutTransferringAuthority()
+    {
+        var catalog = new DeletionRuntimeRouteCatalog();
+        WebApplicationBuilder sidecarBuilder = WebApplication.CreateBuilder();
+        sidecarBuilder.WebHost.UseUrls("http://127.0.0.1:0");
+        await using WebApplication sidecar = sidecarBuilder.Build();
+        int invocations = 0;
+        int redirected = 0;
+        sidecar.MapPost("/v1.0/invoke/" + S.Receiver + "/method/query", (HttpContext context) =>
+        {
+            invocations++;
+            context.Request.Headers[RouteCatalogInvocationHandler.RootHeader].ToString().ShouldBe(catalog.Snapshot.RootDigest);
+            context.Request.Headers[RouteCatalogInvocationHandler.EpochHeader].ToString().ShouldBe("1");
+            context.Request.Headers["dapr-api-token"].ToString().ShouldBe("redirect-test-sidecar-credential");
+            context.Request.Headers[EventStoreWorkloadAuthenticationDefaults.AssertionHeaderName].ToString()
+                .ShouldBe("redirect-test-workload-credential");
+            context.Response.StatusCode = StatusCodes.Status307TemporaryRedirect;
+            context.Response.Headers.Location = "/redirected";
+        });
+        sidecar.MapPost("/redirected", () => { redirected++; return Results.NoContent(); });
+        await sidecar.StartAsync(TestContext.Current.CancellationToken);
+        try
+        {
+            await using WebApplication host = ComposeLikeProgram(S.Configuration(), services =>
+            {
+                InstallAll()(services);
+                services.AddSingleton<IRouteCatalogAuthority>(catalog);
+            }, optIn: true);
+            using HttpClient client = host.Services.GetRequiredService<IHttpClientFactory>()
+                .CreateClient(ConformanceConversationDeletionReceiver.LookupClientName);
+            using HttpRequestMessage request = new(HttpMethod.Post, sidecar.Urls.Single() + "/v1.0/invoke/" + S.Receiver + "/method/query")
+            {
+                Content = JsonContent.Create(new { }),
+            };
+            request.Headers.Add("dapr-api-token", "redirect-test-sidecar-credential");
+            request.Headers.Add(EventStoreWorkloadAuthenticationDefaults.AssertionHeaderName, "redirect-test-workload-credential");
+            using HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+            response.StatusCode.ShouldBe(HttpStatusCode.TemporaryRedirect);
+            invocations.ShouldBe(1);
+            redirected.ShouldBe(0);
+            using HttpRequestMessage foreign = new(HttpMethod.Post, sidecar.Urls.Single() + "/v1.0/invoke/other-receiver/method/query");
+            await Should.ThrowAsync<RouteCatalogUnavailableException>(() => client.SendAsync(foreign, TestContext.Current.CancellationToken));
+            invocations.ShouldBe(1);
+            redirected.ShouldBe(0);
+        }
+        finally
+        {
+            await sidecar.StopAsync(TestContext.Current.CancellationToken);
+        }
     }
 
     /// <summary>The composed SDK reader requests native proof and treats a proof-less page as non-authoritative.</summary>
@@ -526,6 +609,9 @@ public sealed class ConversationDeletionRuntimeHostTests
         {
             builder.Services.AddKeyedSingleton<IWorkloadAssertionIssuer>(ConformanceConversationDeletionReceiver.LookupIssuerKey, new FakeLookupIssuer());
             builder.Services.AddSingleton<IHttpMessageHandlerBuilderFilter>(new PrimaryHandlerOverride(transport.Handler));
+            builder.Services.AddSingleton<IRouteCatalogAuthority, DeletionRuntimeRouteCatalog>();
+            builder.Services.Configure<RouteCatalogHostOptions>(options =>
+                options.InvocationTransportFactory = _ => transport.CreateInvocationHandler());
         }
 
         descriptors?.AddRange(builder.Services);

@@ -59,7 +59,12 @@ internal sealed class ResolutionRebuildDelegatedTransport(ResolutionEnrollmentFi
         body.Query.Tenant.ShouldBe(fixture.Input.TenantId);
         body.Query.AggregateId.ShouldBe(fixture.Input.AggregateId);
         var expected = body.Query.Payload!.Value.Deserialize<InspectProjectionCurrentQuery>(JsonSerializerOptions.Web)!;
-        var owner = await fixture.OwnerAsync(Catalog);
+        using HttpResponseMessage ownerResponse = await fixture.SendAsync("/project/source-guard/owner-proof/v1",
+            new ProjectionOwnerProofRequest(fixture.Input.TenantId, fixture.Input.Domain, fixture.Input.AggregateId,
+                ResolutionEnrollmentFixture.Route, Catalog));
+        if (!ownerResponse.IsSuccessStatusCode)
+            return new(ownerResponse.StatusCode) { Content = new ByteArrayContent(await ownerResponse.Content.ReadAsByteArrayAsync(cancellationToken)) };
+        var owner = (await ownerResponse.Content.ReadFromJsonAsync<ProjectionOwnerProofResult>(JsonSerializerOptions.Web, cancellationToken))!;
         if (owner.Proof is null || owner.Proof.Selection != expected.Selection)
             return new(HttpStatusCode.ServiceUnavailable);
         var current = new ProjectionCurrentProof(SourceOverride ?? fixture.Gateway.Proof, owner.Proof, Catalog);

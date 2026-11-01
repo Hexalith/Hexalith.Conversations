@@ -407,6 +407,7 @@ internal sealed class DeletionRuntimeTransport
     private readonly Dictionary<string, ConversationDeletionAcknowledgement> _accepted = new(StringComparer.Ordinal);
     private readonly List<ToolConformanceDeletion> _submissions = [];
     private readonly List<StreamReadRequest> _streamReads = [];
+    private readonly List<StubHttpHandler> _invocationHandlers = [];
 
     public DeletionRuntimeTransport(ConversationDeletionDeliveryPumpFixture? source = null)
     {
@@ -415,6 +416,16 @@ internal sealed class DeletionRuntimeTransport
     }
 
     public StubHttpHandler Handler { get; }
+
+    /// <summary>Creates a separately owned invocation transport over the same scripted receiver.</summary>
+    public HttpMessageHandler CreateInvocationHandler()
+    {
+        var handler = new StubHttpHandler(RespondAsync);
+        _invocationHandlers.Add(handler);
+        return handler;
+    }
+
+    private IEnumerable<RecordedRequest> Requests => Handler.Requests.Concat(_invocationHandlers.SelectMany(handler => handler.Requests));
 
     public string CurrentTarget { get; set; } = DeletionRuntimeTestSettings.Target;
 
@@ -456,9 +467,9 @@ internal sealed class DeletionRuntimeTransport
         }
     }
 
-    public IEnumerable<RecordedRequest> GatewayRequests => Handler.Requests.Where(static request => request.Uri.Host == "gateway.test");
+    public IEnumerable<RecordedRequest> GatewayRequests => Requests.Where(static request => request.Uri.Host == "gateway.test");
 
-    public IEnumerable<RecordedRequest> SidecarRequests => Handler.Requests.Where(static request => request.Uri.Port == 3500);
+    public IEnumerable<RecordedRequest> SidecarRequests => Requests.Where(static request => request.Uri.Port == 3500);
 
     private static HttpResponseMessage Json(HttpStatusCode status, object value)
         => new(status) { Content = new StringContent(JsonSerializer.Serialize(value, Web), Encoding.UTF8, "application/json") };

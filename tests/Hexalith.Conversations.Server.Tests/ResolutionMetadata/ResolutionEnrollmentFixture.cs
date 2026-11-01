@@ -1,4 +1,9 @@
 using System.Text.Json;
+using System.Net;
+using System.Net.Http.Json;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 using Dapr.Client;
 
@@ -10,6 +15,8 @@ using Hexalith.EventStore.Client.Projections;
 using Hexalith.EventStore.Contracts.Projections;
 using Hexalith.EventStore.DomainService;
 using Hexalith.EventStore.Testing.Fakes;
+using Hexalith.EventStore.ServiceDefaults.Authentication;
+using Hexalith.EventStore.ServiceDefaults.Routing;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -61,6 +68,14 @@ internal sealed class ResolutionEnrollmentFixture : IAsyncDisposable, IHttpReque
             builder.Services.AddConversationResolutionNativeProof();
             builder.Services.AddConversationResolutionNativeProof(); // repeated composition is idempotent
         }
+        builder.Services.Configure<RouteCatalogHostOptions>(options => options.Identity = new(
+            ResolutionRouteCatalog.AppId, ResolutionRouteCatalog.AppId,
+            Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(typeof(ConversationAsyncProjectionHandler).FullName!))),
+            Convert.ToHexStringLower(SHA256.HashData("isolated-projection-fixture"u8)),
+            Convert.ToHexStringLower(SHA256.HashData("authenticated-service-endpoint-delegate"u8))));
+        builder.Services.AddSingleton<ResolutionRouteCatalog>(services => new(services, Input.TenantId,
+            () => services.GetRequiredService<EventStoreDomainServiceEndpointSource>().Endpoints!.DataSources.SelectMany(source => source.Endpoints)));
+        builder.Services.AddSingleton<IRouteCatalogAuthority>(services => services.GetRequiredService<ResolutionRouteCatalog>());
         configure?.Invoke(builder.Services);
         App = builder.Build();
         App.MapEventStoreDomainProjectionEndpoints();
@@ -81,7 +96,35 @@ internal sealed class ResolutionEnrollmentFixture : IAsyncDisposable, IHttpReque
         => PostAsync<ProjectionOwnerProofResult>("/project/source-guard/owner-proof/v1", new ProjectionOwnerProofRequest(
             tenant ?? Input.TenantId, Input.Domain, aggregate ?? Input.AggregateId, route ?? Route, fingerprint));
 
-    public async Task<T> PostAsync<T>(string path, object request, int expectedStatus = StatusCodes.Status200OK)
+    public async Task<T> PostAsync<T>(string path, object request, int expectedStatus = StatusCodes.Status200OK,
+        Action<HttpContext>? configureContext = null)
+    {
+        using HttpResponseMessage response = await SendAsync(path, request, configureContext);
+        ((int)response.StatusCode).ShouldBe(expectedStatus);
+        return (await response.Content.ReadFromJsonAsync<T>(JsonSerializerOptions.Web,
+            TestContext.Current.CancellationToken))!;
+    }
+
+    /// <summary>Requires an empty SDK refusal without executing any owner mutation.</summary>
+    /// <param name="fingerprint">The requested projection capability fingerprint.</param>
+    /// <param name="tenant">The requested tenant, or the original input tenant.</param>
+    /// <param name="route">The requested projection route, or the registered route.</param>
+    public async Task AssertOwnerRefusedAsync(string fingerprint, string? tenant = null, string? route = null)
+    {
+        int writes = Backend.WrittenKeys.Count;
+        using HttpResponseMessage response = await SendAsync("/project/source-guard/owner-proof/v1", new ProjectionOwnerProofRequest(
+            tenant ?? Input.TenantId, Input.Domain, Input.AggregateId, route ?? Route, fingerprint));
+        response.StatusCode.ShouldBe(HttpStatusCode.ServiceUnavailable);
+        (await response.Content.ReadAsByteArrayAsync(TestContext.Current.CancellationToken)).ShouldBeEmpty();
+        Backend.WrittenKeys.Count.ShouldBe(writes);
+    }
+
+    /// <summary>Executes the actual mapped endpoint delegate with exact committed generation and service bindings.</summary>
+    /// <param name="path">The actual receiver route.</param>
+    /// <param name="request">The receiver payload.</param>
+    /// <param name="configureContext">An optional negative-control mutation of the bound context.</param>
+    /// <returns>The receiver's actual status and response bytes.</returns>
+    public async Task<HttpResponseMessage> SendAsync(string path, object request, Action<HttpContext>? configureContext = null)
     {
         RouteEndpoint endpoint = ((IEndpointRouteBuilder)App).DataSources.SelectMany(source => source.Endpoints)
             .OfType<RouteEndpoint>().Single(item => item.RoutePattern.RawText == path);
@@ -89,6 +132,15 @@ internal sealed class ResolutionEnrollmentFixture : IAsyncDisposable, IHttpReque
         var context = new DefaultHttpContext { RequestServices = scope.ServiceProvider };
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(request, request.GetType(), JsonSerializerOptions.Web);
         context.Features.Set<IHttpRequestBodyDetectionFeature>(this);
+        CommittedRouteCatalogSnapshot catalog = App.Services.GetRequiredService<ResolutionRouteCatalog>().Snapshot;
+        context.User = new ClaimsPrincipal(new ClaimsIdentity([
+            new Claim(RouteCatalogSurfacePolicy.ClaimType, "service"),
+            new Claim(EventStoreWorkloadAuthenticationDefaults.WorkloadClaimType, "eventstore"),
+        ], EventStoreWorkloadAuthenticationDefaults.WorkloadScheme));
+        context.Request.Path = path;
+        context.Request.Headers[RouteCatalogInvocationHandler.RootHeader] = catalog.RootDigest;
+        context.Request.Headers[RouteCatalogInvocationHandler.EpochHeader] = catalog.Epoch.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        configureContext?.Invoke(context);
         context.Request.Method = HttpMethods.Post;
         context.Request.ContentType = "application/json";
         context.Request.ContentLength = bytes.Length;
@@ -96,10 +148,10 @@ internal sealed class ResolutionEnrollmentFixture : IAsyncDisposable, IHttpReque
         context.Response.Body = new MemoryStream();
         context.RequestAborted = TestContext.Current.CancellationToken;
         await endpoint.RequestDelegate!(context);
-        context.Response.StatusCode.ShouldBe(expectedStatus);
-        context.Response.Body.Position = 0;
-        return (await JsonSerializer.DeserializeAsync<T>(context.Response.Body, JsonSerializerOptions.Web,
-            TestContext.Current.CancellationToken))!;
+        return new HttpResponseMessage((HttpStatusCode)context.Response.StatusCode)
+        {
+            Content = new ByteArrayContent(((MemoryStream)context.Response.Body).ToArray()),
+        };
     }
 
     public async Task<ConversationResolutionMetadataReadModel> MetadataAsync()

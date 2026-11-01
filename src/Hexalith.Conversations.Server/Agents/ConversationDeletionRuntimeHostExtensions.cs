@@ -182,7 +182,7 @@ public static class ConversationDeletionRuntimeHostExtensions
         RouteGroupBuilder callers = endpoints.MapGroup(string.Empty);
         callers.RequireAuthorization(CallerPolicy);
         callers.MapConversationRuntimeIdentity();
-        callers.MapConversationAgentParticipantApi();
+        callers.MapConversationAgentParticipantApi(CallerPolicy);
         return endpoints;
     }
 

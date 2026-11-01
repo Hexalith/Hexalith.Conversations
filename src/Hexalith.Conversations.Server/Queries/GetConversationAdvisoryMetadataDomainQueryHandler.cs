@@ -134,6 +134,5 @@ public sealed class GetConversationAdvisoryMetadataDomainQueryHandler(
     private static bool Canonical(string? value) => !string.IsNullOrWhiteSpace(value) && value == value.Trim();
     private static QueryResult Unavailable() => Success(new(null, true));
     private static QueryResult Success(ConversationAdvisoryMetadataResult result)
-        => QueryResult.FromPayload(JsonSerializer.SerializeToElement(result, ConversationsJsonContext.Default.ConversationAdvisoryMetadataResult),
-            GetConversationAdvisoryMetadataQuery.QueryType);
+        => QueryResult.FromPayload(JsonSerializer.SerializeToElement(result, ConversationsJsonContext.Default.ConversationAdvisoryMetadataResult));
 }

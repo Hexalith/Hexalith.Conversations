@@ -42,13 +42,30 @@ public static class ConversationCommandApi
         return endpoints;
     }
 
-    /// <summary>Maps only the restricted Agent participant route for a host with an admitted gateway handler.</summary>
+    /// <summary>Maps only the restricted Agent participant route using the host's existing default authorization policy.</summary>
     /// <param name="endpoints">The endpoint route builder.</param>
     /// <returns>The endpoint route builder.</returns>
     public static IEndpointRouteBuilder MapConversationAgentParticipantApi(this IEndpointRouteBuilder endpoints)
     {
+        return MapConversationAgentParticipantApiCore(endpoints, null);
+    }
+
+    /// <summary>Maps only the restricted Agent participant route using an existing explicit caller policy.</summary>
+    /// <param name="endpoints">The endpoint route builder.</param>
+    /// <param name="policy">The existing named caller policy.</param>
+    /// <returns>The endpoint route builder.</returns>
+    public static IEndpointRouteBuilder MapConversationAgentParticipantApi(this IEndpointRouteBuilder endpoints, string policy)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(policy);
+        return MapConversationAgentParticipantApiCore(endpoints, policy);
+    }
+
+    private static IEndpointRouteBuilder MapConversationAgentParticipantApiCore(IEndpointRouteBuilder endpoints, string? policy)
+    {
         ArgumentNullException.ThrowIfNull(endpoints);
-        endpoints.MapPost("/api/v1/conversations/{conversationId}/participants", AddParticipantAsync).RequireAuthorization();
+        RouteHandlerBuilder route = endpoints.MapPost("/api/v1/conversations/{conversationId}/participants", AddParticipantAsync);
+        if (policy is null) route.RequireAuthorization();
+        else route.RequireAuthorization(policy);
         return endpoints;
     }
 

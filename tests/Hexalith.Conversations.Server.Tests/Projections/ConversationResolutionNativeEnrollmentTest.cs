@@ -158,10 +158,10 @@ public sealed class ConversationResolutionNativeEnrollmentTest
         (await new ConversationProjectionReadStore(fixture.Store).ReadResolutionMetadataAsync(
             ResolutionMetadataFixture.Tenant, ResolutionMetadataFixture.Conversation, Token)).ShouldBe(metadata);
         fixture.Backend.WrittenKeys.Count.ShouldBe(writes);
-        (await fixture.OwnerAsync(ordinary.CatalogFingerprint!)).Proof.ShouldBeNull();
-        (await fixture.OwnerAsync(guarded.CatalogFingerprint!, tenant: "other-tenant")).Proof.ShouldBeNull();
+        await fixture.AssertOwnerRefusedAsync(ordinary.CatalogFingerprint!);
+        await fixture.AssertOwnerRefusedAsync(guarded.CatalogFingerprint!, tenant: "other-tenant");
         (await fixture.OwnerAsync(guarded.CatalogFingerprint!, aggregate: "other-conversation")).Proof.ShouldBeNull();
-        (await fixture.OwnerAsync(guarded.CatalogFingerprint!, route: "other-route")).Proof.ShouldBeNull();
+        await fixture.AssertOwnerRefusedAsync(guarded.CatalogFingerprint!, route: "other-route");
     }
 
     [Fact]
