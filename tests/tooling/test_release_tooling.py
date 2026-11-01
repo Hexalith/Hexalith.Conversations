@@ -729,7 +729,7 @@ class ReleaseToolingTests(unittest.TestCase):
         self.assertIn("git -c submodule.recurse=false submodule update --init --checkout -- references/Hexalith.Builds references/Hexalith.Platform", windows_job)
         self.assertIn("python -m unittest discover -s tools/tests -p 'test_checkout_windows.py' -v", windows_job)
         self.assertIn(
-            "uses: Hexalith/Hexalith.Builds/.github/workflows/domain-ci.yml@1cc94bbb932be0d08a31b4e1393fcfc450a0b1c9",
+            "uses: Hexalith/Hexalith.Builds/.github/workflows/domain-ci.yml@0b8c3f20e99d26a1562dd477bfb0162d23aebf2c",
             ci,
         )
         self.assertIn("run-consumer-validation: true", ci)

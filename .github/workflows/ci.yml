@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   ci:
-    uses: Hexalith/Hexalith.Builds/.github/workflows/domain-ci.yml@1cc94bbb932be0d08a31b4e1393fcfc450a0b1c9
+    uses: Hexalith/Hexalith.Builds/.github/workflows/domain-ci.yml@0b8c3f20e99d26a1562dd477bfb0162d23aebf2c
     with:
       solution: Hexalith.Conversations.slnx
       module-manifest: module/hexalith.module-manifest.v2.json

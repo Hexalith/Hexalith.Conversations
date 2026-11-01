@@ -210,13 +210,13 @@
       },
       "Hexalith.EventStore.Client": {
         "type": "Transitive",
-        "resolved": "3.130.1",
-        "contentHash": "er++nYY5QdzBS5SDIB24+VIIdyvkvZRe9bk9CaKvEXzRUSmK6BK5bUkCNqNADHZCkCPk+gKOaGy8HN0ZvvOuIA==",
+        "resolved": "3.130.2",
+        "contentHash": "ijiZ7IbSY1ZcthwAt4PjlSDpiDka51ip1AMB982FY0SSHyMjiCKTYxk3JmLj1ZpdGtDPqmZF8YbN45uf/nLVHA==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2",
           "Dapr.Client": "1.19.0",
           "Hexalith.Commons.UniqueIds": "2.30.7",
-          "Hexalith.EventStore.Contracts": "3.130.1",
+          "Hexalith.EventStore.Contracts": "3.130.2",
           "Microsoft.AspNetCore.DataProtection.Abstractions": "10.0.14",
           "Microsoft.Extensions.Configuration": "10.0.14",
           "Microsoft.Extensions.Configuration.Abstractions": "10.0.14",
@@ -233,8 +233,8 @@
       },
       "Hexalith.EventStore.Contracts": {
         "type": "Transitive",
-        "resolved": "3.130.1",
-        "contentHash": "OKuXzLLaZ3kHK4hBnZ4JuHY7VWERY6UdGa6FjXqyYKqXenv2Kv3fdZJMIhoOQFMga29tDAbKrshoPKNeI50Bqg==",
+        "resolved": "3.130.2",
+        "contentHash": "ONjn3ChTge4hv7Z/AXEtN+QkC05WIqECug6c5mGiuKtjrPRhptsPoLTYlF38sGftcDT5JvXSnuT30HhU3HsEIQ==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2",
           "Hexalith.Commons.UniqueIds": "2.30.7"
@@ -242,8 +242,8 @@
       },
       "Hexalith.EventStore.DomainService": {
         "type": "Transitive",
-        "resolved": "3.130.1",
-        "contentHash": "ffFx/OlW+zP5NQKa3kJQqpUt39mBqdAuiGPbsuTC5TYEFPAjvylD95lEwJ9rPuuHICxRLurN2pCdiVLQD0W6Mg==",
+        "resolved": "3.130.2",
+        "contentHash": "0Dz013UP+W7NonxXLUtr5X3tXALcNlO6uaLm9hlEwhU2T4LXjG/VcxXpRlsSJDDOuoMNvIKUPKiZYkGgWFyaYw==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2",
           "Dapr.Actors": "1.19.0",
@@ -251,8 +251,8 @@
           "Dapr.AspNetCore": "1.19.0",
           "Dapr.Client": "1.19.0",
           "Hexalith.Commons.UniqueIds": "2.30.7",
-          "Hexalith.EventStore.Client": "3.130.1",
-          "Hexalith.EventStore.ServiceDefaults": "3.130.1",
+          "Hexalith.EventStore.Client": "3.130.2",
+          "Hexalith.EventStore.ServiceDefaults": "3.130.2",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.14",
           "Microsoft.Extensions.Http.Resilience": "10.11.0",
           "Microsoft.Extensions.ServiceDiscovery": "10.11.0",
@@ -273,12 +273,12 @@
       },
       "Hexalith.EventStore.ServiceDefaults": {
         "type": "Transitive",
-        "resolved": "3.130.1",
-        "contentHash": "UXBj9v8N+SuK5kmc1Zg/qnutmSjRGLxcKZFI0oc1yBLrOx/ENV4ZjOraYhdTFaDz/vSL00Q4UeBEc/p/+E2MTg==",
+        "resolved": "3.130.2",
+        "contentHash": "HKbS/pDm9Sp+VATz8Wx3xX/wDRuoLdDlhbecpkj+5DF5YHyHLHl//EnSTdVe5aom6Bq1+zyIXoCP4wu9QzwbAw==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2",
           "Hexalith.Commons.UniqueIds": "2.30.7",
-          "Hexalith.EventStore.Contracts": "3.130.1",
+          "Hexalith.EventStore.Contracts": "3.130.2",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.14",
           "Microsoft.Extensions.Http.Resilience": "10.11.0",
           "Microsoft.Extensions.ServiceDiscovery": "10.11.0",
@@ -903,15 +903,15 @@
       "hexalith.conversations.minimalmodule.contracts": {
         "type": "Project",
         "dependencies": {
-          "Hexalith.EventStore.Contracts": "[3.130.1, )"
+          "Hexalith.EventStore.Contracts": "[3.130.2, )"
         }
       },
       "hexalith.conversations.minimalmodule.server": {
         "type": "Project",
         "dependencies": {
           "Hexalith.Conversations.MinimalModule.Contracts": "[1.0.0, )",
-          "Hexalith.EventStore.Client": "[3.130.1, )",
-          "Hexalith.EventStore.DomainService": "[3.130.1, )",
+          "Hexalith.EventStore.Client": "[3.130.2, )",
+          "Hexalith.EventStore.DomainService": "[3.130.2, )",
           "Microsoft.IdentityModel.Protocols.OpenIdConnect": "[8.23.0, )",
           "System.IdentityModel.Tokens.Jwt": "[8.23.0, )"
         }
