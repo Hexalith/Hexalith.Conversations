@@ -5,27 +5,23 @@
 
 extern alias server;
 
-using System.Net;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
-using System.Text;
 using System.Text.Json;
 
 using Hexalith.Conversations.Contracts.Agents;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.EventStore.Client.Gateway;
-using Hexalith.EventStore.Contracts.Commands;
 using Hexalith.EventStore.Contracts.Identity;
 using Hexalith.EventStore.Contracts.Queries;
-using Hexalith.EventStore.Contracts.Streams;
 using Hexalith.EventStore.DomainService;
 using Hexalith.EventStore.ServiceDefaults.Authentication;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Tokens;
+
+using NSubstitute;
 
 using Srv = server::Hexalith.Conversations.Server.Agents;
 
@@ -105,7 +101,9 @@ public sealed class ConformanceDeletionWireContractTests
 
         answer.Success.ShouldBeTrue(answer.ErrorMessage);
         Names(answer.GetPayload()).ShouldBe(Srv.ConformanceDeletionWire.IdentityFields, ignoreOrder: true);
-        (await AdapterFor(answer).CurrentTargetAsync(new TenantId(Tenant), TestContext.Current.CancellationToken)).ShouldBe(Target);
+        (await AdapterFor(answer, out IEventStoreGatewayClient gateway).CurrentTargetAsync(new TenantId(Tenant),
+            TestContext.Current.CancellationToken)).ShouldBe(Target);
+        gateway.ReceivedCalls().ShouldBeEmpty("identity lookups use only the sidecar");
     }
 
     /// <summary>This receiver's actual receipt result type and evidence are the mirrored shape, and the Server adapter accepts them.</summary>
@@ -118,8 +116,10 @@ public sealed class ConformanceDeletionWireContractTests
 
         Names(payload).ShouldBe(Srv.ConformanceDeletionWire.ReceiptFields);
         Names(payload.GetProperty("acknowledgement")).ShouldBe(Srv.ConformanceDeletionWire.AcknowledgementFields, ignoreOrder: true);
-        (await AdapterFor(QueryResult.FromPayload(payload)).LookupAsync(Signal, "attempt-1", Target, TestContext.Current.CancellationToken))
+        (await AdapterFor(QueryResult.FromPayload(payload), out IEventStoreGatewayClient gateway)
+            .LookupAsync(Signal, "attempt-1", Target, TestContext.Current.CancellationToken))
             .ShouldBe(new Srv.ConversationDeletionReceiverResult(ConversationAgentsOutcome.Available, receipt));
+        gateway.ReceivedCalls().ShouldBeEmpty("receipt lookups use only the sidecar");
     }
 
     private static string QueryType<T>() where T : IDomainQueryHandler
@@ -127,7 +127,7 @@ public sealed class ConformanceDeletionWireContractTests
 
     private static string[] Names(JsonElement element) => [.. element.EnumerateObject().Select(static property => property.Name)];
 
-    private static Srv.ConformanceConversationDeletionReceiver AdapterFor(QueryResult answer)
+    private static Srv.ConformanceConversationDeletionReceiver AdapterFor(QueryResult answer, out IEventStoreGatewayClient gateway)
     {
         var options = new Srv.ConversationDeletionRuntimeOptions
         {
@@ -141,64 +141,8 @@ public sealed class ConformanceDeletionWireContractTests
             ["DAPR_HTTP_ENDPOINT"] = Sidecar,
             ["DAPR_API_TOKEN"] = "sidecar-api-token",
         }).Build();
-        return new Srv.ConformanceConversationDeletionReceiver(new UnusedGateway(), new SidecarClients(answer), new BoundLookupIssuer(),
+        gateway = Substitute.For<IEventStoreGatewayClient>();
+        return new Srv.ConformanceConversationDeletionReceiver(gateway, new ConformanceSidecarClients(answer), new BoundLookupIssuer(Lookup),
             options, configuration, NullLogger<Srv.ConformanceConversationDeletionReceiver>.Instance);
-    }
-
-    /// <summary>Answers every sidecar query with one captured receiver answer.</summary>
-    private sealed class SidecarClients(QueryResult answer) : IHttpClientFactory
-    {
-        public HttpClient CreateClient(string name) => new(new Answer(answer));
-
-        private sealed class Answer(QueryResult answer) : HttpMessageHandler
-        {
-            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-                => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent(JsonSerializer.Serialize(answer, Web), Encoding.UTF8, "application/json"),
-                });
-        }
-    }
-
-    /// <summary>A fake lookup issuer producing unsigned bound assertions for the lookup workload; never a production credential.</summary>
-    private sealed class BoundLookupIssuer : IWorkloadAssertionIssuer
-    {
-        public bool CanBindResources => true;
-
-        public ValueTask<string?> IssueAsync(WorkloadAssertionRequest request, CancellationToken cancellationToken = default)
-        {
-            var claims = new Dictionary<string, object>(StringComparer.Ordinal)
-            {
-                [EventStoreWorkloadAuthenticationDefaults.CallerClaimType] = Lookup,
-                [EventStoreWorkloadAuthenticationDefaults.OperationClaimType] = request.Operation,
-            };
-            foreach (KeyValuePair<string, string> binding in request.Bindings ?? new Dictionary<string, string>())
-            {
-                claims[binding.Key] = binding.Value;
-            }
-
-            return ValueTask.FromResult<string?>(new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor
-            {
-                Audience = request.Audience,
-                Claims = claims,
-                Expires = DateTime.UtcNow.AddMinutes(2),
-            }));
-        }
-    }
-
-    /// <summary>The lookups under test never submit.</summary>
-    private sealed class UnusedGateway : IEventStoreGatewayClient
-    {
-        public Task<SubmitCommandResponse> SubmitCommandAsync(SubmitCommandRequest request, CancellationToken cancellationToken = default)
-            => throw new NotSupportedException();
-
-        public Task<EventStoreQueryResult> SubmitQueryAsync(SubmitQueryRequest request, string? ifNoneMatch = null,
-            CancellationToken cancellationToken = default) => throw new NotSupportedException();
-
-        public Task<EventStoreQueryResult<T>> SubmitQueryAsync<T>(SubmitQueryRequest request, string? ifNoneMatch = null,
-            CancellationToken cancellationToken = default) => throw new NotSupportedException();
-
-        public Task<StreamReadPage> ReadStreamAsync(StreamReadRequest request, CancellationToken cancellationToken = default)
-            => throw new NotSupportedException();
     }
 }

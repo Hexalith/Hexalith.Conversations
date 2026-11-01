@@ -195,10 +195,8 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
         _previousDaprHttpPort = Environment.GetEnvironmentVariable("DAPR_HTTP_PORT");
         _previousDaprGrpcPort = Environment.GetEnvironmentVariable("DAPR_GRPC_PORT");
 
-        if (!DaprTestPrerequisites.IsAvailable)
-        {
-            throw new InvalidOperationException(DaprTestPrerequisites.SkipReason);
-        }
+        // Starting the mandatory boundary below reports missing infrastructure
+        // through the real sidecar startup and health checks.
 
         for (int attempt = 0; attempt < PortBindingRetryCount; attempt++)
         {

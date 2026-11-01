@@ -11,26 +11,55 @@ using Hexalith.Conversations.Contracts.Agents;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Server.Agents;
 using Hexalith.EventStore.Client.Gateway;
+using Hexalith.EventStore.Contracts.Commands;
 using Hexalith.EventStore.Contracts.Queries;
+using Hexalith.EventStore.Contracts.Streams;
 using Hexalith.EventStore.ServiceDefaults.Authentication;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+
+using NSubstitute;
 
 using S = Hexalith.Conversations.Server.Tests.Agents.DeletionRuntimeTestSettings;
 
 namespace Hexalith.Conversations.Server.Tests.Agents;
 
 /// <summary>Receiver adapter matrix against a stub sidecar, a fake lookup issuer and a recording gateway; no installed receiver.</summary>
-public sealed class ConformanceConversationDeletionReceiverTests
+public sealed class ConformanceConversationDeletionReceiverTests : IDisposable
 {
     private static readonly JsonSerializerOptions Web = new(JsonSerializerDefaults.Web);
 
-    private readonly RecordingGateway _gateway = new();
+    private readonly IEventStoreGatewayClient _gateway = Substitute.For<IEventStoreGatewayClient>();
     private readonly FakeLookupIssuer _issuer = new();
     private readonly RecordingLogger<ConformanceConversationDeletionReceiver> _logger = new();
     private Func<QueryEnvelope, HttpResponseMessage> _sidecar = static _ => new HttpResponseMessage(HttpStatusCode.NotFound);
     private StubHttpHandler? _handler;
+
+    /// <summary>Configures command admission without confirming a receiver receipt.</summary>
+    public ConformanceConversationDeletionReceiverTests()
+    {
+        _gateway.SubmitCommandAsync(Arg.Any<SubmitCommandRequest>(), Arg.Any<CancellationToken>())
+            .Returns(call =>
+            {
+                var request = call.ArgAt<SubmitCommandRequest>(0);
+                return Task.FromResult(new SubmitCommandResponse(request.CorrelationId ?? request.MessageId, MessageId: request.MessageId));
+            });
+        _gateway.SubmitQueryAsync(Arg.Any<SubmitQueryRequest>(), Arg.Any<string?>(), Arg.Any<CancellationToken>())
+            .Returns(_ => Task.FromException<EventStoreQueryResult>(new NotSupportedException()));
+        _gateway.ReadStreamAsync(Arg.Any<StreamReadRequest>(), Arg.Any<CancellationToken>())
+            .Returns(_ => Task.FromException<StreamReadPage>(new NotSupportedException()));
+    }
+
+    /// <summary>Rejects any gateway operation beyond the explicit command submissions under test.</summary>
+    public void Dispose()
+        => _gateway.ReceivedCalls().ShouldAllBe(
+            static call => call.GetMethodInfo().Name == nameof(IEventStoreGatewayClient.SubmitCommandAsync),
+            "receiver lookups never invoke gateway queries or stream reads");
+
+    private SubmitCommandRequest[] SubmittedCommands => [.. _gateway.ReceivedCalls()
+        .Where(static call => call.GetMethodInfo().Name == nameof(IEventStoreGatewayClient.SubmitCommandAsync))
+        .Select(static call => (SubmitCommandRequest)call.GetArguments()[0]!)];
 
     /// <summary>A gateway 202 is admission only: submission never returns Available and sends the exact mirrored command.</summary>
     [Fact]
@@ -42,7 +71,7 @@ public sealed class ConformanceConversationDeletionReceiverTests
         ConversationDeletionReceiverResult result = await receiver.SubmitAsync(signal, "attempt-1", S.Target, TestContext.Current.CancellationToken);
 
         result.ShouldBe(new ConversationDeletionReceiverResult(ConversationAgentsOutcome.Unavailable));
-        var command = _gateway.Commands.ShouldHaveSingleItem();
+        var command = SubmittedCommands.ShouldHaveSingleItem();
         command.Tenant.ShouldBe(signal.TenantId.Value);
         command.Domain.ShouldBe("conversation-deletion-conformance");
         command.AggregateId.ShouldBe(signal.ConversationDeletionSignalId);
@@ -52,7 +81,7 @@ public sealed class ConformanceConversationDeletionReceiverTests
         command.Payload.Deserialize<ToolConformanceDeletion>(Web).ShouldBe(new ToolConformanceDeletion(signal, "attempt-1", S.Target));
 
         _ = await receiver.SubmitAsync(signal, "attempt-1", S.Target, TestContext.Current.CancellationToken);
-        _gateway.Commands[1].MessageId.ShouldBe(command.MessageId, "an exact retry reuses one logical submission identity");
+        SubmittedCommands[1].MessageId.ShouldBe(command.MessageId, "an exact retry reuses one logical submission identity");
         _handler!.Requests.ShouldBeEmpty("submission never reads the receiver");
     }
 
@@ -63,7 +92,8 @@ public sealed class ConformanceConversationDeletionReceiverTests
         foreach (Exception failure in new Exception[] { new HttpRequestException("lost"), new EventStoreGatewayException(503, "Unavailable"),
             new InvalidOperationException("token") })
         {
-            _gateway.Failure = failure;
+            _gateway.SubmitCommandAsync(Arg.Any<SubmitCommandRequest>(), Arg.Any<CancellationToken>())
+                .Returns(Task.FromException<SubmitCommandResponse>(failure));
             (await Create().SubmitAsync(S.Signal(), "attempt-1", S.Target, TestContext.Current.CancellationToken)).Outcome
                 .ShouldBe(ConversationAgentsOutcome.Unavailable);
         }
@@ -84,7 +114,7 @@ public sealed class ConformanceConversationDeletionReceiverTests
         (await receiver.LookupAsync(S.Signal(), "attempt-1", S.Target.ToUpperInvariant(), TestContext.Current.CancellationToken)).Outcome
             .ShouldBe(ConversationAgentsOutcome.Unavailable);
         (await receiver.CurrentTargetAsync(new TenantId("tenant-beta"), TestContext.Current.CancellationToken)).ShouldBeNull();
-        _gateway.Commands.ShouldBeEmpty();
+        _gateway.ReceivedCalls().ShouldBeEmpty();
         _handler!.Requests.ShouldBeEmpty();
     }
 
