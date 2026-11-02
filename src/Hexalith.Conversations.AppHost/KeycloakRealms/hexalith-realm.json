@@ -374,7 +374,7 @@
     {
       "clientId": "conversations-tenant-access",
       "name": "Hexalith Conversations tenant-access worker",
-      "description": "Service-account worker client: the Conversations host reads authoritative Tenants history through the EventStore gateway (Story 16.1). Grants no audience, tenant or domain by default; the tenants-stream read grant is an owner action.",
+      "description": "Service-account worker client: the Conversations host reads authoritative Tenants history through the EventStore gateway (Story 16.1). Its tokens carry only the EventStore audience and the tenant system / domain tenants StreamRead grant.",
       "enabled": true,
       "publicClient": false,
       "clientAuthenticatorType": "client-secret",
@@ -388,7 +388,62 @@
         "access.token.lifespan": "300"
       },
       "defaultClientScopes": [],
-      "optionalClientScopes": []
+      "optionalClientScopes": [],
+      "protocolMappers": [
+        {
+          "name": "eventstore-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "hexalith-eventstore",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        },
+        {
+          "name": "tenants-stream-tenant",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-hardcoded-claim-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "eventstore:tenant",
+            "claim.value": "system",
+            "jsonType.label": "String",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "false"
+          }
+        },
+        {
+          "name": "tenants-stream-domain",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-hardcoded-claim-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "eventstore:domain",
+            "claim.value": "tenants",
+            "jsonType.label": "String",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "false"
+          }
+        },
+        {
+          "name": "tenants-stream-permission",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-hardcoded-claim-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "eventstore:permission",
+            "claim.value": "StreamRead",
+            "jsonType.label": "String",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "false"
+          }
+        }
+      ]
     }
   ],
   "users": [

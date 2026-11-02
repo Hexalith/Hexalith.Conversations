@@ -63,6 +63,13 @@ public static class ConversationsAppHostTopology
     /// </remarks>
     public const string TenantAccessWorkerClientId = "conversations-tenant-access";
 
+    /// <summary>
+    /// The development-only loopback worker authority injected when Keycloak is disabled, so the Conversations host
+    /// starts. Nothing listens there and the token endpoint is plain HTTP, so every tenant-history read in that mode
+    /// fails and the tenant access denies; it is never injected outside run mode.
+    /// </summary>
+    public const string DevelopmentWorkerAuthority = "http://127.0.0.1:9/conversations-development-authority";
+
     /// <summary>The environment variable carrying the tenant-access gateway origin into the Conversations server.</summary>
     public const string TenantAccessGatewayBaseAddressVariable = "Hexalith__Conversations__TenantAccess__GatewayBaseAddress";
 
@@ -142,6 +149,22 @@ public static class ConversationsAppHostTopology
                 .WithEnvironment("EventStore__Authentication__GrantType", "client_credentials")
                 .WithEnvironment("EventStore__Authentication__ClientId", TenantAccessWorkerClientId)
                 .WithEnvironment("EventStore__Authentication__ClientSecret", tenantAccessSecret);
+        }
+        else if (builder.ExecutionContext.IsRunMode)
+        {
+            // Keycloak is off (a local or boundary-lane run): no token service exists, so give the host a
+            // development-only loopback authority and a generated secret. The enrolled startup check stays intact,
+            // and every tenant-history read in this mode fails and denies.
+            IResourceBuilder<ParameterResource> developmentSecret = builder.AddParameter(
+                "conversations-tenant-access-development-client-secret",
+                new GenerateParameterDefault { MinLength = 32, Lower = true, Upper = true, Numeric = true, Special = false },
+                secret: true);
+            _ = conversationsServer
+                .WithEnvironment("EventStore__Authentication__Authority", DevelopmentWorkerAuthority)
+                .WithEnvironment("EventStore__Authentication__TokenEndpoint", DevelopmentWorkerAuthority + "/token")
+                .WithEnvironment("EventStore__Authentication__GrantType", "client_credentials")
+                .WithEnvironment("EventStore__Authentication__ClientId", TenantAccessWorkerClientId)
+                .WithEnvironment("EventStore__Authentication__ClientSecret", developmentSecret);
         }
 
         IResourceBuilder<ProjectResource> adminWeb = builder

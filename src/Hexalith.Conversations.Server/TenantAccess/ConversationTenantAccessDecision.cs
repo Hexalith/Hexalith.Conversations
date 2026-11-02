@@ -104,9 +104,10 @@ public sealed record ConversationTenantAccessDecision(
     /// <returns>A content-safe rejection event.</returns>
     /// <remarks>
     /// Public <see cref="ConversationRejectedDomainEvent.ReasonCode"/> mirrors the Story 1.2 error-code token
-    /// so that unauthorized, nonexistent, disabled-tenant, stale-projection, and cross-tenant outcomes are
-    /// externally indistinguishable. Internal <see cref="DenialReason"/> stays on this in-memory decision
-    /// for telemetry and audit-handle use only and never crosses the durable event boundary.
+    /// so that unauthorized, nonexistent, disabled-tenant, cross-tenant, and every unsafe projection outcome
+    /// (missing, gapped, corrupt, malformed, stale, rolled back or unavailable) are externally indistinguishable
+    /// from an unknown tenant. Internal <see cref="DenialReason"/> and <see cref="IsRetryable"/> stay on this
+    /// in-memory decision for telemetry, logs and diagnostics only and never cross the durable event boundary.
     /// </remarks>
     public ConversationRejectedDomainEvent ToRejection(
         SchemaVersion? schemaVersion,
@@ -117,6 +118,10 @@ public sealed record ConversationTenantAccessDecision(
     /// <summary>
     /// Converts the decision to a non-disclosing public error result.
     /// </summary>
+    /// <remarks>
+    /// Every tenant denial is non-retryable in public, so a retry hint can never reveal that a tenant exists while
+    /// its projection is unhealthy; the internal <see cref="IsRetryable"/> stays available to logs and diagnostics.
+    /// </remarks>
     /// <param name="schemaVersion">The public error schema version.</param>
     /// <param name="correlationId">The safe correlation id.</param>
     /// <returns>A content-safe error result.</returns>
@@ -134,7 +139,7 @@ public sealed record ConversationTenantAccessDecision(
             schemaVersion,
             code,
             category,
-            IsRetryable: IsPublicRetryable(),
+            IsRetryable: false,
             correlationId,
             Documentation: ErrorDocumentation,
             DeveloperGuidance: "The requested operation was not accepted.");
@@ -161,19 +166,9 @@ public sealed record ConversationTenantAccessDecision(
         return requirement;
     }
 
-    private ConversationErrorCode ToRejectionCode()
-        => DenialReason switch
-        {
-            ConversationTenantAccessDenialReason.MissingTenant
-                or ConversationTenantAccessDenialReason.MalformedTenant
-                => ConversationErrorCode.TenantBindingMissing,
-            ConversationTenantAccessDenialReason.TenantAccessUnavailable
-                or ConversationTenantAccessDenialReason.TenantAccessStale
-                or ConversationTenantAccessDenialReason.TenantAccessGapDetected
-                or ConversationTenantAccessDenialReason.TenantAccessRolledBack
-                => ConversationErrorCode.TenantProjectionStale,
-            _ => ConversationErrorCode.TenantIsolationViolation,
-        };
+    // Unsafe projection states (missing, gapped, corrupt, malformed, stale, rolled back, unavailable) share the
+    // unknown-tenant code and reason; only a missing or malformed tenant binding stays distinguishable.
+    private ConversationErrorCode ToRejectionCode() => ToPublicErrorCode();
 
     private ConversationErrorCode ToPublicErrorCode()
         => DenialReason is ConversationTenantAccessDenialReason.MissingTenant
@@ -181,23 +176,11 @@ public sealed record ConversationTenantAccessDecision(
             ? ConversationErrorCode.TenantBindingMissing
             : ConversationErrorCode.TenantIsolationViolation;
 
-    private bool IsPublicRetryable()
-        => DenialReason is ConversationTenantAccessDenialReason.TenantAccessUnavailable
-            or ConversationTenantAccessDenialReason.TenantAccessStale
-            or ConversationTenantAccessDenialReason.TenantAccessGapDetected
-            or ConversationTenantAccessDenialReason.TenantAccessRolledBack
-                && IsRetryable;
-
     private static string ToPublicReasonCode(ConversationErrorCode code)
     {
         if (code == ConversationErrorCode.TenantBindingMissing)
         {
             return "tenant_binding_missing";
-        }
-
-        if (code == ConversationErrorCode.TenantProjectionStale)
-        {
-            return "tenant_projection_stale";
         }
 
         return "tenant_isolation_violation";

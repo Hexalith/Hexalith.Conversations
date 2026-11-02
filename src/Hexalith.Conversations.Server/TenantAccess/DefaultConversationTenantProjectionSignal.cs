@@ -62,11 +62,13 @@ public sealed class DefaultConversationTenantProjectionSignal(
         return ValueTask.FromResult(ConversationTenantProjectionHealth.Healthy);
     }
 
+    // Diagnostics read this signal on its own, without the evaluator's state lookup, so a never-projected tenant must
+    // report unproven rather than current; the authorization snapshot keeps its own absent mapping.
     private static async ValueTask<ConversationTenantProjectionHealth> ReadSnapshotHealthAsync(
         ITenantProjectionSnapshotStore snapshotStore,
         string tenantId,
         CancellationToken cancellationToken)
-        => ConversationTenantSnapshotHealth.From(
-            await snapshotStore.GetSnapshotAsync(tenantId, cancellationToken).ConfigureAwait(false),
-            tenantId);
+        => await snapshotStore.GetSnapshotAsync(tenantId, cancellationToken).ConfigureAwait(false) is { } snapshot
+            ? ConversationTenantSnapshotHealth.From(snapshot, tenantId)
+            : ConversationTenantSnapshotHealth.Unproven;
 }

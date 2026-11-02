@@ -98,12 +98,15 @@ internal sealed record ConversationEventStoreGatewayRegistration(Uri BaseAddress
             return;
         }
 
-        if (keepHostClient && services.Any(static descriptor => descriptor.ServiceType == typeof(IEventStoreGatewayClient)))
+        // The marker is recorded even when the host supplies its own client, so a later composition reuses that
+        // client instead of registering a second one. Keyed clients never stand in for the unkeyed history reader.
+        services.AddSingleton(new ConversationEventStoreGatewayRegistration(gateway));
+        if (keepHostClient && services.Any(static descriptor => descriptor.ServiceType == typeof(IEventStoreGatewayClient)
+            && !descriptor.IsKeyedService))
         {
             return;
         }
 
-        services.AddSingleton(new ConversationEventStoreGatewayRegistration(gateway));
         services.AddEventStoreGatewayClient(options => options.BaseAddress = gateway)
             .ConfigurePrimaryHttpMessageHandler(static () => new SocketsHttpHandler { AllowAutoRedirect = false, UseCookies = false })
             .AddEventStoreGatewayAuthorityTransport(configuration);

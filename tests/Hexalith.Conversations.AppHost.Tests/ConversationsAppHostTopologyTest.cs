@@ -278,6 +278,50 @@ public sealed class ConversationsAppHostTopologyTest
         client.GetProperty("directAccessGrantsEnabled").GetBoolean().ShouldBeFalse();
         client.GetProperty("standardFlowEnabled").GetBoolean().ShouldBeFalse();
         client.GetProperty("secret").GetString().ShouldBe("${CONVERSATIONS_TENANT_ACCESS_CLIENT_SECRET}");
+
+        // EventStore's stream-read authorization: the gateway audience plus the eventstore:tenant, eventstore:domain
+        // and eventstore:permission claims (ClaimsTenantValidator / ClaimsRbacValidator, message type StreamRead).
+        JsonElement[] mappers = [.. client.GetProperty("protocolMappers").EnumerateArray()];
+        JsonElement audience = mappers.Single(static mapper => mapper.GetProperty("protocolMapper").GetString() == "oidc-audience-mapper");
+        audience.GetProperty("config").GetProperty("included.client.audience").GetString().ShouldBe(HexalithEventStoreSecurityOptions.DefaultAudience);
+        audience.GetProperty("config").GetProperty("access.token.claim").GetString().ShouldBe("true");
+        Dictionary<string, string?> claims = mappers
+            .Where(static mapper => mapper.GetProperty("protocolMapper").GetString() == "oidc-hardcoded-claim-mapper")
+            .ToDictionary(
+                static mapper => mapper.GetProperty("config").GetProperty("claim.name").GetString()!,
+                static mapper => mapper.GetProperty("config").GetProperty("claim.value").GetString(),
+                StringComparer.Ordinal);
+        claims.ShouldBe(new Dictionary<string, string?>(StringComparer.Ordinal)
+        {
+            ["eventstore:tenant"] = "system",
+            ["eventstore:domain"] = "tenants",
+            ["eventstore:permission"] = "StreamRead",
+        });
+    }
+
+    /// <summary>
+    /// With Keycloak disabled, the host still receives a complete development-only worker authority so it starts;
+    /// the loopback authority issues nothing, so every tenant-history read fails and denies.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Fact]
+    public async Task KeycloakDisabledTopologyInjectsADevelopmentOnlyWorkerAuthority()
+    {
+        IDistributedApplicationBuilder builder = CreateBuilder(enableKeycloak: false);
+
+        ConversationsAppHostResources resources = ConversationsAppHostTopology.AddConversations(builder);
+        Dictionary<string, object> environment = await EnvironmentOfAsync(resources.ConversationsServer.Resource);
+
+        environment[ConversationsAppHostTopology.TenantAccessGatewayBaseAddressVariable].ShouldBeOfType<EndpointReference>()
+            .Resource.Name.ShouldBe(ConversationsAppHostTopology.EventStoreResourceName);
+        environment["EventStore__Authentication__Authority"].ShouldBe(ConversationsAppHostTopology.DevelopmentWorkerAuthority);
+        environment["EventStore__Authentication__TokenEndpoint"].ShouldBe(ConversationsAppHostTopology.DevelopmentWorkerAuthority + "/token");
+        new Uri(ConversationsAppHostTopology.DevelopmentWorkerAuthority).IsLoopback.ShouldBeTrue();
+        environment["EventStore__Authentication__GrantType"].ShouldBe("client_credentials");
+        environment["EventStore__Authentication__ClientId"].ShouldBe(ConversationsAppHostTopology.TenantAccessWorkerClientId);
+        ParameterResource secret = environment["EventStore__Authentication__ClientSecret"].ShouldBeOfType<ParameterResource>();
+        secret.Secret.ShouldBeTrue();
+        secret.Name.ShouldBe("conversations-tenant-access-development-client-secret");
     }
 
     [Fact]

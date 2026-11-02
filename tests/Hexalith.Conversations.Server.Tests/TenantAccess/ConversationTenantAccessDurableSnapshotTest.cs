@@ -14,6 +14,7 @@ using Hexalith.EventStore.Contracts.Events;
 using Hexalith.Tenants.Client.Projections;
 using Hexalith.Tenants.Contracts.Enums;
 using Hexalith.Tenants.Contracts.Events;
+using Hexalith.Tenants.Contracts.Events.Rejections;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -233,6 +234,74 @@ public sealed class ConversationTenantAccessDurableSnapshotTest
         PublicShape(unavailable).ShouldBe(PublicShape(malformed));
     }
 
+    /// <summary>
+    /// Every unsafe tenant state returns the same public denial as a non-member of a healthy tenant: non-retryable,
+    /// with the same code and reason. The precise internal reason stays on the decision.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Fact]
+    public async Task EveryUnsafeStatePublicDenialMatchesANonMemberOfAHealthyTenant()
+    {
+        DurableTenantAccessHarness harness = new();
+        using ServiceProvider host = harness.CreateHost();
+        using ServiceProvider isolated = harness.CreateHost(withHistory: false);
+        using ServiceProvider outage = harness.CreateHost(store: new UnavailableReadModelStore());
+        await DeliverMemberTenantAsync(harness, host);
+
+        // Gapped: a future delivery that the isolated replica cannot recover.
+        await DurableTenantAccessHarness.DeliverAsync(isolated, harness.Persist(new TenantCreated("tenant-gapped", "Gapped", null, At), "tenant-gapped", 1));
+        _ = await Should.ThrowAsync<CheckpointedProjectionUnavailableException>(() => DurableTenantAccessHarness.DeliverAsync(
+            isolated, harness.Persist(new TenantDisabled("tenant-gapped", At), "tenant-gapped", 3)));
+
+        // Corrupt: a conflicting identity at the accepted sequence.
+        await DurableTenantAccessHarness.DeliverAsync(host, harness.Persist(new TenantCreated("tenant-corrupt", "Corrupt", null, At), "tenant-corrupt", 1));
+        await DurableTenantAccessHarness.DeliverAsync(host, DurableTenantAccessHarness.Envelope(new TenantCreated("tenant-corrupt", "Forged", null, At), "tenant-corrupt", 1));
+
+        // Malformed: a stored record without its accepted identity.
+        harness.Store.SeedRaw(
+            DurableTenantAccessHarness.StateStoreName,
+            DurableTenantProjectionStore.KeyFor("tenant-malformed"),
+            new CheckpointedProjectionRecord<TenantLocalState> { Health = CheckpointedProjectionHealth.Healthy, LastContiguousSequence = 3 });
+
+        // Never created: a rejection-only stream.
+        await DurableTenantAccessHarness.DeliverAsync(host, harness.Persist(new TenantNotFoundRejection("tenant-rejected"), "tenant-rejected", 1));
+
+        ConversationTenantAccessDecision nonMember = await CheckAsync(host, ConversationTenantAccessRequirement.Read, Tenant, "user-not-a-member");
+        Dictionary<string, ConversationTenantAccessDecision> unsafeStates = new(StringComparer.Ordinal)
+        {
+            ["missing"] = await CheckAsync(host, ConversationTenantAccessRequirement.Read, new TenantId("tenant-missing")),
+            ["never-created"] = await CheckAsync(host, ConversationTenantAccessRequirement.Read, new TenantId("tenant-rejected")),
+            ["gapped"] = await CheckAsync(host, ConversationTenantAccessRequirement.Read, new TenantId("tenant-gapped")),
+            ["corrupt"] = await CheckAsync(host, ConversationTenantAccessRequirement.Read, new TenantId("tenant-corrupt")),
+            ["malformed"] = await CheckAsync(host, ConversationTenantAccessRequirement.Read, new TenantId("tenant-malformed")),
+            ["unavailable"] = await CheckAsync(outage, ConversationTenantAccessRequirement.Read, Tenant),
+            ["stale"] = ConversationTenantAccessDecision.Denied(ConversationTenantAccessRequirement.Read, Tenant, Caller, ConversationTenantAccessDenialReason.TenantAccessStale, isRetryable: true),
+            ["rolled-back"] = ConversationTenantAccessDecision.Denied(ConversationTenantAccessRequirement.Read, Tenant, Caller, ConversationTenantAccessDenialReason.TenantAccessRolledBack, isRetryable: true),
+        };
+
+        nonMember.DenialReason.ShouldBe(ConversationTenantAccessDenialReason.MissingMember);
+        ConversationError nonMemberError = nonMember.ToSafeErrorResult(SchemaVersion.Current, "correlation-durable").Errors.ShouldHaveSingleItem();
+        nonMemberError.Code.ShouldBe(ConversationErrorCode.TenantIsolationViolation);
+        nonMemberError.IsRetryable.ShouldBeFalse();
+        nonMember.ToRejection(null, null, null).ReasonCode.ShouldBe("tenant_isolation_violation");
+        string expected = PublicShape(nonMember);
+        foreach ((string state, ConversationTenantAccessDecision decision) in unsafeStates)
+        {
+            decision.IsAllowed.ShouldBeFalse(state);
+            PublicShape(decision).ShouldBe(expected, state);
+            decision.ToSafeErrorResult(SchemaVersion.Current, "correlation-durable").Errors.ShouldHaveSingleItem().IsRetryable.ShouldBeFalse(state);
+        }
+
+        // The precise reason stays internal for logs and diagnostics.
+        unsafeStates["missing"].DenialReason.ShouldBe(ConversationTenantAccessDenialReason.UnknownTenant);
+        unsafeStates["never-created"].DenialReason.ShouldBe(ConversationTenantAccessDenialReason.UnknownTenant);
+        unsafeStates["gapped"].DenialReason.ShouldBe(ConversationTenantAccessDenialReason.TenantAccessGapDetected);
+        unsafeStates["corrupt"].DenialReason.ShouldBe(ConversationTenantAccessDenialReason.TenantProjectionPoisoned);
+        unsafeStates["malformed"].DenialReason.ShouldBe(ConversationTenantAccessDenialReason.TenantAccessStale);
+        unsafeStates["unavailable"].DenialReason.ShouldBe(ConversationTenantAccessDenialReason.TenantAccessUnavailable);
+        unsafeStates["unavailable"].IsRetryable.ShouldBeTrue("the internal retry hint is kept for diagnostics");
+    }
+
     /// <summary>A restarted host and a second replica read the same persisted decision without redelivery.</summary>
     /// <returns>A task.</returns>
     [Fact]
@@ -312,8 +381,8 @@ public sealed class ConversationTenantAccessDurableSnapshotTest
         observed.ShouldBe(new ConversationTenantProjectionHealth(stale, gap, false, poisoned));
         observed.ShouldNotBe(ConversationTenantProjectionHealth.Healthy);
 
-        // A missing record reports no fault and no version; with no state behind it, it can never allow.
-        missing.ShouldBe(new ConversationTenantProjectionHealth());
+        // Diagnostics read this signal without a state lookup, so a missing record reports unproven, never current.
+        missing.ShouldBe(new ConversationTenantProjectionHealth(IsStale: true));
         missing.Version.ShouldBeNull();
         (await store.GetAsync("tenant-unknown", TestContext.Current.CancellationToken)).ShouldBeNull();
     }
@@ -347,11 +416,12 @@ public sealed class ConversationTenantAccessDurableSnapshotTest
     private static ValueTask<ConversationTenantAccessDecision> CheckAsync(
         ServiceProvider host,
         ConversationTenantAccessRequirement requirement,
-        TenantId? tenant = null)
+        TenantId? tenant = null,
+        string caller = Caller)
         => DurableTenantAccessHarness.Access(host).CheckAccessAsync(
             requirement,
             tenant ?? Tenant,
-            Caller,
+            caller,
             commandTenantId: tenant ?? Tenant,
             cancellationToken: TestContext.Current.CancellationToken);
 

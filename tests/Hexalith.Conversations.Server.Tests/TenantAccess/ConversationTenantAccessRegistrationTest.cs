@@ -148,10 +148,60 @@ public sealed class ConversationTenantAccessRegistrationTest
         ServiceCollection services = new();
         string message = Should.Throw<InvalidOperationException>(() => services.AddConversationTenantAccess(EnrolledConfiguration(key, value)))
             .Message;
-        message.ShouldContain(key.Split(':')[0]);
+        message.ShouldContain(key);
         message.ShouldNotContain("enrolled-worker-secret");
         services.ShouldNotContain(descriptor => descriptor.ServiceType == typeof(EventStoreDomainEventProcessor));
         services.ShouldNotContain(descriptor => descriptor.ServiceType == typeof(IEventStoreGatewayClient));
+    }
+
+    /// <summary>An HTTPS or loopback HTTP gateway origin is accepted and registers the SDK history client.</summary>
+    /// <param name="origin">The gateway origin.</param>
+    [Theory]
+    [InlineData("https://gateway.test/")]
+    [InlineData("http://127.0.0.1:5000/")]
+    [InlineData("http://localhost:5000")]
+    public void LoopbackHttpAndHttpsGatewayOriginsAreAccepted(string origin)
+    {
+        ServiceCollection services = new();
+        services.AddLogging();
+
+        services.AddConversationTenantAccess(EnrolledConfiguration(ConversationTenantAccessServiceCollectionExtensions.GatewayBaseAddressKey, origin));
+
+        services.Single(static descriptor => descriptor.ServiceType == typeof(ConversationEventStoreGatewayRegistration))
+            .ImplementationInstance.ShouldBeOfType<ConversationEventStoreGatewayRegistration>().BaseAddress.ShouldBe(new Uri(origin));
+        services.Count(static descriptor => descriptor.ServiceType == typeof(IEventStoreGatewayClient)).ShouldBe(1);
+    }
+
+    /// <summary>A host-supplied client is kept and still recorded, so a later composition never adds a second one.</summary>
+    [Fact]
+    public void HostSuppliedGatewayClientIsKeptAndRecorded()
+    {
+        ServiceCollection services = new();
+        services.AddLogging();
+        IEventStoreGatewayClient hostClient = new TenantStreamHistoryGateway();
+        services.AddSingleton(hostClient);
+
+        services.AddConversationTenantAccess(EnrolledConfiguration());
+        ConversationEventStoreGatewayRegistration.Add(services, new Uri("https://gateway.test/"), EnrolledConfiguration(), keepHostClient: false);
+
+        services.Count(static descriptor => descriptor.ServiceType == typeof(ConversationEventStoreGatewayRegistration)).ShouldBe(1);
+        services.Single(static descriptor => descriptor.ServiceType == typeof(IEventStoreGatewayClient)).ImplementationInstance.ShouldBeSameAs(hostClient);
+    }
+
+    /// <summary>A keyed gateway client never stands in for the unkeyed history reader.</summary>
+    [Fact]
+    public void KeyedGatewayClientDoesNotReplaceTheHistoryReader()
+    {
+        ServiceCollection services = new();
+        services.AddLogging();
+        services.AddKeyedSingleton<IEventStoreGatewayClient>("other-purpose", new TenantStreamHistoryGateway());
+
+        services.AddConversationTenantAccess(EnrolledConfiguration());
+
+        services.Count(static descriptor => descriptor.ServiceType == typeof(IEventStoreGatewayClient) && !descriptor.IsKeyedService).ShouldBe(1);
+        using ServiceProvider provider = services.BuildServiceProvider();
+        using IServiceScope scope = provider.CreateScope();
+        scope.ServiceProvider.GetRequiredService<IEventStoreGatewayClient>().ShouldBeOfType<EventStoreGatewayClient>();
     }
 
     private static IConfiguration EnrolledConfiguration(string? key = null, string? value = null)

@@ -380,16 +380,23 @@ history grant or deployment, and the AD-5 envelope stays waived.
 Story 16.1 owner actions:
 
 - [ ] Platform grants the Conversations workload read access to the tenant
-  `system`, domain `tenants` stream through the EventStore gateway. The enrolled
-  host refuses to start without `Hexalith:Conversations:TenantAccess:GatewayBaseAddress`
-  and the `EventStore:Authentication` worker credentials; the frozen local
-  AppHost does not inject them yet.
+  `system`, domain `tenants` stream through the EventStore gateway: the gateway
+  audience plus `eventstore:tenant=system`, `eventstore:domain=tenants` and
+  `eventstore:permission=StreamRead`. The enrolled host refuses to start without
+  `Hexalith:Conversations:TenantAccess:GatewayBaseAddress` and the
+  `EventStore:Authentication` worker credentials (declared in the module
+  manifest). The local AppHost injects them: with Keycloak enabled through the
+  `conversations-tenant-access` realm client, which carries that grant; with
+  Keycloak disabled through a development-only loopback authority, so the host
+  starts but every tenant-history read fails and denies.
 - [ ] Platform configures the tenants subscription to retry without limit and
   without dead-lettering. Gap recovery runs only when a delivery is redelivered.
 - [ ] Operators rebuild the tenant projection records (`tenants-projection:v1:*`)
   after a state-store restore; a restored older Healthy record is not detected.
-- [ ] Follow the release train: publish EventStore, then Tenants with the
-  EventStore bump, then bump the Conversations package versions in
+- [ ] Follow the release train: publish EventStore; add the new EventStore
+  version to the Tenants catalog SDK allow-list (`Directory.Build.targets`
+  accepts only 3.129.0–3.130.2 today), then publish Tenants with the EventStore
+  bump; then bump the Conversations package versions in
   `Directory.Packages.props`. Until then Conversations CI cannot compile in
   package mode.
 

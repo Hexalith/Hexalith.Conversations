@@ -189,6 +189,36 @@
                 "key": "Dapr:DeclarativeSubscriptions",
                 "source": "configuration",
                 "reference": "dapr-declarative-subscriptions-true"
+              },
+              {
+                "key": "Hexalith:Conversations:TenantAccess:GatewayBaseAddress",
+                "source": "configuration",
+                "reference": "tenant-access-gateway-base-address"
+              },
+              {
+                "key": "EventStore:Authentication:Authority",
+                "source": "configuration",
+                "reference": "tenant-access-worker-authority"
+              },
+              {
+                "key": "EventStore:Authentication:TokenEndpoint",
+                "source": "configuration",
+                "reference": "tenant-access-worker-token-endpoint"
+              },
+              {
+                "key": "EventStore:Authentication:GrantType",
+                "source": "configuration",
+                "reference": "tenant-access-worker-grant-type"
+              },
+              {
+                "key": "EventStore:Authentication:ClientId",
+                "source": "configuration",
+                "reference": "tenant-access-worker-client-id"
+              },
+              {
+                "key": "EventStore:Authentication:ClientSecret",
+                "source": "secret",
+                "reference": "tenant-access-worker-client-secret"
               }
             ]
           }
@@ -414,10 +444,26 @@
           {
             "name": "app-channel-token",
             "configurationKey": "APP_API_TOKEN"
+          },
+          {
+            "name": "tenant-access-worker-client-secret",
+            "configurationKey": "EventStore:Authentication:ClientSecret"
           }
         ],
         "dynamicSecretNamespaces": [],
-        "identityNeeds": [],
+        "identityNeeds": [
+          {
+            "name": "tenant-access-history-reader",
+            "audience": "hexalith-eventstore",
+            "roles": [],
+            "claims": [
+              "eventstore:tenant",
+              "eventstore:domain",
+              "eventstore:permission"
+            ],
+            "applicationPrincipal": true
+          }
+        ],
         "egress": [
           {
             "name": "domain-oidc-metadata",
@@ -438,6 +484,16 @@
             "name": "workload-oidc-jwks",
             "protocol": "https",
             "destination": "Authentication:WorkloadJwtBearer:Authority -> metadata.jwks_uri"
+          },
+          {
+            "name": "tenant-access-gateway-stream-read",
+            "protocol": "https",
+            "destination": "Hexalith:Conversations:TenantAccess:GatewayBaseAddress/api/v1/streams/read (tenant system, domain tenants, permission StreamRead)"
+          },
+          {
+            "name": "tenant-access-worker-token",
+            "protocol": "oidc",
+            "destination": "EventStore:Authentication:TokenEndpoint (client_credentials)"
           }
         ],
         "providers": [],
