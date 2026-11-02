@@ -415,7 +415,7 @@ Story 16.1 owner actions:
   after a state-store restore; a restored older Healthy record is not detected.
 - [ ] Follow the release train: publish EventStore; add the new EventStore
   version to the Tenants catalog SDK allow-list (`Directory.Build.targets`
-  accepts selected 3.129.0–3.132.1 releases today), then publish Tenants with
+  accepts selected 3.129.0–3.133.0 releases today), then publish Tenants with
   the EventStore bump; then bump the Conversations package versions in
   `Directory.Packages.props`. Until then Conversations CI cannot compile in
   package mode.
