@@ -56,7 +56,7 @@ Advisory metadata supports unselected Project suggestions without requiring Proj
 | --- | --- | --- | --- | --- | --- |
 | `tenant_binding_missing` | `authorization` | `false` | `provide-context` | Provide authenticated tenant and caller context. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
 | `tenant_isolation_violation` | `authorization` | `false` | `check-access` | The supplied access context cannot complete the request. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
-| `tenant_projection_stale` | `freshness` | `true` | `retry-later` | Retry after conversation state can be loaded, or after onboarding diagnostics report tenant access state as current. Tenant access denials never use this code: every unsafe tenant access state denies as non-retryable `tenant_isolation_violation`. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
+| `tenant_projection_stale` | `freshness` | `true` | `retry-later` | Retry after conversation state can be loaded. Denied tenant access returns a hidden onboarding result; every unsafe tenant access state denies as non-retryable `tenant_isolation_violation`. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
 | `audit_sink_unavailable` | `audit` | `true` | `retry-later` | Retry after audit recording is available. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
 | `audit_pairing_required` | `audit` | `false` | `provide-audit-evidence` | Provide required audit evidence before retrying. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
 | `idempotency_conflict` | `conflict` | `false` | `use-new-idempotency-key` | Use a new idempotency key for a changed command payload. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
@@ -77,7 +77,7 @@ CORE preconditions describe the environment state an adopter integration depends
 
 | Precondition | Required state | Safe failure behavior | Unmet error code |
 | --- | --- | --- | --- |
-| `projection-freshness` | `Current` | Onboarding diagnostics report stale tenant access as `tenant_projection_stale`; retry after the projection is current. Requests made while tenant access is not current deny as a non-retryable isolation violation, the same as an unknown tenant. | `tenant_projection_stale` |
+| `projection-freshness` | `Current` | Denied tenant access returns a single hidden onboarding result, without revealing projection health. Unsafe tenant access states deny as a non-retryable isolation violation, the same as an unknown tenant; the catalog code describes projection failures after access is allowed. | `tenant_projection_stale` |
 | `audit-sink-availability` | `Current` | Governed mutations fail closed when audit recording is unavailable; retry after audit recording is available. | `audit_sink_unavailable` |
 | `supported-schema-versions` | `Current` | Unsupported schema versions are rejected with a versioning error rather than processed under an incompatible contract. | `schema_version_unsupported` |
 | `contract-compatibility` | `Current` | Unsupported or invalid contract/package versions return a typed versioning error and bounded remediation. | `schema_version_unsupported` |

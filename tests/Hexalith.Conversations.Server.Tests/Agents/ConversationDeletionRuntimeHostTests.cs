@@ -134,6 +134,10 @@ public sealed class ConversationDeletionRuntimeHostTests
         var refusal = Should.Throw<InvalidOperationException>(() => ComposeLikeProgram(settings, InstallAll(), optIn: true));
 
         refusal.Message.ShouldContain(expectedKey);
+        if (key.StartsWith(ConversationEventStoreGatewayRegistration.AuthoritySection + ":", StringComparison.Ordinal))
+        {
+            refusal.Message.ShouldStartWith("Enrollment requires the gateway worker authority: ");
+        }
         if (!string.IsNullOrWhiteSpace(value))
         {
             refusal.Message.ShouldNotContain(settings[key]!);

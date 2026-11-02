@@ -196,7 +196,7 @@ Do not bypass fail-closed gates. Tenant isolation, audit pairing, schema compati
 
 Use these public responses:
 
-- `tenant_projection_stale`: retry when conversation state could not be loaded, or after onboarding diagnostics report tenant access as `Current`. Tenant access denials never return it: a missing, gapped, corrupt, malformed, stale, rolled-back or unavailable tenant access state denies as non-retryable `tenant_isolation_violation`, the same as an unknown tenant.
+- `tenant_projection_stale`: retry when conversation state could not be loaded. A denied tenant-access request returns a single hidden onboarding result, without revealing projection health; a missing, gapped, corrupt, malformed, stale, rolled-back or unavailable tenant access state denies as non-retryable `tenant_isolation_violation`, the same as an unknown tenant.
 - `schema_version_unsupported`: use supported v1 contract and client versions.
 - `audit_sink_unavailable`: retry after audit recording is available.
 - `audit_pairing_required`: provide required audit evidence before retrying.

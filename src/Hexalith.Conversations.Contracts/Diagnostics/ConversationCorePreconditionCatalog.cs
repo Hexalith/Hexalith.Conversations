@@ -30,7 +30,7 @@ public static class ConversationCorePreconditionCatalog
             OnboardingDiagnosticCheck.TenantContext,
             ProjectionTrustState.Current,
             ConversationErrorCode.TenantProjectionStale,
-            "Onboarding diagnostics report stale tenant access with this code; retry after the projection is current. Requests made while tenant access is not current deny as a non-retryable isolation violation, the same as an unknown tenant."),
+            "A request denied by tenant access receives a single hidden onboarding result, so diagnostics do not reveal projection health. Unsafe tenant access states deny as a non-retryable isolation violation, the same as an unknown tenant; this precondition code remains available for projection failures after access is allowed."),
         Precondition(
             "audit-sink-availability",
             OnboardingDiagnosticCheck.AuditAvailability,

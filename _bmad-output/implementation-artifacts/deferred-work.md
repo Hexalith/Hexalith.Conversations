@@ -1131,8 +1131,8 @@ Review strengthens the same solution-context scope with native implicit Platform
   summary: Add an operator repair or rebuild path for tenant projection records that are terminal Corrupt or stuck on a deterministic TransitionFailed or MalformedRecord.
   evidence: The 16.1 frozen intent makes Corrupt terminal and says Conversations never clears it. Today the only signals are a Warning log and denial, with no rebuild API, runbook, metric or alert.
 - source_spec: `_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md`
-  summary: Check whether EventStore Client's two failing DevelopmentRouteCatalogBuilderTests predate Story 16.1.
-  evidence: Unverified. They failed in the 16.1 mapped Debug run while loading Hexalith.EventStore.Server from Routing code that 16.1 does not touch. Settle it with a baseline 269451340a87 run of the same two methods.
+  summary: Resolved the two EventStore Client DevelopmentRouteCatalogBuilderTests failures that appeared during Story 16.1 verification.
+  evidence: The upstream EventStore checkout fixed these Routing test failures. The final mapped Debug EventStore Client run at the synced Story 16.1 tree passed 2308/2310; the only two not-run cases were the opt-in PendingBatchRecoveryLiveTests. No open Story 16.1 work remains for the DevelopmentRouteCatalogBuilderTests.
 - source_spec: `_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md`
   summary: Bound the Pending evidence list of a gapped checkpointed record, and renew the recovery lease during multi-page history replay.
   evidence: Unverified (would be medium). MergeEvidence has no cap, and the 30 s lease is never refreshed, so a replay longer than the lease restarts forever with RecoveryLeaseLost. Settle it with a measured long-stream recovery.

@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.EventStore.Contracts.Identity;
 using Hexalith.EventStore.Contracts.Streams;
 
@@ -162,18 +163,7 @@ public sealed class ConversationDeletionRuntimeOptions
     /// <param name="gateway">The validated origin.</param>
     /// <returns>True for an HTTPS or loopback HTTP origin without credentials, query, fragment or path.</returns>
     internal bool TryGetGateway(out Uri gateway)
-    {
-        gateway = null!;
-        if (!Uri.TryCreate(GatewayBaseAddress, UriKind.Absolute, out Uri? uri) || !string.IsNullOrEmpty(uri.UserInfo)
-            || !string.IsNullOrEmpty(uri.Query) || !string.IsNullOrEmpty(uri.Fragment) || uri.AbsolutePath != "/"
-            || !(uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp && uri.IsLoopback))
-        {
-            return false;
-        }
-
-        gateway = uri;
-        return true;
-    }
+        => ConversationEventStoreGatewayRegistration.TryParse(GatewayBaseAddress, out gateway);
 
     private static bool Bounded(string? value)
         => !string.IsNullOrWhiteSpace(value) && value.Length <= 256 && value == value.Trim() && !value.Any(char.IsControl);

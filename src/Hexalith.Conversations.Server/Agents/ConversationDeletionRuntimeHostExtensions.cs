@@ -36,8 +36,6 @@ public static class ConversationDeletionRuntimeHostExtensions
     /// <summary>The shared public JWT contract section validating inbound callers.</summary>
     public const string CallerContractSection = "Authentication:JwtBearer";
 
-    private const string WorkerAuthoritySection = "EventStore:Authentication";
-
     /// <summary>Binds and validates the opt-in configuration, registers the in-scope adapters, then composes the deletion runtime.</summary>
     /// <param name="services">Host registrations, already holding any independently installed providers.</param>
     /// <param name="configuration">The host configuration.</param>
@@ -55,19 +53,8 @@ public static class ConversationDeletionRuntimeHostExtensions
         ConversationDeletionRuntimeOptions options = configuration.GetSection(ConversationDeletionRuntimeOptions.SectionName)
             .Get<ConversationDeletionRuntimeOptions>() ?? new();
         var failures = options.Validate().Select(static key => ConversationDeletionRuntimeOptions.SectionName + ":" + key).ToList();
-        IConfigurationSection worker = configuration.GetSection(WorkerAuthoritySection);
-        foreach (string key in new[] { "Authority", "TokenEndpoint", "ClientId", "ClientSecret" })
-        {
-            if (string.IsNullOrWhiteSpace(worker[key]))
-            {
-                failures.Add(WorkerAuthoritySection + ":" + key);
-            }
-        }
-
-        if (worker["GrantType"] is not (null or "client_credentials"))
-        {
-            failures.Add(WorkerAuthoritySection + ":GrantType");
-        }
+        failures.AddRange(ConversationEventStoreGatewayRegistration.AuthorityFailures(configuration));
+        IConfigurationSection worker = configuration.GetSection(ConversationEventStoreGatewayRegistration.AuthoritySection);
 
         WorkloadAssertionIssuerOptions lookup = configuration.GetSection(ConversationDeletionRuntimeOptions.LookupIssuerSectionName)
             .Get<WorkloadAssertionIssuerOptions>() ?? new();
@@ -107,7 +94,7 @@ public static class ConversationDeletionRuntimeHostExtensions
             failures.Add("DAPR_HTTP_ENDPOINT|DAPR_HTTP_PORT");
         }
 
-        if (failures.Count > 0 || !options.TryGetGateway(out Uri gateway))
+        if (failures.Count > 0 || !ConversationEventStoreGatewayRegistration.TryParse(options.GatewayBaseAddress, out Uri gateway))
         {
             throw new InvalidOperationException("The opt-in Conversation deletion runtime configuration is incomplete or invalid: "
                 + string.Join(", ", failures) + ".");

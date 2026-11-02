@@ -397,18 +397,26 @@ Story 16.1 owner actions:
   `Hexalith:Conversations:DeletionRuntime:GatewayBaseAddress` to the same origin
   as `Hexalith:Conversations:TenantAccess:GatewayBaseAddress`; the host refuses
   to start when the two origins differ.
+- [ ] The shared unkeyed gateway client also makes EventStore native-source
+  projection admission attempt an authoritative Conversation-stream read for
+  each native-proof dispatch. With only the `system`/`tenants` grant, that read
+  is refused and admission remains unproven; each dispatch pays one refused
+  gateway round trip (the worker token is cached for about 285 seconds).
+  Granting this identity Conversation-stream read access turns native admission
+  on, so approve that grant deliberately and account for the extra gateway load.
 - [ ] Platform configures the tenants subscription to retry without limit and
   without dead-lettering, with a bounded exponential backoff between attempts so
-  a failing delivery does not spin. Gap recovery runs only when a delivery is
-  redelivered. Operators monitor the subscription for a delivery that keeps
-  failing and for growing lag; until that is in place a stuck tenant denies
-  silently. Metrics and alerts for this remain deferred.
+  a failing delivery does not spin. The delivery that persists a gap attempts
+  recovery, and each later delivery retries it. Operators monitor the
+  subscription for a delivery that keeps failing and for growing lag; until
+  that is in place a stuck tenant denies silently. Metrics and alerts for this
+  remain deferred.
 - [ ] Operators rebuild the tenant projection records (`tenants-projection:v1:*`)
   after a state-store restore; a restored older Healthy record is not detected.
 - [ ] Follow the release train: publish EventStore; add the new EventStore
   version to the Tenants catalog SDK allow-list (`Directory.Build.targets`
-  accepts only 3.129.0–3.130.2 today), then publish Tenants with the EventStore
-  bump; then bump the Conversations package versions in
+  accepts selected 3.129.0–3.132.1 releases today), then publish Tenants with
+  the EventStore bump; then bump the Conversations package versions in
   `Directory.Packages.props`. Until then Conversations CI cannot compile in
   package mode.
 
