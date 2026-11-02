@@ -31,8 +31,7 @@ public sealed partial class ConversationAdvisoryMetadataQueryHandlerTest
             };
         };
         var result = await f.DispatchAdvisoryAsync();
-        if (mutation == "retryable") { Payload(result).Metadata.ShouldBeNull(); Payload(result).Incomplete.ShouldBeTrue(); }
-        else result.ErrorMessage.ShouldBe("safe-denial");
+        result.ErrorMessage.ShouldBe("safe-denial");
         f.Access.Checks.ShouldBe(2);
     }
 

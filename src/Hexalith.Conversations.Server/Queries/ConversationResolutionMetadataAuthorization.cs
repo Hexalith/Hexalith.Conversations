@@ -94,11 +94,10 @@ public sealed class ConversationResolutionMetadataAuthorization(
         ConversationTenantAccessDecision decision = await access.CheckAccessAsync(
             ConversationTenantAccessRequirement.Read, tenant, actor, routeTenantId: tenant,
             aggregateTenantId: tenant, projectionTenantId: tenant, cancellationToken: cancellationToken).ConfigureAwait(false);
-        bool unavailable = decision.IsRetryable || decision.DenialReason is ConversationTenantAccessDenialReason.TenantAccessUnavailable
-            or ConversationTenantAccessDenialReason.TenantAccessStale or ConversationTenantAccessDenialReason.TenantAccessGapDetected
-            or ConversationTenantAccessDenialReason.TenantAccessRolledBack or ConversationTenantAccessDenialReason.TenantProjectionPoisoned
-            or ConversationTenantAccessDenialReason.MalformedProjection;
-        return (!decision.IsAllowed && !unavailable, null, (timeProvider ?? TimeProvider.System).GetUtcNow());
+
+        // Every non-allowed decision, including an unhealthy or unavailable tenant projection, denies exactly like an
+        // unknown tenant; the internal reason and retry hint never reach the delegated caller.
+        return (!decision.IsAllowed, null, (timeProvider ?? TimeProvider.System).GetUtcNow());
     }
 
     /// <summary>Confirms native permission evidence did not change during the last resource lookup.</summary>

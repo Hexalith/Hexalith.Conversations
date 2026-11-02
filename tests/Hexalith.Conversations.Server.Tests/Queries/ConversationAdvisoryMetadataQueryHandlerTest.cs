@@ -210,12 +210,43 @@ public sealed partial class ConversationAdvisoryMetadataQueryHandlerTest
     }
 
     [Fact]
-    public async Task RetryableOwnerDenialReturnsUnavailableWithoutMetadataReads()
+    public async Task RetryableOwnerDenialReturnsSafeDenialWithoutMetadataReads()
     {
         var f = new ResolutionMetadataFixture(); await f.ProjectAsync(); f.Access.RetryableDenial = true;
-        var result = Payload(await f.DispatchAdvisoryAsync());
-        result.Metadata.ShouldBeNull(); result.Incomplete.ShouldBeTrue(); f.Guard.Reads.ShouldBeEmpty();
+        (await f.DispatchAdvisoryAsync()).ErrorMessage.ShouldBe("safe-denial"); f.Guard.Reads.ShouldBeEmpty();
     }
+
+    /// <summary>An unhealthy existing tenant returns exactly the unknown-tenant result, with the same reads and checks.</summary>
+    [Theory]
+    [InlineData(ConversationTenantAccessDenialReason.TenantAccessUnavailable, true)]
+    [InlineData(ConversationTenantAccessDenialReason.TenantAccessStale, true)]
+    [InlineData(ConversationTenantAccessDenialReason.TenantAccessGapDetected, true)]
+    [InlineData(ConversationTenantAccessDenialReason.TenantAccessRolledBack, true)]
+    [InlineData(ConversationTenantAccessDenialReason.TenantProjectionPoisoned, false)]
+    [InlineData(ConversationTenantAccessDenialReason.MalformedProjection, false)]
+    public async Task UnhealthyExistingTenantIsIndistinguishableFromAnUnknownTenant(ConversationTenantAccessDenialReason reason, bool retryable)
+    {
+        // The unknown tenant has nothing stored; the unhealthy tenant exists with committed metadata.
+        var unknown = new ResolutionMetadataFixture();
+        unknown.Access.MutateDecision = decision => ConversationTenantAccessDecision.Denied(decision.Requirement, decision.TenantId,
+            decision.CallerPrincipalId, ConversationTenantAccessDenialReason.UnknownTenant);
+        var unhealthy = new ResolutionMetadataFixture(); await unhealthy.ProjectAsync();
+        unhealthy.Access.MutateDecision = decision => ConversationTenantAccessDecision.Denied(decision.Requirement, decision.TenantId,
+            decision.CallerPrincipalId, reason, isRetryable: retryable);
+
+        QueryResult expected = await unknown.DispatchAdvisoryAsync();
+        QueryResult actual = await unhealthy.DispatchAdvisoryAsync();
+
+        expected.ErrorMessage.ShouldBe("safe-denial");
+        Shape(actual).ShouldBe(Shape(expected));
+        unhealthy.Guard.Reads.ShouldBe(unknown.Guard.Reads);
+        unhealthy.Access.Checks.ShouldBe(unknown.Access.Checks);
+    }
+
+    private static (bool Success, string? Error, string? ProjectionType, string? Payload, string? Metadata) Shape(QueryResult result)
+        => (result.Success, result.ErrorMessage, result.ProjectionType,
+            result.PayloadBytes is null ? null : Convert.ToBase64String(result.PayloadBytes),
+            result.Metadata is null ? null : JsonSerializer.Serialize(result.Metadata));
 
     private static ConversationAdvisoryMetadataResult Payload(QueryResult result)
     {

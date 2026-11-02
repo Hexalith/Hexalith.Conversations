@@ -447,6 +447,34 @@ public sealed class ConversationResolutionMetadataQueryHandlerTest
         fixture.Guard.Reads.ShouldBeEmpty();
     }
 
+    /// <summary>An unhealthy existing tenant decision returns exactly the unknown-tenant result, with the same reads and checks.</summary>
+    [Theory]
+    [InlineData(ConversationTenantAccessDenialReason.TenantAccessUnavailable, true)]
+    [InlineData(ConversationTenantAccessDenialReason.TenantAccessStale, true)]
+    [InlineData(ConversationTenantAccessDenialReason.TenantAccessGapDetected, true)]
+    [InlineData(ConversationTenantAccessDenialReason.TenantAccessRolledBack, true)]
+    [InlineData(ConversationTenantAccessDenialReason.TenantProjectionPoisoned, false)]
+    [InlineData(ConversationTenantAccessDenialReason.MalformedProjection, false)]
+    public async Task UnhealthyExistingTenantDecisionIsIndistinguishableFromAnUnknownTenant(ConversationTenantAccessDenialReason reason, bool retryable)
+    {
+        // The unknown tenant has nothing stored; the unhealthy tenant exists with committed metadata.
+        ResolutionMetadataFixture unknown = new();
+        unknown.Access.MutateDecision = decision => ConversationTenantAccessDecision.Denied(decision.Requirement, decision.TenantId,
+            decision.CallerPrincipalId, ConversationTenantAccessDenialReason.UnknownTenant);
+        ResolutionMetadataFixture unhealthy = new();
+        await unhealthy.ProjectAsync();
+        unhealthy.Access.MutateDecision = decision => ConversationTenantAccessDecision.Denied(decision.Requirement, decision.TenantId,
+            decision.CallerPrincipalId, reason, isRetryable: retryable);
+
+        QueryResult expected = await unknown.DispatchAsync(nativeAuthorization: false);
+        QueryResult actual = await unhealthy.DispatchAsync(nativeAuthorization: false);
+
+        expected.ErrorMessage.ShouldBe("safe-denial");
+        Shape(actual).ShouldBe(Shape(expected));
+        unhealthy.Guard.Reads.ShouldBe(unknown.Guard.Reads);
+        unhealthy.Access.Checks.ShouldBe(unknown.Access.Checks);
+    }
+
     [Theory]
     [InlineData("revision-first-read")]
     [InlineData("revocation-first-read")]
@@ -524,6 +552,11 @@ public sealed class ConversationResolutionMetadataQueryHandlerTest
         result.Success.ShouldBeTrue();
         return result.GetPayload().Deserialize<ConversationResolutionMetadataResultV1>(JsonSerializerOptions.Web)!;
     }
+
+    private static (bool Success, string? Error, string? ProjectionType, string? Payload, string? Metadata) Shape(QueryResult result)
+        => (result.Success, result.ErrorMessage, result.ProjectionType,
+            result.PayloadBytes is null ? null : Convert.ToBase64String(result.PayloadBytes),
+            result.Metadata is null ? null : JsonSerializer.Serialize(result.Metadata));
 
     private static void AssertUnavailable(QueryResult result)
         => Deserialize(result).ShouldBe(new ConversationResolutionMetadataResultV1(null, null, null, null, null));

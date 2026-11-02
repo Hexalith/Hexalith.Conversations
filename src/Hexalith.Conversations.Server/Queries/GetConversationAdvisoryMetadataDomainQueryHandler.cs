@@ -101,7 +101,9 @@ public sealed class GetConversationAdvisoryMetadataDomainQueryHandler(
     {
         var decision = await access.CheckAccessAsync(ConversationTenantAccessRequirement.Read, tenant, actor,
             routeTenantId: tenant, aggregateTenantId: tenant, projectionTenantId: tenant, cancellationToken: token).ConfigureAwait(false);
-        if (!decision.IsAllowed && decision.IsRetryable) throw new InvalidOperationException("Owner authorization unavailable.");
+
+        // Every non-allowed decision, including an unhealthy or unavailable tenant projection, is the unknown-tenant
+        // safe denial; the internal retry hint never reaches the delegated caller. Only a thrown exception is unavailable.
         return decision.IsAllowed && decision.Requirement == ConversationTenantAccessRequirement.Read
             && decision.TenantId == tenant && decision.CallerPrincipalId == actor;
     }
