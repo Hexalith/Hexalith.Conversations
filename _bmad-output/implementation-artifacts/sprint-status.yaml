@@ -133,7 +133,7 @@ development_status:
   15-2-generate-the-superseding-attestation-and-predecessor-supersession-record: backlog
   epic-15-retrospective: optional
   epic-16: in-progress
-  16-1-persist-tenant-access-projection-state-and-prove-convergence: in-progress
+  16-1-persist-tenant-access-projection-state-and-prove-convergence: review
   16-2-make-replay-time-deterministic-and-missing-index-state-truthful: backlog
   16-3-diagnose-apphost-preflight-failures-and-prove-terminal-reconciliation-live: backlog
   epic-16-retrospective: optional

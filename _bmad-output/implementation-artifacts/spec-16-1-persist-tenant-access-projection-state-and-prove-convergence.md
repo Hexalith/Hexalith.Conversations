@@ -2,7 +2,7 @@
 title: 'Story 16.1: Persist tenant-access projection state and prove convergence'
 type: 'feature'
 created: '2026-10-22'
-status: 'in-review'
+status: 'done'
 baseline_commit: '0f068ad765c1bd004df332f19f05df5cfdc1865f'
 route: 'dispatch'
 review_loop_iteration: 2
@@ -422,6 +422,32 @@ Chunk 1 of 3: EventStore story commits `24bea7512`, `a007fdf2c`, `4db51a968` and
 | 110 | V: protected publish/read parity is untested | maybe-false (high if true) | defer | Carried rows 7/76/86; pass 6 proved plain JSON parity only. A successful protected publish/read comparison would settle this. |
 | 111 | V: the Keycloak tenant-access token is not tested against EventStore | medium | defer | Carried rows 66/75/87; JSON inspection and a stub token do not prove an issued token and authorized stream read. |
 
+### Review pass 8 (2026-11-02, current baseline diff)
+
+| # | Finding | Verdict | Route | Evidence |
+| --- | --- | --- | --- | --- |
+| 112 | B: tenant dead-letter topic conflicts with the required retry policy | medium | defer | Carried row 92: the manifest still declares it, and Platform's no-dead-letter enrollment remains an owner action. |
+| 113 | B: package-mode CI pins pre-16.1 EventStore and Tenants releases | high | defer | Carried release-train decision at row 310: the package pins still predate these APIs; publish EventStore, then Tenants, then bump Conversations. |
+| 114 | B: protected publisher/read payload parity is unproven | maybe-false (high if true) | defer | Carried row 110: only plain JSON parity is covered; a protected publisher-to-read comparison would settle it. |
+| 115 | B: the issued Keycloak worker token has no real stream-read proof | medium | defer | Carried row 111: realm JSON and stub tests cannot establish the imported realm's issued claim. |
+| 116 | B: existing tenants without a new event have no durable backfill | medium | defer | Carried row 77: the old process-local store was also empty after restart; cold-start backfill is operational work. |
+| 117 | B: a restored older Healthy record can authorize | medium | defer | Carried row 100: restore reconciliation remains the frozen operational-envelope action. |
+| 118 | B: terminal Corrupt and deterministic transition failures lack repair | medium | defer | Carried rows 9/79: Corrupt is terminal by the frozen intent; repair and rebuild are recorded operational work. |
+| 119 | B: a long replay can outlive the recovery lease | maybe-false (medium if true) | defer | Carried row 104: measure a sufficiently long tenant stream before changing lease mechanics. |
+| 120 | B: pending evidence has no size limit | maybe-false (medium if true) | defer | Carried row 103: a measured sustained gap would establish provider-size failure. |
+| 121 | B: the public denial change has no release note | medium | defer | Carried row 311: candidate release notes depend on the EventStore, Tenants, and Conversations package release train. |
+| 122 | E: a non-system Tenants delivery could write another tenant record | false | reject | Carried row 93: the Tenants command validator excludes non-system producer streams, and the subscription is `system.tenants.events`. |
+| 123 | E: an unknown history event could leave membership Healthy | low | reject | Carried row 98: no current tenant event is unknown to the projected/rejection inventory; new event names require a compatibility decision. |
+| 124 | E: a replay payload with another TenantId could affect this stream | false | reject | Carried row 97: the transition uses the authoritative stream aggregate, and the Tenants producer binds events to that aggregate. |
+| 125 | E: history payload version zero or negative decodes as version one | medium | patch | `TenantProjectionCheckpointTransition.Decode` rejected only versions above one; the history page validator does not reject nonpositive payload versions. The guard now rejects both, with durable recovery tests for 0 and -1. |
+| 126 | E: many pending future deliveries can exceed provider capacity | maybe-false (medium if true) | defer | Carried row 103: a measured sustained gap is required. |
+| 127 | E: a gap beyond the history-page budget can remain denied | low | reject | Carried row 46: this requires an unusually large tenant stream; the bounded reader fails closed. |
+| 128 | E: a long history replay can lose its lease | maybe-false (medium if true) | defer | Carried row 104: a measured long-stream replay would settle it. |
+| 129 | E: a host-supplied gateway client can target another origin | low | reject | Carried row 89: the production host uses the SDK-registered client bound to the validated origin. |
+| 130 | E: cancellation leaves a lease until expiry | low | reject | Carried row 109: cancellation bypasses release, but the bounded lease fails closed; cleanup would need I/O after cancellation. |
+| 131 | V: protected publisher/read payload parity is untested | maybe-false (high if true) | defer | Carried row 110: the plain-envelope parity and shared-envelope history double cannot prove protected parity. |
+| 132 | V: no issued Keycloak worker token is tested against EventStore | medium | defer | Carried row 111: JSON inspection and a stub token do not exercise the imported realm or real gateway authorization. |
+
 ## Design Notes
 
 The record stores state, health (`Healthy|Gapped|Corrupt|Unavailable`), `lastContiguousSequence` with its accepted fingerprint, `expected`, `recoveryThrough`, sequence-keyed pending evidence, and a lease (fencing token plus record version). One CAS write covers all of it.
@@ -450,3 +476,5 @@ The IntegrationTests assembly passed 35/35 with zero not-executed using `-class-
 **Push rebase, 2026-11-02:** EventStore and Tenants each replayed one local commit onto their advanced `origin/main`; `git range-diff` reported identical patches. Their rebased owner checks passed: EventStore review cases 7/7, Tenants Client 93/93 using the root Platform source mapping, and Story 16.1 live Integration 7/7 after a mapped Debug rebuild. A direct Tenants test run without the root mapping had 72 assembly-load failures for `Hexalith.EventStore.Contracts, Version=3.133.0.0`; the mapped build/run resolved them. Upstream Tenants now qualifies selected EventStore catalog SDK releases through 3.133.0, and the handoff range was updated.
 
 **Review passes 6–7, 2026-11-02:** Source-mapped Debug builds passed with zero warnings or errors. Native focused results: EventStore checkpointed Client 70/70, renamed/upcast 2/2 and Server plain-envelope parity 1/1; Tenants Client 96/96 after the pass-7 snapshot guard; Conversations durable Server 15/15; and the freshly rebuilt Story 16.1 live Integration class 7/7. All reported zero skips and not-run cases. `python3 -m pytest -q _bmad/scripts/tests/test_story_16_1_warning_removal.py` passed 2/2. `python3 scripts/check-root-submodules.py --repository .` passed, and `git diff --check` passed in all three changed repositories. A direct `dotnet build tests/Hexalith.Conversations.IntegrationTests/Hexalith.Conversations.IntegrationTests.csproj --configuration Debug --nologo -m:1 -p:UseHexalithProjectReferences=true -p:NuGetAudit=false -p:MinVerVersionOverride=1.0.0` failed because the required Platform source mapping was absent; the mapped build then passed. The broad `python3 -m pytest -q _bmad/scripts/tests` run showed failures and errors within its first 2% and was interrupted at exit 130 before a final count; it is not a passing broad gate. No Git change was staged, committed or pushed in these passes.
+
+**Review pass 8, 2026-11-02:** The Tenants mapped Debug Client test project built with zero warnings or errors using `-p:UseHexalithProjectReferences=true -p:HexalithPlatformRoot=/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform -p:NuGetAudit=false -p:MinVerVersionOverride=1.0.0`. The native `DurableTenantProjectionStoreTests` class passed 26/26 and the full Tenants Client assembly passed 98/98, each with zero skipped or not-run, including the new nonpositive history payload-version cases. `python3 -m pytest -q _bmad/scripts/tests/test_story_16_1_warning_removal.py` passed 2/2. `python3 scripts/check-root-submodules.py --repository .` and `git diff --check` in the root, EventStore, and Tenants repositories passed. The frozen 2026-11-01 user decision makes native xUnit the completion proof and waives the v9/tooling-v3 final pair; the prior broad Python and opt-in/benchmark limitations remain separately recorded above.
