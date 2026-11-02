@@ -2,7 +2,7 @@
 
 This CI-only compatibility suite compiles and runs the frozen Story 11.2 fixture against
 the external package compatibility selection in `RegisteredCommand.targets` (EventStore
-3.130.2, matching the selected Builds catalog). It runs the original six tests and
+3.133.0, matching the selected Builds catalog). It runs the original six tests and
 adds one registered-command assertion through the public in-process domain router.
 The assertion resolves the keyed processor, checks the serialized creation event,
 replays it through the public in-process router in a fresh service scope, and checks
@@ -91,7 +91,7 @@ their four original locks, remain byte-for-byte unchanged.
 
 ## Current catalog maintenance (2026-11-01)
 
-The active external overlay now selects EventStore 3.130.2 to match the updated
+The active external overlay now selects EventStore 3.133.0 to match the updated
 direct Builds catalog. Its four successor locks were regenerated using only
 nuget.org in an isolated copy. A second restore with independent empty package
 and HTTP caches passed `--locked-mode` and left all four locks unchanged.

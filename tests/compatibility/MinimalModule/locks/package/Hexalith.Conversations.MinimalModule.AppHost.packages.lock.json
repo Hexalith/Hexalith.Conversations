@@ -53,9 +53,9 @@
       },
       "Hexalith.EventStore.Aspire": {
         "type": "Direct",
-        "requested": "[3.130.2, )",
-        "resolved": "3.130.2",
-        "contentHash": "bcaAvkxsU1wHudmpqNqcFLUenfHkBgYWxlvQrDD+gmcHfaSAqm3gE7QHBrrFrqPxOwqn9fwkoWuh81LapUnIlw==",
+        "requested": "[3.133.0, )",
+        "resolved": "3.133.0",
+        "contentHash": "X8JtgQVUoSTJ0zsuMnjvR/zyj8aCmOtDmJ808UGahrmjFdxJIajS1epMDRhoHe1OjAMN2ikMXBfM1l150Pk8WA==",
         "dependencies": {
           "Aspire.Hosting": "13.6.4",
           "Aspire.Hosting.Keycloak": "13.6.4-preview.1.26523.11",
@@ -64,10 +64,10 @@
           "CommunityToolkit.Aspire.Hosting.Dapr": "13.6.2-beta.959",
           "Dapr.Client": "1.19.0",
           "Grpc.Net.ClientFactory": "2.85.0",
-          "Hexalith.Commons.UniqueIds": "2.30.7",
-          "Hexalith.EventStore.Client": "3.130.2",
-          "Hexalith.EventStore.Contracts": "3.130.2",
-          "Hexalith.EventStore.ServiceDefaults": "3.130.2",
+          "Hexalith.Commons.UniqueIds": "2.30.10",
+          "Hexalith.EventStore.Client": "3.133.0",
+          "Hexalith.EventStore.Contracts": "3.133.0",
+          "Hexalith.EventStore.ServiceDefaults": "3.133.0",
           "MessagePack": "3.1.12",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.14",
           "Microsoft.AspNetCore.DataProtection.Abstractions": "10.0.14",
@@ -398,21 +398,21 @@
       },
       "Hexalith.Commons.UniqueIds": {
         "type": "Transitive",
-        "resolved": "2.30.7",
-        "contentHash": "i7X8qDuinW7AOqyuSfXc8QAR1NpowVT6JdInATCdlW2xyQN6TSUTAwYWKc7VewbE8PAneEjcgkm9/aBv5sdMjg==",
+        "resolved": "2.30.10",
+        "contentHash": "2KX2BJzYGnmXYCWvwu0Z7yb5417Bvk4w0R97BSLstkEIQ0e0qIjbOPxR5WKSP1QH/nPtHaauZ2AmZv6L87P9/w==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2"
         }
       },
       "Hexalith.EventStore.Client": {
         "type": "Transitive",
-        "resolved": "3.130.2",
-        "contentHash": "ijiZ7IbSY1ZcthwAt4PjlSDpiDka51ip1AMB982FY0SSHyMjiCKTYxk3JmLj1ZpdGtDPqmZF8YbN45uf/nLVHA==",
+        "resolved": "3.133.0",
+        "contentHash": "6AwwPqwfhLFAWRXmKz5lBtN74pTsNHnI2KSHXGg4ZGuQnygSmKH/oSz4aZMKaxftMMgUnrMjryWMRo2pFyjNgg==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2",
           "Dapr.Client": "1.19.0",
-          "Hexalith.Commons.UniqueIds": "2.30.7",
-          "Hexalith.EventStore.Contracts": "3.130.2",
+          "Hexalith.Commons.UniqueIds": "2.30.10",
+          "Hexalith.EventStore.Contracts": "3.133.0",
           "Microsoft.AspNetCore.DataProtection.Abstractions": "10.0.14",
           "Microsoft.Extensions.Configuration": "10.0.14",
           "Microsoft.Extensions.Configuration.Abstractions": "10.0.14",
@@ -429,21 +429,21 @@
       },
       "Hexalith.EventStore.Contracts": {
         "type": "Transitive",
-        "resolved": "3.130.2",
-        "contentHash": "ONjn3ChTge4hv7Z/AXEtN+QkC05WIqECug6c5mGiuKtjrPRhptsPoLTYlF38sGftcDT5JvXSnuT30HhU3HsEIQ==",
+        "resolved": "3.133.0",
+        "contentHash": "HEM8GPWUYjAA9KkUzCDKj3tb6Gp30DZaz3Kpy99SrozTTvNjrcwhF06FlDZlokNrcv3UxM9uSLPl4dzZij7uYg==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2",
-          "Hexalith.Commons.UniqueIds": "2.30.7"
+          "Hexalith.Commons.UniqueIds": "2.30.10"
         }
       },
       "Hexalith.EventStore.ServiceDefaults": {
         "type": "Transitive",
-        "resolved": "3.130.2",
-        "contentHash": "HKbS/pDm9Sp+VATz8Wx3xX/wDRuoLdDlhbecpkj+5DF5YHyHLHl//EnSTdVe5aom6Bq1+zyIXoCP4wu9QzwbAw==",
+        "resolved": "3.133.0",
+        "contentHash": "TPg8cDv2HKLcIHXOoA0kV9Qh9WUEkS5K/wVK2iXxF1wDRs2WMuuuMP0sPlU6hCHsCuzt7MCihAodIAV+V366Ag==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2",
-          "Hexalith.Commons.UniqueIds": "2.30.7",
-          "Hexalith.EventStore.Contracts": "3.130.2",
+          "Hexalith.Commons.UniqueIds": "2.30.10",
+          "Hexalith.EventStore.Contracts": "3.133.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.14",
           "Microsoft.Extensions.Http.Resilience": "10.11.0",
           "Microsoft.Extensions.ServiceDiscovery": "10.11.0",
