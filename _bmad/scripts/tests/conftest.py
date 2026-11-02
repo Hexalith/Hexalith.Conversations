@@ -14,7 +14,9 @@ Commit `0db6207`, the owner's accepted routine-change simplification (see
   live routes and SDK pin, so any route or SDK change turns it red.
 * Story 16.1 review loop 1 (2026-11-01) retires the frozen-state Epic 16 adoption
   v2 suite: its pinned sprint status records 16.1 as backlog, which the 16.1
-  sprint transition invalidates.
+  sprint transition invalidates. Story 16.1 completion (2026-11-02) retires the
+  v1 suite for the same reason: it pins the pre-runtime module manifest digest,
+  which 16.1 changes to declare the tenant-access gateway inputs.
 * The owner's 2026-10-21 Story 11.3 review decision retires its live-candidate
   measurement suite and dependent record cases from routine collection. They
   measure the live `HEAD`, so name either test file explicitly at the accepted
@@ -58,6 +60,9 @@ collect_ignore = [
     # transition invalidates that frozen state, so the suite retires from routine
     # collection (Story 16.1 review loop 1, 2026-11-01). Name the file to reproduce it.
     "test_verify_epic_16_adoption_v2.py",
+    # The v1 adoption verifier pins the pre-runtime module manifest digest; Story 16.1
+    # declares the tenant-access gateway inputs there (completion, 2026-11-02).
+    "test_verify_epic_16_adoption.py",
 ]
 
 
