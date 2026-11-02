@@ -1146,7 +1146,7 @@ Review strengthens the same solution-context scope with native implicit Platform
   summary: Define and automate rebuilding durable tenant-access records after a state-store restore, as part of the operational envelope.
   evidence: Story 16.1 decision (3) has no time-based staleness. After a restore, an older Healthy record keeps authorizing until it is rebuilt, and today the only coverage is a handoff checkbox.
 - source_spec: `_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md`
-  summary: Prove the local Keycloak conversations-tenant-access client's token passes the EventStore gateway's StreamRead authorization for system/tenants, in a Keycloak-enabled AppHost lane.
+  summary: Prove the local Keycloak conversations-tenant-access client's token passes the EventStore gateway's platform-scope stream read (`X-Hexalith-Scope: platform:tenants`, exactly one `tenants:read` permission) for the retained system/tenants history, in a Keycloak-enabled AppHost lane. Review pass 9 (2026-11-02) replaced the refused `system`/`tenants` StreamRead grant with this platform scope.
   evidence: Unverified (would be medium). Only the realm JSON is parsed. The boundary lane runs with Keycloak off, and the composition test stubs both the token and gateway responses.
 
 ## Deferred from: code review of spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md (2026-11-02)
