@@ -37,7 +37,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-06-02
-last_updated: 11-02-2026 13:01
+last_updated: 11-02-2026 14:59
 # HISTORICAL V14 PUBLICATION: v9-authority-bundle-v1.json retains the candidate-bound August 18 planning state. That publication's hold, unrun IR-0 and backlog statements describe its historical boundary.
 # CURRENT TRACKING: development_status below records lifecycle progress. docs/runbooks/current-change-validation.md governs routine work and links the later IR-0 disposition; historical records retain their original results and authority limits.
 # PROVENANCE LEDGER: the 90 lifecycle-transition comments previously recorded here are preserved byte-exact in _bmad-output/implementation-artifacts/sprint-status-provenance-v1.md (sha256 pinned by v14-current-candidate-authority-v1.json). That relocation changed no lifecycle or action-item status value.
@@ -133,7 +133,7 @@ development_status:
   15-2-generate-the-superseding-attestation-and-predecessor-supersession-record: backlog
   epic-15-retrospective: optional
   epic-16: in-progress
-  16-1-persist-tenant-access-projection-state-and-prove-convergence: review
+  16-1-persist-tenant-access-projection-state-and-prove-convergence: in-progress
   16-2-make-replay-time-deterministic-and-missing-index-state-truthful: backlog
   16-3-diagnose-apphost-preflight-failures-and-prove-terminal-reconciliation-live: backlog
   epic-16-retrospective: optional

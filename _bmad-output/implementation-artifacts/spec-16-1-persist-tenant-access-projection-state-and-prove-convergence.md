@@ -2,7 +2,7 @@
 title: 'Story 16.1: Persist tenant-access projection state and prove convergence'
 type: 'feature'
 created: '2026-10-22'
-status: 'done'
+status: 'in-progress'
 baseline_commit: '0f068ad765c1bd004df332f19f05df5cfdc1865f'
 route: 'dispatch'
 review_loop_iteration: 2
@@ -354,6 +354,48 @@ Review pass 5 (2026-11-02, after review-pass-4 patches; Blind Hunter B, Edge Cas
 | 89 | E2: a host-supplied unkeyed client can read the wrong origin | low | reject | Carried row 67: no production host supplies one. The SDK-registered client is bound to the validated origin. |
 | 90 | E3: duplicate history sequence with equal evidence but conflicting serialization metadata is accepted | medium | patch | `CheckpointedProjectionHistory.ReadRangeAsync` compares only `Evidence` on duplicate sequences, then discards the second event. A malformed gateway page can therefore let replay use the first metadata and mark Healthy; reject the ambiguity as HistoryUnavailable. |
 | 91 | E4: a dual-interface custom store can make diagnostics report Current despite a gapped snapshot | false | reject | The enrolled registration replaces `ITenantProjectionStore` with `DurableTenantProjectionStore`, which does not implement `IConversationTenantProjectionSignal`; production diagnostics reads its snapshot health. A custom dual-interface store is not the enrolled path. |
+
+### Review Findings — pass 6, EventStore chunk (2026-11-02)
+
+Chunk 1 of 3: EventStore story commits `24bea7512`, `a007fdf2c`, `4db51a968` and `a3dbec2f8` (34 files, `311d61d29..a3dbec2f8` limited to their paths). Tenants (`7b4b1302..3c5b6d4d`) and the Conversations root (`0f068ad7..c6b91ea6`) are follow-up runs. Layers: Blind Hunter B, Edge Case Hunter E, Verification Gap V, Acceptance Auditor A. 44 findings: 9 patch, 3 defer (all carried, already in `deferred-work.md`), 22 rejected.
+
+- [ ] [Review][Patch] Validate every history page with the existing `StreamReadPageValidator.ValidateAndGetNextSequence`, and map its `InvalidOperationException`/`ArgumentException` to `HistoryUnavailable`. Today the reader checks only that `Events` and `Metadata` are not null. It skips out-of-range events, and it never checks the page's tenant/domain/aggregate, the echoed range metadata, or blank `MessageId`/`EventTypeName`/`SerializationFormat`. So a misrouted or malformed page turns into terminal `HistoryIdentityMismatch`/`RecoveryEvidenceMismatch` Corrupt, which has no repair path. It also lets a Healthy commit persist an incomplete `LastAccepted`, which then fails `IsWellFormed` forever. `AuthoritativeEventStreamReader` already rejects these same pages, and row 90 set the rule that a malformed page is unavailable, not corrupt. Update `CheckpointedHistoryGateway` to echo the request's range metadata (B+A+E, medium) [references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Projections/Checkpointed/CheckpointedProjectionHistory.cs:154]
+- [ ] [Review][Patch] Pin the processor's `EventType`/`PayloadFingerprint` for a renamed, upcast event: assert the persisted alias and the SHA-256 of the stored bytes, not the upcast bytes, and match `CheckpointedProjectionEvent.FromHistory` for the same stored envelope. Today a change to `Compute(resolved.Payload)` or `eventType.FullName` passes every test, and any evolved event would then go terminal Corrupt (V+B) [references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Subscriptions/EventStoreDomainEventProcessor.cs:292]
+- [ ] [Review][Patch] Add a theory that seeds `CreateEmpty() with { … }`, each case breaking exactly one `IsWellFormed`/`IsWellFormedGap` rule. Cases: no `LastAccepted` above checkpoint 0; Healthy with pending or a lease; `Expected` ≠ checkpoint + 1; unsorted or out-of-range pending; Corrupt with a lease or no reason; lease token above `LastFencingToken`. Assert `MalformedRecord` from both `ApplyAsync` and `ReadAsync`. Set `SchemaVersion = 1` on the Tenants (`MalformedRecordReadsAsUnavailableWithoutState`) and Conversations (`MalformedAndUnavailableSnapshotsDeny…`) seeds so they reach the rule they target. Every malformed seed today is rejected only by `SchemaVersion = 0` (V+B) [references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Projections/Checkpointed/CheckpointedProjectionRecord.cs:78]
+- [ ] [Review][Patch] Exercise the lease-expiry clause of both final writes. A worker whose lease expired with nobody superseding it must get `RecoveryLeaseLost` and leave `Version` unchanged, on both the healthy path and the corrupt path. Removing `GetUtcNow() >= held.ExpiresAt` from either guard passes every current test (V) [references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Projections/Checkpointed/CheckpointedProjectionRecoveryWorker.cs:256]
+- [ ] [Review][Patch] Add an EventStore `Server.Tests` parity test: one stored plain-`json` envelope pushed through `EventPublisher` (capturing the published envelope) and through `StreamsController.ReadStreamAsync`. Assert equal `MessageId`, equal `EventTypeName`, and byte-identical payload SHA-256. Every current test feeds both sides from one source. The protected-payload leg stays in the existing parity ledger entry (V) [references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Projections/Checkpointed/CheckpointedProjectionEvent.cs:69]
+- [ ] [Review][Patch] Race two future-delivery merges with `ConcurrentWriteBeforeTrySave`. The loser must reload and keep both pending entries and the larger `RecoveryThrough`. No test runs a `MergeEvidence` save that loses to another `MergeEvidence` (A, low) [references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Projections/Checkpointed/CheckpointedProjectionWriter.cs:134]
+- [ ] [Review][Patch] Throw `RecordMissing` instead of `RecoveryLeaseLost` when the record disappears after the lease is taken, so decision (6)'s precise diagnostic names the real cause (E, low) [references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Projections/Checkpointed/CheckpointedProjectionRecoveryWorker.cs:240]
+- [ ] [Review][Patch] Remove the duplicate `Unavailable(ConcurrencyExhausted)` log in `ReplayAndCommitAsync`. Its only caller's catch already logs the same reason (B, low) [references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Projections/Checkpointed/CheckpointedProjectionRecoveryWorker.cs:298]
+- [ ] [Review][Patch] Correct `CheckpointedProjectionOutcome` docs. `ApplyAsync` never returns `Pending`: after a pending commit it returns the inline recovery's `Recovered`/`Corrupt`, or it throws. Today the enum remark says every member is returned and may be acknowledged (B+A, low) [references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Projections/Checkpointed/CheckpointedProjectionOutcome.cs:18]
+- [x] [Review][Defer] The recovery lease is not renewed during a long replay [references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Projections/Checkpointed/CheckpointedProjectionRecoveryWorker.cs:216] — deferred: carried rows 16/80, existing ledger entry. Maybe-false (medium if true); a measured long-stream replay would settle it (B+E).
+- [x] [Review][Defer] Pending evidence has no size limit [references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Projections/Checkpointed/CheckpointedProjectionWriter.cs:185] — deferred: carried rows 16/81, existing ledger entry. Maybe-false (medium if true); a measured sustained gap would settle it (B+E).
+- [x] [Review][Defer] A deterministic `TransitionFailed` retries forever, and Corrupt or Malformed records have no repair [references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Projections/Checkpointed/CheckpointedProjectionRecoveryWorker.cs:135] — deferred: carried rows 9/79, existing ledger entry; the frozen intent makes Corrupt terminal (B).
+
+#### Rejected (pass 6, EventStore chunk)
+
+- B: range reads have no byte or time cap. low: needs more than 100k tenant events (carried row 46). The payload-by-reference part is false: the gateway client deserializes a fresh array per page and nothing else holds it.
+- B, E: the lease stays held until expiry after cancellation, an unclassified exception (such as `ObjectDisposedException` from the scope), or a lease write that commits and then throws. low: a bounded `LeaseDuration` delay that fails safe (carried row 68).
+- B, E: the record does not store its stream identity. low: Tenants keys each aggregate under the `tenants` domain guard (`0543a34a`), and Tenants commands exist only in tenant `system`. The fix changes the persisted schema.
+- B: live deliveries are upcast but history is raw. low: no tenant event has an upcaster, and Tenants rejects `PayloadVersion > 1` (carried rows 19/51/73).
+- B: evidence ignores format and version. false: replay always applies history's own payload and metadata. A delivery's metadata never feeds replayed state, and a matching duplicate is a no-op.
+- B, E: an `OperationCanceledException` thrown by a transition is rethrown unclassified. low: a pure transition has no cancellation source, and `ApplyTransition` has no token, so the fix adds a parameter.
+- B: no lease-acquired log event, the writer does not log load failures, and the message wording. low: new logging surface.
+- B, A: `CheckpointedProjectionLease.RecordVersion` is never read. low: the monotonic fencing token is unique per lease, so the version adds no fencing. Removing it changes the persisted record.
+- B: `IsWellFormed` does not check `RecordVersion <= Version` or `CorruptSequence`. low: adds guards for externally corrupted records.
+- B, A: running out of horizon extensions reports `ConcurrencyExhausted`. low: it takes 64 extensions in one invocation, and the fix adds a public enum reason.
+- B: no test for contradicting pending added during a horizon extension. low: the check reads `current.Pending` every round, and a missed entry is still caught when its redelivery verifies an older sequence.
+- B: SHA-256 runs for every dispatched event. low: microseconds against deserialization and pub/sub. Lazy computation adds complexity.
+- A: the history double's stream-identity throw is absorbed as `HistoryUnavailable`. false: a wrong-stream request makes every successful recovery test fail.
+- A: the AD-6 matrix runs only against the in-memory store. false: the spec task names `InMemoryReadModelStore`, and the Conversations `Story16_1EvidenceTests` live lane proves restart and two replicas through Redis.
+- E: `HistoryPageSize` above the gateway's 1000 limit. low: a misconfiguration that fails closed (class of carried rows 43/69).
+- E: `LeaseDuration` overflow. low: same class.
+- E: a gap larger than the page budget. low: carried row 46.
+- E: deliveries outpace recovery rounds. low: tenant streams are low-rate, and the fix is a design change.
+- E: a record erased and recreated Healthy below the pending delivery returns `Recovered`. low: needs a state-store deletion and a new first write inside one recovery window. Restore reconciliation stays deferred under decision (3) (row 78).
+- E: a dead-lettered final redelivery leaves the record Gapped. false under decision (2): the tenants subscription retries without dead-lettering. The Platform action is tracked in row 82.
+- E: a bogus future sequence keeps the record Gapped. low: forged deliveries are outside the threat model (row 8), and the record fails closed.
+- E: a stored JSON-null value reports `ConcurrencyExhausted`. low: needs external corruption, and it still fails closed.
 
 ## Design Notes
 
