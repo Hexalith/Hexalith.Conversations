@@ -457,8 +457,6 @@
             "audience": "hexalith-eventstore",
             "roles": [],
             "claims": [
-              "eventstore:tenant",
-              "eventstore:domain",
               "eventstore:permission"
             ],
             "applicationPrincipal": true
@@ -488,7 +486,7 @@
           {
             "name": "tenant-access-gateway-stream-read",
             "protocol": "https",
-            "destination": "Hexalith:Conversations:TenantAccess:GatewayBaseAddress/api/v1/streams/read (tenant system, domain tenants, permission StreamRead)"
+            "destination": "Hexalith:Conversations:TenantAccess:GatewayBaseAddress/api/v1/streams/read (scope platform:tenants, domain tenants, permission tenants:read)"
           },
           {
             "name": "tenant-access-worker-token",

@@ -279,8 +279,8 @@ public sealed class ConversationsAppHostTopologyTest
         client.GetProperty("standardFlowEnabled").GetBoolean().ShouldBeFalse();
         client.GetProperty("secret").GetString().ShouldBe("${CONVERSATIONS_TENANT_ACCESS_CLIENT_SECRET}");
 
-        // EventStore's stream-read authorization: the gateway audience plus the eventstore:tenant, eventstore:domain
-        // and eventstore:permission claims (ClaimsTenantValidator / ClaimsRbacValidator, message type StreamRead).
+        // EventStore's platform-scope stream read (X-Hexalith-Scope: platform:tenants): the gateway audience plus
+        // exactly one tenants:read permission and no tenant grant, because the reserved system tenant is never a grant.
         JsonElement[] mappers = [.. client.GetProperty("protocolMappers").EnumerateArray()];
         JsonElement audience = mappers.Single(static mapper => mapper.GetProperty("protocolMapper").GetString() == "oidc-audience-mapper");
         audience.GetProperty("config").GetProperty("included.client.audience").GetString().ShouldBe(HexalithEventStoreSecurityOptions.DefaultAudience);
@@ -293,9 +293,7 @@ public sealed class ConversationsAppHostTopologyTest
                 StringComparer.Ordinal);
         claims.ShouldBe(new Dictionary<string, string?>(StringComparer.Ordinal)
         {
-            ["eventstore:tenant"] = "system",
-            ["eventstore:domain"] = "tenants",
-            ["eventstore:permission"] = "StreamRead",
+            ["eventstore:permission"] = "tenants:read",
         });
     }
 

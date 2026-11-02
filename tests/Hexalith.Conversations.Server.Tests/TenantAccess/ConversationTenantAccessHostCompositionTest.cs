@@ -83,7 +83,7 @@ public sealed class ConversationTenantAccessHostCompositionTest
         read.Method.ShouldBe(HttpMethod.Post);
         read.Authorization.ShouldBe("Bearer " + DeletionRuntimeTestSettings.WorkerToken);
         StreamReadRequest readRequest = JsonSerializer.Deserialize<StreamReadRequest>(read.Body, Web)!;
-        readRequest.Tenant.ShouldBe("system");
+        readRequest.Tenant.ShouldBe("platform:tenants");
         readRequest.Domain.ShouldBe("tenants");
         readRequest.AggregateId.ShouldBe(tenant);
         readRequest.FromSequence.ShouldBe(1);
@@ -136,6 +136,14 @@ public sealed class ConversationTenantAccessHostCompositionTest
         if (uri == GatewayStreamRead && request.Method == HttpMethod.Post)
         {
             StreamReadRequest read = JsonSerializer.Deserialize<StreamReadRequest>(body, Web)!;
+
+            // Like the real gateway, a platform-scope read must carry the same explicit scope header.
+            if (!request.Headers.TryGetValues("X-Hexalith-Scope", out IEnumerable<string>? scope)
+                || !scope.SequenceEqual([read.Tenant]))
+            {
+                return new HttpResponseMessage(HttpStatusCode.Forbidden);
+            }
+
             return Json(await history.ReadStreamAsync(read, CancellationToken.None));
         }
 

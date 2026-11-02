@@ -374,7 +374,7 @@
     {
       "clientId": "conversations-tenant-access",
       "name": "Hexalith Conversations tenant-access worker",
-      "description": "Service-account worker client: the Conversations host reads authoritative Tenants history through the EventStore gateway (Story 16.1). Its tokens carry only the EventStore audience and the tenant system / domain tenants StreamRead grant.",
+      "description": "Service-account worker client: the Conversations host reads authoritative Tenants history through the EventStore gateway (Story 16.1) under the explicit platform scope platform:tenants. Its tokens carry only the EventStore audience and the exact tenants:read platform permission, and no tenant grant.",
       "enabled": true,
       "publicClient": false,
       "clientAuthenticatorType": "client-secret",
@@ -402,41 +402,13 @@
           }
         },
         {
-          "name": "tenants-stream-tenant",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-hardcoded-claim-mapper",
-          "consentRequired": false,
-          "config": {
-            "claim.name": "eventstore:tenant",
-            "claim.value": "system",
-            "jsonType.label": "String",
-            "id.token.claim": "false",
-            "access.token.claim": "true",
-            "userinfo.token.claim": "false"
-          }
-        },
-        {
-          "name": "tenants-stream-domain",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-hardcoded-claim-mapper",
-          "consentRequired": false,
-          "config": {
-            "claim.name": "eventstore:domain",
-            "claim.value": "tenants",
-            "jsonType.label": "String",
-            "id.token.claim": "false",
-            "access.token.claim": "true",
-            "userinfo.token.claim": "false"
-          }
-        },
-        {
-          "name": "tenants-stream-permission",
+          "name": "tenants-platform-read-permission",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-hardcoded-claim-mapper",
           "consentRequired": false,
           "config": {
             "claim.name": "eventstore:permission",
-            "claim.value": "StreamRead",
+            "claim.value": "tenants:read",
             "jsonType.label": "String",
             "id.token.claim": "false",
             "access.token.claim": "true",

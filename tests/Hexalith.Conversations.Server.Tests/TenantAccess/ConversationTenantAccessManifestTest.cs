@@ -61,14 +61,15 @@ public sealed class ConversationTenantAccessManifestTest
             .ShouldHaveSingleItem();
         identity.GetProperty("audience").GetString().ShouldBe("hexalith-eventstore");
         identity.GetProperty("applicationPrincipal").GetBoolean().ShouldBeTrue();
-        identity.GetProperty("claims").EnumerateArray().Select(static claim => claim.GetString()).ShouldBe(
-            ["eventstore:tenant", "eventstore:domain", "eventstore:permission"], ignoreOrder: true);
+        identity.GetProperty("claims").EnumerateArray().Select(static claim => claim.GetString()).ShouldBe(["eventstore:permission"]);
 
         JsonElement[] egress = [.. integration.GetProperty("egress").EnumerateArray()];
         JsonElement gatewayRead = egress.Where(item => item.GetProperty("name").GetString() == "tenant-access-gateway-stream-read")
             .ShouldHaveSingleItem();
-        gatewayRead.GetProperty("destination").GetString().ShouldNotBeNull().ShouldContain(
-            ConversationTenantAccessServiceCollectionExtensions.GatewayBaseAddressKey + "/api/v1/streams/read");
+        string gatewayReadDestination = gatewayRead.GetProperty("destination").GetString().ShouldNotBeNull();
+        gatewayReadDestination.ShouldContain(ConversationTenantAccessServiceCollectionExtensions.GatewayBaseAddressKey + "/api/v1/streams/read");
+        gatewayReadDestination.ShouldContain("scope platform:tenants");
+        gatewayReadDestination.ShouldContain("permission tenants:read");
         JsonElement workerToken = egress.Where(item => item.GetProperty("name").GetString() == "tenant-access-worker-token")
             .ShouldHaveSingleItem();
         workerToken.GetProperty("destination").GetString().ShouldNotBeNull().ShouldContain(

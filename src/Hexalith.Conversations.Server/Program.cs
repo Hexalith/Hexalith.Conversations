@@ -52,9 +52,10 @@ WebApplication app = builder.Build();
 // state, health and checkpoint, and only a healthy record authorizes. Tests prove that a restarted host and a
 // second replica read the same record from a local Dapr/Redis store, with deliveries and Tenants history supplied
 // in process; they do not prove Platform pub/sub delivery or the gateway history grant. The delivery that
-// persists a gap attempts recovery immediately, and later deliveries retry it using tenant `system`,
-// domain `tenants` history through the EventStore gateway. Platform must grant that read and retry the
-// tenants subscription without dead-lettering (module/platform-handoff.md).
+// persists a gap attempts recovery immediately, and later deliveries retry it by reading the retained
+// `system`/`tenants` history through the EventStore gateway under the platform scope `platform:tenants`.
+// Platform must grant that read (`tenants:read`) and retry the tenants subscription without dead-lettering
+// (module/platform-handoff.md).
 app.UseEventStoreDomainService();
 if (deletionRuntimeEnabled)
 {

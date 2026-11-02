@@ -59,8 +59,9 @@ internal sealed class Story16_1TenantHistory : IEventStoreGatewayClient
             throw new HttpRequestException("Synthetic gateway outage.");
         }
 
-        // Tenant events live in the system tenant's tenants domain; any other stream identity is a defect.
-        if (request.Tenant != "system" || request.Domain != "tenants" || string.IsNullOrWhiteSpace(request.AggregateId))
+        // Like the real gateway, the retained system/tenants history is requested through the explicit platform
+        // scope and answered with the storage identity; any other stream identity is a defect.
+        if (request.Tenant != "platform:tenants" || request.Domain != "tenants" || string.IsNullOrWhiteSpace(request.AggregateId))
         {
             throw new InvalidOperationException($"Unexpected history stream {request.Tenant}/{request.Domain}/{request.AggregateId}.");
         }
@@ -72,7 +73,7 @@ internal sealed class Story16_1TenantHistory : IEventStoreGatewayClient
                 : [];
             long latest = stream is { Count: > 0 } ? stream.Keys.Max() : 0;
             return Task.FromResult(new StreamReadPage(
-                request.Tenant,
+                "system",
                 request.Domain,
                 request.AggregateId,
                 events,

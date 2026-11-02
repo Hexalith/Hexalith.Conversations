@@ -379,14 +379,17 @@ history grant or deployment, and the AD-5 envelope stays waived.
 
 Story 16.1 owner actions:
 
-- [ ] Platform grants the Conversations workload read access to the tenant
-  `system`, domain `tenants` stream through the EventStore gateway: the gateway
-  audience plus `eventstore:tenant=system`, `eventstore:domain=tenants` and
-  `eventstore:permission=StreamRead`. The enrolled host refuses to start without
+- [ ] Platform grants the Conversations workload read access to the retained
+  Tenants history through the EventStore gateway. EventStore never admits the
+  reserved `system` tenant as a request scope or a grant, so the host reads
+  `api/v1/streams/read` under the explicit platform scope `platform:tenants`
+  (`X-Hexalith-Scope` header, domain `tenants`): the token carries the gateway
+  audience plus exactly one `eventstore:permission=tenants:read` and no
+  `eventstore:tenant=system` grant. The enrolled host refuses to start without
   `Hexalith:Conversations:TenantAccess:GatewayBaseAddress` and the
   `EventStore:Authentication` worker credentials (declared in the module
   manifest). The local AppHost injects them: with Keycloak enabled through the
-  `conversations-tenant-access` realm client, which carries that grant; with
+  `conversations-tenant-access` realm client, which carries that permission; with
   Keycloak disabled through a development-only loopback authority, so the host
   starts but every tenant-history read fails and denies.
 - [ ] When the opt-in deletion runtime (`Hexalith:Conversations:DeletionRuntime`)
@@ -399,7 +402,7 @@ Story 16.1 owner actions:
   to start when the two origins differ.
 - [ ] The shared unkeyed gateway client also makes EventStore native-source
   projection admission attempt an authoritative Conversation-stream read for
-  each native-proof dispatch. With only the `system`/`tenants` grant, that read
+  each native-proof dispatch. With only the `tenants:read` permission, that read
   is refused and admission remains unproven; each dispatch pays one refused
   gateway round trip (the worker token is cached for about 285 seconds).
   Granting this identity Conversation-stream read access turns native admission
@@ -413,7 +416,9 @@ Story 16.1 owner actions:
   remain deferred.
 - [ ] Operators rebuild the tenant projection records (`tenants-projection:v1:*`)
   after a state-store restore; a restored older Healthy record is not detected.
-- [ ] Follow the release train: publish EventStore; add the new EventStore
+- [ ] Follow the release train: publish EventStore (including the
+  `platform:tenants` scope on the human `api/v1/streams/read` route and the
+  gateway client's `X-Hexalith-Scope` header); add the new EventStore
   version to the Tenants catalog SDK allow-list (`Directory.Build.targets`
   accepts selected 3.129.0–3.133.0 releases today), then publish Tenants with
   the EventStore bump; then bump the Conversations package versions in
