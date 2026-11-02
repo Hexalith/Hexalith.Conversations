@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "record": "EXT-CONV-AI-1",
+  "kind": "BlockedNotSubmittedReplacementCandidate",
+  "observedAtUtc": "2026-11-02T13:23:34.754084+00:00",
+  "acceptedRecord": {
+    "targetCommit": "87e8b4a6ec3224b20a560b0e83de857805925572",
+    "status": "Committed",
+    "availability": false
+  },
+  "sourceCandidate": {
+    "targetCommit": "c6b91ea6567c43c06f720085466cb9f8f1b9bb4e",
+    "cleanAtCapture": true,
+    "statusPorcelain": "",
+    "pushedRemoteHead": "c6b91ea6567c43c06f720085466cb9f8f1b9bb4e",
+    "stableThroughCapture": true,
+    "userObservedPriorPushedHead": "14b0241cc40edea78348adfbdb2c01c92c15b2aa"
+  },
+  "proposedCommandNotAccepted": "test \"$(git -C ../conversations rev-parse HEAD)\" = \"c6b91ea6567c43c06f720085466cb9f8f1b9bb4e\" && test -z \"$(git -C ../conversations status --porcelain)\" && pwsh -NoProfile -File ../conversations/eng/verify-ext-conv-ai-1.ps1 -Mode Live -LiveManifest /home/administrator/hexalith-conversations-evidence/ext-conv-ai-1/live-manifest.json -ArtifactsPath /tmp/ext-conv-ai-1-live-c6b91ea6567c",
+  "acceptedCommandObservation": {
+    "exitCode": 1,
+    "firstFailedPredicate": "targetCommitEqualsAccepted",
+    "liveVerifierInvoked": false,
+    "workingDirectory": "/home/administrator/projects/hexalith/agents"
+  },
+  "runtimeQualificationBinding": {
+    "schemaVersion": 1,
+    "cohortId": "OQ-5.4-1",
+    "manifestSha256": null,
+    "files": {
+      "configuration": null,
+      "plan": null,
+      "hostProfile": null,
+      "hostVerifierEvidence": null,
+      "sourceAnchor": null,
+      "partyAnchor": null,
+      "approvalAnchor": null,
+      "workerAnchor": null,
+      "receiverAnchor": null,
+      "lookupAnchor": null,
+      "observerAnchor": null,
+      "controlAnchor": null
+    }
+  },
+  "independentOwnerInputs": {
+    "branchBPartiesAndConversationsInstallationBindings": null,
+    "currentAuthorityAndBindingEvidenceReference": null,
+    "installedIssuerAndPublicTrustEvidenceReference": null,
+    "currentRolesAndRevocationEvidenceReference": null
+  },
+  "installation": {
+    "liveManifestExists": false,
+    "separateConformanceReceiverVerified": false,
+    "configuredClusterWorkloadCount": 59,
+    "configuredClusterMatchingNamedWorkloads": [],
+    "clusterObservationScope": "read-only deployment/statefulset/daemonset inventory; name matching only"
+  },
+  "protection": {
+    "registerStatus": "Uncommitted",
+    "acceptedTarget": null,
+    "acceptedProfile": null,
+    "ownerAcceptanceNote": "/home/administrator/projects/hexalith/eventstore/docs/implementation/ext-protection-1-owner-acceptance.md"
+  },
+  "host": {
+    "acceptedTarget": "abbec4093715c1db854433119b32d4e16df20d08",
+    "genuineLivePassPathEvidence": null,
+    "currentVerifierComponentResult": "DependencyNotAvailable",
+    "gapEvidence": "/home/administrator/projects/hexalith/platform/docs/implementation/ext-host-1-gap-evidence-2026-11-02/README.md"
+  },
+  "cohort": {
+    "attemptJournalEntries": 0,
+    "reserved": false,
+    "c1ToC4": "NotRun",
+    "persistedLevel4Evidence": false,
+    "crossTenantLiveDenial": false
+  },
+  "sourceHashes": {
+    "/home/administrator/projects/hexalith/agents/_bmad-output/planning-artifacts/external-dependency-register.md": "e29b7fc41cb404209e0abb5fb1e735f29cab253ce4012b142a2c8c30a9c19860",
+    "/home/administrator/projects/hexalith/conversations/eng/ext-conv-ai-1-qualification.ps1": "7f33345fb23f0ecd4cfec0fab24a83d755bb8e130b27f4da51873b4e827b9b82",
+    "/home/administrator/projects/hexalith/conversations/eng/verify-ext-conv-ai-1-live.ps1": "e2b8f7662606fb6ffb1093122044a91652ad0c28beddab5743ba4094a312f89e",
+    "/home/administrator/projects/hexalith/platform/docs/implementation/story-5-4-coupled-delivery-2026-10-25/owner-decisions.json": "755c9956d3afd9538ecd508c3fbf77f08712fa2e684cf007c5e9a3c9607a7650",
+    "/home/administrator/projects/hexalith/eventstore/docs/implementation/ext-protection-1-owner-acceptance.md": "d6963d771f6614aac745e9e46d858e64ac723c0bed53d6865b1e4b1737d2f781",
+    "/home/administrator/projects/hexalith/platform/eng/ext-host-1/verify_full.py": "e1e3ed8a8793780ae4878809615be23e3cee41b50e5d8857a2f9b41537708443"
+  },
+  "requiredNextInputs": [
+    "Accepted EXT-PROTECTION-1 immutable target, integration date, executable owner command and installed profile",
+    "Genuine EXT-HOST-1 Live passPath evidence bound to its accepted target and pinned profile",
+    "Independently enrolled Branch B Party, current worker, approval issuer/public trust, source/catalogue/publication authority and lookup principals",
+    "Installed target and rollover OQ-5.4-1 receiver with independently verified EventStore storage, SDK authentication and no Agents runtime",
+    "Verified bytes for installed manifest, configuration, plan, host profile/evidence and all eight anchors",
+    "Owner acceptance of complete replacement commitment before one C1-C4 Live attempt"
+  ],
+  "acceptedCommand": "test \"$(git -C ../conversations rev-parse HEAD)\" = \"87e8b4a6ec3224b20a560b0e83de857805925572\" && test -z \"$(git -C ../conversations status --porcelain)\" && pwsh -NoProfile -File ../conversations/eng/verify-ext-conv-ai-1.ps1 -Mode Live -LiveManifest /home/administrator/hexalith-conversations-evidence/ext-conv-ai-1/live-manifest.json -ArtifactsPath /tmp/ext-conv-ai-1-live",
+  "complete": false,
+  "ownerAcceptance": null
+}
