@@ -1,0 +1,25 @@
+START 2026-11-02T18:59:47Z
+COMMAND ['dotnet', 'build', 'tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj', '--configuration', 'Debug', '-m:1']
+  Determining projects to restore...
+  Restored /home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj (in 77 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.Builds/src/libraries/Hexalith.Builds.Tooling/Hexalith.Builds.Tooling.csproj (in 154 ms).
+  Restored /home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj (in 157 ms).
+  6 of 9 projects are up-to-date for restore.
+  Hexalith.Conversations.TestSupport -> /home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.TestSupport/bin/Debug/net10.0/Hexalith.Conversations.TestSupport.dll
+  Hexalith.Commons.UniqueIds -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.UniqueIds/bin/Debug/net10.0/Hexalith.Commons.UniqueIds.dll
+  Hexalith.EventStore.Contracts -> /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.Contracts/bin/Debug/net10.0/Hexalith.EventStore.Contracts.dll
+  Hexalith.Commons.Serialization -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Serialization/bin/Debug/net10.0/Hexalith.Commons.Serialization.dll
+  Hexalith.Conversations.Contracts -> /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Contracts/bin/Debug/net10.0/Hexalith.Conversations.Contracts.dll
+  Hexalith.Commons.Http -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Http/bin/Debug/net10.0/Hexalith.Commons.Http.dll
+  Hexalith.Conversations.Client -> /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Client/bin/Debug/net10.0/Hexalith.Conversations.Client.dll
+  Platform version catalog validated: Hexalith.EventStore.Aspire/3.133.0, CommunityToolkit.Aspire.Hosting.Dapr/13.6.2-beta.959, required range 13.6.2-beta.959 for net10.0.
+  Hexalith.Builds.Tooling -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Builds/src/libraries/Hexalith.Builds.Tooling/bin/Debug/net10.0/Hexalith.Builds.Tooling.dll
+  Hexalith.Conversations.Contracts.Tests -> /home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Contracts.Tests/bin/Debug/net10.0/Hexalith.Conversations.Contracts.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:46.28
+
+END 2026-11-02T19:00:33Z EXIT 0

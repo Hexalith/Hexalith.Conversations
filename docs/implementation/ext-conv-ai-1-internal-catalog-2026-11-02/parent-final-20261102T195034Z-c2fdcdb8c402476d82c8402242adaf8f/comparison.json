@@ -1,0 +1,16 @@
+{
+  "sourceEqual": true,
+  "runtimeEqual": {
+    "server": true,
+    "domain": true,
+    "contracts": true,
+    "platform": true
+  },
+  "sourceFileCount": 38,
+  "runtimeCounts": {
+    "server": 626,
+    "domain": 227,
+    "contracts": 214,
+    "platform": 862
+  }
+}

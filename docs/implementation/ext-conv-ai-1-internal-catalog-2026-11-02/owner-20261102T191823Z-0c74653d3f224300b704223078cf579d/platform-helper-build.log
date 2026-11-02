@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored /tmp/conversations-catalog-20261102/platform-prepare-helper/Preparation.csproj (in 46 ms).
+  Preparation -> /tmp/conversations-catalog-20261102/platform-prepare-helper/bin/Debug/net10.0/Preparation.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.76

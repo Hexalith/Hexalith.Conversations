@@ -1,0 +1,11 @@
+START 2026-11-02T19:00:48Z
+COMMAND ['dotnet', 'tests/Hexalith.Conversations.Contracts.Tests/bin/Debug/net10.0/Hexalith.Conversations.Contracts.Tests.dll', '-class', 'Hexalith.Conversations.Contracts.Tests.ContractsAssemblyBoundaryTest', '-class', 'Hexalith.Conversations.Contracts.Tests.ContractPackageInventoryTest', '-class', 'Hexalith.Conversations.Contracts.Tests.PlatformEnrollmentMappingTest', '-result-xml', '/tmp/conversations-catalog-20261102/contracts-tests.xml']
+xUnit.net v3 In-Process Runner v4.0.2+0c7aa4991f (64-bit .NET 10.0.14)
+  Discovering: Hexalith.Conversations.Contracts.Tests
+  Discovered:  Hexalith.Conversations.Contracts.Tests
+  Starting:    Hexalith.Conversations.Contracts.Tests
+  Finished:    Hexalith.Conversations.Contracts.Tests (ID = '811ec49aee922f2dbe530989125bb6f1d6d5e8451fd41aa6381cc8217d642cd5')
+=== TEST EXECUTION SUMMARY ===
+   Hexalith.Conversations.Contracts.Tests  Total: 16, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 12.897s
+
+END 2026-11-02T19:01:02Z EXIT 0

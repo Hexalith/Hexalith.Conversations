@@ -15,6 +15,10 @@
     {
       "id": "Hexalith.Conversations.Testing",
       "project": "src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj"
+    },
+    {
+      "id": "Hexalith.Conversations.EventStoreExtensions",
+      "project": "src/Hexalith.Conversations.EventStoreExtensions/Hexalith.Conversations.EventStoreExtensions.csproj"
     }
   ]
 }

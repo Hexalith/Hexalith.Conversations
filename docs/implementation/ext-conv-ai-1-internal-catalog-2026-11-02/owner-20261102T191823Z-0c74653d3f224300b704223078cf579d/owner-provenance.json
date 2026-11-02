@@ -1,0 +1,433 @@
+{
+  "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+  "source": [
+    {
+      "path": ".github/workflows/release.yml",
+      "baselineSha256": "2352f714024aebe6250f7eb1868c9475d20cf2e0d0e6f42449a1b6b1781f6ca7",
+      "sha256": "812b238ecfd2539d5d35366e85deaf431ac99a066bdf28a15f8c8c259caf9801"
+    },
+    {
+      "path": "Hexalith.Conversations.slnx",
+      "baselineSha256": "42cbe1bdcd286bd7bddec1f1e9f200966694e58705fd5a0b8e5572c7e39aacf5",
+      "sha256": "bb9684f422429280fd2a06b7fc45b361580b94533eb0f530bf0a8199db42a7c4"
+    },
+    {
+      "path": "scripts/release_contract.py",
+      "baselineSha256": "99a47cd38f957186897102305bdcad1b2875620a2e511ee54936c8793407fd74",
+      "sha256": "f873d957ddd35449bcbdba54b50659ec90d1a57deaef80e92680ad9cd4373ecf"
+    },
+    {
+      "path": "scripts/release_state.py",
+      "baselineSha256": "f657a7f0c2c183a539cc9e8748934be6af5b248c8fb5d196489200af2ca6ac39",
+      "sha256": "f904cbfea5a6a84f75ad105ae9b874c9c42f2aa36c339afe442d38ff99fe7cbf"
+    },
+    {
+      "path": "scripts/validate-nuget-packages.py",
+      "baselineSha256": "275251516eecf61934bcf5a956779ff766602fbf600d5e6a2f74075f1a81aa85",
+      "sha256": "401f7444ca667ae3f3ef02bbcb63957f220f02dd236d0cde4f31bf55176a974f"
+    },
+    {
+      "path": "scripts/validate-publication-preflight.sh",
+      "baselineSha256": "515a3bc4f9e3fd053d5182be5135686abbefec21ab2c733cd3cdafa2475d5820",
+      "sha256": "e8f2f4c6b9bb16102929ed5e7ed604572c258ab3b7b1b2d301b417061e331164"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj",
+      "baselineSha256": "8c47f03e2485987ae9a46b7094a1e0d6e8631bbf405f8956b321a86237561356",
+      "sha256": "9bbe6658c2949ca64ee3112d6d69ab05e1847d8d86954c86b2c0b89d981e7013"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/GetConversationPayload.cs",
+      "baselineSha256": null,
+      "sha256": "43a065a568f19a4ecf08263b4a8ea406c0edf5a3dc7c9282b7e1efac32555662"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Queries/ListConversationsPayload.cs",
+      "baselineSha256": null,
+      "sha256": "3e8369b98e67e8f6c54e65faaeb62293f0fc4d477e76911e6506cde09c158881"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Contracts/Routing/ConversationsCatalogDeclarations.cs",
+      "baselineSha256": null,
+      "sha256": "8c494f2367458cb23c1bf6befe299d966e2f505d16298ed7aea84a5ad4faa28e"
+    },
+    {
+      "path": "src/Hexalith.Conversations.EventStoreExtensions/ConversationsCatalogAdapters.cs",
+      "baselineSha256": null,
+      "sha256": "e0587480fe1c7725f1a9c33fc90a67210ee09391f13f320132ee93b094d2a031"
+    },
+    {
+      "path": "src/Hexalith.Conversations.EventStoreExtensions/Hexalith.Conversations.EventStoreExtensions.csproj",
+      "baselineSha256": null,
+      "sha256": "2b96bf971d2b7b34e08c4ac8a4660d9275ff870e316d8f54f6ad72c95bee9ccf"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj",
+      "baselineSha256": "7f7f1d55bcc51f510b374635761c86996887d662544e42f25d250b25b267aa33",
+      "sha256": "e31628026445ce62bd0ff07ce3df3f43710227195fc140fdc23d407022a7a465"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Program.cs",
+      "baselineSha256": "4e2d527d40e0db30fa57526f123eaf77cbcdc83e6a5fd47046ca3f487f59fa98",
+      "sha256": "3dd084b47811c2202b1ae229d8f5576d803f63963ac47e44e81efcf08ea2925e"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Queries/ConversationDomainQueryHandler.cs",
+      "baselineSha256": "4dcbf7fb6dcad3ede4f3bccc34dbb07dbcef51a9cd48ae453645cd3c7e4a667e",
+      "sha256": "7a29a55131c0de68cb396eedfa39abc11ebc2abf9735cee138adf33f3ca63ec9"
+    },
+    {
+      "path": "src/Hexalith.Conversations/Aggregates/ConversationAggregate.Agents.cs",
+      "baselineSha256": "0ee73edb4a9f9f28f1001dc97c738479785252e123b7ae20d9e3f110a69734d3",
+      "sha256": "83ac46796cea3fc81878f84cc86f206a484ef0c523b57bba263ab24a4ee77b1b"
+    },
+    {
+      "path": "src/Hexalith.Conversations/Idempotency/ConversationAgentPostFingerprint.cs",
+      "baselineSha256": null,
+      "sha256": "cbaa51b2588cdb9b5d0fa78a8398eca99106e21e94c0ff06768a0e37d1d777b3"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Contracts.Tests/ContractPackageInventoryTest.cs",
+      "baselineSha256": "5f05d91b948253062e275444a20f7e51da1e10210808a3296bfab219af80e428",
+      "sha256": "c78308045d9617ebdbe3490e61ab1ed2b75da1b58967b659c9e33f744e28be9d"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Contracts.Tests/ContractsAssemblyBoundaryTest.cs",
+      "baselineSha256": "d61bbbaa4611acfe926a283b482e78dca2c531157b58944eb9f2572527e35200",
+      "sha256": "33642281ac69088cabc7d6458df243b564d6f15a2f2c25a0b3cd65fd5fcf244e"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Contracts.Tests/PlatformEnrollmentMappingTest.cs",
+      "baselineSha256": "dc8a685568139c0ef433ca977684ccae2c035c6c9827f311f10603b82d61c086",
+      "sha256": "2813a3c71b977b5fa40164a022b09e2c88b8aa9dda387ccdcf340e29756d8f1d"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/HostComposition/ConversationsDomainServiceHostCompositionTest.cs",
+      "baselineSha256": "9159fc25ff12e7fb2ba8c5a2d190717b47644786696dd118030f78837f3aca96",
+      "sha256": "0115ab7362cee4c63055ec1aecbe9bc975fe4d18b2c5d54cb79e5e39bb60451d"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogIntentTest.cs",
+      "baselineSha256": null,
+      "sha256": "120c4560f9a17e21b71249f197d119a10e51b9d59c415d3a43d11df96704b367"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogTest.cs",
+      "baselineSha256": null,
+      "sha256": "c2c13c73f711258f6dba3895e75764e9b7b4292d57a05fdfcbd59f0433900d27"
+    },
+    {
+      "path": "tests/tooling/test_release_tooling.py",
+      "baselineSha256": "2201cce082916e80054bd11bd19956b8136db259f4beb9683c3e5d4ffd9d7d69",
+      "sha256": "175d4b0d8fbef8207410d500ac4c7d62c857925a8d6973821ab66dee92077921"
+    },
+    {
+      "path": "tools/release-packages.json",
+      "baselineSha256": "909fa7a47bd68844fada64fc97b46b050f38e2589620976a9de2f7b4e90e7ac5",
+      "sha256": "1f127c1227b645a56c9a8fbd12de020f268af3b698d1daea32d04931a9f8cab4"
+    }
+  ],
+  "runtimeOutputs": [
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/bin/Debug/net10.0/Hexalith.Commons.Diagnostics.dll",
+      "sha256": "eb4f557e0823df6f0d76077ce1183c9bd1c298e981dc027aa9b469d87d19f254"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/bin/Debug/net10.0/Hexalith.Commons.Http.dll",
+      "sha256": "ec162e84148caeb7e7514a97046960f4fdb8df6913e7690e0794dcf5dfee89eb"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/bin/Debug/net10.0/Hexalith.Commons.Publication.dll",
+      "sha256": "87bb59d2a119f5e0c2bd72b27f4167fa65c4bd8d036164c8a764abb6a1cb23f7"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/bin/Debug/net10.0/Hexalith.Commons.Serialization.dll",
+      "sha256": "bd6e483342be8abce45a45b0d64045b0d4aae15781c7aa064ae463254503bb96"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/bin/Debug/net10.0/Hexalith.Commons.TenantAccess.dll",
+      "sha256": "c8c6d3a7cb8df28dcccf64f44f7f81444ada7aee1c06e2a6bb4a1f6c8f0bcebc"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/bin/Debug/net10.0/Hexalith.Commons.UniqueIds.dll",
+      "sha256": "a40aaa000937e2f3f3139e5302a3111abfd76e77081e548a9ed3459cb1b0a26c"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/bin/Debug/net10.0/Hexalith.Conversations.Client.dll",
+      "sha256": "bde122d7027e426d5aeaeb1176f69d94c43a29b50244c445b2e227164e96a683"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/bin/Debug/net10.0/Hexalith.Conversations.Contracts.dll",
+      "sha256": "8d58fb05b90d247fbcaf5ef0d03b2585fa55e92d6525ceb016a4b1e2bec43ec2"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/bin/Debug/net10.0/Hexalith.Conversations.EventStoreExtensions.dll",
+      "sha256": "6beb78b7e17afb2b0ef247d0ea62eb8ef7a6345e542fef365d8255e72c9612c3"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/bin/Debug/net10.0/Hexalith.Conversations.Server.dll",
+      "sha256": "1aaad846f3c6cb56f9ca9299be1b237cfa296ac738c2298569ad25a30b0cb74e"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/bin/Debug/net10.0/Hexalith.Conversations.dll",
+      "sha256": "469d89ca8aba70a890f3c71e270759d7dce8ef0c961f749f6243ea057ee8fe6a"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/bin/Debug/net10.0/Hexalith.EventStore.Client.dll",
+      "sha256": "3216d5594d19d709b40e7a7770aea0082a98b3cb327288e689ef70cbd8f35239"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/bin/Debug/net10.0/Hexalith.EventStore.Contracts.dll",
+      "sha256": "727bd247a29618b95cfccb438916fc52897b5cfefc7adfb813ea75ffe727cdf6"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/bin/Debug/net10.0/Hexalith.EventStore.DomainService.dll",
+      "sha256": "bcc66d8313a278fdc7048ce5908203bff427c556b50fa12bc64f2d867967553a"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/bin/Debug/net10.0/Hexalith.EventStore.ServiceDefaults.dll",
+      "sha256": "83613e21c2deef27c0e322c0f753c1773055e3145ba0084e7b75cccc9d7d5ca5"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/bin/Debug/net10.0/Hexalith.McpCli.Abstractions.dll",
+      "sha256": "fc915e89299f101d381ee95f9367b7f8c4d628459c9a5f4c0d1b94a64c285b59"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/bin/Debug/net10.0/Hexalith.Tenants.Client.dll",
+      "sha256": "9f15f266ae27264d0c43afb86947a5580f96fcac52c32c3f63d76d469828de9b"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/bin/Debug/net10.0/Hexalith.Tenants.Contracts.dll",
+      "sha256": "c4c20ceab82edd09c0b540b393a02577fe01d302f4a0e02b042fdfd1b3255923"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Commons.Diagnostics.dll",
+      "sha256": "eb4f557e0823df6f0d76077ce1183c9bd1c298e981dc027aa9b469d87d19f254"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Commons.Http.dll",
+      "sha256": "ec162e84148caeb7e7514a97046960f4fdb8df6913e7690e0794dcf5dfee89eb"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Commons.Publication.dll",
+      "sha256": "87bb59d2a119f5e0c2bd72b27f4167fa65c4bd8d036164c8a764abb6a1cb23f7"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Commons.Serialization.dll",
+      "sha256": "bd6e483342be8abce45a45b0d64045b0d4aae15781c7aa064ae463254503bb96"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Commons.ServiceDefaults.dll",
+      "sha256": "74cca51bbce996758cd835256bd2feabe1b25458d06f3bf5a8a245ea3ac85499"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Commons.TenantAccess.dll",
+      "sha256": "c8c6d3a7cb8df28dcccf64f44f7f81444ada7aee1c06e2a6bb4a1f6c8f0bcebc"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Commons.UniqueIds.dll",
+      "sha256": "a40aaa000937e2f3f3139e5302a3111abfd76e77081e548a9ed3459cb1b0a26c"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.Client.dll",
+      "sha256": "bde122d7027e426d5aeaeb1176f69d94c43a29b50244c445b2e227164e96a683"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.Contracts.dll",
+      "sha256": "8d58fb05b90d247fbcaf5ef0d03b2585fa55e92d6525ceb016a4b1e2bec43ec2"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.EventStoreExtensions.dll",
+      "sha256": "6beb78b7e17afb2b0ef247d0ea62eb8ef7a6345e542fef365d8255e72c9612c3"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.Server.Tests.dll",
+      "sha256": "26eab2bd4d76551bb1beffeb07de175ab7e29bb341e7e518ea7c360aacd37635"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.Server.dll",
+      "sha256": "1aaad846f3c6cb56f9ca9299be1b237cfa296ac738c2298569ad25a30b0cb74e"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.Testing.dll",
+      "sha256": "fffb7e44202ecdb809404b72402134a13053cb34d157149d70ac8fb72172b4d3"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.dll",
+      "sha256": "469d89ca8aba70a890f3c71e270759d7dce8ef0c961f749f6243ea057ee8fe6a"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.EventStore.Client.dll",
+      "sha256": "3216d5594d19d709b40e7a7770aea0082a98b3cb327288e689ef70cbd8f35239"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.EventStore.Contracts.dll",
+      "sha256": "727bd247a29618b95cfccb438916fc52897b5cfefc7adfb813ea75ffe727cdf6"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.EventStore.DomainService.dll",
+      "sha256": "bcc66d8313a278fdc7048ce5908203bff427c556b50fa12bc64f2d867967553a"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.EventStore.Server.dll",
+      "sha256": "2d7dac4a5a54efff205d6ac86790dacb99d04b74889f25a9c4701df25f610bba"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.EventStore.ServiceDefaults.dll",
+      "sha256": "83613e21c2deef27c0e322c0f753c1773055e3145ba0084e7b75cccc9d7d5ca5"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.EventStore.Testing.dll",
+      "sha256": "00d8c0ff427c84b081658e39f715dd22acafc226ef6e92a2176cfaa48bb1961f"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.McpCli.Abstractions.dll",
+      "sha256": "fc915e89299f101d381ee95f9367b7f8c4d628459c9a5f4c0d1b94a64c285b59"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Tenants.Client.dll",
+      "sha256": "9f15f266ae27264d0c43afb86947a5580f96fcac52c32c3f63d76d469828de9b"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Tenants.Contracts.dll",
+      "sha256": "c4c20ceab82edd09c0b540b393a02577fe01d302f4a0e02b042fdfd1b3255923"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Contracts.Tests/bin/Debug/net10.0/Hexalith.Builds.Tooling.dll",
+      "sha256": "9fec349249dcfd7cc451def52044fe16fb9a8265c359aadf075f6289584098af"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Contracts.Tests/bin/Debug/net10.0/Hexalith.Commons.Http.dll",
+      "sha256": "ec162e84148caeb7e7514a97046960f4fdb8df6913e7690e0794dcf5dfee89eb"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Contracts.Tests/bin/Debug/net10.0/Hexalith.Commons.Serialization.dll",
+      "sha256": "bd6e483342be8abce45a45b0d64045b0d4aae15781c7aa064ae463254503bb96"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Contracts.Tests/bin/Debug/net10.0/Hexalith.Commons.UniqueIds.dll",
+      "sha256": "a40aaa000937e2f3f3139e5302a3111abfd76e77081e548a9ed3459cb1b0a26c"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Contracts.Tests/bin/Debug/net10.0/Hexalith.Conversations.Client.dll",
+      "sha256": "bde122d7027e426d5aeaeb1176f69d94c43a29b50244c445b2e227164e96a683"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Contracts.Tests/bin/Debug/net10.0/Hexalith.Conversations.Contracts.Tests.dll",
+      "sha256": "e13de02153b3c09f84e93c02fe8faba80fbc7fdeb9258c1aa1bb5a0be0913fb8"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Contracts.Tests/bin/Debug/net10.0/Hexalith.Conversations.Contracts.dll",
+      "sha256": "8d58fb05b90d247fbcaf5ef0d03b2585fa55e92d6525ceb016a4b1e2bec43ec2"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Contracts.Tests/bin/Debug/net10.0/Hexalith.Conversations.TestSupport.dll",
+      "sha256": "19208434fcdab4a2ded9ff95f6e03b8439ca7cb266b0db19bbad54bfaaab1e93"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Contracts.Tests/bin/Debug/net10.0/Hexalith.EventStore.Contracts.dll",
+      "sha256": "727bd247a29618b95cfccb438916fc52897b5cfefc7adfb813ea75ffe727cdf6"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Tests/bin/Debug/net10.0/Hexalith.Commons.Serialization.dll",
+      "sha256": "bd6e483342be8abce45a45b0d64045b0d4aae15781c7aa064ae463254503bb96"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Tests/bin/Debug/net10.0/Hexalith.Commons.UniqueIds.dll",
+      "sha256": "a40aaa000937e2f3f3139e5302a3111abfd76e77081e548a9ed3459cb1b0a26c"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Tests/bin/Debug/net10.0/Hexalith.Conversations.Contracts.dll",
+      "sha256": "8d58fb05b90d247fbcaf5ef0d03b2585fa55e92d6525ceb016a4b1e2bec43ec2"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Tests/bin/Debug/net10.0/Hexalith.Conversations.Testing.dll",
+      "sha256": "fffb7e44202ecdb809404b72402134a13053cb34d157149d70ac8fb72172b4d3"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Tests/bin/Debug/net10.0/Hexalith.Conversations.Tests.dll",
+      "sha256": "cd48c0075d2d87dbf2b5d0871f5cffacdf413e3f429907e55b494f49798f00a9"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Tests/bin/Debug/net10.0/Hexalith.Conversations.dll",
+      "sha256": "469d89ca8aba70a890f3c71e270759d7dce8ef0c961f749f6243ea057ee8fe6a"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Tests/bin/Debug/net10.0/Hexalith.EventStore.Client.dll",
+      "sha256": "3216d5594d19d709b40e7a7770aea0082a98b3cb327288e689ef70cbd8f35239"
+    },
+    {
+      "path": "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Tests/bin/Debug/net10.0/Hexalith.EventStore.Contracts.dll",
+      "sha256": "727bd247a29618b95cfccb438916fc52897b5cfefc7adfb813ea75ffe727cdf6"
+    }
+  ],
+  "baselineRuntimeMeasurement": "No pre-build binary snapshot was captured by this owner implementation agent; do not infer before hashes.",
+  "preparation": {
+    "status": "prepared",
+    "outcome": {
+      "exitCode": "Success",
+      "phase": "None",
+      "category": "None",
+      "ruleId": null
+    },
+    "diagnostics": [
+      {
+        "ruleId": "HXW011",
+        "phase": "Prerequisite",
+        "category": "None",
+        "message": "Platform identity 52e361d4a41b681b06f5e885f9f9857d8b08f5b2 has no local v<SemVer> release tag.",
+        "field": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform",
+        "hint": "Fetch Platform tags, then retry.",
+        "source": null,
+        "location": null,
+        "row": null
+      },
+      {
+        "ruleId": "HXW009",
+        "phase": "Prerequisite",
+        "category": "None",
+        "message": "Builds catalog '/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds' is staged 728945314c3b7adf300df1964d5668047cfc338a, checked out 728945314c3b7adf300df1964d5668047cfc338a; Platform 52e361d4a41b681b06f5e885f9f9857d8b08f5b2 pins 4456dfb7869a307d009038c6b8523a9b6c0a732e.",
+        "field": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+        "hint": null,
+        "source": null,
+        "location": null,
+        "row": null
+      },
+      {
+        "ruleId": "HXW010",
+        "phase": "Prerequisite",
+        "category": "None",
+        "message": "Tool version 1.0.0-20261101125548 is outside Platform range [4.43.0, 5.0.0-0) at '/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform/hexalith-platform.json'.",
+        "field": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform/hexalith-platform.json",
+        "hint": null,
+        "source": null,
+        "location": null,
+        "row": null
+      }
+    ],
+    "buildPreparation": {
+      "workspace": "/tmp/conversations-catalog-20261102/prepared",
+      "mode": "source",
+      "mappingHash": "8d48217958f25cedf4dff8c0d4e6b660bf62b5ce431f1ac795d46f1bedd9cc17",
+      "environment": {
+        "CustomBeforeDirectoryBuildProps": "/tmp/conversations-catalog-20261102/prepared/source-mapping/SourceMapping.targets",
+        "CustomAfterMicrosoftCommonProps": "/tmp/conversations-catalog-20261102/prepared/source-mapping/SourceMapping.props",
+        "CustomBeforeDirectoryBuildTargets": "/tmp/conversations-catalog-20261102/prepared/source-mapping/SourceMapping.before-targets.props",
+        "CustomAfterDirectoryBuildTargets": "/tmp/conversations-catalog-20261102/prepared/source-mapping/SourceMapping.late.props",
+        "AfterMicrosoftNETSdkTargets": "/tmp/conversations-catalog-20261102/prepared/source-mapping/SourceMapping.final.targets",
+        "HEXALITH_SOURCE_MAPPING_HASH": "8d48217958f25cedf4dff8c0d4e6b660bf62b5ce431f1ac795d46f1bedd9cc17",
+        "Configuration": "Debug"
+      }
+    }
+  },
+  "localPackageArtifacts": [
+    {
+      "path": "/tmp/conversations-catalog-20261102/packages/Hexalith.Conversations.EventStoreExtensions.1.0.0.nupkg",
+      "sha256": "f8ccf303b78c9c016009f102a88abdda4789aa38e7f8060989b928925feed55e"
+    },
+    {
+      "path": "/tmp/conversations-catalog-20261102/packages/Hexalith.Conversations.EventStoreExtensions.1.0.0.snupkg",
+      "sha256": "320c32e5a247cb73186db1927313d319f7ace043ef45b8787fbc5f871e34338a"
+    }
+  ]
+}

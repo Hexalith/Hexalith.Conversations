@@ -1,0 +1,16 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Hexalith.Commons.UniqueIds -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.UniqueIds/bin/Debug/net10.0/Hexalith.Commons.UniqueIds.dll
+  Hexalith.EventStore.Contracts -> /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.Contracts/bin/Debug/net10.0/Hexalith.EventStore.Contracts.dll
+  Hexalith.Commons.Serialization -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Serialization/bin/Debug/net10.0/Hexalith.Commons.Serialization.dll
+  Hexalith.Conversations.Contracts -> /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Contracts/bin/Debug/net10.0/Hexalith.Conversations.Contracts.dll
+  Hexalith.EventStore.Client -> /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.Client/bin/Debug/net10.0/Hexalith.EventStore.Client.dll
+  Hexalith.Conversations -> /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations/bin/Debug/net10.0/Hexalith.Conversations.dll
+  Hexalith.Conversations.Testing -> /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Testing/bin/Debug/net10.0/Hexalith.Conversations.Testing.dll
+  Hexalith.Conversations.Tests -> /home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Tests/bin/Debug/net10.0/Hexalith.Conversations.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.54

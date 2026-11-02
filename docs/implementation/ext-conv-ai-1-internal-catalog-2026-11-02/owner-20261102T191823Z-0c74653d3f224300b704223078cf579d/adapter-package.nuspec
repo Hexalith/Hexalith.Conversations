@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Hexalith.Conversations.EventStoreExtensions</id>
+    <version>1.0.0</version>
+    <authors>Hexalith Contributors</authors>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <readme>README.md</readme>
+    <projectUrl>https://github.com/Hexalith/Hexalith.Conversations</projectUrl>
+    <description>Conversations-owned internal compiled EventStore route and semantic intent adapters.</description>
+    <tags>conversations eventstore routing idempotency catalog</tags>
+    <repository type="git" url="https://github.com/Hexalith/Hexalith.Conversations" commit="7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25" />
+    <dependencies>
+      <group targetFramework="net10.0">
+        <dependency id="Hexalith.EventStore.DomainService" version="3.133.0" exclude="Build,Analyzers" />
+        <dependency id="Hexalith.Conversations.Contracts" version="1.0.0" exclude="Build,Analyzers" />
+        <dependency id="Hexalith.Conversations" version="1.0.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

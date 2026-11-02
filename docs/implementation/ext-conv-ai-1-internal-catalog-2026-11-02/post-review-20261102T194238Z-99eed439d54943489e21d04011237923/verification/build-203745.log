@@ -1,0 +1,52 @@
+START 2026-11-02T19:37:45Z
+COMMAND ['dotnet', 'tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.Server.Tests.dll', '-class', 'Hexalith.Conversations.Server.Tests.Routing.ConversationsCatalogTest', '-class', 'Hexalith.Conversations.Server.Tests.Routing.ConversationsCatalogSchemaTest', '-class', 'Hexalith.Conversations.Server.Tests.Routing.ConversationsCatalogIntentTest', '-class', 'Hexalith.Conversations.Server.Tests.Routing.ConversationsCatalogProgramTest', '-class', 'Hexalith.Conversations.Server.Tests.Queries.ConversationDomainQueryDispatchTest', '-result-xml', '/tmp/conversations-catalog-review-fixes/owner-focused.xml']
+xUnit.net v3 In-Process Runner v4.0.2+0c7aa4991f (64-bit .NET 10.0.14)
+  Discovering: Hexalith.Conversations.Server.Tests
+  Discovered:  Hexalith.Conversations.Server.Tests
+  Starting:    Hexalith.Conversations.Server.Tests
+    Hexalith.Conversations.Server.Tests.Routing.ConversationsCatalogSchemaTest.ScalarConvertersHaveConcreteWireSchemasAndConstraintsParticipateInDigest [FAIL]
+      Hexalith.EventStore.Contracts.Routing.RouteCatalogValidationException : Route catalog rejected: conversation-add-participant: missing-operation-schema
+      Stack Trace:
+        references/Hexalith.EventStore/src/Hexalith.EventStore.Contracts/Routing/RouteCatalogValidator.cs(396,0): at Hexalith.EventStore.Contracts.Routing.RouteCatalogValidator.Require(Boolean condition, String path, String code)
+        references/Hexalith.EventStore/src/Hexalith.EventStore.Contracts/Routing/RouteCatalogValidator.cs(247,0): at Hexalith.EventStore.Contracts.Routing.RouteCatalogValidator.ValidateOperationContract(RouteOperationContract operation)
+        references/Hexalith.EventStore/src/Hexalith.EventStore.Contracts/Routing/RouteCatalogCodec.cs(180,0): at Hexalith.EventStore.Contracts.Routing.RouteCatalogCodec.ComputeOperationContractDigest(RouteOperationContract operation)
+        references/Hexalith.EventStore/src/Hexalith.EventStore.Contracts/Routing/RouteOperationSchema.cs(21,0): at Hexalith.EventStore.Contracts.Routing.RouteOperationSchema.Create(RouteContractDeclaration route, Type request, Type result, String ingress, String eligibility, JsonSerializerOptions serializer, JsonSchemaExporterOptions schemaOptions)
+        tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogSchemaTest.cs(68,0): at Hexalith.Conversations.Server.Tests.Routing.ConversationsCatalogSchemaTest.ScalarConvertersHaveConcreteWireSchemasAndConstraintsParticipateInDigest()
+           at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+           at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+{"EventId":0,"LogLevel":"Information","Category":"Hexalith.EventStore.Client.Registration.EventStoreHostExtensions","Message":"EventStore activated: 1 domains (conversation [Aggregate: ConversationAggregate])","State":{"DomainCount":1,"DomainDetails":"conversation [Aggregate: ConversationAggregate]","{OriginalFormat}":"EventStore activated: {DomainCount} domains ({DomainDetails})"}}
+{"EventId":62,"LogLevel":"Information","Category":"Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager","Message":"User profile is available. Using \u0027/home/administrator/.aspnet/DataProtection-Keys\u0027 as key repository; keys will not be encrypted at rest.","State":{"FullName":"/home/administrator/.aspnet/DataProtection-Keys","{OriginalFormat}":"User profile is available. Using \u0027{FullName}\u0027 as key repository; keys will not be encrypted at rest."}}
+{"EventId":45,"LogLevel":"Information","Category":"Microsoft.AspNetCore.DataProtection.EphemeralDataProtectionProvider","Message":"Using ephemeral data protection provider. Payloads will be undecipherable upon application shutdown.","State":{"{OriginalFormat}":"Using ephemeral data protection provider. Payloads will be undecipherable upon application shutdown."}}
+    Hexalith.Conversations.Server.Tests.Routing.ConversationsCatalogSchemaTest.DelegatedMetadataSchemasRequireExactlyTheObjectAcceptedByBothReceivers(json: "{}", accepted: True) [FAIL]
+      Shouldly.ShouldAssertException : ["projection:conversations-resolution-proof:7eccb9d50cfff591029fefa246c4d4b0b6986adbbef47ed149582381a56f686f:79cc5c37efde845b9ff71d78519c6a147b0d9e5671f03f34fb0b452352b56092", "projection:conversations-resolution:7eccb9d50cfff591029fefa246c4d4b0b6986adbbef47ed149582381a56f686f:79cc5c37efde845b9ff71d78519c6a147b0d9e5671f03f34fb0b452352b56092", "projection:conversations-dispatch:b987f4c184fcf6dcd8090dee0c6e410a9e6789f0cbecb8ecdb4aa7e41390fa2d", "projection:conversations-resolution-proof:7eccb9d50cfff591029fefa246c4d4b0b6986adbbef47ed149582381a56f686f:79cc5c37efde845b9ff71d78519c6a147b0d9e5671f03f34fb0b452352b56092", "projection:conversations-resolution-proof:7eccb9d50cfff591029fefa246c4d4b0b6986adbbef47ed149582381a56f686f:79cc5c37efde845b9ff71d78519c6a147b0d9e5671f03f34fb0b452352b56092", "projection:conversations-resolution:7eccb9d50cfff591029fefa246c4d4b0b6986adbbef47ed149582381a56f686f:79cc5c37efde845b9ff71d78519c6a147b0d9e5671f03f34fb0b452352b56092", "projection:conversations-dispatch:b987f4c184fcf6dcd8090dee0c6e410a9e6789f0cbecb8ecdb4aa7e41390fa2d", "projection:conversations-resolution-proof:7eccb9d50cfff591029fefa246c4d4b0b6986adbbef47ed149582381a56f686f:79cc5c37efde845b9ff71d78519c6a147b0d9e5671f03f34fb0b452352b56092", "projection:conversations-resolution-proof:7eccb9d50cfff591029fefa246c4d4b0b6986adbbef47ed149582381a56f686f:79cc5c37efde845b9ff71d78519c6a147b0d9e5671f03f34fb0b452352b56092", "projection:conversations-resolution:7eccb9d50cfff591029fefa246c4d4b0b6986adbbef47ed149582381a56f686f:79cc5c37efde845b9ff71d78519c6a147b0d9e5671f03f34fb0b452352b56092", "projection:conversations-resolution-proof:7eccb9d50cfff591029fefa246c4d4b0b6986adbbef47ed149582381a56f686f:79cc5c37efde845b9ff71d78519c6a147b0d9e5671f03f34fb0b452352b56092"]
+          should satisfy the condition
+      ((key.StartsWith("projection:conversations-resolution:", Ordinal) || key.StartsWith("projection:conversations-resolution-proof:", Ordinal)) || key.StartsWith("projection:conversations-index:", Ordinal))
+          but
+      ["projection:conversations-dispatch:b987f4c184fcf6dcd8090dee0c6e410a9e6789f0cbecb8ecdb4aa7e41390fa2d", "projection:conversations-dispatch:b987f4c184fcf6dcd8090dee0c6e410a9e6789f0cbecb8ecdb4aa7e41390fa2d"]
+          do not
+      Stack Trace:
+        tests/Hexalith.Conversations.Server.Tests/ResolutionMetadata/ResolutionMetadataFixture.cs(153,0): at Hexalith.Conversations.Server.Tests.ResolutionMetadata.ResolutionMetadataFixture.DispatchAdvisoryAsync(QueryEnvelope query, Boolean verified, Nullable`1 cancellationToken, IConversationTenantAccessService access)
+           at Hexalith.Conversations.Server.Tests.ResolutionMetadata.ResolutionMetadataFixture.DispatchAdvisoryAsync(QueryEnvelope query, Boolean verified, Nullable`1 cancellationToken, IConversationTenantAccessService access)
+           at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+        tests/Hexalith.Conversations.Server.Tests/ResolutionMetadata/ResolutionMetadataFixture.cs(162,0): at Hexalith.Conversations.Server.Tests.ResolutionMetadata.ResolutionMetadataFixture.DispatchAdvisoryAsync(QueryEnvelope query, Boolean verified, Nullable`1 cancellationToken, IConversationTenantAccessService access)
+           at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+           at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+           at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task, ConfigureAwaitOptions options)
+           at System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()
+        tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogSchemaTest.cs(100,0): at Hexalith.Conversations.Server.Tests.Routing.ConversationsCatalogSchemaTest.DelegatedMetadataSchemasRequireExactlyTheObjectAcceptedByBothReceivers(String json, Boolean accepted)
+           at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+           at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+           at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task, ConfigureAwaitOptions options)
+        --- End of stack trace from previous location ---
+           at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+           at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+           at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task, ConfigureAwaitOptions options)
+{"EventId":0,"LogLevel":"Information","Category":"Microsoft.Hosting.Lifetime","Message":"Application started. Press Ctrl\u002BC to shut down.","State":{"{OriginalFormat}":"Application started. Press Ctrl\u002BC to shut down."}}
+{"EventId":0,"LogLevel":"Information","Category":"Microsoft.Hosting.Lifetime","Message":"Hosting environment: Development","State":{"EnvName":"Development","{OriginalFormat}":"Hosting environment: {EnvName}"}}
+{"EventId":0,"LogLevel":"Information","Category":"Microsoft.Hosting.Lifetime","Message":"Content root path: /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server","State":{"ContentRoot":"/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server","{OriginalFormat}":"Content root path: {ContentRoot}"}}
+{"EventId":0,"LogLevel":"Information","Category":"Microsoft.Hosting.Lifetime","Message":"Application is shutting down...","State":{"{OriginalFormat}":"Application is shutting down..."}}
+  Finished:    Hexalith.Conversations.Server.Tests (ID = 'c38ef556a898519e42c8fb49bd82e177f93c8a707fe2e73596fab6919db071a3')
+=== TEST EXECUTION SUMMARY ===
+   Hexalith.Conversations.Server.Tests  Total: 23, Errors: 0, Failed: 2, Skipped: 0, Not Run: 0, Time: 1.140s
+
+END 2026-11-02T19:37:47Z EXIT 1

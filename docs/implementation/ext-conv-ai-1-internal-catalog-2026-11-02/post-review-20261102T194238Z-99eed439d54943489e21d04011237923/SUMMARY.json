@@ -1,0 +1,37 @@
+{
+  "status": "focused corrections passed; parent owns broader final reruns",
+  "sourceMappingHash": "9b32bb15ce13f9e80220453b04d1ab040a78eda02b35c2a80ba93bb19209b953",
+  "platformCommit": "c869f1c7b6b86bd693911ad10e328235ea697da8",
+  "catalogRootDigest": "3e085305868619e208d27c021f9bf52de9ff858e78e6dd4154cc123568323a67",
+  "receiptSha256": "15f4536038372b47578b89a924cbfcb938f23de997458d53093ab4b60152a971",
+  "domainReaderOutput": {
+    "path": "/tmp/conversations-source-catalog-5628710ddf2646e095ad714efd08d653/platform-components/catalog-reader/output/Hexalith.Conversations.dll",
+    "sha256": "bde0fc8b49250b19e6c751df0facfcbaf07fe49c5ba535e395503afd5419bd90",
+    "assemblyIdentity": "Hexalith.Conversations, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+    "informationalVersion": "1.0.0+40ad0ac41ebecda0b15b80835cc37a08e7c4a699"
+  },
+  "checks": {
+    "focusedOwnerTests": 24,
+    "focusedPlatformMethods": 1,
+    "releaseCountTests": 1,
+    "normalLaneOneOwnerAndMultiOwnerChoiceChecks": 2,
+    "normalLaneSyntax": "passed; full Release/NuGet lane not run locally"
+  },
+  "PP-1": "One-owner fixture uses known loaded SDK Contracts as foreign/no-adapter fallback; normal executable lane has wrong-adapter requests requiring nonzero and empty output.",
+  "PP-2": "Original actor null already rejected by constructor; demonstrated post MessageId/AuthorPartyId NullReferenceExceptions now reject as ArgumentNullException before semantic projection.",
+  "sourceFrozen": true,
+  "fullEnvironmentRunners": {
+    "ownerRunner": "/tmp/conversations-catalog-20261102/build.py",
+    "ownerPreparation": "/tmp/conversations-catalog-20261102/prepare.json",
+    "platformRunner": "/tmp/conversations-catalog-review-fixes/platform-build.py",
+    "platformPreparation": "/tmp/conversations-catalog-review-fixes/platform-prepare.json",
+    "platformInputs": "/tmp/conversations-catalog-review-fixes/platform-inputs.json"
+  },
+  "limitations": [
+    "No DistributedApplication resource Build/Start/Run or unavailable dependency operation.",
+    "In-process owner/gateway host registrations used controlled local configuration and disabled background consumers.",
+    "Reader-output receipt is not a complete installed execution-image measurement.",
+    "Standard JSON Schema integer constraints do not enforce number lexical spellings; the runtime converter enforces quotes/fraction/exponent rejection.",
+    "Original attempts and baseline claims remain retained; before-binary measurement remains unavailable."
+  ]
+}

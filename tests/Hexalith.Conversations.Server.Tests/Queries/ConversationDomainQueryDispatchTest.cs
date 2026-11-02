@@ -263,6 +263,27 @@ public sealed class ConversationDomainQueryDispatchTest
         store.ListReads.ShouldBe(0);
     }
 
+    [Theory]
+    [InlineData("{}", true)]
+    [InlineData("{\"page\":{\"pageSize\":10}}", true)]
+    [InlineData("{\"page\":{\"pageSize\":\"10\"}}", false)]
+    public async Task OrdinaryPayloadOptionalityAndStrictNumbersMatchCatalog(string json, bool accepted)
+    {
+        await using ServiceProvider provider = BuildProvider();
+        using var scope = provider.CreateScope();
+        QueryResult result = await DomainQueryDispatcher.ExecuteAsync(scope.ServiceProvider,
+            new QueryEnvelope(Tenant.Value, "conversations", "conversation-001", "conversation-list", Encoding.UTF8.GetBytes(json), "correlation", "actor"),
+            TestContext.Current.CancellationToken);
+        result.Success.ShouldBe(accepted);
+        if (json == "{}")
+        {
+            result = await DomainQueryDispatcher.ExecuteAsync(scope.ServiceProvider,
+                new QueryEnvelope(Tenant.Value, "conversations", "conversation-001", "conversation-detail", Encoding.UTF8.GetBytes(json), "correlation", "actor"),
+                TestContext.Current.CancellationToken);
+            result.Success.ShouldBeTrue();
+        }
+    }
+
     private static ServiceProvider BuildProvider() => BuildProvider(new EmptyProjectionReadStore());
 
     private static ServiceProvider BuildProvider(EmptyProjectionReadStore store)

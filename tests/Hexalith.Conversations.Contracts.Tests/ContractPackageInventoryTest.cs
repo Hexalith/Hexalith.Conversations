@@ -30,7 +30,9 @@ public sealed class ContractPackageInventoryTest
         "Hexalith.Conversations.CommandApi",
         "Hexalith.Conversations.AppHost",
         "Hexalith.Conversations.Web",
-        "Hexalith.EventStore",
+        "Hexalith.EventStore.Client",
+        "Hexalith.EventStore.DomainService",
+        "Hexalith.EventStore.Server",
         "Hexalith.Tenants",
         "Hexalith.Parties",
         "Hexalith.FrontComposer",
@@ -58,7 +60,10 @@ public sealed class ContractPackageInventoryTest
         GetProjectProperty(project, "PackageVersion").ShouldBeNull("Package versions are inherited from the root build configuration.");
 
         XElement[] projectReferences = project.Descendants().Where(e => e.Name.LocalName == "ProjectReference").ToArray();
-        XElement mappedReference = projectReferences.Single();
+        projectReferences.Length.ShouldBe(2);
+        XElement eventStoreReference = projectReferences.Single(reference => reference.Attribute("Include")!.Value.Contains("Hexalith.EventStore.Contracts", StringComparison.Ordinal));
+        GetItemGroupCondition(eventStoreReference).ShouldBe(SourceModeCondition);
+        XElement mappedReference = projectReferences.Single(reference => reference != eventStoreReference);
         GetItemGroupCondition(mappedReference).ShouldBe(SourceModeCondition);
         mappedReference.Attribute("Include")?.Value.ShouldBe(
             @"$(HexalithCommonsRoot)\src\libraries\Hexalith.Commons.Serialization\Hexalith.Commons.Serialization.csproj");
@@ -147,6 +152,8 @@ public sealed class ContractPackageInventoryTest
                     && e.Attribute("id")?.Value == CommonsSerializationPackageId);
             commonsDependency.Attribute("version")?.Value.ShouldBe(sourceDependencyVersion);
 
+            metadata.Descendants().Single(element => element.Name.LocalName == "dependency"
+                && element.Attribute("id")?.Value == "Hexalith.EventStore.Contracts").Attribute("version")?.Value.ShouldNotBeNullOrWhiteSpace();
             string nuspecText = nuspec.ToString(SaveOptions.DisableFormatting);
             foreach (string forbidden in ForbiddenInventoryFragments)
             {

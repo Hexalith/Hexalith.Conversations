@@ -1,0 +1,93 @@
+{
+  "Mode": "source",
+  "Root": "/home/administrator/projects/hexalith/platform",
+  "ActiveModule": "Hexalith.Platform",
+  "Entries": [
+    {
+      "Identity": "Hexalith.AI.Tools",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.AI.Tools"
+    },
+    {
+      "Identity": "Hexalith.Builds",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds"
+    },
+    {
+      "Identity": "Hexalith.Commons",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons"
+    },
+    {
+      "Identity": "Hexalith.Conversations",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations"
+    },
+    {
+      "Identity": "Hexalith.EventStore",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore"
+    },
+    {
+      "Identity": "Hexalith.Folders",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Folders"
+    },
+    {
+      "Identity": "Hexalith.FrontComposer",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.FrontComposer"
+    },
+    {
+      "Identity": "Hexalith.McpCli",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.McpCli"
+    },
+    {
+      "Identity": "Hexalith.Memories",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Memories"
+    },
+    {
+      "Identity": "Hexalith.Parties",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Parties"
+    },
+    {
+      "Identity": "Hexalith.Platform",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/platform"
+    },
+    {
+      "Identity": "Hexalith.Projects",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Projects"
+    },
+    {
+      "Identity": "Hexalith.Tenants",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Tenants"
+    }
+  ],
+  "HasGit": true,
+  "PlatformIdentity": {
+    "Commit": "6f15efdc082ad59979a7a35bc3899ed13685be05",
+    "CompositionCommit": "6f15efdc082ad59979a7a35bc3899ed13685be05",
+    "CheckoutCommit": "6f15efdc082ad59979a7a35bc3899ed13685be05",
+    "PlatformPath": "/home/administrator/projects/hexalith/platform",
+    "ReleaseTag": null,
+    "CatalogCommit": "5df75d54ad1cab5e3c2e7357c59b6f438f0bc0e8",
+    "ToolVersionRange": "[4.43.0, 5.0.0-0)",
+    "RecordPath": "/home/administrator/projects/hexalith/platform/hexalith-platform.json",
+    "IsPlatformRepository": true
+  },
+  "IdentityFindings": [
+    {
+      "RuleId": "HXW010",
+      "Message": "Tool version 1.0.0-20261101125548 is outside Platform range [4.43.0, 5.0.0-0) at \u0027/home/administrator/projects/hexalith/platform/hexalith-platform.json\u0027.",
+      "Path": "/home/administrator/projects/hexalith/platform/hexalith-platform.json",
+      "Hint": null
+    }
+  ],
+  "ContentHash": "03f9973201e25c0b62245606d27fd3d9f7e793e2a329596756eba0a5f8d97177"
+}

@@ -1,0 +1,11 @@
+Unhandled exception. System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.InvalidOperationException: The selected Conversations adapter schema owner is absent.
+   at Hexalith.Conversations.Contracts.Routing.ConversationsCatalogDeclarations.SelectedDomainOwner() in /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Contracts/Routing/ConversationsCatalogDeclarations.cs:line 75
+   at Hexalith.Conversations.Contracts.Routing.ConversationsCatalogDeclarations.get_Operations() in /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Contracts/Routing/ConversationsCatalogDeclarations.cs:line 54
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at Hexalith.EventStore.ServiceDefaults.Routing.CompiledRouteCatalogDeclarations.ReadOperations(IEnumerable`1 assemblies) in /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Routing/CompiledRouteCatalogDeclarations.cs:line 17
+   at Program.<Main>$(String[] args) in /tmp/conversations-source-catalog-2904eafcff6d4de1a48ca9afa9c5e66a/platform-components/catalog-reader/Program.cs:line 35

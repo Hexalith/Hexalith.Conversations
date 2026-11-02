@@ -1,0 +1,7 @@
+{
+  "producerMappingPath": "/tmp/conversations-catalog-20261102/prepared/source-mapping/mapping.json",
+  "producerMappingHash": "8d48217958f25cedf4dff8c0d4e6b660bf62b5ce431f1ac795d46f1bedd9cc17",
+  "mappingPath": "/tmp/conversations-catalog-20261102/platform-prepared/source-mapping/mapping.json",
+  "mappingHash": "03f9973201e25c0b62245606d27fd3d9f7e793e2a329596756eba0a5f8d97177",
+  "evidenceRoot": "/home/administrator/projects/hexalith/conversations/docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition"
+}

@@ -4,6 +4,8 @@
 // </copyright>
 
 using Hexalith.Conversations;
+using Hexalith.Conversations.Contracts.Routing;
+using Hexalith.Conversations.EventStoreExtensions;
 using Hexalith.Conversations.Server;
 using Hexalith.Conversations.Server.Agents;
 using Hexalith.Conversations.Server.Queries;
@@ -39,6 +41,11 @@ if (deletionRuntimeEnabled)
 {
     builder.Services.AddConversationDeletionRuntimeHost(builder.Configuration);
 }
+
+builder.Services.AddSingleton(new LegacyProjectionCatalogRegistration(
+    ConversationsCatalogDeclarations.Projections.Where(route => route.ProjectionType == "conversation").ToArray()));
+builder.Services.AddEventStoreDevelopmentDomainCatalog(builder.Configuration,
+    typeof(ConversationsCatalogDeclarations).Assembly, typeof(ConversationsCatalogAdapters).Assembly);
 
 WebApplication app = builder.Build();
 

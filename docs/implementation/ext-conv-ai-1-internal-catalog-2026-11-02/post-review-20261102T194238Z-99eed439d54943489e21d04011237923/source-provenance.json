@@ -1,0 +1,268 @@
+[
+  {
+    "repository": "conversations",
+    "path": ".github/workflows/release.yml",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": "2352f714024aebe6250f7eb1868c9475d20cf2e0d0e6f42449a1b6b1781f6ca7",
+    "finalSha256": "812b238ecfd2539d5d35366e85deaf431ac99a066bdf28a15f8c8c259caf9801"
+  },
+  {
+    "repository": "conversations",
+    "path": "Hexalith.Conversations.slnx",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": "42cbe1bdcd286bd7bddec1f1e9f200966694e58705fd5a0b8e5572c7e39aacf5",
+    "finalSha256": "bb9684f422429280fd2a06b7fc45b361580b94533eb0f530bf0a8199db42a7c4"
+  },
+  {
+    "repository": "conversations",
+    "path": "scripts/release_contract.py",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": "99a47cd38f957186897102305bdcad1b2875620a2e511ee54936c8793407fd74",
+    "finalSha256": "f873d957ddd35449bcbdba54b50659ec90d1a57deaef80e92680ad9cd4373ecf"
+  },
+  {
+    "repository": "conversations",
+    "path": "scripts/release_state.py",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": "f657a7f0c2c183a539cc9e8748934be6af5b248c8fb5d196489200af2ca6ac39",
+    "finalSha256": "e5d27da985216857ded72b56db8d3246f34221449f4aa0e910d667b393c61b92"
+  },
+  {
+    "repository": "conversations",
+    "path": "scripts/validate-nuget-packages.py",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": "275251516eecf61934bcf5a956779ff766602fbf600d5e6a2f74075f1a81aa85",
+    "finalSha256": "401f7444ca667ae3f3ef02bbcb63957f220f02dd236d0cde4f31bf55176a974f"
+  },
+  {
+    "repository": "conversations",
+    "path": "scripts/validate-publication-preflight.sh",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": "515a3bc4f9e3fd053d5182be5135686abbefec21ab2c733cd3cdafa2475d5820",
+    "finalSha256": "e8f2f4c6b9bb16102929ed5e7ed604572c258ab3b7b1b2d301b417061e331164"
+  },
+  {
+    "repository": "conversations",
+    "path": "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": "8c47f03e2485987ae9a46b7094a1e0d6e8631bbf405f8956b321a86237561356",
+    "finalSha256": "9bbe6658c2949ca64ee3112d6d69ab05e1847d8d86954c86b2c0b89d981e7013"
+  },
+  {
+    "repository": "conversations",
+    "path": "src/Hexalith.Conversations.Contracts/Queries/GetConversationPayload.cs",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": null,
+    "finalSha256": "884a10e19d6dd4ef0aa80dd49e0aac8cf605bfdfdeb28807c2e7493d92a62cf3"
+  },
+  {
+    "repository": "conversations",
+    "path": "src/Hexalith.Conversations.Contracts/Queries/ListConversationsPayload.cs",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": null,
+    "finalSha256": "2e67df6b473bc9a3ed7393732eeb6a9b0fd50fb8d2023f0cc9fdffdde34de942"
+  },
+  {
+    "repository": "conversations",
+    "path": "src/Hexalith.Conversations.Contracts/Routing/ConversationsCatalogDeclarations.cs",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": null,
+    "finalSha256": "07eb2f22f12a29f73a2b65e38560badce4a155cfc5b844cdf5c1adc0460f8b9a"
+  },
+  {
+    "repository": "conversations",
+    "path": "src/Hexalith.Conversations.Contracts/Serialization/ConversationQuerySerialization.cs",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": null,
+    "finalSha256": "730dc9a14f23f9807c071e81629f22df869193a2f0a3ab5cef3ff77f18efde99"
+  },
+  {
+    "repository": "conversations",
+    "path": "src/Hexalith.Conversations.Contracts/Serialization/ConversationScalarSchemas.cs",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": null,
+    "finalSha256": "2bc72ac64364072c397dc930cac370b8ea399b4d3b4855e87f2dd1f28250ccf8"
+  },
+  {
+    "repository": "conversations",
+    "path": "src/Hexalith.Conversations.Contracts/Serialization/ConversationsJsonContext.cs",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": "06c29b0f50f3017b25d3a40855b7eab2fe7d482a358a3f75cbf0e07c6c81ae82",
+    "finalSha256": "6f6c9211fe9b608a579670dca058103b8b6112559fe2df57860f500e1e266fc5"
+  },
+  {
+    "repository": "conversations",
+    "path": "src/Hexalith.Conversations.EventStoreExtensions/ConversationsCatalogAdapters.cs",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": null,
+    "finalSha256": "9eb8c438348a0c430062e3a942337a76ad145d8fd623e831e452b3a9a3fa551c"
+  },
+  {
+    "repository": "conversations",
+    "path": "src/Hexalith.Conversations.EventStoreExtensions/Hexalith.Conversations.EventStoreExtensions.csproj",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": null,
+    "finalSha256": "2b96bf971d2b7b34e08c4ac8a4660d9275ff870e316d8f54f6ad72c95bee9ccf"
+  },
+  {
+    "repository": "conversations",
+    "path": "src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": "7f7f1d55bcc51f510b374635761c86996887d662544e42f25d250b25b267aa33",
+    "finalSha256": "e31628026445ce62bd0ff07ce3df3f43710227195fc140fdc23d407022a7a465"
+  },
+  {
+    "repository": "conversations",
+    "path": "src/Hexalith.Conversations.Server/Program.cs",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": "4e2d527d40e0db30fa57526f123eaf77cbcdc83e6a5fd47046ca3f487f59fa98",
+    "finalSha256": "3dd084b47811c2202b1ae229d8f5576d803f63963ac47e44e81efcf08ea2925e"
+  },
+  {
+    "repository": "conversations",
+    "path": "src/Hexalith.Conversations.Server/Queries/ConversationDomainQueryHandler.cs",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": "4dcbf7fb6dcad3ede4f3bccc34dbb07dbcef51a9cd48ae453645cd3c7e4a667e",
+    "finalSha256": "0cfe8e95f3dc7e6a9a132a2e64669b876ab5a3a286efc7543859896f95c4f152"
+  },
+  {
+    "repository": "conversations",
+    "path": "src/Hexalith.Conversations/Aggregates/ConversationAggregate.Agents.cs",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": "0ee73edb4a9f9f28f1001dc97c738479785252e123b7ae20d9e3f110a69734d3",
+    "finalSha256": "83ac46796cea3fc81878f84cc86f206a484ef0c523b57bba263ab24a4ee77b1b"
+  },
+  {
+    "repository": "conversations",
+    "path": "src/Hexalith.Conversations/Idempotency/ConversationAgentPostFingerprint.cs",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": null,
+    "finalSha256": "cbaa51b2588cdb9b5d0fa78a8398eca99106e21e94c0ff06768a0e37d1d777b3"
+  },
+  {
+    "repository": "conversations",
+    "path": "tests/Hexalith.Conversations.Contracts.Tests/ContractPackageInventoryTest.cs",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": "5f05d91b948253062e275444a20f7e51da1e10210808a3296bfab219af80e428",
+    "finalSha256": "c78308045d9617ebdbe3490e61ab1ed2b75da1b58967b659c9e33f744e28be9d"
+  },
+  {
+    "repository": "conversations",
+    "path": "tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": "9aebdfa58fb2637cebd27b45014be7673d9a2417030e0f1fefd9045e74b1e2e1",
+    "finalSha256": "a787429c9c5e9727bb6d5b201d66f6d778da9d550e17af3e57833bac0dc272a9"
+  },
+  {
+    "repository": "conversations",
+    "path": "tests/Hexalith.Conversations.Contracts.Tests/ContractsAssemblyBoundaryTest.cs",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": "d61bbbaa4611acfe926a283b482e78dca2c531157b58944eb9f2572527e35200",
+    "finalSha256": "33642281ac69088cabc7d6458df243b564d6f15a2f2c25a0b3cd65fd5fcf244e"
+  },
+  {
+    "repository": "conversations",
+    "path": "tests/Hexalith.Conversations.Contracts.Tests/PlatformEnrollmentMappingTest.cs",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": "dc8a685568139c0ef433ca977684ccae2c035c6c9827f311f10603b82d61c086",
+    "finalSha256": "2813a3c71b977b5fa40164a022b09e2c88b8aa9dda387ccdcf340e29756d8f1d"
+  },
+  {
+    "repository": "conversations",
+    "path": "tests/Hexalith.Conversations.Server.Tests/HostComposition/ConversationsDomainServiceHostCompositionTest.cs",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": "9159fc25ff12e7fb2ba8c5a2d190717b47644786696dd118030f78837f3aca96",
+    "finalSha256": "0115ab7362cee4c63055ec1aecbe9bc975fe4d18b2c5d54cb79e5e39bb60451d"
+  },
+  {
+    "repository": "conversations",
+    "path": "tests/Hexalith.Conversations.Server.Tests/Queries/ConversationDomainQueryDispatchTest.cs",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": "98ef6e8bcb742ef93635dc403e674ccc479c7e62d8d2411fb2fe82c3645a3005",
+    "finalSha256": "dc199c9768a0405e8b8fdfc19603f28284abff1a880a1b2ecafe3fd5c81cdb6b"
+  },
+  {
+    "repository": "conversations",
+    "path": "tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogIntentTest.cs",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": null,
+    "finalSha256": "f51b61832c7d4ed5ac727d1b117ce09b91b26d60d5fd77825e8c926e2fdc0bb1"
+  },
+  {
+    "repository": "conversations",
+    "path": "tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogProgramTest.cs",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": null,
+    "finalSha256": "46e45f43e962bc59374d4f030043a65d12827490a1b648e4e0778cd2a4da38a0"
+  },
+  {
+    "repository": "conversations",
+    "path": "tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogSchemaTest.cs",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": null,
+    "finalSha256": "f3f02c6ba2026d07587f1d5dbf8c4d39622f5bf42a75c3c301dcfa9cf1e7b3be"
+  },
+  {
+    "repository": "conversations",
+    "path": "tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogTest.cs",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": null,
+    "finalSha256": "c2c13c73f711258f6dba3895e75764e9b7b4292d57a05fdfcbd59f0433900d27"
+  },
+  {
+    "repository": "conversations",
+    "path": "tests/tooling/test_release_tooling.py",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": "2201cce082916e80054bd11bd19956b8136db259f4beb9683c3e5d4ffd9d7d69",
+    "finalSha256": "b2a8ebf406c9b1b6f8e5f23b7ec3ac3fee70f23b36e3e4b5696a0988e2820304"
+  },
+  {
+    "repository": "conversations",
+    "path": "tools/release-packages.json",
+    "baselineCommit": "7c77a41e8bcdcb00fa1bcb070e19027ad0a98a25",
+    "baselineSha256": "909fa7a47bd68844fada64fc97b46b050f38e2589620976a9de2f7b4e90e7ac5",
+    "finalSha256": "1f127c1227b645a56c9a8fbd12de020f268af3b698d1daea32d04931a9f8cab4"
+  },
+  {
+    "repository": "platform",
+    "path": "src/Hexalith.Platform.CatalogBuilder/Hexalith.Platform.CatalogBuilder.csproj",
+    "baselineCommit": "6f15efdc082ad59979a7a35bc3899ed13685be05",
+    "baselineSha256": "7c2f85087cb39952c8e43a568cf0f83c227a682e537639446c635f62ad149390",
+    "finalSha256": "24130bb7f0252b1eef4a29a0ff002e9c9198a777377449fbb2c68282d74a038e"
+  },
+  {
+    "repository": "platform",
+    "path": "src/Hexalith.Platform.CatalogBuilder/Program.cs",
+    "baselineCommit": "6f15efdc082ad59979a7a35bc3899ed13685be05",
+    "baselineSha256": "3fe06566d2e81627041d602e3bfef7304f2a334cf981d8519ce4ead2a3ac651b",
+    "finalSha256": "5476eb935b9f299c62c448eb670879679afd0437807c393305edf78e2555ba0a"
+  },
+  {
+    "repository": "platform",
+    "path": "tests/Hexalith.Platform.Composition.Tests/ConversationsCatalogSourceVerificationTests.cs",
+    "baselineCommit": "6f15efdc082ad59979a7a35bc3899ed13685be05",
+    "baselineSha256": null,
+    "finalSha256": "59cafcd75b3f073b362c2bdbd8fc7243fb910a94fd6d1b3ca1fbcea534166716"
+  },
+  {
+    "repository": "platform",
+    "path": "tests/Hexalith.Platform.Composition.Tests/ConversationsEnrollmentTests.cs",
+    "baselineCommit": "6f15efdc082ad59979a7a35bc3899ed13685be05",
+    "baselineSha256": "8ba7fd54aac942c0e8ee1f4e1e6ecb9652d93c124f8144421b70e2bf7cb6e38a",
+    "finalSha256": "f77ebe99680ec0642f5fae3dce06d3a5db7cc3f5df64bf2027b5a4152d4305dc"
+  },
+  {
+    "repository": "platform",
+    "path": "tests/Hexalith.Platform.Composition.Tests/Hexalith.Platform.Composition.Tests.csproj",
+    "baselineCommit": "6f15efdc082ad59979a7a35bc3899ed13685be05",
+    "baselineSha256": "42c51a686183483ec65437df48cda9a4aa97e2802cc52efd2987ec3b2899a991",
+    "finalSha256": "fe36c7cab3bb89ec31d2782c84900b90f29b22fa6dd81721b84e7ad62fad564f"
+  },
+  {
+    "repository": "platform",
+    "path": "tests/catalog-builder/verify_catalog_builder.py",
+    "baselineCommit": "6f15efdc082ad59979a7a35bc3899ed13685be05",
+    "baselineSha256": "1e817b2c527bc0299c741a2126cb975c9bd581dc6dc2902e6a421b1893c3269e",
+    "finalSha256": "bfd7736a5eeb225a1605f158634b6e28c9a9cf726bc46cf311e580cc2e35ab63"
+  }
+]

@@ -1,0 +1,83 @@
+[
+  {
+    "path": "references/Hexalith.Builds",
+    "expected": "8f3ce34436299d4682ff50dc3fe18360a09a88e1",
+    "actual": "5df75d54ad1cab5e3c2e7357c59b6f438f0bc0e8",
+    "clean": true,
+    "exactObjectPresent": true,
+    "canFastForward": true,
+    "status": ""
+  },
+  {
+    "path": "references/Hexalith.EventStore",
+    "expected": "653124dced81830e932edb7738a78ee61104d55a",
+    "actual": "a3dbec2f8b6150a3ee33dcbfc2b6bf2fec274625",
+    "clean": true,
+    "exactObjectPresent": true,
+    "canFastForward": true,
+    "status": ""
+  },
+  {
+    "path": "references/Hexalith.Folders",
+    "expected": "a1f752fd1755756ae69fe95322b14f3b2fb04ee8",
+    "actual": "0985d8a5b0eccf22f386f09e890234f482e33339",
+    "clean": true,
+    "exactObjectPresent": true,
+    "canFastForward": true,
+    "status": ""
+  },
+  {
+    "path": "references/Hexalith.FrontComposer",
+    "expected": "b547cd80df1dbdb73f6e3538812db38e156f304e",
+    "actual": "d8cbf3ffae31880d5eb8101b111a722725d8bdcf",
+    "clean": true,
+    "exactObjectPresent": true,
+    "canFastForward": true,
+    "status": ""
+  },
+  {
+    "path": "references/Hexalith.McpCli",
+    "expected": "06cfdf25a352034b36041e9ed44da514b167ca5a",
+    "actual": "c8b9570dcd74e02eb467961747ce532b12be546d",
+    "clean": true,
+    "exactObjectPresent": true,
+    "canFastForward": true,
+    "status": ""
+  },
+  {
+    "path": "references/Hexalith.Memories",
+    "expected": "d9d61d8a95c7dc8827acf68ae723859711703729",
+    "actual": "8aee7a1323160cb39d7b1415256dbfdcb032939a",
+    "clean": true,
+    "exactObjectPresent": true,
+    "canFastForward": true,
+    "status": ""
+  },
+  {
+    "path": "references/Hexalith.Parties",
+    "expected": "046dd304cd0964429241a14dda267fe832c67bf6",
+    "actual": "fa9d6286a16fc725acb45215b3bebec202c7a78e",
+    "clean": true,
+    "exactObjectPresent": true,
+    "canFastForward": true,
+    "status": ""
+  },
+  {
+    "path": "references/Hexalith.Projects",
+    "expected": "98efe700b60cacfe0b3cc3cb0c134e0902419b4c",
+    "actual": "96cf96ccafd472871c72aeaf07dd2e7aed729e23",
+    "clean": true,
+    "exactObjectPresent": true,
+    "canFastForward": true,
+    "status": ""
+  },
+  {
+    "path": "references/Hexalith.Tenants",
+    "expected": "b0f4b371448eeaaf75dfc048cc2fbd162d0133ef",
+    "actual": "b7824e4bba174b3a459364af24c99dedaf8f0738",
+    "clean": true,
+    "exactObjectPresent": true,
+    "canFastForward": true,
+    "status": ""
+  }
+]

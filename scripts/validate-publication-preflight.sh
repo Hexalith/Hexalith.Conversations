@@ -22,7 +22,7 @@ case "$phase" in verify|publish) ;; *) fail "Publication phase must be verify or
 [ "${HEXALITH_RELEASE_SOURCE_CI_WORKFLOW:-}" = "ci.yml" ] || fail "Release source CI must be ci.yml."
 [ "${HEXALITH_RELEASE_PACKAGE_MANIFEST:-}" = "tools/release-packages.json" ] ||
   fail "Release package manifest must be tools/release-packages.json."
-[ "${HEXALITH_RELEASE_EXPECTED_PACKAGE_COUNT:-}" = "4" ] || fail "Expected package count must be four."
+[ "${HEXALITH_RELEASE_EXPECTED_PACKAGE_COUNT:-}" = "5" ] || fail "Expected package count must be five."
 [ "${HEXALITH_RELEASE_ENVIRONMENT:-}" = "production" ] || fail "Release environment must be production."
 [ "${HEXALITH_RELEASE_REQUIRE_AUTHORITY:-}" = "false" ] ||
   fail "This authorized bypass requires publication authority to be exactly false."

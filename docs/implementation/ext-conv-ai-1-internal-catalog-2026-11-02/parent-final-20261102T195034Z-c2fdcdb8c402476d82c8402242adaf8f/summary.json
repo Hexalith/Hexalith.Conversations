@@ -1,0 +1,71 @@
+{
+  "observedAt": "2026-11-02T19:58:39.244891+00:00",
+  "checks": {
+    "server": [
+      {
+        "total": "1586",
+        "passed": "1586",
+        "failed": "0",
+        "errors": "0",
+        "skipped": "0",
+        "not-run": "0"
+      }
+    ],
+    "domain": [
+      {
+        "total": "189",
+        "passed": "189",
+        "failed": "0",
+        "errors": "0",
+        "skipped": "0",
+        "not-run": "0"
+      }
+    ],
+    "contracts": [
+      {
+        "total": "648",
+        "passed": "648",
+        "failed": "0",
+        "errors": "0",
+        "skipped": "0",
+        "not-run": "0"
+      }
+    ],
+    "platform": [
+      {
+        "total": "46",
+        "passed": "43",
+        "failed": "3",
+        "errors": "0",
+        "skipped": "0",
+        "not-run": "0"
+      }
+    ],
+    "catalogueEnrollment": {
+      "total": 38,
+      "passed": 38
+    }
+  },
+  "comparison": {
+    "sourceEqual": true,
+    "runtimeEqual": {
+      "server": true,
+      "domain": true,
+      "contracts": true,
+      "platform": true
+    },
+    "sourceFileCount": 38,
+    "runtimeCounts": {
+      "server": 626,
+      "domain": 227,
+      "contracts": 214,
+      "platform": 862
+    }
+  },
+  "broaderBlocker": "Three additional default-graph cases fail during restore with NU1109: Tenants requires EventStore4.0.0 and McpCli2.0.0, while the generated reader centrally pins3.133.0 and1.1.0. No compile/admission/Live step occurs in those failures. Preserve gate; no downgrade suppression.",
+  "limits": [
+    "Source/Debug evidence only; accepted dependency records unchanged.",
+    "No installed manifest/input pins, receiver installation, replacement submission, or Live/OQ attempt.",
+    "Published Release/NuGet CI lane not run locally."
+  ]
+}

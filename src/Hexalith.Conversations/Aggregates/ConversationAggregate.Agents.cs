@@ -156,7 +156,7 @@ public sealed partial class ConversationAggregate
             return existing.MessageId == request.MessageId && existing.AuthorPartyId == request.AuthorPartyId
                 && existing.IdempotencyKey == request.Metadata.IdempotencyKey && existing.OriginalText == request.Text
                 && existing.OriginalProvenance == provenance && existing.CreatedAt == command.PostedAt
-                && existing.OriginalIntentFingerprint == PostFingerprint(request, command.PostedAt)
+                && existing.OriginalIntentFingerprint == ConversationAgentPostFingerprint.Create(request, command.PostedAt)
                 ? DomainResult.NoOp() : AgentReject(ConversationAgentsOutcome.Conflict);
         }
         if (state.Lifecycle != ConversationLifecycleState.Open || !IsValidOccurrence(command.PostedAt, state))
@@ -166,7 +166,7 @@ public sealed partial class ConversationAggregate
         return AgentSuccess(new MessageAppendedDomainEvent(AgentMetadata(request.Metadata, request.ConversationId,
             command.EventId, ConversationEventType.MessageAppended, command.PostedAt),
             request.MessageId, request.AuthorPartyId, request.Text, provenance, request.Metadata.IdempotencyKey,
-            PostFingerprint(request, command.PostedAt), request.ProviderCorrelation));
+            ConversationAgentPostFingerprint.Create(request, command.PostedAt), request.ProviderCorrelation));
     }
 
     /// <summary>Applies a current message edit only after independent human admission.</summary>
@@ -399,33 +399,6 @@ public sealed partial class ConversationAggregate
         string eventId, ConversationEventType type, DateTimeOffset occurrence)
         => new(metadata.SchemaVersion, eventId, type, metadata.TenantId, conversation,
             metadata.CorrelationId, occurrence, metadata.ActorPartyId, metadata.CausationId);
-
-    private static string PostFingerprint(AppendMessageCommand request, DateTimeOffset occurrence)
-    {
-        var parts = new List<KeyValuePair<string, string?>> {
-            new("message", request.MessageId.Value), new("author", request.AuthorPartyId.Value),
-            new("text", request.Text), new("occurrence", occurrence.ToString("O")),
-            new("key", request.Metadata.IdempotencyKey) };
-        AddParts(parts, "provenance", JsonSerializer.SerializeToElement(request.AgentProvenance));
-        AddParts(parts, "provider", JsonSerializer.SerializeToElement(request.ProviderCorrelation));
-        AddParts(parts, "caller", JsonSerializer.SerializeToElement(request.CallerMetadata));
-        return ConversationPayloadFingerprint.FromParts(parts).Value;
-    }
-
-    private static void AddParts(List<KeyValuePair<string, string?>> parts, string prefix, JsonElement value)
-    {
-        if (value.ValueKind == JsonValueKind.Object)
-        {
-            foreach (var property in value.EnumerateObject())
-            {
-                AddParts(parts, $"{prefix}.{property.Name}", property.Value);
-            }
-        }
-        else
-        {
-            parts.Add(new(prefix, value.GetRawText()));
-        }
-    }
 
     private static DomainResult AgentSuccess(IEventPayload payload) => DomainResult.Success([payload]);
 

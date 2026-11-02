@@ -1,0 +1,28 @@
+  Determining projects to restore...
+  Restored /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.EventStoreExtensions/Hexalith.Conversations.EventStoreExtensions.csproj (in 214 ms).
+  Restored /tmp/conversations-source-catalog-c23647a57bdb4af9932a3f2ebc4474c4/platform-components/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj (in 246 ms).
+  16 of 18 projects are up-to-date for restore.
+  Hexalith.Commons.UniqueIds -> /tmp/conversations-source-catalog-c23647a57bdb4af9932a3f2ebc4474c4/platform-components/catalog-reader/output/Hexalith.Commons.UniqueIds.dll
+  Hexalith.EventStore.Contracts -> /tmp/conversations-source-catalog-c23647a57bdb4af9932a3f2ebc4474c4/platform-components/catalog-reader/output/Hexalith.EventStore.Contracts.dll
+  Hexalith.McpCli.Analyzers -> /tmp/conversations-source-catalog-c23647a57bdb4af9932a3f2ebc4474c4/platform-components/catalog-reader/output/Hexalith.McpCli.Analyzers.dll
+  Hexalith.McpCli.Abstractions -> /tmp/conversations-source-catalog-c23647a57bdb4af9932a3f2ebc4474c4/platform-components/catalog-reader/output/Hexalith.McpCli.Abstractions.dll
+  Hexalith.Tenants.Contracts -> /tmp/conversations-source-catalog-c23647a57bdb4af9932a3f2ebc4474c4/platform-components/catalog-reader/output/Hexalith.Tenants.Contracts.dll
+  Hexalith.EventStore.Client -> /tmp/conversations-source-catalog-c23647a57bdb4af9932a3f2ebc4474c4/platform-components/catalog-reader/output/Hexalith.EventStore.Client.dll
+  Hexalith.EventStore.ServiceDefaults -> /tmp/conversations-source-catalog-c23647a57bdb4af9932a3f2ebc4474c4/platform-components/catalog-reader/output/Hexalith.EventStore.ServiceDefaults.dll
+  Hexalith.EventStore.DomainService -> /tmp/conversations-source-catalog-c23647a57bdb4af9932a3f2ebc4474c4/platform-components/catalog-reader/output/Hexalith.EventStore.DomainService.dll
+  Hexalith.EventStore.Server -> /tmp/conversations-source-catalog-c23647a57bdb4af9932a3f2ebc4474c4/platform-components/catalog-reader/output/Hexalith.EventStore.Server.dll
+  Hexalith.Tenants.Server -> /tmp/conversations-source-catalog-c23647a57bdb4af9932a3f2ebc4474c4/platform-components/catalog-reader/output/Hexalith.Tenants.Server.dll
+  Hexalith.Memories.Contracts -> /tmp/conversations-source-catalog-c23647a57bdb4af9932a3f2ebc4474c4/platform-components/catalog-reader/output/Hexalith.Memories.Contracts.dll
+  Hexalith.Memories.EventStore -> /tmp/conversations-source-catalog-c23647a57bdb4af9932a3f2ebc4474c4/platform-components/catalog-reader/output/Hexalith.Memories.EventStore.dll
+  Hexalith.Memories.EventStoreExtensions -> /tmp/conversations-source-catalog-c23647a57bdb4af9932a3f2ebc4474c4/platform-components/catalog-reader/output/Hexalith.Memories.EventStoreExtensions.dll
+  Hexalith.Commons.Serialization -> /tmp/conversations-source-catalog-c23647a57bdb4af9932a3f2ebc4474c4/platform-components/catalog-reader/output/Hexalith.Commons.Serialization.dll
+  Hexalith.Conversations.Contracts -> /tmp/conversations-source-catalog-c23647a57bdb4af9932a3f2ebc4474c4/platform-components/catalog-reader/output/Hexalith.Conversations.Contracts.dll
+  Hexalith.Conversations -> /tmp/conversations-source-catalog-c23647a57bdb4af9932a3f2ebc4474c4/platform-components/catalog-reader/output/Hexalith.Conversations.dll
+  Hexalith.Conversations.EventStoreExtensions -> /tmp/conversations-source-catalog-c23647a57bdb4af9932a3f2ebc4474c4/platform-components/catalog-reader/output/Hexalith.Conversations.EventStoreExtensions.dll
+  Hexalith.Platform.CatalogBuilder -> /tmp/conversations-source-catalog-c23647a57bdb4af9932a3f2ebc4474c4/platform-components/catalog-reader/output/Hexalith.Platform.CatalogBuilder.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:38.93

@@ -1,0 +1,47 @@
+[
+  {
+    "path": "references/Hexalith.Builds",
+    "remote": "origin\thttps://github.com/Hexalith/Hexalith.Builds.git (fetch)\norigin\thttps://github.com/Hexalith/Hexalith.Builds.git (push)\n",
+    "history": "5df75d54 fix(test): satisfy comment spacing analyzer\n27499971 fix(test): allow hosted package startup readiness\n72894531 test(evidence): refresh EventStore 3.133 fixtures\n536e07cc fix(test): bind evidence fixtures to current manifest\n"
+  },
+  {
+    "path": "references/Hexalith.EventStore",
+    "remote": "origin\thttps://github.com/Hexalith/Hexalith.EventStore.git (fetch)\norigin\thttps://github.com/Hexalith/Hexalith.EventStore.git (push)\n",
+    "history": "a3dbec2f8 fix(client): reject ambiguous checkpoint history metadata\n62223b1b0 fix(test): align compatibility proof with pinned Builds revision\n6b2ef99ac fix(ci): select reachable Tenants submodule revision\n4db51a968 fix(client): release recovery leases and allow unmaterialized projection state\n"
+  },
+  {
+    "path": "references/Hexalith.Folders",
+    "remote": "origin\thttps://github.com/Hexalith/Hexalith.Folders.git (fetch)\norigin\thttps://github.com/Hexalith/Hexalith.Folders.git (push)\n",
+    "history": "0985d8a5 fix(ci): build selected Tenants catalog owner in Release\n4953b166 fix(ci): build Tenants catalog owner in selected configuration\n17c66450 fix(test): include build-only Tenants owner in scaffold policy\n82e0d12f fix(ci): build and load selected Tenants owner for catalog test\n"
+  },
+  {
+    "path": "references/Hexalith.FrontComposer",
+    "remote": "origin\thttps://github.com/Hexalith/Hexalith.FrontComposer.git (fetch)\norigin\thttps://github.com/Hexalith/Hexalith.FrontComposer.git (push)\n",
+    "history": "d8cbf3ff docs(ci): record current sealed source projection\na6165112 fix(ci): seal current Platform source projection\ndc03e56e build: sync local changes via /pushall\nbdb4d0ce docs(ux): record story 13.6 accessibility review\n"
+  },
+  {
+    "path": "references/Hexalith.McpCli",
+    "remote": "origin\thttps://github.com/Hexalith/Hexalith.McpCli.git (fetch)\norigin\thttps://github.com/Hexalith/Hexalith.McpCli.git (push)\n",
+    "history": "c8b9570 fix(ci): align Builds workflow pins with gitlink\n829a98d build: sync reconciled submodule mains\ne1fa6d5 build: sync local changes via /pushall\n3bc8964 fix: story 4.18\n"
+  },
+  {
+    "path": "references/Hexalith.Memories",
+    "remote": "origin\thttps://github.com/Hexalith/Hexalith.Memories.git (fetch)\norigin\thttps://github.com/Hexalith/Hexalith.Memories.git (push)\n",
+    "history": "8aee7a13 fix: story 30.3\nad9a5ff6 test: bind retained Builds proof to original bytes\n7e2e87e8 fix(ci): align Builds qualification pin with gitlink\n637eaa1b fix: story 30.3\n"
+  },
+  {
+    "path": "references/Hexalith.Parties",
+    "remote": "origin\thttps://github.com/Hexalith/Hexalith.Parties.git (fetch)\norigin\thttps://github.com/Hexalith/Hexalith.Parties.git (push)\n",
+    "history": "fa9d6286 fix(ci): record Platform successor and expire prior receipts\n957111c5 fix(topology): bind selected technical catalog profile\nb029c62a docs: record story 8.10 I16 parity receipts\na419b53c docs(parties): record v2 custody observation recheck\n"
+  },
+  {
+    "path": "references/Hexalith.Projects",
+    "remote": "origin\thttps://github.com/Hexalith/Hexalith.Projects.git (fetch)\norigin\thttps://github.com/Hexalith/Hexalith.Projects.git (push)\n",
+    "history": "96cf96c fix(tests): align project shadow cursor scope with quarantine visibility\nb7f6f70 fix(deps): align Projects with published SDK graph\nce487bc fix(reads): prepare source mapping for supported read qualification\n3f2931a fix(reads): quarantine folderless projects during list and open\n"
+  },
+  {
+    "path": "references/Hexalith.Tenants",
+    "remote": "origin\thttps://github.com/Hexalith/Hexalith.Tenants.git (fetch)\norigin\thttps://github.com/Hexalith/Hexalith.Tenants.git (push)\n",
+    "history": "b7824e4b build: merge refs/remotes/origin/fix/legacy-server-profile-compilation into main via /pushall\n27f227c0 fix(build): sync latest root dependencies\n0209a0d2 fix(build): sync EventStore client revision\n3c5b6d4d test(client): cover unsupported tenant history metadata\n"
+  }
+]

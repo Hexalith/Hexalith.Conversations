@@ -14,6 +14,7 @@
     <Project Path="src/Hexalith.Conversations.Admin.Web/Hexalith.Conversations.Admin.Web.csproj" />
     <Project Path="src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj" />
     <Project Path="src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj" />
+    <Project Path="src/Hexalith.Conversations.EventStoreExtensions/Hexalith.Conversations.EventStoreExtensions.csproj" />
     <Project Path="src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj" />
     <Project Path="src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj" />
     <Project Path="src/Hexalith.Conversations/Hexalith.Conversations.csproj" />

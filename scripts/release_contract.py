@@ -32,6 +32,10 @@ EXACT_PACKAGES: tuple[tuple[str, str], ...] = (
         "Hexalith.Conversations.Testing",
         "src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj",
     ),
+    (
+        "Hexalith.Conversations.EventStoreExtensions",
+        "src/Hexalith.Conversations.EventStoreExtensions/Hexalith.Conversations.EventStoreExtensions.csproj",
+    ),
 )
 EXACT_PACKAGE_IDS = tuple(package_id for package_id, _ in EXACT_PACKAGES)
 
@@ -72,7 +76,7 @@ def load_manifest(
     manifest_path: Path = DEFAULT_MANIFEST,
     repository_root: Path = ROOT,
 ) -> tuple[ReleasePackage, ...]:
-    """Load and prove the exact, immutable four-package inventory."""
+    """Load and prove the exact, immutable five-package inventory."""
     resolved_root = repository_root.resolve()
     resolved_manifest = manifest_path.resolve()
     if resolved_root not in resolved_manifest.parents:
@@ -104,7 +108,7 @@ def load_manifest(
 
     if tuple(actual) != EXACT_PACKAGES:
         raise ValueError(
-            "release inventory must equal the canonical four-package sequence; "
+            "release inventory must equal the canonical five-package sequence; "
             f"expected {list(EXACT_PACKAGES)}, found {actual}"
         )
 

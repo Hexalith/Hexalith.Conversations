@@ -1,0 +1,36 @@
+  Determining projects to restore...
+  Restored /home/administrator/projects/hexalith/platform/references/Hexalith.Memories/src/Hexalith.Memories.Contracts/Hexalith.Memories.Contracts.csproj (in 109 ms).
+  Restored /home/administrator/projects/hexalith/platform/references/Hexalith.Tenants/src/Hexalith.Tenants.Contracts/Hexalith.Tenants.Contracts.csproj (in 248 ms).
+  Restored /home/administrator/projects/hexalith/platform/references/Hexalith.EventStore/src/Hexalith.EventStore.Contracts/Hexalith.EventStore.Contracts.csproj (in 244 ms).
+/tmp/hexalith-platform/6a69d7a2bb9f4c67916eccb70c0142da/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj : error NU1109: Detected package downgrade: Hexalith.EventStore.Contracts from 4.0.0 to centrally defined 3.133.0. Update the centrally managed package version to a higher version. 
+/tmp/hexalith-platform/6a69d7a2bb9f4c67916eccb70c0142da/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj : error NU1109:  Hexalith.Platform.CatalogBuilder -> Hexalith.Tenants.Contracts -> Hexalith.EventStore.Contracts (>= 4.0.0) 
+/tmp/hexalith-platform/6a69d7a2bb9f4c67916eccb70c0142da/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj : error NU1109:  Hexalith.Platform.CatalogBuilder -> Hexalith.EventStore.Contracts (>= 3.133.0)
+/tmp/hexalith-platform/6a69d7a2bb9f4c67916eccb70c0142da/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj : error NU1109: Detected package downgrade: Hexalith.McpCli.Abstractions from 2.0.0 to centrally defined 1.1.0. Update the centrally managed package version to a higher version. 
+/tmp/hexalith-platform/6a69d7a2bb9f4c67916eccb70c0142da/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj : error NU1109:  Hexalith.Platform.CatalogBuilder -> Hexalith.Tenants.Contracts -> Hexalith.McpCli.Abstractions (>= 2.0.0) 
+/tmp/hexalith-platform/6a69d7a2bb9f4c67916eccb70c0142da/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj : error NU1109:  Hexalith.Platform.CatalogBuilder -> Hexalith.McpCli.Abstractions (>= 1.1.0)
+/tmp/hexalith-platform/6a69d7a2bb9f4c67916eccb70c0142da/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj : error NU1109: Detected package downgrade: Hexalith.EventStore.Server from 4.0.0 to centrally defined 3.133.0. Update the centrally managed package version to a higher version. 
+/tmp/hexalith-platform/6a69d7a2bb9f4c67916eccb70c0142da/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj : error NU1109:  Hexalith.Platform.CatalogBuilder -> Hexalith.Tenants.Server -> Hexalith.EventStore.Server (>= 4.0.0) 
+/tmp/hexalith-platform/6a69d7a2bb9f4c67916eccb70c0142da/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj : error NU1109:  Hexalith.Platform.CatalogBuilder -> Hexalith.EventStore.Server (>= 3.133.0)
+  Restored /home/administrator/projects/hexalith/platform/references/Hexalith.Memories/src/Hexalith.Memories.EventStore/Hexalith.Memories.EventStore.csproj (in 302 ms).
+  Restored /home/administrator/projects/hexalith/platform/references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Hexalith.EventStore.ServiceDefaults.csproj (in 317 ms).
+  Restored /home/administrator/projects/hexalith/platform/references/Hexalith.Tenants/src/Hexalith.Tenants.Server/Hexalith.Tenants.Server.csproj (in 327 ms).
+  Restored /home/administrator/projects/hexalith/platform/references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Hexalith.EventStore.Client.csproj (in 326 ms).
+  Restored /home/administrator/projects/hexalith/platform/references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/Hexalith.EventStore.DomainService.csproj (in 319 ms).
+  Restored /home/administrator/projects/hexalith/platform/references/Hexalith.Memories/src/Hexalith.Memories.EventStoreExtensions/Hexalith.Memories.EventStoreExtensions.csproj (in 333 ms).
+  Failed to restore /tmp/hexalith-platform/6a69d7a2bb9f4c67916eccb70c0142da/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj (in 340 ms).
+
+Build FAILED.
+
+/tmp/hexalith-platform/6a69d7a2bb9f4c67916eccb70c0142da/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj : error NU1109: Detected package downgrade: Hexalith.EventStore.Contracts from 4.0.0 to centrally defined 3.133.0. Update the centrally managed package version to a higher version. 
+/tmp/hexalith-platform/6a69d7a2bb9f4c67916eccb70c0142da/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj : error NU1109:  Hexalith.Platform.CatalogBuilder -> Hexalith.Tenants.Contracts -> Hexalith.EventStore.Contracts (>= 4.0.0) 
+/tmp/hexalith-platform/6a69d7a2bb9f4c67916eccb70c0142da/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj : error NU1109:  Hexalith.Platform.CatalogBuilder -> Hexalith.EventStore.Contracts (>= 3.133.0)
+/tmp/hexalith-platform/6a69d7a2bb9f4c67916eccb70c0142da/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj : error NU1109: Detected package downgrade: Hexalith.McpCli.Abstractions from 2.0.0 to centrally defined 1.1.0. Update the centrally managed package version to a higher version. 
+/tmp/hexalith-platform/6a69d7a2bb9f4c67916eccb70c0142da/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj : error NU1109:  Hexalith.Platform.CatalogBuilder -> Hexalith.Tenants.Contracts -> Hexalith.McpCli.Abstractions (>= 2.0.0) 
+/tmp/hexalith-platform/6a69d7a2bb9f4c67916eccb70c0142da/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj : error NU1109:  Hexalith.Platform.CatalogBuilder -> Hexalith.McpCli.Abstractions (>= 1.1.0)
+/tmp/hexalith-platform/6a69d7a2bb9f4c67916eccb70c0142da/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj : error NU1109: Detected package downgrade: Hexalith.EventStore.Server from 4.0.0 to centrally defined 3.133.0. Update the centrally managed package version to a higher version. 
+/tmp/hexalith-platform/6a69d7a2bb9f4c67916eccb70c0142da/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj : error NU1109:  Hexalith.Platform.CatalogBuilder -> Hexalith.Tenants.Server -> Hexalith.EventStore.Server (>= 4.0.0) 
+/tmp/hexalith-platform/6a69d7a2bb9f4c67916eccb70c0142da/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj : error NU1109:  Hexalith.Platform.CatalogBuilder -> Hexalith.EventStore.Server (>= 3.133.0)
+    0 Warning(s)
+    3 Error(s)
+
+Time Elapsed 00:00:01.53

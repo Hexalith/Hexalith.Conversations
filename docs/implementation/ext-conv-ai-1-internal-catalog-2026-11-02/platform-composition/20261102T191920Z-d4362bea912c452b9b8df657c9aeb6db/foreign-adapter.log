@@ -1,0 +1,2 @@
+Unhandled exception. System.IO.InvalidDataException: The selected owner adapter inventory differs from its declared commands.
+   at Program.<Main>$(String[] args) in /tmp/conversations-source-catalog-08ff6c8cb7f848a0b428123aa641f2af/platform-components/catalog-reader/Program.cs:line 81

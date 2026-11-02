@@ -1,0 +1,5 @@
+Owner verification uses the fresh producer-selected Debug/source graph. Full Server suite: 1575 passed; Domain suite: 189 passed; Contracts suite: 648 passed. Catalog tests after the final JSON-context addition: 5 passed. Release tooling: 28 tests plus 3 subtests passed. Initial compile/test failures are retained. Local Debug adapter package and symbol archive were prepared; none was published.
+
+Before-source hashes come from the clean owner baseline for the edited paths. This agent did not measure pre-build binary bytes; before-binary measurement is unavailable and must not be inferred. Final runtime hashes are retained.
+
+The producer diagnostics (Platform tag/catalog/tool-range warnings) and fresh combined Platform identity findings remain in the preparation records. Source selection is not owner acceptance or runtime availability. The no-start Platform integration initially passed all38 enrollment cases; final added adapter/gateway-registration controls are pending in this run. No deployed authority, grant, credential renewal, OQ/Live verifier, or resource startup was performed.

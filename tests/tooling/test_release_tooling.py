@@ -131,7 +131,7 @@ class ReleaseToolingTests(unittest.TestCase):
             ]
             rows.append({"id": "Hexalith.Conversations.Unknown", "project": rows[0]["project"]})
             manifest.write_text(json.dumps({"packages": rows}), encoding="utf-8")
-            with self.assertRaisesRegex(ValueError, "canonical four-package sequence"):
+            with self.assertRaisesRegex(ValueError, "canonical five-package sequence"):
                 release_contract.load_manifest(manifest, root)
 
     def test_invalid_archive_boundary_rejects_foreign_assembly(self) -> None:
@@ -471,7 +471,7 @@ class ReleaseToolingTests(unittest.TestCase):
             "prerelease": False,
             "assets": assets[:-1],
         }
-        with self.assertRaisesRegex(ValueError, "exactly eight assets"):
+        with self.assertRaisesRegex(ValueError, f"exactly {len(release_contract.expected_asset_names('1.0.0'))} assets"):
             release_state._release_asset_digests(release, "1.0.0")
 
         unexpected = [*assets]
@@ -561,7 +561,7 @@ class ReleaseToolingTests(unittest.TestCase):
                 "HEXALITH_RELEASE_SOURCE_BRANCH": "main",
                 "HEXALITH_RELEASE_SOURCE_CI_WORKFLOW": "ci.yml",
                 "HEXALITH_RELEASE_PACKAGE_MANIFEST": "tools/release-packages.json",
-                "HEXALITH_RELEASE_EXPECTED_PACKAGE_COUNT": "4",
+                "HEXALITH_RELEASE_EXPECTED_PACKAGE_COUNT": "5",
                 "HEXALITH_RELEASE_ENVIRONMENT": "production",
                 "HEXALITH_RELEASE_REQUIRE_AUTHORITY": "false",
                 "GITHUB_REPOSITORY": release_contract.REPOSITORY,
@@ -612,7 +612,7 @@ class ReleaseToolingTests(unittest.TestCase):
                  mock.patch.object(pack_release_packages, "prepare_output_directory", return_value=output), \
                  mock.patch.object(pack_release_packages.subprocess, "run") as run:
                 self.assertEqual(0, pack_release_packages.main())
-            self.assertEqual(4, run.call_count)
+            self.assertEqual(len(release_contract.EXACT_PACKAGE_IDS), run.call_count)
             for call in run.call_args_list:
                 arguments = call.args[0]
                 self.assertIn("-p:Version=1.2.3", arguments)

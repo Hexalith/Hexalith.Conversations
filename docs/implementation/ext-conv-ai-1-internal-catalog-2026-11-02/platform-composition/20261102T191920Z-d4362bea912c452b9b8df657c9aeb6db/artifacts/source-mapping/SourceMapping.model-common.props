@@ -1,0 +1,1 @@
+<Project><Import Project="/tmp/conversations-source-catalog-08ff6c8cb7f848a0b428123aa641f2af/source-mapping/pinned-tree/Props/Directory.Packages.props" /><Import Project="$(MSBuildExtensionsPath)/$(MSBuildToolsVersion)/Microsoft.Common.props" /></Project>

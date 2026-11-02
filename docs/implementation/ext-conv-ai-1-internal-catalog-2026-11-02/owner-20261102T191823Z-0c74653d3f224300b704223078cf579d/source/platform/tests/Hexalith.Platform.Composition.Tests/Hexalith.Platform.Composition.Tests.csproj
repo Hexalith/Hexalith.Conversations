@@ -1,0 +1,64 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><IsPackable>false</IsPackable><OutputType>Exe</OutputType></PropertyGroup>
+  <PropertyGroup><HexalithPartiesRoot Condition="'$(HexalithPartiesRoot)' == ''">$(MSBuildThisFileDirectory)../../references/Hexalith.Parties</HexalithPartiesRoot></PropertyGroup>
+  <!-- Qualify exact SDK cohorts; future packages remain unqualified. -->
+  <PropertyGroup Condition="'$(UseHexalithProjectReferences)' == 'true' or '$(HexalithEventStoreVersion)' == '3.129.0' or '$(HexalithEventStoreVersion)' == '3.130.0' or '$(HexalithEventStoreVersion)' == '3.130.1' or '$(HexalithEventStoreVersion)' == '3.130.2' or '$(HexalithEventStoreVersion)' == '3.132.1' or '$(HexalithEventStoreVersion)' == '3.132.2' or '$(HexalithEventStoreVersion)' == '3.133.0'"><DefineConstants>$(DefineConstants);HEXALITH_PLATFORM_CATALOG_SDK</DefineConstants></PropertyGroup>
+  <PropertyGroup Condition="'$(UseHexalithProjectReferences)' == 'true' or '$(HexalithEventStoreVersion)' == '3.130.0' or '$(HexalithEventStoreVersion)' == '3.130.1' or '$(HexalithEventStoreVersion)' == '3.130.2' or '$(HexalithEventStoreVersion)' == '3.132.1' or '$(HexalithEventStoreVersion)' == '3.132.2' or '$(HexalithEventStoreVersion)' == '3.133.0'"><DefineConstants>$(DefineConstants);HEXALITH_PLATFORM_V2_CATALOG</DefineConstants></PropertyGroup>
+  <!-- Source-only owner parity controls remain available alongside native preparation in both modes. -->
+  <PropertyGroup Condition="'$(UseHexalithProjectReferences)' == 'true'"><DefineConstants>$(DefineConstants);HEXALITH_PLATFORM_SOURCE_CATALOG</DefineConstants></PropertyGroup>
+  <ItemGroup>
+    <AssemblyMetadata Include="PlatformTestRoot:Hexalith.Builds" Value="$(HexalithBuildsResolvedRoot)" />
+    <AssemblyMetadata Include="PlatformTestRoot:Hexalith.EventStore" Value="$(HexalithEventStoreRoot)" />
+    <AssemblyMetadata Include="PlatformTestRoot:Hexalith.Tenants" Value="$(HexalithTenantsRoot)" />
+    <AssemblyMetadata Include="PlatformTestRoot:Hexalith.Memories" Value="$(HexalithMemoriesRoot)" />
+    <AssemblyMetadata Include="PlatformTestRoot:Hexalith.Parties" Value="$(HexalithPartiesRoot)" />
+    <AssemblyMetadata Include="PlatformTestRoot:Hexalith.Commons" Value="$(HexalithCommonsRoot)" />
+    <AssemblyMetadata Include="PlatformTestRoot:Hexalith.McpCli" Value="$(HexalithMcpCliRoot)" />
+    <AssemblyMetadata Include="PlatformTestRoot:Hexalith.PolymorphicSerializations" Value="$(HexalithPolymorphicSerializationsRoot)" />
+  </ItemGroup>
+  <ItemGroup><AssemblyMetadata Include="PlatformTestRepositoryRoot" Value="$([MSBuild]::NormalizePath('$(MSBuildProjectDirectory)/../..'))" /></ItemGroup>
+  <ItemGroup><ProjectReference Include="../../src/Hexalith.Platform.Composition/Hexalith.Platform.Composition.csproj" /></ItemGroup>
+  <ItemGroup><ProjectReference Include="../../src/Hexalith.Platform.Custody/Hexalith.Platform.Custody.csproj" /></ItemGroup>
+  <ItemGroup><PackageReference Include="xunit.v3" /><PackageReference Include="xunit.runner.visualstudio" /><PackageReference Include="Microsoft.NET.Test.Sdk" /><PackageReference Include="Shouldly" /><PackageReference Include="NSubstitute" /><PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" /><PackageReference Include="Dapr.Client" /></ItemGroup>
+  <ItemGroup><Using Include="Xunit" /></ItemGroup>
+  <!-- This source integration requires an explicit producer mapping and retains its evidence without launching resources. -->
+  <ItemGroup Condition="'$(ConversationsCatalogSourceVerification)' != 'true'">
+    <Compile Remove="ConversationsCatalogSourceVerificationTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/Hexalith.Platform.EventStoreHost/Hexalith.Platform.EventStoreHost.csproj" Aliases="platformseed" />
+    <ProjectReference Include="$(HexalithBuildsResolvedRoot)/src/hosts/Hexalith.Builds.Module.EventStoreHost/Hexalith.Builds.Module.EventStoreHost.csproj" Aliases="buildsseed" Condition="'$(BuildsEventStoreHostAssemblyPath)' == ''" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(BuildsEventStoreHostAssemblyPath)' != ''">
+    <Reference Include="Hexalith.Builds.Module.EventStoreHost" HintPath="$(BuildsEventStoreHostAssemblyPath)" Aliases="buildsseed" />
+    <None Include="$([System.IO.Path]::ChangeExtension('$(BuildsEventStoreHostAssemblyPath)', '.deps.json'))" Link="Hexalith.Builds.Module.EventStoreHost.deps.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(BuildsToolingAssemblyPath)' != ''">
+    <Reference Include="Hexalith.Builds.Tooling" HintPath="$(BuildsToolingAssemblyPath)" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseHexalithProjectReferences)' == 'true'">
+    <ProjectReference Include="$(HexalithTenantsRoot)/src/Hexalith.Tenants/Hexalith.Tenants.csproj" Aliases="tenantdomain" />
+    <ProjectReference Include="$(HexalithPartiesRoot)/src/Hexalith.Parties/Hexalith.Parties.csproj" Aliases="partydomain" />
+    <ProjectReference Include="$(HexalithMemoriesRoot)/src/Hexalith.Memories.DomainService/Hexalith.Memories.DomainService.csproj" Aliases="memorydomain" />
+    <ProjectReference Include="$(HexalithPartiesRoot)/src/Hexalith.Parties.EventStoreExtensions/Hexalith.Parties.EventStoreExtensions.csproj" />
+    <ProjectReference Include="$(HexalithMemoriesRoot)/src/Hexalith.Memories.EventStoreExtensions/Hexalith.Memories.EventStoreExtensions.csproj" />
+    <ProjectReference Include="$(HexalithEventStoreRoot)/src/Hexalith.EventStore.Contracts/Hexalith.EventStore.Contracts.csproj" />
+    <ProjectReference Include="$(HexalithEventStoreRoot)/src/Hexalith.EventStore.Client/Hexalith.EventStore.Client.csproj" />
+    <ProjectReference Include="$(HexalithEventStoreRoot)/src/Hexalith.EventStore.DomainService/Hexalith.EventStore.DomainService.csproj" />
+    <ProjectReference Include="$(HexalithEventStoreRoot)/src/Hexalith.EventStore.Server/Hexalith.EventStore.Server.csproj" />
+    <ProjectReference Include="$(HexalithEventStoreRoot)/src/Hexalith.EventStore.ServiceDefaults/Hexalith.EventStore.ServiceDefaults.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseHexalithProjectReferences)' != 'true'"><PackageReference Include="Hexalith.EventStore.Contracts" /><PackageReference Include="Hexalith.EventStore.Client" /><PackageReference Include="Hexalith.EventStore.Server" /><PackageReference Include="Hexalith.EventStore.ServiceDefaults" /></ItemGroup>
+  <!-- MVC Testing's generated manifest takes precedence over assembly content-root attributes. -->
+  <Target Name="RegisterPublishedBuildsHostContentRoot" BeforeTargets="_AddContentRootForProjectReferences" Condition="'$(BuildsEventStoreHostAssemblyPath)' != ''">
+    <GetAssemblyIdentity AssemblyFiles="$(BuildsEventStoreHostAssemblyPath)">
+      <Output TaskParameter="Assemblies" ItemName="_PlatformPublishedBuildsHostIdentity" />
+    </GetAssemblyIdentity>
+    <ItemGroup>
+      <_ManifestProjects Include="@(_PlatformPublishedBuildsHostIdentity)">
+        <ContentRoot>$([System.IO.Path]::GetDirectoryName('$(BuildsEventStoreHostAssemblyPath)'))</ContentRoot>
+      </_ManifestProjects>
+    </ItemGroup>
+  </Target>
+</Project>

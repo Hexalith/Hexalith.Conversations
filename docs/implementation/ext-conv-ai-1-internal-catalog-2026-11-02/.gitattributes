@@ -1,0 +1,5 @@
+# Retained source, logs and receipts are hashed byte-for-byte across checkouts.
+* -text diff -whitespace
+*.nul -diff
+*.nupkg -diff
+*.snupkg -diff

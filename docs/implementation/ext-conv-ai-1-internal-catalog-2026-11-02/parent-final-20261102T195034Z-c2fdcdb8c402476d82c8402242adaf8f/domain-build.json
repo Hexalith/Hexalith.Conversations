@@ -1,0 +1,26 @@
+{
+  "command": [
+    "dotnet",
+    "build",
+    "tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj",
+    "-c",
+    "Debug",
+    "-m:1",
+    "-v:minimal"
+  ],
+  "mode": "owner",
+  "preparationPath": "/tmp/conversations-catalog-20261102/prepare.json",
+  "preparationSha256": "ba2b3c0bdca9a53849f7f57c3f9fa0cabe171030c33e6cb6046f839f63bca75e",
+  "environmentKeys": [
+    "AfterMicrosoftNETSdkTargets",
+    "Configuration",
+    "CustomAfterDirectoryBuildTargets",
+    "CustomAfterMicrosoftCommonProps",
+    "CustomBeforeDirectoryBuildProps",
+    "CustomBeforeDirectoryBuildTargets",
+    "HEXALITH_SOURCE_MAPPING_HASH"
+  ],
+  "startedAt": "2026-11-02T19:51:17.889642+00:00",
+  "exitCode": 0,
+  "completedAt": "2026-11-02T19:51:20.662835+00:00"
+}

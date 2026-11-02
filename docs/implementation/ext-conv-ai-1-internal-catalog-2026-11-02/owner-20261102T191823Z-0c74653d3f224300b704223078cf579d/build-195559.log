@@ -1,0 +1,78 @@
+START 2026-11-02T18:55:59Z
+COMMAND ['dotnet', 'build', 'tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj', '--configuration', 'Debug', '-m:1']
+  Determining projects to restore...
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Publication/Hexalith.Commons.Publication.csproj (in 113 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Http/Hexalith.Commons.Http.csproj (in 113 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Serialization/Hexalith.Commons.Serialization.csproj (in 113 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.McpCli/src/Hexalith.McpCli.Abstractions/Hexalith.McpCli.Abstractions.csproj (in 113 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.UniqueIds/Hexalith.Commons.UniqueIds.csproj (in 439 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.Contracts/Hexalith.EventStore.Contracts.csproj (in 440 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Diagnostics/Hexalith.Commons.Diagnostics.csproj (in 441 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.TenantAccess/Hexalith.Commons.TenantAccess.csproj (in 441 ms).
+  Restored /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj (in 4 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Hexalith.EventStore.Client.csproj (in 450 ms).
+  Restored /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj (in 9 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.Tenants/src/Hexalith.Tenants.Contracts/Hexalith.Tenants.Contracts.csproj (in 7 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/Hexalith.EventStore.DomainService.csproj (in 456 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.ServiceDefaults/Hexalith.Commons.ServiceDefaults.csproj (in 454 ms).
+  Restored /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj (in 313 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.Server/Hexalith.EventStore.Server.csproj (in 455 ms).
+  Restored /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations/Hexalith.Conversations.csproj (in 313 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.Testing/Hexalith.EventStore.Testing.csproj (in 456 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.Tenants/src/Hexalith.Tenants.Client/Hexalith.Tenants.Client.csproj (in 15 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.McpCli/src/Hexalith.McpCli.Analyzers/Hexalith.McpCli.Analyzers.csproj (in 18 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Hexalith.EventStore.ServiceDefaults.csproj (in 9 ms).
+  Restored /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.EventStoreExtensions/Hexalith.Conversations.EventStoreExtensions.csproj (in 317 ms).
+  Restored /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj (in 316 ms).
+  Restored /home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj (in 468 ms).
+  Hexalith.Commons.UniqueIds -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.UniqueIds/bin/Debug/net10.0/Hexalith.Commons.UniqueIds.dll
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.UniqueIds/bin/Debug/Hexalith.Commons.UniqueIds.1.0.0.nupkg'.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.UniqueIds/bin/Debug/Hexalith.Commons.UniqueIds.1.0.0.snupkg'.
+  Hexalith.EventStore.Contracts -> /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.Contracts/bin/Debug/net10.0/Hexalith.EventStore.Contracts.dll
+  Hexalith.Commons.Serialization -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Serialization/bin/Debug/net10.0/Hexalith.Commons.Serialization.dll
+  The package Hexalith.Commons.Serialization.1.0.0 is missing a readme. Go to https://aka.ms/nuget/authoring-best-practices/readme to learn why package readmes are important.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Serialization/bin/Debug/Hexalith.Commons.Serialization.1.0.0.nupkg'.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Serialization/bin/Debug/Hexalith.Commons.Serialization.1.0.0.snupkg'.
+  Hexalith.Conversations.Contracts -> /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Contracts/bin/Debug/net10.0/Hexalith.Conversations.Contracts.dll
+  Hexalith.EventStore.Client -> /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.Client/bin/Debug/net10.0/Hexalith.EventStore.Client.dll
+  Hexalith.Conversations -> /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations/bin/Debug/net10.0/Hexalith.Conversations.dll
+  Hexalith.EventStore.ServiceDefaults -> /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/bin/Debug/net10.0/Hexalith.EventStore.ServiceDefaults.dll
+  Hexalith.EventStore.DomainService -> /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/bin/Debug/net10.0/Hexalith.EventStore.DomainService.dll
+  Hexalith.Conversations.EventStoreExtensions -> /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.EventStoreExtensions/bin/Debug/net10.0/Hexalith.Conversations.EventStoreExtensions.dll
+  Hexalith.Commons.Http -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Http/bin/Debug/net10.0/Hexalith.Commons.Http.dll
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Http/bin/Debug/Hexalith.Commons.Http.1.0.0.nupkg'.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Http/bin/Debug/Hexalith.Commons.Http.1.0.0.snupkg'.
+  Hexalith.Conversations.Client -> /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Client/bin/Debug/net10.0/Hexalith.Conversations.Client.dll
+  Hexalith.McpCli.Analyzers -> /home/administrator/projects/hexalith/conversations/references/Hexalith.McpCli/src/Hexalith.McpCli.Analyzers/bin/Debug/netstandard2.0/Hexalith.McpCli.Analyzers.dll
+  Hexalith.McpCli.Abstractions -> /home/administrator/projects/hexalith/conversations/references/Hexalith.McpCli/src/Hexalith.McpCli.Abstractions/bin/Debug/net10.0/Hexalith.McpCli.Abstractions.dll
+  Hexalith.Tenants.Contracts -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Tenants/src/Hexalith.Tenants.Contracts/bin/Debug/net10.0/Hexalith.Tenants.Contracts.dll
+  Hexalith.Tenants.Client -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Tenants/src/Hexalith.Tenants.Client/bin/Debug/net10.0/Hexalith.Tenants.Client.dll
+  Hexalith.Commons.TenantAccess -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.TenantAccess/bin/Debug/net10.0/Hexalith.Commons.TenantAccess.dll
+  The package Hexalith.Commons.TenantAccess.1.0.0 is missing a readme. Go to https://aka.ms/nuget/authoring-best-practices/readme to learn why package readmes are important.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.TenantAccess/bin/Debug/Hexalith.Commons.TenantAccess.1.0.0.nupkg'.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.TenantAccess/bin/Debug/Hexalith.Commons.TenantAccess.1.0.0.snupkg'.
+  Hexalith.Commons.Diagnostics -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Diagnostics/bin/Debug/net10.0/Hexalith.Commons.Diagnostics.dll
+  The package Hexalith.Commons.Diagnostics.1.0.0 is missing a readme. Go to https://aka.ms/nuget/authoring-best-practices/readme to learn why package readmes are important.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Diagnostics/bin/Debug/Hexalith.Commons.Diagnostics.1.0.0.nupkg'.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Diagnostics/bin/Debug/Hexalith.Commons.Diagnostics.1.0.0.snupkg'.
+  Hexalith.Commons.Publication -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Publication/bin/Debug/net10.0/Hexalith.Commons.Publication.dll
+  The package Hexalith.Commons.Publication.1.0.0 is missing a readme. Go to https://aka.ms/nuget/authoring-best-practices/readme to learn why package readmes are important.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Publication/bin/Debug/Hexalith.Commons.Publication.1.0.0.nupkg'.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Publication/bin/Debug/Hexalith.Commons.Publication.1.0.0.snupkg'.
+  Hexalith.Conversations.Server -> /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/bin/Debug/net10.0/Hexalith.Conversations.Server.dll
+  Hexalith.Conversations.Testing -> /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Testing/bin/Debug/net10.0/Hexalith.Conversations.Testing.dll
+  Hexalith.EventStore.Server -> /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.Server/bin/Debug/net10.0/Hexalith.EventStore.Server.dll
+  Hexalith.EventStore.Testing -> /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.Testing/bin/Debug/net10.0/Hexalith.EventStore.Testing.dll
+  Hexalith.Commons.ServiceDefaults -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.ServiceDefaults/bin/Debug/net10.0/Hexalith.Commons.ServiceDefaults.dll
+  The package Hexalith.Commons.ServiceDefaults.1.0.0 is missing a readme. Go to https://aka.ms/nuget/authoring-best-practices/readme to learn why package readmes are important.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.ServiceDefaults/bin/Debug/Hexalith.Commons.ServiceDefaults.1.0.0.nupkg'.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.ServiceDefaults/bin/Debug/Hexalith.Commons.ServiceDefaults.1.0.0.snupkg'.
+  Hexalith.Conversations.Server.Tests -> /home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.Server.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:18.76
+
+END 2026-11-02T18:56:18Z EXIT 0

@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ItemGroup>
+    <ProjectReference Include="/home/administrator/projects/hexalith/conversations/references/Hexalith.Tenants/src/Hexalith.Tenants.Contracts/Hexalith.Tenants.Contracts.csproj" />
+    <ProjectReference Include="/home/administrator/projects/hexalith/conversations/references/Hexalith.Tenants/src/Hexalith.Tenants.Server/Hexalith.Tenants.Server.csproj" />
+    <ProjectReference Include="/home/administrator/projects/hexalith/conversations/references/Hexalith.Memories/src/Hexalith.Memories.EventStore/Hexalith.Memories.EventStore.csproj" />
+    <ProjectReference Include="/home/administrator/projects/hexalith/conversations/references/Hexalith.Memories/src/Hexalith.Memories.EventStoreExtensions/Hexalith.Memories.EventStoreExtensions.csproj" />
+    <ProjectReference Include="/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj" />
+    <ProjectReference Include="/home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.EventStoreExtensions/Hexalith.Conversations.EventStoreExtensions.csproj" />
+  </ItemGroup>
+</Project>

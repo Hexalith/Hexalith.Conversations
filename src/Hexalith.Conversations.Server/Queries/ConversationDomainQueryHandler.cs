@@ -7,6 +7,7 @@ using System.Text.Json;
 
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Queries;
+using Hexalith.Conversations.Contracts.Serialization;
 using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.EventStore.Contracts.Queries;
 using Hexalith.EventStore.DomainService;
@@ -42,10 +43,7 @@ public abstract class ConversationDomainQueryHandlerBase : IDomainQueryHandler
     /// <summary>The coarse adapter-edge failure text returned when identity is missing or a query faults.</summary>
     protected const string ForbiddenFailure = "Forbidden";
 
-    private static readonly JsonSerializerOptions s_queryJsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-    };
+    private static readonly JsonSerializerOptions s_queryJsonOptions = ConversationQuerySerialization.Options;
 
     private readonly ConversationQueryHandler _queryHandler;
 
@@ -153,11 +151,6 @@ public sealed class ListConversationsDomainQueryHandler(ConversationQueryHandler
         ConversationListResult result = await QueryHandler.ListAsync(request, cancellationToken).ConfigureAwait(false);
         return Success(result);
     }
-
-    /// <summary>The query-specific fields carried in the list query envelope payload.</summary>
-    /// <param name="Filter">The exact-match tenant-scoped filter (defaults to empty when omitted).</param>
-    /// <param name="Page">The bounded page request (defaults to the first page when omitted).</param>
-    public sealed record ListConversationsPayload(ConversationListFilterV1? Filter, ConversationPageRequest? Page);
 }
 
 /// <summary>
@@ -201,8 +194,4 @@ public sealed class GetConversationDomainQueryHandler(ConversationQueryHandler q
         ConversationDetailResult result = await QueryHandler.GetAsync(request, cancellationToken).ConfigureAwait(false);
         return Success(result);
     }
-
-    /// <summary>The query-specific fields carried in the detail query envelope payload.</summary>
-    /// <param name="ConversationId">The Conversations-owned conversation identity.</param>
-    public sealed record GetConversationPayload(string? ConversationId);
 }

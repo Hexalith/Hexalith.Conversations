@@ -1,0 +1,23 @@
+{
+  "command": [
+    "dotnet",
+    "tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.Server.Tests.dll",
+    "-result-xml",
+    "/home/administrator/projects/hexalith/conversations/docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/parent-final-20261102T195034Z-c2fdcdb8c402476d82c8402242adaf8f/server.xml"
+  ],
+  "mode": "owner",
+  "preparationPath": "/tmp/conversations-catalog-20261102/prepare.json",
+  "preparationSha256": "ba2b3c0bdca9a53849f7f57c3f9fa0cabe171030c33e6cb6046f839f63bca75e",
+  "environmentKeys": [
+    "AfterMicrosoftNETSdkTargets",
+    "Configuration",
+    "CustomAfterDirectoryBuildTargets",
+    "CustomAfterMicrosoftCommonProps",
+    "CustomBeforeDirectoryBuildProps",
+    "CustomBeforeDirectoryBuildTargets",
+    "HEXALITH_SOURCE_MAPPING_HASH"
+  ],
+  "startedAt": "2026-11-02T19:53:30.227621+00:00",
+  "exitCode": 0,
+  "completedAt": "2026-11-02T19:53:57.687699+00:00"
+}

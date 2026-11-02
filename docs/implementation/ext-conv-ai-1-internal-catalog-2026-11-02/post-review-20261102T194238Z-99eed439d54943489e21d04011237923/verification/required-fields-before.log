@@ -1,0 +1,3 @@
+AddParticipant metadata.actorPartyId: System.ArgumentNullException
+AppendAgentMessage messageId: System.NullReferenceException
+AppendAgentMessage authorPartyId: System.NullReferenceException

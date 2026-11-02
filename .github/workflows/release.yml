@@ -136,7 +136,7 @@ jobs:
           restore-keys: nuget-
 
       - name: Validate declared package count
-        run: test "$(jq -r '.packages | length' tools/release-packages.json)" = '4'
+        run: test "$(jq -r '.packages | length' tools/release-packages.json)" = '5'
 
       - name: Install locked release tooling
         run: npm ci --ignore-scripts
@@ -192,7 +192,7 @@ jobs:
           HEXALITH_RELEASE_SOURCE_BRANCH: main
           HEXALITH_RELEASE_SOURCE_CI_WORKFLOW: ci.yml
           HEXALITH_RELEASE_PACKAGE_MANIFEST: tools/release-packages.json
-          HEXALITH_RELEASE_EXPECTED_PACKAGE_COUNT: '4'
+          HEXALITH_RELEASE_EXPECTED_PACKAGE_COUNT: '5'
           HEXALITH_RELEASE_REQUIRE_AUTHORITY: 'false'
         run: npm exec --no -- semantic-release
 

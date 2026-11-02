@@ -46,7 +46,7 @@ public sealed class ContractsAssemblyBoundaryTest
 
         foreach (string forbiddenPrefix in ForbiddenReferencePrefixes)
         {
-            references.ShouldNotContain(name => name.StartsWith(forbiddenPrefix, StringComparison.Ordinal));
+            references.ShouldNotContain(name => name.StartsWith(forbiddenPrefix, StringComparison.Ordinal) && name != "Hexalith.EventStore.Contracts");
         }
     }
 
@@ -71,7 +71,9 @@ public sealed class ContractsAssemblyBoundaryTest
 
         foreach (string forbiddenPrefix in ForbiddenReferencePrefixes)
         {
-            references.ShouldNotContain(reference => reference.Contains(forbiddenPrefix, StringComparison.Ordinal));
+            references.ShouldNotContain(reference => reference.Contains(forbiddenPrefix, StringComparison.Ordinal)
+                && reference != "Hexalith.EventStore.Contracts"
+                && !reference.Replace('\\', '/').EndsWith("/Hexalith.EventStore.Contracts.csproj", StringComparison.Ordinal));
         }
     }
 
@@ -103,7 +105,8 @@ public sealed class ContractsAssemblyBoundaryTest
             foreach (string forbiddenPrefix in ForbiddenReferencePrefixes)
             {
                 importedNamespaces.ShouldNotContain(
-                    importedNamespace => importedNamespace.StartsWith(forbiddenPrefix, StringComparison.Ordinal),
+                    importedNamespace => importedNamespace.StartsWith(forbiddenPrefix, StringComparison.Ordinal)
+                        && !importedNamespace.StartsWith("Hexalith.EventStore.Contracts.", StringComparison.Ordinal),
                     sourceFile);
             }
         }

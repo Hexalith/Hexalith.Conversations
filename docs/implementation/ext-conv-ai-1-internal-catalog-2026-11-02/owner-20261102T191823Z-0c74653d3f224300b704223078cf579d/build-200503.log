@@ -1,0 +1,6 @@
+START 2026-11-02T19:05:03Z
+COMMAND ['dotnet', 'pack', 'src/Hexalith.Conversations.EventStoreExtensions/Hexalith.Conversations.EventStoreExtensions.csproj', '--configuration', 'Debug', '--no-build', '--no-restore', '--output', '/tmp/conversations-catalog-20261102/packages', '-p:GeneratePackageOnBuild=false']
+  Successfully created package '/tmp/conversations-catalog-20261102/packages/Hexalith.Conversations.EventStoreExtensions.1.0.0.nupkg'.
+  Successfully created package '/tmp/conversations-catalog-20261102/packages/Hexalith.Conversations.EventStoreExtensions.1.0.0.snupkg'.
+
+END 2026-11-02T19:05:04Z EXIT 0

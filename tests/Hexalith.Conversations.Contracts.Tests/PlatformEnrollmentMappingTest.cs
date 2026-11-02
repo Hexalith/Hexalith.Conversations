@@ -11,7 +11,8 @@ public sealed class PlatformEnrollmentMappingTest
 {
     private static readonly IReadOnlyDictionary<string, string[]> Dependencies = new Dictionary<string, string[]>
     {
-        ["src/Hexalith.Conversations.Contracts"] = ["Hexalith.Commons.Serialization"],
+        ["src/Hexalith.Conversations.Contracts"] = ["Hexalith.Commons.Serialization", "Hexalith.EventStore.Contracts"],
+        ["src/Hexalith.Conversations.EventStoreExtensions"] = ["Hexalith.EventStore.DomainService"],
         ["src/Hexalith.Conversations.Client"] = ["Hexalith.Commons.Http", "Hexalith.EventStore.Contracts"],
         ["src/Hexalith.Conversations"] = ["Hexalith.EventStore.Client", "Hexalith.EventStore.Contracts"],
         ["src/Hexalith.Conversations.Server"] = ["Hexalith.Commons.Diagnostics", "Hexalith.Commons.Publication", "Hexalith.Commons.Serialization", "Hexalith.Commons.TenantAccess", "Hexalith.EventStore.Client", "Hexalith.EventStore.Contracts", "Hexalith.EventStore.DomainService", "Hexalith.Tenants.Client", "Hexalith.Tenants.Contracts"],
@@ -208,7 +209,7 @@ public sealed class PlatformEnrollmentMappingTest
         string commons = MappedRoot("Commons");
         SourceMapping mapping = new(WorkspaceMode.Source, repositoryRoot, "Hexalith.Conversations",
             [new("Hexalith.Conversations", "source", repositoryRoot), new("Hexalith.Commons", "source", commons),
-             new("Hexalith.Builds", "source", MappedRoot("Builds"))], true);
+             new("Hexalith.Builds", "source", MappedRoot("Builds")), new("Hexalith.EventStore", "source", MappedRoot("EventStore"))], true);
         SourceMappingMaterializer.WriteAsync(mapping, workspace, TestContext.Current.CancellationToken).GetAwaiter().GetResult();
         CompositionProcessResult Run(params string[] arguments) => CompositionProcess.RunAsync(CompositionProcess.CreateStartInfo("dotnet", arguments,
             repositoryRoot, SourceMappingMaterializer.Environment(mapping, workspace)), TimeSpan.FromMinutes(3), TestContext.Current.CancellationToken).GetAwaiter().GetResult();

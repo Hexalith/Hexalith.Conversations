@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Conversations-owned internal compiled EventStore route and semantic intent adapters.</Description>
+    <PackageId>Hexalith.Conversations.EventStoreExtensions</PackageId>
+    <PackageTags>conversations;eventstore;routing;idempotency;catalog</PackageTags>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj" />
+    <ProjectReference Include="../Hexalith.Conversations/Hexalith.Conversations.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseHexalithProjectReferences)' == 'true'">
+    <ProjectReference Include="$(HexalithEventStoreRoot)/src/Hexalith.EventStore.DomainService/Hexalith.EventStore.DomainService.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseHexalithProjectReferences)' == 'false'">
+    <PackageReference Include="Hexalith.EventStore.DomainService" />
+  </ItemGroup>
+</Project>

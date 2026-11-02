@@ -1,0 +1,105 @@
+{
+  "Mode": "source",
+  "Root": "/home/administrator/projects/hexalith/conversations",
+  "ActiveModule": "Hexalith.Conversations",
+  "Entries": [
+    {
+      "Identity": "Hexalith.AI.Tools",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.AI.Tools"
+    },
+    {
+      "Identity": "Hexalith.Builds",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds"
+    },
+    {
+      "Identity": "Hexalith.Commons",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons"
+    },
+    {
+      "Identity": "Hexalith.Conversations",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations"
+    },
+    {
+      "Identity": "Hexalith.EventStore",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore"
+    },
+    {
+      "Identity": "Hexalith.Folders",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Folders"
+    },
+    {
+      "Identity": "Hexalith.FrontComposer",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.FrontComposer"
+    },
+    {
+      "Identity": "Hexalith.McpCli",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.McpCli"
+    },
+    {
+      "Identity": "Hexalith.Memories",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Memories"
+    },
+    {
+      "Identity": "Hexalith.Parties",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Parties"
+    },
+    {
+      "Identity": "Hexalith.Platform",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform"
+    },
+    {
+      "Identity": "Hexalith.Projects",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Projects"
+    },
+    {
+      "Identity": "Hexalith.Tenants",
+      "Origin": "source",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Tenants"
+    }
+  ],
+  "HasGit": true,
+  "PlatformIdentity": {
+    "Commit": "52e361d4a41b681b06f5e885f9f9857d8b08f5b2",
+    "CompositionCommit": "52e361d4a41b681b06f5e885f9f9857d8b08f5b2",
+    "CheckoutCommit": "52e361d4a41b681b06f5e885f9f9857d8b08f5b2",
+    "PlatformPath": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform",
+    "ReleaseTag": null,
+    "CatalogCommit": "4456dfb7869a307d009038c6b8523a9b6c0a732e",
+    "ToolVersionRange": "[4.43.0, 5.0.0-0)",
+    "RecordPath": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform/hexalith-platform.json",
+    "IsPlatformRepository": false
+  },
+  "IdentityFindings": [
+    {
+      "RuleId": "HXW011",
+      "Message": "Platform identity 52e361d4a41b681b06f5e885f9f9857d8b08f5b2 has no local v\u003CSemVer\u003E release tag.",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform",
+      "Hint": "Fetch Platform tags, then retry."
+    },
+    {
+      "RuleId": "HXW009",
+      "Message": "Builds catalog \u0027/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds\u0027 is staged 728945314c3b7adf300df1964d5668047cfc338a, checked out 728945314c3b7adf300df1964d5668047cfc338a; Platform 52e361d4a41b681b06f5e885f9f9857d8b08f5b2 pins 4456dfb7869a307d009038c6b8523a9b6c0a732e.",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Builds",
+      "Hint": null
+    },
+    {
+      "RuleId": "HXW010",
+      "Message": "Tool version 1.0.0-20261101125548 is outside Platform range [4.43.0, 5.0.0-0) at \u0027/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform/hexalith-platform.json\u0027.",
+      "Path": "/home/administrator/projects/hexalith/conversations/references/Hexalith.Platform/hexalith-platform.json",
+      "Hint": null
+    }
+  ],
+  "ContentHash": "8d48217958f25cedf4dff8c0d4e6b660bf62b5ce431f1ac795d46f1bedd9cc17"
+}

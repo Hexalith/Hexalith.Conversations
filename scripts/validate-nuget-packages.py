@@ -158,9 +158,9 @@ def validate_packages(package_directory: Path, expected_version: str) -> str:
     expected_ids = frozenset(EXACT_PACKAGE_IDS)
     package_paths = sorted(package_directory.glob("*.nupkg"))
     symbol_paths = sorted(package_directory.glob("*.snupkg"))
-    if len(package_paths) != 4 or len(symbol_paths) != 4:
+    if len(package_paths) != len(EXACT_PACKAGE_IDS) or len(symbol_paths) != len(EXACT_PACKAGE_IDS):
         raise ValueError(
-            f"expected four package and four symbol archives, found {len(package_paths)} and {len(symbol_paths)}"
+            f"expected five package and five symbol archives, found {len(package_paths)} and {len(symbol_paths)}"
         )
 
     boundaries = {
@@ -230,7 +230,7 @@ def main() -> int:
     )
     args = parser.parse_args()
     version = validate_packages(args.package_directory.resolve(), args.expected_version)
-    print(f"Validated four package and symbol pairs at version {version}.")
+    print(f"Validated five package and symbol pairs at version {version}.")
     return 0
 
 

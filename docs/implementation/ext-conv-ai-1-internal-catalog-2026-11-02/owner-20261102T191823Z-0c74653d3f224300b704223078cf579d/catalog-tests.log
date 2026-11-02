@@ -1,0 +1,52 @@
+The '-xml' switch has been deprecated in favor of '-result-xml' and will be removed in the next major version
+
+xUnit.net v3 In-Process Runner v4.0.2+0c7aa4991f (64-bit .NET 10.0.14)
+  Discovering: Hexalith.Conversations.Server.Tests
+  Discovered:  Hexalith.Conversations.Server.Tests
+  Starting:    Hexalith.Conversations.Server.Tests
+    Hexalith.Conversations.Server.Tests.Routing.ConversationsCatalogIntentTest.EverySerializedReceiverExcludesGeneratedMetadataButBindsSemanticChangesAndRealAliases [FAIL]
+      System.Text.Json.JsonException : PartyId payload must start with the 'party:' prefix.
+      Stack Trace:
+        src/Hexalith.Conversations.Contracts/Serialization/PrefixedIdentifierJsonConverter.cs(34,0): at Hexalith.Conversations.Contracts.Serialization.PrefixedIdentifierJsonConverter`1.Read(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options)
+           at System.Text.Json.Serialization.JsonConverter`1.TryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, T& value, Boolean& isPopulatedValue)
+           at System.Text.Json.Serialization.JsonConverter`1.TryReadAsObject(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, Object& value)
+           at System.Text.Json.Serialization.Converters.LargeObjectWithParameterizedConstructorConverter`1.ReadAndCacheConstructorArgument(ReadStack& state, Utf8JsonReader& reader, JsonParameterInfo jsonParameterInfo)
+           at System.Text.Json.Serialization.Converters.ObjectWithParameterizedConstructorConverter`1.OnTryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, T& value)
+           at System.Text.Json.Serialization.JsonConverter`1.TryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, T& value, Boolean& isPopulatedValue)
+           at System.Text.Json.Serialization.JsonConverter`1.TryReadAsObject(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, Object& value)
+           at System.Text.Json.Serialization.Converters.LargeObjectWithParameterizedConstructorConverter`1.ReadAndCacheConstructorArgument(ReadStack& state, Utf8JsonReader& reader, JsonParameterInfo jsonParameterInfo)
+           at System.Text.Json.Serialization.Converters.ObjectWithParameterizedConstructorConverter`1.OnTryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, T& value)
+           at System.Text.Json.Serialization.JsonConverter`1.TryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, T& value, Boolean& isPopulatedValue)
+           at System.Text.Json.Serialization.Converters.SmallObjectWithParameterizedConstructorConverter`5.TryRead[TArg](ReadStack& state, Utf8JsonReader& reader, JsonParameterInfo jsonParameterInfo, TArg& arg)
+           at System.Text.Json.Serialization.Converters.SmallObjectWithParameterizedConstructorConverter`5.ReadAndCacheConstructorArgument(ReadStack& state, Utf8JsonReader& reader, JsonParameterInfo jsonParameterInfo)
+           at System.Text.Json.Serialization.Converters.ObjectWithParameterizedConstructorConverter`1.OnTryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, T& value)
+           at System.Text.Json.Serialization.JsonConverter`1.TryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, T& value, Boolean& isPopulatedValue)
+           at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
+           at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.Deserialize(Utf8JsonReader& reader, ReadStack& state)
+           at System.Text.Json.JsonSerializer.ReadFromSpan[TValue](ReadOnlySpan`1 utf8Json, JsonTypeInfo`1 jsonTypeInfo, Nullable`1 actualByteCount)
+        references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/DeclaredIdempotencyIntentAdapter.cs(93,0): at Hexalith.EventStore.DomainService.DeclaredIdempotencyIntentAdapter`1.CreateIntent(IdempotencyIntentCommand command)
+        tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogIntentTest.cs(85,0): at Hexalith.Conversations.Server.Tests.Routing.ConversationsCatalogIntentTest.Intent(IDeclaredIdempotencyIntentAdapter adapter, Byte[] bytes, String wire, String aggregate)
+        tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogIntentTest.cs(44,0): at Hexalith.Conversations.Server.Tests.Routing.ConversationsCatalogIntentTest.EverySerializedReceiverExcludesGeneratedMetadataButBindsSemanticChangesAndRealAliases()
+           at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+           at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+{"EventId":62,"LogLevel":"Information","Category":"Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager","Message":"User profile is available. Using \u0027/home/administrator/.aspnet/DataProtection-Keys\u0027 as key repository; keys will not be encrypted at rest.","State":{"FullName":"/home/administrator/.aspnet/DataProtection-Keys","{OriginalFormat}":"User profile is available. Using \u0027{FullName}\u0027 as key repository; keys will not be encrypted at rest."}}
+    Hexalith.Conversations.Server.Tests.Routing.ConversationsCatalogTest.ActualSdkDiscoveryAndFiniteReceiversMatchEveryOwnerDeclarationAndRefuseDrift [FAIL]
+      Shouldly.ShouldAssertException : services.GetRequiredKeyedService<IDomainProcessor>("conversation")
+          should be assignable to
+      Hexalith.EventStore.DomainService.IDomainCommandPayloadInventory
+          but was
+      Hexalith.Conversations.Aggregates.ConversationAggregate
+      Stack Trace:
+        tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogTest.cs(91,0): at Hexalith.Conversations.Server.Tests.Routing.ConversationsCatalogTest.ActualSdkDiscoveryAndFiniteReceiversMatchEveryOwnerDeclarationAndRefuseDrift()
+           at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+        tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogTest.cs(108,0): at Hexalith.Conversations.Server.Tests.Routing.ConversationsCatalogTest.ActualSdkDiscoveryAndFiniteReceiversMatchEveryOwnerDeclarationAndRefuseDrift()
+           at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+           at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+           at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task, ConfigureAwaitOptions options)
+        --- End of stack trace from previous location ---
+           at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+           at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+           at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task, ConfigureAwaitOptions options)
+  Finished:    Hexalith.Conversations.Server.Tests (ID = 'c38ef556a898519e42c8fb49bd82e177f93c8a707fe2e73596fab6919db071a3')
+=== TEST EXECUTION SUMMARY ===
+   Hexalith.Conversations.Server.Tests  Total: 5, Errors: 0, Failed: 2, Skipped: 0, Not Run: 0, Time: 0.870s

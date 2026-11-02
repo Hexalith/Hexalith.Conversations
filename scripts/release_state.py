@@ -223,7 +223,7 @@ def _release_asset_digests(release: dict[str, object], version: str) -> dict[str
     assets = release.get("assets")
     expected = expected_asset_names(version)
     if not isinstance(assets, list) or len(assets) != len(expected):
-        raise ValueError(f"GitHub release {tag} must contain exactly eight assets")
+        raise ValueError(f"GitHub release {tag} must contain exactly {len(expected)} assets")
 
     verified_assets: dict[str, ReleaseAsset] = {}
     for asset in assets:
@@ -248,7 +248,7 @@ def _release_asset_digests(release: dict[str, object], version: str) -> dict[str
         verified_assets[name] = ReleaseAsset(match.group(1), download_url)
     if set(verified_assets) != expected:
         raise ValueError(
-            f"GitHub release assets differ from the four package/symbol pairs; "
+            f"GitHub release assets differ from the five package/symbol pairs; "
             f"missing={sorted(expected - set(verified_assets))}, "
             f"unexpected={sorted(set(verified_assets) - expected)}"
         )
@@ -286,7 +286,7 @@ def verify_present(
     attempts: int = 20,
     delay_seconds: float = 15,
 ) -> None:
-    """Poll NuGet, then require an exact GitHub tag/release and eight assets."""
+    """Poll NuGet, then require the exact GitHub tag/release and declared package/symbol assets."""
     validate_semver(version)
     if len(source_sha) != 40 or any(character not in "0123456789abcdef" for character in source_sha):
         raise ValueError("source SHA must be an exact lowercase 40-character commit")

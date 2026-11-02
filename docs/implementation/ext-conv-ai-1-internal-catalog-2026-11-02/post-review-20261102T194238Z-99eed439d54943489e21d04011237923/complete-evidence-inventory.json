@@ -1,0 +1,2215 @@
+{
+  "root": "/home/administrator/projects/hexalith/conversations",
+  "method": "complete filesystem inventory including ignored XML/log/reader artifacts and original attempts; no Git ignore filtering",
+  "selfDescription": "Three inventory files are listed without recursive self-hashes. Parent can hash final inventory bytes externally.",
+  "files": [
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/README.md",
+      "sizeBytes": 7563,
+      "sha256": "acfb45de55284cb713b38f9b7262cf0fde36bfeb0b16e259d3e63d81c5e03050",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/adapter-package.nuspec",
+      "sizeBytes": 1221,
+      "sha256": "d81e6a6e4fdcf6ec1d65b16dc8f5a69bd87245110c1ec2f14152887e45ad7128",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/add_platform_test.py",
+      "sizeBytes": 11636,
+      "sha256": "874ff62e8f19f61e7e1eb70be6706e6f36dae0f12bb1f0e56dea06cba5a88850",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/add_tests.py",
+      "sizeBytes": 19282,
+      "sha256": "1228714351589a88deaaba6915b0b1e2ca504b4ce653c5bfdd8b56136ebaef43",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/build-195559.log",
+      "sizeBytes": 12893,
+      "sha256": "981543b0622c9a92fe8a702160f0fd029fb5c473216c2acbd50b6dd128933e5d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/build-195740.log",
+      "sizeBytes": 11240,
+      "sha256": "66fa57a3e12ef5748defe995cafc305815024f6befe57459ba2911f004e7124b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/build-195756.log",
+      "sizeBytes": 5015,
+      "sha256": "5e584ff2e1ba7a10757f2775814aa0e48168de122266fa32a2e5307bf0f645e6",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/build-195913.log",
+      "sizeBytes": 5015,
+      "sha256": "fe2e3b4620f96ba377a36f4634f3052d201460cb972b61e7adff42ef8b0d342a",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/build-195941.log",
+      "sizeBytes": 1399,
+      "sha256": "b1c9c07319cf5ab718c692ed4ce6010d6c43d457961231f3aa9642fe868cfa45",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/build-195947.log",
+      "sizeBytes": 2792,
+      "sha256": "4ad42d023c3d034f0ba38d485f187e1e4891d694dc82c09c7ffcd0600677a18b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/build-200048.log",
+      "sizeBytes": 1013,
+      "sha256": "7956739235285c76bda67f8a8fa5b3bc3630756ff74ce0fe1835b8bcf389bf7e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/build-200122.log",
+      "sizeBytes": 6024,
+      "sha256": "5f960478dadae351c1df5aa7030d58dcf5d6f6f82d7e98d7ba023aee4221775a",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/build-200201.log",
+      "sizeBytes": 5015,
+      "sha256": "b6600e1ae9ec366e2c49437c6e46bc75da3a8e39d87b26e661d5cacfbd21593b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/build-200305.log",
+      "sizeBytes": 5015,
+      "sha256": "a686d92fedb1ec38e095992255f7c0d372548c8611c6564dad9cce25c23e8ff0",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/build-200335.log",
+      "sizeBytes": 505075,
+      "sha256": "d2a617a68087c8c22dd8408c4e9e50dff47c30ae71f82074321db6aa2b8af952",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/build-200343.log",
+      "sizeBytes": 2455,
+      "sha256": "8c1370e63496c3e46f9239be43480f235ff8137bbaf2dc3e687ec412f3ae9c26",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/build-200415.log",
+      "sizeBytes": 701,
+      "sha256": "6a8ab85ee4e5e3b7732fd718d2bd6085aab484c27c219ed2247a480550395569",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/build-200416.log",
+      "sizeBytes": 2228,
+      "sha256": "390665cc80dfe0a8d30c34dd7bacf76b7b3a819a674cd8e446a1c64e9ddd7488",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/build-200503.log",
+      "sizeBytes": 613,
+      "sha256": "8cd59c8917b7cc772d2d2069245c252c13f7772d35daeb1f6f543408001176cf",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/build-200655.log",
+      "sizeBytes": 21292,
+      "sha256": "757c678e351764423e45c63c4f658286a43e3df687e7db8eedd8ef54b002334f",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/build-200733.log",
+      "sizeBytes": 3237,
+      "sha256": "db48607940187248cf6c4d3b395fec366277ee058431cfdbe7262eadbffc1cd3",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/build-200949.log",
+      "sizeBytes": 780,
+      "sha256": "1041e9353c8a72adca7eabe595e94986d02d152dc61e4b15caccbdb87c1da5c2",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/build-201218.log",
+      "sizeBytes": 5615,
+      "sha256": "bb806d2b8d90c6d03dc857db2b0f5f6e533b668a64cdbe5186ce14b4fd84b517",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/build-201307.log",
+      "sizeBytes": 1412,
+      "sha256": "f36dc128ec2232407b6cf25983a4c965dce1666a1e24fe47a73717e0402fff96",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/build.py",
+      "sizeBytes": 712,
+      "sha256": "39cf0b5f00269ac19f6e1fd6c844c78fa4e10e60542a4597f897b35535028750",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/catalog-tests-after-json-context.xml",
+      "sizeBytes": 4941,
+      "sha256": "9ccd7fb2c978874cb2f90e67b70bf2ad839f8d1bf8e28ee9355dd7e451681f49",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/catalog-tests-final.xml",
+      "sizeBytes": 4941,
+      "sha256": "be426de8684102f67cb589df01b1b42a3184a9afae75542ebf68ef337a580e70",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/catalog-tests.log",
+      "sizeBytes": 7415,
+      "sha256": "8a2e29fbc74a7e38d5c2b9749c8219b293a08f6444cfecbaff4cdf4575a9ced1",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/catalog-tests.xml",
+      "sizeBytes": 11390,
+      "sha256": "26cfea4e51d259efaab67d809bd98993eed8751764a576f2c0984aed21d47b88",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/adapter-package.nuspec",
+      "sizeBytes": 1221,
+      "sha256": "d81e6a6e4fdcf6ec1d65b16dc8f5a69bd87245110c1ec2f14152887e45ad7128",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/add_platform_test.py",
+      "sizeBytes": 11636,
+      "sha256": "874ff62e8f19f61e7e1eb70be6706e6f36dae0f12bb1f0e56dea06cba5a88850",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/add_tests.py",
+      "sizeBytes": 19282,
+      "sha256": "1228714351589a88deaaba6915b0b1e2ca504b4ce653c5bfdd8b56136ebaef43",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/build-195559.log",
+      "sizeBytes": 12893,
+      "sha256": "981543b0622c9a92fe8a702160f0fd029fb5c473216c2acbd50b6dd128933e5d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/build-195740.log",
+      "sizeBytes": 11240,
+      "sha256": "66fa57a3e12ef5748defe995cafc305815024f6befe57459ba2911f004e7124b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/build-195756.log",
+      "sizeBytes": 5015,
+      "sha256": "5e584ff2e1ba7a10757f2775814aa0e48168de122266fa32a2e5307bf0f645e6",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/build-195913.log",
+      "sizeBytes": 5015,
+      "sha256": "fe2e3b4620f96ba377a36f4634f3052d201460cb972b61e7adff42ef8b0d342a",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/build-195941.log",
+      "sizeBytes": 1399,
+      "sha256": "b1c9c07319cf5ab718c692ed4ce6010d6c43d457961231f3aa9642fe868cfa45",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/build-195947.log",
+      "sizeBytes": 2792,
+      "sha256": "4ad42d023c3d034f0ba38d485f187e1e4891d694dc82c09c7ffcd0600677a18b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/build-200048.log",
+      "sizeBytes": 1013,
+      "sha256": "7956739235285c76bda67f8a8fa5b3bc3630756ff74ce0fe1835b8bcf389bf7e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/build-200122.log",
+      "sizeBytes": 6024,
+      "sha256": "5f960478dadae351c1df5aa7030d58dcf5d6f6f82d7e98d7ba023aee4221775a",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/build-200201.log",
+      "sizeBytes": 5015,
+      "sha256": "b6600e1ae9ec366e2c49437c6e46bc75da3a8e39d87b26e661d5cacfbd21593b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/build-200305.log",
+      "sizeBytes": 5015,
+      "sha256": "a686d92fedb1ec38e095992255f7c0d372548c8611c6564dad9cce25c23e8ff0",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/build-200335.log",
+      "sizeBytes": 505075,
+      "sha256": "d2a617a68087c8c22dd8408c4e9e50dff47c30ae71f82074321db6aa2b8af952",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/build-200343.log",
+      "sizeBytes": 2455,
+      "sha256": "8c1370e63496c3e46f9239be43480f235ff8137bbaf2dc3e687ec412f3ae9c26",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/build-200415.log",
+      "sizeBytes": 701,
+      "sha256": "6a8ab85ee4e5e3b7732fd718d2bd6085aab484c27c219ed2247a480550395569",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/build-200416.log",
+      "sizeBytes": 2228,
+      "sha256": "390665cc80dfe0a8d30c34dd7bacf76b7b3a819a674cd8e446a1c64e9ddd7488",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/build-200503.log",
+      "sizeBytes": 613,
+      "sha256": "8cd59c8917b7cc772d2d2069245c252c13f7772d35daeb1f6f543408001176cf",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/build-200655.log",
+      "sizeBytes": 21292,
+      "sha256": "757c678e351764423e45c63c4f658286a43e3df687e7db8eedd8ef54b002334f",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/build-200733.log",
+      "sizeBytes": 3237,
+      "sha256": "db48607940187248cf6c4d3b395fec366277ee058431cfdbe7262eadbffc1cd3",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/build-200949.log",
+      "sizeBytes": 780,
+      "sha256": "1041e9353c8a72adca7eabe595e94986d02d152dc61e4b15caccbdb87c1da5c2",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/build-201218.log",
+      "sizeBytes": 5615,
+      "sha256": "bb806d2b8d90c6d03dc857db2b0f5f6e533b668a64cdbe5186ce14b4fd84b517",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/build-201307.log",
+      "sizeBytes": 1412,
+      "sha256": "f36dc128ec2232407b6cf25983a4c965dce1666a1e24fe47a73717e0402fff96",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/build.py",
+      "sizeBytes": 712,
+      "sha256": "39cf0b5f00269ac19f6e1fd6c844c78fa4e10e60542a4597f897b35535028750",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/catalog-tests-after-json-context.xml",
+      "sizeBytes": 4941,
+      "sha256": "9ccd7fb2c978874cb2f90e67b70bf2ad839f8d1bf8e28ee9355dd7e451681f49",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/catalog-tests-final.xml",
+      "sizeBytes": 4941,
+      "sha256": "be426de8684102f67cb589df01b1b42a3184a9afae75542ebf68ef337a580e70",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/catalog-tests.log",
+      "sizeBytes": 7415,
+      "sha256": "8a2e29fbc74a7e38d5c2b9749c8219b293a08f6444cfecbaff4cdf4575a9ced1",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/catalog-tests.xml",
+      "sizeBytes": 11390,
+      "sha256": "26cfea4e51d259efaab67d809bd98993eed8751764a576f2c0984aed21d47b88",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/contracts-regression-final.xml",
+      "sizeBytes": 455403,
+      "sha256": "64c01977c7116c392497be530705fbb601a4f0c703bc8efa72b823c5f321f54d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/contracts-regression.xml",
+      "sizeBytes": 475845,
+      "sha256": "0fbe0bb194662890300afa5064a6357648bd159bd2e3d225f499e1ceddfc781a",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/contracts-tests.xml",
+      "sizeBytes": 12124,
+      "sha256": "2b7da6e71388097143728fd11fa24d0cc53cdd072f22737fbabbe2877c554a9b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/diff-check.log",
+      "sizeBytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/domain-regression.xml",
+      "sizeBytes": 134342,
+      "sha256": "fb5b24b52e1cf1d1b1f11fcaf4348e1ea95a8e55a31e029579769acf3276d389",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/fix_tests.py",
+      "sizeBytes": 5475,
+      "sha256": "2b22eb0a5899b1fba0524204d3579d026419a3bd839995b7efd334b7c49da31c",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/implement.py",
+      "sizeBytes": 23130,
+      "sha256": "7a8a252de1d922f78334ec39d9be2f55394584de3ee9dfb6d091f73df31f5b42",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/owner-evidence-path.txt",
+      "sizeBytes": 170,
+      "sha256": "6d03439d14b206b0b276325d33b723e7f54b2a740c29edee28febcf03308329d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/owner-provenance.json",
+      "sizeBytes": 24592,
+      "sha256": "6fd62919dc3b59bf9078735cddd638575299637fc4224a4ce04fd2a69ac746a0",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/platform-201154.log",
+      "sizeBytes": 14875,
+      "sha256": "dcdbdeacaedba8cd526e18f2b04b9e792e07085efde6996fb4b6ed6a7cb372df",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/platform-201345.log",
+      "sizeBytes": 1056,
+      "sha256": "82f30a8bdff862a1b72553ea5a98ca200044a0f838df8793f7843015c141ce9b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/platform-201657.log",
+      "sizeBytes": 8446,
+      "sha256": "5fa2c94872f7deb8c83cb386bf0d71a53a5ee5f698d045d213c7608afcc639a2",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/platform-201917.log",
+      "sizeBytes": 2130,
+      "sha256": "dde434a173a94952e7ffce57096672c28d765f45c4dfba5905b6ecbbf72a55e9",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/platform-build.py",
+      "sizeBytes": 770,
+      "sha256": "3027eadd233e30dbb9da247bb3ecdedcdb6d573e3ba5faa9df137e39cccaf01b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/platform-conversations-final.xml",
+      "sizeBytes": 26564,
+      "sha256": "b3d2df60831f22e195cbb9dc8745e35d20f6dae7b6765900fef338b66028a70c",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/platform-conversations.xml",
+      "sizeBytes": 26560,
+      "sha256": "4ce932c14af006ec395745d285d409f7e461d5279f6034acb52ae46a744fd867",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/platform-helper-build.log",
+      "sizeBytes": 326,
+      "sha256": "cdfc1006b9015240bac2b91f0627b4bdea31d4a328dbaba82cedfe27e882492a",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/platform-helper-run.log",
+      "sizeBytes": 65,
+      "sha256": "2f20f515d17f1641cdf1ae4fed53e1b262612d09e0105e65ca9ce63f18a22487",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/platform-inputs.json",
+      "sizeBytes": 540,
+      "sha256": "8249722cdea52110ca51e748dc0bbb1470f36be2895497a38fbb4dea67ec70b7",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/platform-prepare.json",
+      "sizeBytes": 1739,
+      "sha256": "8bb0392d64ef24e41dfc08729130bc5ff90875156f9cf36a222100039adc5500",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/prepare.json",
+      "sizeBytes": 2356,
+      "sha256": "ba2b3c0bdca9a53849f7f57c3f9fa0cabe171030c33e6cb6046f839f63bca75e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/prepare.stderr",
+      "sizeBytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/release-tooling-tests.log",
+      "sizeBytes": 116,
+      "sha256": "c40ed6a81e560c33df3ed8b767fa83ca57f6f2da95a3df4ba1bbfb720b3f1dff",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completed-verification/server-regression.xml",
+      "sizeBytes": 1168089,
+      "sha256": "067191cf283f68120c04c34cf93c72092af129278a1152a834f787551bca2022",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completion-addendum.md",
+      "sizeBytes": 934,
+      "sha256": "7b57d294bb0c15ee9b1f773a221d6f07de36a802cb87969aa7de1286e8e26aa9",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completion-summary.json",
+      "sizeBytes": 3813,
+      "sha256": "edc75ebecdb016006b34aa9016708942285b535ac78ff1c55f4807ce999c5a31",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/completion-summary.md",
+      "sizeBytes": 1614,
+      "sha256": "20aac9fe0abfcb920d6fc0010c555644b95b4d06a6a2f6e51d57318615ef7795",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/contracts-regression-final.xml",
+      "sizeBytes": 455403,
+      "sha256": "64c01977c7116c392497be530705fbb601a4f0c703bc8efa72b823c5f321f54d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/contracts-regression.xml",
+      "sizeBytes": 475845,
+      "sha256": "0fbe0bb194662890300afa5064a6357648bd159bd2e3d225f499e1ceddfc781a",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/contracts-tests.xml",
+      "sizeBytes": 12124,
+      "sha256": "2b7da6e71388097143728fd11fa24d0cc53cdd072f22737fbabbe2877c554a9b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/diff-check.log",
+      "sizeBytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/domain-regression.xml",
+      "sizeBytes": 134342,
+      "sha256": "fb5b24b52e1cf1d1b1f11fcaf4348e1ea95a8e55a31e029579769acf3276d389",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/final-owner-diff-check.log",
+      "sizeBytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/final-platform-diff-check.log",
+      "sizeBytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/final-runtime-provenance.json",
+      "sizeBytes": 24576,
+      "sha256": "5c6f2ef3081234c1c421d0bfe86a2a70dcf502d9b6ba204cb042b22f326948ec",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/final-scoped-files.json",
+      "sizeBytes": 25065,
+      "sha256": "a7acc0cf806d331e68149c835b52d33d092b64aadafd1e0503d6ba9f9af84302",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/fix_tests.py",
+      "sizeBytes": 5475,
+      "sha256": "2b22eb0a5899b1fba0524204d3579d026419a3bd839995b7efd334b7c49da31c",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/implement.py",
+      "sizeBytes": 23130,
+      "sha256": "7a8a252de1d922f78334ec39d9be2f55394584de3ee9dfb6d091f73df31f5b42",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/initial-verification-summary.md",
+      "sizeBytes": 1099,
+      "sha256": "978d93235cf6995e4f7ed64000deba0872d825b6eb90f1fc908fe25b0dd3febe",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/owner-evidence-path.txt",
+      "sizeBytes": 170,
+      "sha256": "6d03439d14b206b0b276325d33b723e7f54b2a740c29edee28febcf03308329d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/owner-provenance.json",
+      "sizeBytes": 24592,
+      "sha256": "6fd62919dc3b59bf9078735cddd638575299637fc4224a4ce04fd2a69ac746a0",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/packages/Hexalith.Conversations.EventStoreExtensions.1.0.0.nupkg",
+      "sizeBytes": 20504,
+      "sha256": "f8ccf303b78c9c016009f102a88abdda4789aa38e7f8060989b928925feed55e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/packages/Hexalith.Conversations.EventStoreExtensions.1.0.0.snupkg",
+      "sizeBytes": 16642,
+      "sha256": "320c32e5a247cb73186db1927313d319f7ace043ef45b8787fbc5f871e34338a",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-201154.log",
+      "sizeBytes": 14875,
+      "sha256": "dcdbdeacaedba8cd526e18f2b04b9e792e07085efde6996fb4b6ed6a7cb372df",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-201345.log",
+      "sizeBytes": 1056,
+      "sha256": "82f30a8bdff862a1b72553ea5a98ca200044a0f838df8793f7843015c141ce9b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-201657.log",
+      "sizeBytes": 2624,
+      "sha256": "497e61747ffbe276b6e46046c2ba4e2f3be9d909e16553ab3b75d8cfcdb80ae3",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-201917.log",
+      "sizeBytes": 538,
+      "sha256": "fda4fb9fc4050594021ef802b9af614ec5140ed0c785b42c9cfc9442e4731dab",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-build.py",
+      "sizeBytes": 770,
+      "sha256": "3027eadd233e30dbb9da247bb3ecdedcdb6d573e3ba5faa9df137e39cccaf01b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-conversations.xml",
+      "sizeBytes": 26560,
+      "sha256": "4ce932c14af006ec395745d285d409f7e461d5279f6034acb52ae46a744fd867",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-helper-build.log",
+      "sizeBytes": 326,
+      "sha256": "cdfc1006b9015240bac2b91f0627b4bdea31d4a328dbaba82cedfe27e882492a",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-helper-run.log",
+      "sizeBytes": 65,
+      "sha256": "2f20f515d17f1641cdf1ae4fed53e1b262612d09e0105e65ca9ce63f18a22487",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-inputs.json",
+      "sizeBytes": 540,
+      "sha256": "8249722cdea52110ca51e748dc0bbb1470f36be2895497a38fbb4dea67ec70b7",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-prepare-helper/Preparation.csproj",
+      "sizeBytes": 465,
+      "sha256": "1b053b8234a461b102c9414aa29bc0c6e2211c3f399cbd7e98b33698621df9af",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-prepare-helper/Program.cs",
+      "sizeBytes": 1469,
+      "sha256": "f9933ad8bfb32a9c73e648e73827238fd3974149d88d171d640d43dd2fd367f0",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-prepare.json",
+      "sizeBytes": 1739,
+      "sha256": "8bb0392d64ef24e41dfc08729130bc5ff90875156f9cf36a222100039adc5500",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-prepared/source-mapping/Hexalith.Folders.Aspire.proj",
+      "sizeBytes": 151,
+      "sha256": "e0bab0913b9edbae578de2746d5555ffe3f8ad7cbeca69757b204eb8edbfa8cf",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-prepared/source-mapping/SourceMapping.before-targets.props",
+      "sizeBytes": 3604,
+      "sha256": "c4e562542a572d83acccb77fc9cdc34632b685ad9d26858fce6a5c777be25e17",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-prepared/source-mapping/SourceMapping.final.targets",
+      "sizeBytes": 9546,
+      "sha256": "bf4992749b67a2896be678ea65016615132dc50c79dc4408b320d8706d09ad64",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-prepared/source-mapping/SourceMapping.late.props",
+      "sizeBytes": 7261,
+      "sha256": "a225d4ad81787744ff9427da95feab86a5e5ceef86984bf659342c0354eadf6a",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-prepared/source-mapping/SourceMapping.model-common.props",
+      "sizeBytes": 242,
+      "sha256": "00a65098bf17cc20593939a9e3eef723f75f1f43a733c0fdd476b46f3d408fca",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-prepared/source-mapping/SourceMapping.props",
+      "sizeBytes": 98,
+      "sha256": "0363694f252736cdfd0bcf6a567bb077940df16cc966e410153718a552769e82",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-prepared/source-mapping/SourceMapping.targets",
+      "sizeBytes": 1081,
+      "sha256": "fc1cf0f4b41344cdc3cd0967544fa3d30f0665ef4eab5a1d0fa307f2a80d888d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-prepared/source-mapping/SourceMapping.values.props",
+      "sizeBytes": 5819,
+      "sha256": "c280c7e12b54b66f0e2763c70837a3f35f0037c888c3185ed9fc9407c92df2b1",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-prepared/source-mapping/SourceMapping.values.targets",
+      "sizeBytes": 105028,
+      "sha256": "c5a590c48e9ca90b50286470d897591b8bbea16d0f0fb7fcc3f7932130985290",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-prepared/source-mapping/__HXW_DefaultCatalog__.proj",
+      "sizeBytes": 151,
+      "sha256": "e0bab0913b9edbae578de2746d5555ffe3f8ad7cbeca69757b204eb8edbfa8cf",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-prepared/source-mapping/catalog-versions.json",
+      "sizeBytes": 24736,
+      "sha256": "50b13cf9dd7a09533467f2b6bb1e059bd2268d5d772c0656fec17ba8d36e2ec2",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-prepared/source-mapping/mapping.json",
+      "sizeBytes": 3365,
+      "sha256": "893078aca0d135769ec677252c8ad5f6b7a0d09fb45d6249b5d9da395e2603d9",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/platform-prepared/source-mapping/pinned-tree/Props/Directory.Packages.props",
+      "sizeBytes": 32366,
+      "sha256": "39c461727ea8bfb492b06947fcaa504c4aa1e678b17920fe145a2851a06eac4b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/prepare.json",
+      "sizeBytes": 2356,
+      "sha256": "ba2b3c0bdca9a53849f7f57c3f9fa0cabe171030c33e6cb6046f839f63bca75e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/prepare.stderr",
+      "sizeBytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/prepared/source-mapping/Hexalith.Folders.Aspire.proj",
+      "sizeBytes": 142,
+      "sha256": "881992b0d6997521d50779021976abd05afbb2ee5be2b4644f20079b4c09023d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/prepared/source-mapping/SourceMapping.before-targets.props",
+      "sizeBytes": 3595,
+      "sha256": "b832fd75fb530a234db2a3fc22407e928546f71e9022b600c0de211bb6096da2",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/prepared/source-mapping/SourceMapping.final.targets",
+      "sizeBytes": 9615,
+      "sha256": "634d55b7dd2b50e0e2f3013103910b3bb3782e85eed0bf96ed05c16a26506edc",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/prepared/source-mapping/SourceMapping.late.props",
+      "sizeBytes": 7287,
+      "sha256": "f29478a0d6df45440fc9ed81a7773f725548427edfca2ab7d406d985d3ae8aca",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/prepared/source-mapping/SourceMapping.model-common.props",
+      "sizeBytes": 233,
+      "sha256": "eddcd9d945999ef10215c5de5b37b71347701ffee68b65ef57911229ea354a33",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/prepared/source-mapping/SourceMapping.props",
+      "sizeBytes": 98,
+      "sha256": "0363694f252736cdfd0bcf6a567bb077940df16cc966e410153718a552769e82",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/prepared/source-mapping/SourceMapping.targets",
+      "sizeBytes": 1261,
+      "sha256": "7b1c69db4f8a6d40f60b84477da7c54e2c2ed6a99f7b0affe5b3acc944e49a5c",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/prepared/source-mapping/SourceMapping.values.props",
+      "sizeBytes": 5893,
+      "sha256": "fa218ced68c1336431abb5dd03ff5f0ab2be52ce35cf1ad8994dc96679f6b419",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/prepared/source-mapping/SourceMapping.values.targets",
+      "sizeBytes": 105496,
+      "sha256": "b14e24bd6068143c4207741ad15c98f0f8e8d9a1a8e9a5932a9e542d3f63cf89",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/prepared/source-mapping/__HXW_DefaultCatalog__.proj",
+      "sizeBytes": 142,
+      "sha256": "881992b0d6997521d50779021976abd05afbb2ee5be2b4644f20079b4c09023d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/prepared/source-mapping/catalog-versions.json",
+      "sizeBytes": 24736,
+      "sha256": "b239c213936ebb0d5c4f53220a21154354445a7bde685a66e7350a0eeab83982",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/prepared/source-mapping/mapping.json",
+      "sizeBytes": 4340,
+      "sha256": "46c81ec577e7b2242b12714512c7a40dda25964e141190422d02f1de2231bf8b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/prepared/source-mapping/pinned-tree/Props/Directory.Packages.props",
+      "sizeBytes": 32366,
+      "sha256": "39c461727ea8bfb492b06947fcaa504c4aa1e678b17920fe145a2851a06eac4b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/release-tooling-tests.log",
+      "sizeBytes": 116,
+      "sha256": "c40ed6a81e560c33df3ed8b767fa83ca57f6f2da95a3df4ba1bbfb720b3f1dff",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/scoped-files.json",
+      "sizeBytes": 24761,
+      "sha256": "dc077b787c045309d11cd52757069da94c8288ffedc99ed7e4a79515ade7bb69",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/server-regression.xml",
+      "sizeBytes": 1168089,
+      "sha256": "067191cf283f68120c04c34cf93c72092af129278a1152a834f787551bca2022",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/.github/workflows/release.yml",
+      "sizeBytes": 7877,
+      "sha256": "812b238ecfd2539d5d35366e85deaf431ac99a066bdf28a15f8c8c259caf9801",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/Hexalith.Conversations.slnx",
+      "sizeBytes": 2851,
+      "sha256": "bb9684f422429280fd2a06b7fc45b361580b94533eb0f530bf0a8199db42a7c4",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/scripts/release_contract.py",
+      "sizeBytes": 5452,
+      "sha256": "f873d957ddd35449bcbdba54b50659ec90d1a57deaef80e92680ad9cd4373ecf",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/scripts/release_state.py",
+      "sizeBytes": 15474,
+      "sha256": "f904cbfea5a6a84f75ad105ae9b874c9c42f2aa36c339afe442d38ff99fe7cbf",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/scripts/validate-nuget-packages.py",
+      "sizeBytes": 11575,
+      "sha256": "401f7444ca667ae3f3ef02bbcb63957f220f02dd236d0cde4f31bf55176a974f",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/scripts/validate-publication-preflight.sh",
+      "sizeBytes": 2336,
+      "sha256": "e8f2f4c6b9bb16102929ed5e7ed604572c258ab3b7b1b2d301b417061e331164",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/src/Hexalith.Conversations/Aggregates/ConversationAggregate.Agents.cs",
+      "sizeBytes": 21480,
+      "sha256": "83ac46796cea3fc81878f84cc86f206a484ef0c523b57bba263ab24a4ee77b1b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/src/Hexalith.Conversations/Idempotency/ConversationAgentPostFingerprint.cs",
+      "sizeBytes": 1910,
+      "sha256": "cbaa51b2588cdb9b5d0fa78a8398eca99106e21e94c0ff06768a0e37d1d777b3",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj",
+      "sizeBytes": 1451,
+      "sha256": "9bbe6658c2949ca64ee3112d6d69ab05e1847d8d86954c86b2c0b89d981e7013",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/src/Hexalith.Conversations.Contracts/Queries/GetConversationPayload.cs",
+      "sizeBytes": 337,
+      "sha256": "43a065a568f19a4ecf08263b4a8ea406c0edf5a3dc7c9282b7e1efac32555662",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/src/Hexalith.Conversations.Contracts/Queries/ListConversationsPayload.cs",
+      "sizeBytes": 450,
+      "sha256": "3e8369b98e67e8f6c54e65faaeb62293f0fc4d477e76911e6506cde09c158881",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/src/Hexalith.Conversations.Contracts/Routing/ConversationsCatalogDeclarations.cs",
+      "sizeBytes": 11718,
+      "sha256": "8c494f2367458cb23c1bf6befe299d966e2f505d16298ed7aea84a5ad4faa28e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/src/Hexalith.Conversations.Contracts/Serialization/ConversationsJsonContext.cs",
+      "sizeBytes": 13822,
+      "sha256": "6f6c9211fe9b608a579670dca058103b8b6112559fe2df57860f500e1e266fc5",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/src/Hexalith.Conversations.EventStoreExtensions/ConversationsCatalogAdapters.cs",
+      "sizeBytes": 5527,
+      "sha256": "e0587480fe1c7725f1a9c33fc90a67210ee09391f13f320132ee93b094d2a031",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/src/Hexalith.Conversations.EventStoreExtensions/Hexalith.Conversations.EventStoreExtensions.csproj",
+      "sizeBytes": 1016,
+      "sha256": "2b96bf971d2b7b34e08c4ac8a4660d9275ff870e316d8f54f6ad72c95bee9ccf",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj",
+      "sizeBytes": 3052,
+      "sha256": "e31628026445ce62bd0ff07ce3df3f43710227195fc140fdc23d407022a7a465",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/src/Hexalith.Conversations.Server/Program.cs",
+      "sizeBytes": 4293,
+      "sha256": "3dd084b47811c2202b1ae229d8f5576d803f63963ac47e44e81efcf08ea2925e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/src/Hexalith.Conversations.Server/Queries/ConversationDomainQueryHandler.cs",
+      "sizeBytes": 9022,
+      "sha256": "7a29a55131c0de68cb396eedfa39abc11ebc2abf9735cee138adf33f3ca63ec9",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/tests/Hexalith.Conversations.Contracts.Tests/ContractPackageInventoryTest.cs",
+      "sizeBytes": 12793,
+      "sha256": "c78308045d9617ebdbe3490e61ab1ed2b75da1b58967b659c9e33f744e28be9d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs",
+      "sizeBytes": 71822,
+      "sha256": "a787429c9c5e9727bb6d5b201d66f6d778da9d550e17af3e57833bac0dc272a9",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/tests/Hexalith.Conversations.Contracts.Tests/ContractsAssemblyBoundaryTest.cs",
+      "sizeBytes": 4875,
+      "sha256": "33642281ac69088cabc7d6458df243b564d6f15a2f2c25a0b3cd65fd5fcf244e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/tests/Hexalith.Conversations.Contracts.Tests/PlatformEnrollmentMappingTest.cs",
+      "sizeBytes": 18331,
+      "sha256": "2813a3c71b977b5fa40164a022b09e2c88b8aa9dda387ccdcf340e29756d8f1d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/tests/Hexalith.Conversations.Server.Tests/HostComposition/ConversationsDomainServiceHostCompositionTest.cs",
+      "sizeBytes": 19373,
+      "sha256": "0115ab7362cee4c63055ec1aecbe9bc975fe4d18b2c5d54cb79e5e39bb60451d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogIntentTest.cs",
+      "sizeBytes": 12156,
+      "sha256": "120c4560f9a17e21b71249f197d119a10e51b9d59c415d3a43d11df96704b367",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogTest.cs",
+      "sizeBytes": 9120,
+      "sha256": "c2c13c73f711258f6dba3895e75764e9b7b4292d57a05fdfcbd59f0433900d27",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/tests/tooling/test_release_tooling.py",
+      "sizeBytes": 39203,
+      "sha256": "175d4b0d8fbef8207410d500ac4c7d62c857925a8d6973821ab66dee92077921",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/conversations/tools/release-packages.json",
+      "sizeBytes": 796,
+      "sha256": "1f127c1227b645a56c9a8fbd12de020f268af3b698d1daea32d04931a9f8cab4",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/platform/src/Hexalith.Platform.CatalogBuilder/Hexalith.Platform.CatalogBuilder.csproj",
+      "sizeBytes": 1632,
+      "sha256": "24130bb7f0252b1eef4a29a0ff002e9c9198a777377449fbb2c68282d74a038e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/platform/src/Hexalith.Platform.CatalogBuilder/Program.cs",
+      "sizeBytes": 7988,
+      "sha256": "f2b910129c00e6ada82ad491c57ebe6744dc51e600ced32cf0b4d53163499075",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/platform/tests/Hexalith.Platform.Composition.Tests/ConversationsCatalogSourceVerificationTests.cs",
+      "sizeBytes": 16139,
+      "sha256": "e5ad2c8a9686d9d60bdda04456a8e64af95b5f19f399b7771ea5ba92918cfa23",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/platform/tests/Hexalith.Platform.Composition.Tests/ConversationsEnrollmentTests.cs",
+      "sizeBytes": 14253,
+      "sha256": "f77ebe99680ec0642f5fae3dce06d3a5db7cc3f5df64bf2027b5a4152d4305dc",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source/platform/tests/Hexalith.Platform.Composition.Tests/Hexalith.Platform.Composition.Tests.csproj",
+      "sizeBytes": 7200,
+      "sha256": "fe36c7cab3bb89ec31d2782c84900b90f29b22fa6dd81721b84e7ad62fad564f",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/source-provenance.json",
+      "sizeBytes": 11078,
+      "sha256": "20c474c2e825bc65f68ddcd438811c2cf466dcb8b3f0d760ea2ff593e01431b7",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/owner-20261102T191823Z-0c74653d3f224300b704223078cf579d/verification-summary.md",
+      "sizeBytes": 776,
+      "sha256": "a5a1b69003bad24b1baf2d4a6059d89367abe0d694648f7bc3a0e74e783ee9d5",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/artifacts/platform-components/ad28e1fa6761467ea27585a8330c93b5-catalog/catalog.json",
+      "sizeBytes": 174745,
+      "sha256": "c3bef1002ed878971532954aca16414bb91847dc82aa3da81f0c19bde44fef17",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/artifacts/platform-components/ad28e1fa6761467ea27585a8330c93b5-catalog/receipt.json",
+      "sizeBytes": 4115,
+      "sha256": "d20af81bdec5692906247657b7f79ca88d2f24fae611335527c8afc296a6679d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/artifacts/platform-components/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj",
+      "sizeBytes": 1684,
+      "sha256": "c66861a4c90511283676017a83622f96866a816e75c52c4114e7a1a8df812b18",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/artifacts/platform-components/catalog-reader/Program.cs",
+      "sizeBytes": 5528,
+      "sha256": "3fe06566d2e81627041d602e3bfef7304f2a334cf981d8519ce4ead2a3ac651b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/artifacts/platform-components/catalog-reader/bindings.props",
+      "sizeBytes": 1185,
+      "sha256": "9297c1a5a9f156ab72aa12cbde909eed260f253291a85a2cd3d0d1ba9360b8a2",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/artifacts/platform-components/catalog-reader/build.log",
+      "sizeBytes": 3720,
+      "sha256": "2e8e05225edc220f2fe53b5aa22ab80ed62a9f0515cf875c4c74b11d1fb68377",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/artifacts/platform-components/catalog-reader/generation.log",
+      "sizeBytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/artifacts/platform-components/catalog-reader/request.json",
+      "sizeBytes": 812,
+      "sha256": "7d1bb86b0417a3d2387094da641080cce12ede58e99c1f9bfbfb7feb6f9ab517",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/artifacts/source-mapping/Hexalith.Folders.Aspire.proj",
+      "sizeBytes": 164,
+      "sha256": "a5ff2a5166a6b04c3fccac1f0d1b9fb4b540ad48ea0ae8dd5dd2c3a2a1f5f154",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/artifacts/source-mapping/SourceMapping.before-targets.props",
+      "sizeBytes": 3617,
+      "sha256": "164c6072678176893506f2c612abcc866e27b5c244bfecbfdc57f7bb0f832ec4",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/artifacts/source-mapping/SourceMapping.final.targets",
+      "sizeBytes": 9559,
+      "sha256": "0569b890f3a5e255c13b43ec2ccbf62852afe16af2daf0ce474091691405774d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/artifacts/source-mapping/SourceMapping.late.props",
+      "sizeBytes": 7287,
+      "sha256": "d802643a70430dc128405cfa0cbb77799ddf86493fd40c512a79c956b6cfcd23",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/artifacts/source-mapping/SourceMapping.model-common.props",
+      "sizeBytes": 255,
+      "sha256": "de55aa7f8ce1c56a117213085dd62e830f0bce60b2e49094b5f93a7cf4f14747",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/artifacts/source-mapping/SourceMapping.props",
+      "sizeBytes": 98,
+      "sha256": "0363694f252736cdfd0bcf6a567bb077940df16cc966e410153718a552769e82",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/artifacts/source-mapping/SourceMapping.targets",
+      "sizeBytes": 1168,
+      "sha256": "1670ecabf9fa988a1fc1b29a54064a2bc71a184da9b1e6fec85a81ab4401f9bc",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/artifacts/source-mapping/SourceMapping.values.props",
+      "sizeBytes": 5832,
+      "sha256": "8dc53cafa6fe78777ca78d5fed2593b3be8cc3eeebbc7afa372df95c3bace392",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/artifacts/source-mapping/SourceMapping.values.targets",
+      "sizeBytes": 105522,
+      "sha256": "ad2eb64e094715ab3cfe792e2281a7d5ec8ff21adf650f4e5be5be43407c41a7",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/artifacts/source-mapping/__HXW_DefaultCatalog__.proj",
+      "sizeBytes": 164,
+      "sha256": "a5ff2a5166a6b04c3fccac1f0d1b9fb4b540ad48ea0ae8dd5dd2c3a2a1f5f154",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/artifacts/source-mapping/catalog-versions.json",
+      "sizeBytes": 24736,
+      "sha256": "50b13cf9dd7a09533467f2b6bb1e059bd2268d5d772c0656fec17ba8d36e2ec2",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/artifacts/source-mapping/mapping.json",
+      "sizeBytes": 3365,
+      "sha256": "893078aca0d135769ec677252c8ad5f6b7a0d09fb45d6249b5d9da395e2603d9",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/artifacts/source-mapping/pinned-tree/Props/Directory.Packages.props",
+      "sizeBytes": 32366,
+      "sha256": "39c461727ea8bfb492b06947fcaa504c4aa1e678b17920fe145a2851a06eac4b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/inputs.json",
+      "sizeBytes": 540,
+      "sha256": "8249722cdea52110ca51e748dc0bbb1470f36be2895497a38fbb4dea67ec70b7",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/model-observations.json",
+      "sizeBytes": 15947,
+      "sha256": "22d48346512fae386958504295095ed568b17974bbe5189cfe0fed882913d032",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/runtime-output-hashes.json",
+      "sizeBytes": 13013,
+      "sha256": "c4eb25a88ac8d0a8004780ce8a0d34281c7f5b2351cde081a88172ea03540a41",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191348Z-9ac2205a09084cbca6be267b5681a93d/status.txt",
+      "sizeBytes": 59,
+      "sha256": "0fed7d883f179e6c4b8656a767416aac6dabc5a89e91b40c7d05ba5c8a928507",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/artifacts/platform-components/bdd399b2b4f34e3e99694572db98ab31-catalog/catalog.json",
+      "sizeBytes": 174745,
+      "sha256": "c3bef1002ed878971532954aca16414bb91847dc82aa3da81f0c19bde44fef17",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/artifacts/platform-components/bdd399b2b4f34e3e99694572db98ab31-catalog/receipt.json",
+      "sizeBytes": 4115,
+      "sha256": "82b5c21ca7f8abbb7772d106fb7fb80c3c5d04e5281e4d0b42ccd944e8ad0b23",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/artifacts/platform-components/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj",
+      "sizeBytes": 1893,
+      "sha256": "19d4e8d9ac6263f05c39111ac32fc813bb2d7dc0425240451d6a3b7bf0392566",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/artifacts/platform-components/catalog-reader/Program.cs",
+      "sizeBytes": 7988,
+      "sha256": "f2b910129c00e6ada82ad491c57ebe6744dc51e600ced32cf0b4d53163499075",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/artifacts/platform-components/catalog-reader/bindings.props",
+      "sizeBytes": 1185,
+      "sha256": "9297c1a5a9f156ab72aa12cbde909eed260f253291a85a2cd3d0d1ba9360b8a2",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/artifacts/platform-components/catalog-reader/build.log",
+      "sizeBytes": 3545,
+      "sha256": "98bbdeb15e86cb7e6ed3b4ab72a19d62f9a0f32fdfc5af0044007871b84bf012",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/artifacts/platform-components/catalog-reader/generation.log",
+      "sizeBytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/artifacts/platform-components/catalog-reader/request.json",
+      "sizeBytes": 812,
+      "sha256": "b8d6e8a7a69c3a4ef5f897df95d87460d7c5e4389eb01b73df8f7d6b096f9de8",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/artifacts/source-mapping/Hexalith.Folders.Aspire.proj",
+      "sizeBytes": 164,
+      "sha256": "dba397cd6a01c16ecc375b5cc9cef835106b42bbed7a6b2b70ae0d948f2afd42",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/artifacts/source-mapping/SourceMapping.before-targets.props",
+      "sizeBytes": 3617,
+      "sha256": "e33298b092b57d1060ae873617335207cd77eecbc78cf113ce2dc4637b5437ad",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/artifacts/source-mapping/SourceMapping.final.targets",
+      "sizeBytes": 9559,
+      "sha256": "5f5bc3e3ac75a03bc5dd6f59bd59da3119201c37ff5a206c68f3675a26ad37fd",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/artifacts/source-mapping/SourceMapping.late.props",
+      "sizeBytes": 7287,
+      "sha256": "458c69184218f51b40b79a80cd7e330605f4a08666d42deff7d81f4b4314f296",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/artifacts/source-mapping/SourceMapping.model-common.props",
+      "sizeBytes": 255,
+      "sha256": "4554b53d07d463ee9a2c3ff0a1a721bfc7254269f4508b1e9763c5e3f541abd9",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/artifacts/source-mapping/SourceMapping.props",
+      "sizeBytes": 98,
+      "sha256": "0363694f252736cdfd0bcf6a567bb077940df16cc966e410153718a552769e82",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/artifacts/source-mapping/SourceMapping.targets",
+      "sizeBytes": 1168,
+      "sha256": "1670ecabf9fa988a1fc1b29a54064a2bc71a184da9b1e6fec85a81ab4401f9bc",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/artifacts/source-mapping/SourceMapping.values.props",
+      "sizeBytes": 5832,
+      "sha256": "d480eccb2dce4998e8e8d7391cd12ac0ea40c51db44b2bc56fa0d0f9a5c86fc4",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/artifacts/source-mapping/SourceMapping.values.targets",
+      "sizeBytes": 105522,
+      "sha256": "91f80c242fcbc846bcef301d62af2fd9444a72110de2b13b65cbc1591f580b67",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/artifacts/source-mapping/__HXW_DefaultCatalog__.proj",
+      "sizeBytes": 164,
+      "sha256": "dba397cd6a01c16ecc375b5cc9cef835106b42bbed7a6b2b70ae0d948f2afd42",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/artifacts/source-mapping/catalog-versions.json",
+      "sizeBytes": 24736,
+      "sha256": "50b13cf9dd7a09533467f2b6bb1e059bd2268d5d772c0656fec17ba8d36e2ec2",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/artifacts/source-mapping/mapping.json",
+      "sizeBytes": 3365,
+      "sha256": "893078aca0d135769ec677252c8ad5f6b7a0d09fb45d6249b5d9da395e2603d9",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/artifacts/source-mapping/pinned-tree/Props/Directory.Packages.props",
+      "sizeBytes": 32366,
+      "sha256": "39c461727ea8bfb492b06947fcaa504c4aa1e678b17920fe145a2851a06eac4b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/foreign-adapter-request.json",
+      "sizeBytes": 779,
+      "sha256": "c3d9d752cf5fd57c076e269301f7f893b83305bb4a0cdf0ba7ae796b5a2996c4",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/foreign-adapter.log",
+      "sizeBytes": 287,
+      "sha256": "558112fb3c4425d25e52f6bced340903d07f302a9875cf51741a94402494371e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/inputs.json",
+      "sizeBytes": 540,
+      "sha256": "8249722cdea52110ca51e748dc0bbb1470f36be2895497a38fbb4dea67ec70b7",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/missing-adapter-request.json",
+      "sizeBytes": 762,
+      "sha256": "42a5af1c01718b6069f56917e5b9a4c33f41df46c9a1272fcc2d6c6fcaa23d71",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/missing-adapter.log",
+      "sizeBytes": 287,
+      "sha256": "558112fb3c4425d25e52f6bced340903d07f302a9875cf51741a94402494371e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/model-observations.json",
+      "sizeBytes": 17175,
+      "sha256": "46131e585675dbd28c84e7413c42d2dbe0cb85ed6e46605ace60e269a296f121",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/runtime-output-hashes.json",
+      "sizeBytes": 13013,
+      "sha256": "dd24ac9584dfae648af9b8449ebfecf2e2b3b160b2a509b8418429a80d5bdf3c",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/platform-composition/20261102T191920Z-d4362bea912c452b9b8df657c9aeb6db/status.txt",
+      "sizeBytes": 59,
+      "sha256": "0fed7d883f179e6c4b8656a767416aac6dabc5a89e91b40c7d05ba5c8a928507",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/README-before-review.md",
+      "sizeBytes": 6804,
+      "sha256": "8b347dfff23ee24a46562ff5e2f25ead87f2924460e0dcf63b27183981ca1395",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/SUMMARY.json",
+      "sizeBytes": 2525,
+      "sha256": "3dd7709cf50ca84961269b8b579dbc6fb2da127657b77934a430754eb746c3da",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/SUMMARY.md",
+      "sizeBytes": 2046,
+      "sha256": "fb5bb2be8c00de03979bcf20d12430e55d75cc1ae884247c816c25ae7bc6944b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/complete-evidence-files.txt",
+      "sizeBytes": 65419,
+      "sha256": null,
+      "inventorySelfDescription": true
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/complete-evidence-inventory.json",
+      "sizeBytes": null,
+      "sha256": null,
+      "inventorySelfDescription": true
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/complete-evidence-pathspec.nul",
+      "sizeBytes": 65419,
+      "sha256": null,
+      "inventorySelfDescription": true
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/parent-submodule-receipts/platform-staged-submodule-preflight.json",
+      "sizeBytes": 2406,
+      "sha256": "8fb0d6d132eb026c46abe115f6df84152e60f562b5ea79fcf53d4af7b9031376",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/parent-submodule-receipts/platform-staged-submodule-repositories.json",
+      "sizeBytes": 4228,
+      "sha256": "4e14f5c8765ddcffdb6bb883ebc9c7176606a508c9a1c0d79c3f7b716813a680",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/parent-submodule-receipts/platform-staged-submodule-results.json",
+      "sizeBytes": 3642,
+      "sha256": "27ab3528a335958b8c552a694ca0ba3718934f43f08d9a6e7e957d356bc788cc",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/altered-domain-request.json",
+      "sizeBytes": 767,
+      "sha256": "f153c887475d1f2c746db3cc34bf51279f95957d4326045ee139517daadccaec",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/altered-domain.log",
+      "sizeBytes": 2220,
+      "sha256": "ed8206df7c566b2e6065581a6f19a10a2b937a0a50afab67dc6b023ab2a12931",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/artifacts/platform-components/af616043fd3e42a4855da68d8b04d57c-catalog/catalog.json",
+      "sizeBytes": 190362,
+      "sha256": "3e085305868619e208d27c021f9bf52de9ff858e78e6dd4154cc123568323a67",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/artifacts/platform-components/af616043fd3e42a4855da68d8b04d57c-catalog/receipt.json",
+      "sizeBytes": 7387,
+      "sha256": "15f4536038372b47578b89a924cbfcb938f23de997458d53093ab4b60152a971",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/artifacts/platform-components/catalog-reader/Hexalith.Platform.CatalogBuilder.csproj",
+      "sizeBytes": 1893,
+      "sha256": "19d4e8d9ac6263f05c39111ac32fc813bb2d7dc0425240451d6a3b7bf0392566",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/artifacts/platform-components/catalog-reader/Program.cs",
+      "sizeBytes": 8355,
+      "sha256": "5476eb935b9f299c62c448eb670879679afd0437807c393305edf78e2555ba0a",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/artifacts/platform-components/catalog-reader/bindings.props",
+      "sizeBytes": 1185,
+      "sha256": "9297c1a5a9f156ab72aa12cbde909eed260f253291a85a2cd3d0d1ba9360b8a2",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/artifacts/platform-components/catalog-reader/build.log",
+      "sizeBytes": 3545,
+      "sha256": "1a01741e4e956f0898e7f002822989d7d07a929d4588138a6b0ad108233906d6",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/artifacts/platform-components/catalog-reader/generation.log",
+      "sizeBytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/artifacts/platform-components/catalog-reader/request.json",
+      "sizeBytes": 812,
+      "sha256": "c3b2cfee0559ea145b1a3a7ab990c01ae48a1c3b4a88c3230c4bf2bff3ad2749",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/artifacts/source-mapping/Hexalith.Folders.Aspire.proj",
+      "sizeBytes": 164,
+      "sha256": "1f41cfaafadc9a0e4f46650128010029cde12e2dc44f66e42e150b2ee51a5948",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/artifacts/source-mapping/SourceMapping.before-targets.props",
+      "sizeBytes": 3617,
+      "sha256": "bd289bc662d016b673d491656018b1724e3c760165ff56d7383294352bf38afd",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/artifacts/source-mapping/SourceMapping.final.targets",
+      "sizeBytes": 9559,
+      "sha256": "15f0cda4554d49843cfa31ceabf780147fed8751804ef41c84cde0f1be0ed771",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/artifacts/source-mapping/SourceMapping.late.props",
+      "sizeBytes": 7287,
+      "sha256": "61eae8503944ca467a7b7d308026a0e231fd4c542fafaf43a116f35a22c5fa36",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/artifacts/source-mapping/SourceMapping.model-common.props",
+      "sizeBytes": 255,
+      "sha256": "eb8b148a639dad4d1e96e878da6c396c44efab767283234b236ea11b8c71d24d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/artifacts/source-mapping/SourceMapping.props",
+      "sizeBytes": 98,
+      "sha256": "0363694f252736cdfd0bcf6a567bb077940df16cc966e410153718a552769e82",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/artifacts/source-mapping/SourceMapping.targets",
+      "sizeBytes": 1168,
+      "sha256": "1670ecabf9fa988a1fc1b29a54064a2bc71a184da9b1e6fec85a81ab4401f9bc",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/artifacts/source-mapping/SourceMapping.values.props",
+      "sizeBytes": 5832,
+      "sha256": "46a07e31c5e6a8d88ab883b90daf0435e85adce4802a412279c7e812f86a50ed",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/artifacts/source-mapping/SourceMapping.values.targets",
+      "sizeBytes": 105522,
+      "sha256": "148a45c4d908115bc22a52ee48b3eb59dc11f9e174ffa7863cfeac743f010cf8",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/artifacts/source-mapping/__HXW_DefaultCatalog__.proj",
+      "sizeBytes": 164,
+      "sha256": "1f41cfaafadc9a0e4f46650128010029cde12e2dc44f66e42e150b2ee51a5948",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/artifacts/source-mapping/catalog-versions.json",
+      "sizeBytes": 24738,
+      "sha256": "0e28dfaad55492b3fc151518449d13d6fa57c39239391e49026617127e250443",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/artifacts/source-mapping/mapping.json",
+      "sizeBytes": 3365,
+      "sha256": "bbd8c6043c0bde8ace187ce1a7c5326db83af56c5a0e73e3258fcdca8885dc93",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/artifacts/source-mapping/pinned-tree/Props/Directory.Packages.props",
+      "sizeBytes": 32367,
+      "sha256": "5180c0c081bcfbbabfdbef7bc04de38e3c8a815163df55a25d604896c454729a",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/conversations-foreign-adapter-request.json",
+      "sizeBytes": 753,
+      "sha256": "e21c2e298df740e138f32ab66a6c430ec563ed5cd1857954ecf58e5c1d1da579",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/conversations-foreign-adapter.log",
+      "sizeBytes": 1647,
+      "sha256": "e2bc079e1ca4583251fbaa26a9ecc2f5ccb5d6bd139c5b8d6fced58c8a7c222e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/conversations-missing-adapter-request.json",
+      "sizeBytes": 762,
+      "sha256": "1278203bcc566b0a7907ba30dad8cbfecde777aac4fc48684b2f14d98e1522b7",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/conversations-missing-adapter.log",
+      "sizeBytes": 1647,
+      "sha256": "e2bc079e1ca4583251fbaa26a9ecc2f5ccb5d6bd139c5b8d6fced58c8a7c222e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/foreign-adapter-request.json",
+      "sizeBytes": 779,
+      "sha256": "9cda64471234b24dc60af0e55c96ff8f23f5507e0a5180973aefa0eed493d58f",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/foreign-adapter.log",
+      "sizeBytes": 287,
+      "sha256": "248aed012e6b8fcf3a2b9e6c5d0be9302590457122d37091d3e2137063295549",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/inputs.json",
+      "sizeBytes": 601,
+      "sha256": "d0ccfa96a4aaad578cd2b2e05ff4dfc47b3e6344a59dc26ad08d724d02a94aa5",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/missing-adapter-request.json",
+      "sizeBytes": 762,
+      "sha256": "7f8f36520c3cc7d5b4fe8c57cac97c1b99ebaa5c9baf6d289570bf1ef125631a",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/missing-adapter.log",
+      "sizeBytes": 287,
+      "sha256": "248aed012e6b8fcf3a2b9e6c5d0be9302590457122d37091d3e2137063295549",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/model-observations.json",
+      "sizeBytes": 17175,
+      "sha256": "171f74970519c7083fb478e6ff9a4b2d16867e3eabcec5f665bf33d4b0f76b6a",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/runtime-output-hashes.json",
+      "sizeBytes": 23236,
+      "sha256": "c0971d4cfb2494a4bcc2f30e908aac66f7d6821cb6bac58dd84f84020b317bc7",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/platform/20261102T194613Z-e8ea526e05b744ed9fbcf402ceea57dd/status.txt",
+      "sizeBytes": 59,
+      "sha256": "0fed7d883f179e6c4b8656a767416aac6dabc5a89e91b40c7d05ba5c8a928507",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/runtime-provenance.json",
+      "sizeBytes": 15840,
+      "sha256": "9c854c186d8674874daf7b52960717b49ad01c09da59d7fbcc57b1907a32fe64",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/.github/workflows/release.yml",
+      "sizeBytes": 7877,
+      "sha256": "812b238ecfd2539d5d35366e85deaf431ac99a066bdf28a15f8c8c259caf9801",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/Hexalith.Conversations.slnx",
+      "sizeBytes": 2851,
+      "sha256": "bb9684f422429280fd2a06b7fc45b361580b94533eb0f530bf0a8199db42a7c4",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/scripts/release_contract.py",
+      "sizeBytes": 5452,
+      "sha256": "f873d957ddd35449bcbdba54b50659ec90d1a57deaef80e92680ad9cd4373ecf",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/scripts/release_state.py",
+      "sizeBytes": 15503,
+      "sha256": "e5d27da985216857ded72b56db8d3246f34221449f4aa0e910d667b393c61b92",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/scripts/validate-nuget-packages.py",
+      "sizeBytes": 11575,
+      "sha256": "401f7444ca667ae3f3ef02bbcb63957f220f02dd236d0cde4f31bf55176a974f",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/scripts/validate-publication-preflight.sh",
+      "sizeBytes": 2336,
+      "sha256": "e8f2f4c6b9bb16102929ed5e7ed604572c258ab3b7b1b2d301b417061e331164",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/src/Hexalith.Conversations/Aggregates/ConversationAggregate.Agents.cs",
+      "sizeBytes": 21480,
+      "sha256": "83ac46796cea3fc81878f84cc86f206a484ef0c523b57bba263ab24a4ee77b1b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/src/Hexalith.Conversations/Idempotency/ConversationAgentPostFingerprint.cs",
+      "sizeBytes": 1910,
+      "sha256": "cbaa51b2588cdb9b5d0fa78a8398eca99106e21e94c0ff06768a0e37d1d777b3",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj",
+      "sizeBytes": 1451,
+      "sha256": "9bbe6658c2949ca64ee3112d6d69ab05e1847d8d86954c86b2c0b89d981e7013",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/src/Hexalith.Conversations.Contracts/Queries/GetConversationPayload.cs",
+      "sizeBytes": 344,
+      "sha256": "884a10e19d6dd4ef0aa80dd49e0aac8cf605bfdfdeb28807c2e7493d92a62cf3",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/src/Hexalith.Conversations.Contracts/Queries/ListConversationsPayload.cs",
+      "sizeBytes": 464,
+      "sha256": "2e67df6b473bc9a3ed7393732eeb6a9b0fd50fb8d2023f0cc9fdffdde34de942",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/src/Hexalith.Conversations.Contracts/Routing/ConversationsCatalogDeclarations.cs",
+      "sizeBytes": 12034,
+      "sha256": "07eb2f22f12a29f73a2b65e38560badce4a155cfc5b844cdf5c1adc0460f8b9a",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/src/Hexalith.Conversations.Contracts/Serialization/ConversationQuerySerialization.cs",
+      "sizeBytes": 701,
+      "sha256": "730dc9a14f23f9807c071e81629f22df869193a2f0a3ab5cef3ff77f18efde99",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/src/Hexalith.Conversations.Contracts/Serialization/ConversationScalarSchemas.cs",
+      "sizeBytes": 4060,
+      "sha256": "2bc72ac64364072c397dc930cac370b8ea399b4d3b4855e87f2dd1f28250ccf8",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/src/Hexalith.Conversations.Contracts/Serialization/ConversationsJsonContext.cs",
+      "sizeBytes": 13822,
+      "sha256": "6f6c9211fe9b608a579670dca058103b8b6112559fe2df57860f500e1e266fc5",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/src/Hexalith.Conversations.EventStoreExtensions/ConversationsCatalogAdapters.cs",
+      "sizeBytes": 8388,
+      "sha256": "9eb8c438348a0c430062e3a942337a76ad145d8fd623e831e452b3a9a3fa551c",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/src/Hexalith.Conversations.EventStoreExtensions/Hexalith.Conversations.EventStoreExtensions.csproj",
+      "sizeBytes": 1016,
+      "sha256": "2b96bf971d2b7b34e08c4ac8a4660d9275ff870e316d8f54f6ad72c95bee9ccf",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj",
+      "sizeBytes": 3052,
+      "sha256": "e31628026445ce62bd0ff07ce3df3f43710227195fc140fdc23d407022a7a465",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/src/Hexalith.Conversations.Server/Program.cs",
+      "sizeBytes": 4293,
+      "sha256": "3dd084b47811c2202b1ae229d8f5576d803f63963ac47e44e81efcf08ea2925e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/src/Hexalith.Conversations.Server/Queries/ConversationDomainQueryHandler.cs",
+      "sizeBytes": 9038,
+      "sha256": "0cfe8e95f3dc7e6a9a132a2e64669b876ab5a3a286efc7543859896f95c4f152",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/tests/Hexalith.Conversations.Contracts.Tests/ContractPackageInventoryTest.cs",
+      "sizeBytes": 12793,
+      "sha256": "c78308045d9617ebdbe3490e61ab1ed2b75da1b58967b659c9e33f744e28be9d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs",
+      "sizeBytes": 71822,
+      "sha256": "a787429c9c5e9727bb6d5b201d66f6d778da9d550e17af3e57833bac0dc272a9",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/tests/Hexalith.Conversations.Contracts.Tests/ContractsAssemblyBoundaryTest.cs",
+      "sizeBytes": 4875,
+      "sha256": "33642281ac69088cabc7d6458df243b564d6f15a2f2c25a0b3cd65fd5fcf244e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/tests/Hexalith.Conversations.Contracts.Tests/PlatformEnrollmentMappingTest.cs",
+      "sizeBytes": 18331,
+      "sha256": "2813a3c71b977b5fa40164a022b09e2c88b8aa9dda387ccdcf340e29756d8f1d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/tests/Hexalith.Conversations.Server.Tests/HostComposition/ConversationsDomainServiceHostCompositionTest.cs",
+      "sizeBytes": 19373,
+      "sha256": "0115ab7362cee4c63055ec1aecbe9bc975fe4d18b2c5d54cb79e5e39bb60451d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/tests/Hexalith.Conversations.Server.Tests/Queries/ConversationDomainQueryDispatchTest.cs",
+      "sizeBytes": 15885,
+      "sha256": "dc199c9768a0405e8b8fdfc19603f28284abff1a880a1b2ecafe3fd5c81cdb6b",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogIntentTest.cs",
+      "sizeBytes": 14767,
+      "sha256": "f51b61832c7d4ed5ac727d1b117ce09b91b26d60d5fd77825e8c926e2fdc0bb1",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogProgramTest.cs",
+      "sizeBytes": 5438,
+      "sha256": "46e45f43e962bc59374d4f030043a65d12827490a1b648e4e0778cd2a4da38a0",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogSchemaTest.cs",
+      "sizeBytes": 7169,
+      "sha256": "f3f02c6ba2026d07587f1d5dbf8c4d39622f5bf42a75c3c301dcfa9cf1e7b3be",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogTest.cs",
+      "sizeBytes": 9120,
+      "sha256": "c2c13c73f711258f6dba3895e75764e9b7b4292d57a05fdfcbd59f0433900d27",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/tests/tooling/test_release_tooling.py",
+      "sizeBytes": 39252,
+      "sha256": "b2a8ebf406c9b1b6f8e5f23b7ec3ac3fee70f23b36e3e4b5696a0988e2820304",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/conversations/tools/release-packages.json",
+      "sizeBytes": 796,
+      "sha256": "1f127c1227b645a56c9a8fbd12de020f268af3b698d1daea32d04931a9f8cab4",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/platform/src/Hexalith.Platform.CatalogBuilder/Hexalith.Platform.CatalogBuilder.csproj",
+      "sizeBytes": 1632,
+      "sha256": "24130bb7f0252b1eef4a29a0ff002e9c9198a777377449fbb2c68282d74a038e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/platform/src/Hexalith.Platform.CatalogBuilder/Program.cs",
+      "sizeBytes": 8355,
+      "sha256": "5476eb935b9f299c62c448eb670879679afd0437807c393305edf78e2555ba0a",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/platform/tests/Hexalith.Platform.Composition.Tests/ConversationsCatalogSourceVerificationTests.cs",
+      "sizeBytes": 19499,
+      "sha256": "59cafcd75b3f073b362c2bdbd8fc7243fb910a94fd6d1b3ca1fbcea534166716",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/platform/tests/Hexalith.Platform.Composition.Tests/ConversationsEnrollmentTests.cs",
+      "sizeBytes": 14253,
+      "sha256": "f77ebe99680ec0642f5fae3dce06d3a5db7cc3f5df64bf2027b5a4152d4305dc",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/platform/tests/Hexalith.Platform.Composition.Tests/Hexalith.Platform.Composition.Tests.csproj",
+      "sizeBytes": 7200,
+      "sha256": "fe36c7cab3bb89ec31d2782c84900b90f29b22fa6dd81721b84e7ad62fad564f",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source/platform/tests/catalog-builder/verify_catalog_builder.py",
+      "sizeBytes": 22696,
+      "sha256": "bfd7736a5eeb225a1605f158634b6e28c9a9cf726bc46cf311e580cc2e35ab63",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source-inventory.json",
+      "sizeBytes": 3427,
+      "sha256": "4d1118cc8e8455f481e6f35448c9e49f8e25c63ec5e2e1d0ca30227d6ca473c4",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/source-provenance.json",
+      "sizeBytes": 13166,
+      "sha256": "667eea9c557017d0f8b068628b76f6c3fdce5e5a30a989590a5aa1ef169e6129",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/baseline_vector.py",
+      "sizeBytes": 2118,
+      "sha256": "38ef7eb33184c91aa992c468b91a10375774764b1164193f808878260c31ad15",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/build-203517.log",
+      "sizeBytes": 6024,
+      "sha256": "4f30db7df12bc723d1557144b14c790fc6dac6773fb259b3170fbc2e5c3d936d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/build-203721.log",
+      "sizeBytes": 5015,
+      "sha256": "a57c368290bab70d377c68c75b8834c8c3a0c2abd1fb5afbc97464a8281a899f",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/build-203745.log",
+      "sizeBytes": 10023,
+      "sha256": "fba478abbe4f92b2bc8a30c4192a3591f3a9f383f0cbd9832c7348b85caeaa41",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/build-203921.log",
+      "sizeBytes": 5015,
+      "sha256": "32c018bf926a1fa01e60f8eaa80423549d82bce9e4c5f5de9546968771ce6d8e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/build-204024.log",
+      "sizeBytes": 3412,
+      "sha256": "b486e8664c878154445317fbd0368e2fdd45ee4c9b20563a759d9f6d79de1396",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/build-204453.log",
+      "sizeBytes": 5015,
+      "sha256": "e995b423dcd607f0c01044dfea57288ca2607537b0fc0b2992c2211f6874cf19",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/build-204610.log",
+      "sizeBytes": 3416,
+      "sha256": "3f390267db8fb1386572b85e1b03bb1c3f43ea33e3fb56c12619591c3a937338",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/final_supplement.py",
+      "sizeBytes": 9207,
+      "sha256": "79e5c1a68f85c97517a98994ca5786ff12fac403e33ba8b53c73b8943bb0512c",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/historical/Historical.csproj",
+      "sizeBytes": 857,
+      "sha256": "fe8ffe74371806fca9e4c6bddd2ea02d9c368077f9bd08f664bdc253a1bed1d7",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/historical/HistoricalPostFingerprint.cs",
+      "sizeBytes": 1397,
+      "sha256": "265ca41f409942ae90bc9c80b67c5b1911ded461c5adb13957e64be0ef0475f3",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/historical/Program.cs",
+      "sizeBytes": 648,
+      "sha256": "97e3ed9d0aa8932452b46ba19385bdee451542e9ec1d95a9cbd487c13f7c9f0d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/historical/baseline-source.cs.txt",
+      "sizeBytes": 22254,
+      "sha256": "c5404220ab2c5e185558f626a674571c7a30515d1e6e06490f2d55253d231fcc",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/historical-vector.log",
+      "sizeBytes": 65,
+      "sha256": "86f77cf306ab8cc77938416295f9bf9d4db220b46dd7a682c22d8ac503e86020",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/normal-lane-one-owner.log",
+      "sizeBytes": 75,
+      "sha256": "b9d68a37c0785fb5e55358614dffb4668fce0dad8c0b22073294a7ff2458770e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/owner-diff-check.log",
+      "sizeBytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/owner-focused-final.xml",
+      "sizeBytes": 18432,
+      "sha256": "e588a5722a9424015356b7455712facc4e4b18dfd9f8570409494f9c045527de",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/owner-focused-pp2-final.xml",
+      "sizeBytes": 19118,
+      "sha256": "28f111e1dd2d89093804128268393ec5a8e1fa705c438d5d1570a0f113a7ec4c",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/owner-focused.xml",
+      "sizeBytes": 25203,
+      "sha256": "9daec030dd984f1cd6aa07ca2c796dd49df4cf1302c4c56552cae210267f0a24",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/owner-runner/build.py",
+      "sizeBytes": 712,
+      "sha256": "39cf0b5f00269ac19f6e1fd6c844c78fa4e10e60542a4597f897b35535028750",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/owner-runner/prepare.json",
+      "sizeBytes": 2356,
+      "sha256": "ba2b3c0bdca9a53849f7f57c3f9fa0cabe171030c33e6cb6046f839f63bca75e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/patch_owner.py",
+      "sizeBytes": 9973,
+      "sha256": "6a4d06253f6f47797a2dfe90ffc906e4c35e38e20e05df18f21ff66d774817b9",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/patch_tests_platform.py",
+      "sizeBytes": 15620,
+      "sha256": "db997527fa0aef337c2e443c409c2aac6d01c1da2f02a289e7f9a234d308175e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-204238.log",
+      "sizeBytes": 8835,
+      "sha256": "85bbc0c1a130d99abc5ad241ed5187908f534bec327f188d1e766718b928229e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-204611.log",
+      "sizeBytes": 2258,
+      "sha256": "25b57b3effb4b4a78e0c03d87de433f95c889f4e062f218c80a172513aecf5a5",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-build.py",
+      "sizeBytes": 774,
+      "sha256": "4b2ff3ad47841f898d47ec56484997aa43424fc7ed6951bebd785054e3364914",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-diff-check.log",
+      "sizeBytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-focused.xml",
+      "sizeBytes": 1794,
+      "sha256": "53e25a86865bdc76dbbc9e1d6b0a2d2cec389a45c6ab5c7ab9239a6b0ce58d3a",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-inputs.json",
+      "sizeBytes": 601,
+      "sha256": "d0ccfa96a4aaad578cd2b2e05ff4dfc47b3e6344a59dc26ad08d724d02a94aa5",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-preparation-retry.log",
+      "sizeBytes": 1637,
+      "sha256": "de64069da10aff6b7fc23652d6c9bbd52aee21c4f55c8faa4b655bf971a04231",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-preparation-retry2.log",
+      "sizeBytes": 65,
+      "sha256": "de8b4b1f6bac3ae512831d9bea7e088ec9ee7920918f63aa86db1cdda35ef12d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-preparation.log",
+      "sizeBytes": 1623,
+      "sha256": "a5eff5875eb59e6716945c173c178d89fd22b94638573bbd040ffd3e1d122c91",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-prepare.json",
+      "sizeBytes": 1805,
+      "sha256": "df714ba1477db0a3ead5b32932cc3a93d8cc7d1fa134fc9571a452a80d696120",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-prepared-retry2/source-mapping/Hexalith.Folders.Aspire.proj",
+      "sizeBytes": 162,
+      "sha256": "35cc36ba06177e3327c0ce476b04423506a265ccbb1ca3027733488f297e055e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-prepared-retry2/source-mapping/SourceMapping.before-targets.props",
+      "sizeBytes": 3615,
+      "sha256": "af1f5d27233a84bac8e23174ae80f040e6fd465193acec2d380e4397401392b8",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-prepared-retry2/source-mapping/SourceMapping.final.targets",
+      "sizeBytes": 9557,
+      "sha256": "1d4db4eb53bf6e9b52ecbd9c78a43605d05dec7a37b4b09aedd07606b858c1d5",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-prepared-retry2/source-mapping/SourceMapping.late.props",
+      "sizeBytes": 7283,
+      "sha256": "1e49ce8d68e96776fc052229b5930be69698d3d1ff23688adc76a232b3b5cfa8",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-prepared-retry2/source-mapping/SourceMapping.model-common.props",
+      "sizeBytes": 253,
+      "sha256": "a007732fb98bf03a56f8ee254951854fe17ed2f2b50ac411e292ee4e87b9678d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-prepared-retry2/source-mapping/SourceMapping.props",
+      "sizeBytes": 98,
+      "sha256": "0363694f252736cdfd0bcf6a567bb077940df16cc966e410153718a552769e82",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-prepared-retry2/source-mapping/SourceMapping.targets",
+      "sizeBytes": 1081,
+      "sha256": "fc1cf0f4b41344cdc3cd0967544fa3d30f0665ef4eab5a1d0fa307f2a80d888d",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-prepared-retry2/source-mapping/SourceMapping.values.props",
+      "sizeBytes": 5830,
+      "sha256": "77094a147b8c7470d03c8af98cad02b7cfae22699015a9f19204ad58bd0c10b8",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-prepared-retry2/source-mapping/SourceMapping.values.targets",
+      "sizeBytes": 105446,
+      "sha256": "f9444899c4440d82e5f0a1a4621df17c797341bb3bef59200de998e078897939",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-prepared-retry2/source-mapping/__HXW_DefaultCatalog__.proj",
+      "sizeBytes": 162,
+      "sha256": "35cc36ba06177e3327c0ce476b04423506a265ccbb1ca3027733488f297e055e",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-prepared-retry2/source-mapping/catalog-versions.json",
+      "sizeBytes": 24738,
+      "sha256": "0e28dfaad55492b3fc151518449d13d6fa57c39239391e49026617127e250443",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-prepared-retry2/source-mapping/mapping.json",
+      "sizeBytes": 3365,
+      "sha256": "bbd8c6043c0bde8ace187ce1a7c5326db83af56c5a0e73e3258fcdca8885dc93",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/platform-prepared-retry2/source-mapping/pinned-tree/Props/Directory.Packages.props",
+      "sizeBytes": 32367,
+      "sha256": "5180c0c081bcfbbabfdbef7bc04de38e3c8a815163df55a25d604896c454729a",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/release-count-test.log",
+      "sizeBytes": 113,
+      "sha256": "2a94cea6551fef50b06d5cbdb11a5fde824ada77f73defd83d6376d7e5352c17",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/required-fields-after.log",
+      "sizeBytes": 189,
+      "sha256": "4731672a4ade2d1ab0fa44220f9161dd1df745b5d0d2c390374f1e76755574cf",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/required-fields-before.log",
+      "sizeBytes": 191,
+      "sha256": "c113a0ab79eb7117062af2440a0d5825349021b1b59ad4f7e738a69f7119d495",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/required-fields-repro/Program.cs",
+      "sizeBytes": 1430,
+      "sha256": "ff9f3c704944b284612239a50b0dc3b8a77b19b7152646db0b608a27623714d9",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/required-fields-repro/Repro.csproj",
+      "sizeBytes": 375,
+      "sha256": "b96891be76aa5d1f9039b22c9622b4575335d6af8a012397f072762cde7b28db",
+      "inventorySelfDescription": false
+    },
+    {
+      "path": "docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/post-review-20261102T194238Z-99eed439d54943489e21d04011237923/verification/supplement-path.txt",
+      "sizeBytes": 176,
+      "sha256": "1d696272d17905bcedf65d931f44e3014929bd224f09eacc7caa6169d4ca1e3f",
+      "inventorySelfDescription": false
+    }
+  ]
+}

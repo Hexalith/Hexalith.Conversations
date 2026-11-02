@@ -1,0 +1,57 @@
+{
+  "conversations": {
+    "root": "/home/administrator/projects/hexalith/conversations",
+    "sourceFiles": [
+      ".github/workflows/release.yml",
+      "Hexalith.Conversations.slnx",
+      "scripts/release_contract.py",
+      "scripts/release_state.py",
+      "scripts/validate-nuget-packages.py",
+      "scripts/validate-publication-preflight.sh",
+      "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj",
+      "src/Hexalith.Conversations.Contracts/Queries/GetConversationPayload.cs",
+      "src/Hexalith.Conversations.Contracts/Queries/ListConversationsPayload.cs",
+      "src/Hexalith.Conversations.Contracts/Routing/ConversationsCatalogDeclarations.cs",
+      "src/Hexalith.Conversations.Contracts/Serialization/ConversationQuerySerialization.cs",
+      "src/Hexalith.Conversations.Contracts/Serialization/ConversationScalarSchemas.cs",
+      "src/Hexalith.Conversations.Contracts/Serialization/ConversationsJsonContext.cs",
+      "src/Hexalith.Conversations.EventStoreExtensions/ConversationsCatalogAdapters.cs",
+      "src/Hexalith.Conversations.EventStoreExtensions/Hexalith.Conversations.EventStoreExtensions.csproj",
+      "src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj",
+      "src/Hexalith.Conversations.Server/Program.cs",
+      "src/Hexalith.Conversations.Server/Queries/ConversationDomainQueryHandler.cs",
+      "src/Hexalith.Conversations/Aggregates/ConversationAggregate.Agents.cs",
+      "src/Hexalith.Conversations/Idempotency/ConversationAgentPostFingerprint.cs",
+      "tests/Hexalith.Conversations.Contracts.Tests/ContractPackageInventoryTest.cs",
+      "tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs",
+      "tests/Hexalith.Conversations.Contracts.Tests/ContractsAssemblyBoundaryTest.cs",
+      "tests/Hexalith.Conversations.Contracts.Tests/PlatformEnrollmentMappingTest.cs",
+      "tests/Hexalith.Conversations.Server.Tests/HostComposition/ConversationsDomainServiceHostCompositionTest.cs",
+      "tests/Hexalith.Conversations.Server.Tests/Queries/ConversationDomainQueryDispatchTest.cs",
+      "tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogIntentTest.cs",
+      "tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogProgramTest.cs",
+      "tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogSchemaTest.cs",
+      "tests/Hexalith.Conversations.Server.Tests/Routing/ConversationsCatalogTest.cs",
+      "tests/tooling/test_release_tooling.py",
+      "tools/release-packages.json"
+    ],
+    "excludedTracked": [
+      "_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md",
+      "references/Hexalith.Builds",
+      "references/Hexalith.EventStore",
+      "references/Hexalith.Platform"
+    ]
+  },
+  "platform": {
+    "root": "/home/administrator/projects/hexalith/platform",
+    "sourceFiles": [
+      "src/Hexalith.Platform.CatalogBuilder/Hexalith.Platform.CatalogBuilder.csproj",
+      "src/Hexalith.Platform.CatalogBuilder/Program.cs",
+      "tests/Hexalith.Platform.Composition.Tests/ConversationsCatalogSourceVerificationTests.cs",
+      "tests/Hexalith.Platform.Composition.Tests/ConversationsEnrollmentTests.cs",
+      "tests/Hexalith.Platform.Composition.Tests/Hexalith.Platform.Composition.Tests.csproj",
+      "tests/catalog-builder/verify_catalog_builder.py"
+    ],
+    "excludedTracked": []
+  }
+}

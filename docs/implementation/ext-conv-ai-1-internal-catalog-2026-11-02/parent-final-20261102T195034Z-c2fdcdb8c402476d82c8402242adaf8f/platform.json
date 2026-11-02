@@ -1,0 +1,31 @@
+{
+  "command": [
+    "dotnet",
+    "tests/Hexalith.Platform.Composition.Tests/bin/Debug/net10.0/Hexalith.Platform.Composition.Tests.dll",
+    "-class",
+    "Hexalith.Platform.Composition.Tests.ConversationsEnrollmentTests",
+    "-class",
+    "Hexalith.Platform.Composition.Tests.DomainEnrollmentBindingTests",
+    "-class",
+    "Hexalith.Platform.Composition.Tests.PartiesAdoptionTests",
+    "-class",
+    "Hexalith.Platform.Composition.Tests.PlatformAppModelCatalogReviewTests",
+    "-result-xml",
+    "/home/administrator/projects/hexalith/conversations/docs/implementation/ext-conv-ai-1-internal-catalog-2026-11-02/parent-final-20261102T195034Z-c2fdcdb8c402476d82c8402242adaf8f/platform.xml"
+  ],
+  "mode": "platform",
+  "preparationPath": "/tmp/conversations-catalog-review-fixes/platform-prepare.json",
+  "preparationSha256": "df714ba1477db0a3ead5b32932cc3a93d8cc7d1fa134fc9571a452a80d696120",
+  "environmentKeys": [
+    "AfterMicrosoftNETSdkTargets",
+    "Configuration",
+    "CustomAfterDirectoryBuildTargets",
+    "CustomAfterMicrosoftCommonProps",
+    "CustomBeforeDirectoryBuildProps",
+    "CustomBeforeDirectoryBuildTargets",
+    "HEXALITH_SOURCE_MAPPING_HASH"
+  ],
+  "startedAt": "2026-11-02T19:53:56.987493+00:00",
+  "exitCode": 1,
+  "completedAt": "2026-11-02T19:54:50.931311+00:00"
+}
