@@ -2,7 +2,7 @@
 title: 'Story 16.1: Persist tenant-access projection state and prove convergence'
 type: 'feature'
 created: '2026-10-22'
-status: 'in-review'
+status: 'done'
 baseline_commit: '0f068ad765c1bd004df332f19f05df5cfdc1865f'
 route: 'dispatch'
 review_loop_iteration: 2
@@ -153,6 +153,25 @@ Review loop 2 (2026-11-02, follow-up commits; nothing amended, rebased or pushed
 - Conversations `4d6008e4`: decision (6) is applied to the two delegated owner-query paths as well. Before, `GetConversationAdvisoryMetadataDomainQueryHandler` threw on a retryable denial and returned unavailable. `ConversationResolutionMetadataAuthorization` counted unhealthy projection reasons as unavailable. Both now return the unknown-tenant safe denial for every non-allowed decision; only a thrown exception stays unavailable. Each path has a new test, over six unhealthy reasons, that compares the unhealthy result with the unknown-tenant result. All 12 new cases fail against the previous source. The 12 classes that use these paths pass 366/366.
 - Review pass 3 fixes (2026-11-02): Tenants `e3a8db4c` registers checkpoint handlers only for the ten tenant-domain rejection types. Its durable apply path acknowledges a delivery from any domain other than `tenants` as `Duplicate`, without reading or writing. A new test proves that a tenant named `global-administrators` keeps its record. Conversations `bab14ae9` moves the Tenants gitlink and changes these files: the READMEs, the integration guide, the `projection-freshness` precondition and the `stale-projection`/`unavailable-projection` fixtures now describe non-retryable `tenant_isolation_violation`; the handoff now covers the shared worker identity and gateway origin, subscription backoff and monitoring, and a rollback procedure; the misnamed durable test is renamed `...OneNonRetryableNonDisclosingResult`. New tests: `KeycloakDisabledPublishTopologyInjectsNoWorkerAuthority` and `ManifestDeclaresEveryKeyTheEnrolledHostRequiresAtStartup`. Covering tests: Tenants Client 91/91. Both new Tenants assertions fail against `13ea4333`. Server `TenantAccess` 179/179; AppHost topology 12/12; Contracts documentation 41/41 and catalog 76/76; portable tenant-isolation conformance 24/24; `test_story_16_1_warning_removal.py` 2/2.
 - Not changed: the tooling-v3 `binding.json` still pins the manifest at `0bed1c29…`, so a real-repository `verify_story_16_*` run now reports source drift for it. The final tooling pair is not required for this story, and the tooling suites rebind their fixtures from the live tree. `test_epic16_tooling.py`, `_v2`, `_v3` and `test_story_16_1_warning_removal.py`: 3066 passed, 1 failed. The failure is `test_held_selected_v3_emits_no_runtime_outputs`, which evaluates the live repository: it returns `FAIL`/`SOURCE_DRIFT` where the test expects `BLOCKED`. It already failed before this story because `.config/dotnet-tools.json` drifted in `1e1d891c`; the manifest is now a second drift subject.
+
+Completion (2026-11-02):
+- Submodule sync: root `14ea14e3` moves the ten direct submodules to their latest `main`. The story commits were rebased first: EventStore is now at `b89acfbc8`, 3 commits ahead of its `origin/main`, and Tenants at `7050a706`, 4 ahead. The owner committed the story artifacts as `cfde6c21` and pushed the root `main`. The EventStore and Tenants commits remain local only, so nobody can fetch the root gitlinks until those two are pushed (EventStore first, then Tenants).
+- Final native verification at the synced tree (mapped Debug, assemblies run directly with TRX):
+  - EventStore Client: 2308/2310. The 2 not-run cases are the opt-in `PendingBatchRecoveryLiveTests`. The `DevelopmentRouteCatalogBuilderTests` failures are fixed upstream.
+  - Tenants Client: 91/91.
+  - Conversations `Server.Tests`: 1569/1569.
+  - `IntegrationTests`: 36/36, including `Story16_1EvidenceTests`.
+  - `AppHost.Tests`: 13/13 with `HEXALITH_RUN_APPHOST_BOUNDARY_TESTS=true`.
+  - `Contracts.Tests`: 648/648.
+  - Every run had 0 skips. `check-root-submodules.py` passes and `git diff --check` is clean.
+- `_bmad/scripts/tests` lane: 5608 passed, 65 failed, 57 errors, 17 deselected. 61 failures and all 57 errors match the pre-review run: package-refresh environment, story104 receipts, the Epic 6 supersession and `test_held_selected_v3_emits_no_runtime_outputs`. Four failures are new:
+  - `test_round13_defaults_validate_selected_kind_encoding_and_complete_blob[truncated-constant]` failed during a build in the full lane and passes 9/9 alone.
+  - Three `test_verify_epic_16_adoption.py` cases report `ARTIFACT_BYTES_DRIFT`. That v1 verifier pins the pre-runtime digest of `module/hexalith.module-manifest.v2.json`, which this story changes. `conftest.py` retires the v1 suite (131 cases) the same way it retires v2; name the file to reproduce it. Routine collection is now 5599 selected and 17 deselected.
+- Story completion gate (v9): `_bmad-output/planning-artifacts/v9/story-contracts/16.1.json` exists, but the owner waived the gate under Open Question 3 (native xUnit proof only). Observed results:
+  - The exact v9 commands exit 2 (usage: `--contract` required).
+  - The tooling-v3 AC-16.1-01 command returns `FAIL`, exit 1 and `SOURCE_DRIFT`, with 0 tests and `runtimeQualified: false`.
+  - No final-record pair was generated or inserted.
+  - These results are recorded as observed and waived, never as PASS.
 
 ## Spec Change Log
 
