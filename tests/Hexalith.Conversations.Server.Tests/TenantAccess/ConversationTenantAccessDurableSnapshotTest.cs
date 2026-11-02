@@ -217,7 +217,7 @@ public sealed class ConversationTenantAccessDurableSnapshotTest
         harness.Store.SeedRaw(
             DurableTenantAccessHarness.StateStoreName,
             DurableTenantProjectionStore.KeyFor("tenant-malformed"),
-            new CheckpointedProjectionRecord<TenantLocalState> { Health = CheckpointedProjectionHealth.Healthy, LastContiguousSequence = 3 });
+            new CheckpointedProjectionRecord<TenantLocalState> { SchemaVersion = 1, Health = CheckpointedProjectionHealth.Healthy, LastContiguousSequence = 3 });
         using ServiceProvider host = harness.CreateHost();
         using ServiceProvider outage = harness.CreateHost(store: new UnavailableReadModelStore());
 
