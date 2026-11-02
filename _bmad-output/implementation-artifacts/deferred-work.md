@@ -1148,3 +1148,12 @@ Review strengthens the same solution-context scope with native implicit Platform
 - source_spec: `_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md`
   summary: Prove the local Keycloak conversations-tenant-access client's token passes the EventStore gateway's StreamRead authorization for system/tenants, in a Keycloak-enabled AppHost lane.
   evidence: Unverified (would be medium). Only the realm JSON is parsed. The boundary lane runs with Keycloak off, and the composition test stubs both the token and gateway responses.
+
+## Deferred from: code review of spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md (2026-11-02)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md`
+  summary: Write release notes for the Story 16.1 public denial change. Every unsafe tenant-access state (missing, gapped, corrupt, malformed, stale, unavailable) now denies as non-retryable `tenant_isolation_violation`, not retryable `tenant_projection_stale`. The published `Hexalith.Conversations.Testing` conformance fixtures (`stale-projection`, `unavailable-projection`) changed their expected codes.
+  evidence: The READMEs and the integration guide were updated, but there is no `docs/release-notes-*.md` entry (precedent: `docs/release-notes-1.3.1.md`). Write the notes when the release train publishes EventStore, then Tenants, then the Conversations package bump; the version is unknown until then.
+- source_spec: `_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md`
+  summary: Run the Story 16.1 release train so package-mode CI can compile. Publish EventStore with the `Checkpointed` projection types, then Tenants with the EventStore bump (inside the Tenants catalog SDK allow-list) and the durable projection, then bump the Conversations package versions in `Directory.Packages.props`.
+  evidence: Decision 1 of the 2026-11-02 review. EventStore `4db51a968` and Tenants `0543a34a` were pushed, and root `6fc8c7fe` moved the gitlinks, which fixes CI checkout. CI builds with package references, and the pinned versions predate the new types, so the Story 16.1 C# tests cannot compile or run in CI until these packages publish.
