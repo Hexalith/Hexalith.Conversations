@@ -1123,3 +1123,28 @@ Review strengthens the same solution-context scope with native implicit Platform
 - source_spec: `_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-host-composition.md`
   summary: An enabled deletion-runtime host requires a platform-admitted complete source for every `conversation` command, so it may deny ordinary commands for aggregates the installed EventStore complete-source authority does not cover.
   evidence: Unverified (would be high). `AddEventStoreCompleteCommandSourceVerification(platform, ["conversation"])` makes the SDK deny any conversation-domain request that has no `CompleteSource`. EventStore attaches one only when `ICompleteCommandSourceAuthority.Requires(identity)` is true. Settle this at installation by confirming the installed authority covers every conversation aggregate (all tenants) routed to this host, or by narrowing enforcement.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md`
+  summary: Prove that a live published tenant event and the EventStore gateway's range read of the same event produce identical MessageId, event type and payload SHA-256, with payload protection both on and off.
+  evidence: Unverified (would be high). Every 16.1 history double copies the delivery envelope, so equality holds by construction. If the bytes differ, every older redelivery and recovery becomes terminal Corrupt. Settle it with an AppHost-lane test that publishes through EventPublisher and reads through StreamsController.
+- source_spec: `_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md`
+  summary: Add an operator repair or rebuild path for tenant projection records that are terminal Corrupt or stuck on a deterministic TransitionFailed or MalformedRecord.
+  evidence: The 16.1 frozen intent makes Corrupt terminal and says Conversations never clears it. Today the only signals are a Warning log and denial, with no rebuild API, runbook, metric or alert.
+- source_spec: `_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md`
+  summary: Check whether EventStore Client's two failing DevelopmentRouteCatalogBuilderTests predate Story 16.1.
+  evidence: Unverified. They failed in the 16.1 mapped Debug run while loading Hexalith.EventStore.Server from Routing code that 16.1 does not touch. Settle it with a baseline 269451340a87 run of the same two methods.
+- source_spec: `_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md`
+  summary: Bound the Pending evidence list of a gapped checkpointed record, and renew the recovery lease during multi-page history replay.
+  evidence: Unverified (would be medium). MergeEvidence has no cap, and the 30 s lease is never refreshed, so a replay longer than the lease restarts forever with RecoveryLeaseLost. Settle it with a measured long-stream recovery.
+- source_spec: `_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md`
+  summary: Populate durable tenant-access records for tenants that existed before the durable projection was enabled and receive no new event.
+  evidence: Pre-existing cold-start gap: the in-memory projection was empty after every start too. Once the gateway is wired, the first new event backfills from sequence 1, but idle pre-existing tenants stay denied until a backfill runs.
+- source_spec: `_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md`
+  summary: Re-bind or retire the Epic 16 tooling-v3 source binding. It pins the pre-16.1 module manifest and tool manifest hashes, so test_held_selected_v3_emits_no_runtime_outputs fails.
+  evidence: The test already fails at baseline 0f068ad7 because of the earlier .config/dotnet-tools.json bump. Story 16.1's manifest inputs add a second drift. The tooling final pair was waived on 2026-11-01.
+- source_spec: `_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md`
+  summary: Define and automate rebuilding durable tenant-access records after a state-store restore, as part of the operational envelope.
+  evidence: Story 16.1 decision (3) has no time-based staleness. After a restore, an older Healthy record keeps authorizing until it is rebuilt, and today the only coverage is a handoff checkbox.
+- source_spec: `_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md`
+  summary: Prove the local Keycloak conversations-tenant-access client's token passes the EventStore gateway's StreamRead authorization for system/tenants, in a Keycloak-enabled AppHost lane.
+  evidence: Unverified (would be medium). Only the realm JSON is parsed. The boundary lane runs with Keycloak off, and the composition test stubs both the token and gateway responses.
