@@ -389,8 +389,20 @@ Story 16.1 owner actions:
   `conversations-tenant-access` realm client, which carries that grant; with
   Keycloak disabled through a development-only loopback authority, so the host
   starts but every tenant-history read fails and denies.
+- [ ] When the opt-in deletion runtime (`Hexalith:Conversations:DeletionRuntime`)
+  is also enabled, it and the tenant access share one SDK gateway client: one
+  `EventStore:Authentication` worker identity and one gateway origin. Grant that
+  single identity both the tenants-stream read above and the deletion runtime's
+  own gateway access, and set
+  `Hexalith:Conversations:DeletionRuntime:GatewayBaseAddress` to the same origin
+  as `Hexalith:Conversations:TenantAccess:GatewayBaseAddress`; the host refuses
+  to start when the two origins differ.
 - [ ] Platform configures the tenants subscription to retry without limit and
-  without dead-lettering. Gap recovery runs only when a delivery is redelivered.
+  without dead-lettering, with a bounded exponential backoff between attempts so
+  a failing delivery does not spin. Gap recovery runs only when a delivery is
+  redelivered. Operators monitor the subscription for a delivery that keeps
+  failing and for growing lag; until that is in place a stuck tenant denies
+  silently. Metrics and alerts for this remain deferred.
 - [ ] Operators rebuild the tenant projection records (`tenants-projection:v1:*`)
   after a state-store restore; a restored older Healthy record is not detected.
 - [ ] Follow the release train: publish EventStore; add the new EventStore
@@ -399,6 +411,27 @@ Story 16.1 owner actions:
   bump; then bump the Conversations package versions in
   `Directory.Packages.props`. Until then Conversations CI cannot compile in
   package mode.
+
+Story 16.1 rollback:
+
+1. Remove the enrolled durable registration and its configuration: the
+   `AddHexalithTenantsDurableProjection` opt-in that the enrolled
+   `AddConversationTenantAccess` registers, the
+   `Hexalith:Conversations:TenantAccess:GatewayBaseAddress` setting and the
+   `EventStore:Authentication` worker credentials (unless the deletion runtime
+   still uses them).
+2. Keep or drop the `tenants-projection:v1:*` state keys. Nothing reads them
+   while the durable path is off. Before re-enabling, drop or rebuild them:
+   kept records answer from the state they held at rollback, as after a
+   restore.
+3. Remove the new module manifest inputs: the gateway address, the
+   `EventStore:Authentication` keys and the worker client secret, with its
+   identity need and egress entries.
+4. If the single-replica warning is restored in `Program.cs` and this handoff,
+   change `_bmad/scripts/tests/test_story_16_1_warning_removal.py` with it,
+   since that test keeps the warning removed.
+
+Rollback keeps every EventStore event and all recorded evidence.
 
 - [ ] Named module and Platform owners reviewed the exact implementation revision and every binding/adapter.
 - [ ] The reviewed gateway tuple survives selection and disappears when its appId is unselected.

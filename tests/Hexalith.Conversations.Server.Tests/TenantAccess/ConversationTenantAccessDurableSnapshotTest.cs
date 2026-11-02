@@ -205,10 +205,13 @@ public sealed class ConversationTenantAccessDurableSnapshotTest
         harness.Gateway.Reads.ShouldBe(0, "authorization never starts recovery");
     }
 
-    /// <summary>Malformed and unavailable snapshots deny with one retryable, non-disclosing result.</summary>
+    /// <summary>
+    /// Malformed and unavailable snapshots deny with one non-retryable, non-disclosing public result; only the
+    /// internal decision keeps its retry hint.
+    /// </summary>
     /// <returns>A task.</returns>
     [Fact]
-    public async Task MalformedAndUnavailableSnapshotsDenyWithOneRetryableNonDisclosingResult()
+    public async Task MalformedAndUnavailableSnapshotsDenyWithOneNonRetryableNonDisclosingResult()
     {
         DurableTenantAccessHarness harness = new();
         harness.Store.SeedRaw(
@@ -232,6 +235,7 @@ public sealed class ConversationTenantAccessDurableSnapshotTest
         }
 
         PublicShape(unavailable).ShouldBe(PublicShape(malformed));
+        malformed.ToSafeErrorResult(SchemaVersion.Current, "correlation-durable").Errors.ShouldHaveSingleItem().IsRetryable.ShouldBeFalse();
     }
 
     /// <summary>

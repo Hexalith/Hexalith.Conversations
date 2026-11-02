@@ -63,15 +63,15 @@ public static class TenantIsolationConformanceSeedData
             "stale-projection",
             ConformanceOutcome.Blocked,
             ConformanceFailureClassification.Conformant,
-            "Fail-closed on projection staleness: system blocks when projection is outdated.",
-            ConversationErrorCode.TenantProjectionStale),
+            "Fail-closed on projection staleness: system denies as an unknown scope, non-retryable, when projection is outdated.",
+            ConversationErrorCode.TenantIsolationViolation),
 
         new(
             "unavailable-projection",
             ConformanceOutcome.Blocked,
             ConformanceFailureClassification.Conformant,
-            "Fail-closed on projection unavailability: system blocks when projection is unreachable.",
-            ConversationErrorCode.TenantProjectionStale),
+            "Fail-closed on projection unavailability: system denies as an unknown scope, non-retryable, when projection is unreachable.",
+            ConversationErrorCode.TenantIsolationViolation),
 
         new(
             "disabled-tenant",

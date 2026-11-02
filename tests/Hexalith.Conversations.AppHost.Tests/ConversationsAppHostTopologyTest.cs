@@ -324,6 +324,26 @@ public sealed class ConversationsAppHostTopologyTest
         secret.Name.ShouldBe("conversations-tenant-access-development-client-secret");
     }
 
+    /// <summary>
+    /// Outside run mode the Keycloak-disabled topology injects no worker authority and no development secret, so a
+    /// published Conversations host never starts on the development-only loopback authority.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Fact]
+    public async Task KeycloakDisabledPublishTopologyInjectsNoWorkerAuthority()
+    {
+        IDistributedApplicationBuilder builder = CreateBuilder(enableKeycloak: false, args: ["--operation", "publish"]);
+        builder.ExecutionContext.IsPublishMode.ShouldBeTrue();
+
+        ConversationsAppHostResources resources = ConversationsAppHostTopology.AddConversations(builder);
+        Dictionary<string, object> environment = await EnvironmentOfAsync(resources.ConversationsServer.Resource);
+
+        environment.ShouldContainKey(ConversationsAppHostTopology.TenantAccessGatewayBaseAddressVariable);
+        environment.Keys.ShouldNotContain(key => key.StartsWith("EventStore__Authentication__", StringComparison.Ordinal));
+        builder.Resources.OfType<ParameterResource>()
+            .ShouldNotContain(parameter => parameter.Name == "conversations-tenant-access-development-client-secret");
+    }
+
     [Fact]
     public void EventStoreShouldUseSharedSecurityWhenKeycloakIsEnabled()
     {
@@ -396,9 +416,9 @@ public sealed class ConversationsAppHostTopologyTest
         endpoint.UriScheme.ShouldBe("http");
     }
 
-    private static IDistributedApplicationBuilder CreateBuilder(bool enableKeycloak = true)
+    private static IDistributedApplicationBuilder CreateBuilder(bool enableKeycloak = true, string[]? args = null)
     {
-        IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder();
+        IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args ?? []);
         if (!enableKeycloak)
         {
             _ = builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>

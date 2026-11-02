@@ -30,7 +30,7 @@ public static class ConversationCorePreconditionCatalog
             OnboardingDiagnosticCheck.TenantContext,
             ProjectionTrustState.Current,
             ConversationErrorCode.TenantProjectionStale,
-            "When tenant access state is stale, dependent reads degrade to a non-trust-bearing state and writes fail closed; retry after the projection is current."),
+            "Onboarding diagnostics report stale tenant access with this code; retry after the projection is current. Requests made while tenant access is not current deny as a non-retryable isolation violation, the same as an unknown tenant."),
         Precondition(
             "audit-sink-availability",
             OnboardingDiagnosticCheck.AuditAvailability,
