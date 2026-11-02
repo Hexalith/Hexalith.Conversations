@@ -1,0 +1,185 @@
+{
+  "acceptedCommandPreflight": {
+    "exitCode": 1,
+    "expected": "87e8b4a6ec3224b20a560b0e83de857805925572",
+    "firstPredicate": "sourceHeadEqualsAcceptedTarget",
+    "liveVerifierInvoked": false,
+    "observed": "6a2ed9d8ec97fc50ac464cca0b505169df7c7a59"
+  },
+  "acceptedStatus": "Committed",
+  "acceptedTarget": "87e8b4a6ec3224b20a560b0e83de857805925572",
+  "agentsTrackedPointers": {
+    "conversations": "40577d6f37e7cf2919e5fa3922ff7ab979cefbc6",
+    "platform": "39c3337d762c2ebfe181725fc9ea906c36a1b075"
+  },
+  "availability": false,
+  "blockers": [
+    {
+      "id": "protection-commitment",
+      "observed": "Register fields remain TBD/Uncommitted; owner withdrew source proposals",
+      "required": "Independent accepted EXT-PROTECTION-1 immutable target, integration date, executable owner command, accepted installed profile"
+    },
+    {
+      "id": "host-live-pass-path",
+      "observed": "No qualifying evidence in inspected owner artifacts; component path reports DependencyNotAvailable",
+      "required": "Genuine EXT-HOST-1 verificationMode Live, passPath true evidence bound to accepted exact target and pinned host profile"
+    },
+    {
+      "id": "independent-enrollments",
+      "observed": "Owner form has null bindings/evidence; configured cluster inventory has no matching named workloads; current source has some adapters but requires independent authority and installation providers.",
+      "required": "Installed Branch B Organization Party identity/liveness; current worker/machine binding; issuer/public trust and role/revocation; source/catalogue/publication authority; independent lookup principal"
+    },
+    {
+      "id": "conformance-receiver",
+      "observed": "No installed target, rollover, credential or storage binding verified; no matching named workload",
+      "required": "Separately installed authenticated target and rollover OQ-5.4-1 receiver and lookup workload with EventStore storage, SDK channel/JWT trust, disjoint credentials and no Agents runtime"
+    },
+    {
+      "id": "frozen-inputs",
+      "observed": "Installed manifest absent; binding and hashes unavailable",
+      "required": "Verified installed Live manifest and 12 pinned input files with exact SHA-256 bytes"
+    },
+    {
+      "id": "replacement-acceptance",
+      "observed": "No complete packet or owner acceptance; current source checkout has pre-existing dirty paths and Agents register still pins old target",
+      "required": "Complete clean-target replacement commitment accepted before single C1-C4 attempt"
+    }
+  ],
+  "codeInventory": {
+    "conversations": "Current source includes AddConversationDeletionRuntimeHost, CompleteSourceConversationCommandSourceVerifier, ConformanceConversationDeletionReceiver and runtime identity endpoint. Host composition explicitly requires independently installed agent authority, approval verifier, publication namespace source and index store; source registrations are not installed evidence.",
+    "eventstore": "Current source includes SourcePublicationAuthority and SDK registration, but no concrete ISourcePublicationAuthorityInstallationEvidence implementation was found in the inspected src tree. The domain router rejects caller-supplied CommandStateProof and VerifiedEffectiveEvents.",
+    "host": "Current Platform source exposes AddInstalledAgentsOwningProcess, but no production caller was found in the inspected src/eng trees; no pinned Live pass-path result was found in the scoped owner evidence search."
+  },
+  "disposition": {
+    "availabilityChanged": false,
+    "c1ToC4": "NotRun",
+    "cohortAttemptReserved": false,
+    "crossTenantLiveDenial": false,
+    "persistedLevel4Evidence": false,
+    "replacementSubmitted": false,
+    "typedLiveFailures": false
+  },
+  "host": {
+    "acceptedTarget": "abbec4093715c1db854433119b32d4e16df20d08",
+    "componentRoute": "DependencyNotAvailable",
+    "genuinePinnedLivePassPathEvidence": null,
+    "newPushedHeadAccepted": false
+  },
+  "installation": {
+    "attemptJournalFiles": 0,
+    "authorizationRecorded": true,
+    "branchBInstallationBindings": null,
+    "clusterObservationScope": "deployments,statefulsets,daemonsets in configured context; workload-name matching only",
+    "configuredClusterContext": "jpiquot@local",
+    "configuredClusterWorkloadCount": 59,
+    "currentAuthorityAndBindingEvidence": null,
+    "currentRolesAndRevocationEvidence": null,
+    "globalInstallationAuthorized": false,
+    "installedIssuerAndPublicTrustEvidence": null,
+    "liveManifestExists": false,
+    "matchingNamedWorkloads": [],
+    "separateReceiverInstalledAndAuthenticatedVerified": false
+  },
+  "kind": "ReadOnlyGateRecheckBlockedNotSubmitted",
+  "observedAtUtc": "2026-11-02T15:09:28.668117+00:00",
+  "protection": {
+    "integrationDate": null,
+    "ownerCommand": null,
+    "ownerNote": "Loop-7 candidates withdrawn after review8; installed qualification absent",
+    "registerStatus": "Uncommitted",
+    "target": null
+  },
+  "record": "EXT-CONV-AI-1",
+  "repos": {
+    "agents": {
+      "head": "2c06b2dbb2ea81513cdb502a4613e86826c79d78",
+      "pushedMain": "2c06b2dbb2ea81513cdb502a4613e86826c79d78",
+      "status": [
+        "M references/Hexalith.Platform"
+      ]
+    },
+    "conversations": {
+      "head": "6a2ed9d8ec97fc50ac464cca0b505169df7c7a59",
+      "pushedMain": "6a2ed9d8ec97fc50ac464cca0b505169df7c7a59",
+      "status": [
+        "M references/Hexalith.EventStore",
+        " M references/Hexalith.Tenants",
+        " M tests/Hexalith.Conversations.Server.Tests/TenantAccess/ConversationTenantAccessDurableSnapshotTest.cs"
+      ]
+    },
+    "eventstore": {
+      "head": "a3d8007aec5b58039aecd3172990bc445d11c6f5",
+      "pushedMain": "a3d8007aec5b58039aecd3172990bc445d11c6f5",
+      "status": [
+        "M references/Hexalith.Tenants"
+      ]
+    },
+    "parties": {
+      "head": "56fc3b73ff26292791782be54df9af1f050464c5",
+      "pushedMain": "56fc3b73ff26292791782be54df9af1f050464c5",
+      "status": []
+    },
+    "platform": {
+      "head": "81717c5dfb7c6bea7a2d28115f089c393a77257e",
+      "pushedMain": "81717c5dfb7c6bea7a2d28115f089c393a77257e",
+      "status": [
+        "M references/Hexalith.Builds",
+        " M references/Hexalith.ChatBot",
+        " M references/Hexalith.Conversations",
+        " M references/Hexalith.Folders",
+        " M references/Hexalith.Parties",
+        " M references/Hexalith.Works"
+      ]
+    }
+  },
+  "runtimeQualificationBinding": {
+    "cohortId": "OQ-5.4-1",
+    "manifestSha256": null,
+    "requiredFiles": [
+      "configuration",
+      "plan",
+      "hostProfile",
+      "hostVerifierEvidence",
+      "sourceAnchor",
+      "partyAnchor",
+      "approvalAnchor",
+      "workerAnchor",
+      "receiverAnchor",
+      "lookupAnchor",
+      "observerAnchor",
+      "controlAnchor"
+    ],
+    "verifiedInstalledHashes": null
+  },
+  "schemaVersion": 1,
+  "sourceHashes": {
+    "hostGap": {
+      "path": "/home/administrator/projects/hexalith/platform/docs/implementation/ext-host-1-gap-evidence-2026-11-02/README.md",
+      "sha256": "df11b963c8ddd7af40c7d1d5974459f2314bf87b97ff2628902dae605f28e3b7"
+    },
+    "ownerDecisions": {
+      "path": "/home/administrator/projects/hexalith/platform/docs/implementation/story-5-4-coupled-delivery-2026-10-25/owner-decisions.json",
+      "sha256": "755c9956d3afd9538ecd508c3fbf77f08712fa2e684cf007c5e9a3c9607a7650"
+    },
+    "previousGate": {
+      "path": "/home/administrator/projects/hexalith/conversations/docs/implementation/ext-conv-ai-1-gate-recheck-2026-11-02/README.md",
+      "sha256": "cda99b86ddaa5b5cb73db477d8c737cf861d5afe8653364568c729ca76b124f7"
+    },
+    "protectionOwnerAcceptance": {
+      "path": "/home/administrator/projects/hexalith/eventstore/docs/implementation/ext-protection-1-owner-acceptance.md",
+      "sha256": "d6963d771f6614aac745e9e46d858e64ac723c0bed53d6865b1e4b1737d2f781"
+    },
+    "receiverRequirements": {
+      "path": "/home/administrator/projects/hexalith/conversations/docs/implementation/ext-conv-ai-1-deletion-conformance-receiver.md",
+      "sha256": "d085bd614db2aa356d66ebaac29ea9fed408806098561d810507a59a55670f88"
+    },
+    "register": {
+      "path": "/home/administrator/projects/hexalith/agents/_bmad-output/planning-artifacts/external-dependency-register.md",
+      "sha256": "e29b7fc41cb404209e0abb5fb1e735f29cab253ce4012b142a2c8c30a9c19860"
+    },
+    "runtimeQualification": {
+      "path": "/home/administrator/projects/hexalith/conversations/docs/implementation/ext-conv-ai-1-runtime-qualification.md",
+      "sha256": "8a2df6f750bbd756b6832f26da63f0df1fb9a033893da8ce147e763555af8c36"
+    }
+  }
+}
