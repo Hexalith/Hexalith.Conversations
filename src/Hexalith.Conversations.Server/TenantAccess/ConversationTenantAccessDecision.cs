@@ -113,7 +113,7 @@ public sealed record ConversationTenantAccessDecision(
         SchemaVersion? schemaVersion,
         string? correlationId,
         string? causationId)
-        => new(ToRejectionCode(), ToPublicReasonCode(ToRejectionCode()), schemaVersion, correlationId, causationId);
+        => new(ToPublicErrorCode(), ToPublicReasonCode(ToPublicErrorCode()), schemaVersion, correlationId, causationId);
 
     /// <summary>
     /// Converts the decision to a non-disclosing public error result.
@@ -168,8 +168,6 @@ public sealed record ConversationTenantAccessDecision(
 
     // Unsafe projection states (missing, gapped, corrupt, malformed, stale, rolled back, unavailable) share the
     // unknown-tenant code and reason; only a missing or malformed tenant binding stays distinguishable.
-    private ConversationErrorCode ToRejectionCode() => ToPublicErrorCode();
-
     private ConversationErrorCode ToPublicErrorCode()
         => DenialReason is ConversationTenantAccessDenialReason.MissingTenant
             or ConversationTenantAccessDenialReason.MalformedTenant

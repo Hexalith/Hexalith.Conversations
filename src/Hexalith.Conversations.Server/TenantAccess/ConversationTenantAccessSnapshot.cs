@@ -29,9 +29,6 @@ internal sealed class ConversationTenantAccessSnapshot(ITenantProjectionSnapshot
     /// <summary>Gets the health observed for this evaluation, when the health adapter ran.</summary>
     internal TenantAccessProjectionHealth? ObservedHealth { get; private set; }
 
-    /// <summary>Gets the number of durable snapshot reads this evaluation performed.</summary>
-    internal int Reads { get; private set; }
-
     /// <inheritdoc />
     public async ValueTask<TenantAccessProjectionHealth?> GetProjectionHealthAsync(
         string tenantId,
@@ -72,7 +69,6 @@ internal sealed class ConversationTenantAccessSnapshot(ITenantProjectionSnapshot
         if (_read is null)
         {
             _tenantId = tenantId;
-            Reads++;
             _read = _snapshotStore.GetSnapshotAsync(tenantId, cancellationToken);
         }
         else if (!string.Equals(_tenantId, tenantId, StringComparison.Ordinal))

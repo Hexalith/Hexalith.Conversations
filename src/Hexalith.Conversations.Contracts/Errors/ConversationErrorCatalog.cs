@@ -33,7 +33,7 @@ public static class ConversationErrorCatalog
             ConversationErrorCategory.Freshness,
             true,
             ConversationErrorClientAction.RetryLater,
-            "Retry after tenant access state is current."),
+            "Retry after conversation state can be loaded."),
         Descriptor(
             ConversationErrorCode.AuditSinkUnavailable,
             ConversationErrorCategory.Audit,

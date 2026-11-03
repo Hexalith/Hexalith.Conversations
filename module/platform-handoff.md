@@ -385,9 +385,11 @@ Story 16.1 owner actions:
   `api/v1/streams/read` under the explicit platform scope `platform:tenants`
   (`X-Hexalith-Scope` header, domain `tenants`): the token carries the gateway
   audience plus exactly one `eventstore:permission=tenants:read` and no
-  `eventstore:tenant=system` grant. The enrolled host refuses to start without
-  `Hexalith:Conversations:TenantAccess:GatewayBaseAddress` and the
-  `EventStore:Authentication` worker credentials (declared in the module
+  `eventstore:tenant=system` grant. On the platform scope this permission also
+  admits the raw `system`/`tenants` stream history of every tenant, so Platform
+  grants it only to the tenant-access worker identity. The enrolled host refuses
+  to start without `Hexalith:Conversations:TenantAccess:GatewayBaseAddress` and
+  the `EventStore:Authentication` worker credentials (declared in the module
   manifest). The local AppHost injects them: with Keycloak enabled through the
   `conversations-tenant-access` realm client, which carries that permission; with
   Keycloak disabled through a development-only loopback authority, so the host
@@ -414,6 +416,10 @@ Story 16.1 owner actions:
   subscription for a delivery that keeps failing and for growing lag; until
   that is in place a stuck tenant denies silently. Metrics and alerts for this
   remain deferred.
+- [ ] Platform provides an enrolled read-model state store that supports ETag
+  compare-and-swap with create-only first writes, uses one key prefix shared by
+  all replicas, and never expires or evicts `tenants-projection:v1:*` keys. An
+  evicted record denies its tenant until a later delivery recovers it.
 - [ ] Operators rebuild the tenant projection records (`tenants-projection:v1:*`)
   after a state-store restore; a restored older Healthy record is not detected.
 - [ ] Follow the release train: publish EventStore (including the
@@ -440,8 +446,9 @@ Story 16.1 rollback:
 3. Remove the new module manifest inputs: the gateway address, the
    `EventStore:Authentication` keys and the worker client secret, with its
    identity need and egress entries.
-4. If the single-replica warning is restored in `Program.cs` and this handoff,
-   change `_bmad/scripts/tests/test_story_16_1_warning_removal.py` with it,
+4. Run exactly one replica: step 1 returns to the per-replica in-memory
+   store. Restore the single-replica warning in `Program.cs` and this handoff,
+   and change `_bmad/scripts/tests/test_story_16_1_warning_removal.py` with it,
    since that test keeps the warning removed.
 
 Rollback keeps every EventStore event and all recorded evidence.
