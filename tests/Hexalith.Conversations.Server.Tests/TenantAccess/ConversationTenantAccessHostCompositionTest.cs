@@ -110,6 +110,19 @@ public sealed class ConversationTenantAccessHostCompositionTest
         (await processor.ProcessAsync(rejection, TestContext.Current.CancellationToken)).ShouldBe(EventStoreDomainEventProcessingResult.Processed);
         harness.Store.Snapshot<CheckpointedProjectionRecord<TenantLocalState>>(storeName, DurableTenantProjectionStore.KeyFor(tenant))!
             .Version.ShouldBe(record.Version);
+        RecordedRequest[] historyReads = [.. transport.Requests.Where(static request => request.Uri.AbsoluteUri == GatewayStreamRead)];
+        historyReads.Length.ShouldBe(2);
+        RecordedRequest duplicateRead = historyReads[1];
+        duplicateRead.Method.ShouldBe(HttpMethod.Post);
+        duplicateRead.Authorization.ShouldBe("Bearer " + DeletionRuntimeTestSettings.WorkerToken);
+        StreamReadRequest duplicateRequest = JsonSerializer.Deserialize<StreamReadRequest>(duplicateRead.Body, Web)!;
+        duplicateRequest.Tenant.ShouldBe("platform:tenants");
+        duplicateRequest.Domain.ShouldBe("tenants");
+        duplicateRequest.AggregateId.ShouldBe(tenant);
+        duplicateRequest.FromSequence.ShouldBe(1);
+        duplicateRequest.ToSequence.ShouldBe(2);
+        harness.Gateway.SubmittedCommands.ShouldBeEmpty("tenant history recovery is read-only");
+        harness.Gateway.SubmittedQueries.ShouldBeEmpty("tenant history recovery uses bounded stream reads");
     }
 
     private static WebApplication ComposeLikeProgram(Dictionary<string, string?> settings, IReadModelStore store, HttpMessageHandler transport)

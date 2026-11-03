@@ -45,7 +45,7 @@ context: []
 - [x] Platform declaration snapshots, provenance and tuple: select the exact released EventStore/Tenants/Memories cohort, bind the verified published producer, run tuple CI and release its source identity. The user explicitly approved the required tracked Builds gitlink update without nested checkout initialization.
 - [x] `.config/dotnet-tools.json`, npm manifests: select the qualified exact tool and latest compatible stable npm direct packages. Parent owns orchestration.
 - [x] `tests/compatibility/MinimalModule`: refresh active overlay and successor locks; tooling investigator owns these files and related Python tests.
-- [ ] `tests` and `src`: resolve any remaining package API incompatibility; CI investigator owns necessary C# fixes. Prefer dependency alignment when published APIs already match source.
+- [x] `tests` and `src`: resolve any remaining package API incompatibility; CI investigator owns necessary C# fixes. Prefer dependency alignment when published APIs already match source.
 - [ ] Root changes and context note: run focused verification, independent review, commitlint, stage checks and push main with synchronized gitlinks.
 - [ ] Existing release workflow: require green exact main, dispatch release and confirm all five published packages and symbols against official endpoints.
 
@@ -94,6 +94,15 @@ context: []
 | Final blind 10: journal progress wording | false | Earlier observations are retained in the append-only journal; later verified facts and task states record publication and approval. Final completion facts will be appended after root publication, which is still pending. This finding proposes only editing the build spec. |
 | Final verification 1: missing Platform tag | high | Same pending publication prerequisite as Final blind 1. Do not run root package preparation or claim completion until the exact consumer identity has its official tag. |
 | Final edge cases | false | The second independent edge-case review returned no findings. |
+| Repair blind 1: isolated authorization read assertion | medium | Verified the isolated host uses a distinct SDK fake, so inspecting the shared fake does not detect its reads. Patch the current migration to compare the actual isolated client's recorded reads before/after authorization. |
+| Repair blind 2: late duplicate request shape | medium | The unconditional SDK page removed the old fixture's scope tripwire. First recovery already asserts the exact scope/range; extend the late-rejection case to retain that protection. |
+| Repair blind 3: read-only gateway tripwire | medium | Published fake default command/query results differ from the old throwing double. Retain read-only recovery assertions against SubmittedCommands/SubmittedQueries. |
+| Repair blind 4: add HTTP outage coverage | false | No error-handling behavior changed in the module; the published fake exercises retryable failure and persisted denial, and the SDK owns/tests HTTP error translation. The success path now additionally exercises the real HTTP client. A new transport-failure case is not required to preserve the module behavior covered here. |
+| Repair blind 5: paginate fixture history | false | The old fixture also returned the complete bounded range. Current domain histories are tiny and fit the requested page size; this migration neither changes production paging nor claims a pagination proof. No reachable fixture truncation or skipped event was demonstrated. |
+| Repair blind 6: HTTP fixture disposal | low | Replica disposal could throw before History.Dispose. A direct finally around owned resource cleanup ensures the new client is disposed even on that path. |
+| Repair verification | false | Reviewer found no verification gaps after tracing the unchanged boundary tests and fixture coverage. |
+| Repair edge cases | false | Reviewer returned an empty finding list. |
+
 
 ## Verification
 
@@ -115,3 +124,21 @@ context: []
 ### Current verified state — 2026-11-03
 
 The earlier pending observations above are historical journal entries. Builds 4.43.4 is published and independently verified; Platform v1.1.5 points to bf101b9d5f19ba741852b0230e526d1f01422022 after 160 tuple cases and the entire SDK matrix pass. All production release-authority regressions are present and pass. The permanent npm loader guard and full 99-test tooling suite pass, as do all seven compatibility assertions; npm audit reports zero vulnerabilities. SDK 10.0.403 is the current stable SDK across every pinned root. Root source commit a421f5ce1f26137849ebfdcca0125080323ebd7f contains the dependency maintenance. Root package preparation, product CI and Conversations 1.5.0 publication remain pending. Concurrent Story 16.2 planning is local-only user work and is preserved outside these maintenance commits.
+
+
+### Root CI repairs and explicit publication scope — 2026-11-03
+
+The user created commit 047819fd46d5f4a722e7bacbcd728f87d6c1adfe while maintenance was running. It includes the CI repairs and the concurrent Story 16.2 planning. The user then explicitly authorized including that entire commit in this release, superseding the earlier local-only planning constraint for publication of these files. No user commit was rewritten. Its exact full message passes the repository's pinned commitlint.
+
+The public contract remains byte-identical to the approved 225-type snapshot. Three technical catalog/query plumbing types added after the published 1.4.0 source are internal, with narrow friend-assembly access. The original snapshot, approvals and assertions are unchanged. Unit history fixtures consume the published EventStore fake; the live fixture uses the real SDK gateway client over its shared HTTP handler.
+
+Local package-mode Release solution build passes with zero warnings/errors. All 1,586 Server cases, 297 portable conformance cases, 90 internal conformance cases, and seven live Dapr/Redis cases pass without skips. Logs: /tmp/conversations-root-package-xwh_b9be/final-build.log, final-server-tests.log, final-conformance.log, and /tmp/conversations-sdk-history-live-tests.log. Root release planning remains exactly 1.5.0. Root CI and publication remain pending.
+
+
+### Hosted checkout repair — 2026-11-03
+
+The authorized combined root commit reached origin/main as 047819fd. CI 41642044482 passed repository checks, Windows cleanup, release tooling and the minimal-module fixture. Hosted conformance exposed two historical proof failures because initialize-build checks out root submodules at depth 1; the required preserved EventStore commit e645901928eed9759e28e1086f23dc96875c3ac3 was absent. The conformance job now fetches complete EventStore main history without recursion or moving its pinned checkout. Assertions and signed proof bytes remain unchanged. YAML parsing, Bash syntax and actionlint pass.
+
+Review assertion patches pass their two affected Server cases and all seven live fixture cases. Authorization inspects its own host's fake, recovery asserts read-only requests and exact duplicate bounds, and history-client disposal survives replica cleanup failure.
+
+Fresh shallow-clone reproduction also passes: the exact workflow fetch makes the preserved EventStore commit reachable from refs/remotes/origin/main and restores its bound DomainProjectionDispatcher.cs tree entry. Proof: /tmp/conversations-shallow-proof-azux0icg/validation.log. No nested submodule or checkout was initialized.

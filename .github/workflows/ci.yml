@@ -258,6 +258,18 @@ jobs:
       - name: Initialize root-declared submodules
         uses: Hexalith/Hexalith.Builds/Github/initialize-build@main
 
+      - name: Fetch EventStore history for preserved proof bindings
+        shell: bash
+        run: |
+          set -euo pipefail
+          history=()
+          if [ "$(git -C references/Hexalith.EventStore rev-parse --is-shallow-repository)" = true ]; then
+            history+=(--unshallow)
+          fi
+          git -C references/Hexalith.EventStore -c submodule.recurse=false fetch \
+            --no-recurse-submodules "${history[@]}" origin \
+            '+refs/heads/main:refs/remotes/origin/main'
+
       - name: Initialize .NET
         uses: actions/setup-dotnet@v6.0.0
         with:

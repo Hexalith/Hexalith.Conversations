@@ -7,11 +7,13 @@ using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.Conversations.Server.TenantAccess;
+using Hexalith.EventStore.Client.Gateway;
 using Hexalith.EventStore.Client.Projections;
 using Hexalith.EventStore.Client.Projections.Checkpointed;
 using Hexalith.EventStore.Client.Subscriptions;
 using Hexalith.EventStore.Contracts.Events;
 using Hexalith.EventStore.Contracts.Streams;
+using Hexalith.EventStore.Testing.Fakes;
 using Hexalith.Tenants.Client.Projections;
 using Hexalith.Tenants.Contracts.Enums;
 using Hexalith.Tenants.Contracts.Events;
@@ -102,6 +104,7 @@ public sealed class ConversationTenantAccessDurableSnapshotTest
     {
         DurableTenantAccessHarness harness = new();
         using ServiceProvider isolated = harness.CreateHost(withHistory: false);
+        FakeEventStoreGatewayClient isolatedGateway = isolated.GetRequiredService<IEventStoreGatewayClient>().ShouldBeOfType<FakeEventStoreGatewayClient>();
         await DurableTenantAccessHarness.DeliverAsync(isolated, harness.Persist(new TenantCreated(Tenant.Value, "Gapped", null, At), Tenant.Value, 1));
         EventStoreDomainEventEnvelope member = harness.Persist(new UserAddedToTenant(Tenant.Value, Caller, TenantRole.TenantOwner), Tenant.Value, 2);
         EventStoreDomainEventEnvelope configured = harness.Persist(new TenantConfigurationSet(Tenant.Value, "k", "v"), Tenant.Value, 3);
@@ -115,18 +118,20 @@ public sealed class ConversationTenantAccessDurableSnapshotTest
         gapped.Expected.ShouldBe(2);
         gapped.RecoveryThrough.ShouldBe(4);
         gapped.Pending.Select(static p => p.Sequence).ShouldBe([3L, 4L]);
+        int readsBeforeDenial = isolatedGateway.SubmittedStreamReads.Count;
         ConversationTenantAccessDecision denied = await CheckAsync(isolated, ConversationTenantAccessRequirement.Read);
         denied.IsAllowed.ShouldBeFalse();
         denied.DenialReason.ShouldBe(ConversationTenantAccessDenialReason.TenantAccessGapDetected);
         denied.IsRetryable.ShouldBeTrue();
         denied.ProjectionVersion.ShouldBeNull();
-        harness.Gateway.SubmittedStreamReads.ShouldBeEmpty("authorization never starts recovery");
+        isolatedGateway.SubmittedStreamReads.Count.ShouldBe(readsBeforeDenial, "authorization never starts recovery");
 
         using ServiceProvider recovering = harness.CreateHost();
+        FakeEventStoreGatewayClient recoveringGateway = recovering.GetRequiredService<IEventStoreGatewayClient>().ShouldBeOfType<FakeEventStoreGatewayClient>();
         harness.ConfigureHistory(Tenant.Value, fromSequence: 1, toSequence: 4);
         (await DurableTenantAccessHarness.DeliverAsync(recovering, configured)).ShouldBe(EventStoreDomainEventProcessingResult.Processed);
 
-        StreamReadRequest recoveryRead = harness.Gateway.SubmittedStreamReads.ShouldHaveSingleItem();
+        StreamReadRequest recoveryRead = recoveringGateway.SubmittedStreamReads.ShouldHaveSingleItem();
         recoveryRead.Tenant.ShouldBe("platform:tenants");
         recoveryRead.Domain.ShouldBe("tenants");
         recoveryRead.AggregateId.ShouldBe(Tenant.Value);
@@ -137,18 +142,25 @@ public sealed class ConversationTenantAccessDurableSnapshotTest
         healthy.LastContiguousSequence.ShouldBe(4);
         healthy.Pending.ShouldBeEmpty();
         healthy.Lease.ShouldBeNull();
+        int readsBeforeAllowance = isolatedGateway.SubmittedStreamReads.Count;
         ConversationTenantAccessDecision allowed = await CheckAsync(isolated, ConversationTenantAccessRequirement.Admin);
         allowed.IsAllowed.ShouldBeTrue();
         allowed.ProjectionVersion.ShouldBe(4);
+        isolatedGateway.SubmittedStreamReads.Count.ShouldBe(readsBeforeAllowance, "authorization never starts recovery");
         harness.ConfigureHistory(Tenant.Value, fromSequence: 1, toSequence: 2);
         (await DurableTenantAccessHarness.DeliverAsync(recovering, member)).ShouldBe(EventStoreDomainEventProcessingResult.Processed);
-        StreamReadRequest duplicateRead = harness.Gateway.SubmittedStreamReads.Last();
+        StreamReadRequest duplicateRead = recoveringGateway.SubmittedStreamReads.Last();
         duplicateRead.Tenant.ShouldBe("platform:tenants");
         duplicateRead.Domain.ShouldBe("tenants");
         duplicateRead.AggregateId.ShouldBe(Tenant.Value);
         duplicateRead.FromSequence.ShouldBe(1);
         duplicateRead.ToSequence.ShouldBe(2);
         harness.Record(Tenant.Value)!.Version.ShouldBe(healthy.Version, "the late gap event is verified against history and never reapplied");
+        foreach (FakeEventStoreGatewayClient gateway in new[] { isolatedGateway, recoveringGateway })
+        {
+            gateway.SubmittedCommands.ShouldBeEmpty("tenant history recovery is read-only");
+            gateway.SubmittedQueries.ShouldBeEmpty("tenant history recovery uses bounded stream reads");
+        }
     }
 
     /// <summary>Compare-and-swap exhaustion keeps the delivery unacknowledged; a provider outage makes authorization unavailable.</summary>
