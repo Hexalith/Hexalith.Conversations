@@ -159,7 +159,9 @@ public sealed class ScaffoldSmokeTest
             "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj",
             // Story 3.6 (FR-14): Contracts consumes the promoted shared serialization bases while preserving
             // the public contract boundary and wire shape.
-            $"{commonsRoot}/src/libraries/Hexalith.Commons.Serialization/Hexalith.Commons.Serialization.csproj");
+            $"{commonsRoot}/src/libraries/Hexalith.Commons.Serialization/Hexalith.Commons.Serialization.csproj",
+            // Internal catalog declarations consume SDK metadata; public surface conformance still forbids SDK leaks.
+            $"{eventStoreRoot}/src/Hexalith.EventStore.Contracts/Hexalith.EventStore.Contracts.csproj");
         AssertProjectReferences(
             root,
             "src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj",
@@ -174,9 +176,16 @@ public sealed class ScaffoldSmokeTest
             $"{eventStoreRoot}/src/Hexalith.EventStore.Contracts/Hexalith.EventStore.Contracts.csproj");
         AssertProjectReferences(
             root,
+            "src/Hexalith.Conversations.EventStoreExtensions/Hexalith.Conversations.EventStoreExtensions.csproj",
+            "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj",
+            "src/Hexalith.Conversations/Hexalith.Conversations.csproj",
+            $"{eventStoreRoot}/src/Hexalith.EventStore.DomainService/Hexalith.EventStore.DomainService.csproj");
+        AssertProjectReferences(
+            root,
             "src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj",
             "src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj",
             "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj",
+            "src/Hexalith.Conversations.EventStoreExtensions/Hexalith.Conversations.EventStoreExtensions.csproj",
             "src/Hexalith.Conversations/Hexalith.Conversations.csproj",
             $"{eventStoreRoot}/src/Hexalith.EventStore.Contracts/Hexalith.EventStore.Contracts.csproj",
             // Story 6.2: Server directly consumes the platform read-model store and bounded bulk-read seams.
