@@ -116,9 +116,8 @@ Those retained test results are not new executions against the later candidate.
    mode and materialize its mapping with Builds'
    `SourceMappingMaterializer.WriteAsync`. It must pass the complete generated
    `SourceMappingMaterializer.Environment` to every restore/build/test child.
-   `validate` does not resolve mappings. Current Builds source implements the
-   runtime-free `prepare-build` CLI, but accepted 4.35.2 lacks it; using the
-   public command requires a separately qualified published successor.
+   The published CLI pinned in `.config/dotnet-tools.json` exposes this through
+   the runtime-free `prepare-build` command. `validate` does not resolve mappings.
    Do not set dependency roots/modes by hand or probe sibling layouts.
 2. In source mode, build the affected test projects individually in Debug under
    that environment, then invoke their built native xUnit assemblies with
@@ -134,11 +133,11 @@ Those retained test results are not new executions against the later candidate.
    `.github/workflows/domain-ci.yml` invoke the producer's
    `Github/prepare-module-build` action before affected restores/builds. That
    action calls `prepare-build --mode package` and exports verified mapping
-   imports. Accepted 4.35.2 rejects this command; qualify the exact successor
-   artifact, accepted pin and Platform/catalog tuple before claiming CI
-   integration. Standalone package/property evaluation and source tests do not
-   prove a successful CI build. The earlier prerequisite slice did not change
-   workflows; subsequent commits added this preparation path.
+   imports after checking the exact tool and Platform/catalog identities.
+   Successful CI and release results must identify that same pinned tuple;
+   standalone package/property evaluation and source tests do not prove a
+   successful CI build. The dated 4.35.2 refusal and prerequisite observations
+   above remain historical and do not describe the current tool pin.
 
 ## Declaration and runtime ownership
 

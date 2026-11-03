@@ -134,8 +134,10 @@ Use the repository-pinned .NET SDK from `global.json` with the
 [Platform-mapped validation workflow](module/README.md#mapped-validation-workflow).
 Builds' generated imports must supply the selected roots, source/package mode,
 configuration and mapping hash before restore/build. Ordinary unmapped commands
-now fail explicitly. The accepted CLI's `validate` command does not materialize a
-mapping; the current CI mapping handoff is still pending.
+now fail explicitly. The pinned CLI's runtime-free `prepare-build` command
+materializes this environment; `validate` does not resolve mappings. CI consumes
+the exact pinned tool and Platform/Builds tuple through `prepare-module-build`
+before its Release restore and build.
 
 Local compilation uses individual Debug test projects; run focused built xUnit
 v3 assemblies with `-class` or `-method`. The
@@ -145,6 +147,10 @@ Release/package runtime qualification and the held product runtime require
 separate owner acceptance; these source checks grant neither.
 
 The scaffold smoke checks must not require Aspire runtime launch, Dapr sidecars, tenant seed data, production secrets, provider credentials, external cloud resources, or nested submodule initialization.
+
+Release tooling uses the plugins listed in `.releaserc.json` and publishes NuGet
+packages through `@semantic-release/exec`. Its dependency override excludes the
+unused npm publisher, matching Builds' release tooling.
 
 ## Submodules
 

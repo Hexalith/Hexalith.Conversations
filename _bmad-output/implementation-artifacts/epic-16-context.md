@@ -4,7 +4,7 @@
 
 ## Goal
 
-Give operators and authorized callers durable tenant authorization, deterministic projection truth derived from event history, and diagnosable live reconciliation across restarts and multiple replicas. Recovery must restore query-visible state without weakening authorization, presenting missing state as current-empty, or creating another source of Conversation truth.
+Give operators and authorized callers durable tenant authorization, projection truth derived deterministically from event history, and live reconciliation they can diagnose, across restarts and multiple replicas. Recovery must restore query-visible state without weakening authorization, without showing missing state as current-empty, and without creating a second source of Conversation truth. Story 16.1 has delivered durable tenant-access state. Stories 16.2 and 16.3 remain.
 
 ## Stories
 
@@ -14,36 +14,60 @@ Give operators and authorized callers durable tenant authorization, deterministi
 
 ## Requirements & Constraints
 
-Epic 16 runtime entry remains held. Prerequisite, adoption and tooling preparation preserve the eighteen scenarios, thirty-two requirements, thirty-eight graph nodes, sixty-one edges, predecessor identities and rollback boundaries. Structural or synthetic success does not qualify runtime, provide owner acceptance or lift the ACTIVE hold. Current-change policy governs routine work; historical authority records remain immutable observations at their original candidates.
-
-Runtime entry requires independently trusted, story-scoped owner qualification bound to a pre-existing authorization revision and compatible predecessors. Qualifications cover the Platform tool, adoption, operational envelope, provider parity, recovery drill, operator coverage, capacity disposition, human SM-2 and owner entry. An entry file or passing local topology alone cannot supply these decisions. Architect/Runtime owns the operational envelope; Release alone accepts capacity or parity waivers.
-
-Conversations inherits Hexalith.Platform infrastructure, provider, identity, telemetry and deployment policy through logical capabilities and injected configuration. Local Redis and source/Debug success do not establish package/Release or hosted parity. Recovery inherits Platform RPO/RTO and response-coverage targets, subject to measured qualification, operator access, restore drills and explicit waiver expiry.
-
-Preserve public contracts and tenant isolation, idempotency, contract validation, redaction replay, provider portability, projection freshness and governance audit-pairing. Unknown, stale, gapped, corrupt or unavailable tenant state denies authorization. Diagnostics and evidence disclose no tenant or personal content. Remove the single-replica warning only after restart and convergence proofs pass.
-
-Acceptance requires real candidate-bound native execution, persisted end-state and durable acknowledgement evidence. Required results are nonempty, passing and free of failed, skipped or unexecuted cases. Generate the compatible JSON/Markdown final pair only after each story's six scenarios establish `6/6/0/0/0/0`. Preserve accepted evidence, predecessor bindings and rollback scope; unavailable qualification is BLOCKED, never PASS.
+- **Event-derived time.** A contract event takes its identity and time from metadata `EventId`/`OccurredAt`. Its envelope time is diagnostic only. A position-only event uses its persisted `MessageId`/`Timestamp`. Validate identity, exact payload bytes, and selected time before duplicate suppression. Missing or invalid identity or time fails closed. Replay never falls back to a clock (`UtcNow`, `Now`, `TimeProvider`).
+- **Duplicates.** The binding is tenant, conversation, event type, sequence, serialization format, payload SHA-256, and selected UTC ticks. Exact reuse is a no-op. Changed reuse maps to `Unavailable`/`metadata_contradictory`.
+- **Deterministic rebuilds (effective AC-16.2-02).** Two clean rebuilds under different clocks must produce byte-identical canonical v2 replay-state JSON, `ReplayAnchorAt`, and `ReplayStateHash`. Public freshness is generated anew, conforms to `ProjectionFreshnessV1`, stays out of replay identity, and is tested by semantic invariants, not byte equality.
+- **Freshness meaning.** `ReplayAnchorAt` is the maximum validated contributing event or lifecycle time, and `LastAppliedEventTimestamp` equals it. `ProjectionGeneratedAt` is the actual completion instant, and `LagDuration` spans the two. A generation time earlier than the anchor fails closed and is never clamped.
+- **Truthful empty.** Only a proven v2 `Ready` index with zero summaries and no pending dispatch is current-empty. A surviving detail record never proves empty.
+- **Pure reads.** Queries make zero repair writes and never infer lifecycle. A state-store write ledger must prove this.
+- **Preservation.** Keep the public query/freshness contract shape, safe vocabulary, redaction, tenant isolation, 16.1 state, and event history unchanged. Required results must be nonempty with zero failed, skipped, or not-run. Diagnostics carry no tenant or personal data.
+- **Authority.** Planning keeps the hold `ACTIVE`. The successor scenario verifiers do not exist yet. Selected runtime commands return `BLOCKED`/`ENTRY_QUALIFICATION_PENDING`, and the record generator cannot consume the successor contracts. Story 16.1 ran only after an explicit owner waiver with native xUnit proof. Story 16.2 needs its own entry decision.
 
 ## Technical Decisions
 
-EventStore history is the sole Conversation write authority. Projections and indexes are derived and rebuildable; queries never repair them. EventStore owns raw-envelope binding, CAS/ETag persistence, the three-total-attempt retry policy, replay scheduling, fenced recovery and acknowledgements. Tenants owns pure transition policy and projection/checkpoint shape. Conversations consumes a coherent snapshot; Platform retains hosting ownership.
+- **Ownership.** EventStore history is the only Conversation write authority, and projections are derived and rebuildable. Platform owns hosting and providers. Shared capabilities go into EventStore or Tenants as additive seams, never duplicated in Conversations.
+- **Sole lifecycle authority.** The v2 `ConversationProjectionIndexReadModel` at `projection:conversations-index:<tenant-segment>` holds lifecycle, the Tenants watermark, per-aggregate watermarks, dispatch references, and the rebuild barrier/manifest. There is no separate lifecycle key, and lifecycle and entries share one CAS boundary. Only `ConversationProjectionReadModelWriter` authors transition plans. EventStore executes them.
+- **Transitions.**
+  - `TenantCreated` with `Absent` goes to `Ready(empty)`.
+  - `Absent` or v1 goes to `Rebuilding`.
+  - `Ready` goes to `Erasing`, then `Erased`.
+  - `Ready` or `Erased` goes to `Rebuilding`, then `Ready`; leaving `Erased` needs an owner-authorized rebuild.
+- **Generations.** Each erase or rebuild bumps the generation on detail, dispatch, manifest, watermarks, and queued references. Stale-generation writes are rejected. A query with mismatched generations returns `Rebuilding`.
+- **Erase.** Delete only retiring-generation targets, and keep the tombstone plus non-payload quarantine references. A delivery during `Erasing` or `Erased` is acknowledged only after it is durably quarantined, and it can never recreate content.
+- **Rebuild.**
+  1. Discover authoritative tenant streams at barrier B, never from the old index.
+  2. Durably queue later deliveries.
+  3. Prove exact-next sequence per aggregate through B.
+  4. Drain through cutover barrier C.
+  5. CAS to `Ready` with complete watermarks.
 
-Tenant transition and checkpoint commit in one CAS. Exact-next sequence advances state; accepted identical duplicates are no-ops, with older sequences checked against authoritative history. Conflicting identity becomes terminal Corrupt. Persist future-delivery fingerprints, immutable expected sequence and a monotonic recovery horizon. Acknowledge only durable outcomes. Fenced recovery validates history and pending evidence before CAS-restoring Healthy; an expired or superseded worker cannot erase newer progress. Authorization never initiates recovery.
-
-The v2 Conversation index is the sole lifecycle/watermark authority. Its entries, lifecycle, generation, aggregate watermarks, dispatch references and rebuild manifest share a CAS boundary. Only the projection writer authors transition plans. Tenant creation may initialize Ready(empty); missing/v1 state requires replay/rebuild. Erasure retains a tombstone and non-payload quarantine references. Generation fencing prevents delayed deliveries from recreating erased data, and only authorized rebuild leaves Erased.
-
-Rebuild discovers authoritative tenant streams at a scan barrier, queues later deliveries, drains through a cutover barrier and proves exact-next sequence within every stream before Ready. Numeric global-position gaps do not prove tenant-stream gaps. Preserve newer same-generation progress and post-cutover queued work.
-
-Validate identity, exact persisted payload binding and selected time before deduplication. Contract events use metadata EventId and OccurredAt; position-only events use persisted MessageId and envelope timestamp. Missing identity/time or changed duplicate bindings fail closed, without clock fallback. Identical history must reproduce canonical deterministic replay-state bytes, internal ReplayAnchorAt and ReplayStateHash. Public ProjectionGeneratedAt is the actual generation instant; freshness and lag follow semantic invariants and are excluded from replay identity. EventStore owns canonical serialization; Conversations supplies explicitly ordered collections.
+  Watermarks never regress. A gap in global position is not a tenant-stream gap.
+- **Canonical bytes.** The EventStore batch canonicalizer is the serialization authority (web defaults, compact UTF-8, ordinal-sorted properties). Conversations supplies ordinal-ordered collections.
+  - An unordered collection without a stable key fails before persistence.
+  - The hash excludes freshness, wrappers, ETags, batch IDs, and TTL.
+  - New persistence metadata needs a versioned EventStore API and golden vectors first.
+- **Tenant access (16.1).** Only `Healthy` state authorizes. Unsafe states give the same denial as an unknown tenant, and reads never trigger recovery.
+- **Story 16.3.** Use the stable codes `APPHOST_ENDPOINT_NOT_READY` and `DAPR_CONTROL_PLANE_PORT_COLLISION`. The live proof must use production `POST /project/v2/reconcile` plus durable end-state and query observations. Direct handler calls do not count.
 
 ## UX & Interaction Patterns
 
-Keep true empty, rebuilding, unavailable and forbidden distinct. Only proven v2 Ready with zero summaries and no pending dispatch is current-empty. Missing state/provider failure is unavailable; lifecycle or sequence gaps are rebuilding; contradictory metadata fails closed. Unauthorized and nonexistent tenants receive the same non-disclosing forbidden behavior without reading the index. Cross-key generation mismatches cannot disclose partial derived content.
+Render only the closed public state/reason pairs:
 
-Trust signals and safe next actions derive from server-owned state. UI documents preserve the intended behavior but do not activate UI implementation. Readiness and effective Dapr control-plane port failures need stable, content-safe diagnostics.
+| Condition | Public state / reason | Empty page allowed? |
+| --- | --- | --- |
+| Proven v2 `Ready`, zero summaries, no pending dispatch | `Current` / `current` | Yes, only here |
+| v1, `Erasing`, `Erased`, or `Rebuilding` | `Rebuilding` / `rebuilding` | No |
+| Lifecycle or source-position gap | `Rebuilding` / `gap_detected` | No |
+| Missing record for an authorized tenant, or provider failure | `Unavailable` / `unavailable` | No |
+| Corrupt, mixed-generation, or contradictory state | `Unavailable` / `metadata_contradictory` | No |
+| Unauthorized or nonexistent tenant | `Forbidden` / `forbidden`, with no index read | No |
+
+The UI labels the replay timestamp, the generation timestamp, and lag separately. It never confirms that protected data exists.
 
 ## Cross-Story Dependencies
 
-The preserved chain is `7.4, IR-0 -> 16.1 -> 16.2 -> 16.3`; Story 16.3 also gates 12.1, 13.1, 14.1 and 15.1. Compatible predecessor records and current entry qualifications are separate requirements; backlog or ready status grants no runtime authority.
-
-Story 16.3 must prove pending-work clearance and corrected query-visible state through the live production reconciliation route; direct handler invocation and HTTP success alone are insufficient. Before its entry, the baseline owner and Architect/Runtime must explicitly resolve the module AppHost conflict by exemption or relocation. Shared technical capabilities belong to their owning repositories and are consumed through approved additive surfaces.
+- The chain is `7.4, IR-0 -> 16.1 -> 16.2 -> 16.3`. Story 16.3 also gates 12.1, 13.1, 14.1, and 15.1.
+- Story 16.2 builds on 16.1's state and must not change it.
+- Story 16.3 relies on 16.2's truthful query states.
+- Before 16.3 starts, the baseline owner and Architect/Runtime must choose a module-AppHost exemption or a relocation.
+- Each story's final record is a pair at `docs/release-evidence/story-16.N-final-record-v2.*` with summary `6/6/0/0/0/0`. Story 16.1 skipped it under its waiver.

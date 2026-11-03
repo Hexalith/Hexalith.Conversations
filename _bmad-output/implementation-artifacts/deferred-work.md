@@ -1175,3 +1175,23 @@ Review strengthens the same solution-context scope with native implicit Platform
 - source_spec: `_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md`
   summary: EventStore owner — make `EventStoreGatewayClient.ReadStreamAsync` fail fast with a clear error when `UseWorkloadTransport` meets a platform-scope tenant, until the workload transport supports platform-scope reads. Extends the existing row-133 entry.
   evidence: Review pass 11, row 180. Today the request goes out without `X-Hexalith-Scope`, and the server answers an opaque 403. No Conversations source or configuration sets `UseWorkloadTransport`, and the refusal fails closed.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-sync-upgrade-and-release.md`
+  summary: Clarify mixed-generation query wording in the pre-existing Epic16 context note.
+  evidence: The user-authored note says Rebuilding in technical decisions and Unavailable/metadata_contradictory in the public-state table; preserved during dependency maintenance.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-sync-upgrade-and-release.md`
+  summary: Clarify whether the pre-existing Epic16 context table includes Stale and Redacted states.
+  evidence: The existing note says Render only while omitting supported freshness/redaction states; owning-story clarification is needed.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-sync-upgrade-and-release.md`
+  summary: Document healthy nonempty Current rendering in the pre-existing Epic16 context note.
+  evidence: The existing table defines only current-empty; source/runtime behavior was not changed by this maintenance task.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-sync-upgrade-and-release.md`
+  summary: Reference complete entry qualifications from the abbreviated Epic16 context note.
+  evidence: The pre-existing user edit omits explicit provider/recovery/operator/capacity/SM-2 gate details; its ACTIVE hold and bytes were preserved.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-sync-upgrade-and-release.md`
+  summary: Resolve Story 16.2's representable failure response when the actual generation instant precedes the replay anchor.
+  evidence: Its concurrent draft matrix preserves the unclamped generation time and anchor, while ProjectionFreshnessV1.ValidateGeneratedAt rejects generation before last-applied time for every trust state. Choose a compatible failure envelope or reconcile that future story's intent without changing this maintenance release.
