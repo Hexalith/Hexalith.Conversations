@@ -3,24 +3,40 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
+
 using Hexalith.EventStore.Client.Gateway;
 using Hexalith.EventStore.Client.Subscriptions;
-using Hexalith.EventStore.Contracts.Commands;
-using Hexalith.EventStore.Contracts.Queries;
 using Hexalith.EventStore.Contracts.Streams;
+using Hexalith.EventStore.Testing.Http;
+
+using Microsoft.Extensions.Options;
 
 namespace Hexalith.Conversations.IntegrationTests.Epic16;
 
 /// <summary>
-/// The authoritative Tenants stream of the live lane, served through the gateway range-read contract.
+/// The authoritative Tenants envelopes exposed by a domain-specific in-process HTTP endpoint to the published gateway client.
 /// </summary>
-internal sealed class Story16_1TenantHistory : IEventStoreGatewayClient
+internal sealed class Story16_1TenantHistory : IDisposable
 {
     private readonly Lock _gate = new();
     private readonly Dictionary<string, SortedDictionary<long, StreamReadEvent>> _streams = new(StringComparer.Ordinal);
+    private readonly HttpClient _httpClient;
 
-    /// <summary>Gets or sets a value indicating whether every read fails like an unreachable gateway.</summary>
-    public bool Unavailable { get; set; }
+    /// <summary>Initializes the Tenants endpoint using the SDK's shared HTTP test transport.</summary>
+    public Story16_1TenantHistory()
+    {
+        _httpClient = new HttpClient(new MockHttpMessageHandler(ReadTenantsStreamAsync))
+        {
+            BaseAddress = new Uri("https://tenant-history.test/"),
+        };
+        Client = new EventStoreGatewayClient(_httpClient, Options.Create(new EventStoreGatewayClientOptions()));
+    }
+
+    /// <summary>Gets the published HTTP gateway client consuming the Tenants endpoint.</summary>
+    public EventStoreGatewayClient Client { get; }
 
     /// <summary>Records a persisted event exactly as its delivery envelope carries it.</summary>
     /// <param name="envelope">The delivery envelope.</param>
@@ -50,46 +66,40 @@ internal sealed class Story16_1TenantHistory : IEventStoreGatewayClient
     }
 
     /// <inheritdoc />
-    public Task<StreamReadPage> ReadStreamAsync(StreamReadRequest request, CancellationToken cancellationToken = default)
+    public void Dispose() => _httpClient.Dispose();
+
+    private async Task<HttpResponseMessage> ReadTenantsStreamAsync(HttpRequestMessage message, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(request);
-        cancellationToken.ThrowIfCancellationRequested();
-        if (Unavailable)
+        if (message.Method != HttpMethod.Post || message.RequestUri?.AbsolutePath != "/api/v1/streams/read")
         {
-            throw new HttpRequestException("Synthetic gateway outage.");
+            return new HttpResponseMessage(HttpStatusCode.NotFound);
         }
 
-        // Like the real gateway, the retained system/tenants history is requested through the explicit platform
-        // scope and answered with the storage identity; any other stream identity is a defect.
-        if (request.Tenant != "platform:tenants" || request.Domain != "tenants" || string.IsNullOrWhiteSpace(request.AggregateId))
+        StreamReadRequest? request = message.Content is null ? null : await message.Content
+            .ReadFromJsonAsync<StreamReadRequest>(cancellationToken: cancellationToken).ConfigureAwait(false);
+        if (request is null || request.Tenant != "platform:tenants" || request.Domain != "tenants"
+            || string.IsNullOrWhiteSpace(request.AggregateId)
+            || !message.Headers.TryGetValues("X-Hexalith-Scope", out IEnumerable<string>? scopes)
+            || !scopes.SequenceEqual([request.Tenant]))
         {
-            throw new InvalidOperationException($"Unexpected history stream {request.Tenant}/{request.Domain}/{request.AggregateId}.");
+            return new HttpResponseMessage(HttpStatusCode.Forbidden);
         }
 
+        // This endpoint serves only the domain's persisted system/tenants envelopes. The real SDK client owns
+        // request serialization, platform-scope headers, cancellation and gateway error translation.
         lock (_gate)
         {
-            StreamReadEvent[] events = _streams.TryGetValue(request.AggregateId ?? string.Empty, out SortedDictionary<long, StreamReadEvent>? stream)
+            StreamReadEvent[] events = _streams.TryGetValue(request.AggregateId, out SortedDictionary<long, StreamReadEvent>? stream)
                 ? [.. stream.Values.Where(e => e.SequenceNumber > request.FromSequence && e.SequenceNumber <= (request.ToSequence ?? long.MaxValue))]
                 : [];
             long latest = stream is { Count: > 0 } ? stream.Keys.Max() : 0;
-            return Task.FromResult(new StreamReadPage(
-                "system",
-                request.Domain,
-                request.AggregateId,
-                events,
-                new StreamReadMetadata(request.FromSequence, request.ToSequence, events.Length == 0 ? null : events[^1].SequenceNumber, latest, events.Length, false, null)));
+            StreamReadPage page = new("system", "tenants", request.AggregateId, events,
+                new StreamReadMetadata(request.FromSequence, request.ToSequence,
+                    events.LastOrDefault()?.SequenceNumber, latest, events.Length, false, null));
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = JsonContent.Create(page, options: JsonSerializerOptions.Web),
+            };
         }
     }
-
-    /// <inheritdoc />
-    public Task<SubmitCommandResponse> SubmitCommandAsync(SubmitCommandRequest request, CancellationToken cancellationToken = default)
-        => throw new NotSupportedException();
-
-    /// <inheritdoc />
-    public Task<EventStoreQueryResult> SubmitQueryAsync(SubmitQueryRequest request, string? ifNoneMatch = null, CancellationToken cancellationToken = default)
-        => throw new NotSupportedException();
-
-    /// <inheritdoc />
-    public Task<EventStoreQueryResult<T>> SubmitQueryAsync<T>(SubmitQueryRequest request, string? ifNoneMatch = null, CancellationToken cancellationToken = default)
-        => throw new NotSupportedException();
 }

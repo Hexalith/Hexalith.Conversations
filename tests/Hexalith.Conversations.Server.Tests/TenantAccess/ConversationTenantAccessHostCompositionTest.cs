@@ -17,6 +17,7 @@ using Hexalith.EventStore.Client.Projections;
 using Hexalith.EventStore.Client.Projections.Checkpointed;
 using Hexalith.EventStore.Client.Subscriptions;
 using Hexalith.EventStore.Contracts.Streams;
+using Hexalith.EventStore.Testing.Fakes;
 using Hexalith.EventStore.DomainService;
 using Hexalith.Tenants.Client.Projections;
 using Hexalith.Tenants.Contracts.Enums;
@@ -69,6 +70,7 @@ public sealed class ConversationTenantAccessHostCompositionTest
         (await processor.ProcessAsync(created, TestContext.Current.CancellationToken)).ShouldBe(EventStoreDomainEventProcessingResult.Processed);
 
         // The rejection reached another consumer and was lost there: the member arrives here behind a gap.
+        harness.ConfigureHistory(tenant, fromSequence: 1, toSequence: 3);
         (await processor.ProcessAsync(member, TestContext.Current.CancellationToken)).ShouldBe(EventStoreDomainEventProcessingResult.Processed);
 
         string storeName = ConversationProjectionStoreOptions.FromConfiguration(new ConfigurationBuilder().AddInMemoryCollection(settings).Build()).StateStoreName;
@@ -104,6 +106,7 @@ public sealed class ConversationTenantAccessHostCompositionTest
         }
 
         // The lost rejection's late redelivery is verified against history and never reapplied.
+        harness.ConfigureHistory(tenant, fromSequence: 1, toSequence: 2);
         (await processor.ProcessAsync(rejection, TestContext.Current.CancellationToken)).ShouldBe(EventStoreDomainEventProcessingResult.Processed);
         harness.Store.Snapshot<CheckpointedProjectionRecord<TenantLocalState>>(storeName, DurableTenantProjectionStore.KeyFor(tenant))!
             .Version.ShouldBe(record.Version);
@@ -125,7 +128,7 @@ public sealed class ConversationTenantAccessHostCompositionTest
         return app;
     }
 
-    private static async Task<HttpResponseMessage> RespondAsync(TenantStreamHistoryGateway history, HttpRequestMessage request, string body)
+    private static async Task<HttpResponseMessage> RespondAsync(FakeEventStoreGatewayClient history, HttpRequestMessage request, string body)
     {
         string uri = request.RequestUri!.AbsoluteUri;
         if (uri == DeletionRuntimeTestSettings.TokenEndpoint)

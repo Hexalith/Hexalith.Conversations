@@ -1192,6 +1192,14 @@ Review strengthens the same solution-context scope with native implicit Platform
   summary: Reference complete entry qualifications from the abbreviated Epic16 context note.
   evidence: The pre-existing user edit omits explicit provider/recovery/operator/capacity/SM-2 gate details; its ACTIVE hold and bytes were preserved.
 
+- source_spec: `_bmad-output/implementation-artifacts/spec-16-2-make-replay-time-deterministic-and-missing-index-state-truthful.md`
+  summary: Adopt EventStore's tenant shared rebuild (`IAsyncDomainSharedProjectionRebuildHandler`, optionally with its completion handler) so operators can move a v1, missing or `Rebuilding` Conversation index to v2 `Ready` with a complete stream manifest and watermarks.
+  evidence: The user deferred it on 2026-11-03 (16.2 decision 2). Conversations would be the protocol's first adopter, which roughly doubles the story and needs live-delivery and commit race handling. Until it lands, tenants created before 16.2 read `Rebuilding`/`Unavailable`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-16-2-make-replay-time-deterministic-and-missing-index-state-truthful.md`
+  summary: Implement the AD-7 tenant erase lifecycle (`Ready -> Erasing -> Erased` tombstone, generation-scoped quarantine of late deliveries, index/detail/dispatch generation fencing, and an owner-authorized rebuild out of `Erased`).
+  evidence: The user deferred it on 2026-11-03 (16.2 decision 3). No tenant-level projection erase trigger exists in Conversations or Platform, so those states would be unreachable in 16.2.
+
 - source_spec: `_bmad-output/implementation-artifacts/spec-sync-upgrade-and-release.md`
   summary: Resolve Story 16.2's representable failure response when the actual generation instant precedes the replay anchor.
   evidence: Its concurrent draft matrix preserves the unclamped generation time and anchor, while ProjectionFreshnessV1.ValidateGeneratedAt rejects generation before last-applied time for every trust state. Choose a compatible failure envelope or reconcile that future story's intent without changing this maintenance release.

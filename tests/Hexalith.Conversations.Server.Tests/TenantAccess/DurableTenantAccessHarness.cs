@@ -13,6 +13,7 @@ using Hexalith.EventStore.Client.Projections;
 using Hexalith.EventStore.Client.Projections.Checkpointed;
 using Hexalith.EventStore.Client.Subscriptions;
 using Hexalith.EventStore.Contracts.Events;
+using Hexalith.EventStore.Contracts.Streams;
 using Hexalith.EventStore.Testing.Fakes;
 using Hexalith.Tenants.Client.Projections;
 
@@ -27,11 +28,13 @@ namespace Hexalith.Conversations.Server.Tests.TenantAccess;
 /// </summary>
 internal sealed class DurableTenantAccessHarness
 {
+    private readonly List<EventStoreDomainEventEnvelope> _history = [];
+
     /// <summary>Gets the shared persisted state.</summary>
     public InMemoryReadModelStore Store { get; } = new();
 
     /// <summary>Gets the shared authoritative tenant stream.</summary>
-    public TenantStreamHistoryGateway Gateway { get; } = new();
+    public FakeEventStoreGatewayClient Gateway { get; } = new();
 
     /// <summary>Gets the enrolled host configuration.</summary>
     public static IConfiguration Configuration { get; } = new ConfigurationBuilder()
@@ -87,7 +90,7 @@ internal sealed class DurableTenantAccessHarness
 
         // A host-supplied gateway client is kept by the enrolled registration; an unreachable one models a host
         // whose history reads fail, without any network call.
-        services.AddSingleton<IEventStoreGatewayClient>(withHistory ? Gateway : new TenantStreamHistoryGateway { Unavailable = true });
+        services.AddSingleton<IEventStoreGatewayClient>(withHistory ? Gateway : new FakeEventStoreGatewayClient().ConfigureStreamReadUnavailable("platform:tenants"));
 
         services.AddConversationTenantAccess(Configuration);
         return services.BuildServiceProvider();
@@ -103,8 +106,23 @@ internal sealed class DurableTenantAccessHarness
         where TEvent : IEventPayload
     {
         EventStoreDomainEventEnvelope envelope = Envelope(@event, tenantId, sequence);
-        Gateway.Append(envelope);
+        _history.Add(envelope);
         return envelope;
+    }
+
+    /// <summary>Arranges one bounded authoritative history response on the shared SDK fake.</summary>
+    /// <param name="tenantId">The managed tenant identifier.</param>
+    /// <param name="fromSequence">The exclusive lower bound expected from the production reader.</param>
+    /// <param name="toSequence">The inclusive recovery or duplicate-verification bound.</param>
+    public void ConfigureHistory(string tenantId, long fromSequence, long toSequence)
+    {
+        EventStoreDomainEventEnvelope[] stream = [.. _history.Where(envelope => envelope.AggregateId == tenantId).OrderBy(envelope => envelope.SequenceNumber)];
+        StreamReadEvent[] events = [.. stream.Where(envelope => envelope.SequenceNumber > fromSequence && envelope.SequenceNumber <= toSequence)
+            .Select(envelope => new StreamReadEvent(envelope.SequenceNumber, envelope.EventTypeName, envelope.Payload,
+                envelope.SerializationFormat, 1, envelope.MessageId, envelope.CorrelationId, envelope.CausationId, envelope.Timestamp, envelope.UserId))];
+        Gateway.ConfigureStreamReadSuccess(new StreamReadPage("system", "tenants", tenantId, events,
+            new StreamReadMetadata(fromSequence, toSequence, events.LastOrDefault()?.SequenceNumber,
+                stream.LastOrDefault()?.SequenceNumber ?? 0, events.Length, false, null)));
     }
 
     /// <summary>Reads the persisted record of a tenant directly from the state store.</summary>

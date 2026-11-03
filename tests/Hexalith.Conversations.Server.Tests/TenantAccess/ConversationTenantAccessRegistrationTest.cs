@@ -178,7 +178,7 @@ public sealed class ConversationTenantAccessRegistrationTest
     {
         ServiceCollection services = new();
         services.AddLogging();
-        IEventStoreGatewayClient hostClient = new TenantStreamHistoryGateway();
+        IEventStoreGatewayClient hostClient = new FakeEventStoreGatewayClient();
         services.AddSingleton(hostClient);
 
         services.AddConversationTenantAccess(EnrolledConfiguration());
@@ -194,7 +194,7 @@ public sealed class ConversationTenantAccessRegistrationTest
     {
         ServiceCollection services = new();
         services.AddLogging();
-        services.AddKeyedSingleton<IEventStoreGatewayClient>("other-purpose", new TenantStreamHistoryGateway());
+        services.AddKeyedSingleton<IEventStoreGatewayClient>("other-purpose", new FakeEventStoreGatewayClient());
 
         services.AddConversationTenantAccess(EnrolledConfiguration());
 

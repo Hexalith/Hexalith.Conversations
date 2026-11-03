@@ -131,6 +131,7 @@ public sealed class Story16_1LiveFixture : IAsyncLifetime
         {
             await ReplicaA.DisposeAsync().ConfigureAwait(false);
             await ReplicaB.DisposeAsync().ConfigureAwait(false);
+            History.Dispose();
             if (Directory.Exists(_componentsDirectory))
             {
                 Directory.Delete(_componentsDirectory, recursive: true);

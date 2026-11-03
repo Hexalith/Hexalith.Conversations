@@ -17,7 +17,7 @@ using Hexalith.EventStore.Contracts.Serialization;
 namespace Hexalith.Conversations.Contracts.Routing;
 
 /// <summary>Complete internal owner metadata for actual Conversations SDK receivers; grants no business authority.</summary>
-public static class ConversationsCatalogDeclarations
+internal static class ConversationsCatalogDeclarations
 {
     /// <summary>The exact thirteen aggregate payloads and their local semantic policies.</summary>
     public static IReadOnlyList<CommandIntentDeclaration> Commands { get; } = [

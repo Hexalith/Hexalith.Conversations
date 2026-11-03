@@ -11,6 +11,7 @@ using Hexalith.EventStore.Client.Projections;
 using Hexalith.EventStore.Client.Projections.Checkpointed;
 using Hexalith.EventStore.Client.Subscriptions;
 using Hexalith.EventStore.Contracts.Events;
+using Hexalith.EventStore.Contracts.Streams;
 using Hexalith.Tenants.Client.Projections;
 using Hexalith.Tenants.Contracts.Enums;
 using Hexalith.Tenants.Contracts.Events;
@@ -119,11 +120,18 @@ public sealed class ConversationTenantAccessDurableSnapshotTest
         denied.DenialReason.ShouldBe(ConversationTenantAccessDenialReason.TenantAccessGapDetected);
         denied.IsRetryable.ShouldBeTrue();
         denied.ProjectionVersion.ShouldBeNull();
-        harness.Gateway.Reads.ShouldBe(0, "authorization never starts recovery");
+        harness.Gateway.SubmittedStreamReads.ShouldBeEmpty("authorization never starts recovery");
 
         using ServiceProvider recovering = harness.CreateHost();
+        harness.ConfigureHistory(Tenant.Value, fromSequence: 1, toSequence: 4);
         (await DurableTenantAccessHarness.DeliverAsync(recovering, configured)).ShouldBe(EventStoreDomainEventProcessingResult.Processed);
 
+        StreamReadRequest recoveryRead = harness.Gateway.SubmittedStreamReads.ShouldHaveSingleItem();
+        recoveryRead.Tenant.ShouldBe("platform:tenants");
+        recoveryRead.Domain.ShouldBe("tenants");
+        recoveryRead.AggregateId.ShouldBe(Tenant.Value);
+        recoveryRead.FromSequence.ShouldBe(1);
+        recoveryRead.ToSequence.ShouldBe(4);
         CheckpointedProjectionRecord<TenantLocalState> healthy = harness.Record(Tenant.Value).ShouldNotBeNull();
         healthy.Health.ShouldBe(CheckpointedProjectionHealth.Healthy);
         healthy.LastContiguousSequence.ShouldBe(4);
@@ -132,7 +140,14 @@ public sealed class ConversationTenantAccessDurableSnapshotTest
         ConversationTenantAccessDecision allowed = await CheckAsync(isolated, ConversationTenantAccessRequirement.Admin);
         allowed.IsAllowed.ShouldBeTrue();
         allowed.ProjectionVersion.ShouldBe(4);
+        harness.ConfigureHistory(Tenant.Value, fromSequence: 1, toSequence: 2);
         (await DurableTenantAccessHarness.DeliverAsync(recovering, member)).ShouldBe(EventStoreDomainEventProcessingResult.Processed);
+        StreamReadRequest duplicateRead = harness.Gateway.SubmittedStreamReads.Last();
+        duplicateRead.Tenant.ShouldBe("platform:tenants");
+        duplicateRead.Domain.ShouldBe("tenants");
+        duplicateRead.AggregateId.ShouldBe(Tenant.Value);
+        duplicateRead.FromSequence.ShouldBe(1);
+        duplicateRead.ToSequence.ShouldBe(2);
         harness.Record(Tenant.Value)!.Version.ShouldBe(healthy.Version, "the late gap event is verified against history and never reapplied");
     }
 
@@ -202,7 +217,7 @@ public sealed class ConversationTenantAccessDurableSnapshotTest
         nonMember.IsRetryable.ShouldBe(missing.IsRetryable);
         nonMember.ProjectionVersion.ShouldBe(missing.ProjectionVersion);
         PublicShape(missing).ShouldBe(PublicShape(nonMember));
-        harness.Gateway.Reads.ShouldBe(0, "authorization never starts recovery");
+        harness.Gateway.SubmittedStreamReads.ShouldBeEmpty("authorization never starts recovery");
     }
 
     /// <summary>

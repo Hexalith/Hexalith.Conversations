@@ -13,6 +13,7 @@ using Hexalith.EventStore.Client.Gateway;
 using Hexalith.EventStore.Client.Projections;
 using Hexalith.EventStore.Client.Projections.Checkpointed;
 using Hexalith.EventStore.Client.Subscriptions;
+using Hexalith.EventStore.Testing.Fakes;
 using Hexalith.Tenants.Client.Projections;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -46,8 +47,9 @@ internal sealed class Story16_1Replica : IDisposable
         services.AddLogging();
         services.AddSingleton(_client);
 
-        // The authoritative stream double; an unreachable one models a replica whose history reads fail.
-        services.AddSingleton<IEventStoreGatewayClient>(withHistory ? fixture.History : new Story16_1TenantHistory { Unavailable = true });
+        // The published HTTP client reads the Tenants fixture endpoint; the shared SDK fake models an outage.
+        services.AddSingleton<IEventStoreGatewayClient>(withHistory ? fixture.History.Client
+            : new FakeEventStoreGatewayClient().ConfigureStreamReadUnavailable("platform:tenants"));
 
         // The production enrolled registration: it binds the durable projection to the Dapr-backed SDK store.
         services.AddConversationTenantAccess(fixture.Configuration);
