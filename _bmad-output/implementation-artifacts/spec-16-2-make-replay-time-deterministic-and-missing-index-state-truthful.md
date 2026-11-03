@@ -2,7 +2,7 @@
 title: 'Story 16.2: Make replay time deterministic and missing-index state truthful'
 type: 'feature'
 created: '2026-11-03'
-status: 'draft'
+status: 'ready-for-dev'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
