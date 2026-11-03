@@ -2,7 +2,7 @@
 title: 'Synchronize dependencies and publish the next Conversations release'
 type: 'bugfix'
 created: '2026-11-03'
-status: 'in-progress'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: '8a48e562a9ecb47de11bcb8b3bcde0c44fab8a01'
@@ -46,8 +46,8 @@ context: []
 - [x] `.config/dotnet-tools.json`, npm manifests: select the qualified exact tool and latest compatible stable npm direct packages. Parent owns orchestration.
 - [x] `tests/compatibility/MinimalModule`: refresh active overlay and successor locks; tooling investigator owns these files and related Python tests.
 - [x] `tests` and `src`: resolve any remaining package API incompatibility; CI investigator owns necessary C# fixes. Prefer dependency alignment when published APIs already match source.
-- [ ] Root changes and context note: run focused verification, independent review, commitlint, stage checks and push main with synchronized gitlinks.
-- [ ] Existing release workflow: require green exact main, dispatch release and confirm all five published packages and symbols against official endpoints.
+- [x] Root changes and context note: run focused verification, independent review, commitlint, stage checks and push main with synchronized gitlinks.
+- [x] Existing release workflow: require green exact main, dispatch release and confirm all five published packages and symbols against official endpoints.
 
 **Acceptance Criteria:**
 - Given the current workspace, when synchronization finishes, then all root reference main branches match fetched origin/main without loss of local changes or nested initialization.
@@ -155,3 +155,24 @@ CI 41643903287 passes repository, compatibility, Windows, release-tooling, brows
 ### Aspire boundary request scope — 2026-11-03
 
 Running the existing 13-case AppHost project locally with its supported HEXALITH_RUN_APPHOST_BOUNDARY_TESTS=true opt-in exposed an SDK request-contract change before the hosted Aspire lane ran: an authorized command-status GET without an explicit scope now correctly returns 403. The retained boundary test now sends X-Hexalith-Tenant for its exact token-granted tenant on that GET. It keeps the unauthenticated 401 probe, exact catalog-admission 503 problem assertions, exact scoped status 404 assertions and direct Dapr command/status absence checks. No runtime security or assertion was weakened. The entire enabled AppHost suite now passes 13/13, zero warnings/errors/skips, against the real hosts and sidecars. Proof: /tmp/conversations-root-package-xwh_b9be/apphost-scope-repair.log and apphost-scope-repair.xml.
+
+
+### Completed publication — 2026-11-03
+
+Conversations v1.5.0 is published from 0fdef8b21eaf1b45c3d4ebf45dba4d91c615346a. The tag resolves to that exact commit. Its required CI (41646857574), CodeQL (41646857588) and commit policy (41646856840) all pass. CI includes all 2,531 unit cases, 36 integration cases and the enabled 13-case Aspire lane, plus conformance, browser, Windows, release-tooling and compatibility checks. The configured optional performance job is skipped. No release gate is waived or left failing.
+
+Release workflow 41650685685 succeeds. The first publication poll correctly failed after 15 minutes while NuGet was still processing uploads; only that failed verification job was retried. Upload and publication jobs were not rerun. All five NuGet packages and five symbol archives were accepted, and all five packages are now independently downloadable from the official NuGet flat container. Each downloaded nuspec has version 1.5.0 and repository commit 0fdef8b21eaf1b45c3d4ebf45dba4d91c615346a:
+
+- Hexalith.Conversations
+- Hexalith.Conversations.Contracts
+- Hexalith.Conversations.Client
+- Hexalith.Conversations.Testing
+- Hexalith.Conversations.EventStoreExtensions
+
+Both hosted verification and the independent `scripts/verify-release-state.py present 1.5.0 --repository Hexalith/Hexalith.Conversations --source-sha 0fdef8b21eaf1b45c3d4ebf45dba4d91c615346a --attempts 61 --delay-seconds 15` return success. The verifier downloads all five official packages, checks their contents against the corresponding release assets, validates all ten asset digests and requires the exact release tag/source. Independent evidence: /tmp/conversations-1.5.0-publication-iueaf_1e/verify-release-state-attempt-2.log and nuget-source-verification.json.
+
+Release: https://github.com/Hexalith/Hexalith.Conversations/releases/tag/v1.5.0
+Publishing and verification: https://github.com/Hexalith/Hexalith.Conversations/actions/runs/41650685685
+Release-source CI: https://github.com/Hexalith/Hexalith.Conversations/actions/runs/41646857574
+
+Builds 4.43.4 and Platform 1.1.5 remain the qualified published dependency tuple. SDK 10.0.403 was already the latest stable release and remains pinned. All authorized source, dependency, gitlink, original context and combined Story 16.2 changes are pushed. Pre-existing planning findings remain recorded in the deferred-work ledger for their owning stories; no current implementation finding remains unresolved. This final completion record changes only maintenance documentation.
