@@ -422,34 +422,45 @@ Story 16.1 owner actions:
   evicted record denies its tenant until a later delivery recovers it.
 - [ ] Operators rebuild the tenant projection records (`tenants-projection:v1:*`)
   after a state-store restore; a restored older Healthy record is not detected.
-- [ ] Follow the release train: publish EventStore (including the
-  `platform:tenants` scope on the human `api/v1/streams/read` route and the
-  gateway client's `X-Hexalith-Scope` header); add the new EventStore
-  version to the Tenants catalog SDK allow-list (`Directory.Build.targets`
-  accepts selected 3.129.0–3.133.0 releases today), then publish Tenants with
-  the EventStore bump; then bump the Conversations package versions in
-  `Directory.Packages.props`. Until then Conversations CI cannot compile in
-  package mode.
+- [ ] Follow the release train. EventStore `v4.0.0` and later already ship
+  the `platform:tenants` scope on the human `api/v1/streams/read` route and the
+  gateway client's `X-Hexalith-Scope` header. The Tenants catalog SDK
+  allow-list (`Directory.Build.targets`) already accepts the 4.0.0–4.0.4
+  cohort, and canonical Tenants packages require EventStore 4.0.4. What
+  remains: publish Tenants with the durable projection on EventStore 4.0.4,
+  then bump the Conversations package versions in `Directory.Packages.props`.
+  Until then Conversations CI cannot compile in package mode.
 
 Story 16.1 rollback:
 
-1. Remove the enrolled durable registration and its configuration: the
+1. Before anything else, scale the Conversations host to exactly one replica,
+   and keep it there while the durable path is off. Step 2 returns each
+   replica to its own in-memory projection, which loses state on restart and
+   cannot converge across replicas.
+2. Remove the enrolled durable registration and its configuration: the
    `AddHexalithTenantsDurableProjection` opt-in that the enrolled
    `AddConversationTenantAccess` registers, the
    `Hexalith:Conversations:TenantAccess:GatewayBaseAddress` setting and the
    `EventStore:Authentication` worker credentials (unless the deletion runtime
    still uses them).
-2. Keep or drop the `tenants-projection:v1:*` state keys. Nothing reads them
+3. Keep or drop the `tenants-projection:v1:*` state keys. Nothing reads them
    while the durable path is off. Before re-enabling, drop or rebuild them:
    kept records answer from the state they held at rollback, as after a
    restore.
-3. Remove the new module manifest inputs: the gateway address, the
-   `EventStore:Authentication` keys and the worker client secret, with its
-   identity need and egress entries.
-4. Run exactly one replica: step 1 returns to the per-replica in-memory
-   store. Restore the single-replica warning in `Program.cs` and this handoff,
-   and change `_bmad/scripts/tests/test_story_16_1_warning_removal.py` with it,
-   since that test keeps the warning removed.
+4. Remove the new module manifest inputs: the gateway address; the
+   `EventStore:Authentication` keys and the worker client secret (unless the
+   deletion runtime still uses them, as in step 2); and the identity need and
+   egress entries.
+5. Platform revokes the `eventstore:permission=tenants:read` grant from the
+   worker identity, because it admits the raw `system`/`tenants` history of
+   every tenant. If the deletion runtime keeps that identity, the identity
+   keeps only that runtime's own gateway access. Locally, remove the
+   `tenants:read` claim from the `conversations-tenant-access` realm client
+   (`src/Hexalith.Conversations.AppHost/KeycloakRealms/hexalith-realm.json`).
+6. Restore the single-replica warning that `1a4d5db8` removed, in
+   `Program.cs`, this handoff and `module/README.md`. Change
+   `_bmad/scripts/tests/test_story_16_1_warning_removal.py` with it, since
+   that test keeps the warning out of all three files.
 
 Rollback keeps every EventStore event and all recorded evidence.
 
