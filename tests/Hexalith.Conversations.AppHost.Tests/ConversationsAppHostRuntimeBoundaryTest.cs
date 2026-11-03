@@ -216,7 +216,9 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
         problem.GetProperty("detail").GetString().ShouldBe("Catalog authority cannot safely admit this operation.");
         problem.GetProperty("type").GetString().ShouldBe("https://hexalith.io/problems/service-unavailable");
 
-        using HttpResponseMessage status = await eventStore.GetAsync($"/api/v1/commands/status/{messageId}", timeout.Token);
+        using HttpRequestMessage statusRequest = new(HttpMethod.Get, $"/api/v1/commands/status/{messageId}");
+        statusRequest.Headers.Add("X-Hexalith-Tenant", tenantId);
+        using HttpResponseMessage status = await eventStore.SendAsync(statusRequest, timeout.Token);
         string statusBody = await status.Content.ReadAsStringAsync(timeout.Token);
         status.StatusCode.ShouldBe(HttpStatusCode.NotFound, statusBody);
         status.Content.Headers.ContentType?.MediaType.ShouldBe("application/problem+json");
