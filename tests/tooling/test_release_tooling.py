@@ -407,6 +407,73 @@ class ReleaseToolingTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "payload does not match GitHub asset"):
             release_state.verify_present("1.0.0", source_sha, request=mismatch, attempts=1, delay_seconds=0)
 
+    def test_configured_release_plugins_load_without_resolving_npm_publisher(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="conversations-plugin-loader-test-") as temporary:
+            guard = Path(temporary) / "reject-npm-publisher.mjs"
+            guard.write_text(
+                """export async function resolve(specifier, context, nextResolve) {
+  const resolved = await nextResolve(specifier, context);
+  if (resolved.url.includes('/@semantic-release/npm/')) {
+    const error = new Error('The unused npm publisher must not be resolved.');
+    error.code = 'ERR_NPM_PUBLISHER_FORBIDDEN';
+    throw error;
+  }
+  return resolved;
+}
+""",
+                encoding="utf-8",
+            )
+            # Load real plugin lifecycles without invoking credentials, network, or publication hooks.
+            result = subprocess.run(
+                ["node", "--input-type=module", "-", str(guard)],
+                cwd=ROOT, capture_output=True, text=True, timeout=30,
+                input="""import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { createRequire, register } from 'node:module';
+import { pathToFileURL } from 'node:url';
+
+register(pathToFileURL(process.argv[2]));
+const require = createRequire(import.meta.url);
+const releaseEntry = pathToFileURL(require.resolve('semantic-release'));
+const installed = JSON.parse(await readFile(new URL('./package.json', releaseEntry), 'utf8'));
+const manifest = JSON.parse(await readFile('package.json', 'utf8'));
+assert.equal(installed.version, manifest.devDependencies['semantic-release']);
+const { default: getConfig } = await import(new URL('./lib/get-config.js', releaseEntry));
+const configured = JSON.parse(await readFile('.releaserc.json', 'utf8'));
+const loaded = [];
+const context = {
+  cwd: process.cwd(),
+  env: process.env,
+  logger: { success: (message) => loaded.push(message) },
+};
+const { options, plugins } = await getConfig(context, {});
+assert.deepEqual(options.plugins, configured.plugins);
+const expected = {
+  '@semantic-release/commit-analyzer': ['analyzeCommits'],
+  '@semantic-release/release-notes-generator': ['generateNotes'],
+  '@semantic-release/exec': [
+    'verifyConditions', 'analyzeCommits', 'verifyRelease', 'generateNotes',
+    'prepare', 'publish', 'addChannel', 'success', 'fail',
+  ],
+  '@semantic-release/github': ['verifyConditions', 'publish', 'addChannel', 'success', 'fail'],
+};
+assert.deepEqual(configured.plugins.map((plugin) => Array.isArray(plugin) ? plugin[0] : plugin),
+  Object.keys(expected));
+for (const [name, steps] of Object.entries(expected)) {
+  for (const step of steps) {
+    assert.equal(typeof plugins[step], 'function');
+    assert(loaded.includes(`Loaded plugin "${step}" from "${name}"`), `${name}/${step} must load`);
+  }
+}
+// Deliberately select npm so a missing or ineffective resolver guard fails this test.
+await assert.rejects(getConfig(context, { plugins: ['@semantic-release/npm'] }),
+  { code: 'ERR_NPM_PUBLISHER_FORBIDDEN' });
+console.log('Configured plugins loaded; deliberate npm publisher selection was rejected.');
+""",
+            )
+            self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+            self.assertIn("deliberate npm publisher selection was rejected", result.stdout)
+
     def test_semantic_release_planning_in_ci_preserves_repository_refs(self) -> None:
         with tempfile.TemporaryDirectory(prefix="conversations-planning-test-") as temporary:
             root = Path(temporary)

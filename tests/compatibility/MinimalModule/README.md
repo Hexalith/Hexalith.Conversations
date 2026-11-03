@@ -2,7 +2,7 @@
 
 This CI-only compatibility suite compiles and runs the frozen Story 11.2 fixture against
 the external package compatibility selection in `RegisteredCommand.targets` (EventStore
-3.133.0, matching the selected Builds catalog). It runs the original six tests and
+4.0.4, matching the selected Builds catalog). It runs the original six tests and
 adds one registered-command assertion through the public in-process domain router.
 The assertion resolves the keyed processor, checks the serialized creation event,
 replays it through the public in-process router in a fresh service scope, and checks
@@ -99,3 +99,18 @@ The original fixture sources and original locks remain unchanged. This local
 check restored the package graph without compiling Release assets or starting
 resources; the CI compatibility job performs the Release build and all seven
 native assertions for the committed source.
+
+## EventStore 4 package qualification (2026-11-03)
+
+The active overlay selects EventStore 4.0.4 from the updated direct Builds
+catalog. This fixes the catalog-drift refusal that blocked both the compatibility
+and release-tooling CI jobs. The drift guard and locked-mode requirements remain
+in force.
+
+The four external successor locks were regenerated with `--force-evaluate` in an
+isolated fixture copy using only nuget.org and empty package and HTTP caches. A
+second restore with independent empty caches passed `--locked-mode` without
+changing the locks. The exact CI Release build passed with zero warnings or
+errors, and native execution plus `verify_results.py` passed all seven required
+assertions with zero failures, skips, or errors. All 17 measured fixture files,
+including their four original locks, remain byte-for-byte unchanged.
