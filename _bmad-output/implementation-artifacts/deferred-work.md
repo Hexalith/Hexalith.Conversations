@@ -1166,3 +1166,12 @@ Review strengthens the same solution-context scope with native implicit Platform
 - source_spec: `_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md`
   summary: Support platform-scope history reads on the EventStore gateway client's workload transport.
   evidence: Review row 133, 2026-11-03. When `UseWorkloadTransport` is set, `ReadStreamAsync` delegates to `ReadWorkloadStreamAsync`. That path sends no `X-Hexalith-Scope` header and rejects the `system` page answering `platform:tenants` (`result.Tenant == request.Tenant`). The gap predates the story (EventStore story 2.14), and decision (7) leaves the workload route as later hardening. No current consumer uses the workload transport for tenant history.
+
+## Deferred from: code review of spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md (2026-11-03)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md`
+  summary: Give quiet tenants a recovery driver when their durable tenant-access record is evicted, dropped or restored. Extends the existing rebuild-after-restore entry.
+  evidence: Review pass 11, row 179 (carried decision (3), rows 18/78/156). Authorization never starts recovery, so a tenant with no new events denies until its next delivery. The pass-10 state-store contract forbids eviction, but no rebuild command or procedure exists.
+- source_spec: `_bmad-output/implementation-artifacts/spec-16-1-persist-tenant-access-projection-state-and-prove-convergence.md`
+  summary: EventStore owner — make `EventStoreGatewayClient.ReadStreamAsync` fail fast with a clear error when `UseWorkloadTransport` meets a platform-scope tenant, until the workload transport supports platform-scope reads. Extends the existing row-133 entry.
+  evidence: Review pass 11, row 180. Today the request goes out without `X-Hexalith-Scope`, and the server answers an opaque 403. No Conversations source or configuration sets `UseWorkloadTransport`, and the refusal fails closed.

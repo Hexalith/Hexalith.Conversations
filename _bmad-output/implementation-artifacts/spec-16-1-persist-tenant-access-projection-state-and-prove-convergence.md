@@ -550,6 +550,49 @@ Chunk 2 covered the EventStore story commits after the pass-9 review (`653124dce
 | 172 | V (Broken-verification gap): retiring the Epic 16 adoption v1/v2 suites drops their passing verifier-logic tests | low | reject | Freeze-check suites retire through `conftest.py` once a story is done (owner policy 2026-10-07; `current-change-validation.md`). The verifiers are retired historical tooling, and naming either file still runs it. Freezing new fixture bytes is more than a direct correction. |
 | 173 | V (Regression gap): no Keycloak-issued worker token is proven against the `platform:tenants` stream read | medium | defer | carried rows 66/75/87/111/115/132: existing ledger entry. |
 
+### Review Findings — pass 11, loop-3 delta (2026-11-03)
+
+Scope: only the loop-3 patch commits. These are Conversations `2f975f2a` without its gitlink moves (4 files), EventStore `bc9b16bd5` (2 files) and Tenants `e403b993` (1 file): 7 files, +27/−18. The upstream commits that the gitlink moves carry were out of scope. Layers: Blind Hunter B (12 findings), Edge Case Hunter E (8), Verification Gap V (none) and Acceptance Auditor A (4). Grouping left 16 entries: 0 decision-needed, 5 patch, 2 carried defer and 9 rejected. Rows 174–180 continue the numbering.
+
+- [x] [Review][Patch] Row 174: rollback reaches one replica only after step 1 has already switched to the per-replica in-memory store [module/platform-handoff.md:449]. Fix: make "run exactly one replica" step 1, or deploy it with step 1. Once the durable registration is gone, each replica authorizes from its own consumer-group share of the tenant events. A replica that missed a member removal can then still allow that member (B+E+A, medium).
+- [x] [Review][Patch] Row 175: rollback never revokes `tenants:read` from a worker identity that it keeps [module/platform-handoff.md:436]. Step 1 keeps the `EventStore:Authentication` credentials while the deletion runtime still uses them, but step 3 removes them unconditionally. No step tells Platform to revoke `tenants:read`, which under decision (8) admits the raw history of every tenant. No step drops the local `conversations-tenant-access` realm claim either (`src/Hexalith.Conversations.AppHost/KeycloakRealms/hexalith-realm.json:411`). Fix: add both, and qualify step 3 the way step 1 is qualified. This also follows the boundary "Rollback removes adoption/configuration" (A, medium).
+- [x] [Review][Patch] Row 176: rollback step 4 leaves out `module/README.md` [module/platform-handoff.md:449]. `_bmad/scripts/tests/test_story_16_1_warning_removal.py` guards both `module/README.md` and the handoff, and `module/README.md:206-207` says Story 16.1 removed the warning. Fix: name that file and point to the `SINGLE-REPLICA-ONLY` text removed in `1a4d5db8` (B+A, low).
+- [x] [Review][Patch] Row 177: the new `ReadStreamAsync` remark says the workload transport cannot serve platform-scope reads [references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Gateway/IEventStoreGatewayClient.cs:77]. In fact the server's `api/v1/streams/read/workload` route admits them when a single, exact `X-Hexalith-Scope` header is sent (`StreamsController.cs:99-105`). Tenants' `TenantOwnerSourceGateway` implements `IEventStoreGatewayClient` and uses that route. Fix: attribute the limit to `EventStoreGatewayClient` running with `UseWorkloadTransport` (B+E, low).
+- [x] [Review][Patch] Row 178: the release-train bullet still says the Tenants allow-list "accepts selected 3.129.0–3.133.0 releases today" [module/platform-handoff.md:429]. `2f975f2a` moved Tenants to `e403b993`, whose `Directory.Build.targets` also accepts 4.0.0–4.0.4 and requires EventStore 4.0.4 for canonical packages. EventStore tag `v4.0.0` is `653124dce`, which ships the platform-scope read. The durable store (`5eff6d1a`) is not in Tenants `v6.0.0`. Fix: refresh the bullet to the steps that remain: publish Tenants with the durable projection on EventStore 4.0.4, then bump Conversations (E, low).
+- [x] [Review][Defer] Row 179: a quiet tenant whose record is evicted, dropped or restored has no recovery driver [module/platform-handoff.md:419]. Deferred: carried decision (3) and rows 18/78/156, with an existing ledger entry for rebuild after restore. Authorization never starts recovery (Design Notes), so the tenant denies until its next delivery. The new state-store contract forbids eviction (B+E).
+- [x] [Review][Defer] Row 180: nothing fails fast when `UseWorkloadTransport` meets a platform-scope read [references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Gateway/EventStoreGatewayClient.cs:461]. Deferred: carried row 133, with an existing ledger entry. No Conversations source or configuration sets `UseWorkloadTransport`, and the refused read fails closed (B+E).
+
+#### Rejected (pass 11)
+
+- B, E: the `tenant_projection_stale` remediation no longer fits the onboarding projection-subscription check (`ConversationOnboardingDiagnosticsService.cs:213-237`). low: denied requests collapse to the hidden result before that check runs (lines 77-96), so it reports only after access was allowed. Its result carries its own message and the `retry-after-projection-current` remediation, and the client action is still `RetryLater`. New wording would also change the catalog, both READMEs and the integration guide again.
+- B: `DocumentedErrorTablesShouldMatchTheCanonicalCatalog` skips the README safe-message column. low: the gap is pre-existing, and the two READMEs paraphrase `tenant_isolation_violation` and `idempotency_outcome_unknown`, so the assertion also needs those unrelated rows rewritten.
+- B: `ToRejection` calls `ToPublicErrorCode()` twice, and `ToPublicReasonCode` mirrors the code token. low: both are pure and return the same value; no caller diverges.
+- B, E: "grants it only to the tenant-access worker identity" contradicts the identity shared with the deletion runtime. false: the next bullet (`module/platform-handoff.md:401-404`) says the two share that one identity and that it must hold both grants.
+- A: Tenants also requires `tenants:read` for its platform-scope cross-tenant queries (`TenantCatalogDeclarations.cs:110-112`). low: this is decision (8) and row 136, which were decided with that same evidence; the dedicated permission is deferred to the EventStore owner.
+- B: the state-store contract can't be verified, and a shared store keyed with `keyPrefix` `none` or `name` would collide across modules. false for collisions: Conversations is the only caller of `AddHexalithTenantsDurableProjection`, and Platform owns the choice of component.
+- E: probe the state store's capabilities at startup. low: this adds a startup guard surface, and Dapr exposes no probe for create-only first writes short of writing.
+- B: the guards on the workload route's platform branch are untested, as is an identical duplicate scope value. low: that branch comes from `4a53b268b` (EventStore canonical tenant routing), not from a Story 16.1 commit. `Count == 1` already refuses identical duplicates.
+- B: the Tenants csproj comment leaves out `UseNuGetDeps=false`. false: `Directory.Build.props:83` turns that into `UseHexalithProjectReferences=true`, which the comment's condition already covers.
+
+**Review pass 11 patches, 2026-11-03:** The owner chose to apply every patch. These are uncommitted working-tree edits in the root and in the EventStore checkout (`main` at `bc9b16bd5`).
+- In `module/platform-handoff.md`, the rollback now has six steps:
+  1. Scale to one replica (row 174).
+  2. Remove the durable registration.
+  3. Keep or drop the keys.
+  4. Remove the manifest inputs. The worker keys and secret stay when the deletion runtime still uses them (row 175).
+  5. Platform revokes `tenants:read`, and the local realm client drops that claim (row 175).
+  6. Restore the warning in `Program.cs`, the handoff and `module/README.md` (row 176). It names the source commit `1a4d5db8` but not the marker, because `test_story_16_1_warning_removal.py` forbids the marker text in both handoffs.
+- The release-train bullet now records that EventStore `v4.0.0`+ and the Tenants 4.0.0–4.0.4 allow-list are already in place. Still to do: publish Tenants with the durable projection on 4.0.4, then bump Conversations (row 178).
+- The EventStore `IEventStoreGatewayClient.ReadStreamAsync` remark now attributes the limit to `EventStoreGatewayClient` with `UseWorkloadTransport`. It also states that the `api/v1/streams/read/workload` route admits platform-scope reads with one exact `X-Hexalith-Scope` header (row 177).
+
+Checks:
+- The EventStore Client Debug build (`UseHexalithProjectReferences=true`, `HexalithEventStoreVersion=3.133.0`) had 0 warnings and 0 errors, and the generated XML doc resolves both new `cref`s.
+- `python3 -m pytest -q _bmad/scripts/tests/test_story_16_1_warning_removal.py`: 2/2.
+- `git diff --check` is clean in the root and in EventStore.
+- No test assembly reruns: the C# change is documentation-only, and the other edits are Markdown.
+- The evidence-boundary gate is not-applicable. The v9 story completion gate stays waived under the 2026-11-01 decision; it was not run and is never recorded as PASS.
+- No patch or high/medium finding remains open, so the sprint row moves to `done`.
+
 ## Design Notes
 
 The record stores state, health (`Healthy|Gapped|Corrupt|Unavailable`), `lastContiguousSequence` with its accepted fingerprint, `expected`, `recoveryThrough`, sequence-keyed pending evidence, and a lease (fencing token plus record version). One CAS write covers all of it.
