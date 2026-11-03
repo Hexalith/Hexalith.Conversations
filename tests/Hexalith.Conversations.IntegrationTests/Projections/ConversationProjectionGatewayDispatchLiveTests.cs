@@ -132,7 +132,12 @@ public sealed class ConversationProjectionGatewayDispatchLiveTests(ConversationG
             await QueryAsync(tenantId, conversationId);
 
         detailResult.FreshnessState.ShouldBe(ProjectionTrustState.Current);
-        listResult.FreshnessState.ShouldBe(ProjectionTrustState.Current);
+
+        // Story 16.2 / AD-7: this lane never delivers TenantCreated, so the gateway delivery created the tenant
+        // index itself and it is truthfully Rebuilding; the delivered row is still listed. The initialized-tenant
+        // Current list is proven by Story16_2TenantIndexLiveTests.
+        listResult.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        listResult.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.Rebuilding);
         detailResult.Details.ShouldNotBeNull();
         detailResult.Details!.Freshness.LastAppliedEventPosition.ShouldBe(persisted.SequenceNumber);
         listResult.Conversations.ShouldHaveSingleItem().ConversationId.Value.ShouldBe(conversationId);

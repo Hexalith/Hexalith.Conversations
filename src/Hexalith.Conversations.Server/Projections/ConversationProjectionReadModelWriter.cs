@@ -210,6 +210,9 @@ public sealed class ConversationProjectionReadModelWriter
         ArgumentNullException.ThrowIfNull(persisted);
         ArgumentNullException.ThrowIfNull(incoming);
 
+        // AD-7: every live write carries the lifecycle header forward in the same compare-and-swap. An absent or
+        // version 1 index becomes version 2 Rebuilding; only TenantCreated ever creates Ready.
+        ConversationProjectionIndexHeader header = AdvanceHeader(persisted);
         Dictionary<string, ConversationSummaryProjectionV1> byConversation = new(StringComparer.Ordinal);
         foreach (ConversationSummaryProjectionV1 summary in persisted.Summaries)
         {
@@ -248,6 +251,7 @@ public sealed class ConversationProjectionReadModelWriter
                     && SameGeneration(winner, incomingReference))
                 {
                     byConversation[conversationId] = summary;
+                    RaiseWatermark(header.Watermarks, summary);
                 }
 
                 continue;
@@ -258,15 +262,130 @@ public sealed class ConversationProjectionReadModelWriter
                 || summary.Freshness.LastAppliedEventPosition >= existingSummary.Freshness.LastAppliedEventPosition)
             {
                 byConversation[conversationId] = summary;
+                RaiseWatermark(header.Watermarks, summary);
             }
         }
 
-        return new ConversationProjectionIndexReadModel
-        {
-            Summaries = [.. byConversation.Values.OrderBy(summary => summary.ConversationId.Value, StringComparer.Ordinal)],
-            Dispatches = dispatches,
-        };
+        return Compose(header, byConversation.Values, dispatches);
     }
+
+    /// <summary>
+    /// Builds the replacement index a full-replay rebuild of one conversation installs, keeping the lifecycle
+    /// header and never lowering a watermark.
+    /// </summary>
+    /// <param name="persisted">The index the rebuild observed, or <see langword="null"/> when absent.</param>
+    /// <param name="summaries">The retained sibling summaries plus the rebuilt summary.</param>
+    /// <param name="dispatches">The verified dispatch references of the replacement index.</param>
+    /// <returns>The replacement version 2 index.</returns>
+    /// <remarks>
+    /// A per-conversation rebuild cannot prove tenant-wide coverage, so it never makes an index Ready: an absent or
+    /// version 1 index becomes Rebuilding and a version 2 index keeps its lifecycle.
+    /// </remarks>
+    internal static ConversationProjectionIndexReadModel PlanRebuildIndex(
+        ConversationProjectionIndexReadModel? persisted,
+        IEnumerable<ConversationSummaryProjectionV1> summaries,
+        IReadOnlyDictionary<string, ConversationProjectionDispatchReference> dispatches)
+    {
+        ArgumentNullException.ThrowIfNull(summaries);
+        ArgumentNullException.ThrowIfNull(dispatches);
+
+        ConversationProjectionIndexHeader header = AdvanceHeader(persisted);
+        ConversationSummaryProjectionV1[] retained = [.. summaries];
+        foreach (ConversationSummaryProjectionV1 summary in retained)
+        {
+            RaiseWatermark(header.Watermarks, summary);
+        }
+
+        return Compose(header, retained, dispatches);
+    }
+
+    /// <summary>Creates the version 2 <c>Ready</c> empty index that only <c>TenantCreated</c> initializes.</summary>
+    /// <returns>The initialized index.</returns>
+    internal static ConversationProjectionIndexReadModel CreateInitializedIndex()
+        => new()
+        {
+            SchemaVersion = ConversationProjectionIndexReadModel.LifecycleSchemaVersion,
+            Lifecycle = ConversationProjectionIndexLifecycle.Ready,
+            Watermarks = new Dictionary<string, long>(StringComparer.Ordinal),
+        };
+
+    /// <summary>
+    /// Creates the tenant's version 2 <c>Ready(empty)</c> index when no index exists; an existing index, whatever
+    /// its version or lifecycle, is left unchanged.
+    /// </summary>
+    /// <param name="tenantId">The created tenant.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns><see langword="true"/> when this call created the index.</returns>
+    /// <remarks>
+    /// The write is create-only (an empty ETag), so it can never overwrite a live delivery's index or regress a
+    /// rebuilding one. Store failures propagate so the delivery is retried rather than acknowledged.
+    /// </remarks>
+    internal async Task<bool> InitializeTenantIndexAsync(TenantId tenantId, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(tenantId);
+        return await _store
+            .TrySaveAsync(
+                _storeOptions.StateStoreName,
+                ConversationProjectionReadModelKeys.TenantIndexKey(tenantId),
+                CreateInitializedIndex(),
+                string.Empty,
+                cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    private static ConversationProjectionIndexHeader AdvanceHeader(ConversationProjectionIndexReadModel? persisted)
+    {
+        if (persisted is { IsLifecycleRecord: true })
+        {
+            // Never infer: a contradictory version 2 lifecycle is carried forward unchanged for readers to report.
+            return new(
+                persisted.Lifecycle,
+                new Dictionary<string, long>(
+                    persisted.Watermarks ?? new Dictionary<string, long>(StringComparer.Ordinal),
+                    StringComparer.Ordinal));
+        }
+
+        if (persisted is not null && persisted.SchemaVersion is not (0 or 1))
+        {
+            // A newer writer owns this record; rewriting it with this shape would drop what it added.
+            throw new InvalidOperationException("The tenant index was written by an unsupported schema version.");
+        }
+
+        Dictionary<string, long> seeded = new(StringComparer.Ordinal);
+        foreach (ConversationSummaryProjectionV1 summary in persisted?.Summaries ?? [])
+        {
+            RaiseWatermark(seeded, summary);
+        }
+
+        return new(ConversationProjectionIndexLifecycle.Rebuilding, seeded);
+    }
+
+    private static void RaiseWatermark(Dictionary<string, long> watermarks, ConversationSummaryProjectionV1 summary)
+    {
+        string conversationId = summary.ConversationId.Value;
+        long position = summary.Freshness.LastAppliedEventPosition;
+        if (!watermarks.TryGetValue(conversationId, out long existing) || position > existing)
+        {
+            watermarks[conversationId] = position;
+        }
+    }
+
+    private static ConversationProjectionIndexReadModel Compose(
+        ConversationProjectionIndexHeader header,
+        IEnumerable<ConversationSummaryProjectionV1> summaries,
+        IReadOnlyDictionary<string, ConversationProjectionDispatchReference> dispatches)
+        => new()
+        {
+            SchemaVersion = ConversationProjectionIndexReadModel.LifecycleSchemaVersion,
+            Lifecycle = header.Lifecycle,
+            Watermarks = header.Watermarks
+                .OrderBy(static pair => pair.Key, StringComparer.Ordinal)
+                .ToDictionary(static pair => pair.Key, static pair => pair.Value, StringComparer.Ordinal),
+            Summaries = [.. summaries.OrderBy(summary => summary.ConversationId.Value, StringComparer.Ordinal)],
+            Dispatches = dispatches
+                .OrderBy(static pair => pair.Key, StringComparer.Ordinal)
+                .ToDictionary(static pair => pair.Key, static pair => pair.Value, StringComparer.Ordinal),
+        };
 
     /// <summary>
     /// Removes one terminal pending marker only when it has not advanced the durable conversation generation.
@@ -351,7 +470,7 @@ public sealed class ConversationProjectionReadModelWriter
             || !string.Equals(marker.DispatchId, dispatchId, StringComparison.Ordinal)
             || !marker.IsPending)
         {
-            return current;
+            return Compose(AdvanceHeader(existing), current.Summaries, current.Dispatches);
         }
 
         var dispatches = new Dictionary<string, ConversationProjectionDispatchReference>(current.Dispatches, StringComparer.Ordinal);
@@ -367,11 +486,7 @@ public sealed class ConversationProjectionReadModelWriter
             _ = dispatches.Remove(conversationId);
         }
 
-        return new ConversationProjectionIndexReadModel
-        {
-            Summaries = current.Summaries,
-            Dispatches = dispatches,
-        };
+        return Compose(AdvanceHeader(existing), current.Summaries, dispatches);
     }
 
     private static ConversationProjectionDispatchReference PrepareWinningReference(

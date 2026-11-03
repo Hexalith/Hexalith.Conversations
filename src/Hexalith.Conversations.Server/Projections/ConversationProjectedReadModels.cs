@@ -50,4 +50,20 @@ public sealed record ConversationProjectedReadModels(
     /// <summary>Gets the actual native persisted head message, absent for legacy materializations.</summary>
     public string? SourceHeadMessageId { get; init; }
 
+    /// <summary>
+    /// Gets the maximum validated selected event time contributing to this generation's deterministic replay
+    /// state (AD-8). Internal persisted state; it is never the public <c>ProjectionGeneratedAt</c>. Absent for
+    /// legacy generations and for a replay with no validated event time.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonInclude]
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    internal DateTimeOffset? ReplayAnchorAt { get; init; }
+
+    /// <summary>
+    /// Gets the lowercase-hex SHA-256 of the EventStore-canonical deterministic replay-state bytes (AD-8), which
+    /// exclude observation freshness. Internal persisted state; absent for legacy generations.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonInclude]
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    internal string? ReplayStateHash { get; init; }
 }

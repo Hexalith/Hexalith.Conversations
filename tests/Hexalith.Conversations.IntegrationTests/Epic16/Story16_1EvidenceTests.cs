@@ -295,6 +295,9 @@ public sealed class Story16_1EvidenceTests(Story16_1LiveFixture fixture)
     {
         string tenant = $"tenant-live-{Guid.NewGuid():N}";
         fixture.Track(DurableTenantProjectionStore.KeyFor(tenant));
+
+        // Story 16.2: TenantCreated also initializes the tenant's Conversations index in the same state store.
+        fixture.Track(Story16_2TenantIndexLiveTests.TenantIndexKey(tenant));
         return tenant;
     }
 

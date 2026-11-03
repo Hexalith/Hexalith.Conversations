@@ -234,23 +234,16 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
                 cancellationToken)
             .ConfigureAwait(false);
 
-        // A tenant that has never had a conversation has no index key. That is an empty tenant, not a
-        // cross-key inconsistency, and it must read as an empty current page.
-        //
-        // DISCLOSED LIMITATION (pass-10 review, decision D3). An index key that once existed and was then
-        // erased or evicted is indistinguishable from a tenant that never had one, so destroyed state is
-        // served as an empty CURRENT page rather than as Rebuilding or Unavailable. Deriving the difference
-        // from surviving per-conversation detail keys was evaluated and is not implementable against this
-        // seam: IReadModelStore exposes only GetAsync/SaveAsync/TrySaveAsync and IReadModelBulkStore only
-        // GetManyAsync(keys), so a tenant's detail keys can only be discovered from the index itself — the
-        // very key that is missing. Closing this needs a durable tenant-index write at first use, which is
-        // out of Story 6.2's scope; it is disclosed in the AC6 release evidence instead.
+        // AD-7: the version 2 index is the tenant's only lifecycle record. TenantCreated initializes it Ready, so a
+        // missing record for an authorized tenant is unavailable state, never an empty current page. Reads map
+        // what is persisted and never write or infer a lifecycle.
         if (entry.Value is null)
         {
-            return ConversationProjectionIndexSnapshot.Empty;
+            return ConversationProjectionIndexSnapshot.Missing;
         }
 
-        IReadOnlyList<ConversationSummaryProjectionV1> summaries = entry.Value.Summaries;
+        ConversationProjectionIndexReadModel index = entry.Value;
+        IReadOnlyList<ConversationSummaryProjectionV1> summaries = index.Summaries;
 
         // The index naming one conversation twice is structural corruption of the index itself: no page taken
         // from it can be trusted, so this is the one tenant-scoped failure that remains.
@@ -259,7 +252,8 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
             throw new ConversationProjectionConsistencyException();
         }
 
-        IReadOnlyDictionary<string, ConversationProjectionDispatchReference> dispatches = entry.Value.Dispatches;
+        ConversationProjectionIndexReadState readState = ClassifyLifecycle(index);
+        IReadOnlyDictionary<string, ConversationProjectionDispatchReference> dispatches = index.Dispatches;
         Dictionary<string, long> positions = summaries.ToDictionary(
             summary => summary.ConversationId.Value,
             summary => summary.Freshness.LastAppliedEventPosition,
@@ -279,7 +273,72 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
             Summaries = summaries,
             Dispatches = dispatches,
             HasIncompleteDispatch = hasIncompleteDispatch,
+            ReadState = readState,
         };
+    }
+
+    /// <summary>
+    /// Maps one persisted tenant index to its read state without writing (AD-7).
+    /// </summary>
+    /// <param name="index">The persisted index.</param>
+    /// <returns>The read state of a well-formed record.</returns>
+    /// <exception cref="ConversationProjectionConsistencyException">
+    /// Thrown for a contradictory lifecycle record: an unknown schema version or lifecycle, lifecycle fields on a
+    /// version 1 record, a malformed watermark, or a summary ahead of its non-regressing watermark.
+    /// </exception>
+    internal static ConversationProjectionIndexReadState ClassifyLifecycle(ConversationProjectionIndexReadModel index)
+    {
+        ArgumentNullException.ThrowIfNull(index);
+        if (index.SchemaVersion is 0 or 1)
+        {
+            // A version 1 record has no lifecycle; one that carries lifecycle fields contradicts itself.
+            if (index.Lifecycle is not null || index.Watermarks is not null)
+            {
+                throw new ConversationProjectionConsistencyException();
+            }
+
+            return ConversationProjectionIndexReadState.Rebuilding;
+        }
+
+        if (!index.IsLifecycleRecord
+            || index.Lifecycle is not { } lifecycle
+            || !Enum.IsDefined(lifecycle)
+            || index.Watermarks is not { } watermarks
+            || watermarks.Any(static pair => string.IsNullOrWhiteSpace(pair.Key) || pair.Value < 1))
+        {
+            throw new ConversationProjectionConsistencyException();
+        }
+
+        bool gap = false;
+        foreach (ConversationSummaryProjectionV1 summary in index.Summaries)
+        {
+            long position = summary.Freshness.LastAppliedEventPosition;
+            if (!watermarks.TryGetValue(summary.ConversationId.Value, out long watermark))
+            {
+                // Lifecycle gap: the record does not cover a conversation it lists.
+                gap = true;
+                continue;
+            }
+
+            if (position > watermark)
+            {
+                // Watermarks never regress and move in the same compare-and-swap as their summary.
+                throw new ConversationProjectionConsistencyException();
+            }
+
+            // Source-position gap: the index once published a newer position than it now holds.
+            gap |= position < watermark;
+        }
+
+        HashSet<string> listed = index.Summaries.Select(static summary => summary.ConversationId.Value).ToHashSet(StringComparer.Ordinal);
+        gap |= watermarks.Keys.Any(conversationId => !listed.Contains(conversationId));
+
+        if (lifecycle == ConversationProjectionIndexLifecycle.Rebuilding)
+        {
+            return ConversationProjectionIndexReadState.Rebuilding;
+        }
+
+        return gap ? ConversationProjectionIndexReadState.GapDetected : ConversationProjectionIndexReadState.Ready;
     }
 
     /// <inheritdoc/>

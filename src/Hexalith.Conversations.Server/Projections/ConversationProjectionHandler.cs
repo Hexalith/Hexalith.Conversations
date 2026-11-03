@@ -98,8 +98,11 @@ public sealed class ConversationProjectionHandler : IDomainProjectionHandler
         // change a documented fail-open-degrade contract into an unhandled fault, and would make adding any
         // new event type hard-fail every v1 stream that carries it. A degraded generation can never report
         // Current, so the skip still never falsely degrades.
+        // AD-8: an envelope whose replay identity or selected time is missing or invalid is contradictory metadata
+        // (Unavailable/metadata_contradictory), never swallowed as an ordinary rebuild. The clock below is read only
+        // for ProjectionGeneratedAt; replay identity and time come from the validated events.
         IReadOnlyList<ConversationProjectionEventRecord> events =
-            ConversationProjectionEventDecoder.DecodePermissive(request.Events, out bool decodeFailed);
+            ConversationProjectionEventDecoder.DecodePermissive(request.Events, out bool decodeFailed, out bool metadataContradictory);
 
         ConversationProjectedReadModels models = _materializer.Project(
             tenantId,
@@ -108,7 +111,8 @@ public sealed class ConversationProjectionHandler : IDomainProjectionHandler
             _timeProvider.GetUtcNow(),
             DefaultStaleAfter,
             isRebuilding: decodeFailed,
-            metadataWriteFailed: false);
+            metadataWriteFailed: false,
+            metadataContradictory: metadataContradictory);
 
         return new ProjectionResponse(
             ConversationProjectionType,

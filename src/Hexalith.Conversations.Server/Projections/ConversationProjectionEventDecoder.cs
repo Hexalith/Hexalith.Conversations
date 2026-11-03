@@ -11,6 +11,7 @@ using Hexalith.Commons.Serialization;
 using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Serialization;
 using Hexalith.Conversations.Events;
+using Hexalith.EventStore.Client.Subscriptions;
 using Hexalith.EventStore.Contracts.Projections;
 
 namespace Hexalith.Conversations.Server.Projections;
@@ -20,7 +21,8 @@ namespace Hexalith.Conversations.Server.Projections;
 /// </summary>
 internal static class ConversationProjectionEventDecoder
 {
-    private static readonly JsonSerializerOptions EventJsonOptions =
+    /// <summary>Gets the serializer options the public event vocabulary is decoded with.</summary>
+    internal static JsonSerializerOptions EventJsonOptions { get; } =
         JsonSerializationOptions.CreateWeb([ConversationsJsonContext.Default], includeReflectionFallback: true);
 
     private static readonly Type[] PublicContractEventTypes =
@@ -108,8 +110,26 @@ internal static class ConversationProjectionEventDecoder
     internal static IReadOnlyList<ConversationProjectionEventRecord> DecodePermissive(
         ProjectionEventDto[]? events,
         out bool decodeFailed)
+        => DecodePermissive(events, out decodeFailed, out _);
+
+    /// <summary>
+    /// Decodes every valid envelope and reports, separately, rejected envelopes and envelopes whose replay
+    /// identity or selected time is missing or invalid.
+    /// </summary>
+    /// <param name="events">The persisted envelopes.</param>
+    /// <param name="decodeFailed">Whether any envelope was rejected for another reason.</param>
+    /// <param name="metadataContradictory">
+    /// Whether any rejected contract envelope carried a blank event identity or a default/invalid occurrence time.
+    /// AD-8 maps that to contradictory metadata, never to an ordinary rebuild.
+    /// </param>
+    /// <returns>The decoded records.</returns>
+    internal static IReadOnlyList<ConversationProjectionEventRecord> DecodePermissive(
+        ProjectionEventDto[]? events,
+        out bool decodeFailed,
+        out bool metadataContradictory)
     {
         decodeFailed = false;
+        metadataContradictory = false;
         if (events is null || events.Length == 0)
         {
             return [];
@@ -124,11 +144,76 @@ internal static class ConversationProjectionEventDecoder
             }
             catch (Exception exception) when (exception is ArgumentException or JsonException)
             {
-                decodeFailed = true;
+                if (evt is not null && HasInvalidReplayMetadata(evt.Payload))
+                {
+                    metadataContradictory = true;
+                }
+                else
+                {
+                    decodeFailed = true;
+                }
             }
         }
 
         return records;
+    }
+
+    /// <summary>
+    /// Determines whether a contract payload names a blank event identity or a default/invalid occurrence time.
+    /// </summary>
+    /// <param name="payload">The persisted payload bytes.</param>
+    /// <returns><see langword="true"/> when the payload's metadata identity or time is unusable for replay.</returns>
+    internal static bool HasInvalidReplayMetadata(byte[]? payload)
+    {
+        if (payload is not { Length: > 0 })
+        {
+            return false;
+        }
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(payload);
+            if (document.RootElement.ValueKind != JsonValueKind.Object
+                || !TryGetProperty(document.RootElement, "metadata", out JsonElement metadata)
+                || metadata.ValueKind != JsonValueKind.Object)
+            {
+                return false;
+            }
+
+            bool validIdentity = TryGetProperty(metadata, "eventId", out JsonElement eventId)
+                && eventId.ValueKind == JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(eventId.GetString());
+            bool validTime = TryGetProperty(metadata, "occurredAt", out JsonElement occurredAt)
+                && occurredAt.ValueKind == JsonValueKind.String
+                && occurredAt.TryGetDateTimeOffset(out DateTimeOffset time)
+                && IsValidReplayTime(time);
+            return !validIdentity || !validTime;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>Determines whether a selected replay time is usable: neither default nor outside the business range.</summary>
+    /// <param name="value">The selected replay time.</param>
+    /// <returns><see langword="true"/> when the time can anchor deterministic replay.</returns>
+    internal static bool IsValidReplayTime(DateTimeOffset value)
+        => value > DateTimeOffset.MinValue && value.Year is >= 2000 and <= 9999;
+
+    private static bool TryGetProperty(JsonElement element, string name, out JsonElement value)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (string.Equals(property.Name, name, StringComparison.OrdinalIgnoreCase))
+            {
+                value = property.Value;
+                return true;
+            }
+        }
+
+        value = default;
+        return false;
     }
 
     /// <summary>
@@ -203,11 +288,20 @@ internal static class ConversationProjectionEventDecoder
             throw new JsonException("The projection event payload is missing.");
         }
 
+        // AD-8: the record keeps the persisted binding (type, format, exact payload digest). A position-only
+        // event also keeps its persisted message identity and envelope time exactly as stored; a blank identity
+        // or a default time is rejected by the materializer before duplicate suppression, never repaired here.
+        string payloadSha256 = EventStorePayloadFingerprint.Compute(evt.Payload);
         if (IsPositionOnlyEventType(evt.EventTypeName))
         {
             _ = JsonSerializer.Deserialize<ConversationRejectedDomainEvent>(evt.Payload, EventJsonOptions)
                 ?? throw new JsonException("The projection event payload decoded to null.");
-            return new(evt.SequenceNumber, new ConversationProjectionPositionOnlyEvent(evt.Timestamp));
+            return new(evt.SequenceNumber, new ConversationProjectionPositionOnlyEvent(evt.MessageId ?? string.Empty, evt.Timestamp))
+            {
+                EventTypeName = evt.EventTypeName,
+                SerializationFormat = evt.SerializationFormat,
+                PayloadSha256 = payloadSha256,
+            };
         }
 
         if (!TryResolvePublicEventType(evt.EventTypeName, out Type? eventType))
@@ -217,7 +311,12 @@ internal static class ConversationProjectionEventDecoder
 
         object decoded = JsonSerializer.Deserialize(evt.Payload, eventType, EventJsonOptions)
             ?? throw new JsonException("The projection event payload decoded to null.");
-        return new(evt.SequenceNumber, decoded);
+        return new(evt.SequenceNumber, decoded)
+        {
+            EventTypeName = evt.EventTypeName,
+            SerializationFormat = evt.SerializationFormat,
+            PayloadSha256 = payloadSha256,
+        };
     }
 
     /// <summary>

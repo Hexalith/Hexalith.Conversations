@@ -195,20 +195,26 @@ public sealed class ConversationProjectionDurableEventCoverageTest
             ConversationErrorCode.CommandValidationFailed,
             "invalid-command");
 
+        byte[] payload = JsonSerializer.SerializeToUtf8Bytes(rejection, DomainEventWireOptions);
         IReadOnlyList<ConversationProjectionEventRecord> decoded = ConversationProjectionEventDecoder.Decode(
         [
             new ProjectionEventDto(
                 typeof(ConversationRejectedDomainEvent).FullName!,
-                JsonSerializer.SerializeToUtf8Bytes(rejection, DomainEventWireOptions),
+                payload,
                 "json",
                 7,
                 persistedAt,
-                "correlation-rejected"),
+                "correlation-rejected",
+                MessageId: "message-rejected-007"),
         ]);
 
+        // AD-8: the decoder keeps the persisted message identity, the envelope time and the persisted binding.
         ConversationProjectionEventRecord record = decoded.ShouldHaveSingleItem();
         record.Position.ShouldBe(7);
-        record.Event.ShouldBe(new ConversationProjectionPositionOnlyEvent(persistedAt));
+        record.Event.ShouldBe(new ConversationProjectionPositionOnlyEvent("message-rejected-007", persistedAt));
+        record.EventTypeName.ShouldBe(typeof(ConversationRejectedDomainEvent).FullName);
+        record.SerializationFormat.ShouldBe("json");
+        record.PayloadSha256.ShouldBe(Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(payload)));
     }
 
     [Fact]

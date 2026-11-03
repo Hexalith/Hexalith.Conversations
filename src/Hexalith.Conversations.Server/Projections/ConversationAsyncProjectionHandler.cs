@@ -163,10 +163,17 @@ public sealed class ConversationAsyncProjectionHandler :
 
         if (events.All(static record => record.Event is ConversationProjectionPositionOnlyEvent))
         {
-            return DomainProjectionHandlerResult.Completed();
+            // Nothing to publish, but a missing identity or invalid time is still rejected before deduplication.
+            return ConversationProjectionMaterializer.HasContradictoryReplayInput(
+                    new TenantId(request.TenantId), new ConversationId(request.AggregateId), events)
+                ? await RejectObservedInputAsync(request, dispatchId, cancellationToken).ConfigureAwait(false)
+                : DomainProjectionHandlerResult.Completed();
         }
 
         string requestFingerprint = ComputeRequestFingerprint(request);
+
+        // The clock is read only for the generation instant (ProjectionGeneratedAt); replay identity, the replay
+        // anchor and the replay-state hash come from the validated events alone.
         DateTimeOffset candidateGeneratedAt = _timeProvider.GetUtcNow();
         try
         {
@@ -342,6 +349,8 @@ public sealed class ConversationAsyncProjectionHandler :
 
         ConversationResolutionGeneration? originalGeneration = await _resolution.RecoverGenerationAsync(new TenantId(request.TenantId),
             new ConversationId(request.AggregateId), operationId, requestFingerprint, cancellationToken).ConfigureAwait(false);
+        // The clock only supplies a first generation instant (ProjectionGeneratedAt); the rebuilt replay state,
+        // anchor and hash do not depend on it.
         ConversationProjectedReadModels models = Materialize(
             request, events, existingLedger?.ProjectionGeneratedAt ?? originalGeneration?.Freshness.ProjectionGeneratedAt
                 ?? _timeProvider.GetUtcNow()) with
@@ -414,10 +423,14 @@ public sealed class ConversationAsyncProjectionHandler :
             .Where(summary => summary.TenantId == models.Summary.TenantId)
             .Where(summary => summary.ConversationId != models.Summary.ConversationId)
             .GroupBy(summary => summary.ConversationId.Value, StringComparer.Ordinal)
-            .Select(group => group
-                .OrderByDescending(summary => summary.Freshness.LastAppliedEventPosition)
-                .ThenByDescending(summary => summary.Freshness.ProjectionGeneratedAt)
-                .First())
+            .Select(static group => group.Skip(1).Any()
+                // Duplicate rows are corruption; the survivor is chosen from replay facts only (position, then a
+                // clock-free canonical identity), never from the generation clock.
+                ? group
+                    .OrderByDescending(summary => summary.Freshness.LastAppliedEventPosition)
+                    .ThenBy(summary => ConversationReplayState.SummaryIdentity(summary), StringComparer.Ordinal)
+                    .First()
+                : group.First())
             .ToDictionary(summary => summary.ConversationId.Value, StringComparer.Ordinal);
         Dictionary<string, ConversationProjectionDispatchReference> dispatches = new(StringComparer.Ordinal);
         Dictionary<string, ConversationProjectionDispatchReference> unverifiedDispatches = new(StringComparer.Ordinal);
@@ -462,11 +475,13 @@ public sealed class ConversationAsyncProjectionHandler :
         dispatches[models.Summary.ConversationId.Value] = new(
             operationId,
             models.Summary.Freshness.LastAppliedEventPosition);
-        ConversationProjectionIndexReadModel index = new()
-        {
-            Summaries = [.. retained.Values.OrderBy(summary => summary.ConversationId.Value, StringComparer.Ordinal)],
-            Dispatches = dispatches,
-        };
+
+        // The writer authors the replacement index: it keeps the lifecycle header (an absent or version 1 index
+        // becomes Rebuilding, never Ready) and never lowers a watermark, inside this plan's one index write.
+        ConversationProjectionIndexReadModel index = ConversationProjectionReadModelWriter.PlanRebuildIndex(
+            persistedIndex.Value,
+            retained.Values,
+            dispatches);
         ConversationProjectionDispatchLedger completedLedger = existingLedger is null
             ? new(
                 operationId,
@@ -907,6 +922,8 @@ public sealed class ConversationAsyncProjectionHandler :
             || detail.Value.NativeSourceProof != expected.NativeSourceProof
             || detail.Value.NativeAdmission != expected.NativeAdmission
             || detail.Value.ResolutionScoringLabel != expected.ResolutionScoringLabel
+            || !string.Equals(detail.Value.ReplayStateHash, expected.ReplayStateHash, StringComparison.Ordinal)
+            || detail.Value.ReplayAnchorAt?.UtcTicks != expected.ReplayAnchorAt?.UtcTicks
             || detail.Value.Summary.Freshness.ProjectionGeneratedAt.UtcTicks != ledger.ProjectionGeneratedAt.UtcTicks
             || !JsonElement.DeepEquals(
                 JsonSerializer.SerializeToElement(detail.Value.Summary),

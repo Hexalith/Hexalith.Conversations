@@ -473,11 +473,11 @@ public sealed class ConversationProjectionReadModelPersistenceTest
     }
 
     /// <summary>
-    /// AC-4 (fail-soft empty): a tenant with nothing persisted lists an empty set from the single index read,
-    /// never null and never a per-conversation fan-out.
+    /// Story 16.2 / AD-7: an absent index is missing lifecycle state, read from the single index read without any
+    /// fan-out or write. An initialized tenant without conversations has a version 2 Ready index instead.
     /// </summary>
     [Fact]
-    public async Task ListAsyncShouldReadAnAbsentIndexAsAnEmptyTenant()
+    public async Task ListAsyncShouldReadAnAbsentIndexAsMissingLifecycleState()
     {
         InMemoryReadModelStore inner = new();
         CountingReadModelStore store = new(inner);
@@ -487,13 +487,13 @@ public sealed class ConversationProjectionReadModelPersistenceTest
             Tenant,
             TestContext.Current.CancellationToken);
 
-        // A tenant that has never held a conversation has no index key. Treating that as a cross-key
-        // inconsistency would leave every new tenant permanently Rebuilding with an empty page.
+        snapshot.ReadState.ShouldBe(ConversationProjectionIndexReadState.Missing);
         snapshot.Summaries.ShouldBeEmpty();
         snapshot.Dispatches.ShouldBeEmpty();
         snapshot.HasIncompleteDispatch.ShouldBeFalse();
-        store.GetCalls.ShouldBe(1, "an empty tenant costs exactly the tenant-index read.");
+        store.GetCalls.ShouldBe(1, "a missing index costs exactly the tenant-index read.");
         store.BulkGetCalls.ShouldBe(0);
+        inner.Count.ShouldBe(0, "a read never writes or infers a lifecycle");
     }
 
     /// <summary>

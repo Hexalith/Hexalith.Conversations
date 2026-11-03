@@ -290,7 +290,19 @@ public sealed class SmC2HotPathBenchmark
             });
         }
 
-        var indexModel = new { Summaries = summaries, Dispatches = dispatches };
+        // Story 16.2 / AD-7: the measured warm list path reads an initialized (version 2 Ready) tenant index whose
+        // watermarks cover every row, exactly as TenantCreated plus completed deliveries leave it.
+        var indexModel = new
+        {
+            SchemaVersion = 2,
+            Lifecycle = 2,
+            Watermarks = summaries.ToDictionary(
+                static summary => summary.ConversationId.Value,
+                static summary => summary.Freshness.LastAppliedEventPosition,
+                StringComparer.Ordinal),
+            Summaries = summaries,
+            Dispatches = dispatches,
+        };
         foreach (string key in TenantIndexKeys())
         {
             store.SeedRaw("statestore", key, indexModel);

@@ -730,8 +730,11 @@ public sealed class ConversationQueryHandlerTest
         store.ListReads.ShouldBe(1);
     }
 
+    /// <summary>
+    /// A duplicated entry or contradictory lifecycle record is corruption of the tenant index (AD-7 matrix).
+    /// </summary>
     [Fact]
-    public async Task ListConsistencyFailureShouldReturnRebuilding()
+    public async Task ListConsistencyFailureShouldReturnMetadataContradictory()
     {
         FakeProjectionReadStore store = new()
         {
@@ -742,13 +745,14 @@ public sealed class ConversationQueryHandlerTest
             new ListConversationsQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001"),
             TestContext.Current.CancellationToken);
 
-        result.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
-        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.MixedGeneration);
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
+        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.MetadataContradictory);
         result.Conversations.ShouldBeEmpty();
     }
 
+    /// <summary>A structurally contradictory page verification fails closed as contradictory metadata.</summary>
     [Fact]
-    public async Task PageValidationConsistencyFailureShouldReturnRebuilding()
+    public async Task PageValidationConsistencyFailureShouldReturnMetadataContradictory()
     {
         FakeProjectionReadStore store = new()
         {
@@ -760,8 +764,8 @@ public sealed class ConversationQueryHandlerTest
             new ListConversationsQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001"),
             TestContext.Current.CancellationToken);
 
-        result.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
-        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.MixedGeneration);
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
+        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.MetadataContradictory);
         result.Conversations.ShouldBeEmpty();
     }
 

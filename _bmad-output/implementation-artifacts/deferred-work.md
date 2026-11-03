@@ -1203,3 +1203,7 @@ Review strengthens the same solution-context scope with native implicit Platform
 - source_spec: `_bmad-output/implementation-artifacts/spec-sync-upgrade-and-release.md`
   summary: Resolve Story 16.2's representable failure response when the actual generation instant precedes the replay anchor.
   evidence: Its concurrent draft matrix preserves the unclamped generation time and anchor, while ProjectionFreshnessV1.ValidateGeneratedAt rejects generation before last-applied time for every trust state. Choose a compatible failure envelope or reconcile that future story's intent without changing this maintenance release.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-16-2-make-replay-time-deterministic-and-missing-index-state-truthful.md`
+  summary: Close the Story 16.2 race where a tenant becomes healthy before its Conversations index exists because a later tenant event arrived first and gap recovery replayed `TenantCreated` from history without running `ConversationTenantIndexInitializer`.
+  evidence: EventStore `CheckpointedProjectionWriter.ApplyAsync` turns an out-of-order delivery into `Pending` and `RecoverAsync` folds `TenantCreated` from gateway history, so the Tenants record turns healthy while the initializer has not run; the list then reads `Unavailable` (missing index) until the `TenantCreated` delivery, or stays `Rebuilding` if a conversation lands first. Reads remain truthful; the natural fix rides with the deferred tenant shared-rebuild adoption (16.2 decision 2), which can rebuild such an index to `Ready`.

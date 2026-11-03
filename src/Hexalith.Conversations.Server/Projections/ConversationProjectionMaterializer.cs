@@ -32,6 +32,12 @@ public sealed class ConversationProjectionMaterializer
     private const string OpenState = "Open";
 
     /// <summary>
+    /// Gets the fixed last-applied timestamp published when no validated replay anchor applies to the public
+    /// freshness: no event contributed a valid time, or the generation instant contradicts the anchor.
+    /// </summary>
+    internal static DateTimeOffset NoReplayAnchor { get; } = DateTimeOffset.UnixEpoch;
+
+    /// <summary>
     /// Projects a summary/detail pair from an ordered public event sequence.
     /// </summary>
     /// <param name="tenantId">The tenant this projection is allowed to materialize.</param>
@@ -50,6 +56,45 @@ public sealed class ConversationProjectionMaterializer
         TimeSpan staleAfter,
         bool isRebuilding = false,
         bool metadataWriteFailed = false)
+        => Project(
+            tenantId,
+            conversationId,
+            events,
+            projectionGeneratedAt,
+            staleAfter,
+            isRebuilding,
+            metadataWriteFailed,
+            metadataContradictory: false);
+
+    /// <summary>
+    /// Projects a summary/detail pair and its deterministic replay identity from an ordered event sequence.
+    /// </summary>
+    /// <param name="tenantId">The tenant this projection is allowed to materialize.</param>
+    /// <param name="conversationId">The conversation this projection is allowed to materialize.</param>
+    /// <param name="events">The public event sequence.</param>
+    /// <param name="projectionGeneratedAt">The actual generation instant; used only for observation freshness.</param>
+    /// <param name="staleAfter">The freshness threshold.</param>
+    /// <param name="isRebuilding">A value indicating whether rebuild or catch-up work is active.</param>
+    /// <param name="metadataWriteFailed">A value indicating whether projection mutation succeeded but metadata update failed.</param>
+    /// <param name="metadataContradictory">
+    /// A value indicating whether the caller already rejected an input for a missing identity or an invalid time.
+    /// </param>
+    /// <returns>The projected summary/detail pair carrying <c>ReplayAnchorAt</c> and <c>ReplayStateHash</c>.</returns>
+    /// <remarks>
+    /// AD-8: identity and time come only from validated event inputs. The replay anchor is the maximum validated
+    /// selected time; <paramref name="projectionGeneratedAt"/> never substitutes for it and is never clamped. The
+    /// deterministic replay state is materialized without any observation (no lag, so never stale) and hashed over
+    /// EventStore's canonical bytes; the public pair then carries observation freshness for this generation.
+    /// </remarks>
+    internal ConversationProjectedReadModels Project(
+        TenantId tenantId,
+        ConversationId conversationId,
+        IEnumerable<ConversationProjectionEventRecord> events,
+        DateTimeOffset projectionGeneratedAt,
+        TimeSpan staleAfter,
+        bool isRebuilding,
+        bool metadataWriteFailed,
+        bool metadataContradictory)
     {
         ArgumentNullException.ThrowIfNull(tenantId);
         ArgumentNullException.ThrowIfNull(conversationId);
@@ -62,20 +107,96 @@ public sealed class ConversationProjectionMaterializer
             builder.Apply(record);
         }
 
-        ProjectionFreshnessV1 freshness = CreateFreshness(
+        if (metadataContradictory)
+        {
+            builder.MarkMetadataContradictory();
+        }
+
+        // Replay identity covers replay facts only: the caller's rebuild/metadata-write flags and the observation
+        // instant are operational and stay out of it, so identical inputs hash identically under any clock.
+        (ConversationSummaryProjectionV1 replaySummary, ConversationDetailProjectionV1 replayDetail) = Build(
             builder,
-            projectionGeneratedAt,
-            staleAfter,
-            isRebuilding,
-            metadataWriteFailed);
+            CreateFreshness(builder, observedAt: null, staleAfter, isRebuilding: false, metadataWriteFailed: false));
+        ConversationReplayState replayState = ConversationReplayState.Create(
+            replaySummary,
+            replayDetail,
+            builder.ReplayAnchorAt);
+
+        (ConversationSummaryProjectionV1 summary, ConversationDetailProjectionV1 detail) = Build(
+            builder,
+            CreateFreshness(builder, projectionGeneratedAt, staleAfter, isRebuilding, metadataWriteFailed));
+
+        return new(summary, detail)
+        {
+            ResolutionScoringLabel = builder.ResolutionScoringLabel,
+            ReplayAnchorAt = replayState.ReplayAnchorAt,
+            ReplayStateHash = replayState.Hash,
+        };
+    }
+
+    /// <summary>
+    /// Builds the deterministic replay state of an ordered event sequence without any observation time.
+    /// </summary>
+    /// <param name="tenantId">The tenant scope.</param>
+    /// <param name="conversationId">The conversation scope.</param>
+    /// <param name="events">The ordered event sequence.</param>
+    /// <returns>The replay state whose canonical bytes and hash identify the materialization.</returns>
+    internal static ConversationReplayState BuildReplayState(
+        TenantId tenantId,
+        ConversationId conversationId,
+        IEnumerable<ConversationProjectionEventRecord> events)
+    {
+        ArgumentNullException.ThrowIfNull(tenantId);
+        ArgumentNullException.ThrowIfNull(conversationId);
+        ArgumentNullException.ThrowIfNull(events);
+
+        ProjectionBuilder builder = new(tenantId, conversationId);
+        foreach (ConversationProjectionEventRecord record in events)
+        {
+            builder.Apply(record);
+        }
+
+        (ConversationSummaryProjectionV1 summary, ConversationDetailProjectionV1 detail) = Build(
+            builder,
+            CreateFreshness(builder, observedAt: null, TimeSpan.MaxValue, isRebuilding: false, metadataWriteFailed: false));
+        return ConversationReplayState.Create(summary, detail, builder.ReplayAnchorAt);
+    }
+
+    /// <summary>
+    /// Determines whether an ordered event sequence carries a missing identity, a default/invalid time, or a
+    /// reused identity bound to different persisted content.
+    /// </summary>
+    /// <param name="tenantId">The tenant scope.</param>
+    /// <param name="conversationId">The conversation scope.</param>
+    /// <param name="events">The ordered event sequence.</param>
+    /// <returns><see langword="true"/> when the sequence is contradictory replay input.</returns>
+    internal static bool HasContradictoryReplayInput(
+        TenantId tenantId,
+        ConversationId conversationId,
+        IEnumerable<ConversationProjectionEventRecord> events)
+    {
+        ArgumentNullException.ThrowIfNull(events);
+        ProjectionBuilder builder = new(tenantId, conversationId);
+        foreach (ConversationProjectionEventRecord record in events)
+        {
+            builder.Apply(record);
+        }
+
+        return builder.MetadataContradictory;
+    }
+
+    private static (ConversationSummaryProjectionV1 Summary, ConversationDetailProjectionV1 Detail) Build(
+        ProjectionBuilder builder,
+        ProjectionFreshnessV1 freshness)
+    {
         ConversationSearchTrustPreviewV1 searchTrustPreview = CreateSearchTrustPreview(builder, freshness);
         ConversationEvidenceTrustPostureV1 trustPosture = CreateTrustPosture(builder, freshness);
         IReadOnlyList<ConversationEvidenceEntryV1> evidenceEntries = CreateEvidenceEntries(builder, freshness);
 
         ConversationSummaryProjectionV1 summary = new(
             SchemaVersion.Current,
-            tenantId,
-            conversationId,
+            builder.TenantId,
+            builder.ConversationId,
             freshness,
             builder.LifecycleState,
             builder.Label,
@@ -90,8 +211,8 @@ public sealed class ConversationProjectionMaterializer
 
         ConversationDetailProjectionV1 detail = new(
             SchemaVersion.Current,
-            tenantId,
-            conversationId,
+            builder.TenantId,
+            builder.ConversationId,
             freshness,
             builder.LifecycleState,
             builder.Label,
@@ -109,29 +230,49 @@ public sealed class ConversationProjectionMaterializer
             trustPosture,
             evidenceEntries);
 
-        return new(summary, detail) { ResolutionScoringLabel = builder.ResolutionScoringLabel };
+        return (summary, detail);
     }
 
+    /// <summary>
+    /// Computes the freshness of one materialization.
+    /// </summary>
+    /// <param name="builder">The replayed builder.</param>
+    /// <param name="observedAt">
+    /// The actual generation instant, or <see langword="null"/> for the observation-free replay evaluation, which
+    /// observes at the anchor itself (zero lag, never stale, never time-contradictory).
+    /// </param>
+    /// <param name="staleAfter">The freshness threshold.</param>
+    /// <param name="isRebuilding">Whether the caller reports rebuild or catch-up work.</param>
+    /// <param name="metadataWriteFailed">Whether the caller reports a failed metadata write.</param>
+    /// <returns>The freshness value.</returns>
+    /// <remarks>
+    /// <para>
+    /// <c>LastAppliedEventTimestamp</c> is the replay anchor and <c>ProjectionGeneratedAt</c> is the unclamped
+    /// observation instant. A generation instant earlier than the anchor is contradictory metadata
+    /// (<c>Unavailable</c>/<c>metadata_contradictory</c>, null lag). Because the public contract still requires
+    /// <c>ProjectionGeneratedAt &gt;= LastAppliedEventTimestamp</c>, such a generation, and one with no validated
+    /// anchor at all, publishes the fixed <see cref="NoReplayAnchor"/> sentinel as its last-applied timestamp: it
+    /// is neither the clock nor a clamp, and no consumer may treat a non-current freshness timestamp as truth.
+    /// </para>
+    /// <para>
+    /// <c>ProjectionFreshnessV1</c> requires position &gt;= 1, so the no-events case reports position 1; that path
+    /// is non-current by definition (no creation was applied) and the synthesized cursor must not be trusted.
+    /// </para>
+    /// </remarks>
     private static ProjectionFreshnessV1 CreateFreshness(
         ProjectionBuilder builder,
-        DateTimeOffset projectionGeneratedAt,
+        DateTimeOffset? observedAt,
         TimeSpan staleAfter,
         bool isRebuilding,
         bool metadataWriteFailed)
     {
-        // ProjectionFreshnessV1 requires position >= 1; clamp here for the no-events case so the
-        // freshness can still be constructed. The empty-stream path is non-current by definition
-        // (WasCreated is false, so the projection is Rebuilding), and consumers must not trust the
-        // synthesized cursor for ordering.
         long position = Math.Max(builder.LastAppliedPosition, 1);
-        DateTimeOffset lastApplied = builder.LastAppliedTimestamp ?? projectionGeneratedAt;
-        bool contradictoryTimestamp = projectionGeneratedAt < lastApplied;
-
-        // When metadata is contradictory the projection is reported as Unavailable. The public
-        // ProjectionGeneratedAt is clamped to lastApplied so the contract invariant
-        // (generatedAt >= lastApplied) holds; consumers must not treat the clamped value as truth.
-        DateTimeOffset publicGeneratedAt = contradictoryTimestamp ? lastApplied : projectionGeneratedAt;
-        TimeSpan lag = publicGeneratedAt - lastApplied;
+        DateTimeOffset? anchor = builder.ReplayAnchorAt;
+        DateTimeOffset generatedAt = observedAt ?? anchor ?? NoReplayAnchor;
+        bool contradictoryTimestamp = anchor is { } validAnchor && generatedAt < validAnchor;
+        bool contradictory = builder.MetadataContradictory || contradictoryTimestamp;
+        DateTimeOffset lastApplied = anchor is { } applied && !contradictoryTimestamp ? applied : NoReplayAnchor;
+        TimeSpan? lag = anchor is { } lagAnchor && !contradictory ? generatedAt - lagAnchor : null;
 
         ProjectionTrustState state = ProjectionTrustState.Current;
         ProjectionFreshnessReasonCode reason = ProjectionFreshnessReasonCode.Current;
@@ -157,7 +298,7 @@ public sealed class ConversationProjectionMaterializer
             state = ProjectionTrustState.Unavailable;
             reason = ProjectionFreshnessReasonCode.Unavailable;
         }
-        else if (contradictoryTimestamp)
+        else if (contradictory)
         {
             state = ProjectionTrustState.Unavailable;
             reason = ProjectionFreshnessReasonCode.MetadataContradictory;
@@ -189,7 +330,7 @@ public sealed class ConversationProjectionMaterializer
             FormatCursor(position),
             position,
             lastApplied,
-            publicGeneratedAt,
+            generatedAt,
             lag,
             stale,
             state,
@@ -254,12 +395,14 @@ public sealed class ConversationProjectionMaterializer
             citationAvailability,
             auditReadiness,
             ConversationVerificationState.Unknown,
-            DefaultCommandEligibility(freshness, auditReadiness));
+            DefaultCommandEligibility(freshness, auditReadiness, builder.ReplayAnchorAt ?? NoReplayAnchor));
     }
 
+    /// <summary>Builds the governed command eligibility, evaluated at the replay anchor rather than the clock.</summary>
     private static IReadOnlyList<ConversationCommandAvailabilityV1> DefaultCommandEligibility(
         ProjectionFreshnessV1 freshness,
-        ConversationAuditReadinessState auditReadiness)
+        ConversationAuditReadinessState auditReadiness,
+        DateTimeOffset evaluatedAt)
         =>
         [
             new ConversationCommandAvailabilityV1(
@@ -271,7 +414,7 @@ public sealed class ConversationProjectionMaterializer
                 ProjectionTrustState.Current,
                 auditReadiness,
                 "Command execution is blocked from the governed read surface.",
-                freshness.ProjectionGeneratedAt),
+                evaluatedAt),
             new ConversationCommandAvailabilityV1(
                 "mark-content-sensitive",
                 ProjectionTrustState.Unavailable,
@@ -281,7 +424,7 @@ public sealed class ConversationProjectionMaterializer
                 ProjectionTrustState.Current,
                 auditReadiness,
                 "Command execution is blocked from the governed read surface.",
-                freshness.ProjectionGeneratedAt),
+                evaluatedAt),
             new ConversationCommandAvailabilityV1(
                 "redact-message-content",
                 ProjectionTrustState.Unavailable,
@@ -291,7 +434,7 @@ public sealed class ConversationProjectionMaterializer
                 ProjectionTrustState.Current,
                 auditReadiness,
                 "Command execution is blocked from the governed read surface.",
-                freshness.ProjectionGeneratedAt),
+                evaluatedAt),
         ];
 
     private static IReadOnlyList<ConversationEvidenceEntryV1> CreateEvidenceEntries(
@@ -299,6 +442,10 @@ public sealed class ConversationProjectionMaterializer
         ProjectionFreshnessV1 freshness)
     {
         List<ConversationEvidenceEntryV1> entries = [];
+
+        // Evidence times are replay facts: the anchor (never the generation clock) dates the freshness entry and
+        // any item whose own occurrence time is unknown.
+        DateTimeOffset anchor = builder.ReplayAnchorAt ?? NoReplayAnchor;
         ProjectionTrustState currentOrUnavailable = freshness.AllowsTrustBearingDecision()
             ? ProjectionTrustState.Current
             : ProjectionTrustState.Unavailable;
@@ -313,7 +460,7 @@ public sealed class ConversationProjectionMaterializer
             $"freshness:{freshness.ProjectionCursor}",
             "Freshness",
             null,
-            freshness.ProjectionGeneratedAt,
+            anchor,
             freshness.FreshnessState,
             citationAvailability,
             auditReadiness,
@@ -326,7 +473,7 @@ public sealed class ConversationProjectionMaterializer
                 $"participant:{participant.ParticipantPartyId.Value}",
                 "Participant",
                 participant.ParticipantPartyId,
-                participant.OccurredAt ?? freshness.LastAppliedEventTimestamp,
+                participant.OccurredAt ?? anchor,
                 currentOrUnavailable,
                 citationAvailability,
                 auditReadiness,
@@ -384,7 +531,7 @@ public sealed class ConversationProjectionMaterializer
                 $"attachment:{file.FileId.Value}",
                 "Attachment",
                 null,
-                file.OccurredAt ?? freshness.LastAppliedEventTimestamp,
+                file.OccurredAt ?? anchor,
                 currentOrUnavailable,
                 citationAvailability,
                 auditReadiness,
@@ -543,7 +690,7 @@ public sealed class ConversationProjectionMaterializer
         private readonly Dictionary<PartyId, ConversationParticipantProjectionV1> _participants = [];
         private readonly Dictionary<FileId, long> _filePositions = [];
         private readonly Dictionary<PartyId, long> _participantPositions = [];
-        private readonly HashSet<string> _processedEventIds = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, ConversationReplayEventBinding> _bindings = new(StringComparer.Ordinal);
         private readonly Dictionary<string, long> _redactionPositions = new(StringComparer.Ordinal);
         private readonly Dictionary<string, ConversationRedactionProjectionV1> _redactions = new(StringComparer.Ordinal);
         private readonly Dictionary<string, long> _sensitivityPositions = new(StringComparer.Ordinal);
@@ -609,7 +756,20 @@ public sealed class ConversationProjectionMaterializer
             get; private set;
         }
 
-        public DateTimeOffset? LastAppliedTimestamp
+        /// <summary>
+        /// Gets the maximum validated selected replay time applied so far, normalized to UTC; null when no event
+        /// contributed a valid time.
+        /// </summary>
+        public DateTimeOffset? ReplayAnchorAt
+        {
+            get; private set;
+        }
+
+        /// <summary>
+        /// Gets whether an input carried a missing identity, a default/invalid time, or a reused identity bound to
+        /// different persisted content.
+        /// </summary>
+        public bool MetadataContradictory
         {
             get; private set;
         }
@@ -683,11 +843,26 @@ public sealed class ConversationProjectionMaterializer
             get; private set;
         }
 
+        public void MarkMetadataContradictory() => MetadataContradictory = true;
+
         public void Apply(ConversationProjectionEventRecord record)
         {
             if (record.Event is ConversationProjectionPositionOnlyEvent positionOnly)
             {
-                AdvancePosition(record.Position, positionOnly.Timestamp);
+                // AD-8: a position-only event's identity is its nonblank persisted message identity and its time
+                // is the envelope timestamp. Both are validated before duplicate suppression.
+                if (string.IsNullOrWhiteSpace(positionOnly.MessageId)
+                    || !ConversationProjectionEventDecoder.IsValidReplayTime(positionOnly.Timestamp))
+                {
+                    MetadataContradictory = true;
+                    return;
+                }
+
+                if (Admit(positionOnly.MessageId, record.ResolveBinding(positionOnly.Timestamp)))
+                {
+                    AdvancePosition(record.Position, positionOnly.Timestamp);
+                }
+
                 return;
             }
 
@@ -713,7 +888,16 @@ public sealed class ConversationProjectionMaterializer
                 return;
             }
 
-            if (!_processedEventIds.Add(metadata.EventId))
+            // AD-8: a contract event's identity is Metadata.EventId and its selected time is OccurredAt; the
+            // envelope timestamp is diagnostic only. Validation precedes duplicate suppression.
+            if (string.IsNullOrWhiteSpace(metadata.EventId)
+                || !ConversationProjectionEventDecoder.IsValidReplayTime(metadata.OccurredAt))
+            {
+                MetadataContradictory = true;
+                return;
+            }
+
+            if (!Admit(metadata.EventId, record.ResolveBinding(metadata.OccurredAt)))
             {
                 return;
             }
@@ -723,7 +907,7 @@ public sealed class ConversationProjectionMaterializer
                 HasOutOfOrderEvent = true;
             }
 
-            AdvancePosition(record.Position, metadata.CommittedAt);
+            AdvancePosition(record.Position, metadata.OccurredAt);
 
             try
             {
@@ -737,7 +921,27 @@ public sealed class ConversationProjectionMaterializer
             }
         }
 
-        private void AdvancePosition(long position, DateTimeOffset timestamp)
+        /// <summary>
+        /// Admits a validated identity once: an exact re-delivery is a no-op, and a reused identity whose full
+        /// binding differs is contradictory metadata rather than a silent duplicate.
+        /// </summary>
+        private bool Admit(string identity, ConversationReplayEventBinding binding)
+        {
+            if (_bindings.TryGetValue(identity, out ConversationReplayEventBinding existing))
+            {
+                if (existing != binding)
+                {
+                    MetadataContradictory = true;
+                }
+
+                return false;
+            }
+
+            _bindings[identity] = binding;
+            return true;
+        }
+
+        private void AdvancePosition(long position, DateTimeOffset selectedAt)
         {
             if (LastAppliedPosition == 0)
             {
@@ -759,7 +963,7 @@ public sealed class ConversationProjectionMaterializer
             }
 
             LastAppliedPosition = Math.Max(LastAppliedPosition, position);
-            LastAppliedTimestamp = MaxTimestamp(LastAppliedTimestamp, timestamp);
+            ReplayAnchorAt = MaxTimestamp(ReplayAnchorAt, selectedAt.ToUniversalTime());
         }
 
         private void Dispatch(ConversationProjectionEventRecord record)

@@ -5,10 +5,15 @@
 
 using Hexalith.Commons.TenantAccess;
 using Hexalith.Conversations.Server.Projections;
+using Hexalith.EventStore.Client.Projections;
+using Hexalith.EventStore.Client.Registration;
 using Hexalith.Tenants.Client.Registration;
+using Hexalith.Tenants.Contracts.Events;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Hexalith.Conversations.Server.TenantAccess;
 
@@ -35,7 +40,11 @@ public static class ConversationTenantAccessServiceCollectionExtensions
             IConversationTenantProjectionSignal,
             DefaultConversationTenantProjectionSignal,
             IConversationTenantAccessService,
-            ConversationTenantAccessService>(static services => services.AddHexalithTenants());
+            ConversationTenantAccessService>(static services =>
+            {
+                services.AddConversationTenantIndexInitializer(ConversationProjectionStoreOptions.Legacy);
+                services.AddHexalithTenants();
+            });
     }
 
     /// <summary>
@@ -91,6 +100,11 @@ public static class ConversationTenantAccessServiceCollectionExtensions
             IConversationTenantAccessService,
             ConversationTenantAccessService>(collection =>
             {
+                // Before every Tenants handler: the processor dispatches TenantCreated sequentially in registration
+                // order, so an in-order TenantCreated makes the index Ready before the tenant becomes healthy. Out of
+                // order, Tenants gap recovery replays TenantCreated from history without this handler; the index then
+                // stays missing until TenantCreated is delivered here (see ConversationTenantIndexInitializer).
+                collection.AddConversationTenantIndexInitializer(new ConversationProjectionStoreOptions(readModelStateStore));
                 collection.AddHexalithTenantsDurableProjection(readModelStateStore);
                 collection.AddHexalithTenants(options =>
                 {
@@ -100,4 +114,25 @@ public static class ConversationTenantAccessServiceCollectionExtensions
             });
     }
 
+    /// <summary>
+    /// Registers the <c>TenantCreated</c> handler that initializes the tenant's Conversations index (AD-7).
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="fallbackStoreOptions">The component binding used when the host registered no index writer.</param>
+    /// <remarks>
+    /// The handler asks the host's <see cref="ConversationProjectionReadModelWriter"/>, the only author of index
+    /// transitions; a composition without the query boundary gets one over the same read-model store binding.
+    /// </remarks>
+    private static void AddConversationTenantIndexInitializer(
+        this IServiceCollection services,
+        ConversationProjectionStoreOptions fallbackStoreOptions)
+    {
+        services.TryAddScoped(provider => new ConversationTenantIndexInitializer(
+            provider.GetService<ConversationProjectionReadModelWriter>()
+                ?? new ConversationProjectionReadModelWriter(
+                    provider.GetService<ConversationProjectionStoreOptions>() ?? fallbackStoreOptions,
+                    provider.GetRequiredService<IReadModelStore>(),
+                    provider.GetService<ILogger<ConversationProjectionReadModelWriter>>())));
+        services.AddEventStoreDomainEventHandler<TenantCreated, ConversationTenantIndexInitializer>();
+    }
 }

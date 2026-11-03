@@ -320,6 +320,7 @@ jobs:
             -class- "Hexalith.Conversations.Conformance.Tests.OqTwoTargetInterpretationDecisionValidationTest" \
             -class- "Hexalith.Conversations.Conformance.Portable.Tests.PortableCompileSurfaceValidationTest" \
             -method- "Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest.AFailingProofResultMustBlockStoryCompletion" \
+            -method- "Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest.Ac5AndAc6ClaimsShouldBeBoundToPassingMachineReadableRuns" \
             -method- "Hexalith.Conversations.Conformance.Tests.SmC2BaselineReconstructionValidationTest.BaselineShouldRecordAnAuditableReconstructionMethod" \
             -parallelMode none \
             -result-trx TestResults/conformance/portable.trx \

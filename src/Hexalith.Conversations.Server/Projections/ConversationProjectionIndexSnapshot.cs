@@ -24,10 +24,14 @@ namespace Hexalith.Conversations.Server.Projections;
 /// current, but it may still return the rows it does hold — omission degrades freshness, it does not
 /// invalidate unrelated conversations.
 /// </para>
+/// <para>
+/// <see cref="ReadState"/> carries how the read store mapped the persisted lifecycle record (AD-7). A snapshot
+/// built without one describes an initialized (<c>Ready</c>) tenant index.
+/// </para>
 /// </remarks>
 public sealed record ConversationProjectionIndexSnapshot
 {
-    /// <summary>Gets the empty snapshot used when a tenant has no persisted index yet.</summary>
+    /// <summary>Gets the snapshot of an initialized (<c>Ready</c>) tenant index that holds no conversation.</summary>
     public static ConversationProjectionIndexSnapshot Empty { get; } = new();
 
     /// <summary>Gets the candidate summaries recorded in the tenant index.</summary>
@@ -42,4 +46,10 @@ public sealed record ConversationProjectionIndexSnapshot
     /// yet reflect, so the tenant may be holding an accepted conversation that no page can show.
     /// </summary>
     public bool HasIncompleteDispatch { get; init; }
+
+    /// <summary>Gets how the read store mapped the persisted lifecycle record; <c>Ready</c> by default.</summary>
+    internal ConversationProjectionIndexReadState ReadState { get; init; }
+
+    /// <summary>Gets the snapshot of an authorized tenant whose index record does not exist.</summary>
+    internal static ConversationProjectionIndexSnapshot Missing { get; } = new() { ReadState = ConversationProjectionIndexReadState.Missing };
 }

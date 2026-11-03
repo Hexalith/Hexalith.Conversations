@@ -8,8 +8,10 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
+using Hexalith.Commons.UniqueIds;
 using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Contracts.Queries;
 using Hexalith.Conversations.Contracts.TrustStates;
 using Hexalith.Conversations.Contracts.Versioning;
@@ -18,9 +20,11 @@ using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.EventStore.Client.Projections;
+using Hexalith.EventStore.Client.Subscriptions;
 using Hexalith.EventStore.Contracts.Projections;
 using Hexalith.EventStore.DomainService;
 using Hexalith.EventStore.Testing.Fakes;
+using Hexalith.Tenants.Contracts.Events;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -50,12 +54,20 @@ public sealed class ConversationProjectionReadStorePopulationLiveTests
     private static readonly PartyId Actor = new("party-live-actor");
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
+    // One authoritative history: every dispatch and the full replay below project the same persisted event, so
+    // deterministic replay (AD-8) must reproduce its event-derived timestamps exactly.
+    private static readonly DateTimeOffset OccurredAt = DateTimeOffset.UtcNow;
+
     [Fact]
     public async Task ProductionDispatchShouldPopulateExactKeysAndCurrentDetailListQueries()
     {
         InMemoryReadModelStore store = new();
         await using WebApplication app = ComposeProductionBoundary(store);
         using IServiceScope scope = app.Services.CreateScope();
+
+        // Story 16.2 / AD-7: TenantCreated initializes the tenant's index Ready(empty); the first conversation of an
+        // initialized tenant then lists as Current.
+        await InitializeTenantAsync(scope.ServiceProvider);
         ProjectionDispatchRequest request = DispatchRequest("dispatch-live-001");
         DomainProjectionCatalogRegistry catalog = RegisterCatalog(scope.ServiceProvider, request.CatalogFingerprint);
 
@@ -102,6 +114,7 @@ public sealed class ConversationProjectionReadStorePopulationLiveTests
         InMemoryReadModelStore store = new();
         await using WebApplication app = ComposeProductionBoundary(store);
         using IServiceScope scope = app.Services.CreateScope();
+        await InitializeTenantAsync(scope.ServiceProvider);
         ProjectionDispatchRequest appendRequest = DispatchRequest("dispatch-live-before-delete");
         DomainProjectionCatalogRegistry catalog = RegisterCatalog(scope.ServiceProvider, appendRequest.CatalogFingerprint);
 
@@ -127,15 +140,12 @@ public sealed class ConversationProjectionReadStorePopulationLiveTests
         deletedDetail.FreshnessState.ShouldNotBe(ProjectionTrustState.Current);
         deletedDetail.Details.ShouldBeNull();
 
-        // The list reports an empty tenant. This is the deliberate trade-off behind treating an absent index as
-        // an empty tenant rather than an inconsistency: a read store cannot distinguish "derived state was
-        // erased" from "this tenant has never held a conversation" without consulting EventStore, and queries
-        // are forbidden from replaying. The alternative — failing closed on an absent index — left every new
-        // tenant permanently Rebuilding with an empty page. Convergence is proven by the rebuild below.
-        // The freshness state is asserted so the v2 proof's transcribed listQueryState stays bound to a
-        // measured value instead of drifting from the production behaviour.
+        // Story 16.2 / AD-7: the erased index was the tenant's only lifecycle record. An authorized tenant without
+        // it is Unavailable, never an empty Current page (the pass-10 D3 limitation is closed: TenantCreated now
+        // writes the record at first use, so a missing record means destroyed state, not an empty tenant).
         deletedList.Conversations.ShouldBeEmpty();
-        deletedList.FreshnessState.ShouldBe(ProjectionTrustState.Current);
+        deletedList.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
+        deletedList.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.Unavailable);
 
         ProjectionDispatchRequest rebuildRequest = DispatchRequest("rebuild-live-001");
         ProjectionDispatchResponse rebuilt = await DomainProjectionDispatcher.RebuildAsync(
@@ -151,9 +161,13 @@ public sealed class ConversationProjectionReadStorePopulationLiveTests
 
         (ConversationDetailResult afterDetail, ConversationListResult afterList) = await QueryAsync(scope.ServiceProvider);
         afterDetail.FreshnessState.ShouldBe(ProjectionTrustState.Current);
-        afterList.FreshnessState.ShouldBe(ProjectionTrustState.Current);
         afterDetail.Details.ShouldNotBeNull();
         afterList.Conversations.ShouldHaveSingleItem();
+
+        // Rebuilding one conversation recreates the index but cannot prove tenant-wide coverage, so the restored
+        // index is Rebuilding (only TenantCreated creates Ready; tenant-wide rebuild adoption is a follow-up).
+        afterList.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        afterList.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.Rebuilding);
 
         // AC6 demands an EQUIVALENT per-conversation record, not merely a matching identity and position:
         // the whole rebuilt detail record and the whole rebuilt index row are compared field-for-field, so a
@@ -164,90 +178,6 @@ public sealed class ConversationProjectionReadStorePopulationLiveTests
         CanonicalizeWithoutCaptureTimes(afterList.Conversations[0]).ShouldBe(
             CanonicalizeWithoutCaptureTimes(beforeList.Conversations[0]),
             "the rebuilt tenant index row must be equivalent to the pre-deletion row");
-
-        AssertKnownTimestampReproductionGap(beforeDetail.Details, afterDetail.Details);
-    }
-
-    /// <summary>
-    /// Pins a KNOWN, DISCLOSED DEFECT so it cannot be silently fixed or silently forgotten (pass-10 review).
-    /// <para>
-    /// A full replay does not reproduce the projection's timestamps.
-    /// <c>ConversationProjectionMaterializer.cs:127</c> computes
-    /// <c>builder.LastAppliedTimestamp ?? projectionGeneratedAt</c> and stamps wall-clock time when the
-    /// applied events carry no usable timestamp, and <c>:324</c>/<c>:382</c> resolve participant and
-    /// file-reference <c>occurredAt</c> as <c>OccurredAt ?? freshness.LastAppliedEventTimestamp</c>, so the
-    /// instability propagates into fields the projection contract documents as domain content. Measured on
-    /// 2026-07-31: the pre-deletion value was itself a wall-clock instant, so this path is not event-derived
-    /// at all.
-    /// </para>
-    /// <para>
-    /// Because of that, the equivalence comparison above comes in STRUCTURALLY on <c>occurredAt</c>: it still
-    /// fails on a dropped, added, duplicated, or reordered item, but tolerates a differing instant. This
-    /// assertion is the counterweight — when production is fixed to reproduce event-derived timestamps, THIS
-    /// test goes red, which is the prompt to tighten the comparison above from structural to exact and delete
-    /// this method. A green run here means the gap is still open, not that convergence is complete.
-    /// </para>
-    /// </summary>
-    /// <param name="before">The pre-deletion detail record.</param>
-    /// <param name="after">The rebuilt detail record.</param>
-    private static void AssertKnownTimestampReproductionGap(object? before, object? after)
-    {
-        string beforeStamp = ExtractLastAppliedEventTimestamp(before);
-        string afterStamp = ExtractLastAppliedEventTimestamp(after);
-
-        beforeStamp.ShouldNotBeNullOrWhiteSpace();
-        afterStamp.ShouldNotBeNullOrWhiteSpace();
-        afterStamp.ShouldNotBe(
-            beforeStamp,
-            "KNOWN GAP CLOSED: the replayed projection now reproduces lastAppliedEventTimestamp. Production "
-            + "convergence improved, so tighten CanonicalizeWithoutCaptureTimes to compare occurredAt exactly "
-            + "instead of structurally, and delete AssertKnownTimestampReproductionGap.");
-    }
-
-    private static string ExtractLastAppliedEventTimestamp(object? value)
-    {
-        JsonNode node = JsonSerializer.SerializeToNode(value, JsonOptions)
-            ?? throw new InvalidOperationException("The projection record serialized to null.");
-        return FindFirstProperty(node, "lastAppliedEventTimestamp")
-            ?? throw new InvalidOperationException(
-                "The detail record carries no lastAppliedEventTimestamp; the known-gap guard can no longer "
-                + "observe what it exists to pin.");
-    }
-
-    private static string? FindFirstProperty(JsonNode node, string propertyName)
-    {
-        switch (node)
-        {
-            case JsonObject jsonObject:
-                if (jsonObject.TryGetPropertyValue(propertyName, out JsonNode? found) && found is not null)
-                {
-                    return found.ToJsonString();
-                }
-
-                foreach (KeyValuePair<string, JsonNode?> child in jsonObject)
-                {
-                    if (child.Value is not null && FindFirstProperty(child.Value, propertyName) is { } nested)
-                    {
-                        return nested;
-                    }
-                }
-
-                return null;
-
-            case JsonArray jsonArray:
-                foreach (JsonNode? item in jsonArray)
-                {
-                    if (item is not null && FindFirstProperty(item, propertyName) is { } nested)
-                    {
-                        return nested;
-                    }
-                }
-
-                return null;
-
-            default:
-                return null;
-        }
     }
 
     private static string CanonicalizeWithoutCaptureTimes<T>(T value)
@@ -263,37 +193,17 @@ public sealed class ConversationProjectionReadStorePopulationLiveTests
         switch (node)
         {
             case JsonObject jsonObject:
-                // Genuine capture-time metadata: legitimately fresh on every projection run.
-                //
-                // `lastAppliedEventTimestamp` is here as a DISCLOSED WEAKNESS, not a provenance claim. A full
-                // replay does not reproduce it — ConversationProjectionMaterializer.cs:127 computes
-                // `builder.LastAppliedTimestamp ?? projectionGeneratedAt` and stamps wall clock when the
-                // applied events carry no usable timestamp. See AssertKnownTimestampReproductionGap, which
-                // pins that defect so it cannot be fixed or forgotten silently (pass-10 review).
+                // Only genuine observation metadata is removed: it is legitimately fresh on every projection run.
+                // Story 16.2 / AD-8 closed the pass-10 timestamp-reproduction gap: lastAppliedEventTimestamp is the
+                // replay anchor and every occurredAt is event-derived, so both are now compared exactly and a
+                // dropped, added, reordered or re-dated item fails the equivalence.
                 foreach (string property in new[]
                          {
                              "projectionGeneratedAt",
                              "lagDuration",
-                             "lastEvaluatedAt",
-                             "lastAppliedEventTimestamp",
                          })
                 {
                     _ = jsonObject.Remove(property);
-                }
-
-                // `occurredAt` is compared STRUCTURALLY rather than stripped. It is domain content on
-                // participants, file references, citations, and evidence entries — and the field the
-                // materializer sorts evidence by — so removing it at every nesting depth (the pre-pass-10
-                // behaviour) let a replay that dropped or reordered an item pass as convergence. Comparing it
-                // exactly is not yet possible because :324/:382 resolve it as
-                // `OccurredAt ?? freshness.LastAppliedEventTimestamp`, inheriting the wall-clock instability
-                // above. Reducing it to a set/null token keeps every structural difference fatal — a dropped,
-                // added, duplicated, or reordered item still fails, and so does a null/non-null flip — while
-                // tolerating a differing instant. RESIDUAL GAP: an item dropped and restored with a different
-                // timestamp still passes. Tighten this to an exact comparison when the known gap closes.
-                if (jsonObject.TryGetPropertyValue("occurredAt", out JsonNode? occurredAt))
-                {
-                    jsonObject["occurredAt"] = JsonValue.Create(occurredAt is null ? "<null>" : "<set>");
                 }
 
                 foreach (KeyValuePair<string, JsonNode?> child in jsonObject.ToList())
@@ -334,8 +244,38 @@ public sealed class ConversationProjectionReadStorePopulationLiveTests
         builder.Services.AddSingleton<IReadModelBatchStore>(store);
         builder.Services.AddSingleton<IReadModelBatchStagingStore>(store);
         builder.Services.AddSingleton<IConversationTenantAccessService>(new AllowTenantAccessService());
+
+        // The tenant-access registration contributes the TenantCreated index initializer; the explicit allow-all
+        // access service above is kept because the registration only adds it when absent.
+        builder.Services.AddConversationTenantAccess();
         builder.Services.AddConversationQueries(builder.Configuration);
         return builder.Build();
+    }
+
+    /// <summary>Delivers the tenant's <c>TenantCreated</c> through the production consumer processor.</summary>
+    /// <param name="services">The scoped services.</param>
+    /// <returns>A task.</returns>
+    private static async Task InitializeTenantAsync(IServiceProvider services)
+    {
+        TenantCreated created = new(Tenant.Value, "Live population tenant", null, OccurredAt);
+        EventStoreDomainEventEnvelope envelope = new(
+            UniqueIdHelper.GenerateSortableUniqueStringId(),
+            Tenant.Value,
+            "system",
+            typeof(TenantCreated).FullName!,
+            1,
+            OccurredAt,
+            UniqueIdHelper.GenerateSortableUniqueStringId(),
+            "json",
+            JsonSerializer.SerializeToUtf8Bytes(created))
+        {
+            Domain = "tenants",
+            UserId = "tenants-producer",
+        };
+
+        (await services.GetRequiredService<EventStoreDomainEventProcessor>()
+                .ProcessAsync(envelope, TestContext.Current.CancellationToken))
+            .ShouldBe(EventStoreDomainEventProcessingResult.Processed);
     }
 
     private static DomainProjectionCatalogRegistry RegisterCatalog(IServiceProvider services, string fingerprint)
@@ -354,7 +294,7 @@ public sealed class ConversationProjectionReadStorePopulationLiveTests
             new(ConversationProjectionHandler.ConversationDomain, ProjectionType),
         ];
         string fingerprint = ProjectionRouteCatalogFingerprint.Compute(AppId, ServiceVersion, routes);
-        DateTimeOffset occurredAt = DateTimeOffset.UtcNow;
+        DateTimeOffset occurredAt = OccurredAt;
         ConversationCreated created = new(
             new ConversationEventMetadata(
                 SchemaVersion.Current,

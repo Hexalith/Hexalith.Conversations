@@ -42,12 +42,14 @@ public interface IConversationProjectionReadStore
     /// <param name="tenantId">The tenant binding.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>
-    /// The index snapshot. A tenant with no persisted index yields
-    /// <see cref="ConversationProjectionIndexSnapshot.Empty"/> rather than an error: having no conversations is
-    /// not a cross-key inconsistency.
+    /// The index snapshot and how its persisted lifecycle record maps (AD-7): a version 2 <c>Ready</c> index is the
+    /// only record that can report a current page, including a current empty page for an initialized tenant
+    /// without conversations; a version 1 or <c>Rebuilding</c> index reads as rebuilding, a lifecycle or
+    /// source-position gap as a detected gap, and a missing index as unavailable. Reads never write.
     /// </returns>
     /// <exception cref="ConversationProjectionConsistencyException">
-    /// Thrown only when the index itself is structurally corrupt, such as naming one conversation twice.
+    /// Thrown when the index is structurally corrupt or its lifecycle record is contradictory, such as naming one
+    /// conversation twice or carrying an unknown lifecycle.
     /// </exception>
     ValueTask<ConversationProjectionIndexSnapshot> ListAsync(
         TenantId tenantId,

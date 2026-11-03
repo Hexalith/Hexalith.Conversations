@@ -10,6 +10,7 @@ using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Contracts.Queries;
 using Hexalith.Conversations.Contracts.TrustStates;
+using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.Conversations.Server.Hydration;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.TenantAccess;
@@ -251,15 +252,16 @@ public sealed class ConversationQueryHandler
         }
         catch (ConversationProjectionConsistencyException)
         {
-            return new ConversationListResult(
-                query.SchemaVersion,
-                ProjectionTrustState.Rebuilding,
-                ProjectionFreshnessReasonCode.MixedGeneration,
-                [],
-                new ConversationPageMetadata(0),
-                "Retry after the read model finishes rebuilding.");
+            // A duplicated entry or a contradictory lifecycle record: nothing taken from it can be trusted.
+            return ContradictoryList(query.SchemaVersion);
         }
         catch (Exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            return ConversationListResult.Unavailable(query.SchemaVersion);
+        }
+
+        // AD-7: an authorized tenant without its lifecycle record is unavailable, never an empty current page.
+        if (snapshot.ReadState == ConversationProjectionIndexReadState.Missing)
         {
             return ConversationListResult.Unavailable(query.SchemaVersion);
         }
@@ -309,13 +311,7 @@ public sealed class ConversationQueryHandler
         }
         catch (ConversationProjectionConsistencyException)
         {
-            return new ConversationListResult(
-                query.SchemaVersion,
-                ProjectionTrustState.Rebuilding,
-                ProjectionFreshnessReasonCode.MixedGeneration,
-                [],
-                new ConversationPageMetadata(0),
-                "Retry after the read model finishes rebuilding.");
+            return ContradictoryList(query.SchemaVersion);
         }
         catch (Exception) when (!cancellationToken.IsCancellationRequested)
         {
@@ -359,9 +355,19 @@ public sealed class ConversationQueryHandler
                 ConversationListCursor.EncodePosition(offset + selected.Count, _timeProvider.GetUtcNow(), projectionGenerationToken))
             : null;
 
-        (ProjectionTrustState state, ProjectionFreshnessReasonCode reason) = partialGeneration
-            ? (ProjectionTrustState.Rebuilding, ProjectionFreshnessReasonCode.MixedGeneration)
-            : AggregateFreshness(accessibleMatches);
+        // The lifecycle record decides whether this page may be current at all: only a Ready index covers the
+        // whole tenant. Proven rows are still returned while it is rebuilding or gapped.
+        (ProjectionTrustState state, ProjectionFreshnessReasonCode reason) = snapshot.ReadState switch
+        {
+            ConversationProjectionIndexReadState.Rebuilding
+                => (ProjectionTrustState.Rebuilding, ProjectionFreshnessReasonCode.Rebuilding),
+            ConversationProjectionIndexReadState.GapDetected
+                => (ProjectionTrustState.Rebuilding, ProjectionFreshnessReasonCode.GapDetected),
+            _ when partialGeneration
+                => (ProjectionTrustState.Rebuilding, ProjectionFreshnessReasonCode.MixedGeneration),
+            _ => AggregateFreshness(accessibleMatches),
+        };
+        bool retryAfterRebuild = partialGeneration || snapshot.ReadState != ConversationProjectionIndexReadState.Ready;
 
         return new ConversationListResult(
             query.SchemaVersion,
@@ -369,7 +375,7 @@ public sealed class ConversationQueryHandler
             reason,
             page,
             new ConversationPageMetadata(page.Count, nextCursor),
-            partialGeneration
+            retryAfterRebuild
                 ? "Retry after the read model finishes rebuilding."
                 : page.Count == 0
                 ? "No accessible matches."
@@ -377,6 +383,15 @@ public sealed class ConversationQueryHandler
                 ? "Accessible results are complete for the supplied filters."
                 : "Use the cursor only with the same tenant, caller, filters, and ordering.");
     }
+
+    private static ConversationListResult ContradictoryList(SchemaVersion schemaVersion)
+        => new(
+            schemaVersion,
+            ProjectionTrustState.Unavailable,
+            ProjectionFreshnessReasonCode.MetadataContradictory,
+            [],
+            new ConversationPageMetadata(0),
+            "Retry after the read model is available.");
 
     private static bool MatchesFilter(ConversationSummaryProjectionV1 summary, ConversationListFilterV1 filter)
         => MatchesBusinessReference(summary.BusinessReference, filter.BusinessReference)

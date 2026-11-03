@@ -474,3 +474,70 @@ Result: **pending**. Story 16.1 entry remains null, trust empty, draft/backlog a
 `ACTIVE` hold unchanged. The latest six contract commands FAIL on source drift;
 earlier BLOCKED results remain historical. No runtime
 receipt/final pair or human acceptance is supplied by this source slice.
+
+## Story 16.2 read-state change — 2026-11-03
+
+The tenant conversation index (`projection:conversations-index:{base64url(tenantId)}`)
+is now the tenant's only Conversations lifecycle record. Schema version 2 holds
+the lifecycle, per-conversation watermarks, entries and dispatch references in
+one compare-and-swap value. The tenants `TenantCreated` delivery creates it
+`Ready` and empty, create-only, before the Tenants projection handler runs. If
+that write fails, the delivery fails and is retried. With in-order delivery the
+tenant therefore stays unauthorized until its index exists.
+
+Out of order, that guarantee does not hold. When a later tenant event arrives
+before `TenantCreated`, the Tenants projection records the gap and recovers
+`TenantCreated` from gateway history without the Conversations initializer, so
+the tenant can become healthy with no index. Its list then reads `Unavailable`
+until `TenantCreated` itself is delivered. If a conversation is delivered first,
+the index becomes `Rebuilding` and stays so until the deferred tenant-wide
+rebuild.
+
+List reads map the record without writing:
+
+| Index state for an authorized tenant | List result | REST list status |
+| --- | --- | --- |
+| version 2 `Ready`, no conversations, no pending dispatch | `Current` / `current`, empty page | 200 |
+| version 1 or version 2 `Rebuilding` | `Rebuilding` / `rebuilding`, proven rows still returned | 200 |
+| lifecycle or source-position gap in a `Ready` index | `Rebuilding` / `gap_detected` | 200 |
+| missing index, or state-store failure | `Unavailable` / `unavailable` | 503 |
+| duplicated entries or contradictory lifecycle record | `Unavailable` / `metadata_contradictory` | 503 |
+
+A missing or contradictory index now returns HTTP 503 from the REST list, where
+it returned 200 before (an empty current page, or `Rebuilding` for duplicates).
+Unauthorized and nonexistent tenants still read `Forbidden` before any index
+read. Detail reads are unchanged.
+
+Replay takes identity and time only from validated event inputs. A missing
+identity or time, an identity reused with a different binding, or a generation
+instant earlier than the replay anchor maps to `Unavailable` /
+`metadata_contradictory`. Non-current freshness of that kind, and freshness with
+no replay anchor at all, publishes `LastAppliedEventTimestamp` =
+`1970-01-01T00:00:00Z` with a null lag. The named projection route never
+persists it.
+
+Tenants created before Story 16.2 have a version 1 index or none. Their next
+conversation delivery rewrites a version 1 index, or creates a missing one, as
+version 2 `Rebuilding`; until then a missing index reads `Unavailable`. These
+tenants never become `Ready`: a redelivered `TenantCreated` leaves an existing
+index unchanged, and a per-conversation rebuild cannot prove tenant-wide
+coverage. Adopting the EventStore tenant shared rebuild is a follow-up story;
+until it lands these states are truthful. Do not hand-create or edit index
+records.
+
+Story 16.2 owner actions:
+
+- [ ] Platform keeps `projection:conversations-index:*` keys under the same
+  no-expiry, no-eviction, create-only-capable state-store terms as the tenant
+  projection records. An evicted or lost index makes its tenant list
+  `Unavailable`, and a state-store restore that loses one stays that way until
+  the follow-up rebuild exists.
+- [ ] The tenants subscription's unlimited retry, without dead-lettering (Story
+  16.1), now also covers index initialization.
+
+Story 16.2 rollback: restore the previous Server build. Version 1 readers ignore
+the version 2 fields and read a missing index as an empty current tenant again
+(limitation D3). Keep the index keys; the restored writer rewrites them as
+version 1 on its next delivery. On roll-forward, indexes the old writer rewrote
+as version 1 read `Rebuilding`, and tenants created during the rollback window
+have no index and read `Unavailable` until the follow-up rebuild.

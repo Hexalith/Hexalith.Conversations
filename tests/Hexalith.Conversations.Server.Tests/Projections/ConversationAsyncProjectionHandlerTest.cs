@@ -328,7 +328,8 @@ public sealed class ConversationAsyncProjectionHandlerTest
             "json",
             1,
             rejectionTimestamp,
-            "correlation");
+            "correlation",
+            MessageId: "message-rejection-001");
         ProjectionRequest rejectionOnly = new(
             Tenant.Value,
             ConversationProjectionHandler.ConversationDomain,
@@ -806,7 +807,8 @@ public sealed class ConversationAsyncProjectionHandlerTest
                     "json",
                     2,
                     rejectionTimestamp,
-                    "correlation"),
+                    "correlation",
+                    MessageId: "message-rejection-002"),
             ]);
     }
 
