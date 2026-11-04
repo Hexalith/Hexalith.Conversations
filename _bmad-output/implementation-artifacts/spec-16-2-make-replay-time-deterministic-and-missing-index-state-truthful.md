@@ -198,6 +198,43 @@ Review pass 1 (2026-11-03; blind hunter B, edge-case hunter E, verification gap 
 | E10 | A null `MessageId` never projects | false | A frozen matrix row; `ProjectionEventWireBuilder` copies the required envelope `MessageId` | reject |
 | E15 | A set behind an `IEnumerable` member is undetected | false | No projection contract member has such a type | reject |
 
+### Review Findings
+
+Review pass 2 (2026-11-04) covered `61711c3a..eea3a881` with four reviewers: blind hunter, edge-case hunter, verification gap, and acceptance auditor.
+
+- [x] [Review][Defer] A redelivered `TenantCreated` after index loss recreates `Ready(empty)` [src/Hexalith.Conversations.Server/Projections/ConversationTenantIndexInitializer.cs:58] — deferred: Jerome chose option 3 on 2026-11-04. The guard belongs to the tenant shared-rebuild follow-up (decision 2). A Tenants-checkpoint guard would break the frozen "Tenants state deciding emptiness" rule and stop a late `TenantCreated` from creating a missing index after E13 gap recovery. A Dapr marker store would narrow the hole host-wide without closing it. The handoff claim is corrected now.
+  - The create-only initializer cannot tell a first `TenantCreated` from a replayed one.
+  - The host uses EventStore's default `InMemoryEventStoreDomainEventMarkerStore`: no Conversations or Tenants source calls `AddDaprEventStoreDomainEventMarkerStore`. After a restart, a redelivered or replayed `TenantCreated` therefore runs the handler again.
+  - If the index key is gone at that point (erased, evicted, or lost in a restore), the empty-ETag write succeeds. It creates v2 `Ready(empty)` for a tenant that may still have conversation detail keys, so the list reads `Current` and empty. Later live deliveries merge into `Ready` with partial coverage. This brings back the D3 false-current page.
+  - It also contradicts the handoff owner action, which says a lost index "stays that way until the follow-up rebuild exists".
+  - Untested: `ErasedIndexShouldListAsUnavailable` stops before any redelivery, and the unit redelivery test returns `Duplicate` before reaching the handler.
+  - Sources: blind hunter, edge-case hunter. Verdict: medium.
+- [x] [Review][Patch] Correct the handoff's lost-index claim: a lost index reads `Unavailable` only until `TenantCreated` is delivered again (decision resolution, applied 2026-11-04). [module/platform-handoff.md:532]
+- [x] [Review][Patch] The REST list status for each lifecycle state is never checked over HTTP. Add `ConversationReadApiTest` list cases: missing index gives 503 `Unavailable`/`unavailable`; contradictory gives 503 `metadata_contradictory`; `Rebuilding` gives 200 with rows. The fake `ListAsync` always returns a `Ready` snapshot. [tests/Hexalith.Conversations.Server.Tests/Api/ConversationReadApiTest.cs:948]
+- [x] [Review][Patch] A page-verification bulk-provider fault maps to `metadata_contradictory`, where the frozen matrix says "provider failure → `Unavailable`/`unavailable`". In `ValidatePageAsync`, only `BulkReadAsync` throws, when the bulk store returns a wrong-sized, duplicated, or unrequested key set. [src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs:314] Applied: the page-verification catch now falls through to `unavailable`, and `PageValidationConsistencyFailureShouldReturnMetadataContradictory` became `PageValidationBulkProviderFaultShouldReturnUnavailable`. This supersedes the Implementation Notes line saying both consistency tests expect `metadata_contradictory`; only the list-read test still does.
+- [x] [Review][Patch] The initializer redelivery test never reaches the initializer. The same-`MessageId` redelivery returns `Duplicate` from the in-memory marker, so `second.ETag.ShouldBe(first.ETag)` holds trivially. Assert `Duplicate`, and redeliver with a fresh `MessageId` so the handler runs against the existing index. [tests/Hexalith.Conversations.Server.Tests/TenantAccess/ConversationTenantIndexInitializerTest.cs:75]
+- [x] [Review][Patch] The live first-conversation test can read `Stale`. Its `ConversationCreated.OccurredAt` is the static `At`, captured when the type initializes, and Story 16.1 tests trigger that through `TenantIndexKey`. If more than 5 minutes pass before the conversation is projected, the default 5-minute stale threshold fails the `Current` assertion. Capture the time per replica. [tests/Hexalith.Conversations.IntegrationTests/Epic16/Story16_2TenantIndexLiveTests.cs:48]
+- [x] [Review][Patch] The AC1 determinism test is narrow. It replays only a created event and one rejection, so the participant, attachment, message, redaction, and sensitivity anchor paths never run under two clocks. Its bytes assertion compares `BuildReplayState` with itself. Widen the history and drop the tautology. [tests/Hexalith.Conversations.Server.Tests/Projections/ConversationReplayDeterminismTest.cs:284]
+- [x] [Review][Patch] The AC2 write ledger skips the `Forbidden` row. `QueryPathsShouldNeverWriteInAnyState` covers list, detail, and advisory in nine states, but `Forbidden` is ledger-checked for list only. [tests/Hexalith.Conversations.Server.Tests/Queries/ConversationTenantIndexReadMatrixTest.cs:114]
+- [x] [Review][Patch] The deferred-work entry for Story 16.2's failure response is still open, although 16.2 resolved it with the `NoReplayAnchor` envelope. Append a superseding resolution note, following the ledger convention. [_bmad-output/implementation-artifacts/deferred-work.md:1204]
+
+Rejected (pass 2):
+
+- **The CI exclusion leaves a deterministic evidence failure** (blind hunter, acceptance auditor). Low. A `ci.yml` exclusion is the owner-policy way to retire freeze checks (2026-10-07 and 2026-10-23), and `AFailingProofResultMustBlockStoryCompletion` is a precedent. The exclusion is disclosed in the Implementation Notes. Going further would change the evidence-validation class, which the notes keep unchanged.
+- **Spec `done` disagrees with sprint `review`, and `review_loop_iteration` is 0** (blind hunter, acceptance auditor, edge-case hunter). The fix edits the spec under review, and this workflow's status sync sets both.
+- **The pass-1 rejection rationale is contradicted, and the Spec Change Log is empty** (blind hunter). The fix edits the spec.
+- **`SafeNextAction` promises a repair that never happens** (blind hunter). Low. "Rebuilding" is the existing wording for a rebuilding state. A gap clears on that conversation's next delivery. The handoff documents that pre-16.2 tenants wait for the follow-up rebuild.
+- **The handoff has no owner action for the 200 → 503 change** (blind hunter). Low. The pre-16.2 paragraph and the REST status table already disclose it, and decision 2 accepted it.
+- **The buyer demo's find step fails for legacy tenants** (blind hunter). Low. Reporting such a tenant as non-current is truthful under decision 2.
+- **Missing `metadata` maps to `rebuilding` but missing `eventId` maps to contradictory** (blind hunter, edge-case hunter). Low. It needs a corrupt contract payload, and only on the sync seam. Both outcomes are non-current and fail closed; the async path rejects either way. The fix adds a branch.
+- **The Results cannot be traced to a run** (blind hunter). The fix edits the spec. Routine-path proof is native xUnit only (decision 1).
+- **The epoch sentinel was chosen without sign-off** (acceptance auditor). Low, and the fix edits the spec. With `ProjectionFreshnessV1` unchanged, it is the only value that avoids both a clock fallback and a clamp. The frozen row (unclamped generation time, null lag) holds, and it is disclosed in the Implementation Notes and the handoff (pass-1 B5 and B6).
+- **The initializer task does not close the out-of-order race** (acceptance auditor). Already triaged as pass-1 E13: the claims were corrected and the race deferred in `deferred-work.md`. The remaining "closes the race" wording is in the Design Notes, so fixing it edits the spec.
+- **The writer repairs a v2 record that has no watermarks** (acceptance auditor). Low. Only corruption produces that shape, because `Compose` always writes watermarks. The fix adds a branch (pass-1 V5).
+- **`ReadState` defaults to `Ready` on the public read-store seam** (acceptance auditor). Low. No alternative `IConversationProjectionReadStore` exists, and a custom store already had D3 semantics. A fail-closed default would change the public `Empty` and every fake (pass-1 B1 and E6).
+- **The parameterless overload throws without an `IReadModelStore`** (edge-case hunter). Low. No composition lacks a store: `Program.cs` uses the configured overload, and the tests register one. The fix adds a guard.
+- **A `TenantCreated` with a null `Domain` skips the initializer on the in-memory Tenants path, and the comment claims otherwise** (edge-case hunter). Low. EventStore publishers set `Domain`, and the in-memory overload is not the production path. The outcome fails closed (`Unavailable`), and the fix adds a branch.
+
 ## Design Notes
 
 Replay state is the materialized detail and summary with observation freshness removed. It keeps `LastAppliedEventPosition` and `ReplayAnchorAt`. `ReplayStateHash` is the lowercase-hex SHA-256 of `ReadModelBatchCanonicalJson.Serialize(state)`.
@@ -228,3 +265,15 @@ The `TenantCreated` initializer runs before the Tenants handler, because the pro
 - `python3 scripts/check-root-submodules.py --repository .` passed, `git diff --check` is clean, and no gitlink moved from `61711c3a`.
 - The evidence-boundary gate is **not-applicable**: this spec requires no evidence-boundary verification, so the routine current-change checks apply.
 - The v9 story completion gate (`_bmad-output/planning-artifacts/v9/story-contracts/16.2.json`) is **waived** by 2026-11-03 decision 1 (native xUnit proof only). It was not run, and no final-record pair was generated or inserted. It is recorded as waived, never as PASS.
+
+**Results (2026-11-04, after review pass 2):** These lanes ran from directly invoked Debug assemblies in source-mapped mode (mapping hash `84b68a30…`), each with a TRX file. Every lane passed with zero failed and zero skipped:
+
+| Lane | Passed |
+| --- | --- |
+| Server | 1675 (four new cases: three over HTTP, one `Forbidden` ledger) |
+| Integration (live Dapr and Redis) | 39 |
+| Portable conformance, with CI's exclusions | 296 |
+| Internal conformance, with CI's exclusions | 90 |
+
+- The Contracts, Client and public snapshot lanes were not rerun: pass 2 changed no contract, client or public surface.
+- `python3 scripts/check-root-submodules.py --repository .` passed, `git diff --check` is clean, and no gitlink moved.

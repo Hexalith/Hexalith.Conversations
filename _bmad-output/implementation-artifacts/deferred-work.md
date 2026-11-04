@@ -1207,3 +1207,17 @@ Review strengthens the same solution-context scope with native implicit Platform
 - source_spec: `_bmad-output/implementation-artifacts/spec-16-2-make-replay-time-deterministic-and-missing-index-state-truthful.md`
   summary: Close the Story 16.2 race where a tenant becomes healthy before its Conversations index exists because a later tenant event arrived first and gap recovery replayed `TenantCreated` from history without running `ConversationTenantIndexInitializer`.
   evidence: EventStore `CheckpointedProjectionWriter.ApplyAsync` turns an out-of-order delivery into `Pending` and `RecoverAsync` folds `TenantCreated` from gateway history, so the Tenants record turns healthy while the initializer has not run; the list then reads `Unavailable` (missing index) until the `TenantCreated` delivery, or stays `Rebuilding` if a conversation lands first. Reads remain truthful; the natural fix rides with the deferred tenant shared-rebuild adoption (16.2 decision 2), which can rebuild such an index to `Ready`.
+
+## Deferred from: code review of spec-16-2-make-replay-time-deterministic-and-missing-index-state-truthful.md (2026-11-04)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-16-2-make-replay-time-deterministic-and-missing-index-state-truthful.md`
+  summary: Stop a redelivered `TenantCreated` from recreating a lost Conversations index as `Ready(empty)`. Today the list then reads `Current` and empty while the tenant's conversation details remain, which brings back limitation D3.
+  evidence: Review pass 2, decision resolved by Jerome on 2026-11-04 (option 3), with the reason quoted from the spec bullet: "The guard belongs to the tenant shared-rebuild follow-up (decision 2). A Tenants-checkpoint guard would break the frozen 'Tenants state deciding emptiness' rule and stop a late `TenantCreated` from creating a missing index after E13 gap recovery. A Dapr marker store would narrow the hole host-wide without closing it." `ConversationTenantIndexInitializer` writes create-only with an empty ETag, and the host keeps EventStore's default `InMemoryEventStoreDomainEventMarkerStore`. A redelivery after a restart therefore runs the initializer again. The handoff owner action was corrected the same day.
+
+## Resolved by Story 16.2 (2026-11-04)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-16-2-make-replay-time-deterministic-and-missing-index-state-truthful.md`
+  summary: Resolved the sync-upgrade entry "Resolve Story 16.2's representable failure response when the actual generation instant precedes the replay anchor."
+  evidence: Story 16.2 publishes that case as `Unavailable`/`metadata_contradictory`. The generation time is kept unclamped, `LastAppliedEventTimestamp` is the fixed `NoReplayAnchor` sentinel (Unix epoch), and the lag is null, so `ProjectionFreshnessV1.ValidateGeneratedAt` holds for every trust state. The anchor survives only in the internal `ReplayAnchorAt` (`ConversationProjectionMaterializer.CreateFreshness`). `ConversationReplayDeterminismTest.GenerationEarlierThanTheAnchorShouldBeContradictoryWithoutClamping` pins the envelope.
+
+This resolution supersedes only the named entry. The original ledger entry stays unchanged.
