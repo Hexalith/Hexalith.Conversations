@@ -750,9 +750,12 @@ public sealed class ConversationQueryHandlerTest
         result.Conversations.ShouldBeEmpty();
     }
 
-    /// <summary>A structurally contradictory page verification fails closed as contradictory metadata.</summary>
+    /// <summary>
+    /// Page verification only throws when the bulk provider answers a different key set from the one requested,
+    /// so that fault is a provider failure (AD-7 matrix), never contradictory metadata.
+    /// </summary>
     [Fact]
-    public async Task PageValidationConsistencyFailureShouldReturnMetadataContradictory()
+    public async Task PageValidationBulkProviderFaultShouldReturnUnavailable()
     {
         FakeProjectionReadStore store = new()
         {
@@ -765,7 +768,7 @@ public sealed class ConversationQueryHandlerTest
             TestContext.Current.CancellationToken);
 
         result.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
-        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.MetadataContradictory);
+        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.Unavailable);
         result.Conversations.ShouldBeEmpty();
     }
 

@@ -45,7 +45,6 @@ namespace Hexalith.Conversations.IntegrationTests.Epic16;
 public sealed class Story16_2TenantIndexLiveTests(Story16_1LiveFixture fixture)
 {
     private const string Caller = "user-index-live";
-    private static readonly DateTimeOffset At = DateTimeOffset.UtcNow;
     private static readonly Type Keys = typeof(ConversationProjectionReadModelWriter).Assembly
         .GetType("Hexalith.Conversations.Server.Projections.ConversationProjectionReadModelKeys", throwOnError: true)!;
 
@@ -153,6 +152,10 @@ public sealed class Story16_2TenantIndexLiveTests(Story16_1LiveFixture fixture)
         private readonly DaprClient _client;
         private readonly ServiceProvider _services;
         private readonly string _stateStoreName;
+
+        // Captured per replica, not per type: a type-level clock read when another lane first touched this class
+        // could be older than the stale threshold by the time the conversation is projected.
+        private readonly DateTimeOffset _at = DateTimeOffset.UtcNow;
         private long _sequence;
 
         public LiveReplica(Story16_1LiveFixture fixture)
@@ -182,7 +185,7 @@ public sealed class Story16_2TenantIndexLiveTests(Story16_1LiveFixture fixture)
         public async Task InitializeMemberTenantAsync(string tenant)
         {
             _sequence = 0;
-            await DeliverAsync(new TenantCreated(tenant, "Index live", null, At), tenant);
+            await DeliverAsync(new TenantCreated(tenant, "Index live", null, _at), tenant);
             await DeliverAsync(new UserAddedToTenant(tenant, Caller, TenantRole.TenantContributor), tenant);
         }
 
@@ -209,7 +212,7 @@ public sealed class Story16_2TenantIndexLiveTests(Story16_1LiveFixture fixture)
                     new TenantId(tenant),
                     conversation,
                     "correlation-index-live",
-                    At,
+                    _at,
                     new PartyId("party-index-live")),
                 Label: "Index live conversation");
             ProjectionRequest request = new(
@@ -221,7 +224,7 @@ public sealed class Story16_2TenantIndexLiveTests(Story16_1LiveFixture fixture)
                     JsonSerializer.SerializeToUtf8Bytes(created, new JsonSerializerOptions(JsonSerializerDefaults.Web)),
                     "json",
                     1,
-                    At,
+                    _at,
                     "correlation-index-live",
                     MessageId: $"message-{conversation.Value}")]);
             return handler.ProjectAsync(request, dispatchId, TestContext.Current.CancellationToken);
@@ -248,7 +251,7 @@ public sealed class Story16_2TenantIndexLiveTests(Story16_1LiveFixture fixture)
                 "system",
                 @event.GetType().FullName!,
                 ++_sequence,
-                At.AddSeconds(_sequence),
+                _at.AddSeconds(_sequence),
                 UniqueIdHelper.GenerateSortableUniqueStringId(),
                 "json",
                 JsonSerializer.SerializeToUtf8Bytes(@event, @event.GetType()))

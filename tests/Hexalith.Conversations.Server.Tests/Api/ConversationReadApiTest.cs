@@ -651,6 +651,46 @@ public sealed class ConversationReadApiTest
         store.ListReads.ShouldBe(0);
     }
 
+    /// <summary>
+    /// Story 16.2 / AD-7 over HTTP: a missing index and a contradictory index answer 503, while a rebuilding index
+    /// answers 200 with its proven rows and a non-current freshness.
+    /// </summary>
+    /// <param name="state">The tenant index state the read store reports.</param>
+    /// <param name="statusCode">The expected HTTP status.</param>
+    /// <param name="freshness">The expected public freshness state.</param>
+    /// <param name="reason">The expected public reason code.</param>
+    /// <param name="rows">The expected number of returned conversations.</param>
+    /// <returns>A task.</returns>
+    [Theory]
+    [InlineData("missing", StatusCodes.Status503ServiceUnavailable, "Unavailable", "unavailable", 0)]
+    [InlineData("contradictory", StatusCodes.Status503ServiceUnavailable, "Unavailable", "metadata_contradictory", 0)]
+    [InlineData("rebuilding", StatusCodes.Status200OK, "Rebuilding", "rebuilding", 1)]
+    public async Task ListRequestShouldMapTenantIndexStatesToHttpStatus(string state, int statusCode, string freshness, string reason, int rows)
+    {
+        FakeProjectionReadStore store = new()
+        {
+            Summaries = [Summary(Tenant, Conversation, Business, Project, Folder, Participant)],
+            ReadState = state switch
+            {
+                "missing" => ConversationProjectionIndexReadState.Missing,
+                "rebuilding" => ConversationProjectionIndexReadState.Rebuilding,
+                _ => ConversationProjectionIndexReadState.Ready,
+            },
+            ListException = state == "contradictory" ? new ConversationProjectionConsistencyException() : null,
+        };
+        using WebApplication app = BuildApp(AllowedAccess(), store);
+
+        ApiResponse response = await InvokeAsync(app, "/api/v1/conversations/", user: AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(statusCode);
+        using JsonDocument document = JsonDocument.Parse(response.Body);
+        document.RootElement.GetProperty("freshnessState").GetString().ShouldBe(freshness);
+        ProjectionFreshnessReasonCode.Parse(document.RootElement.GetProperty("reasonCode").GetString()!)
+            .ShouldBe(ProjectionFreshnessReasonCode.Parse(reason));
+        document.RootElement.GetProperty("conversations").GetArrayLength().ShouldBe(rows);
+        store.ListReads.ShouldBe(1);
+    }
+
     private static WebApplication BuildApp(IConversationTenantAccessService access, IConversationProjectionReadStore store)
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder();
@@ -920,6 +960,10 @@ public sealed class ConversationReadApiTest
 
         public Exception? ReadException { get; init; }
 
+        public ConversationProjectionIndexReadState ReadState { get; init; } = ConversationProjectionIndexReadState.Ready;
+
+        public Exception? ListException { get; init; }
+
         public int DetailReads { get; private set; }
 
         public int ListReads { get; private set; }
@@ -950,7 +994,12 @@ public sealed class ConversationReadApiTest
             CancellationToken cancellationToken = default)
         {
             ListReads++;
-            return ValueTask.FromResult(Summaries.ToConsistentSnapshot());
+            if (ListException is not null)
+            {
+                throw ListException;
+            }
+
+            return ValueTask.FromResult(Summaries.ToConsistentSnapshot() with { ReadState = ReadState });
         }
     }
 }

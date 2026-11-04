@@ -302,16 +302,14 @@ public sealed class ConversationQueryHandler
         // Cross-key verification is scoped to the rows actually being returned, so the cost is proportional to
         // the page (NFR2, no per-conversation fan-out over the tenant) and a conversation mid-dispatch cannot
         // make an unrelated conversation unreadable.
+        // Page verification withholds rows instead of rejecting the page. A consistency exception from it is a
+        // bulk provider that answered a different key set from the one requested: a provider failure (AD-7 matrix).
         IReadOnlySet<string> inconsistent;
         try
         {
             inconsistent = await _projectionReadStore
                 .ValidatePageAsync(query.TenantId, snapshot, selected, cancellationToken)
                 .ConfigureAwait(false);
-        }
-        catch (ConversationProjectionConsistencyException)
-        {
-            return ContradictoryList(query.SchemaVersion);
         }
         catch (Exception) when (!cancellationToken.IsCancellationRequested)
         {

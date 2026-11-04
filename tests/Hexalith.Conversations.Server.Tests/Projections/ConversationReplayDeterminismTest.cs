@@ -9,7 +9,9 @@ using System.Text.Json.Nodes;
 
 using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Contracts.TrustStates;
 using Hexalith.Conversations.Contracts.Versioning;
@@ -283,10 +285,34 @@ public sealed class ConversationReplayDeterminismTest
     [Fact]
     public async Task TwoCleanRebuildsUnderDifferentClocksShouldProduceByteIdenticalReplayState()
     {
+        MessageId message = new("message-replay-1");
+        GovernanceAuditEvidenceReference evidence = new(new AuditEvidenceHandle("audit-replay-1"), "policy-replay", OccurredAt);
         ProjectionEventDto[] history =
         [
             CreatedDto(1),
-            RejectionDto(2, "message-rejection-1", OccurredAt.AddSeconds(4)),
+            ContractDto(2, new ParticipantAdded(
+                EventMetadata(ConversationEventType.ParticipantAdded, 1),
+                new PartyId("party-replay-member"),
+                ParticipantType.Human,
+                ParticipantRole.Member)),
+            ContractDto(3, new MessageAppended(EventMetadata(ConversationEventType.MessageAppended, 2), message, Actor, "Replay message")),
+            ContractDto(4, new FileReferenceAttached(
+                EventMetadata(ConversationEventType.FileReferenceAttached, 3), new FileId("file-replay-1"), MessageId: message)),
+            ContractDto(5, new ConversationContentMarkedSensitive(
+                EventMetadata(ConversationEventType.ConversationContentMarkedSensitive, 4),
+                new GovernanceTarget(GovernedTargetKind.Conversation),
+                SensitivityCategory.Restricted,
+                "policy-replay",
+                "sensitivity-marked",
+                evidence)),
+            ContractDto(6, new MessageContentRedacted(
+                EventMetadata(ConversationEventType.MessageContentRedacted, 5),
+                new GovernanceTarget(GovernedTargetKind.Message, MessageId: message),
+                RedactionCategory.ContentSuppression,
+                "policy-replay",
+                "message-redacted",
+                evidence)),
+            RejectionDto(7, "message-rejection-1", OccurredAt.AddSeconds(6)),
         ];
         DateTimeOffset clockA = OccurredAt.AddSeconds(20);
         DateTimeOffset clockB = OccurredAt.AddHours(6);
@@ -296,12 +322,10 @@ public sealed class ConversationReplayDeterminismTest
         ConversationReplayState expected = ConversationProjectionMaterializer.BuildReplayState(
             Tenant, Conversation, ConversationProjectionEventDecoder.Decode(history));
 
-        first.ReplayAnchorAt.ShouldBe(OccurredAt.AddSeconds(4));
+        first.ReplayAnchorAt.ShouldBe(OccurredAt.AddSeconds(6));
         second.ReplayAnchorAt.ShouldBe(first.ReplayAnchorAt);
         first.ReplayStateHash.ShouldBe(expected.Hash, "the persisted hash is the SHA-256 of the canonical replay-state bytes");
         second.ReplayStateHash.ShouldBe(first.ReplayStateHash);
-        ConversationProjectionMaterializer.BuildReplayState(Tenant, Conversation, ConversationProjectionEventDecoder.Decode(history))
-            .CanonicalBytes.ToArray().ShouldBe(expected.CanonicalBytes.ToArray());
         foreach ((ConversationProjectedReadModels models, DateTimeOffset clock) in new[] { (first, clockA), (second, clockB) })
         {
             ProjectionFreshnessV1 freshness = models.Summary.Freshness;
@@ -460,6 +484,25 @@ public sealed class ConversationReplayDeterminismTest
             OccurredAt,
             "correlation-replay",
             MessageId: $"message-created-{sequence}");
+
+    private static ProjectionEventDto ContractDto<TEvent>(long sequence, TEvent @event)
+        where TEvent : class
+        => new(
+            typeof(TEvent).Name,
+            JsonSerializer.SerializeToUtf8Bytes(@event, JsonOptions),
+            "json",
+            sequence,
+            OccurredAt.AddHours(1),
+            "correlation-replay",
+            MessageId: $"message-{typeof(TEvent).Name}-{sequence}");
+
+    private static ConversationEventMetadata EventMetadata(ConversationEventType eventType, int seconds)
+        => Metadata() with
+        {
+            EventId = $"event-{eventType.Value}-replay",
+            EventType = eventType,
+            OccurredAt = OccurredAt.AddSeconds(seconds),
+        };
 
     private static ProjectionEventDto RejectionDto(long sequence, string messageId, DateTimeOffset timestamp)
         => new(

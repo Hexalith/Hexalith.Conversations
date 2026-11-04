@@ -129,6 +129,30 @@ public sealed class ConversationTenantIndexReadMatrixTest
         store.Writes.ShouldBeEmpty();
     }
 
+    /// <summary>AC 2, forbidden row: a denied caller is refused on list, detail and advisory with no index read and no write.</summary>
+    /// <returns>A task.</returns>
+    [Fact]
+    public async Task ForbiddenQueryPathsShouldNeverReadTheIndexOrWrite()
+    {
+        WriteLedgerStore store = await SeedAsync("ready-one");
+        ResolutionMetadataAccess access = new() { Denied = true };
+        ConversationQueryHandler handler = Handler(store, access);
+
+        ConversationListResult list = await handler.ListAsync(
+            new ListConversationsQuery(SchemaVersion.Current, Tenant, "actor", "correlation-matrix"),
+            TestContext.Current.CancellationToken);
+        ConversationDetailResult detail = await handler.GetAsync(
+            new GetConversationQuery(SchemaVersion.Current, Tenant, "actor", "correlation-matrix", Conversation),
+            TestContext.Current.CancellationToken);
+        QueryResult advisory = await DispatchAdvisoryAsync(store, access);
+
+        list.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+        detail.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+        advisory.Success.ShouldBeFalse();
+        store.ReadKeys.ShouldNotContain(IndexKey);
+        store.Writes.ShouldBeEmpty();
+    }
+
     private static async Task<WriteLedgerStore> SeedAsync(string state)
     {
         InMemoryReadModelStore inner = new();

@@ -530,8 +530,11 @@ Story 16.2 owner actions:
 - [ ] Platform keeps `projection:conversations-index:*` keys under the same
   no-expiry, no-eviction, create-only-capable state-store terms as the tenant
   projection records. An evicted or lost index makes its tenant list
-  `Unavailable`, and a state-store restore that loses one stays that way until
-  the follow-up rebuild exists.
+  `Unavailable` until the follow-up rebuild exists, unless `TenantCreated` is
+  delivered again first. The host keeps delivery markers in memory, so a
+  redelivery after a restart recreates the lost index as `Ready(empty)`: the
+  list then reads `Current` and empty while the tenant's conversation details
+  remain. No index loss is recoverable before that rebuild.
 - [ ] The tenants subscription's unlimited retry, without dead-lettering (Story
   16.1), now also covers index initialization.
 

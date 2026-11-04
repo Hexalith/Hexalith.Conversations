@@ -3,6 +3,7 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using Hexalith.Commons.UniqueIds;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.TenantAccess;
@@ -57,7 +58,9 @@ public sealed class ConversationTenantIndexInitializerTest
     }
 
     /// <summary>
-    /// Delivering <c>TenantCreated</c> creates the version 2 <c>Ready(empty)</c> index; a redelivery leaves it unchanged.
+    /// Delivering <c>TenantCreated</c> creates the version 2 <c>Ready(empty)</c> index. A same-message redelivery is a
+    /// processor duplicate; a redelivery under a fresh message identity reaches the initializer, whose create-only
+    /// write leaves the existing index unchanged.
     /// </summary>
     /// <returns>A task.</returns>
     [Fact]
@@ -72,7 +75,9 @@ public sealed class ConversationTenantIndexInitializerTest
         ConversationProjectionIndexReadModel index = Index(harness, tenant).ShouldNotBeNull();
         ReadModelEntry<ConversationProjectionIndexReadModel> first = await harness.Store.GetAsync<ConversationProjectionIndexReadModel>(
             DurableTenantAccessHarness.StateStoreName, IndexKey(tenant), TestContext.Current.CancellationToken);
-        _ = await DurableTenantAccessHarness.DeliverAsync(host, created);
+        (await DurableTenantAccessHarness.DeliverAsync(host, created)).ShouldBe(EventStoreDomainEventProcessingResult.Duplicate);
+        (await DurableTenantAccessHarness.DeliverAsync(host, created with { MessageId = UniqueIdHelper.GenerateSortableUniqueStringId() }))
+            .ShouldBe(EventStoreDomainEventProcessingResult.Processed);
         ReadModelEntry<ConversationProjectionIndexReadModel> second = await harness.Store.GetAsync<ConversationProjectionIndexReadModel>(
             DurableTenantAccessHarness.StateStoreName, IndexKey(tenant), TestContext.Current.CancellationToken);
 
