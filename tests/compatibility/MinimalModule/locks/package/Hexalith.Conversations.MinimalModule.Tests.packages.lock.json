@@ -210,13 +210,13 @@
       },
       "Hexalith.EventStore.Client": {
         "type": "Transitive",
-        "resolved": "4.0.4",
-        "contentHash": "rQs8+5laSw1K2ZUGM0FbSEsxJZTlZ1QsFx51gRUO5j4jXHrYtqkU4QCLb3zMwccM2qS+g/2hNOYXd5ZjzlKRNw==",
+        "resolved": "4.2.0",
+        "contentHash": "f2kxYbtjp2piQjHrwAiqysleJs+D8KpeabR/xqkNKEHG/BWOUUxg/vQ7o9+EDkp5lJ83t1atvGWvsYUNynyIGg==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2",
           "Dapr.Client": "1.19.0",
           "Hexalith.Commons.UniqueIds": "2.30.10",
-          "Hexalith.EventStore.Contracts": "4.0.4",
+          "Hexalith.EventStore.Contracts": "4.2.0",
           "Microsoft.AspNetCore.DataProtection.Abstractions": "10.0.14",
           "Microsoft.Extensions.Configuration": "10.0.14",
           "Microsoft.Extensions.Configuration.Abstractions": "10.0.14",
@@ -233,8 +233,8 @@
       },
       "Hexalith.EventStore.Contracts": {
         "type": "Transitive",
-        "resolved": "4.0.4",
-        "contentHash": "wl/CXjegwcNYBxEVShnMQNI/vBQ5obPsBGYPrSHtt582itMYYZcMq7CFvA9OtY+uA4Hv+yDitMw+2D2m+ttLRg==",
+        "resolved": "4.2.0",
+        "contentHash": "byejPd+fssR5SJndvJiTVEg2nm5FzSFyyg2daM325G7/g+MMyggxkvsEqkEzmfuuOT7VqEMCBBoODWuLYeZwdw==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2",
           "Hexalith.Commons.UniqueIds": "2.30.10"
@@ -242,8 +242,8 @@
       },
       "Hexalith.EventStore.DomainService": {
         "type": "Transitive",
-        "resolved": "4.0.4",
-        "contentHash": "oyNlPnJN78/6OfGrWJHLxUI981gzmq3E6PfJse9typcP+9q9H3UuhthO45DjpwXwPbSEY3vXAb+ZjHWd54IvKQ==",
+        "resolved": "4.2.0",
+        "contentHash": "9Y3ECcUmJUDxx1Fgl2OvzQssVHAGFXzs5bLhnHKLEf9kpPFeyqhiTI+Z9n+AA2tG43bXgIksJWDoASwU0B4K+w==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2",
           "Dapr.Actors": "1.19.0",
@@ -251,8 +251,8 @@
           "Dapr.AspNetCore": "1.19.0",
           "Dapr.Client": "1.19.0",
           "Hexalith.Commons.UniqueIds": "2.30.10",
-          "Hexalith.EventStore.Client": "4.0.4",
-          "Hexalith.EventStore.ServiceDefaults": "4.0.4",
+          "Hexalith.EventStore.Client": "4.2.0",
+          "Hexalith.EventStore.ServiceDefaults": "4.2.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.14",
           "Microsoft.Extensions.Http.Resilience": "10.11.0",
           "Microsoft.Extensions.ServiceDiscovery": "10.11.0",
@@ -265,20 +265,20 @@
           "OpenTelemetry": "1.20.1",
           "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.20.1",
           "OpenTelemetry.Extensions.Hosting": "1.20.1",
-          "OpenTelemetry.Instrumentation.AspNetCore": "1.20.1",
-          "OpenTelemetry.Instrumentation.Http": "1.20.1",
+          "OpenTelemetry.Instrumentation.AspNetCore": "1.20.2",
+          "OpenTelemetry.Instrumentation.Http": "1.20.2",
           "OpenTelemetry.Instrumentation.Runtime": "1.20.1",
           "System.IdentityModel.Tokens.Jwt": "8.23.0"
         }
       },
       "Hexalith.EventStore.ServiceDefaults": {
         "type": "Transitive",
-        "resolved": "4.0.4",
-        "contentHash": "i+iPWrah97flJnSp6wlHwWZP5B9WA2D+u1qxMvgbCvTZEZRCiRf7z6iZdpDewfH7r6PkryxWcG2tw36LQZDEeg==",
+        "resolved": "4.2.0",
+        "contentHash": "In733wTqlkn8TgQfkRi6LHtyhkgNHJ9X39ptRiotIpcP2znW0OuQCcMAhmdlYRn9R2eLJYrL/X4QwnJxW3vqvg==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2",
           "Hexalith.Commons.UniqueIds": "2.30.10",
-          "Hexalith.EventStore.Contracts": "4.0.4",
+          "Hexalith.EventStore.Contracts": "4.2.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.14",
           "Microsoft.Extensions.Http.Resilience": "10.11.0",
           "Microsoft.Extensions.ServiceDiscovery": "10.11.0",
@@ -291,8 +291,8 @@
           "OpenTelemetry": "1.20.1",
           "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.20.1",
           "OpenTelemetry.Extensions.Hosting": "1.20.1",
-          "OpenTelemetry.Instrumentation.AspNetCore": "1.20.1",
-          "OpenTelemetry.Instrumentation.Http": "1.20.1",
+          "OpenTelemetry.Instrumentation.AspNetCore": "1.20.2",
+          "OpenTelemetry.Instrumentation.Http": "1.20.2",
           "OpenTelemetry.Instrumentation.Runtime": "1.20.1",
           "System.IdentityModel.Tokens.Jwt": "8.23.0"
         }
@@ -752,16 +752,16 @@
       },
       "OpenTelemetry.Instrumentation.AspNetCore": {
         "type": "Transitive",
-        "resolved": "1.20.1",
-        "contentHash": "pDO+Ed5iblMTvSVGcXzoLp8q20XHhXmK0wD/H3PGNHwDFlwZpV+bDWd/Euo6hNB4E0ruqzTFD76Btm+m0uCYNw==",
+        "resolved": "1.20.2",
+        "contentHash": "WVCabg8epzvm3Ogvrz3AYlUnfgNpOnuCgkHpN9a78e7SCg9K1GDQYHKGjgV6QubHasi6toXdq1IrI9G5FIxL3Q==",
         "dependencies": {
           "OpenTelemetry.Api.ProviderBuilderExtensions": "[1.20.1, 2.0.0)"
         }
       },
       "OpenTelemetry.Instrumentation.Http": {
         "type": "Transitive",
-        "resolved": "1.20.1",
-        "contentHash": "XJTM6imVztxLraOrzsdlZf5shdH9TVeEWNBxpyepB5e3Gy+KNeQf2hyic398210UxqlPtt4iOkBELtjfIFTzug==",
+        "resolved": "1.20.2",
+        "contentHash": "B84T2n4U7r3l+N5qP8vmoztGhbliWXc+vSz0BefjYNXbW9BA9q7iqU9+xn5dtCPlMNdHb+9Horgk8YhcO+eNTw==",
         "dependencies": {
           "Microsoft.Extensions.Configuration": "10.0.0",
           "Microsoft.Extensions.Options": "10.0.0",
@@ -903,15 +903,15 @@
       "hexalith.conversations.minimalmodule.contracts": {
         "type": "Project",
         "dependencies": {
-          "Hexalith.EventStore.Contracts": "[4.0.4, )"
+          "Hexalith.EventStore.Contracts": "[4.2.0, )"
         }
       },
       "hexalith.conversations.minimalmodule.server": {
         "type": "Project",
         "dependencies": {
           "Hexalith.Conversations.MinimalModule.Contracts": "[1.0.0, )",
-          "Hexalith.EventStore.Client": "[4.0.4, )",
-          "Hexalith.EventStore.DomainService": "[4.0.4, )",
+          "Hexalith.EventStore.Client": "[4.2.0, )",
+          "Hexalith.EventStore.DomainService": "[4.2.0, )",
           "Microsoft.IdentityModel.Protocols.OpenIdConnect": "[8.23.0, )",
           "System.IdentityModel.Tokens.Jwt": "[8.23.0, )"
         }

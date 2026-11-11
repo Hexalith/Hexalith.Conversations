@@ -2,7 +2,7 @@
 
 This CI-only compatibility suite compiles and runs the frozen Story 11.2 fixture against
 the external package compatibility selection in `RegisteredCommand.targets` (EventStore
-4.0.4, matching the selected Builds catalog). It runs the original six tests and
+4.2.0, matching the selected Builds catalog). It runs the original six tests and
 adds one registered-command assertion through the public in-process domain router.
 The assertion resolves the keyed processor, checks the serialized creation event,
 replays it through the public in-process router in a fresh service scope, and checks
@@ -114,3 +114,16 @@ changing the locks. The exact CI Release build passed with zero warnings or
 errors, and native execution plus `verify_results.py` passed all seven required
 assertions with zero failures, skips, or errors. All 17 measured fixture files,
 including their four original locks, remain byte-for-byte unchanged.
+
+## Current SDK and package qualification (2026-11-12)
+
+The external overlay selects EventStore 4.2.0 from the current Builds catalog and
+Aspire.Hosting/AppHost 13.6.5 to retain patched hosting packages while preserving
+the frozen AppHost SDK source. The original 17 fixture files are unchanged.
+
+The four successor locks were regenerated with `--force-evaluate` in an isolated
+source copy using only nuget.org. A second empty package and HTTP cache passed
+`--locked-mode` without changing the locks. The Release graph built with zero
+warnings or errors, and native execution plus the result verifier passed all
+seven assertions with zero failures or skips. These checks start no resources
+and establish no composed runtime acceptance.
