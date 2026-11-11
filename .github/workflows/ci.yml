@@ -212,7 +212,7 @@ jobs:
           submodules: false
 
       - name: Initialize root-declared submodules
-        uses: Hexalith/Hexalith.Builds/Github/initialize-build@main
+        uses: Hexalith/Hexalith.Builds/Github/initialize-build@163f3d0deac6b0db5ec4bdfcc0934b12e6adb46a
 
       - name: Initialize .NET
         uses: actions/setup-dotnet@v6.0.0
@@ -260,7 +260,7 @@ jobs:
           submodules: false
 
       - name: Initialize root-declared submodules
-        uses: Hexalith/Hexalith.Builds/Github/initialize-build@main
+        uses: Hexalith/Hexalith.Builds/Github/initialize-build@163f3d0deac6b0db5ec4bdfcc0934b12e6adb46a
 
       - name: Fetch dependency history for preserved proof bindings
         shell: bash
@@ -357,7 +357,7 @@ jobs:
           persist-credentials: false
 
       - name: Initialize root-declared submodules
-        uses: Hexalith/Hexalith.Builds/Github/initialize-build@main
+        uses: Hexalith/Hexalith.Builds/Github/initialize-build@163f3d0deac6b0db5ec4bdfcc0934b12e6adb46a
 
       - name: Set up supported Node
         uses: actions/setup-node@v7
