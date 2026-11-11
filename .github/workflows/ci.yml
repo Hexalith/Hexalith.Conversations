@@ -17,6 +17,7 @@ jobs:
   ci:
     uses: Hexalith/Hexalith.Builds/.github/workflows/domain-ci.yml@0b8c3f20e99d26a1562dd477bfb0162d23aebf2c
     with:
+      additional-sdk-version: '10.0.404'
       solution: Hexalith.Conversations.slnx
       module-manifest: module/hexalith.module-manifest.v2.json
       build-timeout-minutes: 30
@@ -54,6 +55,7 @@ jobs:
         uses: actions/setup-dotnet@v6.0.0
         with:
           global-json-file: global.json
+          dotnet-version: '10.0.404'
 
       - name: Set up Python for result validation
         uses: actions/setup-python@v7.0.0
@@ -147,6 +149,7 @@ jobs:
         uses: actions/setup-dotnet@v6.0.0
         with:
           global-json-file: global.json
+          dotnet-version: '10.0.404'
 
       - name: Prepare package build imports
         uses: ./references/Hexalith.Builds/Github/prepare-module-build
@@ -215,6 +218,7 @@ jobs:
         uses: actions/setup-dotnet@v6.0.0
         with:
           global-json-file: global.json
+          dotnet-version: '10.0.404'
 
       - name: Prepare package build imports
         uses: ./references/Hexalith.Builds/Github/prepare-module-build
@@ -276,6 +280,7 @@ jobs:
         uses: actions/setup-dotnet@v6.0.0
         with:
           global-json-file: global.json
+          dotnet-version: '10.0.404'
 
       - name: Prepare package build imports
         uses: ./references/Hexalith.Builds/Github/prepare-module-build
@@ -364,6 +369,7 @@ jobs:
         uses: actions/setup-dotnet@v6.0.0
         with:
           global-json-file: global.json
+          dotnet-version: '10.0.404'
 
       - name: Prepare package build imports
         uses: ./references/Hexalith.Builds/Github/prepare-module-build
