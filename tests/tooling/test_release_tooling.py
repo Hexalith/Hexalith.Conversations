@@ -796,14 +796,14 @@ console.log('Configured plugins loaded; deliberate npm publisher selection was r
         self.assertIn("git -c submodule.recurse=false submodule update --init --checkout -- references/Hexalith.Builds references/Hexalith.Platform", windows_job)
         self.assertIn("python -m unittest discover -s tools/tests -p 'test_checkout_windows.py' -v", windows_job)
         self.assertIn(
-            "uses: Hexalith/Hexalith.Builds/.github/workflows/domain-ci.yml@163f3d0deac6b0db5ec4bdfcc0934b12e6adb46a",
+            "uses: Hexalith/Hexalith.Builds/.github/workflows/domain-ci.yml@6ad5854aa14a9950e1fbfc32d7e27953a1c4b82b",
             ci,
         )
         self.assertIn("run-consumer-validation: true", ci)
         unit_projects = ci.split("      unit-test-projects: |", maxsplit=1)[1].split("      integration-test-projects:", maxsplit=1)[0]
         self.assertIn("tests/Hexalith.Conversations.Client.Tests", [line.strip() for line in unit_projects.splitlines()])
         self.assertIn("npm audit signatures", ci)
-        self.assertIn("uses: Hexalith/Hexalith.Builds/Github/initialize-build@163f3d0deac6b0db5ec4bdfcc0934b12e6adb46a", tooling_job)
+        self.assertIn("uses: Hexalith/Hexalith.Builds/Github/initialize-build@6ad5854aa14a9950e1fbfc32d7e27953a1c4b82b", tooling_job)
         self.assertIn("uses: actions/setup-dotnet@v6.0.0", tooling_job)
         self.assertIn("global-json-file: global.json", tooling_job)
         self.assertIn("npm test", ci)
