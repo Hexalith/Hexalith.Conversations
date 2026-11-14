@@ -97,7 +97,7 @@ def write_public_consumer(root: Path, version: str) -> Path:
         f"""<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
@@ -137,7 +137,7 @@ def write_testing_consumer(root: Path, version: str, versions: dict[str, str]) -
         project,
         f"""<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
@@ -213,7 +213,7 @@ def validate_consumer(project: Path, config: Path, environment: dict[str, str], 
         project.parent,
         environment,
     )
-    assembly = project.parent / "bin" / "Release" / "net10.0" / f"{project.stem}.dll"
+    assembly = project.parent / "bin" / "Release" / "net11.0" / f"{project.stem}.dll"
     runner_arguments = ["-parallelMode", "none", "-noLogo"] if is_test_project else []
     run_dotnet([str(assembly), *runner_arguments], project.parent, environment)
 

@@ -45,10 +45,10 @@ def _load_restore_boundary(package_id: str, project_path: Path) -> dict[str, str
         raise ValueError(f"NuGet audit must remain enabled in all mode for {package_id}")
 
     groups = assets.get("projectFileDependencyGroups")
-    if not isinstance(groups, dict) or set(groups) != {"net10.0"} or not isinstance(groups["net10.0"], list):
+    if not isinstance(groups, dict) or set(groups) != {"net11.0"} or not isinstance(groups["net11.0"], list):
         raise ValueError(f"restore dependency groups are invalid for {package_id}")
     dependencies: dict[str, str] = {}
-    for declaration in groups["net10.0"]:
+    for declaration in groups["net11.0"]:
         if not isinstance(declaration, str) or " >= " not in declaration:
             raise ValueError(f"invalid restore dependency declaration for {package_id}: {declaration!r}")
         dependency_id, version = declaration.split(" >= ", maxsplit=1)
@@ -105,7 +105,7 @@ def _metadata(package_path: Path) -> PackageMetadata:
                 raise ValueError(f"{package_path.name}: id, version, and readme are required")
             if readme not in names:
                 raise ValueError(f"{package_path.name}: declared readme '{readme}' is absent")
-            if f"lib/net10.0/{package_id}.dll" not in names:
+            if f"lib/net11.0/{package_id}.dll" not in names:
                 raise ValueError(f"{package_path.name}: canonical package assembly is absent")
             foreign_assemblies = sorted(
                 name
@@ -139,7 +139,7 @@ def _validate_symbol_archive(symbol_path: Path, package_id: str) -> None:
     """Require one canonical Portable PDB and no unrelated symbol payload."""
     try:
         with zipfile.ZipFile(symbol_path) as archive:
-            canonical_pdb = f"lib/net10.0/{package_id}.pdb"
+            canonical_pdb = f"lib/net11.0/{package_id}.pdb"
             pdb_names = sorted(name for name in archive.namelist() if name.casefold().endswith(".pdb"))
             if pdb_names != [canonical_pdb]:
                 raise ValueError(

@@ -52,7 +52,7 @@ def published_payloads() -> dict[str, bytes]:
         buffer = io.BytesIO()
         with zipfile.ZipFile(buffer, "w") as archive:
             archive.writestr(f"{package_id}.nuspec", f"<package id='{package_id}' />")
-            archive.writestr(f"lib/net10.0/{package_id}.dll", f"assembly:{package_id}")
+            archive.writestr(f"lib/net11.0/{package_id}.dll", f"assembly:{package_id}")
         payloads[package_id] = buffer.getvalue()
     return payloads
 
@@ -152,8 +152,8 @@ class ReleaseToolingTests(unittest.TestCase):
             with zipfile.ZipFile(package, "w") as archive:
                 archive.writestr("Hexalith.Conversations.nuspec", nuspec)
                 archive.writestr("README.md", "test")
-                archive.writestr("lib/net10.0/Hexalith.Conversations.dll", b"assembly")
-                archive.writestr("runtimes/linux-x64/lib/net10.0/Hexalith.Commons.Http.dll", b"foreign")
+                archive.writestr("lib/net11.0/Hexalith.Conversations.dll", b"assembly")
+                archive.writestr("runtimes/linux-x64/lib/net11.0/Hexalith.Commons.Http.dll", b"foreign")
             with self.assertRaisesRegex(ValueError, "foreign assemblies"):
                 validate_nuget_packages._metadata(package)
 
@@ -174,7 +174,7 @@ class ReleaseToolingTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             symbol = Path(temporary) / "Hexalith.Conversations.1.0.0.snupkg"
             with zipfile.ZipFile(symbol, "w") as archive:
-                archive.writestr("lib/net10.0/Hexalith.Conversations.pdb", b"not-portable")
+                archive.writestr("lib/net11.0/Hexalith.Conversations.pdb", b"not-portable")
             with self.assertRaisesRegex(ValueError, "not a Portable PDB"):
                 validate_nuget_packages._validate_symbol_archive(symbol, "Hexalith.Conversations")
 
@@ -597,7 +597,7 @@ console.log('Configured plugins loaded; deliberate npm publisher selection was r
                     validate_consumer_packages.validate_consumer(project, config, {}, False)
             self.assertEqual(9, raised.exception.returncode)
             executed = run_dotnet.call_args_list[2].args[0]
-            self.assertEqual(str(root / "bin/Release/net10.0/PublicConsumer.dll"), executed[0])
+            self.assertEqual(str(root / "bin/Release/net11.0/PublicConsumer.dll"), executed[0])
             self.assertEqual(1, len(executed))
 
     def test_local_package_source_is_xml_attribute_escaped(self) -> None:

@@ -177,7 +177,7 @@ jobs:
 
       - name: Run TestSupport tests on Windows
         run: >-
-          dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll
+          dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net11.0/Hexalith.Conversations.TestSupport.Tests.dll
           -automated sync -failSkips
 
   repository:
@@ -306,8 +306,8 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p TestResults/conformance
-          portable="tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll"
-          internal="tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll"
+          portable="tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net11.0/Hexalith.Conversations.Conformance.Portable.Tests.dll"
+          internal="tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net11.0/Hexalith.Conversations.Conformance.Tests.dll"
           # CI tests the application only. Classes that validate BMAD planning, story, or
           # evidence artifacts, or that run BMAD scripts, run only in BMAD agent work.
           dotnet "$portable" -failSkips \
