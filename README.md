@@ -8,6 +8,8 @@ This module began as an intentionally non-operative scaffold establishing projec
 
 The supported v1 integration path is a .NET client that shares `Hexalith.Conversations.Contracts` with adopter applications. Adopters should create commands and interpret results, projections, and typed errors through these shared contracts; raw EventStore knowledge is not required for normal integration.
 
+The 2.x NuGet packages target `net11.0` and require .NET 11. The previous `1.6.0` release targets `net10.0`; .NET 10 applications must upgrade their target framework before installing 2.x. The public JSON wire schema remains v1.
+
 For the end-to-end adopter workflow, see the [Developer Integration Guide](docs/integration-guide.md). For release-owner compatibility rules, deprecation handling, and FR81 classification, see the [Contract Compatibility and Deprecation Policy](docs/release-evidence/contract-compatibility-policy.md).
 
 Identity has a strict taxonomy:
