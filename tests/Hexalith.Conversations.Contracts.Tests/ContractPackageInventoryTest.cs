@@ -125,7 +125,7 @@ public sealed class ContractPackageInventoryTest
             string[] entries = package.Entries.Select(e => e.FullName.Replace('\\', '/')).ToArray();
 
             entries.ShouldContain("README.md");
-            entries.ShouldContain("lib/net10.0/Hexalith.Conversations.Contracts.dll");
+            entries.ShouldContain("lib/net11.0/Hexalith.Conversations.Contracts.dll");
             entries.ShouldContain(entry => entry.EndsWith(".nuspec", StringComparison.Ordinal));
 
             foreach (string entry in entries)

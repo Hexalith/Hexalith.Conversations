@@ -463,6 +463,26 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
     private static string Base64UrlEncode(byte[] value)
         => Convert.ToBase64String(value).TrimEnd('=').Replace('+', '-').Replace('/', '_');
 
+    /// <summary>
+    /// Evaluates the selected owner so the provenance prebuild follows its current framework and governed SDK view.
+    /// </summary>
+    /// <returns>A task representing the owner project evaluation and identity assertions.</returns>
+    [Fact]
+    public async Task GatewayProvenanceShouldUseTheOwningProjectFrameworkAndSdk()
+    {
+        string referenceMode = ReadEnrollmentMetadata("EnrolledReferenceMode");
+        var (ownerRoot, projectPath, assemblyName, _) = SelectGatewayHost(referenceMode);
+        string configuration = ReadProducerConfiguration(referenceMode);
+        var gateway = await EvaluateGatewayBuildAsync(ownerRoot, projectPath, configuration, TestContext.Current.CancellationToken);
+
+        gateway.TargetFramework.ShouldBe("net11.0");
+        gateway.TargetPath.ShouldBe(Path.Combine(
+            Path.GetDirectoryName(projectPath)!, "bin", configuration, gateway.TargetFramework, assemblyName + ".dll"));
+        gateway.SdkVersion.ShouldBe(
+            referenceMode == "package" ? "4.2.0" : ReadEnrollmentMetadata("EnrolledEventStoreVersion"),
+            "the Builds packaged host retains its governed SDK 4.2 catalog view independently of the root catalog");
+    }
+
     private static async Task<string> BuildEventStoreGatewayWithProvenanceAsync(CancellationToken cancellationToken)
     {
         string referenceMode = ReadEnrollmentMetadata("EnrolledReferenceMode");
@@ -479,17 +499,10 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
             ownerRoot,
             headRevision,
             cancellationToken);
-        string sdkVersion = ReadEnrollmentMetadata("EnrolledEventStoreVersion");
+        string configuration = ReadProducerConfiguration(referenceMode);
+        var gateway = await EvaluateGatewayBuildAsync(ownerRoot, projectPath, configuration, cancellationToken);
+        string sdkVersion = gateway.SdkVersion;
         string sourceRevision = $"{ownerIdentity}.{ownerRevision}.sdk.{sdkVersion}";
-
-        // The producer selects the only configuration that this test and its
-        // launched children may use; an ambient fallback must not build another mode.
-        string? configuration = Environment.GetEnvironmentVariable("Configuration");
-        if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("HEXALITH_SOURCE_MAPPING_HASH"))
-            || configuration != (referenceMode == "source" ? "Debug" : "Release"))
-        {
-            throw new InvalidOperationException("Gateway preparation requires the complete producer-selected build environment.");
-        }
 
         ProcessResult build = await RunProcessAsync(
             "dotnet",
@@ -509,12 +522,8 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
             $"The {configuration} EventStore gateway prebuild failed.{Environment.NewLine}"
             + $"{build.StandardOutput}{Environment.NewLine}{build.StandardError}");
 
-        string gatewayAssembly = Path.Combine(
-            Path.GetDirectoryName(projectPath)!,
-            "bin",
-            configuration,
-            "net10.0",
-            assemblyName + ".dll");
+        string gatewayAssembly = gateway.TargetPath;
+        Path.GetFileName(gatewayAssembly).ShouldBe(assemblyName + ".dll");
         File.Exists(gatewayAssembly).ShouldBeTrue(gatewayAssembly);
         string? productVersion = FileVersionInfo.GetVersionInfo(gatewayAssembly).ProductVersion;
         productVersion.ShouldNotBeNullOrWhiteSpace();
@@ -531,6 +540,45 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
         }
 
         return projectPath;
+    }
+
+    private static string ReadProducerConfiguration(string referenceMode)
+    {
+        // The producer selects the only configuration that this test and its
+        // launched children may use; an ambient fallback must not build another mode.
+        string? configuration = Environment.GetEnvironmentVariable("Configuration");
+        if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("HEXALITH_SOURCE_MAPPING_HASH"))
+            || configuration != (referenceMode == "source" ? "Debug" : "Release"))
+        {
+            throw new InvalidOperationException("Gateway preparation requires the complete producer-selected build environment.");
+        }
+
+        return configuration;
+    }
+
+    private static async Task<(string TargetFramework, string TargetPath, string SdkVersion)> EvaluateGatewayBuildAsync(
+        string ownerRoot,
+        string projectPath,
+        string configuration,
+        CancellationToken cancellationToken)
+    {
+        ProcessResult evaluation = await RunProcessAsync(
+            "dotnet",
+            ["msbuild", projectPath, "-nologo", $"-p:Configuration={configuration}",
+                "-getProperty:TargetFramework,TargetPath,HexalithEventStoreVersion"],
+            ownerRoot,
+            cancellationToken);
+        evaluation.ExitCode.ShouldBe(0, evaluation.StandardOutput + evaluation.StandardError);
+        using JsonDocument document = JsonDocument.Parse(evaluation.StandardOutput);
+        JsonElement properties = document.RootElement.GetProperty("Properties");
+        string targetFramework = properties.GetProperty("TargetFramework").GetString() ?? string.Empty;
+        string targetPath = properties.GetProperty("TargetPath").GetString() ?? string.Empty;
+        string sdkVersion = properties.GetProperty("HexalithEventStoreVersion").GetString() ?? string.Empty;
+        targetFramework.ShouldNotBeNullOrWhiteSpace();
+        targetPath.ShouldNotBeNullOrWhiteSpace();
+        Path.IsPathFullyQualified(targetPath).ShouldBeTrue("the gateway owner must return its exact assembly path");
+        sdkVersion.ShouldNotBeNullOrWhiteSpace();
+        return (targetFramework, targetPath, sdkVersion);
     }
 
     private static (string OwnerRoot, string ProjectPath, string AssemblyName, string OwnerIdentity) SelectGatewayHost(string referenceMode)

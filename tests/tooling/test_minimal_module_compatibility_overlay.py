@@ -11,6 +11,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 OVERLAY = ROOT / "tests/compatibility/MinimalModule/RegisteredCommand.targets"
 FIXTURE = ROOT / "tests/fixtures/Hexalith.Conversations.MinimalModule"
+FRAMEWORK = "net11.0"
 
 
 class MinimalModuleCompatibilityOverlayTests(unittest.TestCase):
@@ -35,14 +36,18 @@ class MinimalModuleCompatibilityOverlayTests(unittest.TestCase):
         catalog = self.catalog_versions()
         for project in sorted(FIXTURE.rglob("*.csproj")):
             command = ["dotnet", "msbuild", str(project), "-nologo", "-t:MinimalModuleCompatibilitySelectPackages",
-                       "-p:Configuration=Release", "-p:MinimalModuleCompatibilityMode=package",
+                       "-p:Configuration=Release", f"-p:TargetFramework={FRAMEWORK}", "-p:MinimalModuleCompatibilityMode=package",
+                       f"-p:CustomAfterMicrosoftCommonProps={OVERLAY.parent / 'Framework.props'}",
                        "-p:MinimalModuleCompatibilityUseSuccessorLocks=true", f"-p:CustomAfterMicrosoftCommonTargets={OVERLAY}",
-                       "-getProperty:NuGetLockFilePath,Configuration", "-getItem:ProjectReference,PackageReference"]
+                       "-getProperty:NuGetLockFilePath,Configuration,TargetFramework,TargetFrameworkIdentifier,TargetFrameworkVersion", "-getItem:ProjectReference,PackageReference"]
             result = subprocess.run(command, cwd=ROOT, env=environment, text=True, capture_output=True, check=True)
             output = json.loads(result.stdout)
             lock = OVERLAY.parent / "locks/package" / (project.stem + ".packages.lock.json")
             self.assertEqual(str(lock), output["Properties"]["NuGetLockFilePath"])
             self.assertEqual("Release", output["Properties"]["Configuration"])
+            self.assertEqual(FRAMEWORK, output["Properties"]["TargetFramework"])
+            self.assertEqual(".NETCoreApp", output["Properties"]["TargetFrameworkIdentifier"])
+            self.assertEqual("v11.0", output["Properties"]["TargetFrameworkVersion"])
             self.assertTrue(lock.is_file())
             for reference in output["Items"]["ProjectReference"]:
                 self.assertNotIn("Hexalith.EventStore.", reference["Identity"])
@@ -51,11 +56,18 @@ class MinimalModuleCompatibilityOverlayTests(unittest.TestCase):
                 self.assertTrue(selected)
             for reference in selected:
                 self.assertEqual(catalog[reference["Identity"].lower()], reference["Version"])
-            graph = json.loads(lock.read_text())["dependencies"]["net10.0"]
+            dependencies = json.loads(lock.read_text())["dependencies"]
+            self.assertEqual([FRAMEWORK], list(dependencies))
+            graph = dependencies[FRAMEWORK]
             for identity, package in graph.items():
                 if identity.lower().startswith("hexalith.eventstore."):
                     self.assertNotEqual("Project", package["type"])
                     self.assertEqual(catalog[identity.lower()], package["resolved"])
+            if project.stem.endswith(".Tests"):
+                selected = {reference["Identity"]: reference["Version"] for reference in output["Items"]["PackageReference"]}
+                for identity, version in {"Microsoft.NET.Test.Sdk": "18.12.0", "xunit.v3": "4.0.3"}.items():
+                    self.assertEqual(version, selected[identity])
+                    self.assertEqual(version, graph[identity]["resolved"])
 
     def test_compatibility_job_initializes_only_the_direct_catalog(self):
         workflow = (ROOT / ".github/workflows/ci.yml").read_text()
@@ -63,9 +75,28 @@ class MinimalModuleCompatibilityOverlayTests(unittest.TestCase):
         self.assertIn("git -c submodule.recurse=false submodule update --init --checkout -- references/Hexalith.Builds", job)
         self.assertNotIn("references/Hexalith.EventStore", job)
         self.assertIn("--locked-mode -p:Configuration=Release", job)
+        self.assertIn(f"--locked-mode -p:Configuration=Release -p:TargetFramework={FRAMEWORK}", job)
+        self.assertIn(f"--no-restore -m:1 -p:TargetFramework={FRAMEWORK}", job)
+        self.assertIn(f"/bin/Release/{FRAMEWORK}/Hexalith.Conversations.MinimalModule.Tests.dll", job)
+        self.assertEqual(2, job.count("-p:CustomAfterMicrosoftCommonProps=$PWD/tests/compatibility/MinimalModule/Framework.props"))
         self.assertIn("-p:MinimalModuleCompatibilityMode=package", job)
         self.assertIn("-automated sync -failSkips", job)
         self.assertIn("verify_results.py", job)
+
+    def test_reference_framework_discovery_uses_active_framework(self):
+        for project in sorted(FIXTURE.rglob("*.csproj")):
+            # The SDK clears global TargetFramework for reference discovery. Reproduce that evaluation.
+            result = subprocess.run(
+                ["dotnet", "msbuild", str(project), "-nologo", "-t:GetTargetFrameworks",
+                 "-p:MinimalModuleCompatibilityMode=package",
+                 f"-p:CustomAfterMicrosoftCommonProps={OVERLAY.parent / 'Framework.props'}",
+                 f"-p:CustomAfterMicrosoftCommonTargets={OVERLAY}",
+                 "-getProperty:TargetFramework,TargetFrameworkIdentifier,TargetFrameworkVersion"],
+                cwd=ROOT, env=self.isolated_environment(), text=True, capture_output=True, check=True)
+            properties = json.loads(result.stdout)["Properties"]
+            self.assertEqual(FRAMEWORK, properties["TargetFramework"])
+            self.assertEqual(".NETCoreApp", properties["TargetFrameworkIdentifier"])
+            self.assertEqual("v11.0", properties["TargetFrameworkVersion"])
 
     def test_catalog_drift_refuses_before_using_successor_locks(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -75,9 +106,10 @@ class MinimalModuleCompatibilityOverlayTests(unittest.TestCase):
             for name in ("RegisteredCommand.targets", "CatalogVersion.proj"):
                 shutil.copy2(OVERLAY.parent / name, overlay / name)
             catalog = ElementTree.parse(ROOT / "references/Hexalith.Builds/Props/Directory.Packages.props")
-            version = catalog.find(".//HexalithEventStoreVersion")
-            self.assertIsNotNone(version)
-            version.text = "0.0.0-review-drift"
+            versions = catalog.findall(".//HexalithEventStoreVersion")
+            self.assertTrue(versions)
+            for version in versions:
+                version.text = "0.0.0-review-drift"
             catalog_path = root / "references/Hexalith.Builds/Props/Directory.Packages.props"
             catalog_path.parent.mkdir(parents=True)
             catalog.write(catalog_path, encoding="utf-8")

@@ -72,11 +72,13 @@ jobs:
           mkdir -p TestResults/minimal-module
           fixture="tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx"
           compatibility="$PWD/tests/compatibility/MinimalModule/RegisteredCommand.targets"
-          dotnet restore "$fixture" --locked-mode -p:Configuration=Release \
+          dotnet restore "$fixture" --locked-mode -p:Configuration=Release -p:TargetFramework=net11.0 \
+            "-p:CustomAfterMicrosoftCommonProps=$PWD/tests/compatibility/MinimalModule/Framework.props" \
             "-p:CustomAfterMicrosoftCommonTargets=$compatibility" \
             -p:MinimalModuleCompatibilityMode=package -p:MinimalModuleCompatibilityUseSuccessorLocks=true \
             2>&1 | tee TestResults/minimal-module/restore.log
-          dotnet build "$fixture" --configuration Release --no-restore -m:1 \
+          dotnet build "$fixture" --configuration Release --no-restore -m:1 -p:TargetFramework=net11.0 \
+            "-p:CustomAfterMicrosoftCommonProps=$PWD/tests/compatibility/MinimalModule/Framework.props" \
             "-p:CustomAfterMicrosoftCommonTargets=$compatibility" \
             -p:MinimalModuleCompatibilityMode=package -p:MinimalModuleCompatibilityUseSuccessorLocks=true \
             2>&1 | tee TestResults/minimal-module/build.log
@@ -85,7 +87,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          dotnet tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/bin/Release/net10.0/Hexalith.Conversations.MinimalModule.Tests.dll \
+          dotnet tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/bin/Release/net11.0/Hexalith.Conversations.MinimalModule.Tests.dll \
             -automated sync -failSkips -result-xml "$PWD/TestResults/minimal-module/results.xml" \
             2>&1 | tee TestResults/minimal-module/tests.log
           python3 tests/compatibility/MinimalModule/verify_results.py TestResults/minimal-module/results.xml \

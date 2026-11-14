@@ -2,7 +2,7 @@
 
 This CI-only compatibility suite compiles and runs the frozen Story 11.2 fixture against
 the external package compatibility selection in `RegisteredCommand.targets` (EventStore
-4.2.0, matching the selected Builds catalog). It runs the original six tests and
+5.1.0 on net11.0, matching the selected Builds catalog). It runs the original six tests and
 adds one registered-command assertion through the public in-process domain router.
 The assertion resolves the keyed processor, checks the serialized creation event,
 replays it through the public in-process router in a fresh service scope, and checks
@@ -45,8 +45,11 @@ locks are deliberately qualified again. All original six fixture assertions and 
 registered-command assertion remain required by `verify_results.py`.
 
 Reproduce with the exact restore/build/test commands in `.github/workflows/ci.yml`.
-Pass the same absolute `CustomAfterMicrosoftCommonTargets` path and both explicit
-compatibility properties to restore and build. Run the built test DLL directly, then
+Pass the same absolute `CustomAfterMicrosoftCommonTargets` and
+`CustomAfterMicrosoftCommonProps` paths, global `TargetFramework=net11.0`, and both explicit
+compatibility properties to restore and build. The early `Framework.props` import keeps
+SDK reference discovery on net11.0 when it clears the caller's global framework; the late
+targets import selects packages and locks. Run the built test DLL directly, then
 run `verify_results.py` on its XML. Local source debugging uses Debug and the original
 source graph; its historical locks are frozen and may refuse current dependencies.
 An umbrella's ancestor `.editorconfig` can add diagnostics absent in a standalone
@@ -127,3 +130,20 @@ source copy using only nuget.org. A second empty package and HTTP cache passed
 warnings or errors, and native execution plus the result verifier passed all
 seven assertions with zero failures or skips. These checks start no resources
 and establish no composed runtime acceptance.
+
+## EventStore 5 and .NET 11 qualification (2026-11-14)
+
+The active graph selects EventStore 5.1.0, published during this maintenance run,
+from the deliberately refreshed direct Builds catalog. It uses net11.0,
+Microsoft.NET.Test.Sdk 18.12.0 and xUnit 4.0.3 while retaining Aspire hosting
+13.6.5 and Dapr hosting 13.6.2-beta.959. These external selections leave the
+original fixture's SDK, source defaults, package versions and four locks intact.
+
+All four successor locks were regenerated in an isolated copy using only
+nuget.org and empty package and HTTP caches. A second independent empty-cache
+restore passed `--locked-mode` without changing those locks. The Release build
+passed with zero warnings or errors, and native xUnit execution with
+`-automated sync -failSkips` plus `verify_results.py` required and passed all
+seven assertions with zero failures, skips or errors. SHA-256 checks confirmed
+all 17 frozen fixture files remained unchanged. This package build acceptance
+starts no resources and makes no runtime deployment acceptance claim.

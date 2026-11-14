@@ -5,11 +5,17 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(MinimalModuleCompatibilityMode)' == 'package'">
     <!-- Qualified dependency selection for this external compatibility graph, independent of product imports. -->
-    <MinimalModuleCompatibilityEventStoreVersion>4.2.0</MinimalModuleCompatibilityEventStoreVersion>
+    <MinimalModuleCompatibilityEventStoreVersion>5.1.0</MinimalModuleCompatibilityEventStoreVersion>
     <!-- Match the published EventStore.Aspire dependency without changing the frozen AppHost. -->
     <AspireDaprVersion>13.6.2-beta.959</AspireDaprVersion>
     <MinimalModuleCompatibilityAspireVersion>13.6.5</MinimalModuleCompatibilityAspireVersion>
+    <MinimalModuleCompatibilityTestSdkVersion>18.12.0</MinimalModuleCompatibilityTestSdkVersion>
+    <MinimalModuleCompatibilityXunitVersion>4.0.3</MinimalModuleCompatibilityXunitVersion>
   </PropertyGroup>
+  <ItemGroup Condition="'$(MinimalModuleCompatibilityMode)' == 'package'">
+    <PackageReference Update="Microsoft.NET.Test.Sdk" Version="$(MinimalModuleCompatibilityTestSdkVersion)" />
+    <PackageReference Update="xunit.v3" Version="$(MinimalModuleCompatibilityXunitVersion)" />
+  </ItemGroup>
   <Target Name="MinimalModuleCompatibilitySelectPackages" BeforeTargets="CollectPackageReferences;_GenerateRestoreGraphProjectEntry;_GetProjectReferenceTargetFrameworkProperties;AssignProjectConfiguration" Condition="'$(MinimalModuleCompatibilityMode)' == 'package'">
     <MSBuild Projects="$(MSBuildThisFileDirectory)CatalogVersion.proj" Targets="ReadMinimalModuleCompatibilityCatalog" RemoveProperties="HexalithEventStoreVersion;UseHexalithProjectReferences">
       <Output TaskParameter="TargetOutputs" ItemName="_CompatibilityCatalogPackage" />

@@ -1,0 +1,6 @@
+<Project>
+  <!-- SDK reference discovery clears global TargetFramework; select the active graph before inference again. -->
+  <PropertyGroup Condition="'$(MinimalModuleCompatibilityMode)' == 'package' and $([System.String]::Copy('$(MSBuildProjectName)').StartsWith('Hexalith.Conversations.MinimalModule.'))">
+    <TargetFramework>net11.0</TargetFramework>
+  </PropertyGroup>
+</Project>
