@@ -4,6 +4,7 @@
 // </copyright>
 
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -101,10 +102,13 @@ public sealed class PublicContractShapeSnapshotGenerationTest
         string root = FindRepositoryRoot();
         string baselinePath = Path.Combine(root, "docs", "release-evidence", "public-contract-shape-story-6.4-v3.json");
         string committedBaseline = RepositoryLocator.ReadAllText(baselinePath);
+        var baseline = JsonSerializer.Deserialize<PublicContractShapeSnapshotV1>(committedBaseline, SnapshotOptions)!;
+        JsonSerializer.Serialize(baseline, SnapshotOptions).ShouldBe(committedBaseline,
+            "Every baseline field must round-trip exactly before normalizing legacy parameter type names.");
         string currentSnapshot = JsonSerializer.Serialize(BuildSnapshot(), SnapshotOptions);
 
         currentSnapshot.ShouldBe(
-            committedBaseline,
+            JsonSerializer.Serialize(NormalizeLegacyParameterTypes(baseline), SnapshotOptions),
             "The full live public contract shape differs from the reviewed additive Story 6.4 successor. "
             + "Review the member-level diff and obtain explicit approval instead of regenerating the baseline.");
     }
@@ -113,7 +117,7 @@ public sealed class PublicContractShapeSnapshotGenerationTest
     public void CurrentSuccessorShouldPreserveEveryPriorTypeAndMemberOutsideTheApprovedAdditions()
     {
         string priorPath = Path.Combine(FindRepositoryRoot(), "docs", "release-evidence", "public-contract-shape-story-9.2-v2.json");
-        var prior = JsonSerializer.Deserialize<PublicContractShapeSnapshotV1>(RepositoryLocator.ReadAllText(priorPath), SnapshotOptions)!;
+        var prior = NormalizeLegacyParameterTypes(JsonSerializer.Deserialize<PublicContractShapeSnapshotV1>(RepositoryLocator.ReadAllText(priorPath), SnapshotOptions)!);
         PublicContractShapeSnapshotV1 current = BuildSnapshot();
         string[] addedTypes = ["ConversationAdvisoryMetadataResult", "ConversationResolutionMetadataResultV1", "ConversationResolutionMetadataV1",
             "ConversationResolutionScoringLabel", "GetConversationAdvisoryMetadataQuery", "GetConversationResolutionMetadataQuery"];
@@ -134,6 +138,168 @@ public sealed class PublicContractShapeSnapshotGenerationTest
             JsonSerializer.Serialize(actual, SnapshotOptions).ShouldBe(JsonSerializer.Serialize(retained, SnapshotOptions), retained.Name);
         }
         current.Types.Count.ShouldBe(prior.Types.Count + addedTypes.Length);
+    }
+
+    [Theory]
+    [InlineData(typeof(long?), "System.Int64?&")]
+    [InlineData(typeof(DateTimeOffset?), "System.DateTimeOffset?&")]
+    [InlineData(typeof(TimeSpan?), "System.TimeSpan?&")]
+    [InlineData(typeof(Uri), "System.Uri&")]
+    [InlineData(typeof(IReadOnlyList<string>), "System.Collections.Generic.IReadOnlyList<System.String>&")]
+    [InlineData(typeof(IReadOnlyDictionary<string, string>), "System.Collections.Generic.IReadOnlyDictionary<System.String, System.String>&")]
+    [InlineData(typeof(long?[]), "System.Int64?[]&")]
+    [InlineData(typeof(long[,]), "System.Int64[,]&")]
+    public void ByReferenceTypeNamesShouldPreserveTheirSemanticElementShape(Type element, string expected)
+    {
+        FormatTypeName(element.MakeByRefType()).ShouldBe(expected);
+    }
+
+    [Theory]
+    [InlineData("10.0.0.0")]
+    [InlineData("11.0.0.0")]
+    public void LegacyCoreLibraryVersionsShouldCompareAsTheSameParameterShape(string version)
+    {
+        string legacy = $"System.Nullable`1[[System.Int64, System.Private.CoreLib, Version={version}, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]&";
+        NormalizeLegacyParameterType(legacy).ShouldBe(FormatTypeName(typeof(long?).MakeByRefType()));
+        Type contracts = typeof(IReadOnlyList<ConformanceRunResultV1>).MakeByRefType();
+        NormalizeLegacyParameterType(contracts.FullName!).ShouldBe(FormatTypeName(contracts));
+    }
+
+    [Fact]
+    public void LiveByReferenceTypesShouldPreserveForeignArgumentAssemblyIdentity()
+    {
+        AssemblyBuilder assembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("Foreign.ContractShapeControl"), AssemblyBuilderAccess.RunAndCollect);
+        Type foreign = assembly.DefineDynamicModule("control")
+            .DefineType(typeof(ConformanceRunResultV1).FullName!, TypeAttributes.Public).CreateType()!;
+        foreign.FullName.ShouldBe(typeof(ConformanceRunResultV1).FullName);
+        foreign.Assembly.ShouldNotBe(typeof(ConformanceRunResultV1).Assembly);
+        Type[] genuineArguments = [typeof(ConformanceRunResultV1), typeof(ConformanceRunResultV1[]), typeof(IReadOnlyList<ConformanceRunResultV1>)];
+        Type[] foreignArguments = [foreign, foreign.MakeArrayType(), typeof(IReadOnlyList<>).MakeGenericType(foreign)];
+        for (int index = 0; index < genuineArguments.Length; index++)
+        {
+            Type genuine = typeof(IReadOnlyList<>).MakeGenericType(genuineArguments[index]).MakeByRefType();
+            Type changed = typeof(IReadOnlyList<>).MakeGenericType(foreignArguments[index]).MakeByRefType();
+            FormatTypeName(changed).ShouldNotBe(NormalizeLegacyParameterType(genuine.FullName!));
+        }
+    }
+
+    [Theory]
+    [InlineData(typeof(long?[]), "System.Int64?[]&")]
+    [InlineData(typeof(long?[,]), "System.Int64?[,]&")]
+    [InlineData(typeof(long?[][]), "System.Int64?[][]&")]
+    [InlineData(typeof(IReadOnlyList<string>[]), "System.Collections.Generic.IReadOnlyList<System.String>[]&")]
+    [InlineData(typeof(IReadOnlyList<string>[,]), "System.Collections.Generic.IReadOnlyList<System.String>[,]&")]
+    public void LegacyByReferenceArraysShouldMatchLiveShapesWithoutLosingRank(Type element, string expected)
+    {
+        Type live = element.MakeByRefType();
+        string legacy = live.FullName!.Replace(typeof(object).Assembly.FullName!,
+            "System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e", StringComparison.Ordinal);
+        FormatTypeName(live).ShouldBe(expected);
+        NormalizeLegacyParameterType(legacy).ShouldBe(expected);
+    }
+
+    [Fact]
+    public void NestedGenericByReferenceTypesShouldRetainDeclaringAndNestedNames()
+    {
+        Type keys = typeof(Dictionary<string, long>.KeyCollection).MakeByRefType();
+        Type values = typeof(Dictionary<string, long>.ValueCollection).MakeByRefType();
+        FormatTypeName(keys).ShouldBe("System.Collections.Generic.Dictionary<System.String, System.Int64>+KeyCollection&");
+        FormatTypeName(values).ShouldBe("System.Collections.Generic.Dictionary<System.String, System.Int64>+ValueCollection&");
+        FormatTypeName(keys).ShouldNotBe(FormatTypeName(values));
+        NormalizeLegacyParameterType(keys.FullName!).ShouldBe(FormatTypeName(keys));
+        NormalizeLegacyParameterType(values.FullName!).ShouldBe(FormatTypeName(values));
+    }
+
+    [Theory]
+    [InlineData("invalid", "7cec85d7bea7798e")]
+    [InlineData("65536.0.0.0", "7cec85d7bea7798e")]
+    [InlineData("10.0.0.0", "not-hex")]
+    public void MalformedLegacyAssemblyMetadataShouldRemainUnequal(string version, string token)
+    {
+        string legacy = $"System.Nullable`1[[System.Int64, System.Private.CoreLib, Version={version}, Culture=neutral, PublicKeyToken={token}]]&";
+        NormalizeLegacyParameterType(legacy).ShouldBe(legacy);
+        NormalizeLegacyParameterType(legacy).ShouldNotBe(FormatTypeName(typeof(long?).MakeByRefType()));
+    }
+
+    [Theory]
+    [InlineData("element")]
+    [InlineData("byref")]
+    [InlineData("nullable")]
+    [InlineData("name")]
+    [InlineData("order")]
+    [InlineData("generic-argument")]
+    public void LegacyParameterComparisonShouldStillDetectContractDrift(string change)
+    {
+        const string legacy = "System.Nullable`1[[System.Int64, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]&";
+        const string collection = "System.Collections.Generic.IReadOnlyList`1[[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]&";
+        MethodShape baseline = new("Deconstruct", "System.Void", [new("count", legacy), new("labels", collection)]);
+        ParameterShape first = baseline.Parameters[0];
+        MethodShape changed = change switch
+        {
+            "element" => baseline with { Parameters = [first with { Type = legacy.Replace("System.Int64", "System.Int32", StringComparison.Ordinal) }, baseline.Parameters[1]] },
+            "byref" => baseline with { Parameters = [first with { Type = legacy[..^1] }, baseline.Parameters[1]] },
+            "nullable" => baseline with { Parameters = [first with { Type = "System.Int64&" }, baseline.Parameters[1]] },
+            "name" => baseline with { Parameters = [first with { Name = "other" }, baseline.Parameters[1]] },
+            "order" => baseline with { Parameters = baseline.Parameters.Reverse().ToArray() },
+            _ => baseline with { Parameters = [first, baseline.Parameters[1] with { Type = collection.Replace("System.String", "System.Int64", StringComparison.Ordinal) }] },
+        };
+        JsonSerializer.Serialize(NormalizeLegacyMethodParameters(changed), SnapshotOptions)
+            .ShouldNotBe(JsonSerializer.Serialize(NormalizeLegacyMethodParameters(baseline), SnapshotOptions));
+    }
+
+    [Theory]
+    [InlineData("System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=0000000000000000")]
+    [InlineData("System.Private.CoreLib, Version=10.0.0.0, Culture=fr, PublicKeyToken=7cec85d7bea7798e")]
+    [InlineData("Other.Assembly, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e")]
+    public void LegacyParameterNormalizationShouldRefuseOtherAssemblyIdentities(string assembly)
+    {
+        string legacy = $"System.Nullable`1[[System.Int64, {assembly}]]&";
+        NormalizeLegacyParameterType(legacy).ShouldBe(legacy);
+    }
+
+    [Theory]
+    [InlineData("version")]
+    [InlineData("culture")]
+    [InlineData("token")]
+    public void LegacyContractAssemblyIdentityShouldRemainExact(string change)
+    {
+        string contracts = typeof(IReadOnlyList<ConformanceRunResultV1>).MakeByRefType().FullName!;
+        AssemblyName assembly = typeof(ConformanceRunResultV1).Assembly.GetName();
+        if (change == "version")
+        {
+            assembly.Version = new Version(999, 0, 0, 0);
+        }
+        else if (change == "culture")
+        {
+            assembly.CultureName = "fr";
+        }
+        else
+        {
+            assembly.SetPublicKeyToken(new byte[8]);
+        }
+        string changed = contracts.Replace(typeof(ConformanceRunResultV1).Assembly.FullName!, assembly.FullName!, StringComparison.Ordinal);
+        changed.ShouldNotBe(contracts);
+        NormalizeLegacyParameterType(changed).ShouldBe(changed);
+    }
+
+    [Fact]
+    public void LegacyNormalizationShouldTouchOnlyParameterTypeSlots()
+    {
+        const string legacy = "System.Nullable`1[[System.Int64, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]&";
+        PublicTypeShape type = new()
+        {
+            Namespace = "Contract", Name = "Probe", Kind = "class",
+            Properties = [new("Value", legacy, true, true, false)],
+            Constructors = [new("(ctor)", null, [new("value", legacy)])],
+            Methods = [new("Probe", legacy, [new(legacy, legacy)])],
+        };
+        PublicContractShapeSnapshotV1 normalized = NormalizeLegacyParameterTypes(BuildSnapshot() with { Description = legacy, TypeCount = 1, Types = [type] });
+        normalized.Description.ShouldBe(legacy);
+        normalized.Types[0].Properties.ShouldBe(type.Properties);
+        normalized.Types[0].Methods![0].ReturnType.ShouldBe(legacy);
+        normalized.Types[0].Methods![0].Parameters[0].Name.ShouldBe(legacy);
+        normalized.Types[0].Methods![0].Parameters[0].Type.ShouldBe("System.Int64?&");
+        normalized.Types[0].Constructors![0].Parameters[0].Type.ShouldBe("System.Int64?&");
     }
 
     [Fact]
@@ -330,6 +496,68 @@ public sealed class PublicContractShapeSnapshotGenerationTest
     private static IReadOnlyList<ParameterShape> DescribeParameters(ParameterInfo[] parameters)
         => parameters.Select(p => new ParameterShape(p.Name ?? string.Empty, FormatTypeName(p.ParameterType))).ToList();
 
+    // Frozen baselines used Type.FullName for generic byref parameters, embedding CLR assembly versions.
+    // Normalize only those parameter slots in memory; every other baseline field remains exact.
+    private static PublicContractShapeSnapshotV1 NormalizeLegacyParameterTypes(PublicContractShapeSnapshotV1 snapshot)
+        => snapshot with
+        {
+            Types = snapshot.Types.Select(type => type with
+            {
+                Constructors = type.Constructors?.Select(NormalizeLegacyMethodParameters).ToArray(),
+                Methods = type.Methods?.Select(NormalizeLegacyMethodParameters).ToArray(),
+            }).ToArray(),
+        };
+
+    private static MethodShape NormalizeLegacyMethodParameters(MethodShape method)
+        => method with
+        {
+            Parameters = method.Parameters.Select(parameter => parameter with { Type = NormalizeLegacyParameterType(parameter.Type) }).ToArray(),
+        };
+
+    private static string NormalizeLegacyParameterType(string name)
+    {
+        if (!name.EndsWith('&') || !name.Contains("[[", StringComparison.Ordinal))
+        {
+            return name;
+        }
+
+        try
+        {
+            Type? type = Type.GetType(name, ResolveLegacyParameterAssembly,
+                (assembly, typeName, ignoreCase) => (assembly ?? typeof(object).Assembly).GetType(typeName, false, ignoreCase), false);
+            return type is { IsByRef: true } ? FormatTypeName(type) : name;
+        }
+        catch (Exception exception) when (exception is ArgumentException or FileLoadException)
+        {
+            return name; // Malformed or unresolved metadata stays unequal; it is never discarded.
+        }
+    }
+
+    private static Assembly? ResolveLegacyParameterAssembly(AssemblyName requested)
+    {
+        Assembly core = typeof(object).Assembly;
+        AssemblyName compatibleCore = core.GetName();
+        compatibleCore.Version = requested.Version; // Runtime Version is the only relaxed identity field.
+        if (requested.FullName == compatibleCore.FullName)
+        {
+            return core;
+        }
+
+        Assembly contracts = typeof(ConformanceRunResultV1).Assembly;
+        return requested.FullName == contracts.FullName ? contracts : null;
+    }
+
+    private static bool HasAdmittedTypeIdentity(Type type)
+    {
+        if (type.HasElementType)
+        {
+            return HasAdmittedTypeIdentity(type.GetElementType()!);
+        }
+
+        return (type.Assembly == typeof(object).Assembly || type.Assembly == typeof(ConformanceRunResultV1).Assembly)
+            && (!type.IsGenericType || type.GetGenericArguments().All(HasAdmittedTypeIdentity));
+    }
+
     private static string SignatureKey(MethodShape method)
         => $"{method.Name}({string.Join(",", method.Parameters.Select(p => p.Type))})->{method.ReturnType}";
 
@@ -375,9 +603,30 @@ public sealed class PublicContractShapeSnapshotGenerationTest
             return type.Name;
         }
 
+        if (type.IsByRef)
+        {
+            Type element = type.GetElementType()!;
+            Type innermost = element;
+            while (innermost.HasElementType)
+            {
+                innermost = innermost.GetElementType()!;
+            }
+
+            // Simple byref names already omitted assembly qualification in the frozen snapshots.
+            // Validate identities only when replacing the old CLR generic spelling, including arrays.
+            if (innermost.IsGenericType && !HasAdmittedTypeIdentity(element))
+            {
+                return type.AssemblyQualifiedName
+                    ?? throw new InvalidOperationException("Cannot preserve the assembly identity of this byref contract type.");
+            }
+
+            return FormatTypeName(element) + "&";
+        }
+
         if (type.IsArray)
         {
-            return FormatTypeName(type.GetElementType()!) + "[]";
+            string rank = type.IsSZArray ? "[]" : type.GetArrayRank() == 1 ? "[*]" : "[" + new string(',', type.GetArrayRank() - 1) + "]";
+            return FormatTypeName(type.GetElementType()!) + rank;
         }
 
         Type? nullableUnderlying = Nullable.GetUnderlyingType(type);
@@ -389,6 +638,20 @@ public sealed class PublicContractShapeSnapshotGenerationTest
         if (type.IsGenericType)
         {
             Type definition = type.GetGenericTypeDefinition();
+            if (definition.DeclaringType is { } declaring)
+            {
+                Type[] arguments = type.GetGenericArguments();
+                int inherited = declaring.GetGenericArguments().Length;
+                if (declaring.IsGenericTypeDefinition)
+                {
+                    declaring = declaring.MakeGenericType(arguments[..inherited]);
+                }
+
+                string ownName = definition.Name.Split('`')[0];
+                string ownArguments = string.Join(", ", arguments.Skip(inherited).Select(FormatTypeName));
+                return FormatTypeName(declaring) + "+" + ownName + (ownArguments.Length == 0 ? string.Empty : $"<{ownArguments}>");
+            }
+
             string baseName = (definition.FullName ?? definition.Name).Split('`')[0];
             string args = string.Join(", ", type.GetGenericArguments().Select(FormatTypeName));
             return $"{baseName}<{args}>";
