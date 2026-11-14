@@ -202,7 +202,7 @@ jobs:
     if: ${{ needs.verify-source.outputs.publish-enabled == 'true' }}
     needs: [verify-source, release]
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
     permissions:
       contents: read
     steps:
@@ -219,5 +219,5 @@ jobs:
           python3 scripts/verify-release-state.py present "$RELEASE_VERSION"
           --repository "${{ github.repository }}"
           --source-sha "${{ github.sha }}"
-          --attempts 61
+          --attempts 121
           --delay-seconds 15

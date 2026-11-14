@@ -2,7 +2,7 @@
 title: 'Complete current dependency synchronization and Conversations release'
 type: 'bugfix'
 created: '2026-11-14'
-status: 'in-review'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: 'e06ce67da68d655970727606aba92ac0c8704e07'
@@ -32,8 +32,8 @@ context:
 
 - `.gitmodules`: twelve root-declared dependencies; all initially clean and on main. Fetch without recursive submodule operations. Inspect then fast-forward EventStore, Projects, Folders, Tenants, FrontComposer and Platform. Other direct dependencies currently equal remote main.
 - `global.json`: stable SDK 11.0.100 is installed and matches official November 10 release metadata; net11.0 is already active. SDK 10.0.404 is retained for historical tooling where required.
-- `references/Hexalith.Builds/Props/Directory.Packages.props`: owner of centralized versions; inspect actual used packages and intentional named consumer cohorts before updating. `.config/dotnet-tools.json` pins published CLI 6.0.2. Preserve compatible package-mode imports and producer identity verification.
-- `references/Hexalith.Platform`: latest main 50fb0462924a765e38d830e42af242ccfaf5982f pins the same Builds 12475add3f14b06709a5ffe74f413d27d4111d75 as root. Current root Platform d77f741d11bf01352a11fa6df2f1a14313c1328a still pins 60ce7967607dc8b703fff11f4fc13cabb09c090a. This causes HXW009, plus secondary shallow-history HXW007, in CI 43618918082.
+- `references/Hexalith.Builds/Props/Directory.Packages.props`: owner of centralized versions; inspect actual used packages and intentional named consumer cohorts before updating. `.config/dotnet-tools.json` initially pinned CLI 6.0.2 and now pins the published 6.0.3 successor. Preserve compatible package-mode imports and producer identity verification.
+- `references/Hexalith.Platform`: at baseline, latest main 50fb0462924a765e38d830e42af242ccfaf5982f pins the same Builds 12475add3f14b06709a5ffe74f413d27d4111d75 as root. Current root Platform d77f741d11bf01352a11fa6df2f1a14313c1328a still pins 60ce7967607dc8b703fff11f4fc13cabb09c090a. This causes HXW009, plus secondary shallow-history HXW007, in CI 43618918082.
 - `references/Hexalith.Builds/Github/prepare-module-build/prepare_module_build.py`: supported package environment preparation; reads committed HEAD identity, requiring a committed candidate for honest qualification. Use temporary candidate commits only in disposable checkouts when necessary.
 - `package.json`, `package-lock.json`: pinned release tooling; verify official npm versions and signatures and update only when newer compatible releases exist.
 - `.github/workflows/ci.yml`: full package-mode build, per-project tests, real Dapr/Aspire checks, Windows cleanup, browser, conformance and tooling lanes. Reuse these automated checks after focused local verification.
@@ -48,9 +48,9 @@ context:
 - [x] Root dependency gitlinks -- inspect and fast-forward only the declared clean direct repositories, verify remote availability and no nested initialization.
 - [x] SDK, catalog and npm pins -- compare official current versions and update supported active pins if needed; record compatibility constraints.
 - [x] Current candidate -- run focused tooling, whitespace and root-submodule checks; qualify producer package preparation on the committed identity and inspect actual diff.
-- [ ] CI fixes -- repair concrete failing behavior, preserve automated checks, and pass focused validation plus independent review before final push.
-- [ ] Root and any owning dependency -- validate exact complete commit messages, retain logs, commit and push all authorized content and synchronized pointers.
-- [ ] Release -- achieve green exact-source CI, dispatch existing release workflow without human validation pauses, and independently verify all five NuGet packages, symbols, version/tag and source.
+- [x] CI fixes -- repair concrete failing behavior, preserve automated checks, and pass focused validation plus independent review before final push.
+- [x] Root and any owning dependency -- validate exact complete commit messages, retain logs, commit and push all authorized content and synchronized pointers.
+- [x] Release -- achieve green exact-source CI, dispatch existing release workflow without human validation pauses, and independently verify all five NuGet packages, symbols, version/tag and source.
 
 **Acceptance Criteria:**
 - Given official release metadata and current registry indexes, when active SDK and dependency pins are audited, then they are latest stable or a demonstrated compatibility requirement is recorded.
@@ -61,7 +61,7 @@ context:
 
 The user authorized the dependency updates, commits, pushes and release, including bypass of human validation. The user narrowed CI repairs to Conversations and the dependencies required for its release. Automated build, integrity and publication gates remain enabled. Historical evidence-boundary reproduction is not part of this routine maintenance.
 
-All twelve direct repositories began clean on main. Six had newer upstream source; the selected EventStore, Projects, Folders, Tenants and FrontComposer revisions were fast-forwarded, while Platform required a qualified source successor. All selected revisions are available remotely. All 118 nested declarations remain uninitialized.
+All twelve direct repositories began clean on main. Six had newer upstream source; the selected EventStore, Projects, Folders, Tenants and FrontComposer revisions were fast-forwarded, while Platform required a qualified source successor. All selected revisions are available remotely. All nested declarations remain uninitialized; the final selected owners declare 108 nested paths.
 
 Official release metadata confirms installed SDK `11.0.100` is the latest stable .NET 11 SDK. All seven direct npm pins and other consumed stable NuGet versions were current. Tenants was the stale consumed family, moving from `7.0.7` to `8.0.0`. The compatible Dapr integration remains `13.6.2-beta.959`; its version 17 beta requires an Aspire 17 preview graph.
 
@@ -75,11 +75,23 @@ Platform local validation passed 81 Python, 28 native, 25 source-propagation and
 
 Root source `523a1a5ac7e2646b35c32ea53ef735ee671abc6c` aligns the final producer pointers and module tool 6.0.3. Its exact full message passed pinned commitlint. Root tooling 100/100, compatibility 7/7, Windows checkout 4/4, whitespace and index-aware submodule checks passed. Fresh fetches verified every owner clean, selected HEAD available remotely and zero ahead/behind. Strict package preparation passed on the committed identity in Release mode, mapping hash `a530e0cf0e5f0c11b76b79bf575fec99d41492351ab703c4a028ac9ee2c7bb13`.
 
-Hosted root run `43636569003` passed every active lane except two portable snapshot comparisons; the full build, unit, integration and Aspire checks passed. CodeQL `43636569193` and commit policy `43636568853` also passed. The portable lane ran 296 cases and exposed CLR-version-qualified generic by-reference names in the frozen snapshots. The repair renders semantic element types recursively and normalizes only legacy parameter slots in memory. Both immutable baselines remain byte-identical. Initial mapped-source Debug validation passed all 28 snapshot-class cases with zero warnings, errors or skips. Independent review identified the live assembly-identity and nested-type/array edge cases recorded below. All corrections now pass 39/39 focused tests with zero warnings, errors, skips or unrun cases. The first review patch exposed an overly broad check of plain System.Uri&; its failed 38-case receipt is retained separately, and the final guard preserves simple byref spellings. Tested source SHA-256 is `ece287d366d87fc8753d075a468eaf76659bd79b33314a41f7d1ddb6097ed075`. Exact-source hosted requalification remains required.
+Hosted root run `43636569003` passed every active lane except two portable snapshot comparisons; the full build, unit, integration and Aspire checks passed. CodeQL `43636569193` and commit policy `43636568853` also passed. The portable lane ran 296 cases and exposed CLR-version-qualified generic by-reference names in the frozen snapshots. The repair renders semantic element types recursively and normalizes only legacy parameter slots in memory. Both immutable baselines remain byte-identical. Initial mapped-source Debug validation passed all 28 snapshot-class cases with zero warnings, errors or skips. Independent review identified the live assembly-identity and nested-type/array edge cases recorded below. All corrections now pass 39/39 focused tests with zero warnings, errors, skips or unrun cases. The first review patch exposed an overly broad check of plain System.Uri&; its failed 38-case receipt is retained separately, and the final guard preserves simple byref spellings. Tested source SHA-256 is `ece287d366d87fc8753d075a468eaf76659bd79b33314a41f7d1ddb6097ed075`. Exact-source hosted requalification passed, as recorded below.
 
-The initial semantic release dry run resolved to `1.6.1`. Inspection of the actual `v1.6.0` tag then confirmed its packages target `net10.0`, while existing commit `bba2023039065db0fb0a799d64157999514f5d93` retargets current packages to `net11.0`. The README now states this runtime requirement and preserves wire schema v1. A validated breaking-change commit records the framework compatibility break so the planned publication is `2.0.0`. Release and independent verification of all five official packages and symbol archives remain pending. Useful command logs, exact source hashes, XML receipts, bindings and publication checks are retained under `/home/administrator/.codex/task-logs/conversations-release-followup-20261114`.
+The initial semantic release dry run resolved to `1.6.1`. Inspection of the actual `v1.6.0` tag then confirmed its packages target `net10.0`, while existing commit `bba2023039065db0fb0a799d64157999514f5d93` retargets current packages to `net11.0`. The README now states this runtime requirement and preserves wire schema v1. A validated breaking-change commit records the framework compatibility break so the planned publication is `2.0.0`. Release and independent verification of all five official packages and symbol archives have completed, as recorded below. Useful command logs, exact source hashes, XML receipts, bindings and publication checks are retained under `/home/administrator/.codex/task-logs/conversations-release-followup-20261114`.
+
+The first actual publication check exhausted its 15-minute poll with only EventStoreExtensions still pending. The publisher succeeded and the GitHub release contains all ten assets. The future publication job now allows 121 attempts at 15-second intervals (30 minutes), with a 45-minute job timeout; every source, hash and package assertion remains unchanged. Both focused workflow-security and transient-poll tests pass. Original failed hosted and independent receipts remain separate from the retry.
+
+## Completion
+
+Conversations `v2.0.0` is genuinely published at source `bd6265afe8aee2e555b637bd973653331c284c66`, GitHub release `445599945`. Exact-source CI `43640275115`, CodeQL `43640275084` and commit policy `43640274748` all passed. Hosted conformance ran 329 portable and 90 internal cases with zero failures, errors, skips or unrun cases. Full build, unit, integration, Aspire, browser, Windows and repository/tooling lanes passed.
+
+Normal release `43642189667` succeeded on attempt 2. The original publisher succeeded once; only its failed publication-verification job was rerun after NuGet processing completed. Independent verification downloaded all five official NuGet packages and all five official symbol archives, matched their canonical contents to the ten authenticated GitHub assets, checked exact tag/source, nuspec identity/version and PDB presence. The complete receipt is `/home/administrator/.codex/task-logs/conversations-release-followup-20261114/root-2.0.0-propagation-retry-publication.json`; symbol hashes are in the corresponding `-symbols.json`. Original failed polling observations remain preserved.
+
+All twelve direct owners are clean on main, match their recorded revisions and origin/main, and have zero ahead/behind. The final audit records 108 nested declarations and zero initialized nested repositories. SDK 11.0.100, current compatible package pins, Builds 6.0.3 and Platform 2.1.4 are selected. Every accepted review patch is resolved; no finding was deferred. The final workflow change extends the bounded registry wait without weakening any automated assertion. All exact commit messages passed the owning pinned commitlint CLI. The Platform main push reported bypassing its pull-request rule, under the user's explicit instruction.
 
 ## Spec Change Log
+
+- Actual NuGet propagation exceeded the existing polling window. Extend the bounded verification window without changing publication, source integrity or content comparison rules.
 
 - Release compatibility inspection found the previously committed target-framework change requires a major package version. Document the .NET 11 requirement and encode the breaking change in Conventional Commit metadata; preserve all current source, wire contracts and frozen evidence.
 
