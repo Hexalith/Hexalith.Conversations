@@ -79,7 +79,25 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
     /// <summary>The domain-service version used by the static registration and the route catalog.</summary>
     public const string ServiceVersion = "v1";
 
-    private const int RedisPort = 6379;
+    private readonly int _redisPort;
+    private readonly Action<WebApplicationBuilder>? _configureBuilder;
+    private readonly Action<WebApplication>? _configureApplication;
+    private readonly bool _requireBoundaryCensus;
+    private readonly bool _includeProgress;
+
+    /// <summary>Creates the existing mandatory gateway lane.</summary>
+    public ConversationGatewayLiveFixture() : this(6379, null, null, true) { }
+
+    /// <summary>Creates an isolated consumer of the same authenticated production topology.</summary>
+    internal ConversationGatewayLiveFixture(int redisPort, Action<WebApplicationBuilder>? configureBuilder,
+        Action<WebApplication>? configureApplication, bool requireBoundaryCensus, bool includeProgress = false)
+    {
+        _includeProgress = includeProgress;
+        _redisPort = redisPort;
+        _configureBuilder = configureBuilder;
+        _configureApplication = configureApplication;
+        _requireBoundaryCensus = requireBoundaryCensus;
+    }
     private const int HealthTimeoutSeconds = 60;
     private const int PortBindingRetryCount = 3;
     private const int WarmUpTimeoutSeconds = 45;
@@ -106,6 +124,13 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
     private string? _previousDaprGrpcPort;
     private string? _previousDaprHttpPort;
     private WebApplication? _testHost;
+
+    /// <summary>Gets the actual committed catalog root for this isolated topology.</summary>
+    internal string CatalogRootDigest => _routeCatalog!.RootDigest;
+
+    /// <summary>Gets this run's disposable component and catalog directories for cleanup verification.</summary>
+    internal IReadOnlyList<string> ScratchDirectories => new[] { _componentsDirectory, _routeCatalog is null ? null : Path.GetDirectoryName(_routeCatalog.ConfigurationPath) }
+        .Where(path => path is not null).Select(path => path!).ToArray();
 
     /// <summary>Gets the isolated DAPR application identity used by this fixture run.</summary>
     public string AppId { get; } = $"conversations-gateway-{Guid.NewGuid():N}";
@@ -258,6 +283,7 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
         // everywhere (pass-10 review). Set HEXALITH_GATEWAY_ALLOW_FILTERED_RUN=1 for a deliberately filtered
         // debugging run; CI and evidence runs must never set it.
         if (IsAvailable
+            && _requireBoundaryCensus
             && !string.Equals(
                 Environment.GetEnvironmentVariable("HEXALITH_GATEWAY_ALLOW_FILTERED_RUN"),
                 "1",
@@ -337,7 +363,7 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
               version: v1
               metadata:
                 - name: redisHost
-                  value: "localhost:{RedisPort}"
+                  value: "localhost:{_redisPort}"
                 - name: redisPassword
                   value: ""
                 - name: actorStateStore
@@ -356,7 +382,7 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
               version: v1
               metadata:
                 - name: redisHost
-                  value: "localhost:{RedisPort}"
+                  value: "localhost:{_redisPort}"
                 - name: redisPassword
                   value: ""
                 - name: enableDeadLetter
@@ -367,7 +393,7 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
 
         File.WriteAllText(Path.Combine(directory, StateStoreName + ".yaml"), stateStore);
         File.WriteAllText(Path.Combine(directory, PubSubName + ".yaml"), pubSub);
-        _routeCatalog = new ConversationGatewayRouteCatalog(AppId, directory, DaprHttpEndpoint);
+        _routeCatalog = new ConversationGatewayRouteCatalog(AppId, directory, DaprHttpEndpoint, _redisPort, _includeProgress);
         return directory;
     }
 
@@ -467,7 +493,9 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
                     ConversationProjectionHandler.ConversationDomain,
                     ServiceVersion));
 
+        _configureBuilder?.Invoke(builder);
         _testHost = builder.Build();
+        _configureApplication?.Invoke(_testHost);
         _ = _testHost.MapActorsHandlers().RequireEventStoreSidecarChannel();
 
         // Maps /process, /project, /project/v2, the rebuild routes, and the operational-index metadata the
@@ -495,6 +523,7 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
 
     private void StartDaprSidecar()
     {
+        DaprDiagnostics.RequireDaprExecutable(ResolveDaprdPath());
         _daprProcess = new Process
         {
             StartInfo = new ProcessStartInfo

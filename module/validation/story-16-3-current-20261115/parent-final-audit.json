@@ -1,0 +1,52 @@
+{
+  "diagnostics": {
+    "passed": 43,
+    "failed": 0,
+    "skipped": 0,
+    "notRun": 0,
+    "currentSources": "PASS",
+    "selectedClasses": "PASS"
+  },
+  "apphost": {
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "notRun": 0,
+    "currentSources": "PASS",
+    "selectedClasses": "PASS"
+  },
+  "integration": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "notRun": 0,
+    "currentSources": "PASS",
+    "selectedClasses": "PASS"
+  },
+  "regression": {
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "notRun": 0,
+    "currentSources": "PASS",
+    "selectedClasses": "PASS"
+  },
+  "server": {
+    "passed": 117,
+    "failed": 0,
+    "skipped": 0,
+    "notRun": 0,
+    "currentSources": "PASS",
+    "selectedClasses": "PASS"
+  },
+  "nativePassed": 184,
+  "runnerControlsPassed": 15,
+  "result": "PASS",
+  "formalEvidenceGate": "waived",
+  "v9FinalRecordGate": "waived",
+  "defaultKeycloakBaseline": "BLOCKED",
+  "runnerSources": {
+    "run-native.py": "17cbf676866e166426bdd51078f6c532eda4a25d843a1773458105a39940a513",
+    "test_native_runner.py": "7ae5c7fea916f0243319bc3d22e24048c859e72e93bdbba8668025aaff8499f5"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "counts": {
+    "total": 5,
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "not-run": 0,
+    "errors": 0
+  },
+  "tests": [
+    {
+      "id": "77dc6426-c5f3-4b8b-a249-14354c1a8d68",
+      "name": "Hexalith.Conversations.IntegrationTests.Epic16.Story16_3EvidenceTests.Scenario02",
+      "type": "Hexalith.Conversations.IntegrationTests.Epic16.Story16_3EvidenceTests",
+      "method": "Scenario02",
+      "result": "Pass"
+    },
+    {
+      "id": "8620a905-f5a1-4bc8-afb3-086a8c0eff34",
+      "name": "Hexalith.Conversations.IntegrationTests.Epic16.Story16_3EvidenceTests.Scenario01",
+      "type": "Hexalith.Conversations.IntegrationTests.Epic16.Story16_3EvidenceTests",
+      "method": "Scenario01",
+      "result": "Pass"
+    },
+    {
+      "id": "553a4e11-03ea-40c5-836d-eba580f35beb",
+      "name": "Hexalith.Conversations.IntegrationTests.Epic16.Story16_3EvidenceTests.Scenario04",
+      "type": "Hexalith.Conversations.IntegrationTests.Epic16.Story16_3EvidenceTests",
+      "method": "Scenario04",
+      "result": "Pass"
+    },
+    {
+      "id": "580d2d9d-05d2-40b6-b440-eb763ebaf8f7",
+      "name": "Hexalith.Conversations.IntegrationTests.Epic16.Story16_3EvidenceTests.Scenario03",
+      "type": "Hexalith.Conversations.IntegrationTests.Epic16.Story16_3EvidenceTests",
+      "method": "Scenario03",
+      "result": "Pass"
+    },
+    {
+      "id": "92cde5a8-f2e0-4a3e-893f-be0dc28be899",
+      "name": "Hexalith.Conversations.IntegrationTests.Epic16.Story16_3EvidenceTests.Scenario05",
+      "type": "Hexalith.Conversations.IntegrationTests.Epic16.Story16_3EvidenceTests",
+      "method": "Scenario05",
+      "result": "Pass"
+    }
+  ],
+  "selectedClasses": [
+    "*Story16_3EvidenceTests"
+  ],
+  "missingClasses": [],
+  "valid": true
+}

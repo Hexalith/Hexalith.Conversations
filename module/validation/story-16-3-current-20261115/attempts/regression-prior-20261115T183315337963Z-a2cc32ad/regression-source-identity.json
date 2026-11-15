@@ -1,0 +1,21 @@
+{
+  "rootCommit": "ed6eedc146b493bfbf7250af7356fd3b20d8333f",
+  "rawGitlinks": "160000 17a37d83db193f0b7494c1b931fd1e82a67c1424 0\treferences/Hexalith.AI.Tools\n160000 39973bfccb26ae98a3d25856a8f85950fecdf02a 0\treferences/Hexalith.Builds\n160000 fbf4e94233821f6ca336af91a06feaaeb7a16855 0\treferences/Hexalith.Commons\n160000 2dcf708cbab0d4ad0cf72f947d0b0a1444e251a1 0\treferences/Hexalith.EventStore\n160000 55ef95362734c0997a6383c4b8dc8675eec8c519 0\treferences/Hexalith.Folders\n160000 38856d023dedd7c49da69b1cdb2fc54396f22f38 0\treferences/Hexalith.FrontComposer\n160000 0795509fca063aaf2fd8dba8ac7a8213b57485a2 0\treferences/Hexalith.McpCli\n160000 1306a0f84cf78160a192be6bc341798fe32427d4 0\treferences/Hexalith.Memories\n160000 5dacf507003d861e6ed935a4298cafb34b5f6e9a 0\treferences/Hexalith.Parties\n160000 ddb1c0b141372a66d4a9d9c231d0041afbb7cd0c 0\treferences/Hexalith.Platform\n160000 e228f185bb6a870456a2a91dcd12cb8f27964f61 0\treferences/Hexalith.Projects\n160000 d73267fdbe84d09ccddf0a6492390e32d8938405 0\treferences/Hexalith.Tenants",
+  "eventStoreCommit": "2dcf708cbab0d4ad0cf72f947d0b0a1444e251a1",
+  "files": {
+    "references/Hexalith.EventStore/src/Hexalith.EventStore.Testing.Integration/DaprDiagnostics.cs": "b943060f95a7099b118a5b0b15fe72d81266d900266ac922b5e5b40a0b331bf0",
+    "references/Hexalith.EventStore/src/Hexalith.EventStore.Testing.Integration/DaprReadModelStoreDecorator.cs": "c06ba94d325e19304d77042fc1e9735a55a7226112a83f150c177eb10478e787",
+    "references/Hexalith.EventStore/tests/Hexalith.EventStore.Testing.Integration.Tests/DaprTestPrerequisiteDiagnosticsTests.cs": "e7c30adeb1fbcdd20316b5f4a75adfb5c93689f34a8e4af2ec289a9709de720f",
+    "references/Hexalith.EventStore/tests/Hexalith.EventStore.Testing.Integration.Tests/GeneratedApiSmokePreflightDiagnosticsTests.cs": "1e2be4ea5930a802a69c911890e235e37d8d3a305cc64bd6e0d111b1b59d86f1",
+    "tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs": "21dc4d9831204d0bf400c06ed741a6cfd610e55032247fd9bb9a0f166a9f2cf1",
+    "tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj": "f98354a9bb3f3ee521cfd1ab7794f8507dd8914dc8c661ed7306e1d816e107a0",
+    "tests/Hexalith.Conversations.IntegrationTests/Epic16/Story16_3EvidenceTests.cs": "6e093990d0fbb608f4e2ecdfd268dd5cde3b266fdc1673fc6c27439c5c08d2b1",
+    "tests/Hexalith.Conversations.IntegrationTests/Epic16/Story16_3FailureStore.cs": "72a7438efac199d696b2e4d32a327aa0c21ffd296dfed1a67a25cfadb0ea2ce6",
+    "tests/Hexalith.Conversations.IntegrationTests/Epic16/Story16_3LiveCollection.cs": "9c1eeb2e5445880d9467fd54d9b44b990b88c003085956dbf2c1770ad8d7fc19",
+    "tests/Hexalith.Conversations.IntegrationTests/Epic16/Story16_3LiveFixture.cs": "ba61b89e3811f8e7467482164db5f5c76d1991d115e3af4bb7b00e83b4ebca8c",
+    "tests/Hexalith.Conversations.IntegrationTests/Epic16/Story16_3RefusalAuthority.cs": "67a0552017862195921a3ba2e8ce2b0097f53b65816de0eeabed92cc90173363",
+    "tests/Hexalith.Conversations.IntegrationTests/Epic16/Story16_3WireObservation.cs": "6450fba45f91c10ed2f7eeceef489a14ec1b8278617eb0489f39c3076f2dd487",
+    "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs": "db07403e702b9146750f8965eb448158b7ae50a1617a8bc0296ab2081c4668f8",
+    "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayRouteCatalog.cs": "62cc1024574babb31a1c29890ad60b231b6c1e6151a1b4a5a36f4bd8a33bcf02"
+  }
+}

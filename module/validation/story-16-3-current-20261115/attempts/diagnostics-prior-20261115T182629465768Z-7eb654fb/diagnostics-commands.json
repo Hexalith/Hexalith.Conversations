@@ -1,0 +1,38 @@
+[
+  {
+    "command": [
+      "dotnet",
+      "build",
+      "/home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/tests/Hexalith.EventStore.Testing.Integration.Tests/Hexalith.EventStore.Testing.Integration.Tests.csproj",
+      "-c",
+      "Debug",
+      "-m:1",
+      "-p:ArtifactsPath=/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.1PsERzjk",
+      "-p:UseHexalithProjectReferences=true",
+      "-p:NuGetAudit=false"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "log": "diagnostics-build.log"
+  },
+  {
+    "command": [
+      "dotnet",
+      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.1PsERzjk/bin/Hexalith.EventStore.Testing.Integration.Tests/debug/Hexalith.EventStore.Testing.Integration.Tests.dll",
+      "-class",
+      "*DaprTestPrerequisiteDiagnosticsTests",
+      "-class",
+      "*GeneratedApiSmokePreflightDiagnosticsTests",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-parallel",
+      "none",
+      "-xml",
+      "/home/administrator/projects/hexalith/conversations/module/validation/story-16-3-current-20261115/diagnostics.xml"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "log": "diagnostics-native.log"
+  }
+]

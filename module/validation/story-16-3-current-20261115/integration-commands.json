@@ -1,0 +1,73 @@
+[
+  {
+    "command": [
+      "dotnet",
+      "tool",
+      "run",
+      "hexalith-module",
+      "--",
+      "prepare-build",
+      "--manifest",
+      "module/hexalith.module-manifest.v2.json",
+      "--workspace",
+      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.UNke3ax5/workspace",
+      "--mode",
+      "source",
+      "--output",
+      "json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "log": "integration-prepare.log"
+  },
+  {
+    "command": [
+      "dotnet",
+      "build",
+      "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.IntegrationTests/Hexalith.Conversations.IntegrationTests.csproj",
+      "-c",
+      "Debug",
+      "-m:1",
+      "-p:ArtifactsPath=/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.UNke3ax5",
+      "-p:NuGetAudit=false"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "log": "integration-build.log"
+  },
+  {
+    "command": [
+      "dotnet",
+      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.UNke3ax5/bin/Hexalith.Conversations.IntegrationTests/debug/Hexalith.Conversations.IntegrationTests.dll",
+      "-class",
+      "*Story16_3EvidenceTests",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-diagnostics",
+      "-parallel",
+      "none",
+      "-xml",
+      "/home/administrator/projects/hexalith/conversations/module/validation/story-16-3-current-20261115/integration.xml"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "log": "integration-native.log"
+  },
+  {
+    "command": [
+      "dotnet",
+      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.UNke3ax5/bin/Hexalith.Conversations.IntegrationTests/debug/Hexalith.Conversations.IntegrationTests.dll",
+      "-class",
+      "*Story16_3_NoTests*",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-xml",
+      "/home/administrator/projects/hexalith/conversations/module/validation/story-16-3-current-20261115/empty-selection.xml"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "log": "empty-selection.log"
+  }
+]

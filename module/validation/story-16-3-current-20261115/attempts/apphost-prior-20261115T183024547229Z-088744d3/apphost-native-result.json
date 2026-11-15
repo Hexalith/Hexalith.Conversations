@@ -1,0 +1,21 @@
+{
+  "counts": {
+    "total": 2,
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "not-run": 0,
+    "errors": 0
+  },
+  "tests": [
+    {
+      "name": "Hexalith.Conversations.AppHost.Tests.ConversationsAppHostRuntimeBoundaryTest.GatewayProvenanceShouldUseTheOwningProjectFrameworkAndSdk",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.AppHost.Tests.ConversationsAppHostRuntimeBoundaryTest.RetainedAppHostShouldRefuseCommandsWithoutCatalogAuthority",
+      "result": "Pass"
+    }
+  ],
+  "valid": true
+}

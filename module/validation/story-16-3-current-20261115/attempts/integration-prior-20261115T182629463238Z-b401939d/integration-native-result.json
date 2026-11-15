@@ -1,0 +1,33 @@
+{
+  "counts": {
+    "total": 5,
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "not-run": 0,
+    "errors": 0
+  },
+  "tests": [
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Epic16.Story16_3EvidenceTests.Scenario03",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Epic16.Story16_3EvidenceTests.Scenario05",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Epic16.Story16_3EvidenceTests.Scenario02",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Epic16.Story16_3EvidenceTests.Scenario04",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Epic16.Story16_3EvidenceTests.Scenario01",
+      "result": "Pass"
+    }
+  ],
+  "valid": true
+}

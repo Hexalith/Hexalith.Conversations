@@ -1,5 +1,58 @@
 # Conversations Platform registration handoff — pending
 
+## Story 16.3 user-waived test fixture — 2026-11-15
+
+The user authorized `src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj`
+and its production-boundary test consumers for Story 16.3 only, while retaining
+non-packable/non-publishable status. This is a **user waiver**, not named
+baseline-owner/Architect/Runtime approval. Platform relocation and the
+minimal-module fixture remain outside scope; revisit relocation when an
+adopted Platform replacement exists. Earlier pending-owner records below retain
+their historical meaning.
+
+[Routine native evidence](validation/story-16-3-current-20261115/README.md)
+retains the source-mapped Debug commands, native xUnit logs and source/runtime
+identities. The entry ceremony and generated six-scenario final pair are
+**waived**, never PASS. Strict/historical tooling, V14 evidence, the ACTIVE hold
+and all authority flags remain unchanged; no provider parity, operational
+qualification or release acceptance follows.
+
+Shared preflight diagnostics are EventStore-owned. A healthy resource with an
+unavailable endpoint reports `APPHOST_ENDPOINT_NOT_READY`, its resource/endpoint
+identity and bounded retry advice, without retaining response bodies or request
+URLs. The AppHost boundary waits up to 90 seconds. A collision reports
+`DAPR_CONTROL_PLANE_PORT_COLLISION` and the owning effective binding/port; only
+ports the current model actually binds are checked. Release that binding or
+select isolated ports, then retry within the budget. A missing selected sidecar
+reports `DAPR_EXECUTABLE_NOT_FOUND`. Caller cancellation remains cancellation.
+
+The dedicated native collection enrolls the real catalog and SDK finite
+receiver, creates durable tenant membership through the protected HTTP
+consumer, and uses the production coordinator and authenticated
+`project/v2/reconcile` route. It observes pending/index and terminal scheduler
+state before retry, and query-visible persisted state afterwards. A private
+Redis instance owns all actor/catalog/read-model test state and is removed on
+disposal, together with temporary components and listeners. The real SDK worker
+transport receives HTTP 403 from a separate loopback refusal authority; it issues
+no token and native-source admission remains unproven under the predecessor's
+ungranted history boundary. Every recovery subject must independently reach the
+selected injected store failure, so an unavailable authority cannot substitute
+for terminal-failure evidence. Privileged resolution metadata and tenant-history
+gap recovery are not qualified. Tenant-wide rebuild/erase remain deferred under
+the predecessor decisions.
+
+The separate default-Keycloak CLI baseline is blocked: the existing worker
+client description is 300 characters, exceeding Keycloak's 255-character
+DESCRIPTION column during realm import. All three health waits timed out
+(exit 17); targeted stop passed and the final Aspire inventory matched entry.
+The native AppHost lane supplies explicit test credentials with Keycloak
+disabled. The realm configuration needs separately scoped owner correction.
+
+Rollback removes only the new diagnostics, fixture hooks/tests and this native
+evidence slice, restoring the prior test readiness loop if needed. Preserve
+production routes, authentication, all 16.1/16.2 state and predecessor evidence.
+No commit, publication or push is authorized by this story.
+
 ## 4.38.3 measured candidate and held v3 — 2026-10-31
 
 [The fresh isolation/qualification attempt](validation/epic-16-published-artifact-qualification/attempt-20261031-4383-03/README.md)

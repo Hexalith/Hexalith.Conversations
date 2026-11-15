@@ -1,0 +1,14 @@
+{
+  "logs": [
+    {
+      "resourceName": "eventstore",
+      "content": "Waiting for resource 'security' to enter the 'Running' state.",
+      "isError": false
+    },
+    {
+      "resourceName": "eventstore",
+      "content": "Waiting for resource 'security' to become healthy.",
+      "isError": false
+    }
+  ]
+}

@@ -11,6 +11,8 @@ using Hexalith.Conversations.Aggregates;
 using Hexalith.Conversations.Commands;
 using Hexalith.Conversations.Idempotency;
 using Hexalith.Conversations.Server.Projections;
+using Hexalith.Conversations.Server.Queries;
+using Hexalith.Conversations.Contracts.Queries;
 using Hexalith.EventStore.Client.Discovery;
 using Hexalith.EventStore.Client.Routing;
 using Hexalith.EventStore.Contracts.Authorization;
@@ -50,14 +52,27 @@ internal sealed class ConversationGatewayRouteCatalog : IDisposable
         new(typeof(ConversationAsyncProjectionHandler).FullName!, "exact",
             [ConversationAsyncProjectionHandler.ConversationReadModelProjectionType], "domain-service", null,
             [ConversationAsyncProjectionHandler.ConversationReadModelProjectionType]));
-    private static readonly RouteContractDeclaration[] Declarations = [CommandRoute, ProjectionRoute];
-    private static readonly RouteOperationContract[] Operations =
+    private static readonly RouteContractDeclaration ProgressRoute = new(
+        "conversations-fixture-reassign", "command", ConversationProjectionHandler.ConversationDomain,
+        nameof(ReassignConversationProject), null, ConversationGatewayLiveFixture.ServiceVersion, 1, "workload",
+        EventStoreOperationIdentifiers.DomainServiceProcess, null, [],
+        new(typeof(ReassignConversationProject).FullName!, "clr-short-name-v1", [nameof(ReassignConversationProject)], "domain-service", null, []));
+    private static readonly RouteContractDeclaration DetailQueryRoute = QueryRoute("conversation-detail", typeof(GetConversationDomainQueryHandler));
+    private static readonly RouteContractDeclaration ListQueryRoute = QueryRoute("conversation-list", typeof(ListConversationsDomainQueryHandler));
+    private static RouteContractDeclaration QueryRoute(string discriminator, Type handler) => new(
+        "fixture-" + discriminator, "query", "conversations", discriminator, null, "v1", null, "workload",
+        EventStoreOperationIdentifiers.DomainServiceQuery, null, [],
+        new(handler.FullName!, "exact", [discriminator], "domain-service", "computed", []));
+    private readonly RouteContractDeclaration[] _declarations;
+    private static readonly RouteOperationContract[] DefaultOperations =
     [
         RouteOperationSchema.Create(CommandRoute, typeof(CreateConversation), typeof(SubmitCommandResponse),
             "internal", "UI-only", JsonSerializerOptions.Web),
         RouteOperationSchema.Create(ProjectionRoute, typeof(ProjectionDispatchRequest), typeof(ProjectionDispatchResponse),
             "internal", "agent-eligible", JsonSerializerOptions.Web),
     ];
+    private readonly RouteOperationContract[] _operations;
+    private readonly bool _includeProgress;
     private readonly string _appId;
     private readonly string _componentPath;
     private readonly string _directory;
@@ -68,8 +83,14 @@ internal sealed class ConversationGatewayRouteCatalog : IDisposable
     private long _epoch;
 
     /// <summary>Retains the exact component and deny-default ACL that the fixture sidecar will load.</summary>
-    public ConversationGatewayRouteCatalog(string appId, string componentsDirectory, string sidecar)
+    public ConversationGatewayRouteCatalog(string appId, string componentsDirectory, string sidecar, int redisPort = 6379, bool includeProgress = false)
     {
+        _includeProgress = includeProgress;
+        _declarations = includeProgress ? [CommandRoute, ProgressRoute, ProjectionRoute, DetailQueryRoute, ListQueryRoute] : [CommandRoute, ProjectionRoute];
+        _operations = includeProgress ? [.. DefaultOperations, RouteOperationSchema.Create(ProgressRoute,
+            typeof(ReassignConversationProject), typeof(SubmitCommandResponse), "internal", "UI-only", JsonSerializerOptions.Web),
+            RouteOperationSchema.Create(DetailQueryRoute, typeof(ConversationDetailResult).Assembly.GetType("Hexalith.Conversations.Contracts.Queries.GetConversationPayload", throwOnError: true)!, typeof(ConversationDetailResult), "internal", "UI-only", JsonSerializerOptions.Web),
+            RouteOperationSchema.Create(ListQueryRoute, typeof(ConversationListResult).Assembly.GetType("Hexalith.Conversations.Contracts.Queries.ListConversationsPayload", throwOnError: true)!, typeof(ConversationListResult), "internal", "UI-only", JsonSerializerOptions.Web)] : DefaultOperations;
         _appId = appId;
         _sidecar = sidecar;
         _directory = Path.Combine(Path.GetTempPath(), "conversations-catalog-" + appId);
@@ -81,7 +102,7 @@ internal sealed class ConversationGatewayRouteCatalog : IDisposable
             metadata = new { name = CatalogStore, labels = new Dictionary<string, string>
                 { [RouteCatalogAuthorityComponentPolicy.RoleLabel] = RouteCatalogAuthorityComponentPolicy.IsolatedRole } },
             spec = new { type = "state.redis", version = "v1", metadata = new[]
-                { new { name = "redisHost", value = "localhost:6379" }, new { name = "redisPassword", value = "" },
+                { new { name = "redisHost", value = $"localhost:{redisPort}" }, new { name = "redisPassword", value = "" },
                   new { name = "keyPrefix", value = "name" } } }, scopes = new[] { appId },
         }));
         File.WriteAllBytes(ConfigurationPath, JsonSerializer.SerializeToUtf8Bytes(new
@@ -96,6 +117,9 @@ internal sealed class ConversationGatewayRouteCatalog : IDisposable
         }));
     }
 
+    /// <summary>Gets the exact committed catalog identity for native diagnostics.</summary>
+    internal string RootDigest => _rootDigest ?? throw new InvalidOperationException("The live catalog is not committed.");
+
     /// <summary>Gets the retained ACL passed to the actual sidecar's --config argument.</summary>
     public string ConfigurationPath => Path.Combine(_directory, "configuration.json");
 
@@ -106,6 +130,11 @@ internal sealed class ConversationGatewayRouteCatalog : IDisposable
         builder.Configuration["EventStore:RouteCatalog:StateStore"] = CatalogStore;
         builder.Configuration["EventStore:RouteCatalog:StateKey"] = "fixture-" + _appId;
         const string prefix = "EventStore:RouteCatalog:DevelopmentBootstrap:";
+        if (_includeProgress)
+        {
+            builder.Configuration[prefix + "Directory"] = _directory;
+            builder.Services.AddSingleton<FiniteRouteCatalogReceiver>();
+        }
         builder.Configuration[prefix + "HostId"] = _appId;
         builder.Configuration[prefix + "RequiredHostIds:0"] = _appId;
         builder.Configuration[prefix + "ComponentPath"] = _componentPath;
@@ -117,6 +146,7 @@ internal sealed class ConversationGatewayRouteCatalog : IDisposable
             options.DevelopmentFixture = true;
         });
         builder.Services.AddSingleton<IIdempotencyIntentAdapter>(CreateCommandAdapter());
+        if (_includeProgress) builder.Services.AddSingleton<IIdempotencyIntentAdapter>(CreateProgressAdapter());
         const string admission = "EventStore:IdempotencyAdmission:";
         builder.Configuration[admission + "Enabled"] = "true";
         builder.Configuration[admission + "ActiveDigestKeyVersion"] = "fixture-v1";
@@ -154,6 +184,30 @@ internal sealed class ConversationGatewayRouteCatalog : IDisposable
         });
     }
 
+    private static IDeclaredIdempotencyIntentAdapter CreateProgressAdapter()
+    {
+        var policy = new CommandIntentDeclaration(ProgressRoute, "conversations-fixture-reassign", "reassign-project",
+            PolicyVersion, new("conversations-fixture-reassign-intent", 1,
+                [new("target", "string"), new("semantic-fingerprint", "string"), new("public-tenant", "string"),
+                 new("public-command-type", "string"), new("scope-kind", "string"), new("scope-value", "string"),
+                 new("schema-version", "int64"), new("public-idempotency-key", "string")]),
+            IdempotencyReplayRetentionTier.Mutation, false);
+        return new DeclaredIdempotencyIntentAdapter<ReassignConversationProject>(policy, command =>
+        {
+            var fingerprint = ConversationCommandFingerprint.Create(command.PublicCommand, command.PublicCommand.ConversationId);
+            return new Dictionary<string, object?>
+            {
+                ["semantic-fingerprint"] = fingerprint.PayloadFingerprint.Value,
+                ["public-tenant"] = fingerprint.Scope.TenantId.Value,
+                ["public-command-type"] = fingerprint.Scope.CommandType.Value,
+                ["scope-kind"] = fingerprint.Scope.ScopeKind,
+                ["scope-value"] = fingerprint.Scope.ScopeValue,
+                ["schema-version"] = (long)fingerprint.Scope.SchemaVersion.Value,
+                ["public-idempotency-key"] = fingerprint.Scope.IdempotencyKey,
+            };
+        });
+    }
+
     /// <summary>Binds the observer to the actual mapped application after its receivers have been installed.</summary>
     public void Attach(WebApplication app) => _app = app;
 
@@ -164,7 +218,7 @@ internal sealed class ConversationGatewayRouteCatalog : IDisposable
         var actual = await ObserveAsync(app.Services, token).ConfigureAwait(false);
         var identity = ObservedRouteCatalogHost.Identity(actual);
         app.Services.GetRequiredService<IOptions<RouteCatalogHostOptions>>().Value.Identity = identity;
-        var catalog = VersionedRouteCatalogBuilder.Build(new(1, "Development", Declarations, Operations,
+        var catalog = VersionedRouteCatalogBuilder.Build(new(1, "Development", _declarations, _operations,
             actual.Targets.Select(target => new RouteCompositionBinding(target.RouteId, target.AppId, target.Method,
                 target.ContractVersion, target.IsRuntimeOverride, target.ResolverTenantPattern)).ToArray(), actual.AdmissionPolicies!));
         var candidate = new RouteCatalogActivation("fixture-" + _appId, RouteCatalogCodec.Encode(catalog),
@@ -226,9 +280,9 @@ internal sealed class ConversationGatewayRouteCatalog : IDisposable
         if (registration.AppId != identity.AppId || registration.MethodName != "process")
             throw new RouteCatalogUnavailableException("The actual gateway resolver differs from the fixture command receiver.");
         var endpoints = ((IEndpointRouteBuilder)app).DataSources.SelectMany(source => source.Endpoints).ToArray();
-        var targets = Declarations.Select(declaration =>
+        var targets = _declarations.Select(declaration =>
         {
-            string method = declaration.Kind == "command" ? "process" : "project/v2";
+            string method = declaration.Kind switch { "command" => "process", "query" => "query", _ => "project/v2" };
             var endpoint = endpoints.OfType<RouteEndpoint>().Single(item => item.RoutePattern.RawText == "/" + method);
             var canonical = EventStoreDomainServiceRoutes.Operational.Single(route => route.Route == endpoint.RoutePattern.RawText);
             if (endpoint.Metadata.GetMetadata<IAllowAnonymous>() is not null
@@ -238,18 +292,19 @@ internal sealed class ConversationGatewayRouteCatalog : IDisposable
                 throw new RouteCatalogUnavailableException("The actual endpoint no longer matches the declared method and workload policy.");
             return new RouteCatalogEntry(declaration.RouteId, 1, RouteCatalogCodec.ComputeDeclarationDigest(declaration),
                 identity.AppId, method, identity.ServiceVersion, declaration.CredentialKind, canonical.Operation, false,
-                registration.TenantId, Operations.Single(operation => operation.RouteId == declaration.RouteId).Digest);
+                registration.TenantId, _operations.Single(operation => operation.RouteId == declaration.RouteId).Digest);
         }).ToArray();
         var admission = await RouteCatalogAdmissionObservation.CaptureAsync(local, identity.AppId, token).ConfigureAwait(false);
         var auxiliary = RouteCatalogDomainObservation.Auxiliary(local, endpoints).Where(operation =>
-            operation.Domain == CommandRoute.Domain && EventStoreDomainServiceRoutes.Operational.Any(route =>
-                route.Route.TrimStart('/') == operation.Method)).ToArray();
-        var actual = await DevelopmentRouteCatalogInputs.CaptureAsync(app.Configuration, identity.AppId, Declarations, targets,
+            (operation.Domain == CommandRoute.Domain || (_includeProgress && operation.Domain == "conversations")) && EventStoreDomainServiceRoutes.Operational.Any(route =>
+                route.Route.TrimStart('/') == operation.Method) || (_includeProgress && operation.Sidecar is not null)).ToArray();
+        var actual = await DevelopmentRouteCatalogInputs.CaptureAsync(app.Configuration, identity.AppId, _declarations, targets,
             admission, RouteCatalogDomainObservation.Capabilities(local), auxiliary, token).ConfigureAwait(false);
         return actual with
         {
+            ReceiverSurface = _includeProgress ? provider.GetRequiredService<FiniteRouteCatalogReceiver>().Observe() : null,
             AuthorityCoordinates = provider.GetRequiredService<IRouteCatalogStateStore>().Coordinates,
-            Operations = Operations,
+            Operations = _operations,
             TopologyDocuments = [.. actual.TopologyDocuments,
                 JsonSerializer.SerializeToUtf8Bytes(new
                     { appId = _appId, componentName = component.GetProperty("name").GetString(), componentType = component.GetProperty("type").GetString() }),

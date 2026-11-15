@@ -1,0 +1,31 @@
+{
+  "counts": {
+    "total": 2,
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "not-run": 0,
+    "errors": 0
+  },
+  "tests": [
+    {
+      "id": "74f0b1e5-3be0-4c74-8050-5ccf55025262",
+      "name": "Hexalith.Conversations.AppHost.Tests.ConversationsAppHostRuntimeBoundaryTest.GatewayProvenanceShouldUseTheOwningProjectFrameworkAndSdk",
+      "type": "Hexalith.Conversations.AppHost.Tests.ConversationsAppHostRuntimeBoundaryTest",
+      "method": "GatewayProvenanceShouldUseTheOwningProjectFrameworkAndSdk",
+      "result": "Pass"
+    },
+    {
+      "id": "e86b3ab1-90c1-44ae-8bff-8ad467c3e08a",
+      "name": "Hexalith.Conversations.AppHost.Tests.ConversationsAppHostRuntimeBoundaryTest.RetainedAppHostShouldRefuseCommandsWithoutCatalogAuthority",
+      "type": "Hexalith.Conversations.AppHost.Tests.ConversationsAppHostRuntimeBoundaryTest",
+      "method": "RetainedAppHostShouldRefuseCommandsWithoutCatalogAuthority",
+      "result": "Pass"
+    }
+  ],
+  "selectedClasses": [
+    "*ConversationsAppHostRuntimeBoundaryTest"
+  ],
+  "missingClasses": [],
+  "valid": true
+}

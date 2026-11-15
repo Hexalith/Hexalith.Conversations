@@ -1,0 +1,481 @@
+{
+  "counts": {
+    "total": 117,
+    "passed": 117,
+    "failed": 0,
+    "skipped": 0,
+    "not-run": 0,
+    "errors": 0
+  },
+  "tests": [
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.ValidatePageShouldRejectAnOtherwiseMatchingPendingLedger",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.TerminalPendingMarkerShouldRestoreTheDisplacedCompletedReference",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.TerminalPendingMarkerForAnUnbuiltConversationShouldBeRemoved",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.ListAsyncShouldReadAnAbsentIndexAsMissingLifecycleState",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.EqualPositionDispatchesShouldChooseTheSameWinnerInEitherOrder",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.RepersistingAtLowerGenerationDoesNotOverwriteIndexEntry",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.ListAsyncShouldRejectAnIndexNamingOneConversationTwice",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.ListAsyncShouldFlagAPendingDispatchWithoutFailingTheTenant",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.RepersistingAtHigherGenerationSupersedesIndexEntry",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.ProjectionKeysShouldEncodeOpaqueIdentifierSegments",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.ExhaustedIndexRetriesFailLoud",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.SameGenerationPendingMarkerShouldNotReplaceCompletedReference",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.ConcurrentIndexWriteIsReloadedAndReapplied",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.MatchingProjectionShouldRemainReadableAfterDispatchLedgerExpires",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.PersistedReadModelsRoundTripThroughStoreAndIndex",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.TerminalMarkerShouldRemainWhenItsDetailGenerationAdvanced",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.ReapplyingSameMaterializationIsIdempotent",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.ListValidationShouldUseBoundedBulkPages",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.AddConversationTenantAccessShouldRegisterTenantsProjectionAndAccessService",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.KeyedGatewayClientDoesNotReplaceTheHistoryReader",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"Tenants:PubSubName\\\", value: null)",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"EventStore:Authentication:ClientId\\\", value: null)",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"EventStore:Authentication:TokenEndpoint\\\", value: null)",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"EventStore:Authentication:Authority\\\", value: null)",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"Hexalith:Conversations:TenantAccess:GatewayBaseAdd\\\"\u00b7\u00b7\u00b7, value: \\\"https://gateway.test/api/\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"Hexalith:Conversations:TenantAccess:GatewayBaseAdd\\\"\u00b7\u00b7\u00b7, value: \\\"http://gateway.example/\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"Hexalith:Conversations:TenantAccess:GatewayBaseAdd\\\"\u00b7\u00b7\u00b7, value: null)",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"EventStore:Authentication:ClientSecret\\\", value: null)",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"EventStore:Projections:ReadModelStateStoreName\\\", value: \\\" \\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"Dapr:DeclarativeSubscriptions\\\", value: \\\"false\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"Dapr:DeclarativeSubscriptions\\\", value: \\\" \\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"Dapr:DeclarativeSubscriptions\\\", value: null)",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"Tenants:TopicName\\\", value: \\\" \\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"Tenants:TopicName\\\", value: null)",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"Tenants:PubSubName\\\", value: \\\" \\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"EventStore:Projections:ReadModelStateStoreName\\\", value: null)",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"EventStore:Authentication:GrantType\\\", value: \\\"password\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.HostSuppliedGatewayClientIsKeptAndRecorded",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.LoopbackHttpAndHttpsGatewayOriginsAreAccepted(origin: \\\"https://gateway.test/\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.LoopbackHttpAndHttpsGatewayOriginsAreAccepted(origin: \\\"http://127.0.0.1:5000/\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.LoopbackHttpAndHttpsGatewayOriginsAreAccepted(origin: \\\"http://localhost:5000\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.AddConversationTenantAccessShouldKeepFacadeRegistrationsSingularWhenCalledTwice",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.OmittingRegistrationShouldLeaveAccessServiceUnresolvable",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.EnrolledTenantConsumerUsesConfiguredDeliveryAndUpdatesItsProjection",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldMapEachLifecycleShape(shape: \\\"ready-empty\\\", expected: \\\"Ready\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldMapEachLifecycleShape(shape: \\\"ready-covered\\\", expected: \\\"Ready\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldMapEachLifecycleShape(shape: \\\"v1\\\", expected: \\\"Rebuilding\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldMapEachLifecycleShape(shape: \\\"v1-explicit\\\", expected: \\\"Rebuilding\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldMapEachLifecycleShape(shape: \\\"rebuilding\\\", expected: \\\"Rebuilding\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldMapEachLifecycleShape(shape: \\\"rebuilding-with-gap\\\", expected: \\\"Rebuilding\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldMapEachLifecycleShape(shape: \\\"summary-below-watermark\\\", expected: \\\"GapDetected\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldMapEachLifecycleShape(shape: \\\"watermark-without-summary\\\", expected: \\\"GapDetected\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldMapEachLifecycleShape(shape: \\\"summary-without-watermark\\\", expected: \\\"GapDetected\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldMapEachLifecycleShape(shape: \\\"missing\\\", expected: \\\"Missing\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.TenantCreatedWithoutAnIndexShouldInitializeVersionTwoReadyEmpty",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldRejectContradictoryLifecycleRecords(shape: \\\"duplicate-entries\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldRejectContradictoryLifecycleRecords(shape: \\\"v2-without-lifecycle\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldRejectContradictoryLifecycleRecords(shape: \\\"v2-unknown-lifecycle\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldRejectContradictoryLifecycleRecords(shape: \\\"v2-without-watermarks\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldRejectContradictoryLifecycleRecords(shape: \\\"unknown-schema-version\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldRejectContradictoryLifecycleRecords(shape: \\\"v1-with-lifecycle\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldRejectContradictoryLifecycleRecords(shape: \\\"summary-above-watermark\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldRejectContradictoryLifecycleRecords(shape: \\\"non-positive-watermark\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldRejectContradictoryLifecycleRecords(shape: \\\"blank-watermark-key\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.WriterShouldNotRepairOrOverwriteAnUnsupportedIndex(shape: \\\"unknown-schema-version\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.WriterShouldNotRepairOrOverwriteAnUnsupportedIndex(shape: \\\"v2-without-lifecycle\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.WriterShouldNotRepairOrOverwriteAnUnsupportedIndex(shape: \\\"v2-unknown-lifecycle\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.RebuildIndexShouldKeepTheLifecycleAndNeverLowerAWatermark",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.TenantCreatedShouldLeaveAnExistingIndexUnchanged(existing: \\\"v1\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.TenantCreatedShouldLeaveAnExistingIndexUnchanged(existing: \\\"rebuilding\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.TenantCreatedShouldLeaveAnExistingIndexUnchanged(existing: \\\"ready\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.LiveDeliveryToAnAbsentIndexShouldProduceRebuilding",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.TerminalReconcileShouldKeepAnInitializedIndexReady",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.HandlerRebuildPlanShouldKeepAnInitializedIndexReady",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadyIndexShouldStayReadyWithNonRegressingWatermarks",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.LiveDeliveryToAVersionOneIndexShouldProduceRebuildingWithSeededWatermarks",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.TwoProvidersKeepIndependentBindingsAcrossAllProjectionPaths",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.MissingEnrolledStorageInputsFailBeforeAnyStoreUse(key: \\\"EventStore:Projections:ReadModelStateStoreName\\\", value: null)",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.MissingEnrolledStorageInputsFailBeforeAnyStoreUse(key: \\\"EventStore:Projections:ReadModelStateStoreName\\\", value: \\\" \\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.MissingEnrolledStorageInputsFailBeforeAnyStoreUse(key: \\\"EventStore:DataProtection:StateStoreName\\\", value: null)",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.MissingEnrolledStorageInputsFailBeforeAnyStoreUse(key: \\\"EventStore:DataProtection:StateStoreName\\\", value: \\\" \\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.MissingEnrolledStorageInputsFailBeforeAnyStoreUse(key: \\\"EventStore:DataProtection:PersistToStateStore\\\", value: null)",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.MissingEnrolledStorageInputsFailBeforeAnyStoreUse(key: \\\"EventStore:DataProtection:PersistToStateStore\\\", value: \\\" \\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.EnrolledDataProtectionUsesSdkPersistenceAndStableApplication",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.LegacyDirectConstructionRetainsSdkDefaultCompatibility",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.NativeProofRegistrationPreservesOtherOwners",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.PendingRecoveryUsesTheConfiguredStore",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.ConfiguredPublicWritesInvalidateProofAndReconcileOnlyTheirTerminalState(pendingOnly: True)",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.ConfiguredPublicWritesInvalidateProofAndReconcileOnlyTheirTerminalState(pendingOnly: False)",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.CompletedLedgerWithPendingIndexReferenceShouldRePersistBeforeCompletion",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.AcceptedAppendShouldCompleteOnlyAfterBothExactKeysAreDurable",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.StableDuplicateShouldConvergeWithoutDuplicatingTheTenantIndex",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.SecondWriteFailureShouldBeRetryableAndRetryShouldConverge",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.RebuildShouldBulkReadSummarylessSiblingLedgers",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.PopulatedRebuildPlanShouldRetainValidSiblingAndUsePersistedEtags",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.ReconcileShouldRetryPartialWriteToCompletion",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.CrossTenantEventShouldFailWithOnlyAnAcceptedRoutePositionBarrier",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.NonCurrentMaterializationShouldFailWithOnlyObservedPositionBarrier",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.ReusingADispatchIdentityForDifferentInputShouldFailWithoutWriting",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.ReconcileShouldCompensateTerminalIndexButKeepUnfencedMetadataUnavailable",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.RebuildShouldRejectAnExistingLedgerWithDifferentIdentity",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.CompletedLedgerWithAConflictingGenerationShouldRePersistExpectedContent",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.FullReplayPlanShouldContainExactGenerationAndLedgerKeysWithoutMutatingLiveState",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.EmptyRebuildHistoryShouldBeRejectedAsTerminalInput",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.UnavailableStoreShouldReturnIndeterminateWithoutRawStorageDetail",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.RebuildShouldPreserveASummarylessPendingSiblingReference",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.ReconcileShouldRemainRetryableWhenPendingMarkerMayDescribeDurableDetail",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.ConfiguredRebuildPreservesSummarylessPendingSiblingAfterSdkBatchCommit",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.LateCallerCancellationShouldNotInterruptDispatchCompletion",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.ReusingDispatchIdentityWithDifferentRejectionTimestampShouldFailWithoutWriting",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.CompletionTimeoutShouldReturnRetryableAfterDurableModelWrites",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.CompletedLedgerWithoutDurableKeysShouldRePersistInsteadOfReportingAFalseCompletion",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.PersistedRejectionShouldAdvancePositionWithoutMutatingOrWritingARejectionOnlyStream",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.UnsupportedEmptyAndMalformedInputsShouldFailWithoutRichWrites",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.RedeliveryWithDifferentCorrelationMetadataShouldStillConverge",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.ReplayOfAConversationOlderThanTheStalenessThresholdShouldStillPersist",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.CompletionShouldRejectAReplacedLedgerIdentityWithoutCompletingIt",
+      "result": "Pass"
+    }
+  ],
+  "valid": true
+}

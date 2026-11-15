@@ -1,0 +1,19 @@
+[
+  {
+    "command": "git diff --check",
+    "repository": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "output": ""
+  },
+  {
+    "command": "git diff --check",
+    "repository": "/home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore",
+    "exitCode": 0,
+    "output": ""
+  },
+  {
+    "check": "final-live-source-identity",
+    "changedFiles": [],
+    "result": "PASS"
+  }
+]

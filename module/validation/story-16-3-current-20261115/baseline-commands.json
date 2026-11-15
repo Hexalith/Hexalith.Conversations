@@ -1,0 +1,139 @@
+[
+  {
+    "command": [
+      "dotnet",
+      "tool",
+      "run",
+      "hexalith-module",
+      "--",
+      "prepare-build",
+      "--manifest",
+      "module/hexalith.module-manifest.v2.json",
+      "--workspace",
+      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.w5l19t5L/workspace",
+      "--mode",
+      "source",
+      "--output",
+      "json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "log": "baseline-prepare.log"
+  },
+  {
+    "command": [
+      "aspire",
+      "ps",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "log": "baseline-before.log"
+  },
+  {
+    "command": [
+      "aspire",
+      "start",
+      "--apphost",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "--isolated",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "log": "baseline-start.log"
+  },
+  {
+    "command": [
+      "aspire",
+      "describe",
+      "--apphost",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "log": "baseline-describe.log"
+  },
+  {
+    "command": [
+      "aspire",
+      "wait",
+      "eventstore",
+      "--apphost",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "--status",
+      "healthy",
+      "--timeout",
+      "120",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 17,
+    "log": "baseline-wait-eventstore.log"
+  },
+  {
+    "command": [
+      "aspire",
+      "wait",
+      "conversations",
+      "--apphost",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "--status",
+      "healthy",
+      "--timeout",
+      "120",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 17,
+    "log": "baseline-wait-conversations.log"
+  },
+  {
+    "command": [
+      "aspire",
+      "wait",
+      "conversations-admin-web",
+      "--apphost",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "--status",
+      "healthy",
+      "--timeout",
+      "120",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 17,
+    "log": "baseline-wait-conversations-admin-web.log"
+  },
+  {
+    "command": [
+      "aspire",
+      "stop",
+      "--apphost",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "log": "baseline-stop.log"
+  },
+  {
+    "command": [
+      "aspire",
+      "ps",
+      "--format",
+      "Json",
+      "--non-interactive"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "log": "baseline-after.log"
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "Hexalith.EventStore.Testing.Integration.Tests.dll": "fb1d423e76fbb35e0fa8e7734c07fdbd46d52fa034660f3ec1b560f03c763bca",
+  "Hexalith.EventStore.Testing.Integration.dll": "48565e38789bb6e98e17ffbf278b5c185a3a93ff4deeaae93335b9c199ac39d8",
+  "Hexalith.EventStore.Server.dll": "013cbef2835e2f1bab5241f9069008bed46db1786959f75d4d5258eb6a66ce7a",
+  "Hexalith.EventStore.DomainService.dll": "552b8560b7fe73677164f16d131fa87ecd1264ee217be7d7708fdd3157b22978"
+}

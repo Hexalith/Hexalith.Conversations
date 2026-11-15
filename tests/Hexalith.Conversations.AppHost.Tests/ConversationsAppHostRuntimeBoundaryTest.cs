@@ -15,6 +15,7 @@ using Hexalith.Conversations.Contracts.Commands;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.EventStore.Aspire;
+using Hexalith.EventStore.Testing.Integration;
 using Hexalith.EventStore.Server.Commands;
 using Hexalith.EventStore.ServiceDefaults.Authentication;
 
@@ -140,6 +141,14 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
             "the gateway project metadata must suppress Aspire's own build so the stamped binary is the launched binary");
 
         await using DistributedApplication application = await builder.BuildAsync(timeout.Token);
+        DaprDiagnostics.RequireAvailableDaprControlPlaneBindings(builder.Resources
+            .Where(resource => resource.Name.Contains("placement", StringComparison.OrdinalIgnoreCase)
+                || resource.Name.Contains("scheduler", StringComparison.OrdinalIgnoreCase))
+            .SelectMany(resource => resource.Annotations.OfType<EndpointAnnotation>()
+                .Where(endpoint => endpoint.Port is > 0)
+                .Select(endpoint => new KeyValuePair<string, System.Net.IPEndPoint>(
+                    resource.Name + "." + endpoint.Name, new(IPAddress.Loopback, endpoint.Port!.Value))))
+            .ToDictionary(pair => pair.Key, pair => pair.Value), timeout.Token);
         await application.StartAsync(timeout.Token);
 
         await application.ResourceNotifications.WaitForResourceHealthyAsync(
@@ -281,46 +290,9 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
         }
     }
 
-    private static async Task WaitForEndpointReadyAsync(
-        HttpClient client,
-        string path,
-        CancellationToken cancellationToken)
-    {
-        string? lastDiagnostic = null;
-        using CancellationTokenSource readinessTimeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        readinessTimeout.CancelAfter(TimeSpan.FromSeconds(90));
-        try
-        {
-            while (true)
-            {
-                try
-                {
-                    using HttpResponseMessage response = await client.GetAsync(path, readinessTimeout.Token);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        return;
-                    }
-
-                    string body = await response.Content.ReadAsStringAsync(readinessTimeout.Token);
-                    lastDiagnostic = $"Status={(int)response.StatusCode} ({response.StatusCode}); Body={body}";
-                }
-                catch (HttpRequestException exception)
-                {
-                    lastDiagnostic = exception.Message;
-                }
-
-                await Task.Delay(TimeSpan.FromMilliseconds(500), readinessTimeout.Token);
-            }
-        }
-        catch (OperationCanceledException) when (readinessTimeout.IsCancellationRequested)
-        {
-            string budget = cancellationToken.IsCancellationRequested
-                ? "the runtime-lane budget expired"
-                : "the 90-second endpoint-readiness budget expired";
-            throw new TimeoutException(
-                $"The EventStore endpoint did not become ready before {budget}. Last result: {lastDiagnostic}");
-        }
-    }
+    private static Task WaitForEndpointReadyAsync(HttpClient client, string path, CancellationToken cancellationToken)
+        => DaprDiagnostics.WaitForAppHostEndpointAsync(client, path, "eventstore.http",
+            TimeSpan.FromSeconds(90), TimeSpan.FromMilliseconds(500), cancellationToken);
 
     private static void ConfigureRuntimeBoundarySidecars(IDistributedApplicationTestingBuilder builder)
     {
@@ -434,7 +406,7 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
         IReadOnlyList<string> selected = matching.Count == 0 ? all : matching;
         return selected.Count == 0
             ? "No EventStore/Conversations resource logs were captured."
-            : string.Join(Environment.NewLine, selected.TakeLast(120));
+            : DaprDiagnostics.ToSupportSafeDiagnostic(string.Join(Environment.NewLine, selected.TakeLast(120)));
     }
 
     private static string CreateAccessToken(string tenantId, string signingKey)
@@ -476,8 +448,11 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
         var gateway = await EvaluateGatewayBuildAsync(ownerRoot, projectPath, configuration, TestContext.Current.CancellationToken);
 
         gateway.TargetFramework.ShouldBe("net11.0");
-        gateway.TargetPath.ShouldBe(Path.Combine(
-            Path.GetDirectoryName(projectPath)!, "bin", configuration, gateway.TargetFramework, assemblyName + ".dll"));
+        string? artifactsPath = Environment.GetEnvironmentVariable("ArtifactsPath");
+        string expectedPath = string.IsNullOrWhiteSpace(artifactsPath)
+            ? Path.Combine(Path.GetDirectoryName(projectPath)!, "bin", configuration, gateway.TargetFramework, assemblyName + ".dll")
+            : Path.Combine(artifactsPath, "bin", assemblyName, configuration.ToLowerInvariant(), assemblyName + ".dll");
+        gateway.TargetPath.ShouldBe(expectedPath);
         gateway.SdkVersion.ShouldBe(
             referenceMode == "package" ? "4.2.0" : ReadEnrollmentMetadata("EnrolledEventStoreVersion"),
             "the Builds packaged host retains its governed SDK 4.2 catalog view independently of the root catalog");
@@ -649,6 +624,8 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
 
     private static string FindRepositoryRoot()
     {
+        string enrolledRoot = ReadEnrollmentMetadata("EnrolledRepositoryRoot");
+        if (File.Exists(Path.Combine(enrolledRoot, "Hexalith.Conversations.slnx"))) return enrolledRoot;
         DirectoryInfo? directory = new(AppContext.BaseDirectory);
         while (directory is not null)
         {

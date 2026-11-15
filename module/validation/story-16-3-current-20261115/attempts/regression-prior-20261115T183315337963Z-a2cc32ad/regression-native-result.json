@@ -1,0 +1,81 @@
+{
+  "counts": {
+    "total": 17,
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "not-run": 0,
+    "errors": 0
+  },
+  "tests": [
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationProjectionGatewayDispatchLiveTests.GatewayDeliveryShouldPopulateConfiguredStateStoreAndProductionQueries",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationProjectionGatewayDispatchLiveTests.DuplicateGatewayDeliveryShouldConvergeWithoutChangingPersistedState",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewaySecurityTests.ActorDiscoveryShouldRequireItsOwnChannelToken",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewaySecurityTests.MetadataShouldRejectMisboundWorkload(audience: \\\"other-service\\\", operation: \\\"domain-service:metadata\\\", callerMatches: True)",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewaySecurityTests.MetadataShouldRejectMisboundWorkload(audience: \\\"current\\\", operation: \\\"domain-service:query\\\", callerMatches: True)",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewaySecurityTests.MetadataShouldRejectMisboundWorkload(audience: \\\"current\\\", operation: \\\"domain-service:metadata\\\", callerMatches: False)",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayAdmissionTests.UnauthorisedPrincipalShouldNotPersistConversation",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayCommandAuthorityTests.OtherRequestsShouldBeDenied(principal: \\\"other-party\\\", tenant: \\\"tenant-gateway-001\\\", conversation: \\\"conversation-one\\\", operation: \\\"GeneralCommand\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayCommandAuthorityTests.OtherRequestsShouldBeDenied(principal: \\\"party-gateway-actor\\\", tenant: \\\"tenant-gateway-002\\\", conversation: \\\"conversation-one\\\", operation: \\\"GeneralCommand\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayCommandAuthorityTests.OtherRequestsShouldBeDenied(principal: \\\"party-gateway-actor\\\", tenant: \\\"unconfigured-tenant\\\", conversation: \\\"conversation-one\\\", operation: \\\"GeneralCommand\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayCommandAuthorityTests.OtherRequestsShouldBeDenied(principal: \\\"party-gateway-actor\\\", tenant: \\\"tenant-gateway-001\\\", conversation: \\\"conversation-two\\\", operation: \\\"GeneralCommand\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayCommandAuthorityTests.OtherRequestsShouldBeDenied(principal: \\\"party-gateway-actor\\\", tenant: \\\"tenant-gateway-001\\\", conversation: null, operation: \\\"GeneralCommand\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayCommandAuthorityTests.OtherRequestsShouldBeDenied(principal: \\\"party-gateway-actor\\\", tenant: \\\"tenant-gateway-001\\\", conversation: \\\"conversation-one\\\", operation: \\\"ReadConversation\\\")",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayCommandAuthorityTests.EnrolledCommandShouldProvideExactHumanAuthority",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayRouteCatalogPolicyTests.ChangedBusinessMeaningOrScopeChangesTheSemanticIntent",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayRouteCatalogPolicyTests.EquivalentCreatesIgnoreEventIdentityTimestampsAndCorrelation",
+      "result": "Pass"
+    },
+    {
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayRouteCatalogPolicyTests.UnallocatedCreateCannotDeclareIntent",
+      "result": "Pass"
+    }
+  ],
+  "valid": true
+}

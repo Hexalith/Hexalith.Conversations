@@ -1,0 +1,56 @@
+[
+  {
+    "command": [
+      "dotnet",
+      "tool",
+      "run",
+      "hexalith-module",
+      "--",
+      "prepare-build",
+      "--manifest",
+      "module/hexalith.module-manifest.v2.json",
+      "--workspace",
+      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.vuT88BVO/workspace",
+      "--mode",
+      "source",
+      "--output",
+      "json"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "log": "apphost-prepare.log"
+  },
+  {
+    "command": [
+      "dotnet",
+      "build",
+      "/home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj",
+      "-c",
+      "Debug",
+      "-m:1",
+      "-p:ArtifactsPath=/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.vuT88BVO",
+      "-p:NuGetAudit=false"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "log": "apphost-build.log"
+  },
+  {
+    "command": [
+      "dotnet",
+      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.vuT88BVO/bin/Hexalith.Conversations.AppHost.Tests/debug/Hexalith.Conversations.AppHost.Tests.dll",
+      "-class",
+      "*ConversationsAppHostRuntimeBoundaryTest",
+      "-automated",
+      "sync",
+      "-failSkips",
+      "-parallel",
+      "none",
+      "-xml",
+      "/home/administrator/projects/hexalith/conversations/module/validation/story-16-3-current-20261115/apphost.xml"
+    ],
+    "cwd": "/home/administrator/projects/hexalith/conversations",
+    "exitCode": 0,
+    "log": "apphost-native.log"
+  }
+]
