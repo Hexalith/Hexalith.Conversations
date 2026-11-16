@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Independently recompute the SM-C2 v2 method, its algorithm vectors, bindings and approval.
+"""Recompute the SM-C2 v2 method, algorithm vectors, bindings and approval from bound inputs.
 
 Exit 0 PASS, 1 FAIL, 2 BLOCKED. --allow-unapproved is a draft check only; the contracted
 invocation always requires approval. Every applicable result has a nonempty assertion ledger.
+Calculations share the generator implementation; the C# conformance lane checks them independently.
 """
 from __future__ import annotations
 
@@ -103,7 +104,7 @@ def inspect_method(bundle: dict, expected: dict, ledger: Ledger) -> None:
                 ledger.check(f"method:{field}", False, gen.BLOCK_INCOMPLETE, f"Required method field {field} exists.")
             else:
                 ledger.check(f"method:{field}", gen.canonical(payload[field]) == gen.canonical(expected[field]), code,
-                             f"Recompute frozen {field} from independent constants and bound sources.")
+                             f"Recompute frozen {field} from declared constants and bound sources.")
     ledger.check("method:fields", set(payload) == set(expected), gen.BLOCK_INCOMPLETE, "The 12 payload fields are exact.")
 
 
@@ -120,6 +121,11 @@ def verify(repository: Path, evidence: str, markdown: str, allow_unapproved: boo
     if not isinstance(bundle, dict):
         ledger.check("json:object", False, gen.BLOCK_INCOMPLETE, "The method must be a JSON object.")
         return ledger, None
+    try:
+        serialized = gen.serialize_json(bundle).encode()
+    except UnicodeEncodeError:
+        ledger.check("json:canonical", False, gen.BLOCK_INCOMPLETE, "JSON strings must encode as UTF-8.")
+        return ledger, bundle
     try:
         schema = gen.load_schema(repository, SCHEMA_SHA256)
         expected = gen.build_payload(repository)
@@ -155,8 +161,11 @@ def verify(repository: Path, evidence: str, markdown: str, allow_unapproved: boo
         if valid:
             ledger.check("approval:predeclared", not gen.approval_postdated(repository, approval, actual_digest),
                          gen.BLOCK_POSTDATED, "Approval is no later than publication, or verification before publication.")
-    ledger.check("json:canonical", raw == gen.serialize_json(bundle).encode(), gen.BLOCK_INCOMPLETE,
+    ledger.check("json:canonical", raw == serialized, gen.BLOCK_INCOMPLETE,
                  "JSON has deterministic UTF-8 LF serialization.")
+    # Missing approval is already diagnosed above; its absence prevents Markdown rendering.
+    if "approval" not in bundle:
+        return ledger, bundle
     try:
         expected_md = gen.render_markdown(bundle).encode()
     except (KeyError, TypeError, ValueError):

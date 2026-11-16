@@ -334,7 +334,9 @@ jobs:
             -noLogo
           dotnet "$internal" -failSkips \
             -class- "Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest" \
+            -class- "Hexalith.Conversations.Conformance.Tests.DerivedKeyLifecycleAdrValidationTest" \
             -class- "Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest" \
+            -class- "Hexalith.Conversations.Conformance.Tests.SmC2MeasurementMethodValidationTest" \
             -parallelMode none \
             -result-trx TestResults/conformance/internal.trx \
             -noLogo

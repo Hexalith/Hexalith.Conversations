@@ -39,7 +39,7 @@ DECISION_PATH = "docs/release-evidence/derived-key-lifecycle-decision-v1.json"
 DECISION_MD = DECISION_PATH[:-5] + ".md"
 STORY_COMMIT = "455b8dea499fef5b0e5e6f8426badbb047ef3edf"
 PLANNING_COMMIT = "1e9a61126d3b7a55b514b7c7c8942d5af03355e5"
-FIXTURE_BASIS_COMMIT = "eea3a881"
+FIXTURE_BASIS_COMMIT = "eea3a88146d5d910be2fa17a5f71cdf7aecef978"
 FIXTURE_BASIS_SHA = "f02c4b5d103c591656d4d78181269ef3981e9af6f757200632d13a4038697eff"
 FIXTURE_V1_SHA = "1a43bacc98fb288a81578893679b6422e1088d1398722f89669f80058688d67b"
 FIXTURE_MD_SHA = "4838a5a174b247e3aa4cc6be0c181049a46d884612058df248af8892adaf3fff"
@@ -190,12 +190,16 @@ def bind_candidate(repository: Path) -> dict:
         if committed_blob(repository, predecessor, path) != raw:
             errors.append((BLOCK_INCOMPLETE, f"Story 12.1 differs from its done commit: {path}."))
         predecessor_files.append({"path": path, "sha256": sha256_bytes(raw)})
-    spec = read_file(repository, STORY_SPEC).decode()
     sprint_at_commit = committed_blob(repository, predecessor, SPRINT_PATH)
     row = rf"^  {re.escape(SPRINT_KEY)}: done$"
+    try:
+        spec = read_file(repository, STORY_SPEC).decode("utf-8")
+        committed_sprint = sprint_at_commit.decode("utf-8") if sprint_at_commit is not None else ""
+        live_sprint = read_file(repository, SPRINT_PATH).decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise Blocked(INPUT_UNAVAILABLE, f"Story 12.1 spec or sprint is not valid UTF-8: {error}") from None
     if frontmatter_value(spec, "status") != "done" or sprint_at_commit is None \
-            or not re.search(row, sprint_at_commit.decode(), re.M) \
-            or not re.search(row, read_file(repository, SPRINT_PATH).decode(), re.M):
+            or not re.search(row, committed_sprint, re.M) or not re.search(row, live_sprint, re.M):
         errors.append((BLOCK_INCOMPLETE, "Story 12.1's spec and sprint row must both read done."))
     try:
         decision = json.loads(read_file(repository, DECISION_PATH))

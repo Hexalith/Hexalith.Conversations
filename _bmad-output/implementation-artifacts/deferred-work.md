@@ -1283,3 +1283,37 @@ This closure supersedes only the named entry. The original ledger entry stays un
 - source_spec: `_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md`
   summary: The baseline build/runner overlay is verified to differ (upgrades the BH-10 runner entry above from unverified). Story 12.4 must declare and bind one identical overlay before observation.
   evidence: The baseline source `29def441` pins SDK 10.0.302 with no `test.runner`, while HEAD pins SDK 11.0.100 and `"test": {"runner": "Microsoft.Testing.Platform"}`. `Directory.Build.props`, `Directory.Packages.props` and the IntegrationTests project also differ. The approved `comparability.fixtureOverlayDifference` ("Only repetition constants differ between the two sides") under-declares this, because the per-side repetition counts are identical. Story 12.4 must record the exact baseline retarget overlay, the runner binary/version and the session process lifecycle, and prove both sides use them, before observing. Owner decision 2026-11-16: the existing ruling already applies the runtime change identically to both sides, so the approved payload stays unchanged.
+
+## Deferred from: Story 12.2 build verification review (2026-11-16)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md`
+  summary: Validate restricted detail response purpose and bounded shape when talking to older owners.
+  evidence: BH-01; separate commit `f1a2b3da468760d4188f604045deb098af8ead52`, outside this story's patches. `ConversationClient.GetConversationAsync` sends restriction flags but accepts a generic deserialized detail response, so an older owner can ignore the flags and return rich detail successfully. Test older-owner responses and enforce the requesting consumer's bounded response contract.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md`
+  summary: Reject malformed or repeated bounded-detail selectors before they fall through to rich detail.
+  evidence: BH-02/EC-03; separate commit `f1a2b3da468760d4188f604045deb098af8ead52`. `ConversationReadApi` treats anything except one exact `true` value as false. Duplicate values or `True` silently select ordinary rich hydration. Settle the parser's valid/invalid vocabulary and prove malformed selectors cannot expand the response.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md`
+  summary: Resolve the new advisory-detail adapter's dependency on native detail availability.
+  evidence: BH-03; separate commit `f1a2b3da468760d4188f604045deb098af8ead52`. `ConversationQueryHandler.GetAsync` performs the native read and missing/rebuilding gates before its advisory branch, even though `ReadAuthorizedAsync` uses an isolated metadata source. Verify the intended availability boundary with healthy advisory metadata and unavailable native detail before adjusting dispatch order.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md`
+  summary: Preserve advisory freshness instead of attaching unrelated native-detail freshness.
+  evidence: BH-04/EC-02; separate commit `f1a2b3da468760d4188f604045deb098af8ead52`. `GetConversationAdvisoryMetadataDomainQueryHandler.ReadAuthorizedAsync` accepts Stale metadata and omits its freshness from the result; the detail mapper constructs advisory details with the independently read native `source.Freshness`. Cover Stale advisory plus Current native data and preserve or validate the advisory generation/trust posture.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md`
+  summary: Confirm supported legacy authority-free HTTP detail dispatch (medium, unverified).
+  evidence: BH-05; separate commit `f1a2b3da468760d4188f604045deb098af8ead52`. The SDK dispatcher allows envelopes without caller authority, but the new detail adapter rejects them whenever HTTP context exists and no `VerifiedQueryCaller` is installed. The bounded-read owner must identify supported legacy callers and execute the real authenticated HTTP dispatch path to establish whether compatibility is required.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md`
+  summary: Confirm ordinary tenant Read behavior for global administrators (medium, unverified).
+  evidence: BH-06; separate commit `f1a2b3da468760d4188f604045deb098af8ead52`. The new detail adapter rejects `IsGlobalAdmin` before normal tenant authorization outside the direct-call bypass. The owner's caller policy and a bound administrator request with ordinary tenant Read permission must determine whether this denies a supported read.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md`
+  summary: Add runtime coverage for the separately committed bounded-read behavior and admission boundaries.
+  evidence: BH-07/VG-01–04; separate commit `f1a2b3da468760d4188f604045deb098af8ead52` adds only catalog shape assertions. `ConversationQueryHandlerTest` and `ConversationDomainQueryDispatchTest` must select native mode with a rich projection and prove purpose plus omitted fields; advisory detail consumers must accept complete metadata and reject incomplete/denied data; real-HTTP SDK dispatch must cover valid Projects authority and missing `projects.read`; `ConversationReadApiTest` must cover conflicting/repeated identity headers, conflicting aliases and matching aliases before any projection access. Existing default-mode and context-free fixtures bypass these branches.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md`
+  summary: Check the approved pooled bootstrap's independence assumptions before Story 12.4 observations (medium, unverified).
+  evidence: BH-11. The method intentionally pools samples and independently resamples individual observations. Synthetic session clustering/ties can produce a zero point-percentile interval, but that does not by itself prove a defect in future paired evidence. Use a representative session/process experiment to assess serial or session dependence before observation; if a changed signal method is needed, obtain a new owner-approved payload rather than changing the frozen 12.2 algorithm.
