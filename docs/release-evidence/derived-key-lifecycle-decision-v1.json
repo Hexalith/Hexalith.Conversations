@@ -1,0 +1,1036 @@
+{
+  "schemaVersion": "hexalith.conversations.derived-key-lifecycle-decision.v1",
+  "candidate": {
+    "storyId": "12.1",
+    "contract": {
+      "path": "_bmad-output/planning-artifacts/v9/story-contracts/12.1.json",
+      "sha256": "e271984c3d37654d40b6c3fb10a1e79668861ba6bc8f8682ace2cd8ec1e5f641"
+    },
+    "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
+    "rule": "The decision candidate is the Story 12.1 contract and its planning candidate, never HEAD. The contract digest must equal its v9 authority-bundle row. Every Story 6.2 predecessor file must be byte-identical in the working tree and at the planning candidate, and the Story 6.2 candidate must be the record's file_list_commit and an ancestor of the planning candidate. Story 16.3 is bound at its done commit: the spec blob and the sprint row recorded there must both be done. Unresolvable history is BLOCKED, never PASS.",
+    "inventory": {
+      "id": "V9-12.1-ENTRY-v1",
+      "rows": [
+        "V8-6.11-AC1",
+        "V8-6.11-DEPENDENCY-6.2",
+        "V8-6.11-PROHIBITION-EVENTSTORE-ONLY-WRITE-AUTHORITY"
+      ],
+      "sha256": "b8b755088071d62e36f8e6829d90a8fef3dc8eb54e8f521297ef22b3bfdebf0b"
+    },
+    "adr": {
+      "path": "docs/adrs/0005-conversation-derived-key-lifecycle.md",
+      "sha256": "2c946907e438850b643f17db704e702c71ece3b7a2826c113b1251df5a0cf068"
+    },
+    "predecessors": [
+      {
+        "id": "story-6.2-record",
+        "storyId": "6.2",
+        "path": "_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md",
+        "sha256": "1b87966f2b48d18c1f1d642e679febca26bbc591e8f270e6deb96393ea39034e",
+        "candidateCommit": "2971ab79efcf3ef11d4fba7b9139d7cae457a3f9"
+      },
+      {
+        "id": "sm-c2-hot-path-baseline-v1-json",
+        "storyId": "6.2",
+        "path": "docs/release-evidence/sm-c2-hot-path-baseline-v1.json",
+        "sha256": "4cb4e66744b26ead0a79a218aed662005f14007e8e103dd019836761569118ea"
+      },
+      {
+        "id": "sm-c2-hot-path-baseline-v1-md",
+        "storyId": "6.2",
+        "path": "docs/release-evidence/sm-c2-hot-path-baseline-v1.md",
+        "sha256": "c0a94476ad4a1ceeef73ee601e9079997077830604ff3b1300a08dc20cae8c33"
+      },
+      {
+        "id": "sm-c2-hot-path-baseline-v1-xunit",
+        "storyId": "6.2",
+        "path": "docs/release-evidence/sm-c2-hot-path-baseline-v1.xunit.xml",
+        "sha256": "06d219bb065592b235c842f2fcb6b193dccda6c67045d1e80737725b5927b773"
+      },
+      {
+        "id": "story-16.3-spec",
+        "storyId": "16.3",
+        "path": "_bmad-output/implementation-artifacts/spec-16-3-diagnose-apphost-preflight-failures-and-prove-terminal-reconciliation-live.md",
+        "sha256": "f3f00f085f82ad4639246a1b513c71cffcc4ea5112f4bacc11857be198fc2462",
+        "candidateCommit": "8da7f2bc8997c03a6aea3d72464369496c7b9717"
+      }
+    ],
+    "waivedScenarios": [
+      {
+        "id": "AC-12.1-01",
+        "state": "waived",
+        "decision": "Owner decision 2026-11-16: the candidate-verifier route is waived and recorded as waived, never PASS."
+      },
+      {
+        "id": "AC-12.1-06",
+        "state": "waived",
+        "decision": "Owner decision 2026-11-16: the v2 final pair is waived and recorded as waived, never PASS; Story 12.2 binds Story 12.1 by its done spec, sprint row and commit."
+      }
+    ]
+  },
+  "keyFamilies": [
+    {
+      "family": "conversation",
+      "grammarOrigin": "conversations-derived-keys-v1",
+      "keyPrefix": "projection:conversations:",
+      "tenantSegment": true,
+      "status": "current",
+      "rule": "projection:conversations:<seg(tenantId)>:<seg(conversationId)>",
+      "statement": "Ratified by v1; tenant and conversation segments isolate keys by construction.",
+      "evidence": [
+        "E20"
+      ]
+    },
+    {
+      "family": "tenant-index",
+      "grammarOrigin": "conversations-derived-keys-v1",
+      "keyPrefix": "projection:conversations-index:",
+      "tenantSegment": true,
+      "status": "current",
+      "rule": "projection:conversations-index:<seg(tenantId)>",
+      "statement": "Ratified by v1; one tenant-wide key per tenant, never shared across tenants.",
+      "evidence": [
+        "E20"
+      ]
+    },
+    {
+      "family": "dispatch-ledger",
+      "grammarOrigin": "conversations-derived-keys-v1",
+      "keyPrefix": "projection:conversations-dispatch:",
+      "tenantSegment": false,
+      "status": "current",
+      "rule": "projection:conversations-dispatch:<sha256(dispatchId)>",
+      "statement": "Ratified by v1 as the tenant-segment exception: fixed-length, non-disclosing and validated against tenant, conversation, dispatch and fingerprint on every access.",
+      "evidence": [
+        "E20",
+        "E04",
+        "E05"
+      ]
+    },
+    {
+      "family": "resolution-metadata",
+      "grammarOrigin": "conversations-derived-keys-v2",
+      "keyPrefix": "projection:conversations-resolution:",
+      "tenantSegment": true,
+      "status": "current",
+      "rule": "projection:conversations-resolution:<sha256(tenantId)>:<sha256(conversationId)>",
+      "statement": "As built and ratified by v2; SHA-256 tokens keep tenant and conversation isolation with bounded, non-disclosing segments.",
+      "evidence": [
+        "E20"
+      ]
+    },
+    {
+      "family": "resolution-selection",
+      "grammarOrigin": "conversations-derived-keys-v2",
+      "keyPrefix": "projection:conversations-resolution-selection:",
+      "tenantSegment": true,
+      "status": "current",
+      "rule": "projection:conversations-resolution-selection:<sha256(tenantId)>:<sha256(conversationId)>",
+      "statement": "As built and ratified by v2; SHA-256 tokens keep tenant and conversation isolation.",
+      "evidence": [
+        "E20"
+      ]
+    },
+    {
+      "family": "resolution-proof",
+      "grammarOrigin": "conversations-derived-keys-v2",
+      "keyPrefix": "projection:conversations-resolution-proof:",
+      "tenantSegment": true,
+      "status": "current",
+      "rule": "projection:conversations-resolution-proof:<sha256(tenantId)>:<sha256(conversationId)>",
+      "statement": "As built and ratified by v2; SHA-256 tokens keep tenant and conversation isolation.",
+      "evidence": [
+        "E20"
+      ]
+    },
+    {
+      "family": "resolution-fence",
+      "grammarOrigin": "conversations-derived-keys-v2",
+      "keyPrefix": "projection:conversations-resolution-fence:",
+      "tenantSegment": true,
+      "status": "current",
+      "rule": "projection:conversations-resolution-fence:<sha256(tenantId)>:<sha256(conversationId)>",
+      "statement": "As built and ratified by v2; SHA-256 tokens keep tenant and conversation isolation.",
+      "evidence": [
+        "E20"
+      ]
+    }
+  ],
+  "ownership": [
+    {
+      "family": "conversation",
+      "owner": {
+        "status": "current",
+        "rule": "eventstore-derived",
+        "statement": "Replaceable summary and detail state materialized from the conversation's EventStore stream; the stream stays the only durable domain record.",
+        "evidence": [
+          "E01",
+          "E19"
+        ]
+      },
+      "writer": {
+        "status": "current",
+        "rule": "projection-route",
+        "statement": "Written only by the route's `PersistGenerationAsync` step and by the rebuild plan, under ETag CAS where the newest generation wins.",
+        "evidence": [
+          "E01",
+          "E02",
+          "E03"
+        ]
+      },
+      "readRepair": {
+        "status": "current",
+        "rule": "false",
+        "statement": "Read paths only get the key and map missing, stale or inconsistent state to trust states; they never write it.",
+        "evidence": [
+          "E18",
+          "E12"
+        ]
+      }
+    },
+    {
+      "family": "tenant-index",
+      "owner": {
+        "status": "current",
+        "rule": "eventstore-derived",
+        "statement": "Replaceable tenant-wide summary index derived from EventStore conversation deliveries and the delivered Tenants `TenantCreated` event.",
+        "evidence": [
+          "E01",
+          "E17"
+        ]
+      },
+      "writer": {
+        "status": "current",
+        "rule": "projection-route",
+        "statement": "Merged by the route and replaced by its rebuild plan; the create-only `TenantCreated` initializer only creates a missing `Ready(empty)` index.",
+        "evidence": [
+          "E01",
+          "E17",
+          "E22"
+        ]
+      },
+      "readRepair": {
+        "status": "current",
+        "rule": "false",
+        "statement": "List reads never create, merge or repair the index; missing or version 1 state reads as unavailable or rebuilding.",
+        "evidence": [
+          "E18",
+          "E16"
+        ]
+      }
+    },
+    {
+      "family": "dispatch-ledger",
+      "owner": {
+        "status": "current",
+        "rule": "eventstore-derived",
+        "statement": "Conversations-owned delivery ledger for the EventStore-owned stable dispatch identity; it records projection progress, never domain state.",
+        "evidence": [
+          "E01",
+          "E07"
+        ]
+      },
+      "writer": {
+        "status": "current",
+        "rule": "projection-route",
+        "statement": "Acquired create-only and completed under ETag by the route; the rebuild plan writes its completed ledger create-only or by ETag.",
+        "evidence": [
+          "E01",
+          "E03",
+          "E05"
+        ]
+      },
+      "readRepair": {
+        "status": "current",
+        "rule": "false",
+        "statement": "Readers verify dispatch references against ledgers they only get; they never write a ledger.",
+        "evidence": [
+          "E18"
+        ]
+      }
+    },
+    {
+      "family": "resolution-metadata",
+      "owner": {
+        "status": "current",
+        "rule": "eventstore-derived",
+        "statement": "Bounded resolution metadata derived from the same delivery; it carries no domain authority.",
+        "evidence": [
+          "E09"
+        ]
+      },
+      "writer": {
+        "status": "current",
+        "rule": "projection-route",
+        "statement": "Written only in the route's coordinated SDK batch or by the rebuild plan; SDK batch recovery resumes only the route's own interrupted manifest.",
+        "evidence": [
+          "E09",
+          "E08",
+          "E15"
+        ]
+      },
+      "readRepair": {
+        "status": "current",
+        "rule": "false",
+        "statement": "Queries read metadata only behind a completed proof and never write it.",
+        "evidence": [
+          "E10",
+          "E12"
+        ]
+      }
+    },
+    {
+      "family": "resolution-selection",
+      "owner": {
+        "status": "current",
+        "rule": "eventstore-derived",
+        "statement": "Bounded native selected-generation record derived from the delivery; it holds no detail or rich manifest.",
+        "evidence": [
+          "E11"
+        ]
+      },
+      "writer": {
+        "status": "current",
+        "rule": "projection-route",
+        "statement": "Written only as an optional participant of the route's metadata batch or the rebuild plan, under its own ETag.",
+        "evidence": [
+          "E11",
+          "E15"
+        ]
+      },
+      "readRepair": {
+        "status": "current",
+        "rule": "false",
+        "statement": "Reads compare the selection with the proof and never write it; a tampered selection refuses the proof.",
+        "evidence": [
+          "E23",
+          "E12"
+        ]
+      }
+    },
+    {
+      "family": "resolution-proof",
+      "owner": {
+        "status": "current",
+        "rule": "eventstore-derived",
+        "statement": "Permanent, content-free generation proof derived from deliveries; it is the outer read gate.",
+        "evidence": [
+          "E09"
+        ]
+      },
+      "writer": {
+        "status": "current",
+        "rule": "projection-route",
+        "statement": "Claimed, completed or barred only by the route, where a rejected input writes a position barrier; the rebuild plan installs it first.",
+        "evidence": [
+          "E09",
+          "E06",
+          "E08"
+        ]
+      },
+      "readRepair": {
+        "status": "current",
+        "rule": "false",
+        "statement": "A pending, barred or changed proof makes the read unavailable; reads never reopen or complete it.",
+        "evidence": [
+          "E10",
+          "E12"
+        ]
+      }
+    },
+    {
+      "family": "resolution-fence",
+      "owner": {
+        "status": "current",
+        "rule": "eventstore-derived",
+        "statement": "Internal content-free batch fence derived from deliveries; queries never retrieve it.",
+        "evidence": [
+          "E09"
+        ]
+      },
+      "writer": {
+        "status": "current",
+        "rule": "projection-route",
+        "statement": "Claimed, batched and completed only by the route or written by the rebuild plan; SDK batch recovery resumes only the route's own interrupted batch.",
+        "evidence": [
+          "E09",
+          "E08",
+          "E15"
+        ]
+      },
+      "readRepair": {
+        "status": "current",
+        "rule": "false",
+        "statement": "Queries never read or write the fence or its retained manifest.",
+        "evidence": [
+          "E10"
+        ]
+      }
+    }
+  ],
+  "writeOrdering": {
+    "families": [
+      {
+        "family": "conversation",
+        "status": "current",
+        "rule": "live=5:write;rebuild=3",
+        "statement": "Written after the proof claim and the index pending reference, before the summary merge; third operation of the rebuild plan.",
+        "evidence": [
+          "E01",
+          "E02",
+          "E03"
+        ]
+      },
+      {
+        "family": "tenant-index",
+        "status": "current",
+        "rule": "live=4:pending,6:merge;rebuild=4",
+        "statement": "The pending dispatch reference precedes the conversation write and the summary merge follows it; fourth operation of the rebuild plan.",
+        "evidence": [
+          "E01",
+          "E02"
+        ]
+      },
+      {
+        "family": "dispatch-ledger",
+        "status": "current",
+        "rule": "live=1:acquire,10:complete;rebuild=5",
+        "statement": "Acquired before any other family is written and completed last, after every family is verified durable; fifth operation of the rebuild plan.",
+        "evidence": [
+          "E01",
+          "E02"
+        ]
+      },
+      {
+        "family": "resolution-metadata",
+        "status": "current",
+        "rule": "live=7:batch;rebuild=2",
+        "statement": "Written in the fence batch after the conversation and index writes; second operation of the rebuild plan.",
+        "evidence": [
+          "E09",
+          "E08"
+        ]
+      },
+      {
+        "family": "resolution-selection",
+        "status": "current",
+        "rule": "live=7:batch;rebuild=7",
+        "statement": "Joins the fence and metadata batch when a native selection exists; last, optional operation of the rebuild plan.",
+        "evidence": [
+          "E11"
+        ]
+      },
+      {
+        "family": "resolution-proof",
+        "status": "current",
+        "rule": "live=2:pending,9:complete;rebuild=1",
+        "statement": "Claimed right after the ledger acquire and completed only after the fence completes; first operation of the rebuild plan.",
+        "evidence": [
+          "E01",
+          "E08",
+          "E06"
+        ]
+      },
+      {
+        "family": "resolution-fence",
+        "status": "current",
+        "rule": "live=3:pending,7:batch,8:complete;rebuild=6",
+        "statement": "Claimed after the proof, carried in the metadata batch and completed before the proof; sixth operation of the rebuild plan.",
+        "evidence": [
+          "E09",
+          "E08"
+        ]
+      }
+    ],
+    "live": [
+      {
+        "position": 1,
+        "family": "dispatch-ledger",
+        "action": "acquire"
+      },
+      {
+        "position": 2,
+        "family": "resolution-proof",
+        "action": "pending"
+      },
+      {
+        "position": 3,
+        "family": "resolution-fence",
+        "action": "pending"
+      },
+      {
+        "position": 4,
+        "family": "tenant-index",
+        "action": "pending"
+      },
+      {
+        "position": 5,
+        "family": "conversation",
+        "action": "write"
+      },
+      {
+        "position": 6,
+        "family": "tenant-index",
+        "action": "merge"
+      },
+      {
+        "position": 7,
+        "family": "resolution-metadata",
+        "action": "batch"
+      },
+      {
+        "position": 7,
+        "family": "resolution-selection",
+        "action": "batch"
+      },
+      {
+        "position": 7,
+        "family": "resolution-fence",
+        "action": "batch"
+      },
+      {
+        "position": 8,
+        "family": "resolution-fence",
+        "action": "complete"
+      },
+      {
+        "position": 9,
+        "family": "resolution-proof",
+        "action": "complete"
+      },
+      {
+        "position": 10,
+        "family": "dispatch-ledger",
+        "action": "complete"
+      }
+    ],
+    "rebuild": [
+      {
+        "position": 1,
+        "family": "resolution-proof"
+      },
+      {
+        "position": 2,
+        "family": "resolution-metadata"
+      },
+      {
+        "position": 3,
+        "family": "conversation"
+      },
+      {
+        "position": 4,
+        "family": "tenant-index"
+      },
+      {
+        "position": 5,
+        "family": "dispatch-ledger"
+      },
+      {
+        "position": 6,
+        "family": "resolution-fence"
+      },
+      {
+        "position": 7,
+        "family": "resolution-selection"
+      }
+    ]
+  },
+  "compatibility": {
+    "grammar": {
+      "ratified": "conversations-derived-keys-v2",
+      "supersedes": "conversations-derived-keys-v1",
+      "migrationTreatment": "identity",
+      "v1Families": [
+        "conversation",
+        "tenant-index",
+        "dispatch-ledger"
+      ],
+      "addedFamilies": [
+        "resolution-metadata",
+        "resolution-selection",
+        "resolution-proof",
+        "resolution-fence"
+      ],
+      "segmentEncoding": "seg(x) is unpadded base64url (+ to -, / to _) over the UTF-8 identifier",
+      "digestEncoding": "sha256(x) is the lowercase hexadecimal SHA-256 of the UTF-8 identifier",
+      "stateStore": {
+        "configurationKey": "EventStore:Projections:ReadModelStateStoreName",
+        "legacyDefault": "statestore",
+        "configurable": true
+      },
+      "inCodeGrammarVersion": null,
+      "scopedOut": [
+        "Tenants-owned tenants-projection:v1:* keys share the store and are governed by Tenants.",
+        "Duplicate-event-identity semantics stay open under epic-16-retro-item-52-reconcile-duplicate-event-identity-semantics."
+      ]
+    },
+    "families": [
+      {
+        "family": "conversation",
+        "status": "proposed",
+        "rule": "identity",
+        "statement": "v1 key bytes are unchanged in v2, so no migration runs.",
+        "evidence": []
+      },
+      {
+        "family": "tenant-index",
+        "status": "proposed",
+        "rule": "identity",
+        "statement": "Key bytes are unchanged; the record keeps its own `LifecycleSchemaVersion = 2`, and a version 1 record reads as rebuilding.",
+        "evidence": [
+          "E16"
+        ]
+      },
+      {
+        "family": "dispatch-ledger",
+        "status": "proposed",
+        "rule": "identity",
+        "statement": "v1 key bytes are unchanged in v2, so no migration runs.",
+        "evidence": []
+      },
+      {
+        "family": "resolution-metadata",
+        "status": "proposed",
+        "rule": "identity",
+        "statement": "As-built key bytes are unchanged by v2, so no migration runs.",
+        "evidence": []
+      },
+      {
+        "family": "resolution-selection",
+        "status": "proposed",
+        "rule": "identity",
+        "statement": "As-built key bytes are unchanged by v2, so no migration runs.",
+        "evidence": []
+      },
+      {
+        "family": "resolution-proof",
+        "status": "proposed",
+        "rule": "identity",
+        "statement": "As-built key bytes are unchanged by v2, so no migration runs.",
+        "evidence": []
+      },
+      {
+        "family": "resolution-fence",
+        "status": "proposed",
+        "rule": "identity",
+        "statement": "As-built key bytes are unchanged by v2, so no migration runs.",
+        "evidence": []
+      }
+    ]
+  },
+  "rebuild": [
+    {
+      "family": "conversation",
+      "status": "current",
+      "rule": "full-replay-fail-closed",
+      "statement": "Rebuilt only from a full EventStore replay through the rebuild plan; a newer persisted generation rejects the plan.",
+      "evidence": [
+        "E03",
+        "E19",
+        "E21"
+      ]
+    },
+    {
+      "family": "tenant-index",
+      "status": "current",
+      "rule": "full-replay-fail-closed",
+      "statement": "The rebuild plan replaces the whole value under its ETag, keeps verified siblings and never lowers a watermark.",
+      "evidence": [
+        "E03",
+        "E19"
+      ]
+    },
+    {
+      "family": "dispatch-ledger",
+      "status": "current",
+      "rule": "full-replay-fail-closed",
+      "statement": "A reused ledger with a different identity rejects the rebuild; a completed ledger whose keys are missing re-persists instead of claiming completion.",
+      "evidence": [
+        "E04",
+        "E03"
+      ]
+    },
+    {
+      "family": "resolution-metadata",
+      "status": "current",
+      "rule": "full-replay-fail-closed",
+      "statement": "The rebuild plan rejects newer metadata; an interrupted rebuild withholds reads and a restart recovers the original identity.",
+      "evidence": [
+        "E08",
+        "E13"
+      ]
+    },
+    {
+      "family": "resolution-selection",
+      "status": "current",
+      "rule": "full-replay-fail-closed",
+      "statement": "Rebuilt only from replay when the generation carries native admission; an interrupted rebuild refuses reads.",
+      "evidence": [
+        "E11",
+        "E13"
+      ]
+    },
+    {
+      "family": "resolution-proof",
+      "status": "current",
+      "rule": "full-replay-fail-closed",
+      "statement": "The rebuild plan installs the replayed generation as the current proof and rejects a newer barrier or proof.",
+      "evidence": [
+        "E08",
+        "E13"
+      ]
+    },
+    {
+      "family": "resolution-fence",
+      "status": "current",
+      "rule": "full-replay-fail-closed",
+      "statement": "The rebuild plan writes the replayed proof into the fence and rejects a newer fence generation.",
+      "evidence": [
+        "E08",
+        "E13"
+      ]
+    }
+  ],
+  "backfill": [
+    {
+      "family": "conversation",
+      "status": "proposed",
+      "rule": "none",
+      "statement": "No backfill; absent state is produced only by live delivery or full replay.",
+      "evidence": []
+    },
+    {
+      "family": "tenant-index",
+      "status": "proposed",
+      "rule": "none",
+      "statement": "No backfill; a missing index is never synthesized by a reader.",
+      "evidence": []
+    },
+    {
+      "family": "dispatch-ledger",
+      "status": "proposed",
+      "rule": "none",
+      "statement": "No backfill; a ledger exists only for a delivered dispatch.",
+      "evidence": []
+    },
+    {
+      "family": "resolution-metadata",
+      "status": "proposed",
+      "rule": "none",
+      "statement": "No backfill; metadata exists only for a delivered generation.",
+      "evidence": []
+    },
+    {
+      "family": "resolution-selection",
+      "status": "proposed",
+      "rule": "none",
+      "statement": "No backfill; a selection exists only for an admitted native generation.",
+      "evidence": []
+    },
+    {
+      "family": "resolution-proof",
+      "status": "proposed",
+      "rule": "none",
+      "statement": "No backfill; proof exists only for a claimed generation.",
+      "evidence": []
+    },
+    {
+      "family": "resolution-fence",
+      "status": "proposed",
+      "rule": "none",
+      "statement": "No backfill; a fence exists only for a claimed generation.",
+      "evidence": []
+    }
+  ],
+  "deletion": [
+    {
+      "family": "conversation",
+      "status": "proposed",
+      "rule": "operator-rebuild-only",
+      "statement": "Removed only by an operator rebuild: delete the derived keys, then replay from EventStore.",
+      "evidence": []
+    },
+    {
+      "family": "tenant-index",
+      "status": "proposed",
+      "rule": "operator-rebuild-only",
+      "statement": "Removed only by an operator rebuild: delete the derived keys, then replay from EventStore.",
+      "evidence": []
+    },
+    {
+      "family": "dispatch-ledger",
+      "status": "proposed",
+      "rule": "operator-rebuild-only",
+      "statement": "Apart from its TTL expiry, removed only by an operator rebuild.",
+      "evidence": []
+    },
+    {
+      "family": "resolution-metadata",
+      "status": "proposed",
+      "rule": "operator-rebuild-only",
+      "statement": "Removed only by an operator rebuild: delete the derived keys, then replay from EventStore.",
+      "evidence": []
+    },
+    {
+      "family": "resolution-selection",
+      "status": "proposed",
+      "rule": "operator-rebuild-only",
+      "statement": "Removed only by an operator rebuild: delete the derived keys, then replay from EventStore.",
+      "evidence": []
+    },
+    {
+      "family": "resolution-proof",
+      "status": "proposed",
+      "rule": "operator-rebuild-only",
+      "statement": "Removed only by an operator rebuild: delete the derived keys, then replay from EventStore.",
+      "evidence": []
+    },
+    {
+      "family": "resolution-fence",
+      "status": "proposed",
+      "rule": "operator-rebuild-only",
+      "statement": "Removed only by an operator rebuild: delete the derived keys, then replay from EventStore.",
+      "evidence": []
+    }
+  ],
+  "expiry": [
+    {
+      "family": "conversation",
+      "status": "proposed",
+      "rule": "none",
+      "statement": "Never expires; an operator rebuild is the only replacement.",
+      "evidence": []
+    },
+    {
+      "family": "tenant-index",
+      "status": "proposed",
+      "rule": "none",
+      "statement": "Never expires; an operator rebuild is the only replacement.",
+      "evidence": []
+    },
+    {
+      "family": "dispatch-ledger",
+      "status": "current",
+      "rule": "redelivery-window-ttl",
+      "statement": "Expires after `RedeliveryWindow`; the proof outlives it, so a later redelivery recovers the original generation and rejects identity reuse.",
+      "evidence": [
+        "E07",
+        "E14"
+      ]
+    },
+    {
+      "family": "resolution-metadata",
+      "status": "proposed",
+      "rule": "none",
+      "statement": "Never expires; an operator rebuild is the only replacement.",
+      "evidence": []
+    },
+    {
+      "family": "resolution-selection",
+      "status": "proposed",
+      "rule": "none",
+      "statement": "Never expires; an operator rebuild is the only replacement.",
+      "evidence": []
+    },
+    {
+      "family": "resolution-proof",
+      "status": "proposed",
+      "rule": "none",
+      "statement": "Never expires and outlives the dispatch ledger, so ledger expiry cannot reopen or rebind a generation.",
+      "evidence": [
+        "E07"
+      ]
+    },
+    {
+      "family": "resolution-fence",
+      "status": "proposed",
+      "rule": "none",
+      "statement": "Never expires; an operator rebuild is the only replacement.",
+      "evidence": []
+    }
+  ],
+  "rollback": {
+    "storyBoundary": "remove only ADR 0005, its validator/generated decision, fixtures/results, and Story 12.1 record; Story 6.2 and SM-C2 v1 stay immutable.",
+    "runtime": "Redeploy the prior binaries, then rebuild from EventStore; never reverse-write derived state and never repeat external side effects.",
+    "families": [
+      {
+        "family": "conversation",
+        "status": "proposed",
+        "rule": "redeploy-then-rebuild",
+        "statement": "Redeploy prior binaries, then rebuild from EventStore; never reverse-write and never repeat side effects.",
+        "evidence": []
+      },
+      {
+        "family": "tenant-index",
+        "status": "proposed",
+        "rule": "redeploy-then-rebuild",
+        "statement": "Redeploy prior binaries, then rebuild from EventStore; never reverse-write and never repeat side effects.",
+        "evidence": []
+      },
+      {
+        "family": "dispatch-ledger",
+        "status": "proposed",
+        "rule": "redeploy-then-rebuild",
+        "statement": "Redeploy prior binaries, then rebuild from EventStore; never reverse-write and never repeat side effects.",
+        "evidence": []
+      },
+      {
+        "family": "resolution-metadata",
+        "status": "proposed",
+        "rule": "redeploy-then-rebuild",
+        "statement": "Redeploy prior binaries, then rebuild from EventStore; never reverse-write and never repeat side effects.",
+        "evidence": []
+      },
+      {
+        "family": "resolution-selection",
+        "status": "proposed",
+        "rule": "redeploy-then-rebuild",
+        "statement": "Redeploy prior binaries, then rebuild from EventStore; never reverse-write and never repeat side effects.",
+        "evidence": []
+      },
+      {
+        "family": "resolution-proof",
+        "status": "proposed",
+        "rule": "redeploy-then-rebuild",
+        "statement": "Redeploy prior binaries, then rebuild from EventStore; never reverse-write and never repeat side effects.",
+        "evidence": []
+      },
+      {
+        "family": "resolution-fence",
+        "status": "proposed",
+        "rule": "redeploy-then-rebuild",
+        "statement": "Redeploy prior binaries, then rebuild from EventStore; never reverse-write and never repeat side effects.",
+        "evidence": []
+      }
+    ]
+  },
+  "evidenceTests": [
+    {
+      "id": "E01",
+      "test": "ConversationAsyncProjectionHandlerTest.AcceptedAppendShouldCompleteOnlyAfterBothExactKeysAreDurable",
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs"
+    },
+    {
+      "id": "E02",
+      "test": "ConversationAsyncProjectionHandlerTest.SecondWriteFailureShouldBeRetryableAndRetryShouldConverge",
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs"
+    },
+    {
+      "id": "E03",
+      "test": "ConversationAsyncProjectionHandlerTest.FullReplayPlanShouldContainExactGenerationAndLedgerKeysWithoutMutatingLiveState",
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs"
+    },
+    {
+      "id": "E04",
+      "test": "ConversationAsyncProjectionHandlerTest.RebuildShouldRejectAnExistingLedgerWithDifferentIdentity",
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs"
+    },
+    {
+      "id": "E05",
+      "test": "ConversationAsyncProjectionHandlerTest.CompletionShouldRejectAReplacedLedgerIdentityWithoutCompletingIt",
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs"
+    },
+    {
+      "id": "E06",
+      "test": "ConversationAsyncProjectionHandlerTest.CrossTenantEventShouldFailWithOnlyAnAcceptedRoutePositionBarrier",
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs"
+    },
+    {
+      "id": "E07",
+      "test": "ConversationResolutionMetadataProjectionTest.LedgerExpiryAndRestartRecoverOriginalGenerationAndRejectIdentityReuse",
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationResolutionMetadataProjectionTest.cs"
+    },
+    {
+      "id": "E08",
+      "test": "ConversationResolutionMetadataProjectionTest.RebuildAtomicallyPromotesMetadataProofAndLegacyGenerationWithExpectedEtags",
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationResolutionMetadataProjectionTest.cs"
+    },
+    {
+      "id": "E09",
+      "test": "ConversationResolutionMetadataProjectionTest.ProductionDispatchPersistsIsolatedSubsetAndPermanentContentFreeProof",
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationResolutionMetadataProjectionTest.cs"
+    },
+    {
+      "id": "E10",
+      "test": "ConversationResolutionMetadataProjectionTest.ReaderRacingACompletedGateCannotFetchRichRecoveryManifestThroughMetadata",
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationResolutionMetadataProjectionTest.cs"
+    },
+    {
+      "id": "E11",
+      "test": "ConversationResolutionNativeProvenanceTest.OriginalVerifiedProofIsCommittedWithSubsetGenerationAndSelectionAndSurvivesRetry",
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationResolutionNativeProvenanceTest.cs"
+    },
+    {
+      "id": "E12",
+      "test": "ConversationResolutionNativeProvenanceTest.UntrustedWireProofDoesNotCertifyLegacyGenerationAndReadsCannotRepairIt",
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationResolutionNativeProvenanceTest.cs"
+    },
+    {
+      "id": "E13",
+      "test": "ConversationResolutionRebuildCompletionTest.InterruptedActualSdkRebuildRefusesWithoutRichReadsAndRestartRecoversOriginalIdentity",
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationResolutionRebuildCompletionTest.cs"
+    },
+    {
+      "id": "E14",
+      "test": "ConversationProjectionReadModelPersistenceTest.MatchingProjectionShouldRemainReadableAfterDispatchLedgerExpires",
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadModelPersistenceTest.cs"
+    },
+    {
+      "id": "E15",
+      "test": "ConversationProjectionConfigurationTest.PendingRecoveryUsesTheConfiguredStore",
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionConfigurationTest.cs"
+    },
+    {
+      "id": "E16",
+      "test": "ConversationTenantIndexLifecycleTest.LiveDeliveryToAVersionOneIndexShouldProduceRebuildingWithSeededWatermarks",
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationTenantIndexLifecycleTest.cs"
+    },
+    {
+      "id": "E17",
+      "test": "ConversationTenantIndexInitializerTest.TenantCreatedShouldInitializeTheIndexAndRedeliveryShouldLeaveItUnchanged",
+      "path": "tests/Hexalith.Conversations.Server.Tests/TenantAccess/ConversationTenantIndexInitializerTest.cs"
+    },
+    {
+      "id": "E18",
+      "test": "ConversationTenantIndexReadMatrixTest.QueryPathsShouldNeverWriteInAnyState",
+      "path": "tests/Hexalith.Conversations.Server.Tests/Queries/ConversationTenantIndexReadMatrixTest.cs"
+    },
+    {
+      "id": "E19",
+      "test": "ConversationProjectionReadStorePopulationLiveTests.DerivedStateDeletionAndFullReplayShouldRestoreEquivalentKeysAndQueries",
+      "path": "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs"
+    },
+    {
+      "id": "E20",
+      "test": "DerivedKeyLifecycleAdrValidationTest.EventStoreShouldRemainOnlyWriteAuthority",
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/DerivedKeyLifecycleAdrValidationTest.cs"
+    },
+    {
+      "id": "E21",
+      "test": "ConversationReplayDeterminismTest.TwoCleanRebuildsUnderDifferentClocksShouldProduceByteIdenticalReplayState",
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationReplayDeterminismTest.cs"
+    },
+    {
+      "id": "E22",
+      "test": "ConversationAsyncProjectionHandlerTest.StableDuplicateShouldConvergeWithoutDuplicatingTheTenantIndex",
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs"
+    },
+    {
+      "id": "E23",
+      "test": "ConversationResolutionNativeEnrollmentTest.ReconciliationPreservesOriginalGenerationAndSelectionTamperingRefusesProof",
+      "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationResolutionNativeEnrollmentTest.cs"
+    }
+  ],
+  "approval": {
+    "decision": "approved",
+    "approver": "Jerome Piquot",
+    "decidedAtUtc": "2026-11-16T12:13:38Z",
+    "boundAdrSha256": "2c946907e438850b643f17db704e702c71ece3b7a2826c113b1251df5a0cf068",
+    "boundSignablePayloadSha256": "13943cc3b30e3183af09ba5549b0984a4d7170db2e2929c1b85658c22514bbbe"
+  },
+  "digests": {
+    "adrSha256": "2c946907e438850b643f17db704e702c71ece3b7a2826c113b1251df5a0cf068",
+    "signablePayloadSha256": "13943cc3b30e3183af09ba5549b0984a4d7170db2e2929c1b85658c22514bbbe",
+    "markdownSha256": "c3d6ac601769cf040463f040dd9606b69512069f2e231bd0bac0ecfecf3ab181"
+  }
+}

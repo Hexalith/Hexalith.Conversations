@@ -14,6 +14,7 @@ This tracker lists decisions required before dependent Conversations behavior is
 | Idempotency contract | [ADR 0001](0001-idempotency-contract.md) | Accepted |
 | Conversation project assignment ownership | [ADR 0002](0002-conversation-project-assignment-ownership.md) | Accepted |
 | Projection read-store population proof | [ADR 0003](0003-projection-read-store-population-proof.md) | Accepted |
+| Conversation derived-key ownership, lifecycle, and rollback | [ADR 0005](0005-conversation-derived-key-lifecycle.md) | Accepted (2026-11-16; owner approval bound to its digest in `docs/release-evidence/derived-key-lifecycle-decision-v1.json`) |
 | Tenant projection freshness | Readiness gate decision plus ADR required for production durability | Proposed |
 | Governance audit pairing | ADR required before governance commands | Proposed |
 | Event schema evolution | ADR required before versioned events | Proposed |

@@ -111,9 +111,9 @@ development_status:
   11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis: done
   11-3-generate-authoritative-sm-2-v2-evidence-and-decide-oq-2: done
   epic-11-retrospective: done
-  epic-12: backlog
-  12-1-approve-derived-key-ownership-lifecycle-and-rollback: backlog
-  #  Story 16.3 is still backlog and gates 12.1. Should I retain the gate and pause, or record an explicit exception for 12.1 ADR/tooling work only?
+  epic-12: in-progress
+  12-1-approve-derived-key-ownership-lifecycle-and-rollback: review
+  #  AC-01/06 waived (owner, 2026-11-16)
   12-2-freeze-the-benchmark-method-and-signal-quality-algorithm: backlog
   12-3-implement-correctness-preserving-list-open-optimization-and-migration-behavior: backlog
   12-4-produce-candidate-bound-evidence-and-enforce-universal-sm-c2: backlog

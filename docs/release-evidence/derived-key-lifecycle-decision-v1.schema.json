@@ -1,0 +1,1269 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.com/schemas/conversations/derived-key-lifecycle-decision-v1.schema.json",
+  "title": "Conversations derived-key lifecycle decision v1",
+  "description": "Closed Story 12.1 decision bundle generated from ADR 0005. The approval and digests sit outside the signable payload.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "candidate",
+    "keyFamilies",
+    "ownership",
+    "writeOrdering",
+    "compatibility",
+    "rebuild",
+    "backfill",
+    "deletion",
+    "expiry",
+    "rollback",
+    "evidenceTests",
+    "approval",
+    "digests"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "hexalith.conversations.derived-key-lifecycle-decision.v1"
+    },
+    "candidate": {
+      "$ref": "#/$defs/candidate"
+    },
+    "keyFamilies": {
+      "type": "array",
+      "minItems": 7,
+      "items": false,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/keyFamily",
+          "properties": {
+            "family": {
+              "const": "conversation"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/keyFamily",
+          "properties": {
+            "family": {
+              "const": "tenant-index"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/keyFamily",
+          "properties": {
+            "family": {
+              "const": "dispatch-ledger"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/keyFamily",
+          "properties": {
+            "family": {
+              "const": "resolution-metadata"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/keyFamily",
+          "properties": {
+            "family": {
+              "const": "resolution-selection"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/keyFamily",
+          "properties": {
+            "family": {
+              "const": "resolution-proof"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/keyFamily",
+          "properties": {
+            "family": {
+              "const": "resolution-fence"
+            }
+          }
+        }
+      ]
+    },
+    "ownership": {
+      "type": "array",
+      "minItems": 7,
+      "items": false,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/ownership",
+          "properties": {
+            "family": {
+              "const": "conversation"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/ownership",
+          "properties": {
+            "family": {
+              "const": "tenant-index"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/ownership",
+          "properties": {
+            "family": {
+              "const": "dispatch-ledger"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/ownership",
+          "properties": {
+            "family": {
+              "const": "resolution-metadata"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/ownership",
+          "properties": {
+            "family": {
+              "const": "resolution-selection"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/ownership",
+          "properties": {
+            "family": {
+              "const": "resolution-proof"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/ownership",
+          "properties": {
+            "family": {
+              "const": "resolution-fence"
+            }
+          }
+        }
+      ]
+    },
+    "writeOrdering": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "families",
+        "live",
+        "rebuild"
+      ],
+      "properties": {
+        "families": {
+          "type": "array",
+          "minItems": 7,
+          "items": false,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/familyCell",
+              "properties": {
+                "family": {
+                  "const": "conversation"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/familyCell",
+              "properties": {
+                "family": {
+                  "const": "tenant-index"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/familyCell",
+              "properties": {
+                "family": {
+                  "const": "dispatch-ledger"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/familyCell",
+              "properties": {
+                "family": {
+                  "const": "resolution-metadata"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/familyCell",
+              "properties": {
+                "family": {
+                  "const": "resolution-selection"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/familyCell",
+              "properties": {
+                "family": {
+                  "const": "resolution-proof"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/familyCell",
+              "properties": {
+                "family": {
+                  "const": "resolution-fence"
+                }
+              }
+            }
+          ]
+        },
+        "live": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "position",
+              "family",
+              "action"
+            ],
+            "properties": {
+              "position": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "family": {
+                "enum": [
+                  "conversation",
+                  "tenant-index",
+                  "dispatch-ledger",
+                  "resolution-metadata",
+                  "resolution-selection",
+                  "resolution-proof",
+                  "resolution-fence"
+                ]
+              },
+              "action": {
+                "enum": [
+                  "write",
+                  "pending",
+                  "merge",
+                  "acquire",
+                  "complete",
+                  "batch"
+                ]
+              }
+            }
+          }
+        },
+        "rebuild": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "position",
+              "family"
+            ],
+            "properties": {
+              "position": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "family": {
+                "enum": [
+                  "conversation",
+                  "tenant-index",
+                  "dispatch-ledger",
+                  "resolution-metadata",
+                  "resolution-selection",
+                  "resolution-proof",
+                  "resolution-fence"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "grammar",
+        "families"
+      ],
+      "properties": {
+        "grammar": {
+          "$ref": "#/$defs/grammar"
+        },
+        "families": {
+          "type": "array",
+          "minItems": 7,
+          "items": false,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/familyCell",
+              "properties": {
+                "family": {
+                  "const": "conversation"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/familyCell",
+              "properties": {
+                "family": {
+                  "const": "tenant-index"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/familyCell",
+              "properties": {
+                "family": {
+                  "const": "dispatch-ledger"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/familyCell",
+              "properties": {
+                "family": {
+                  "const": "resolution-metadata"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/familyCell",
+              "properties": {
+                "family": {
+                  "const": "resolution-selection"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/familyCell",
+              "properties": {
+                "family": {
+                  "const": "resolution-proof"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/familyCell",
+              "properties": {
+                "family": {
+                  "const": "resolution-fence"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "rebuild": {
+      "type": "array",
+      "minItems": 7,
+      "items": false,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "conversation"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "tenant-index"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "dispatch-ledger"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "resolution-metadata"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "resolution-selection"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "resolution-proof"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "resolution-fence"
+            }
+          }
+        }
+      ]
+    },
+    "backfill": {
+      "type": "array",
+      "minItems": 7,
+      "items": false,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "conversation"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "tenant-index"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "dispatch-ledger"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "resolution-metadata"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "resolution-selection"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "resolution-proof"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "resolution-fence"
+            }
+          }
+        }
+      ]
+    },
+    "deletion": {
+      "type": "array",
+      "minItems": 7,
+      "items": false,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "conversation"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "tenant-index"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "dispatch-ledger"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "resolution-metadata"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "resolution-selection"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "resolution-proof"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "resolution-fence"
+            }
+          }
+        }
+      ]
+    },
+    "expiry": {
+      "type": "array",
+      "minItems": 7,
+      "items": false,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "conversation"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "tenant-index"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "dispatch-ledger"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "resolution-metadata"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "resolution-selection"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "resolution-proof"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/familyCell",
+          "properties": {
+            "family": {
+              "const": "resolution-fence"
+            }
+          }
+        }
+      ]
+    },
+    "rollback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "storyBoundary",
+        "runtime",
+        "families"
+      ],
+      "properties": {
+        "storyBoundary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "runtime": {
+          "type": "string",
+          "minLength": 1
+        },
+        "families": {
+          "type": "array",
+          "minItems": 7,
+          "items": false,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/familyCell",
+              "properties": {
+                "family": {
+                  "const": "conversation"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/familyCell",
+              "properties": {
+                "family": {
+                  "const": "tenant-index"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/familyCell",
+              "properties": {
+                "family": {
+                  "const": "dispatch-ledger"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/familyCell",
+              "properties": {
+                "family": {
+                  "const": "resolution-metadata"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/familyCell",
+              "properties": {
+                "family": {
+                  "const": "resolution-selection"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/familyCell",
+              "properties": {
+                "family": {
+                  "const": "resolution-proof"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/familyCell",
+              "properties": {
+                "family": {
+                  "const": "resolution-fence"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "evidenceTests": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "test",
+          "path"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^E[0-9]{2}$"
+          },
+          "test": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^tests/[^\\s]+\\.cs$"
+          }
+        }
+      }
+    },
+    "approval": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/approval"
+        }
+      ]
+    },
+    "digests": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "adrSha256",
+        "signablePayloadSha256",
+        "markdownSha256"
+      ],
+      "properties": {
+        "adrSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "signablePayloadSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "markdownSha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "cell": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "rule",
+        "statement",
+        "evidence"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "current",
+            "proposed"
+          ]
+        },
+        "rule": {
+          "type": "string"
+        },
+        "statement": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^E[0-9]{2}$"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "familyCell": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "family",
+        "status",
+        "rule",
+        "statement",
+        "evidence"
+      ],
+      "properties": {
+        "family": {
+          "enum": [
+            "conversation",
+            "tenant-index",
+            "dispatch-ledger",
+            "resolution-metadata",
+            "resolution-selection",
+            "resolution-proof",
+            "resolution-fence"
+          ]
+        },
+        "status": {
+          "enum": [
+            "current",
+            "proposed"
+          ]
+        },
+        "rule": {
+          "type": "string"
+        },
+        "statement": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^E[0-9]{2}$"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "keyFamily": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "family",
+        "grammarOrigin",
+        "keyPrefix",
+        "tenantSegment",
+        "status",
+        "rule",
+        "statement",
+        "evidence"
+      ],
+      "properties": {
+        "family": {
+          "enum": [
+            "conversation",
+            "tenant-index",
+            "dispatch-ledger",
+            "resolution-metadata",
+            "resolution-selection",
+            "resolution-proof",
+            "resolution-fence"
+          ]
+        },
+        "grammarOrigin": {
+          "enum": [
+            "conversations-derived-keys-v1",
+            "conversations-derived-keys-v2"
+          ]
+        },
+        "keyPrefix": {
+          "type": "string"
+        },
+        "tenantSegment": {
+          "type": "boolean"
+        },
+        "status": {
+          "enum": [
+            "current",
+            "proposed"
+          ]
+        },
+        "rule": {
+          "type": "string"
+        },
+        "statement": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^E[0-9]{2}$"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "ownership": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "family",
+        "owner",
+        "writer",
+        "readRepair"
+      ],
+      "properties": {
+        "family": {
+          "enum": [
+            "conversation",
+            "tenant-index",
+            "dispatch-ledger",
+            "resolution-metadata",
+            "resolution-selection",
+            "resolution-proof",
+            "resolution-fence"
+          ]
+        },
+        "owner": {
+          "$ref": "#/$defs/cell"
+        },
+        "writer": {
+          "$ref": "#/$defs/cell"
+        },
+        "readRepair": {
+          "$ref": "#/$defs/cell"
+        }
+      }
+    },
+    "grammar": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ratified",
+        "supersedes",
+        "migrationTreatment",
+        "v1Families",
+        "addedFamilies",
+        "segmentEncoding",
+        "digestEncoding",
+        "stateStore",
+        "inCodeGrammarVersion",
+        "scopedOut"
+      ],
+      "properties": {
+        "ratified": {
+          "const": "conversations-derived-keys-v2"
+        },
+        "supersedes": {
+          "const": "conversations-derived-keys-v1"
+        },
+        "migrationTreatment": {
+          "const": "identity"
+        },
+        "v1Families": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "conversation",
+              "tenant-index",
+              "dispatch-ledger",
+              "resolution-metadata",
+              "resolution-selection",
+              "resolution-proof",
+              "resolution-fence"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "addedFamilies": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "conversation",
+              "tenant-index",
+              "dispatch-ledger",
+              "resolution-metadata",
+              "resolution-selection",
+              "resolution-proof",
+              "resolution-fence"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "segmentEncoding": {
+          "type": "string",
+          "minLength": 1
+        },
+        "digestEncoding": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stateStore": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "configurationKey",
+            "legacyDefault",
+            "configurable"
+          ],
+          "properties": {
+            "configurationKey": {
+              "type": "string",
+              "minLength": 1
+            },
+            "legacyDefault": {
+              "type": "string",
+              "minLength": 1
+            },
+            "configurable": {
+              "type": "boolean"
+            }
+          }
+        },
+        "inCodeGrammarVersion": {
+          "type": "null"
+        },
+        "scopedOut": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "storyId",
+        "contract",
+        "planningCandidate",
+        "rule",
+        "inventory",
+        "adr",
+        "predecessors",
+        "waivedScenarios"
+      ],
+      "properties": {
+        "storyId": {
+          "const": "12.1"
+        },
+        "contract": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "_bmad-output/planning-artifacts/v9/story-contracts/12.1.json"
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        },
+        "planningCandidate": {
+          "$ref": "#/$defs/commit"
+        },
+        "rule": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inventory": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "rows",
+            "sha256"
+          ],
+          "properties": {
+            "id": {
+              "const": "V9-12.1-ENTRY-v1"
+            },
+            "rows": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        },
+        "adr": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "docs/adrs/0005-conversation-derived-key-lifecycle.md"
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        },
+        "predecessors": {
+          "type": "array",
+          "minItems": 5,
+          "items": false,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/predecessor",
+              "properties": {
+                "id": {
+                  "const": "story-6.2-record"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/predecessor",
+              "properties": {
+                "id": {
+                  "const": "sm-c2-hot-path-baseline-v1-json"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/predecessor",
+              "properties": {
+                "id": {
+                  "const": "sm-c2-hot-path-baseline-v1-md"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/predecessor",
+              "properties": {
+                "id": {
+                  "const": "sm-c2-hot-path-baseline-v1-xunit"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/predecessor",
+              "properties": {
+                "id": {
+                  "const": "story-16.3-spec"
+                }
+              }
+            }
+          ]
+        },
+        "waivedScenarios": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "state",
+              "decision"
+            ],
+            "properties": {
+              "id": {
+                "enum": [
+                  "AC-12.1-01",
+                  "AC-12.1-06"
+                ]
+              },
+              "state": {
+                "const": "waived"
+              },
+              "decision": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision",
+        "approver",
+        "decidedAtUtc",
+        "boundAdrSha256",
+        "boundSignablePayloadSha256"
+      ],
+      "properties": {
+        "decision": {
+          "const": "approved"
+        },
+        "approver": {
+          "type": "string",
+          "minLength": 1
+        },
+        "decidedAtUtc": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+        },
+        "boundAdrSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "boundSignablePayloadSha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "predecessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "storyId",
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "id": {
+          "enum": [
+            "story-6.2-record",
+            "sm-c2-hot-path-baseline-v1-json",
+            "sm-c2-hot-path-baseline-v1-md",
+            "sm-c2-hot-path-baseline-v1-xunit",
+            "story-16.3-spec"
+          ]
+        },
+        "storyId": {
+          "enum": [
+            "6.2",
+            "16.3"
+          ]
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "candidateCommit": {
+          "$ref": "#/$defs/commit"
+        }
+      }
+    }
+  }
+}

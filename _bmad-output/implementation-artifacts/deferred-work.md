@@ -1221,3 +1221,23 @@ Review strengthens the same solution-context scope with native implicit Platform
   evidence: Story 16.2 publishes that case as `Unavailable`/`metadata_contradictory`. The generation time is kept unclamped, `LastAppliedEventTimestamp` is the fixed `NoReplayAnchor` sentinel (Unix epoch), and the lag is null, so `ProjectionFreshnessV1.ValidateGeneratedAt` holds for every trust state. The anchor survives only in the internal `ReplayAnchorAt` (`ConversationProjectionMaterializer.CreateFreshness`). `ConversationReplayDeterminismTest.GenerationEarlierThanTheAnchorShouldBeContradictoryWithoutClamping` pins the envelope.
 
 This resolution supersedes only the named entry. The original ledger entry stays unchanged.
+
+## Closed by Story 12.1 owner waiver (2026-11-16)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-1-approve-derived-key-ownership-lifecycle-and-rollback.md`
+  summary: Closed as waived the Story 11.3 group-1 entry "Generalize the closed Story 11.3 candidate verifier for the Story 12.1 contract and its PREDECESSOR_CANDIDATE_MISMATCH result."
+  evidence: The owner decision of 2026-11-16 waives AC-12.1-01 (the candidate-verifier route) and AC-12.1-06 (the v2 final pair). Both are recorded as waived, never PASS, in the Story 12.1 spec, the sprint row comment and `candidate.waivedScenarios` of `docs/release-evidence/derived-key-lifecycle-decision-v1.json`. `verify_story_candidate.py` stays untouched as a source of the Story 11.3 record. The decision generator binds the predecessor identities that route would have checked instead: the planning candidate, the Story 6.2 record and its candidate `2971ab79efcf3ef11d4fba7b9139d7cae457a3f9` (an ancestor of the planning candidate) and the three SM-C2 baseline v1 files, each byte-identical to its planning-candidate blob. Drift is `PREDECESSOR_CANDIDATE_MISMATCH`; unresolvable history is BLOCKED.
+
+This closure supersedes only the named entry. The original ledger entry stays unchanged.
+
+## Deferred from: Story 12.1 owner waiver (2026-11-16)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-1-approve-derived-key-ownership-lifecycle-and-rollback.md`
+  summary: Story 12.2 must bind Story 12.1 by its done spec, sprint row, commit and approved decision pair, not by a Story 12.1 final record.
+  evidence: The Story 12.2 contract's `candidateBinding` and AC-12.2-05 require the "Story 12.1 record". The owner decision of 2026-11-16 waived that record (AC-12.1-06, the v2 final pair), so it will not exist. Story 12.2 must instead bind the done 12.1 spec, its `sprint-status.yaml` row, the 12.1 commit and the approved `docs/release-evidence/derived-key-lifecycle-decision-v1.{json,md}` pair.
+
+## Deferred from: Story 12.1 review pass 1 (2026-11-16)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-1-approve-derived-key-ownership-lifecycle-and-rollback.md`
+  summary: Run `DerivedKeyLifecycleAdrValidationTest.EventStoreShouldRemainOnlyWriteAuthority` in CI once the `ci / conformance` job builds again.
+  evidence: Review finding VG-O1, pre-existing. At baseline `8da7f2bc` the `ci / conformance` job fails at "Prepare package build imports" (run 43831430224), so the internal Conformance assembly is never built in CI and the new derived-key guard runs only locally. The test is not in the job's `-class-` exclusions and reads files only, so it runs once package-mode CI is restored under `epic-16-retro-item-50-restore-package-mode-ci`. Locally it ran from `bin/Debug/net11.0` (source mode allows only Debug, HXW006).

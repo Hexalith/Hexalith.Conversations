@@ -171,3 +171,7 @@ tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProo
 
 # Preserve the current SDK smoke guard authored CRLF bytes.
 tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs whitespace=cr-at-eol
+
+# Story 12.1 hashes ADR 0005 and compares the SM-C2 baseline v1 xUnit result with its planning-candidate blob.
+docs/adrs/0005-conversation-derived-key-lifecycle.md text eol=lf
+docs/release-evidence/sm-c2-hot-path-baseline-v1.xunit.xml text eol=lf
