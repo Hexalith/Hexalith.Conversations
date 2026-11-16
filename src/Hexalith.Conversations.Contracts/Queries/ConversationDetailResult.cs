@@ -19,6 +19,10 @@ public sealed record ConversationDetailResult(
     ConversationDetailsV1? Details,
     string SafeNextAction)
 {
+    /// <summary>Gets the server-owned bounded read purpose; absent on ordinary rich detail and older owners.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? ReadPurpose { get; init; }
+
     /// <summary>
     /// Gets the result schema version.
     /// </summary>

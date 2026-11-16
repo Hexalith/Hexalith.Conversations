@@ -119,6 +119,8 @@ public sealed class ConversationClient : IConversationClient
     {
         ArgumentNullException.ThrowIfNull(query);
         string route = $"api/v1/conversations/{Uri.EscapeDataString(query.ConversationId.Value)}";
+        if (query.NativeMembershipOnly) route += "?nativeMembershipOnly=true";
+        if (query.AdvisoryMetadataOnly) route += (query.NativeMembershipOnly ? "&" : "?") + "advisoryMetadataOnly=true";
         HttpRequestMessage request = new(HttpMethod.Get, route);
         AddHeader(request, CorrelationIdHeaderName, query.CorrelationId);
         AddHeader(request, TenantIdHeaderName, query.TenantId.Value);

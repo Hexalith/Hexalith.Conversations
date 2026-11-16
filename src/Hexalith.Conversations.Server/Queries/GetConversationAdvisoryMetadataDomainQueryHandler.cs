@@ -46,11 +46,15 @@ public sealed class GetConversationAdvisoryMetadataDomainQueryHandler(
         ArgumentNullException.ThrowIfNull(query);
         cancellationToken.ThrowIfCancellationRequested();
         if (!Verified(query)) return QueryResult.Failure("safe-denial");
+        return await ReadAuthorizedAsync(new(query.TenantId), new(query.AggregateId), query.UserId, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>Shares the isolated owner evidence read after the existing transport has authenticated its actor.</summary>
+    internal async Task<QueryResult> ReadAuthorizedAsync(TenantId tenant, ConversationId resource, string actor, CancellationToken cancellationToken)
+    {
         try
         {
-            TenantId tenant = new(query.TenantId);
-            ConversationId resource = new(query.AggregateId);
-            if (!await AllowedAsync(tenant, query.UserId, cancellationToken).ConfigureAwait(false))
+            if (!await AllowedAsync(tenant, actor, cancellationToken).ConfigureAwait(false))
                 return QueryResult.Failure("safe-denial");
 
             // The optional isolated fence rejects known pending rebuilds without requiring native-head proof.
@@ -88,7 +92,7 @@ public sealed class GetConversationAdvisoryMetadataDomainQueryHandler(
                 && ConversationResolutionScoringPolicy.CanClassify(value.Metadata.SafeLabel, value.LabelPurpose);
             // Missing legacy classification omits the label; it cannot be inferred from label text.
             var metadata = value.Metadata with { SafeLabel = classified ? value.Metadata.SafeLabel : null };
-            if (!await AllowedAsync(tenant, query.UserId, cancellationToken).ConfigureAwait(false))
+            if (!await AllowedAsync(tenant, actor, cancellationToken).ConfigureAwait(false))
                 return QueryResult.Failure("safe-denial");
             cancellationToken.ThrowIfCancellationRequested();
             return Success(new(metadata, !classified));

@@ -66,6 +66,13 @@ public static class ConversationReadApi
             return HiddenDetail();
         }
 
+        // The typed client carries scope assertions. They must agree with the authenticated
+        // actor, never turn a service principal or a caller-supplied header into authority.
+        if ((context.Request.Headers.TryGetValue("X-Tenant-Id", out var requestedTenant)
+                && (requestedTenant.Count != 1 || requestedTenant[0] != tenantId!.Value))
+            || (context.Request.Headers.TryGetValue("X-Caller-Principal-Id", out var requestedActor)
+                && (requestedActor.Count != 1 || requestedActor[0] != callerPrincipalId))) return HiddenDetail();
+
         ConversationDetailResult result;
         try
         {
@@ -75,7 +82,11 @@ public static class ConversationReadApi
                     tenantId!,
                     callerPrincipalId!,
                     correlationId,
-                    new ConversationId(conversationId)),
+                    new ConversationId(conversationId))
+                {
+                    NativeMembershipOnly = context.Request.Query["nativeMembershipOnly"] is { Count: 1 } mode && mode[0] == "true",
+                    AdvisoryMetadataOnly = context.Request.Query["advisoryMetadataOnly"] is { Count: 1 } advisoryMode && advisoryMode[0] == "true",
+                },
                 cancellationToken)
                 .ConfigureAwait(false);
         }
@@ -440,8 +451,11 @@ public static class ConversationReadApi
             return false;
         }
 
-        string? tenantClaim = principal.FindFirstValue(TenantIdClaimType);
-        string? callerClaim = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        string[] tenantClaims = principal.FindAll(TenantIdClaimType).Concat(principal.FindAll("tenant_id")).Select(claim => claim.Value).Distinct(StringComparer.Ordinal).ToArray();
+        string[] callerClaims = principal.FindAll(ClaimTypes.NameIdentifier).Concat(principal.FindAll("sub")).Select(claim => claim.Value).Distinct(StringComparer.Ordinal).ToArray();
+        if (tenantClaims.Length != 1 || callerClaims.Length != 1) return false;
+        string? tenantClaim = tenantClaims[0];
+        string? callerClaim = callerClaims[0];
         if (string.IsNullOrWhiteSpace(tenantClaim) || string.IsNullOrWhiteSpace(callerClaim))
         {
             return false;

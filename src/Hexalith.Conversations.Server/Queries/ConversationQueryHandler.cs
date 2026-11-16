@@ -25,6 +25,7 @@ namespace Hexalith.Conversations.Server.Queries;
 /// </summary>
 public sealed class ConversationQueryHandler
 {
+    private readonly GetConversationAdvisoryMetadataDomainQueryHandler? _advisoryMetadata;
     private readonly IConversationTenantAccessService _tenantAccessService;
     private readonly IConversationProjectionReadStore _projectionReadStore;
     private readonly ConversationProjectionReadService _projectionReadService;
@@ -68,6 +69,18 @@ public sealed class ConversationQueryHandler
         _privilegedJustificationReviewService = privilegedJustificationReviewService;
     }
 
+    /// <summary>Composes the existing detail reader with its isolated advisory source.</summary>
+    public ConversationQueryHandler(IConversationTenantAccessService tenantAccessService,
+        IConversationProjectionReadStore projectionReadStore, ConversationProjectionReadService projectionReadService,
+        IQueryCursorCodec cursorCodec, IOptions<ConversationQueryCursorOptions>? cursorOptions, TimeProvider? timeProvider,
+        ConversationReadHydrationService? hydrationService, ConversationCitationAccessService? citationAccessService,
+        ConversationTemporalReconstructionService? temporalReconstructionService, ConversationAuditRecordAccessService? auditRecordAccessService,
+        ConversationPrivilegedJustificationReviewService? privilegedJustificationReviewService,
+        GetConversationAdvisoryMetadataDomainQueryHandler advisoryMetadata)
+        : this(tenantAccessService, projectionReadStore, projectionReadService, cursorCodec, cursorOptions, timeProvider,
+            hydrationService, citationAccessService, temporalReconstructionService, auditRecordAccessService, privilegedJustificationReviewService)
+        => _advisoryMetadata = advisoryMetadata;
+
     /// <summary>
     /// Retrieves one authorized conversation detail.
     /// </summary>
@@ -107,6 +120,35 @@ public sealed class ConversationQueryHandler
                 result.ReasonCode,
                 null,
                 "Retry after the read model finishes rebuilding.");
+        }
+
+        if (query.NativeMembershipOnly && query.AdvisoryMetadataOnly)
+            return ConversationDetailResult.Unavailable(query.SchemaVersion);
+        if (query.AdvisoryMetadataOnly)
+        {
+            if (_advisoryMetadata is null) return ConversationDetailResult.Unavailable(query.SchemaVersion);
+            var read = await _advisoryMetadata.ReadAuthorizedAsync(query.TenantId, query.ConversationId,
+                query.CallerPrincipalId, cancellationToken).ConfigureAwait(false);
+            var evidence = read.Success && read.PayloadBytes is not null
+                ? JsonSerializer.Deserialize(read.PayloadBytes, Hexalith.Conversations.Contracts.Serialization.ConversationsJsonContext.Default.ConversationAdvisoryMetadataResult) : null;
+            if (evidence is not { Incomplete: false, Metadata: { } metadata }) return ConversationDetailResult.Unavailable(query.SchemaVersion);
+            var source = result.Projection;
+            return ConversationDetailResult.Visible(query.SchemaVersion,
+                new ConversationDetailsV1(source.SchemaVersion, source.TenantId, source.ConversationId,
+                    source.Freshness, metadata.LifecycleState, metadata.SafeLabel,
+                    ProjectId: metadata.ProjectId is null ? null : new ProjectId(metadata.ProjectId)),
+                "Classified advisory evidence is available.") with { ReadPurpose = ConversationResolutionScoringLabel.SupportedPurpose };
+        }
+
+        if (query.NativeMembershipOnly)
+        {
+            // Native source fields only. No hydration, labels, timeline, participants, references
+            // or evidence records are read into the transport response for Project admission.
+            var projection = result.Projection;
+            return ConversationDetailResult.Visible(query.SchemaVersion,
+                new ConversationDetailsV1(projection.SchemaVersion, projection.TenantId, projection.ConversationId,
+                    projection.Freshness, projection.LifecycleState, ProjectId: projection.ProjectId),
+                "Native membership evidence is available.") with { ReadPurpose = GetConversationQuery.NativeMembershipPurpose };
         }
 
         ConversationDetailsV1 details = await _hydrationService

@@ -142,7 +142,15 @@ public static class ConversationQueryServiceCollectionExtensions
         services.TryAddSingleton<IPrivilegedOperationalJustificationReviewSource>(
             UnavailablePrivilegedOperationalJustificationReviewSource.Instance);
         services.AddScoped<ConversationPrivilegedJustificationReviewService>();
-        services.AddScoped<ConversationQueryHandler>();
+        services.AddScoped<ConversationQueryHandler>(sp => new(
+            sp.GetRequiredService<Hexalith.Conversations.Server.TenantAccess.IConversationTenantAccessService>(),
+            sp.GetRequiredService<IConversationProjectionReadStore>(), sp.GetRequiredService<ConversationProjectionReadService>(),
+            sp.GetRequiredService<Hexalith.EventStore.Client.Queries.IQueryCursorCodec>(),
+            sp.GetService<Microsoft.Extensions.Options.IOptions<ConversationQueryCursorOptions>>(), sp.GetService<TimeProvider>(),
+            sp.GetService<ConversationReadHydrationService>(), sp.GetService<ConversationCitationAccessService>(),
+            sp.GetService<ConversationTemporalReconstructionService>(), sp.GetService<ConversationAuditRecordAccessService>(),
+            sp.GetService<ConversationPrivilegedJustificationReviewService>(), sp.GetRequiredService<GetConversationAdvisoryMetadataDomainQueryHandler>()));
+        services.AddHttpContextAccessor();
         services.AddEventStoreDelegatedOwnerQueries();
         services.TryAddScoped<ConversationResolutionMetadataAuthorization>();
         services.TryAddScoped<GetConversationAdvisoryMetadataDomainQueryHandler>();

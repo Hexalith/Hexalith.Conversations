@@ -23,6 +23,18 @@ public sealed record GetConversationQuery(
     string CorrelationId,
     ConversationId ConversationId)
 {
+    /// <summary>Gets whether to return only native membership evidence without hydration or timeline.</summary>
+    public bool NativeMembershipOnly { get; init; }
+
+    /// <summary>Gets whether to return only the separately classified committed advisory subset.</summary>
+    public bool AdvisoryMetadataOnly { get; init; }
+
+    /// <summary>The existing native detail SDK query discriminator.</summary>
+    public const string QueryType = "conversation-detail";
+
+    /// <summary>The explicit server-owned response purpose for native Project membership evidence.</summary>
+    public const string NativeMembershipPurpose = "native-project-membership";
+
     /// <summary>
     /// Gets the query contract schema version.
     /// </summary>

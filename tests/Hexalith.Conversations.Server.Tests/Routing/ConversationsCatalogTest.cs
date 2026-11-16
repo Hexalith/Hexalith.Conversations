@@ -5,6 +5,8 @@ using System.Text.Json;
 using Hexalith.Conversations.Aggregates;
 using Hexalith.Conversations.Commands;
 using Hexalith.Conversations.Contracts.Routing;
+using Hexalith.Conversations.Contracts.Queries;
+using Hexalith.Conversations.Contracts.Serialization;
 using Hexalith.Conversations.EventStoreExtensions;
 using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
@@ -57,8 +59,14 @@ public sealed class ConversationsCatalogTest
         routes.Where(route => route.Kind == "query" && route.Domain == "conversation").Count().ShouldBe(3);
         var listProperties = operations.Single(operation => operation.MessageType == "conversation-list").RequestSchema.GetProperty("properties");
         listProperties.EnumerateObject().Select(property => property.Name).Order().ShouldBe(["filter", "page"]);
-        operations.Single(operation => operation.MessageType == "conversation-detail").RequestSchema.GetProperty("properties")
-            .EnumerateObject().Select(property => property.Name).ShouldBe(["conversationId"]);
+        JsonElement detailSchema = operations.Single(operation => operation.MessageType == "conversation-detail").RequestSchema;
+        detailSchema.GetProperty("properties").EnumerateObject().Select(property => property.Name)
+            .ShouldBe(["conversationId", "nativeMembershipOnly"]);
+        detailSchema.GetProperty("properties").GetProperty("nativeMembershipOnly").GetProperty("type").GetString().ShouldBe("boolean");
+        if (detailSchema.TryGetProperty("required", out var required))
+            required.EnumerateArray().Select(property => property.GetString()).ShouldNotContain("nativeMembershipOnly");
+        GetConversationPayload original = JsonSerializer.Deserialize<GetConversationPayload>("{\"conversationId\":\"direct-conversation\"}", ConversationQuerySerialization.Options)!;
+        original.ConversationId.ShouldBe("direct-conversation"); original.NativeMembershipOnly.ShouldBeFalse();
         foreach (var route in routes.Where(route => route.Kind == "query" && route.Execution!.RequiresDelegatedContext))
         {
             var schema = operations.Single(operation => operation.RouteId == route.RouteId).RequestSchema;
