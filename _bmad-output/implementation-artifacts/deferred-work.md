@@ -1265,3 +1265,21 @@ This closure supersedes only the named entry. The original ledger entry stays un
 - source_spec: `_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md`
   summary: Story 12.4 should bind and compare the runner version and each session's process lifecycle before observation (medium, unverified).
   evidence: Review finding BH-10. The approved method fixes runtime, SDK, configuration, host, concurrency, runner flags and fixture basis but does not separately enumerate the runner binary/version or session process lifecycle. No paired observation exists yet. Record the actual runner identity and exact B/C invocation process lifecycle and prove both sides use the same choices; an actual mismatch would settle the comparability concern. This does not alter the approved 12.2 payload or claim a measured defect.
+
+## Deferred from: code review of spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md (2026-11-16)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md`
+  summary: The shared `f02c4b5d…` fixture basis may not mean the same thing on the baseline source (medium, unverified).
+  evidence: Commit `eea3a88146d5d910be2fa17a5f71cdf7aecef978` seeds a version 2 tenant index with `SchemaVersion`, `Lifecycle` and a 100-entry `Watermarks` map. `git grep Watermarks 29def441 -- src` finds nothing, so the baseline HP-LIST path would deserialize data its own code never writes. Before observation, Story 12.4 must compile the basis fixture against `29def441`, confirm that the baseline HP-LIST and HP-OPEN paths read the same documents, and either measure the extra watermark deserialization or show it immaterial.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md`
+  summary: The approved environment rules are literal where Story 12.4 must interpret them (medium, unverified).
+  evidence: `DOTNET_ROOT` is set on this host and matches the banned `DOTNET_` override prefix. The process name `dotnet` also covers the runner and build servers, and no process is named `Aspire`. Story 12.4 should run a paired session with `DOTNET_ROOT` unset and build servers shut down, recording the exact process set. If the runner cannot start that way, the owner must interpret the rule before observation.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md`
+  summary: Story 12.4 must bind the hot-path inventory `sm-c2-hot-path-inventory-v1` explicitly; the approved 12.2 method does not name it.
+  evidence: The epic's Story 12.2 schema requires `inventoryVersion` and also names `SC-12.2` and project/result hashes, but the approved payload `7d6b2d7a…` contains none of them. It binds the hot-path inventory only through the immutable v1 baseline digest and the ordinal rows. Its `candidate.inventory` is the separate entry inventory `V9-12.2-ENTRY-v1`, so the pass-1 BH-01 rationale misidentified the inventory. Owner decision 2026-11-16: keep the approved payload rather than reopen its approval.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md`
+  summary: The baseline build/runner overlay is verified to differ (upgrades the BH-10 runner entry above from unverified). Story 12.4 must declare and bind one identical overlay before observation.
+  evidence: The baseline source `29def441` pins SDK 10.0.302 with no `test.runner`, while HEAD pins SDK 11.0.100 and `"test": {"runner": "Microsoft.Testing.Platform"}`. `Directory.Build.props`, `Directory.Packages.props` and the IntegrationTests project also differ. The approved `comparability.fixtureOverlayDifference` ("Only repetition constants differ between the two sides") under-declares this, because the per-side repetition counts are identical. Story 12.4 must record the exact baseline retarget overlay, the runner binary/version and the session process lifecycle, and prove both sides use them, before observing. Owner decision 2026-11-16: the existing ruling already applies the runtime change identically to both sides, so the approved payload stays unchanged.
