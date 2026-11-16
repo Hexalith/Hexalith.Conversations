@@ -12,6 +12,7 @@ from decimal import Decimal
 from functools import lru_cache
 import hashlib
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -91,6 +92,11 @@ def read_file(repository: Path, relative: str) -> bytes:
         return output_writer.output_target(repository, relative).read_bytes()
     except (OSError, output_writer.OutputError) as error:
         raise Blocked(INPUT_UNAVAILABLE, f"cannot read {relative}: {error}") from None
+
+
+def ignore_replace_objects() -> None:
+    """Read true history: like the other evidence tools, never follow refs/replace substitutions."""
+    os.environ["GIT_NO_REPLACE_OBJECTS"] = "1"
 
 
 def git(repository: Path, *arguments: str, allowed: tuple[int, ...] = (0,)):
@@ -404,6 +410,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--approved-payload-sha256")
     args = parser.parse_args(argv)
     repository = Path(args.repository).resolve()
+    ignore_replace_objects()
     try:
         if [args.contract, args.baseline, args.output_json, args.output_markdown] != [CONTRACT_PATH, BASELINE_PATH, JSON_PATH, MARKDOWN_PATH]:
             raise Blocked(ARGUMENT_INVALID, "the contracted Story 12.2 input and output paths are required")
@@ -437,6 +444,11 @@ def main(argv: list[str] | None = None) -> int:
     except MethodError as error:
         for code, message in error.errors:
             print(f"{code}: {message}", file=sys.stderr)
+        print("FAIL")
+        return 1
+    except UnicodeEncodeError as error:
+        # An unencodable approval string is a method-input fault, exactly as the verifier classifies it.
+        print(f"{BLOCK_INCOMPLETE}: method strings must encode as UTF-8: {error}", file=sys.stderr)
         print("FAIL")
         return 1
     except (Blocked, output_writer.OutputError, ValueError) as error:

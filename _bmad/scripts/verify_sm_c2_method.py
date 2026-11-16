@@ -197,6 +197,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output")
     args = parser.parse_args(argv)
     repository = Path(args.repository).resolve()
+    gen.ignore_replace_objects()
     bundle = None
     try:
         ledger, bundle = verify(repository, args.evidence, args.markdown, args.allow_unapproved)

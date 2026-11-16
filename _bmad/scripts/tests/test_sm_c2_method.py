@@ -72,7 +72,7 @@ def repository(tmp_path_factory):
     subprocess.run(["git", "init", "-q", str(repo)], check=True)
     common = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "--path-format=absolute", "--git-common-dir"],
                             check=True, capture_output=True, text=True).stdout.strip()
-    (repo / ".git/objects/info/alternates").write_text(str(Path(common) / "objects") + "\n")
+    (repo / ".git/objects/info/alternates").write_text(str(Path(common) / "objects") + "\n", encoding="utf-8")
     draft = generate(repo)
     assert draft.returncode == 0, draft.stderr
     bundle = json.loads((repo / gen.JSON_PATH).read_bytes())
@@ -92,10 +92,10 @@ def write_bundle(repo: Path, bundle: dict, resign: bool = True):
         if isinstance(approval, dict):
             approval["boundSignablePayloadSha256"] = gen.sha256_bytes(gen.canonical(payload))
         raw, markdown = gen.finalize(payload, approval)
-        (repo / gen.JSON_PATH).write_text(raw)
-        (repo / gen.MARKDOWN_PATH).write_text(markdown)
+        (repo / gen.JSON_PATH).write_text(raw, encoding="utf-8")
+        (repo / gen.MARKDOWN_PATH).write_text(markdown, encoding="utf-8")
     else:
-        (repo / gen.JSON_PATH).write_text(gen.serialize_json(bundle))
+        (repo / gen.JSON_PATH).write_text(gen.serialize_json(bundle), encoding="utf-8")
 
 
 def replace(path: str, value):
@@ -172,7 +172,7 @@ def test_method_fault_matrix_schema_pin(repository, target):
             (repository / gen.SCHEMA_PATH).write_bytes(before[gen.SCHEMA_PATH] + b"\n")
         else:
             schema["properties"]["approval" if target == "extra-approval-metadata" else target] = {}
-            (repository / gen.SCHEMA_PATH).write_text(json.dumps(schema))
+            (repository / gen.SCHEMA_PATH).write_text(json.dumps(schema), encoding="utf-8")
             if target == "extra-approval-metadata":
                 bundle = json.loads(before[gen.JSON_PATH])
                 bundle["approval"]["unapprovedMetadata"] = True
@@ -192,7 +192,7 @@ def test_method_fault_matrix_schema_pin(repository, target):
 def test_method_fault_matrix_unusable_schema(repository, schema):
     before = snapshot(repository)
     try:
-        (repository / gen.SCHEMA_PATH).write_text(json.dumps(schema))
+        (repository / gen.SCHEMA_PATH).write_text(json.dumps(schema), encoding="utf-8")
         generated = generate(repository)
         assert generated.returncode == 2 and "Traceback" not in generated.stderr
         assert generated.stderr.split(":", 1)[0] == "INPUT_UNAVAILABLE", generated.stderr
@@ -211,7 +211,7 @@ def test_method_fault_matrix_unusable_schema(repository, schema):
 def test_method_fault_matrix_authority_shape(repository, authority):
     before = snapshot(repository)
     try:
-        (repository / gen.AUTHORITY_PATH).write_text(json.dumps(authority))
+        (repository / gen.AUTHORITY_PATH).write_text(json.dumps(authority), encoding="utf-8")
         generated = generate(repository)
         assert generated.returncode == 2 and "Traceback" not in generated.stderr
         assert generated.stderr.split(":", 1)[0] == "INPUT_UNAVAILABLE", generated.stderr
@@ -227,7 +227,7 @@ def test_method_fault_matrix_authority_shape(repository, authority):
 def test_method_fault_matrix_predecessor_shape(repository, decision):
     before = snapshot(repository)
     try:
-        (repository / gen.DECISION_PATH).write_text(json.dumps(decision))
+        (repository / gen.DECISION_PATH).write_text(json.dumps(decision), encoding="utf-8")
         generated = generate(repository)
         assert generated.returncode == 1 and "Traceback" not in generated.stderr
         assert generated.stderr.split(":", 1)[0] == "SMC2_METHOD_INCOMPLETE", generated.stderr
@@ -275,13 +275,18 @@ def test_method_fault_matrix_protocol(repository, fault):
                 bundle["approval"]["approver"] = "\ud800"
             else:
                 bundle["rows"][0]["dataShape"] = "\ud800"
-            (repository / gen.JSON_PATH).write_text(json.dumps(bundle, indent=2) + "\n")
+            (repository / gen.JSON_PATH).write_text(json.dumps(bundle, indent=2) + "\n", encoding="utf-8")
             expected = ["SMC2_METHOD_INCOMPLETE"]
+            if fault == "approval-surrogate":
+                # The generator reuses this approval; it must classify the input fault as the verifier does.
+                generated = generate(repository)
+                assert generated.returncode == 1 and generated.stdout.strip() == "FAIL", generated.stderr
+                assert [line.split(":", 1)[0] for line in generated.stderr.splitlines()] == expected, generated.stderr
         elif fault == "approval-stale":
             bundle["approval"]["boundSignablePayloadSha256"] = "0" * 64
             raw, md = gen.finalize(gen.signable_of(bundle), bundle["approval"])
-            (repository / gen.JSON_PATH).write_text(raw)
-            (repository / gen.MARKDOWN_PATH).write_text(md)
+            (repository / gen.JSON_PATH).write_text(raw, encoding="utf-8")
+            (repository / gen.MARKDOWN_PATH).write_text(md, encoding="utf-8")
         elif fault == "approval-unnamed":
             bundle["approval"]["approver"] = " "
             write_bundle(repository, bundle)
@@ -294,10 +299,10 @@ def test_method_fault_matrix_protocol(repository, fault):
             write_bundle(repository, bundle, resign=False)
             expected = ["SMC2_METHOD_INCOMPLETE", "SMC2_ENVIRONMENT_UNCONTROLLED", "SMC2_APPROVAL_MISSING"]
         elif fault == "history-unavailable":
-            (repository / ".git/objects/info/alternates").write_text("")
+            (repository / ".git/objects/info/alternates").write_text("", encoding="utf-8")
             expected, exit_code = ["HISTORY_UNAVAILABLE"], 2
         elif fault == "history-shallow":
-            (repository / ".git/shallow").write_text(gen.STORY_COMMIT + "\n")
+            (repository / ".git/shallow").write_text(gen.STORY_COMMIT + "\n", encoding="utf-8")
             expected, exit_code = ["HISTORY_UNAVAILABLE"], 2
         elif fault == "markdown-drift":
             (repository / gen.MARKDOWN_PATH).write_bytes(before[gen.MARKDOWN_PATH] + b"drift\n")
@@ -305,7 +310,7 @@ def test_method_fault_matrix_protocol(repository, fault):
         elif fault == "schema-opened":
             schema = json.loads(before[gen.SCHEMA_PATH])
             schema["additionalProperties"] = True
-            (repository / gen.SCHEMA_PATH).write_text(json.dumps(schema))
+            (repository / gen.SCHEMA_PATH).write_text(json.dumps(schema), encoding="utf-8")
             expected = ["SMC2_METHOD_INCOMPLETE"]
         elif fault.startswith("digests-"):
             value = {"digests-null": None, "digests-list": [], "digests-string": "bad"}.get(fault)
@@ -345,6 +350,18 @@ def test_method_fault_matrix_generator_approval_digest(repository):
     assert [line.split(":", 1)[0] for line in result.stderr.splitlines()] == ["SMC2_APPROVAL_MISSING"], result.stderr
     completed, report = verify(repository)
     assert completed.returncode == 0 and report["assertionLedger"], report
+    assert snapshot(repository) == before, FIXTURE_NOT_RESTORED
+
+
+def test_method_fault_matrix_generator_unencodable_approver(repository):
+    before = snapshot(repository)
+    digest = json.loads(before[gen.JSON_PATH])["digests"]["signablePayloadSha256"]
+    # A non-UTF-8 argv byte reaches Python as a lone surrogate.
+    result = generate(repository, "--approve-reviewer", "Test Owner\udcff", "--decided-at-utc", "2000-01-01T00:00:00Z",
+                      "--approved-payload-sha256", digest)
+    assert result.returncode == 1 and result.stdout.strip() == "FAIL", result.stderr
+    assert [line.split(":", 1)[0] for line in result.stderr.splitlines()] == ["SMC2_METHOD_INCOMPLETE"], result.stderr
+    assert "Traceback" not in result.stderr
     assert snapshot(repository) == before, FIXTURE_NOT_RESTORED
 
 
@@ -453,6 +470,11 @@ def test_method_fault_matrix_non_utf8_predecessor(repository, path):
 
 
 def test_method_fault_matrix_repository_approved_pair(repository):
+    # The approved pair is immutable: a verifier-valid rewrite of its approval or Markdown must still fail here.
+    for path in (gen.JSON_PATH, gen.MARKDOWN_PATH):
+        published = subprocess.run(["git", "-C", str(ROOT), "cat-file", "blob", f"{PUBLICATION_COMMIT}:{path}"],
+                                   check=True, capture_output=True).stdout
+        assert (ROOT / path).read_bytes() == published, f"The approved pair differs from publication: {path}"
     before = snapshot(repository)
     try:
         # Exercise the actual repository approval and Markdown, rather than a generated test-owner pair.
@@ -468,8 +490,7 @@ def test_method_fault_matrix_repository_approved_pair(repository):
     assert snapshot(repository) == before, FIXTURE_NOT_RESTORED
 
 
-@pytest.mark.parametrize("fault", ["live-sprint", "authority-digest", "inventory-digest",
-                                   "planning-history-replaced", "fixture-history-replaced"])
+@pytest.mark.parametrize("fault", ["live-sprint", "authority-digest", "inventory-digest"])
 def test_method_fault_matrix_source_bindings(repository, fault):
     before = snapshot(repository)
     try:
@@ -483,25 +504,41 @@ def test_method_fault_matrix_source_bindings(repository, fault):
             rows = [row for row in authority["artifacts"] if row.get("path") == gen.CONTRACT_PATH]
             assert len(rows) == 1
             rows[0]["sha256"] = "0" * 64
-            (repository / gen.AUTHORITY_PATH).write_text(json.dumps(authority))
+            (repository / gen.AUTHORITY_PATH).write_text(json.dumps(authority), encoding="utf-8")
         elif fault == "inventory-digest":
             epics, count = re.subn(
                 r"(\*\*Frozen inventory:\*\* `V9-12\.2-ENTRY-v1` contains, in order,\s+.*?;\s+SHA-256\s+`)[0-9a-f]{64}(`)",
                 lambda match: match.group(1) + "0" * 64 + match.group(2),
                 before[gen.EPICS_PATH].decode(), count=1, flags=re.S)
             assert count == 1
-            (repository / gen.EPICS_PATH).write_text(epics)
-        else:
-            # Existing commit objects suffice to replace history; never create a fixture commit or message.
-            original, replacement = (gen.PLANNING_COMMIT, "29def441408becfbbbdc5c59b9af14a7717cb21f") \
-                if fault == "planning-history-replaced" else (gen.FIXTURE_BASIS_COMMIT, gen.PLANNING_COMMIT)
-            subprocess.run(["git", "-C", str(repository), "replace", original, replacement], check=True, capture_output=True)
+            (repository / gen.EPICS_PATH).write_text(epics, encoding="utf-8")
         generated = generate(repository)
         assert generated.returncode == 1 and generated.stdout.strip() == "FAIL", generated.stderr
         assert [line.split(":", 1)[0] for line in generated.stderr.splitlines()] == ["SMC2_METHOD_INCOMPLETE"], generated.stderr
         completed, report = verify(repository)
         assert completed.returncode == 1
         assert [item["code"] for item in report["blockers"]] == ["SMC2_METHOD_INCOMPLETE"], report
+    finally:
+        restore(repository, before)
+    assert snapshot(repository) == before, FIXTURE_NOT_RESTORED
+
+
+@pytest.mark.parametrize("original,replacement", [
+    (gen.PLANNING_COMMIT, "29def441408becfbbbdc5c59b9af14a7717cb21f"),
+    (gen.FIXTURE_BASIS_COMMIT, gen.PLANNING_COMMIT),
+], ids=["planning-history-replaced", "fixture-history-replaced"])
+def test_method_fault_matrix_history_replacement_ignored(repository, original, replacement):
+    before = snapshot(repository)
+    try:
+        # Existing commit objects suffice to replace history; never create a fixture commit or message.
+        subprocess.run(["git", "-C", str(repository), "replace", original, replacement], check=True, capture_output=True)
+        # Both tools read true history, so a refs/replace substitution changes no binding, time limit or output byte.
+        generated = generate(repository)
+        assert generated.returncode == 0 and generated.stdout.startswith("PASS"), generated.stderr
+        for path in (gen.JSON_PATH, gen.MARKDOWN_PATH):
+            assert (repository / path).read_bytes() == before[path], path
+        completed, report = verify(repository)
+        assert completed.returncode == 0 and report["result"] == "PASS", report
     finally:
         restore(repository, before)
     assert snapshot(repository) == before, FIXTURE_NOT_RESTORED
@@ -514,7 +551,7 @@ def test_method_fault_matrix_serialization_guards(repository, fault, failed_asse
     try:
         bundle = json.loads(before[gen.JSON_PATH])
         if fault == "json-formatting":
-            (repository / gen.JSON_PATH).write_text(json.dumps(bundle))
+            (repository / gen.JSON_PATH).write_text(json.dumps(bundle), encoding="utf-8")
         else:
             # Markdown already equals its rendering; only the independently recorded digest is wrong.
             bundle["digests"]["markdownSha256"] = "0" * 64
@@ -565,8 +602,8 @@ def test_method_fault_matrix_draft_approval(repository, approval, expected):
             bundle["approval"]["decidedAtUtc"] = "2999-01-01T00:00:00Z"
         # Preserve the selected approval fault, while keeping payload digests and rendering valid.
         raw, markdown = gen.finalize(gen.signable_of(bundle), bundle["approval"])
-        (repository / gen.JSON_PATH).write_text(raw)
-        (repository / gen.MARKDOWN_PATH).write_text(markdown)
+        (repository / gen.JSON_PATH).write_text(raw, encoding="utf-8")
+        (repository / gen.MARKDOWN_PATH).write_text(markdown, encoding="utf-8")
         completed, report = verify(repository, "--allow-unapproved")
         assert completed.returncode == (1 if expected else 0) and not report["requireApproval"], report
         assert [item["code"] for item in report["blockers"]] == expected, report

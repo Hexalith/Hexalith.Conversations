@@ -1317,3 +1317,11 @@ This closure supersedes only the named entry. The original ledger entry stays un
 - source_spec: `_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md`
   summary: Check the approved pooled bootstrap's independence assumptions before Story 12.4 observations (medium, unverified).
   evidence: BH-11. The method intentionally pools samples and independently resamples individual observations. Synthetic session clustering/ties can produce a zero point-percentile interval, but that does not by itself prove a defect in future paired evidence. Use a representative session/process experiment to assess serial or session dependence before observation; if a changed signal method is needed, obtain a new owner-approved payload rather than changing the frozen 12.2 algorithm.
+
+## Closed by Story 12.2 review pass 3 (2026-11-16)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md`
+  summary: Superseded the Story 12.1 review pass 1 entry "Run `DerivedKeyLifecycleAdrValidationTest.EventStoreShouldRemainOnlyWriteAuthority` in CI once the `ci / conformance` job builds again."
+  evidence: Owner decision 2026-11-16 (Story 12.2 review pass 3): the class stays excluded from CI as BMAD evidence work, as decided in review pass 2. Its runtime key-format guard now runs in the CI unit lane as `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadModelKeysTest.cs`, which pins all seven derived-key families to literal keys and checks tenant isolation without reading ADR or decision files. The ADR and decision digest pins and the undeclared-builder reflection check stay in the BMAD-only conformance lane.
+
+This closure supersedes only the named entry. The original ledger entry stays unchanged.
