@@ -4,7 +4,7 @@
 
 ## Goal
 
-Restore correctness-preserving projection performance across all four frozen command and read hot paths. Completion requires comparable, usable evidence that every path independently meets the universal SM-C2 threshold while preserving tenant isolation, EventStore authority, public contracts, and deterministic replay. Historical performance failures and accepted Story 6.2 evidence remain immutable; new proof is additive and candidate-bound.
+Give operators correctness-preserving projection performance under the universal SM-C2 rule: each of the four frozen hot paths must independently show usable, comparable evidence that candidate P95 is at most 1.05 times baseline P95. Current evidence fails (HP-APPEND +20%, HP-LIST +330%, HP-OPEN +1761%; HP-CREATE -50%), which blocks release attestation. The list/open cost comes from mandatory fail-closed cross-key validation (detail, tenant-index and dispatch-ledger reads, plus per-row reads during page verification). Only provably unnecessary fan-out may be removed, never the checks themselves.
 
 ## Stories
 
@@ -15,29 +15,39 @@ Restore correctness-preserving projection performance across all four frozen com
 
 ## Requirements & Constraints
 
-- The frozen inventory is `sm-c2-hot-path-inventory-v1`: `HP-APPEND`, `HP-CREATE`, `HP-LIST`, and `HP-OPEN`. Every row must satisfy `postP95 <= 1.05 * baselineP95`. Cost ceilings, disclosure, owner acceptance, correctness rationale, and recorded-only dispositions cannot replace that gate.
-- Preserve all approved conformance obligations and public contract shapes. Optimization must preserve filtering, stable ordering, cursor continuation, redaction, freshness, error semantics, and forbidden/nonexistent equivalence. Shared capabilities must not add synchronous cross-service calls or unbounded history loads on hot paths.
-- Baseline and candidate measurements must share the frozen workload/data shape, concurrency, environment/runtime, and warm/cold classification. Tool versions, repetitions, and raw-sample processing may change only through a recorded envelope revision that remeasures baseline and candidate as a pair. Cold measurements cannot substitute for warm rows.
-- Declare warmup, repetitions, raw retention, nearest-rank P95, environment control, and signal rules before observing results. Retain adverse samples. Usable signal requires paired P95 confidence half-width no greater than 5% of baseline P95, using the same declared algorithm for both runs; absent a declaration, use percentile bootstrap.
-- Unit, integration, and real Dapr correctness lanes must execute nonvacuously and pass before final performance acceptance. Cover invalid derived state, cross-tenant collisions, duplicate/out-of-order delivery, equal-position conflicts, partial writes, concurrency, interrupted rebuild, deletion/expiry, and deterministic replay.
-- Decision and measurement approvals must identify the authorized owner and bind the exact approved digest. A role label or unrelated authority grant does not establish approval. Missing lifecycle approval blocks acceptance.
-- Evidence binds the actual source candidate, predecessor records, applicable root/submodule identities, executable inputs, raw results, and digests. JSON is authoritative; generated Markdown must agree. Drift, missing results, skipped execution, or unusable measurements block completion.
+- Inventory `sm-c2-hot-path-inventory-v1` is fixed in the order `HP-APPEND`, `HP-CREATE`, `HP-LIST`, `HP-OPEN`. No row can be selected, dropped or reordered after measurement. Every row uses exactly `postP95 <= 1.05 * baselineP95`. Cost ceilings, disclosure, correctness rationale, owner acceptance, recorded-only status and unusable signal never substitute for it. Changing the target needs a separate PRD-level decision.
+- Frozen envelope members: workload/data shape, concurrency, environment/runtime, warm/cold classification (cold never substitutes for warm). Versioned members (tool/version, repetition policy, raw-sample volume/processing) change only through a named, recorded envelope revision that re-measures baseline and candidate as a pair from the preserved fixture. Anything not listed as versioned is frozen.
+- A row has usable signal when its paired P95 confidence half-width is at most 5% of baseline P95. The half-width is computed over the retained raw samples by one method that is declared before observation and is identical for both runs; if no method is declared, it is the percentile bootstrap. P95 is nearest-rank. Adverse samples are never discarded after observation. HP-CREATE and HP-APPEND previously showed within-run dispersion about two orders of magnitude wider than the threshold, so getting usable signal for them is part of the work.
+- The benchmark measures the in-process warm path only. It proves closure-local regression and is not evidence for the separate invariant against synchronous cross-service calls or unbounded history loads on hot paths. Preserved absolute latency targets, such as the 500 ms open P95, are not active gates unless a release decision activates them.
+- SM-C2 baseline v1 (JSON, Markdown and xUnit result) and Story 6.2 evidence are immutable. The baseline's Markdown and JSON disagree on the fixture SHA-256 (`4838a5a1…` against `1a43bacc…`). This open provenance blocker must be surfaced. Do not repair it or resolve it by preferring one value.
+- Optimization preserves the public query contract: filters, stable ordering, cursor continuation, redaction, freshness vocabulary, typed errors, forbidden/nonexistent indistinguishability and response shapes. UX stays preserved and not activated, so there is no UI scope.
+- Unit, integration and real Dapr state-store correctness lanes must run, execute real tests and pass before any performance verdict. They cover:
+  - invalid derived state: missing, duplicate, stale, advanced, malformed, misfiled, pending and inconsistent;
+  - cross-tenant collisions, retries and idempotency, duplicate or out-of-order delivery, and equal-position conflicts;
+  - partial writes, latency, an unavailable store, poison records and concurrency;
+  - interrupted rebuild, deletion and deterministic replay.
+- Evidence binds the candidate, predecessors, root/EventStore gitlinks, benchmark binary and source, raw samples, environment and digests. JSON is authoritative; Markdown is its deterministic rendering. Missing, stale, skipped or zero-test results and any drift block completion. Approvals name the owner and bind the exact approved digest.
 
 ## Technical Decisions
 
-- EventStore remains the only durable domain write authority. Derived keys are replaceable projection state; readers never materialize, backfill, or repair durable state. Rebuild and rollback derive from the event stream and must not reverse-write derived data or repeat external side effects.
-- EventStore owns ordered delivery, stable dispatch identity, and canonical named-projection routing. Conversations owns domain materialization, tenant-scoped keys, freshness, and query semantics through the shared read-model store and write policy. Projection completion requires both conversation record and tenant-index writes; partial-write uncertainty remains incomplete until idempotent retry converges.
-- Freeze key ownership, write ordering, compatibility, rebuild, backfill, deletion, expiry, and rollback in approved ADR 0005 before production optimization. Changes to the accepted `conversations-derived-keys-v1` grammar require a versioned successor with migration or rebuild treatment. Dispatch-ledger keys are the declared tenant-segment exception; every ledger access still enforces tenant isolation.
-- Tenant authorization fails closed before reads, writes, and rebuilds. Missing, duplicate, stale, advanced, malformed, misfiled, pending, or inconsistent derived state cannot yield a trusted response or trigger read-side repair.
-- Preserve the shared `ProjectionTrustState` vocabulary: `Current`, `Stale`, `Rebuilding`, `Unavailable`, `Forbidden`, and `Redacted`. The temporal evidence anchor is the `ProjectionFreshnessV1` composite of projection schema version, cursor, and last-applied event position; timestamps are display/lag metadata.
-- Keep decision, measurement, production migration, and final evidence work separately reversible. Preserve immutable Story 6.2, baseline v1, and historical proof. The local AppHost remains a non-packable, non-publishable test fixture under the recorded interpretation; a contrary baseline-owner decision requires a separately approved amendment.
-
-## UX & Interaction Patterns
-
-Preserve source-owned trust, freshness, redaction, temporal evidence, and safe typed failures across existing read surfaces. Clients must not infer trust or permissions from optimized responses. This epic does not activate preserved product UI or introduce acceptance/waiver mutation flows.
+- EventStore is the only durable domain write authority. Derived keys are replaceable projection state, and reads never materialize, backfill or repair them. Rebuild and rollback re-derive from the event stream: redeploy the prior binaries, then run a full replay. They never reverse-write derived state or repeat external side effects.
+- Accepted ADR 0005 is the lifecycle authority. Its grammar `conversations-derived-keys-v2` is v1 plus four resolution families (metadata, selection, proof and fence) plus a configurable store name. Migration from v1 is identity, because no key bytes change.
+  - All seven families are owned by Conversations.
+  - Only the canonical named projection route (including reconcile and the rebuild plan) and the create-only tenant-created index initializer may write them.
+  - Only the dispatch ledger expires, after the redelivery window, and the proof outlives it.
+  - Deletion happens only through an operator rebuild. There is no backfill.
+- Story 12.3 may optimize only inside that lifecycle. Any of these needs a new decision and a versioned grammar successor: a new family, a key-byte change, an extra writer, a read-side write, a new expiry or a reordered write. Rows marked "proposed" are commitments, not shipped behavior; implementing one must cite the ADR and add current evidence. Any edit to ADR 0005 voids its owner approval.
+- A projection completes only when both the conversation record and the tenant-index writes land. Partial-write uncertainty stays incomplete until an idempotent retry converges. Dispatch-ledger keys have no tenant segment, so the tenant fail-closed check applies on every ledger access. Tenant authorization fails closed before every read, write and rebuild.
+- `ProjectionTrustState` (`Current`, `Stale`, `Rebuilding`, `Unavailable`, `Forbidden`, `Redacted`) is consumed, never redeclared. The temporal anchor is the `ProjectionFreshnessV1` composite of schema version, cursor and last-applied event position. HP-OPEN comparability also anchors on it. Timestamps are display and lag metadata only.
+- The local AppHost stays a non-packable, non-publishable test fixture unless a separately approved amendment follows a contrary baseline-owner decision. Decision, method, production migration and final evidence (12.1-12.4) are each separately reversible.
 
 ## Cross-Story Dependencies
 
-- Effective entry to Story 12.1 requires both immutable completed Story 6.2 and completed Story 16.3; the later dependency amendment supplements the older epic body. The current sprint lists Story 16.3 as backlog.
-- Story 12.2 follows 12.1. Production optimization in 12.3 requires both 12.1 and 12.2. Final universal evidence in 12.4 follows the completed production correctness proof in 12.3. All four stories must be done for the epic to exit; Story 12.4 also feeds release attestation.
-- The global implementation hold is not lifted by this context, planning publication, historical completion, or a narrow checkpoint grant. The recorded September hold decision unlocks only `7.1-SCHEMAS`; effective entry authority and predecessor proof must be verified before execution.
+- Order: 6.2, 16.3 and IR-0 come before 12.1, then 12.2. Story 12.3 needs both 12.1 and 12.2. Story 12.4 follows 12.3 and feeds release revalidation (15.1). The epic exits only when all four are done.
+- Story 12.1 is done (2026-11-16). ADR 0005 is accepted, and the named owner approval is bound to the decision-payload digest. The owner waived AC-12.1-01 (the candidate verifier) and AC-12.1-06 (the v2 final record). Both are recorded as waived, never PASS, so no 12.1 final record exists. Story 12.2 must instead bind 12.1 through:
+  - its done spec;
+  - its sprint row, which must itself read `done`;
+  - its commit;
+  - the approved decision JSON/Markdown pair.
+- The contracted `bin/Release/net10.0` command paths can no longer be produced: the target framework is now net11.0, and source mode builds only Debug. Story 12.1 ran the same tests from Debug/net11.0 and disclosed the change. Baseline v1 was measured on .NET 10 Release, and environment/runtime is a frozen envelope member. Stories 12.2 and 12.4 therefore cannot assume runtime comparability between baseline and candidate.
+- Planning artifacts still record the global hold as ACTIVE. In practice, stories have started on explicit owner decisions recorded in each spec, as with 12.1 and Epic 16. Reconciling that planning text is an open release-owner retro action, not Epic 12 work.
