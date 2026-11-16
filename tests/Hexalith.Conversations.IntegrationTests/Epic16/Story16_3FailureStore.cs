@@ -42,6 +42,9 @@ internal sealed class Story16_3FailureStore(DaprReadModelStore inner) : DaprRead
         if (key == _blockedKey)
         {
             Failures++;
+            // ConversationAsyncProjectionHandler classifies ArgumentException as terminal HandlerFailure
+            // (InvalidOperationException is retryable and other exceptions indeterminate). This lane therefore
+            // proves recovery of handler-terminal work, not of a transient store outage.
             throw new ArgumentException("Controlled first projection persistence failure.");
         }
     }

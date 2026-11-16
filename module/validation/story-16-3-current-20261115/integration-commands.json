@@ -10,7 +10,7 @@
       "--manifest",
       "module/hexalith.module-manifest.v2.json",
       "--workspace",
-      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.UNke3ax5/workspace",
+      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.PF6rzZkc/workspace",
       "--mode",
       "source",
       "--output",
@@ -28,7 +28,7 @@
       "-c",
       "Debug",
       "-m:1",
-      "-p:ArtifactsPath=/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.UNke3ax5",
+      "-p:ArtifactsPath=/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.PF6rzZkc",
       "-p:NuGetAudit=false"
     ],
     "cwd": "/home/administrator/projects/hexalith/conversations",
@@ -38,7 +38,7 @@
   {
     "command": [
       "dotnet",
-      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.UNke3ax5/bin/Hexalith.Conversations.IntegrationTests/debug/Hexalith.Conversations.IntegrationTests.dll",
+      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.PF6rzZkc/bin/Hexalith.Conversations.IntegrationTests/debug/Hexalith.Conversations.IntegrationTests.dll",
       "-class",
       "*Story16_3EvidenceTests",
       "-automated",
@@ -57,7 +57,7 @@
   {
     "command": [
       "dotnet",
-      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.UNke3ax5/bin/Hexalith.Conversations.IntegrationTests/debug/Hexalith.Conversations.IntegrationTests.dll",
+      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.PF6rzZkc/bin/Hexalith.Conversations.IntegrationTests/debug/Hexalith.Conversations.IntegrationTests.dll",
       "-class",
       "*Story16_3_NoTests*",
       "-automated",

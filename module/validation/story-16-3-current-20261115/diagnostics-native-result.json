@@ -1,7 +1,7 @@
 {
   "counts": {
-    "total": 43,
-    "passed": 43,
+    "total": 45,
+    "passed": 45,
     "failed": 0,
     "skipped": 0,
     "not-run": 0,
@@ -9,310 +9,325 @@
   },
   "tests": [
     {
-      "id": "897ed2c4-0099-45a6-bb42-8bd6bc3d23a7",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.HealthyResourceWithUnavailableEndpointHasStableSafeDiagnostic",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "HealthyResourceWithUnavailableEndpointHasStableSafeDiagnostic",
-      "result": "Pass"
-    },
-    {
-      "id": "8c032f3c-2269-4f62-be3e-6f1331b8c663",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.InfrastructureClassifier_TreatsControlPlaneStartupAsInfrastructure(message: \\\"daprd exited immediately with code 1.\\\")",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "InfrastructureClassifier_TreatsControlPlaneStartupAsInfrastructure",
-      "result": "Pass"
-    },
-    {
-      "id": "596cd659-7fa2-4474-95ad-92f025d842f8",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.InfrastructureClassifier_TreatsControlPlaneStartupAsInfrastructure(message: \\\"Dapr sidecar did not become healthy within 60 seco\\\"\u00b7\u00b7\u00b7)",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "InfrastructureClassifier_TreatsControlPlaneStartupAsInfrastructure",
-      "result": "Pass"
-    },
-    {
-      "id": "ba28ed70-ca5b-4ad6-a8f1-b0e7c54423be",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.EndpointRaceRetriesAndThenSucceeds",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "EndpointRaceRetriesAndThenSucceeds",
-      "result": "Pass"
-    },
-    {
-      "id": "b2a6f249-88f9-4a4b-9dc4-6e7ad32ce9ce",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightDiagnosticLines_StaySupportSafe(line: \\\"DAPR placement reachable on localhost:50005\\\")",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "PreflightDiagnosticLines_StaySupportSafe",
-      "result": "Pass"
-    },
-    {
-      "id": "ee0dfefb-98dc-4840-994f-7170fc99aeff",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightDiagnosticLines_StaySupportSafe(line: \\\"DAPR scheduler reachable on localhost:50006\\\")",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "PreflightDiagnosticLines_StaySupportSafe",
-      "result": "Pass"
-    },
-    {
-      "id": "a176cd84-d50d-4987-9c47-2186beee5c18",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightDiagnosticLines_StaySupportSafe(line: \\\"app id eventstore, metadata ok, actor hostReady=tr\\\"\u00b7\u00b7\u00b7)",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "PreflightDiagnosticLines_StaySupportSafe",
-      "result": "Pass"
-    },
-    {
-      "id": "73045a16-afec-4e2c-821a-b9a6d16e0d14",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightDiagnosticLines_StaySupportSafe(line: \\\"actor host not ready: placement disconnected (acto\\\"\u00b7\u00b7\u00b7)",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "PreflightDiagnosticLines_StaySupportSafe",
-      "result": "Pass"
-    },
-    {
-      "id": "25ec94f5-6396-4446-a353-a70fe78ae8a8",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightDiagnosticLines_StaySupportSafe(line: \\\"POST .../increment -> 202, Location present, Retry\\\"\u00b7\u00b7\u00b7)",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "PreflightDiagnosticLines_StaySupportSafe",
-      "result": "Pass"
-    },
-    {
-      "id": "26ad9b29-2bd0-4a01-9a8e-f709db2b123a",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightDiagnosticLines_StaySupportSafe(line: \\\"GET . -> 200 with ETag\\\")",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "PreflightDiagnosticLines_StaySupportSafe",
-      "result": "Pass"
-    },
-    {
-      "id": "4e80b007-d7fb-433f-bbe1-5abcec03ffef",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightDiagnosticLines_StaySupportSafe(line: \\\"state store holds 3 key(s) for the smoke counter, \\\"\u00b7\u00b7\u00b7)",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "PreflightDiagnosticLines_StaySupportSafe",
-      "result": "Pass"
-    },
-    {
-      "id": "8281ce45-1c3a-4f42-82b6-a071743d7cc4",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightDiagnosticLines_StaySupportSafe(line: \\\"smoke not requested; pass --sample-api-smoke to ex\\\"\u00b7\u00b7\u00b7)",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "PreflightDiagnosticLines_StaySupportSafe",
-      "result": "Pass"
-    },
-    {
-      "id": "fe8d9bfb-6039-49df-89f2-b1a6ca5f3cd2",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightOutputCategories_AreSupportSafe(category: \\\"environment\\\")",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "PreflightOutputCategories_AreSupportSafe",
-      "result": "Pass"
-    },
-    {
-      "id": "a777420a-1c26-4beb-99a5-3d298df01930",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightOutputCategories_AreSupportSafe(category: \\\"aspire\\\")",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "PreflightOutputCategories_AreSupportSafe",
-      "result": "Pass"
-    },
-    {
-      "id": "3981eb3e-3564-4fdb-9608-01a31c7e07b9",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightOutputCategories_AreSupportSafe(category: \\\"dapr\\\")",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "PreflightOutputCategories_AreSupportSafe",
-      "result": "Pass"
-    },
-    {
-      "id": "5be2038e-c4a3-4e95-ac06-d3edaba5542c",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightOutputCategories_AreSupportSafe(category: \\\"generated-api\\\")",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "PreflightOutputCategories_AreSupportSafe",
-      "result": "Pass"
-    },
-    {
-      "id": "3c581c18-9a02-4bfb-bb16-f604a18b8dba",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightOutputCategories_AreSupportSafe(category: \\\"state-evidence\\\")",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "PreflightOutputCategories_AreSupportSafe",
-      "result": "Pass"
-    },
-    {
-      "id": "87b0337b-28ce-4bd8-a08f-c45384bc3984",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightOutputCategories_AreSupportSafe(category: \\\"next-action\\\")",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "PreflightOutputCategories_AreSupportSafe",
-      "result": "Pass"
-    },
-    {
-      "id": "ac4a81df-c88a-4283-9cf3-dc904baec495",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.InfrastructureClassifier_DoesNotHideGeneratedApiProductFailures(message: \\\"POST /api/tenant-a/counter/counter-1/increment ret\\\"\u00b7\u00b7\u00b7)",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "InfrastructureClassifier_DoesNotHideGeneratedApiProductFailures",
-      "result": "Pass"
-    },
-    {
-      "id": "7665dd90-0e1f-496a-8e4e-238794dd5220",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.InfrastructureClassifier_DoesNotHideGeneratedApiProductFailures(message: \\\"Generated command route not served by the sample-a\\\"\u00b7\u00b7\u00b7)",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "InfrastructureClassifier_DoesNotHideGeneratedApiProductFailures",
-      "result": "Pass"
-    },
-    {
-      "id": "a7db8ee8-c04c-40a0-aa98-f72ebabffa1b",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.SharedRedactor_PreservesLocalEndpointsAndDevFixtures",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "SharedRedactor_PreservesLocalEndpointsAndDevFixtures",
-      "result": "Pass"
-    },
-    {
-      "id": "a73d88a1-70f3-455b-aaa4-433aeff795e4",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.EndpointWaitPreservesCallerCancellation",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "EndpointWaitPreservesCallerCancellation",
-      "result": "Pass"
-    },
-    {
-      "id": "6883fc3c-4a36-49c1-9e7d-cdfa147f50ed",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PlacementAndSchedulerPorts_MatchThePreflightCandidatePorts",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "PlacementAndSchedulerPorts_MatchThePreflightCandidatePorts",
-      "result": "Pass"
-    },
-    {
-      "id": "41d2b814-ae86-4238-892c-96f4f673a5c2",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.RefusedConnectionHasStableSupportSafeEndpointDiagnostic",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "RefusedConnectionHasStableSupportSafeEndpointDiagnostic",
-      "result": "Pass"
-    },
-    {
-      "id": "8723ab6b-cb44-49db-8759-da323547beaf",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.SharedRedactor_ScrubsSecretShapesThePreflightCanEncounter",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
-      "method": "SharedRedactor_ScrubsSecretShapesThePreflightCanEncounter",
-      "result": "Pass"
-    },
-    {
-      "id": "0cb976d5-20ae-4bbc-be77-354d353b6a15",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.CancelledControlPlaneProbeDoesNotClassifyACollision",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
-      "method": "CancelledControlPlaneProbeDoesNotClassifyACollision",
-      "result": "Pass"
-    },
-    {
-      "id": "9220e126-3576-4231-8e64-4a9b77709ec2",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.ExplicitRelativeExecutablePathsUseTheWorkingDirectoryInsteadOfPath",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
-      "method": "ExplicitRelativeExecutablePathsUseTheWorkingDirectoryInsteadOfPath",
-      "result": "Pass"
-    },
-    {
-      "id": "6d654124-61af-4a6d-ba57-a9d1170b21e0",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.UnrelatedOccupiedPortDoesNotFailEffectiveBindings",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
-      "method": "UnrelatedOccupiedPortDoesNotFailEffectiveBindings",
-      "result": "Pass"
-    },
-    {
-      "id": "f053c5b2-8130-41f5-bc16-1028e9b4d224",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.TwoSelectedResourcesCannotClaimTheSameUnusedBindingAndProbesAreReleased",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
-      "method": "TwoSelectedResourcesCannotClaimTheSameUnusedBindingAndProbesAreReleased",
-      "result": "Pass"
-    },
-    {
-      "id": "f64e76bf-3839-4ec0-9f1b-82549d02f6a1",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.EffectiveControlPlaneBindingCollisionNamesItsOwnerAndReleasesProbeSockets",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
-      "method": "EffectiveControlPlaneBindingCollisionNamesItsOwnerAndReleasesProbeSockets",
-      "result": "Pass"
-    },
-    {
-      "id": "2f2f5a50-9c55-44ea-9e08-2ec7a9d8179f",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.SupportSafeDiagnostic_RedactsSecretsTokensAndPrivateAddresses",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
-      "method": "SupportSafeDiagnostic_RedactsSecretsTokensAndPrivateAddresses",
-      "result": "Pass"
-    },
-    {
-      "id": "e0a920cf-ca46-43b8-a00f-3cdf0d389f24",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.DaprFact_DoesNotSkipMissingRunnerHandoffs",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
-      "method": "DaprFact_DoesNotSkipMissingRunnerHandoffs",
-      "result": "Pass"
-    },
-    {
-      "id": "5b5fe92d-73cb-463f-8846-9a7d5ddba83c",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.InfrastructureStartupClassifier_SkipsNarrowDaprStartupFailures(message: \\\"daprd exited immediately with code 1.\\\")",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
-      "method": "InfrastructureStartupClassifier_SkipsNarrowDaprStartupFailures",
-      "result": "Pass"
-    },
-    {
-      "id": "4e42c1e8-93d3-4ca4-ac28-dc31c6741622",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.InfrastructureStartupClassifier_SkipsNarrowDaprStartupFailures(message: \\\"Dapr sidecar did not become healthy within 60 seco\\\"\u00b7\u00b7\u00b7)",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
-      "method": "InfrastructureStartupClassifier_SkipsNarrowDaprStartupFailures",
-      "result": "Pass"
-    },
-    {
-      "id": "8385304c-5252-45e3-b64d-672230ce6ee4",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.InfrastructureStartupClassifier_SkipsNarrowDaprStartupFailures(message: \\\"component initialization failed for state.redis.\\\")",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
-      "method": "InfrastructureStartupClassifier_SkipsNarrowDaprStartupFailures",
-      "result": "Pass"
-    },
-    {
-      "id": "df0fcf54-07d2-4727-91ad-7ff94b6d3467",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.InfrastructureStartupClassifier_SkipsNarrowDaprStartupFailures(message: \\\"statestore init timeout while loading actor state \\\"\u00b7\u00b7\u00b7)",
-      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
-      "method": "InfrastructureStartupClassifier_SkipsNarrowDaprStartupFailures",
-      "result": "Pass"
-    },
-    {
-      "id": "dbb56592-0699-4a87-8273-f30efbd61c93",
+      "id": "d26cff50-16a0-4088-94f4-89ed46bd7688",
       "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.InfrastructureStartupClassifier_DoesNotSkipProductFailures(message: \\\"Domain processing failed for command type CreateTe\\\"\u00b7\u00b7\u00b7)",
       "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
       "method": "InfrastructureStartupClassifier_DoesNotSkipProductFailures",
       "result": "Pass"
     },
     {
-      "id": "d8a90d31-4ae7-4d04-b7e1-7e8c6c8934a3",
+      "id": "0bebcfbb-6596-4dd0-b62d-f5e9cac71cfa",
       "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.InfrastructureStartupClassifier_DoesNotSkipProductFailures(message: \\\"The statestore actor write failed after a processe\\\"\u00b7\u00b7\u00b7)",
       "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
       "method": "InfrastructureStartupClassifier_DoesNotSkipProductFailures",
       "result": "Pass"
     },
     {
-      "id": "11199170-2e2b-4907-90f2-9a3f84715bbb",
+      "id": "e1f12c1c-d7c9-4e6d-92c8-45b416c81041",
       "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.InfrastructureStartupClassifier_DoesNotSkipProductFailures(message: \\\"Service invocation to /process returned a product \\\"\u00b7\u00b7\u00b7)",
       "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
       "method": "InfrastructureStartupClassifier_DoesNotSkipProductFailures",
       "result": "Pass"
     },
     {
-      "id": "03d28f3b-27e1-4589-afce-9ea48082634a",
+      "id": "6dbddfad-0fed-433e-8ffc-cde407927393",
       "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.InfrastructureStartupClassifier_DoesNotSkipProductFailures(message: \\\"Tenant aggregate rejected duplicate command input.\\\")",
       "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
       "method": "InfrastructureStartupClassifier_DoesNotSkipProductFailures",
       "result": "Pass"
     },
     {
-      "id": "43d3bd04-87c8-42a5-9ad2-499aebf97595",
+      "id": "e130766e-42f2-4726-a8b9-71e50826bdf4",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.UnrelatedOccupiedPortDoesNotFailEffectiveBindings",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
+      "method": "UnrelatedOccupiedPortDoesNotFailEffectiveBindings",
+      "result": "Pass"
+    },
+    {
+      "id": "ba3e61e9-03fc-4b80-88db-c2f8ec7d00ef",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.DaprFact_DoesNotSkipMissingRunnerHandoffs",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
+      "method": "DaprFact_DoesNotSkipMissingRunnerHandoffs",
+      "result": "Pass"
+    },
+    {
+      "id": "c315e515-74ab-4eb4-ac77-bc40f043dfed",
       "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.FixturePrerequisiteFailureMessage_NamesDependencyCategoryAndPortOnly",
       "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
       "method": "FixturePrerequisiteFailureMessage_NamesDependencyCategoryAndPortOnly",
       "result": "Pass"
     },
     {
-      "id": "575dc934-3982-4fe5-8e3c-57e85414d0e3",
+      "id": "0d6b4212-eda3-43a3-a36e-50a9199119c9",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.DependencyDiagnosticCategories_AreSupportSafeWhenRecordedAsEvidence",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
+      "method": "DependencyDiagnosticCategories_AreSupportSafeWhenRecordedAsEvidence",
+      "result": "Pass"
+    },
+    {
+      "id": "3b437c43-0595-479f-a48a-0600c0648d4a",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.CancelledControlPlaneProbeDoesNotClassifyACollision",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
+      "method": "CancelledControlPlaneProbeDoesNotClassifyACollision",
+      "result": "Pass"
+    },
+    {
+      "id": "30d3845f-340d-4543-b407-b7ed04d692dc",
       "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.SupportSafeProcessDiagnostic_NamesCommandCategoryWithoutRawException",
       "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
       "method": "SupportSafeProcessDiagnostic_NamesCommandCategoryWithoutRawException",
       "result": "Pass"
     },
     {
-      "id": "3b1e8aca-4884-47e2-9904-4540fde7890f",
-      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.DependencyDiagnosticCategories_AreSupportSafeWhenRecordedAsEvidence",
+      "id": "ff8c3ec3-f2de-4d6b-94c8-63401a38f8cd",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.TwoSelectedResourcesCannotClaimTheSameUnusedBindingAndProbesAreReleased",
       "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
-      "method": "DependencyDiagnosticCategories_AreSupportSafeWhenRecordedAsEvidence",
+      "method": "TwoSelectedResourcesCannotClaimTheSameUnusedBindingAndProbesAreReleased",
+      "result": "Pass"
+    },
+    {
+      "id": "d963afde-5a88-41d9-a27d-df283931834b",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.ExplicitRelativeExecutablePathsUseTheWorkingDirectoryInsteadOfPath",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
+      "method": "ExplicitRelativeExecutablePathsUseTheWorkingDirectoryInsteadOfPath",
+      "result": "Pass"
+    },
+    {
+      "id": "58824159-2a31-452c-bdb0-e1e5888e9fb9",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.BareExecutableNameAbsentFromPathHasStableSupportSafeDiagnostic",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
+      "method": "BareExecutableNameAbsentFromPathHasStableSupportSafeDiagnostic",
+      "result": "Pass"
+    },
+    {
+      "id": "df122c37-0457-4077-ade3-e9eb67c3cebb",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.InfrastructureStartupClassifier_SkipsNarrowDaprStartupFailures(message: \\\"daprd exited immediately with code 1.\\\")",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
+      "method": "InfrastructureStartupClassifier_SkipsNarrowDaprStartupFailures",
+      "result": "Pass"
+    },
+    {
+      "id": "05337091-66b4-4382-a0f6-6e24d4931a07",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.InfrastructureStartupClassifier_SkipsNarrowDaprStartupFailures(message: \\\"Dapr sidecar did not become healthy within 60 seco\\\"\u00b7\u00b7\u00b7)",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
+      "method": "InfrastructureStartupClassifier_SkipsNarrowDaprStartupFailures",
+      "result": "Pass"
+    },
+    {
+      "id": "98eb3239-6dd7-4072-97dd-9e93e252880e",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.InfrastructureStartupClassifier_SkipsNarrowDaprStartupFailures(message: \\\"component initialization failed for state.redis.\\\")",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
+      "method": "InfrastructureStartupClassifier_SkipsNarrowDaprStartupFailures",
+      "result": "Pass"
+    },
+    {
+      "id": "786f2206-0a6f-4457-807d-26b37c697631",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.InfrastructureStartupClassifier_SkipsNarrowDaprStartupFailures(message: \\\"statestore init timeout while loading actor state \\\"\u00b7\u00b7\u00b7)",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
+      "method": "InfrastructureStartupClassifier_SkipsNarrowDaprStartupFailures",
+      "result": "Pass"
+    },
+    {
+      "id": "0714a7a5-b4de-421a-9050-72c730f55c54",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.EffectiveControlPlaneBindingCollisionNamesItsOwnerAndReleasesProbeSockets",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
+      "method": "EffectiveControlPlaneBindingCollisionNamesItsOwnerAndReleasesProbeSockets",
+      "result": "Pass"
+    },
+    {
+      "id": "2f4fb25e-db85-42bd-8416-9461a5efd157",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests.SupportSafeDiagnostic_RedactsSecretsTokensAndPrivateAddresses",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprTestPrerequisiteDiagnosticsTests",
+      "method": "SupportSafeDiagnostic_RedactsSecretsTokensAndPrivateAddresses",
+      "result": "Pass"
+    },
+    {
+      "id": "016ffa05-1f48-481e-9c04-7435eaf9273a",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.SharedRedactor_PreservesLocalEndpointsAndDevFixtures",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "SharedRedactor_PreservesLocalEndpointsAndDevFixtures",
+      "result": "Pass"
+    },
+    {
+      "id": "b8d05c91-0797-473d-9f71-29a21512887e",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.RefusedConnectionHasStableSupportSafeEndpointDiagnostic",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "RefusedConnectionHasStableSupportSafeEndpointDiagnostic",
+      "result": "Pass"
+    },
+    {
+      "id": "d79ea90d-20dd-440b-a302-c72034303d4e",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.HealthyResourceWithUnavailableEndpointHasStableSafeDiagnostic",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "HealthyResourceWithUnavailableEndpointHasStableSafeDiagnostic",
+      "result": "Pass"
+    },
+    {
+      "id": "773a3223-30a5-44c9-99b0-3e8fd6951c52",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.InfrastructureClassifier_DoesNotHideGeneratedApiProductFailures(message: \\\"POST /api/tenant-a/counter/counter-1/increment ret\\\"\u00b7\u00b7\u00b7)",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "InfrastructureClassifier_DoesNotHideGeneratedApiProductFailures",
+      "result": "Pass"
+    },
+    {
+      "id": "6b37e2c0-0591-4d26-970b-5bdb74518f9c",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.InfrastructureClassifier_DoesNotHideGeneratedApiProductFailures(message: \\\"Generated command route not served by the sample-a\\\"\u00b7\u00b7\u00b7)",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "InfrastructureClassifier_DoesNotHideGeneratedApiProductFailures",
+      "result": "Pass"
+    },
+    {
+      "id": "a736b9c2-ba55-4f46-95bb-4ec9322bad95",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightOutputCategories_AreSupportSafe(category: \\\"environment\\\")",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "PreflightOutputCategories_AreSupportSafe",
+      "result": "Pass"
+    },
+    {
+      "id": "78aee37f-59ae-4b6f-8a52-6a24f03c2785",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightOutputCategories_AreSupportSafe(category: \\\"aspire\\\")",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "PreflightOutputCategories_AreSupportSafe",
+      "result": "Pass"
+    },
+    {
+      "id": "bbc97172-3bc1-4f31-83e7-5eeb58d02fbb",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightOutputCategories_AreSupportSafe(category: \\\"dapr\\\")",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "PreflightOutputCategories_AreSupportSafe",
+      "result": "Pass"
+    },
+    {
+      "id": "ba0c9866-25a7-4d24-b8a1-4907924348a9",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightOutputCategories_AreSupportSafe(category: \\\"generated-api\\\")",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "PreflightOutputCategories_AreSupportSafe",
+      "result": "Pass"
+    },
+    {
+      "id": "1f2e64a0-ceb0-46cc-83d6-0db15dba3fbf",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightOutputCategories_AreSupportSafe(category: \\\"state-evidence\\\")",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "PreflightOutputCategories_AreSupportSafe",
+      "result": "Pass"
+    },
+    {
+      "id": "72fd1abe-90ec-4bdb-8af9-b174d028fbf6",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightOutputCategories_AreSupportSafe(category: \\\"next-action\\\")",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "PreflightOutputCategories_AreSupportSafe",
+      "result": "Pass"
+    },
+    {
+      "id": "07a323c4-ab47-4d21-9cd7-7fcd4cc28891",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.SharedRedactor_ScrubsSecretShapesThePreflightCanEncounter",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "SharedRedactor_ScrubsSecretShapesThePreflightCanEncounter",
+      "result": "Pass"
+    },
+    {
+      "id": "28a92ef9-0e6b-4480-a5b3-e0f0ff060b41",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.EndpointWaitPreservesCallerCancellation",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "EndpointWaitPreservesCallerCancellation",
+      "result": "Pass"
+    },
+    {
+      "id": "de51dea0-56b6-4294-b0bd-fe80b1af43d5",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.EndpointRaceRetriesAndThenSucceeds",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "EndpointRaceRetriesAndThenSucceeds",
+      "result": "Pass"
+    },
+    {
+      "id": "d70c2600-c467-4569-a796-2a89e1ab6660",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PlacementAndSchedulerPorts_MatchThePreflightCandidatePorts",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "PlacementAndSchedulerPorts_MatchThePreflightCandidatePorts",
+      "result": "Pass"
+    },
+    {
+      "id": "6e5ad5a0-ea33-43d5-be26-db6ae1c503f5",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightDiagnosticLines_StaySupportSafe(line: \\\"DAPR placement reachable on localhost:50005\\\")",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "PreflightDiagnosticLines_StaySupportSafe",
+      "result": "Pass"
+    },
+    {
+      "id": "cbb40228-62fe-421b-bb88-896fdd243c4b",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightDiagnosticLines_StaySupportSafe(line: \\\"DAPR scheduler reachable on localhost:50006\\\")",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "PreflightDiagnosticLines_StaySupportSafe",
+      "result": "Pass"
+    },
+    {
+      "id": "c72be6fc-5ccd-4378-89bc-05565b22d09e",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightDiagnosticLines_StaySupportSafe(line: \\\"app id eventstore, metadata ok, actor hostReady=tr\\\"\u00b7\u00b7\u00b7)",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "PreflightDiagnosticLines_StaySupportSafe",
+      "result": "Pass"
+    },
+    {
+      "id": "ba164587-e3f1-4b9c-9e88-f831730a5a77",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightDiagnosticLines_StaySupportSafe(line: \\\"actor host not ready: placement disconnected (acto\\\"\u00b7\u00b7\u00b7)",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "PreflightDiagnosticLines_StaySupportSafe",
+      "result": "Pass"
+    },
+    {
+      "id": "5d971d83-5fb0-4095-8a55-e56a9bb4f0d2",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightDiagnosticLines_StaySupportSafe(line: \\\"POST .../increment -> 202, Location present, Retry\\\"\u00b7\u00b7\u00b7)",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "PreflightDiagnosticLines_StaySupportSafe",
+      "result": "Pass"
+    },
+    {
+      "id": "003b7fc3-796c-446d-a383-40b13b0bd18a",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightDiagnosticLines_StaySupportSafe(line: \\\"GET . -> 200 with ETag\\\")",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "PreflightDiagnosticLines_StaySupportSafe",
+      "result": "Pass"
+    },
+    {
+      "id": "a0b7bfb6-a600-450a-ad0b-c50a2fbd35e9",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightDiagnosticLines_StaySupportSafe(line: \\\"state store holds 3 key(s) for the smoke counter, \\\"\u00b7\u00b7\u00b7)",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "PreflightDiagnosticLines_StaySupportSafe",
+      "result": "Pass"
+    },
+    {
+      "id": "1da9b269-48d5-4fca-bbf3-c0d58eb0424a",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.PreflightDiagnosticLines_StaySupportSafe(line: \\\"smoke not requested; pass --sample-api-smoke to ex\\\"\u00b7\u00b7\u00b7)",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "PreflightDiagnosticLines_StaySupportSafe",
+      "result": "Pass"
+    },
+    {
+      "id": "08c8cafc-34ca-4cc9-8158-a6250e5b8df7",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.InfrastructureClassifier_TreatsControlPlaneStartupAsInfrastructure(message: \\\"daprd exited immediately with code 1.\\\")",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "InfrastructureClassifier_TreatsControlPlaneStartupAsInfrastructure",
+      "result": "Pass"
+    },
+    {
+      "id": "735db66c-17f1-4c38-bdba-76ac7a25981f",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests.InfrastructureClassifier_TreatsControlPlaneStartupAsInfrastructure(message: \\\"Dapr sidecar did not become healthy within 60 seco\\\"\u00b7\u00b7\u00b7)",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.GeneratedApiSmokePreflightDiagnosticsTests",
+      "method": "InfrastructureClassifier_TreatsControlPlaneStartupAsInfrastructure",
+      "result": "Pass"
+    },
+    {
+      "id": "375c33e6-d59b-4b43-9fff-6f53c8c8d213",
+      "name": "Hexalith.EventStore.Testing.Integration.Tests.DaprReadModelStoreDecoratorTests.DecoratorImplementsEveryProductionAdapterCapability",
+      "type": "Hexalith.EventStore.Testing.Integration.Tests.DaprReadModelStoreDecoratorTests",
+      "method": "DecoratorImplementsEveryProductionAdapterCapability",
       "result": "Pass"
     }
   ],
   "selectedClasses": [
     "*DaprTestPrerequisiteDiagnosticsTests",
-    "*GeneratedApiSmokePreflightDiagnosticsTests"
+    "*GeneratedApiSmokePreflightDiagnosticsTests",
+    "*DaprReadModelStoreDecoratorTests"
   ],
   "missingClasses": [],
   "valid": true

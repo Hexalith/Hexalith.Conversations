@@ -1,6 +1,6 @@
 {
-  "Hexalith.Conversations.AppHost.Tests.dll": "f67073f062ee4c35cff154b74ccc3d2c2fe1aa77f6ba9071c828f2b7f8004b64",
-  "Hexalith.EventStore.Testing.Integration.dll": "1f673da7edb81f771796d248d301c69e59cde58f8574085710a6e2f6b50976e4",
-  "Hexalith.EventStore.Server.dll": "6379d2a399ada8b164c5e065fedcf950ba09835f8135bd01546b05cbad1e6f16",
-  "Hexalith.EventStore.DomainService.dll": "be0b0ba65ee75a18029ed5f4792abad86963bc52b86406086d3f3f0dc5d47ba7"
+  "Hexalith.Conversations.AppHost.Tests.dll": "99acd836c10d243566e54172cd72769efcacae2a5d9e1fb35068f1856a6aa1cd",
+  "Hexalith.EventStore.Testing.Integration.dll": "5d5f1fe59d33eabd6c8e9720a9090964ac3f5d5a9257b584e660bb041c495c54",
+  "Hexalith.EventStore.Server.dll": "9219bdfa9ab2c0b5d2ce22b770a26f4292ac59d2203068f8c789bd242a8ad1c2",
+  "Hexalith.EventStore.DomainService.dll": "2b2e0bdc0123be94e634e5237ca905043f2687b595783e2d660eced5d6278e92"
 }

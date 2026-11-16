@@ -72,7 +72,11 @@ public sealed class Story16_3LiveFixture : IAsyncLifetime
     /// <summary>Gets the production SDK read-model store independently of the failure decorator.</summary>
     internal IReadModelStore Store => Gateway.Services.GetRequiredService<DaprReadModelStore>();
 
-    /// <summary>Records a completed scenario; disposal rejects empty or partial selection.</summary>
+    /// <summary>Records a completed scenario; disposal rejects a partial selection.</summary>
+    /// <remarks>
+    /// xUnit never creates this collection fixture when no test is selected, so disposal cannot observe an empty
+    /// selection; the native runner's separate empty-selection control rejects that case.
+    /// </remarks>
     internal void Complete(string scenario)
     {
         _completed.TryAdd(scenario, 0).ShouldBeTrue();
@@ -217,7 +221,7 @@ public sealed class Story16_3LiveFixture : IAsyncLifetime
     {
         string[] directories = [.. Gateway.ScratchDirectories];
         int[] ports = [new Uri(Gateway.DaprHttpEndpoint).Port, new Uri(Gateway.DaprGrpcEndpoint).Port,
-            new Uri(Gateway.ApplicationHttpEndpoint).Port, new Uri(_workerAuthority.BaseAddress).Port];
+            new Uri(Gateway.ApplicationHttpEndpoint).Port, new Uri(_workerAuthority.BaseAddress).Port, _redisPort];
         await DisposeResourcesAsync();
         foreach (string directory in directories) Directory.Exists(directory).ShouldBeFalse("fixture scratch must be removed");
         foreach (int port in ports) (await DaprDiagnostics.IsPortReachableAsync("127.0.0.1", port)).ShouldBeFalse("fixture listeners must be released");
@@ -225,7 +229,7 @@ public sealed class Story16_3LiveFixture : IAsyncLifetime
         Environment.GetEnvironmentVariable("DAPR_GRPC_PORT").ShouldBe(_priorGrpcPort);
         TestContext.Current.SendDiagnosticMessage("Story 16.3 cleanup: private Redis removed, listeners released, component/catalog files removed, Dapr environment restored.");
         _completed.Keys.Order(StringComparer.Ordinal).SequenceEqual(new[] { "Scenario01", "Scenario02", "Scenario03", "Scenario04", "Scenario05" }).ShouldBeTrue(
-            "the live proof must execute all five native scenarios; empty/filtered selections cannot pass");
+            "the live proof must execute all five native scenarios; a filtered selection cannot pass");
     }
 
     private async Task DisposeResourcesAsync()

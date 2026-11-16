@@ -1,0 +1,840 @@
+{
+  "counts": {
+    "total": 117,
+    "passed": 117,
+    "failed": 0,
+    "skipped": 0,
+    "not-run": 0,
+    "errors": 0
+  },
+  "tests": [
+    {
+      "id": "93ede081-cff4-4e54-b63b-8793bbc8364a",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.LoopbackHttpAndHttpsGatewayOriginsAreAccepted(origin: \\\"https://gateway.test/\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "LoopbackHttpAndHttpsGatewayOriginsAreAccepted",
+      "result": "Pass"
+    },
+    {
+      "id": "c55ea71b-5233-475d-a1ea-796e680b8098",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.LoopbackHttpAndHttpsGatewayOriginsAreAccepted(origin: \\\"http://127.0.0.1:5000/\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "LoopbackHttpAndHttpsGatewayOriginsAreAccepted",
+      "result": "Pass"
+    },
+    {
+      "id": "0b959d28-87bd-4721-8958-ae9d1533d3f6",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.LoopbackHttpAndHttpsGatewayOriginsAreAccepted(origin: \\\"http://localhost:5000\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "LoopbackHttpAndHttpsGatewayOriginsAreAccepted",
+      "result": "Pass"
+    },
+    {
+      "id": "55f265a6-6b49-4640-bcde-c81d50ed5db4",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.OmittingRegistrationShouldLeaveAccessServiceUnresolvable",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "OmittingRegistrationShouldLeaveAccessServiceUnresolvable",
+      "result": "Pass"
+    },
+    {
+      "id": "8455cd07-ab84-42a3-9c38-6c3085557eb3",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.EnrolledTenantConsumerUsesConfiguredDeliveryAndUpdatesItsProjection",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "EnrolledTenantConsumerUsesConfiguredDeliveryAndUpdatesItsProjection",
+      "result": "Pass"
+    },
+    {
+      "id": "6ba7a74b-be44-423c-9e78-10005b949e20",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.AddConversationTenantAccessShouldKeepFacadeRegistrationsSingularWhenCalledTwice",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "AddConversationTenantAccessShouldKeepFacadeRegistrationsSingularWhenCalledTwice",
+      "result": "Pass"
+    },
+    {
+      "id": "031679c4-e79e-47d5-9783-2c565fdbce0b",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.HostSuppliedGatewayClientIsKeptAndRecorded",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "HostSuppliedGatewayClientIsKeptAndRecorded",
+      "result": "Pass"
+    },
+    {
+      "id": "507d1081-326e-437e-ad52-81fdcf145f1b",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.AddConversationTenantAccessShouldRegisterTenantsProjectionAndAccessService",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "AddConversationTenantAccessShouldRegisterTenantsProjectionAndAccessService",
+      "result": "Pass"
+    },
+    {
+      "id": "4f7908bc-4eda-493f-baec-9ce7c945e835",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"Tenants:PubSubName\\\", value: null)",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration",
+      "result": "Pass"
+    },
+    {
+      "id": "6f514658-1f40-4ffc-bbe9-4c0953f7dc87",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"EventStore:Authentication:ClientId\\\", value: null)",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration",
+      "result": "Pass"
+    },
+    {
+      "id": "ae40fd6e-3ea5-4385-b608-4e01f7dd483a",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"EventStore:Authentication:TokenEndpoint\\\", value: null)",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration",
+      "result": "Pass"
+    },
+    {
+      "id": "4d4036d3-9a80-4a43-b7d8-d7a58e631027",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"EventStore:Authentication:Authority\\\", value: null)",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration",
+      "result": "Pass"
+    },
+    {
+      "id": "9fee1589-ece3-4090-900d-f751c2bd33a6",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"Hexalith:Conversations:TenantAccess:GatewayBaseAdd\\\"\u00b7\u00b7\u00b7, value: \\\"https://gateway.test/api/\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration",
+      "result": "Pass"
+    },
+    {
+      "id": "f41ca464-6862-431a-9ab7-74b6c02bd605",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"Hexalith:Conversations:TenantAccess:GatewayBaseAdd\\\"\u00b7\u00b7\u00b7, value: \\\"http://gateway.example/\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration",
+      "result": "Pass"
+    },
+    {
+      "id": "b98d3146-0e43-429a-8666-0f8600494c82",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"Hexalith:Conversations:TenantAccess:GatewayBaseAdd\\\"\u00b7\u00b7\u00b7, value: null)",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration",
+      "result": "Pass"
+    },
+    {
+      "id": "733e69c7-4e46-45b6-96a3-3fa506de9362",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"EventStore:Authentication:ClientSecret\\\", value: null)",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration",
+      "result": "Pass"
+    },
+    {
+      "id": "0e4059e1-ebda-4f63-8e55-5a69eedf442f",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"EventStore:Projections:ReadModelStateStoreName\\\", value: \\\" \\\")",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration",
+      "result": "Pass"
+    },
+    {
+      "id": "30f4bbeb-1970-40c0-b814-0f8cf0708601",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"Dapr:DeclarativeSubscriptions\\\", value: \\\"false\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration",
+      "result": "Pass"
+    },
+    {
+      "id": "36357a26-2f88-4b58-b4a4-0dded07c2b80",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"Dapr:DeclarativeSubscriptions\\\", value: \\\" \\\")",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration",
+      "result": "Pass"
+    },
+    {
+      "id": "93cc58a7-9781-43d4-afc5-3f48633a9d7a",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"Dapr:DeclarativeSubscriptions\\\", value: null)",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration",
+      "result": "Pass"
+    },
+    {
+      "id": "c0500ce9-064b-4ef2-98ef-95034d59bf96",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"Tenants:TopicName\\\", value: \\\" \\\")",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration",
+      "result": "Pass"
+    },
+    {
+      "id": "491f35a6-1645-429b-9e97-effb9811cb81",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"Tenants:TopicName\\\", value: null)",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration",
+      "result": "Pass"
+    },
+    {
+      "id": "5e7f0a99-75ae-4f23-b89e-8ecaf6481317",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"Tenants:PubSubName\\\", value: \\\" \\\")",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration",
+      "result": "Pass"
+    },
+    {
+      "id": "7a5bfc4b-e5fa-489e-b5dc-c246012e6bda",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"EventStore:Projections:ReadModelStateStoreName\\\", value: null)",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration",
+      "result": "Pass"
+    },
+    {
+      "id": "cb859861-0c21-4616-89a8-cebb6d1078d3",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration(key: \\\"EventStore:Authentication:GrantType\\\", value: \\\"password\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "MissingEnrolledDeliveryInputsFailBeforeConsumerRegistration",
+      "result": "Pass"
+    },
+    {
+      "id": "43f6a690-8259-4ebe-9110-94d3e361f07d",
+      "name": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest.KeyedGatewayClientDoesNotReplaceTheHistoryReader",
+      "type": "Hexalith.Conversations.Server.Tests.TenantAccess.ConversationTenantAccessRegistrationTest",
+      "method": "KeyedGatewayClientDoesNotReplaceTheHistoryReader",
+      "result": "Pass"
+    },
+    {
+      "id": "a194e992-4aa8-4e12-8d87-14acdb6a75d5",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.CrossTenantEventShouldFailWithOnlyAnAcceptedRoutePositionBarrier",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "CrossTenantEventShouldFailWithOnlyAnAcceptedRoutePositionBarrier",
+      "result": "Pass"
+    },
+    {
+      "id": "4108d609-a137-43a7-a95e-5bb564052b72",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.ReconcileShouldCompensateTerminalIndexButKeepUnfencedMetadataUnavailable",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "ReconcileShouldCompensateTerminalIndexButKeepUnfencedMetadataUnavailable",
+      "result": "Pass"
+    },
+    {
+      "id": "841dc5d8-7b41-4a45-af47-a2d5b5479df8",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.PersistedRejectionShouldAdvancePositionWithoutMutatingOrWritingARejectionOnlyStream",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "PersistedRejectionShouldAdvancePositionWithoutMutatingOrWritingARejectionOnlyStream",
+      "result": "Pass"
+    },
+    {
+      "id": "33ee3386-5144-4ccb-8696-80c71425528c",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.CompletedLedgerWithAConflictingGenerationShouldRePersistExpectedContent",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "CompletedLedgerWithAConflictingGenerationShouldRePersistExpectedContent",
+      "result": "Pass"
+    },
+    {
+      "id": "89409754-d230-4c1f-b0d3-99dec154ed13",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.AcceptedAppendShouldCompleteOnlyAfterBothExactKeysAreDurable",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "AcceptedAppendShouldCompleteOnlyAfterBothExactKeysAreDurable",
+      "result": "Pass"
+    },
+    {
+      "id": "39c3eaee-54aa-4465-96ff-36ce69d1017e",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.ReusingADispatchIdentityForDifferentInputShouldFailWithoutWriting",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "ReusingADispatchIdentityForDifferentInputShouldFailWithoutWriting",
+      "result": "Pass"
+    },
+    {
+      "id": "dfba7a64-219b-42ba-b8d1-d01c31e97d25",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.CompletedLedgerWithPendingIndexReferenceShouldRePersistBeforeCompletion",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "CompletedLedgerWithPendingIndexReferenceShouldRePersistBeforeCompletion",
+      "result": "Pass"
+    },
+    {
+      "id": "3e419f11-90bc-4f44-ba7c-7421471323f7",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.PopulatedRebuildPlanShouldRetainValidSiblingAndUsePersistedEtags",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "PopulatedRebuildPlanShouldRetainValidSiblingAndUsePersistedEtags",
+      "result": "Pass"
+    },
+    {
+      "id": "a4741eb1-8983-47b6-91b9-c0024d924a6c",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.CompletedLedgerWithoutDurableKeysShouldRePersistInsteadOfReportingAFalseCompletion",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "CompletedLedgerWithoutDurableKeysShouldRePersistInsteadOfReportingAFalseCompletion",
+      "result": "Pass"
+    },
+    {
+      "id": "01e301c2-51a7-4d2c-bf7e-f1d044e3cc50",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.CompletionShouldRejectAReplacedLedgerIdentityWithoutCompletingIt",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "CompletionShouldRejectAReplacedLedgerIdentityWithoutCompletingIt",
+      "result": "Pass"
+    },
+    {
+      "id": "c42177cf-526d-4118-8895-6a4fb57d80a4",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.ReconcileShouldRemainRetryableWhenPendingMarkerMayDescribeDurableDetail",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "ReconcileShouldRemainRetryableWhenPendingMarkerMayDescribeDurableDetail",
+      "result": "Pass"
+    },
+    {
+      "id": "86c31310-8f53-437f-aa2e-8768e0b1de96",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.CompletionTimeoutShouldReturnRetryableAfterDurableModelWrites",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "CompletionTimeoutShouldReturnRetryableAfterDurableModelWrites",
+      "result": "Pass"
+    },
+    {
+      "id": "cc12556a-ec6d-4d7e-b6e1-842a30475cf5",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.RebuildShouldRejectAnExistingLedgerWithDifferentIdentity",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "RebuildShouldRejectAnExistingLedgerWithDifferentIdentity",
+      "result": "Pass"
+    },
+    {
+      "id": "7d4f315c-4adb-4623-9070-d074e78d738e",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.UnsupportedEmptyAndMalformedInputsShouldFailWithoutRichWrites",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "UnsupportedEmptyAndMalformedInputsShouldFailWithoutRichWrites",
+      "result": "Pass"
+    },
+    {
+      "id": "7b09eb88-0382-4b96-9bb6-45fc3d9b0ca1",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.SecondWriteFailureShouldBeRetryableAndRetryShouldConverge",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "SecondWriteFailureShouldBeRetryableAndRetryShouldConverge",
+      "result": "Pass"
+    },
+    {
+      "id": "6b16b8c3-5ef0-448e-b4a2-ddbbaff85be1",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.NonCurrentMaterializationShouldFailWithOnlyObservedPositionBarrier",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "NonCurrentMaterializationShouldFailWithOnlyObservedPositionBarrier",
+      "result": "Pass"
+    },
+    {
+      "id": "bca15fd8-2f4e-4917-9fd3-7b847a3e2053",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.LateCallerCancellationShouldNotInterruptDispatchCompletion",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "LateCallerCancellationShouldNotInterruptDispatchCompletion",
+      "result": "Pass"
+    },
+    {
+      "id": "a4d1a66f-1b2e-4426-85ca-64a2e3cf0315",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.StableDuplicateShouldConvergeWithoutDuplicatingTheTenantIndex",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "StableDuplicateShouldConvergeWithoutDuplicatingTheTenantIndex",
+      "result": "Pass"
+    },
+    {
+      "id": "f6154aae-145c-4c63-915f-b9410cc0010f",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.EmptyRebuildHistoryShouldBeRejectedAsTerminalInput",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "EmptyRebuildHistoryShouldBeRejectedAsTerminalInput",
+      "result": "Pass"
+    },
+    {
+      "id": "0c8208de-9c34-4a7a-b288-49c16bac641a",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.FullReplayPlanShouldContainExactGenerationAndLedgerKeysWithoutMutatingLiveState",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "FullReplayPlanShouldContainExactGenerationAndLedgerKeysWithoutMutatingLiveState",
+      "result": "Pass"
+    },
+    {
+      "id": "fe2933ec-e037-4141-8bfd-27496a7f02d5",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.UnavailableStoreShouldReturnIndeterminateWithoutRawStorageDetail",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "UnavailableStoreShouldReturnIndeterminateWithoutRawStorageDetail",
+      "result": "Pass"
+    },
+    {
+      "id": "ce8d9838-feaa-466e-943a-663972d5bec2",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.RebuildShouldPreserveASummarylessPendingSiblingReference",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "RebuildShouldPreserveASummarylessPendingSiblingReference",
+      "result": "Pass"
+    },
+    {
+      "id": "6e177321-6567-4a36-924d-c31e9ef2628c",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.RedeliveryWithDifferentCorrelationMetadataShouldStillConverge",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "RedeliveryWithDifferentCorrelationMetadataShouldStillConverge",
+      "result": "Pass"
+    },
+    {
+      "id": "c5935b4a-1fa5-4e8d-b66b-bb8cd41b2414",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.ReusingDispatchIdentityWithDifferentRejectionTimestampShouldFailWithoutWriting",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "ReusingDispatchIdentityWithDifferentRejectionTimestampShouldFailWithoutWriting",
+      "result": "Pass"
+    },
+    {
+      "id": "a0b5fa2b-7fcd-4930-823c-287ff60566de",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.RebuildShouldBulkReadSummarylessSiblingLedgers",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "RebuildShouldBulkReadSummarylessSiblingLedgers",
+      "result": "Pass"
+    },
+    {
+      "id": "c27b94f4-f032-43d8-b6f4-bc963671539b",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.ReconcileShouldRetryPartialWriteToCompletion",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "ReconcileShouldRetryPartialWriteToCompletion",
+      "result": "Pass"
+    },
+    {
+      "id": "5f9080fe-0ff2-4938-a386-c5f37f52b850",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.ReplayOfAConversationOlderThanTheStalenessThresholdShouldStillPersist",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "ReplayOfAConversationOlderThanTheStalenessThresholdShouldStillPersist",
+      "result": "Pass"
+    },
+    {
+      "id": "b5cf351b-246e-4c5b-bbb0-704b66385444",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest.ConfiguredRebuildPreservesSummarylessPendingSiblingAfterSdkBatchCommit",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationAsyncProjectionHandlerTest",
+      "method": "ConfiguredRebuildPreservesSummarylessPendingSiblingAfterSdkBatchCommit",
+      "result": "Pass"
+    },
+    {
+      "id": "8c34496d-92c6-40c4-b5d5-ee2e33b8be06",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.ConcurrentIndexWriteIsReloadedAndReapplied",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest",
+      "method": "ConcurrentIndexWriteIsReloadedAndReapplied",
+      "result": "Pass"
+    },
+    {
+      "id": "8fe7a3ef-c811-4243-9bf7-d0556dbd1fb8",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.MatchingProjectionShouldRemainReadableAfterDispatchLedgerExpires",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest",
+      "method": "MatchingProjectionShouldRemainReadableAfterDispatchLedgerExpires",
+      "result": "Pass"
+    },
+    {
+      "id": "d6705555-4110-46f0-94e4-9e178e0cd229",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.TerminalPendingMarkerShouldRestoreTheDisplacedCompletedReference",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest",
+      "method": "TerminalPendingMarkerShouldRestoreTheDisplacedCompletedReference",
+      "result": "Pass"
+    },
+    {
+      "id": "6389c699-2068-48b0-8777-9baeb1c44e57",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.ListValidationShouldUseBoundedBulkPages",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest",
+      "method": "ListValidationShouldUseBoundedBulkPages",
+      "result": "Pass"
+    },
+    {
+      "id": "7c5495a1-712b-483f-a95b-7cb125e5db25",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.ListAsyncShouldReadAnAbsentIndexAsMissingLifecycleState",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest",
+      "method": "ListAsyncShouldReadAnAbsentIndexAsMissingLifecycleState",
+      "result": "Pass"
+    },
+    {
+      "id": "e1342436-e0bc-4e31-870c-9379a426401d",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.PersistedReadModelsRoundTripThroughStoreAndIndex",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest",
+      "method": "PersistedReadModelsRoundTripThroughStoreAndIndex",
+      "result": "Pass"
+    },
+    {
+      "id": "c192750e-445e-4c69-af08-01867e65f0e5",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.ListAsyncShouldFlagAPendingDispatchWithoutFailingTheTenant",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest",
+      "method": "ListAsyncShouldFlagAPendingDispatchWithoutFailingTheTenant",
+      "result": "Pass"
+    },
+    {
+      "id": "307266e6-d8fb-40a0-92b4-71708d71b4b8",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.TerminalMarkerShouldRemainWhenItsDetailGenerationAdvanced",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest",
+      "method": "TerminalMarkerShouldRemainWhenItsDetailGenerationAdvanced",
+      "result": "Pass"
+    },
+    {
+      "id": "8f939dde-181a-45c7-8583-abc240bb5a84",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.ReapplyingSameMaterializationIsIdempotent",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest",
+      "method": "ReapplyingSameMaterializationIsIdempotent",
+      "result": "Pass"
+    },
+    {
+      "id": "ea0a6b0d-7a24-4461-990f-5e37c7cbdd8d",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.ListAsyncShouldRejectAnIndexNamingOneConversationTwice",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest",
+      "method": "ListAsyncShouldRejectAnIndexNamingOneConversationTwice",
+      "result": "Pass"
+    },
+    {
+      "id": "2203b654-2dc4-4add-98d5-3c9693e56245",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.ExhaustedIndexRetriesFailLoud",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest",
+      "method": "ExhaustedIndexRetriesFailLoud",
+      "result": "Pass"
+    },
+    {
+      "id": "f3e944e6-730e-4ace-a774-ff7cac29b91a",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.EqualPositionDispatchesShouldChooseTheSameWinnerInEitherOrder",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest",
+      "method": "EqualPositionDispatchesShouldChooseTheSameWinnerInEitherOrder",
+      "result": "Pass"
+    },
+    {
+      "id": "251d8f78-ccd1-46b1-9c75-8ba789e5dddc",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.TerminalPendingMarkerForAnUnbuiltConversationShouldBeRemoved",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest",
+      "method": "TerminalPendingMarkerForAnUnbuiltConversationShouldBeRemoved",
+      "result": "Pass"
+    },
+    {
+      "id": "7d20698f-3123-45ef-83ba-22b4f1b3d8a0",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.ProjectionKeysShouldEncodeOpaqueIdentifierSegments",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest",
+      "method": "ProjectionKeysShouldEncodeOpaqueIdentifierSegments",
+      "result": "Pass"
+    },
+    {
+      "id": "ee322bdb-6d95-46dd-99c3-c2ba3ac21209",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.RepersistingAtHigherGenerationSupersedesIndexEntry",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest",
+      "method": "RepersistingAtHigherGenerationSupersedesIndexEntry",
+      "result": "Pass"
+    },
+    {
+      "id": "cc33e769-a25c-4d5e-b36c-247b3848031f",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.SameGenerationPendingMarkerShouldNotReplaceCompletedReference",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest",
+      "method": "SameGenerationPendingMarkerShouldNotReplaceCompletedReference",
+      "result": "Pass"
+    },
+    {
+      "id": "6eb30ef8-6f8b-4fec-9bc7-d921af7d75fb",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.ValidatePageShouldRejectAnOtherwiseMatchingPendingLedger",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest",
+      "method": "ValidatePageShouldRejectAnOtherwiseMatchingPendingLedger",
+      "result": "Pass"
+    },
+    {
+      "id": "66d98edb-312a-41d4-9817-d1f1e0aa7b65",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest.RepersistingAtLowerGenerationDoesNotOverwriteIndexEntry",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionReadModelPersistenceTest",
+      "method": "RepersistingAtLowerGenerationDoesNotOverwriteIndexEntry",
+      "result": "Pass"
+    },
+    {
+      "id": "9d0b9109-b9f8-482d-86c6-1cec8049a450",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.ConfiguredPublicWritesInvalidateProofAndReconcileOnlyTheirTerminalState(pendingOnly: True)",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest",
+      "method": "ConfiguredPublicWritesInvalidateProofAndReconcileOnlyTheirTerminalState",
+      "result": "Pass"
+    },
+    {
+      "id": "6965075c-be1f-49e7-bfec-d660b944a64c",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.ConfiguredPublicWritesInvalidateProofAndReconcileOnlyTheirTerminalState(pendingOnly: False)",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest",
+      "method": "ConfiguredPublicWritesInvalidateProofAndReconcileOnlyTheirTerminalState",
+      "result": "Pass"
+    },
+    {
+      "id": "c7c06294-11c0-4a70-9206-29d45fa42763",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.MissingEnrolledStorageInputsFailBeforeAnyStoreUse(key: \\\"EventStore:Projections:ReadModelStateStoreName\\\", value: null)",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest",
+      "method": "MissingEnrolledStorageInputsFailBeforeAnyStoreUse",
+      "result": "Pass"
+    },
+    {
+      "id": "3693b335-1bc7-4105-aa77-6b84ea08fa36",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.MissingEnrolledStorageInputsFailBeforeAnyStoreUse(key: \\\"EventStore:Projections:ReadModelStateStoreName\\\", value: \\\" \\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest",
+      "method": "MissingEnrolledStorageInputsFailBeforeAnyStoreUse",
+      "result": "Pass"
+    },
+    {
+      "id": "0b123117-9bec-474f-a7d0-5437dbf87e82",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.MissingEnrolledStorageInputsFailBeforeAnyStoreUse(key: \\\"EventStore:DataProtection:StateStoreName\\\", value: null)",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest",
+      "method": "MissingEnrolledStorageInputsFailBeforeAnyStoreUse",
+      "result": "Pass"
+    },
+    {
+      "id": "5376694c-3727-4a86-8120-e4400da44c48",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.MissingEnrolledStorageInputsFailBeforeAnyStoreUse(key: \\\"EventStore:DataProtection:StateStoreName\\\", value: \\\" \\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest",
+      "method": "MissingEnrolledStorageInputsFailBeforeAnyStoreUse",
+      "result": "Pass"
+    },
+    {
+      "id": "c8da5943-1e79-4aae-a427-fe0f61435767",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.MissingEnrolledStorageInputsFailBeforeAnyStoreUse(key: \\\"EventStore:DataProtection:PersistToStateStore\\\", value: null)",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest",
+      "method": "MissingEnrolledStorageInputsFailBeforeAnyStoreUse",
+      "result": "Pass"
+    },
+    {
+      "id": "03a8ab15-5243-4768-af65-5d032827708c",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.MissingEnrolledStorageInputsFailBeforeAnyStoreUse(key: \\\"EventStore:DataProtection:PersistToStateStore\\\", value: \\\" \\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest",
+      "method": "MissingEnrolledStorageInputsFailBeforeAnyStoreUse",
+      "result": "Pass"
+    },
+    {
+      "id": "7832d314-9d0c-4cba-bd41-2caf6cd817ef",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.PendingRecoveryUsesTheConfiguredStore",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest",
+      "method": "PendingRecoveryUsesTheConfiguredStore",
+      "result": "Pass"
+    },
+    {
+      "id": "6a709d89-0ec5-4489-bc1e-2ffa94fda639",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.TwoProvidersKeepIndependentBindingsAcrossAllProjectionPaths",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest",
+      "method": "TwoProvidersKeepIndependentBindingsAcrossAllProjectionPaths",
+      "result": "Pass"
+    },
+    {
+      "id": "062b4a04-a9f5-44c2-ab41-42071d0ab99d",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.EnrolledDataProtectionUsesSdkPersistenceAndStableApplication",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest",
+      "method": "EnrolledDataProtectionUsesSdkPersistenceAndStableApplication",
+      "result": "Pass"
+    },
+    {
+      "id": "d475dbc9-03cd-43b6-9cec-d9f77a8c3154",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.LegacyDirectConstructionRetainsSdkDefaultCompatibility",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest",
+      "method": "LegacyDirectConstructionRetainsSdkDefaultCompatibility",
+      "result": "Pass"
+    },
+    {
+      "id": "2bab4cd4-5645-45d9-b868-29d66eb79265",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest.NativeProofRegistrationPreservesOtherOwners",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationProjectionConfigurationTest",
+      "method": "NativeProofRegistrationPreservesOtherOwners",
+      "result": "Pass"
+    },
+    {
+      "id": "5bc9f406-9426-4280-a2d1-bc4a92f4bde4",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.TenantCreatedShouldLeaveAnExistingIndexUnchanged(existing: \\\"v1\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "TenantCreatedShouldLeaveAnExistingIndexUnchanged",
+      "result": "Pass"
+    },
+    {
+      "id": "aedd87e9-eeca-4b33-b0e2-8e8033d7b267",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.TenantCreatedShouldLeaveAnExistingIndexUnchanged(existing: \\\"rebuilding\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "TenantCreatedShouldLeaveAnExistingIndexUnchanged",
+      "result": "Pass"
+    },
+    {
+      "id": "2982fc06-1ff0-4207-aa5a-5de1ac4731f2",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.TenantCreatedShouldLeaveAnExistingIndexUnchanged(existing: \\\"ready\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "TenantCreatedShouldLeaveAnExistingIndexUnchanged",
+      "result": "Pass"
+    },
+    {
+      "id": "baf035cd-dffc-497f-a986-a3746f296a6a",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.HandlerRebuildPlanShouldKeepAnInitializedIndexReady",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "HandlerRebuildPlanShouldKeepAnInitializedIndexReady",
+      "result": "Pass"
+    },
+    {
+      "id": "18f95b05-a0a7-4077-9064-47b72c0c22f1",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.WriterShouldNotRepairOrOverwriteAnUnsupportedIndex(shape: \\\"unknown-schema-version\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "WriterShouldNotRepairOrOverwriteAnUnsupportedIndex",
+      "result": "Pass"
+    },
+    {
+      "id": "79f8ee5c-e8ca-4b1a-b66c-380d89b78e56",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.WriterShouldNotRepairOrOverwriteAnUnsupportedIndex(shape: \\\"v2-without-lifecycle\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "WriterShouldNotRepairOrOverwriteAnUnsupportedIndex",
+      "result": "Pass"
+    },
+    {
+      "id": "2c0d0614-f49c-43d4-8b32-c623120dd9ed",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.WriterShouldNotRepairOrOverwriteAnUnsupportedIndex(shape: \\\"v2-unknown-lifecycle\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "WriterShouldNotRepairOrOverwriteAnUnsupportedIndex",
+      "result": "Pass"
+    },
+    {
+      "id": "fe6c6ace-9834-450f-aa94-24eb9de75014",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.RebuildIndexShouldKeepTheLifecycleAndNeverLowerAWatermark",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "RebuildIndexShouldKeepTheLifecycleAndNeverLowerAWatermark",
+      "result": "Pass"
+    },
+    {
+      "id": "4e29da68-2e33-4365-a5c6-e961a4654aad",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadyIndexShouldStayReadyWithNonRegressingWatermarks",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "ReadyIndexShouldStayReadyWithNonRegressingWatermarks",
+      "result": "Pass"
+    },
+    {
+      "id": "fa6b180f-0ce4-4157-b11a-e47b0857828f",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.LiveDeliveryToAnAbsentIndexShouldProduceRebuilding",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "LiveDeliveryToAnAbsentIndexShouldProduceRebuilding",
+      "result": "Pass"
+    },
+    {
+      "id": "b1ff72b3-a706-4a05-8fc5-0a2e962ed355",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.LiveDeliveryToAVersionOneIndexShouldProduceRebuildingWithSeededWatermarks",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "LiveDeliveryToAVersionOneIndexShouldProduceRebuildingWithSeededWatermarks",
+      "result": "Pass"
+    },
+    {
+      "id": "13b835e5-3146-4afb-9263-f4ffd3eb8cc9",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.TenantCreatedWithoutAnIndexShouldInitializeVersionTwoReadyEmpty",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "TenantCreatedWithoutAnIndexShouldInitializeVersionTwoReadyEmpty",
+      "result": "Pass"
+    },
+    {
+      "id": "0bb0d7b5-a323-46d4-9c21-5682eb9404ab",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldRejectContradictoryLifecycleRecords(shape: \\\"duplicate-entries\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "ReadStoreShouldRejectContradictoryLifecycleRecords",
+      "result": "Pass"
+    },
+    {
+      "id": "a89494e8-4194-4dc6-9acb-abf11ddcb061",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldRejectContradictoryLifecycleRecords(shape: \\\"v2-without-lifecycle\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "ReadStoreShouldRejectContradictoryLifecycleRecords",
+      "result": "Pass"
+    },
+    {
+      "id": "1e1d8565-896f-42b6-96f0-11e7082ae8cb",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldRejectContradictoryLifecycleRecords(shape: \\\"v2-unknown-lifecycle\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "ReadStoreShouldRejectContradictoryLifecycleRecords",
+      "result": "Pass"
+    },
+    {
+      "id": "a2d36bc6-f968-4858-9889-b853667c966c",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldRejectContradictoryLifecycleRecords(shape: \\\"v2-without-watermarks\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "ReadStoreShouldRejectContradictoryLifecycleRecords",
+      "result": "Pass"
+    },
+    {
+      "id": "7747ce95-a639-4848-8072-097cec9963c4",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldRejectContradictoryLifecycleRecords(shape: \\\"unknown-schema-version\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "ReadStoreShouldRejectContradictoryLifecycleRecords",
+      "result": "Pass"
+    },
+    {
+      "id": "153c54be-6fc4-4139-8652-463addcb191c",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldRejectContradictoryLifecycleRecords(shape: \\\"v1-with-lifecycle\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "ReadStoreShouldRejectContradictoryLifecycleRecords",
+      "result": "Pass"
+    },
+    {
+      "id": "a43ac247-3436-479d-ac72-c2834193b5a9",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldRejectContradictoryLifecycleRecords(shape: \\\"summary-above-watermark\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "ReadStoreShouldRejectContradictoryLifecycleRecords",
+      "result": "Pass"
+    },
+    {
+      "id": "4f4e2975-9ae6-48dd-b3ea-2165d57050c0",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldRejectContradictoryLifecycleRecords(shape: \\\"non-positive-watermark\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "ReadStoreShouldRejectContradictoryLifecycleRecords",
+      "result": "Pass"
+    },
+    {
+      "id": "f11e9917-5f34-4c40-9fa4-8e3233eac58c",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldRejectContradictoryLifecycleRecords(shape: \\\"blank-watermark-key\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "ReadStoreShouldRejectContradictoryLifecycleRecords",
+      "result": "Pass"
+    },
+    {
+      "id": "157256a6-d336-4cdf-98fe-64f136141be0",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.TerminalReconcileShouldKeepAnInitializedIndexReady",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "TerminalReconcileShouldKeepAnInitializedIndexReady",
+      "result": "Pass"
+    },
+    {
+      "id": "95b7b5f5-c662-4036-8485-aecf3d157289",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldMapEachLifecycleShape(shape: \\\"ready-empty\\\", expected: \\\"Ready\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "ReadStoreShouldMapEachLifecycleShape",
+      "result": "Pass"
+    },
+    {
+      "id": "7bc517e2-7e52-47e8-9469-79d809d983a0",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldMapEachLifecycleShape(shape: \\\"ready-covered\\\", expected: \\\"Ready\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "ReadStoreShouldMapEachLifecycleShape",
+      "result": "Pass"
+    },
+    {
+      "id": "9562d95b-2c18-4c27-aeb5-65c54359ba06",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldMapEachLifecycleShape(shape: \\\"v1\\\", expected: \\\"Rebuilding\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "ReadStoreShouldMapEachLifecycleShape",
+      "result": "Pass"
+    },
+    {
+      "id": "a2054dc4-7727-436c-a06b-79a33ca42f73",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldMapEachLifecycleShape(shape: \\\"v1-explicit\\\", expected: \\\"Rebuilding\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "ReadStoreShouldMapEachLifecycleShape",
+      "result": "Pass"
+    },
+    {
+      "id": "7517a7df-5207-4c07-b0de-a7127b24f501",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldMapEachLifecycleShape(shape: \\\"rebuilding\\\", expected: \\\"Rebuilding\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "ReadStoreShouldMapEachLifecycleShape",
+      "result": "Pass"
+    },
+    {
+      "id": "5c87bdc5-0dfc-41d4-b5d9-d87dfcee73ae",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldMapEachLifecycleShape(shape: \\\"rebuilding-with-gap\\\", expected: \\\"Rebuilding\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "ReadStoreShouldMapEachLifecycleShape",
+      "result": "Pass"
+    },
+    {
+      "id": "32d2c06e-7723-44ea-851e-a48597ab78a5",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldMapEachLifecycleShape(shape: \\\"summary-below-watermark\\\", expected: \\\"GapDetected\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "ReadStoreShouldMapEachLifecycleShape",
+      "result": "Pass"
+    },
+    {
+      "id": "51891015-d1a1-4184-a21e-c44aa086dbdd",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldMapEachLifecycleShape(shape: \\\"watermark-without-summary\\\", expected: \\\"GapDetected\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "ReadStoreShouldMapEachLifecycleShape",
+      "result": "Pass"
+    },
+    {
+      "id": "fb305b9e-9c5a-4feb-a642-a3c4862bcb8b",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldMapEachLifecycleShape(shape: \\\"summary-without-watermark\\\", expected: \\\"GapDetected\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "ReadStoreShouldMapEachLifecycleShape",
+      "result": "Pass"
+    },
+    {
+      "id": "69b6f17a-b4eb-4734-9486-9048f4808150",
+      "name": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest.ReadStoreShouldMapEachLifecycleShape(shape: \\\"missing\\\", expected: \\\"Missing\\\")",
+      "type": "Hexalith.Conversations.Server.Tests.Projections.ConversationTenantIndexLifecycleTest",
+      "method": "ReadStoreShouldMapEachLifecycleShape",
+      "result": "Pass"
+    }
+  ],
+  "selectedClasses": [
+    "*ConversationAsyncProjectionHandlerTest",
+    "*ConversationProjectionReadModelPersistenceTest",
+    "*ConversationProjectionConfigurationTest",
+    "*ConversationTenantIndexLifecycleTest",
+    "*ConversationTenantAccessRegistrationTest"
+  ],
+  "missingClasses": [],
+  "valid": true
+}

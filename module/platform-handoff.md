@@ -21,9 +21,12 @@ Shared preflight diagnostics are EventStore-owned. A healthy resource with an
 unavailable endpoint reports `APPHOST_ENDPOINT_NOT_READY`, its resource/endpoint
 identity and bounded retry advice, without retaining response bodies or request
 URLs. The AppHost boundary waits up to 90 seconds. A collision reports
-`DAPR_CONTROL_PLANE_PORT_COLLISION` and the owning effective binding/port; only
-ports the current model actually binds are checked. Release that binding or
-select isolated ports, then retry within the budget. A missing selected sidecar
+`DAPR_CONTROL_PLANE_PORT_COLLISION` and the owning effective binding/port. The
+AppHost lane checks the Dapr sidecar ports its model pins (today the EventStore
+sidecar's HTTP port 3501) and fails if none are pinned; the shared `dapr init`
+placement/scheduler must already be listening and unpinned sidecar ports are
+allocated free at start, so neither is checked. Release that binding or select
+isolated ports, then retry within the budget. A missing selected sidecar
 reports `DAPR_EXECUTABLE_NOT_FOUND`. Caller cancellation remains cancellation.
 
 The dedicated native collection enrolls the real catalog and SDK finite

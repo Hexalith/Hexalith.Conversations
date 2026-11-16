@@ -141,14 +141,10 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
             "the gateway project metadata must suppress Aspire's own build so the stamped binary is the launched binary");
 
         await using DistributedApplication application = await builder.BuildAsync(timeout.Token);
-        DaprDiagnostics.RequireAvailableDaprControlPlaneBindings(builder.Resources
-            .Where(resource => resource.Name.Contains("placement", StringComparison.OrdinalIgnoreCase)
-                || resource.Name.Contains("scheduler", StringComparison.OrdinalIgnoreCase))
-            .SelectMany(resource => resource.Annotations.OfType<EndpointAnnotation>()
-                .Where(endpoint => endpoint.Port is > 0)
-                .Select(endpoint => new KeyValuePair<string, System.Net.IPEndPoint>(
-                    resource.Name + "." + endpoint.Name, new(IPAddress.Loopback, endpoint.Port!.Value))))
-            .ToDictionary(pair => pair.Key, pair => pair.Value), timeout.Token);
+        Dictionary<string, IPEndPoint> pinnedSidecarBindings = SelectPinnedDaprSidecarBindings(builder);
+        pinnedSidecarBindings.ShouldNotBeEmpty(
+            "the topology pins the EventStore sidecar's Dapr HTTP port, so the collision preflight must probe at least that binding");
+        DaprDiagnostics.RequireAvailableDaprControlPlaneBindings(pinnedSidecarBindings, timeout.Token);
         await application.StartAsync(timeout.Token);
 
         await application.ResourceNotifications.WaitForResourceHealthyAsync(
@@ -293,6 +289,53 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
     private static Task WaitForEndpointReadyAsync(HttpClient client, string path, CancellationToken cancellationToken)
         => DaprDiagnostics.WaitForAppHostEndpointAsync(client, path, "eventstore.http",
             TimeSpan.FromSeconds(90), TimeSpan.FromMilliseconds(500), cancellationToken);
+
+    /// <summary>
+    /// Selects the fixed Dapr listener ports the AppHost model pins on its project sidecars.
+    /// </summary>
+    /// <remarks>
+    /// Placement and scheduler belong to the shared <c>dapr init</c> control plane, which must already be listening,
+    /// and unpinned sidecar ports are allocated free by DCP at start, so neither can be a startup collision.
+    /// <c>AppPort</c> is the application's own listener, not a sidecar binding.
+    /// </remarks>
+    /// <param name="builder">The composed testing builder.</param>
+    /// <returns>The pinned bindings keyed by sidecar resource and listener name.</returns>
+    private static Dictionary<string, IPEndPoint> SelectPinnedDaprSidecarBindings(IDistributedApplicationTestingBuilder builder)
+    {
+        Dictionary<string, IPEndPoint> bindings = new(StringComparer.Ordinal);
+        foreach (ProjectResource project in builder.Resources.OfType<ProjectResource>())
+        {
+            foreach (DaprSidecarAnnotation sidecar in project.Annotations.OfType<DaprSidecarAnnotation>())
+            {
+                DaprSidecarOptions? options = sidecar.Sidecar.Annotations
+                    .OfType<DaprSidecarOptionsAnnotation>()
+                    .SingleOrDefault()?
+                    .Options;
+                if (options is null)
+                {
+                    continue;
+                }
+
+                (string Listener, int? Port)[] listeners =
+                [
+                    ("http", options.DaprHttpPort),
+                    ("grpc", options.DaprGrpcPort),
+                    ("internal-grpc", options.DaprInternalGrpcPort),
+                    ("metrics", options.MetricsPort),
+                    ("profile", options.ProfilePort),
+                ];
+                foreach ((string listener, int? port) in listeners)
+                {
+                    if (port is > 0)
+                    {
+                        bindings.Add(sidecar.Sidecar.Name + "." + listener, new IPEndPoint(IPAddress.Loopback, port.Value));
+                    }
+                }
+            }
+        }
+
+        return bindings;
+    }
 
     private static void ConfigureRuntimeBoundarySidecars(IDistributedApplicationTestingBuilder builder)
     {

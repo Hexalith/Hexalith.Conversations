@@ -1,9 +1,12 @@
 {
   "diagnostics": {
-    "passed": 43,
+    "passed": 45,
     "failed": 0,
     "skipped": 0,
     "notRun": 0,
+    "expected": 45,
+    "retainedResultMatchesXml": true,
+    "runResult": "PASS",
     "currentSources": "PASS",
     "selectedClasses": "PASS"
   },
@@ -12,6 +15,9 @@
     "failed": 0,
     "skipped": 0,
     "notRun": 0,
+    "expected": 2,
+    "retainedResultMatchesXml": true,
+    "runResult": "PASS",
     "currentSources": "PASS",
     "selectedClasses": "PASS"
   },
@@ -20,6 +26,9 @@
     "failed": 0,
     "skipped": 0,
     "notRun": 0,
+    "expected": 5,
+    "retainedResultMatchesXml": true,
+    "runResult": "PASS",
     "currentSources": "PASS",
     "selectedClasses": "PASS"
   },
@@ -28,6 +37,9 @@
     "failed": 0,
     "skipped": 0,
     "notRun": 0,
+    "expected": 17,
+    "retainedResultMatchesXml": true,
+    "runResult": "PASS",
     "currentSources": "PASS",
     "selectedClasses": "PASS"
   },
@@ -36,17 +48,22 @@
     "failed": 0,
     "skipped": 0,
     "notRun": 0,
+    "expected": 117,
+    "retainedResultMatchesXml": true,
+    "runResult": "PASS",
     "currentSources": "PASS",
     "selectedClasses": "PASS"
   },
-  "nativePassed": 184,
-  "runnerControlsPassed": 15,
+  "nativePassed": 186,
+  "runnerControlsPassed": 19,
+  "emptySelectionControl": "REJECTED",
   "result": "PASS",
   "formalEvidenceGate": "waived",
   "v9FinalRecordGate": "waived",
   "defaultKeycloakBaseline": "BLOCKED",
   "runnerSources": {
-    "run-native.py": "17cbf676866e166426bdd51078f6c532eda4a25d843a1773458105a39940a513",
-    "test_native_runner.py": "7ae5c7fea916f0243319bc3d22e24048c859e72e93bdbba8668025aaff8499f5"
+    "run-native.py": "6570e43e91078131ed326f03a85eaa9a83518e2f7c591010174359550bb76831",
+    "test_native_runner.py": "8373a573eedf3a571a28f393e7961a03c1103e3bc66d94a829b152c2f89fb6c1",
+    "audit-final.py": "ff55b238f29cfee4925cd984780214378229ae6e516d3f463da0a4ee4dbd2528"
   }
 }

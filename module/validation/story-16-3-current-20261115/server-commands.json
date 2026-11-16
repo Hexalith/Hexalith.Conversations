@@ -10,7 +10,7 @@
       "--manifest",
       "module/hexalith.module-manifest.v2.json",
       "--workspace",
-      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.eQrphm8C/workspace",
+      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.AcLE3Mqt/workspace",
       "--mode",
       "source",
       "--output",
@@ -28,7 +28,7 @@
       "-c",
       "Debug",
       "-m:1",
-      "-p:ArtifactsPath=/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.eQrphm8C",
+      "-p:ArtifactsPath=/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.AcLE3Mqt",
       "-p:NuGetAudit=false"
     ],
     "cwd": "/home/administrator/projects/hexalith/conversations",
@@ -38,7 +38,7 @@
   {
     "command": [
       "dotnet",
-      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.eQrphm8C/bin/Hexalith.Conversations.Server.Tests/debug/Hexalith.Conversations.Server.Tests.dll",
+      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.AcLE3Mqt/bin/Hexalith.Conversations.Server.Tests/debug/Hexalith.Conversations.Server.Tests.dll",
       "-class",
       "*ConversationAsyncProjectionHandlerTest",
       "-class",

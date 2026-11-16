@@ -2,7 +2,6 @@
 import importlib.util
 import json
 import os
-import sys
 import subprocess
 import sys
 from pathlib import Path
@@ -77,6 +76,29 @@ class NativeRunnerControls(unittest.TestCase):
         ET.SubElement(ET.SubElement(tree.find('assembly'), 'errors'), 'error')
         with self.assertRaises(RuntimeError):
             self.verify(tree, 2)
+
+    def test_every_lane_pins_an_exact_native_total(self):
+        self.assertEqual(set(runner.EXPECTED_TOTALS), set(runner.CLASSES))
+        self.assertTrue(all(isinstance(total, int) and total > 0 for total in runner.EXPECTED_TOTALS.values()))
+
+    def empty_selection(self):
+        path = self.directory/'empty-selection.xml'
+        root = ET.Element('assemblies')
+        ET.SubElement(root, 'assembly', total='0', passed='0', failed='0', skipped='0', errors='0', **{'not-run': '0'})
+        ET.ElementTree(root).write(path)
+        return path
+
+    def test_accepted_zero_test_selection_is_recorded_as_rejected_with_its_exit_code(self):
+        control = runner.empty_selection_control(0, self.empty_selection())
+        self.assertEqual((control['status'], control['reason'], control['xunitExitCode']), ('REJECTED', 'EMPTY_TEST_SELECTION', 0))
+
+    def test_missing_empty_selection_xml_is_inconclusive_not_rejected(self):
+        with self.assertRaises(RuntimeError):
+            runner.empty_selection_control(0, self.directory/'absent.xml')
+
+    def test_failed_empty_selection_run_is_inconclusive_not_rejected(self):
+        with self.assertRaises(RuntimeError):
+            runner.empty_selection_control(1, self.empty_selection())
 
     def test_rerun_archives_prior_pass_with_its_original_identity(self):
         originals = {'integration.xml': '<old-pass/>', 'integration-native-result.json': '{"valid":true}',

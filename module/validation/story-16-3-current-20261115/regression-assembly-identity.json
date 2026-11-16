@@ -1,8 +1,8 @@
 {
-  "Hexalith.Conversations.IntegrationTests.dll": "fe854e4877417f7f0965b3cfc738a5901d3cba1dc183eb85a99429f13c1e496d",
-  "Hexalith.EventStore.Testing.Integration.dll": "6623637a27f89182e911628c657f6ddcd901c574e0907fb681945dfc7a9b78b5",
-  "Hexalith.EventStore.Server.dll": "c12e722ba97378d05aef2caafa6b6d0ee94d95abe039c64345dfa707c8d0d2a4",
-  "Hexalith.EventStore.DomainService.dll": "91d7f666ba2bdd2d99010e76f1a845d659062beb162c82b901a0f608d1c64acb",
-  "Hexalith.Conversations.Server.dll": "cec483a8431f9301ce31efdb31c05ea1d955c0031f2f1f09303838aff6bf1a84",
-  "Hexalith.Tenants.Client.dll": "8492c1adc3cf7428e7855f0b0c68830bb7f6bc2120c93efb6a610257df5ca109"
+  "Hexalith.Conversations.IntegrationTests.dll": "e14cfbeb40ff0c8db03bdca10655d595720747a819b2ae0d2eb7d30ddab95f14",
+  "Hexalith.EventStore.Testing.Integration.dll": "caa40036a4fabf09cc9c6a8de95a4e4f8da557be8e457923430b00cf58592785",
+  "Hexalith.EventStore.Server.dll": "b4da3641ace7ea953453e179606b1f94acaaa7075c3c90f6f98958496e56de2a",
+  "Hexalith.EventStore.DomainService.dll": "72da2c579478f2083156420f9b79a27d5d263fe2cb4e7a33997cfaa7c9584ae6",
+  "Hexalith.Conversations.Server.dll": "232e0b13d3dd5b7e78c8c9e38b4415d29bad5404d946a22ea06499b52b749c2f",
+  "Hexalith.Tenants.Client.dll": "46d8900f346227d6b6331c3d756c9e1602cdbb385f8b0d80418d48feb72e2c25"
 }

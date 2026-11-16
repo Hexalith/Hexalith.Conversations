@@ -1,0 +1,140 @@
+{
+  "counts": {
+    "total": 17,
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "not-run": 0,
+    "errors": 0
+  },
+  "tests": [
+    {
+      "id": "d36bd92b-389e-4dea-a5b5-58c956ad5751",
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayCommandAuthorityTests.OtherRequestsShouldBeDenied(principal: \\\"other-party\\\", tenant: \\\"tenant-gateway-001\\\", conversation: \\\"conversation-one\\\", operation: \\\"GeneralCommand\\\")",
+      "type": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayCommandAuthorityTests",
+      "method": "OtherRequestsShouldBeDenied",
+      "result": "Pass"
+    },
+    {
+      "id": "d87b76d5-edaf-45d2-b7ad-fe9a569ff17f",
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayCommandAuthorityTests.OtherRequestsShouldBeDenied(principal: \\\"party-gateway-actor\\\", tenant: \\\"tenant-gateway-002\\\", conversation: \\\"conversation-one\\\", operation: \\\"GeneralCommand\\\")",
+      "type": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayCommandAuthorityTests",
+      "method": "OtherRequestsShouldBeDenied",
+      "result": "Pass"
+    },
+    {
+      "id": "6694ecdd-d2c4-4b78-84ed-da0f3e44176e",
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayCommandAuthorityTests.OtherRequestsShouldBeDenied(principal: \\\"party-gateway-actor\\\", tenant: \\\"unconfigured-tenant\\\", conversation: \\\"conversation-one\\\", operation: \\\"GeneralCommand\\\")",
+      "type": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayCommandAuthorityTests",
+      "method": "OtherRequestsShouldBeDenied",
+      "result": "Pass"
+    },
+    {
+      "id": "e93008cd-ff73-42a2-85f4-07db6bd45678",
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayCommandAuthorityTests.OtherRequestsShouldBeDenied(principal: \\\"party-gateway-actor\\\", tenant: \\\"tenant-gateway-001\\\", conversation: \\\"conversation-two\\\", operation: \\\"GeneralCommand\\\")",
+      "type": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayCommandAuthorityTests",
+      "method": "OtherRequestsShouldBeDenied",
+      "result": "Pass"
+    },
+    {
+      "id": "f49695bb-763e-4a63-bc0b-cdd7a97aa868",
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayCommandAuthorityTests.OtherRequestsShouldBeDenied(principal: \\\"party-gateway-actor\\\", tenant: \\\"tenant-gateway-001\\\", conversation: null, operation: \\\"GeneralCommand\\\")",
+      "type": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayCommandAuthorityTests",
+      "method": "OtherRequestsShouldBeDenied",
+      "result": "Pass"
+    },
+    {
+      "id": "41bdd7bf-34e4-4941-843a-56f478672fd3",
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayCommandAuthorityTests.OtherRequestsShouldBeDenied(principal: \\\"party-gateway-actor\\\", tenant: \\\"tenant-gateway-001\\\", conversation: \\\"conversation-one\\\", operation: \\\"ReadConversation\\\")",
+      "type": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayCommandAuthorityTests",
+      "method": "OtherRequestsShouldBeDenied",
+      "result": "Pass"
+    },
+    {
+      "id": "139fec98-a81a-46a8-b658-c6c7143fe3bc",
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayCommandAuthorityTests.EnrolledCommandShouldProvideExactHumanAuthority",
+      "type": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayCommandAuthorityTests",
+      "method": "EnrolledCommandShouldProvideExactHumanAuthority",
+      "result": "Pass"
+    },
+    {
+      "id": "66bfe044-6fa2-4208-a50e-6aa0c2219f4d",
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayAdmissionTests.UnauthorisedPrincipalShouldNotPersistConversation",
+      "type": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayAdmissionTests",
+      "method": "UnauthorisedPrincipalShouldNotPersistConversation",
+      "result": "Pass"
+    },
+    {
+      "id": "28fd7312-5baa-43ea-a2eb-d2e8fa34a709",
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationProjectionGatewayDispatchLiveTests.GatewayDeliveryShouldPopulateConfiguredStateStoreAndProductionQueries",
+      "type": "Hexalith.Conversations.IntegrationTests.Projections.ConversationProjectionGatewayDispatchLiveTests",
+      "method": "GatewayDeliveryShouldPopulateConfiguredStateStoreAndProductionQueries",
+      "result": "Pass"
+    },
+    {
+      "id": "854707ef-d1cb-489f-a6f1-1c6d3313d51b",
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationProjectionGatewayDispatchLiveTests.DuplicateGatewayDeliveryShouldConvergeWithoutChangingPersistedState",
+      "type": "Hexalith.Conversations.IntegrationTests.Projections.ConversationProjectionGatewayDispatchLiveTests",
+      "method": "DuplicateGatewayDeliveryShouldConvergeWithoutChangingPersistedState",
+      "result": "Pass"
+    },
+    {
+      "id": "e1e2963b-3edc-4f00-a0c5-3b6ef371ab8e",
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewaySecurityTests.ActorDiscoveryShouldRequireItsOwnChannelToken",
+      "type": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewaySecurityTests",
+      "method": "ActorDiscoveryShouldRequireItsOwnChannelToken",
+      "result": "Pass"
+    },
+    {
+      "id": "da8b81a8-ee7d-48e5-9103-efa4a0d2e394",
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewaySecurityTests.MetadataShouldRejectMisboundWorkload(audience: \\\"other-service\\\", operation: \\\"domain-service:metadata\\\", callerMatches: True)",
+      "type": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewaySecurityTests",
+      "method": "MetadataShouldRejectMisboundWorkload",
+      "result": "Pass"
+    },
+    {
+      "id": "2e9ad229-21a4-4285-8754-d62148df1b68",
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewaySecurityTests.MetadataShouldRejectMisboundWorkload(audience: \\\"current\\\", operation: \\\"domain-service:query\\\", callerMatches: True)",
+      "type": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewaySecurityTests",
+      "method": "MetadataShouldRejectMisboundWorkload",
+      "result": "Pass"
+    },
+    {
+      "id": "a378b24b-1c75-4bdd-9d9f-0bad65b2b47c",
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewaySecurityTests.MetadataShouldRejectMisboundWorkload(audience: \\\"current\\\", operation: \\\"domain-service:metadata\\\", callerMatches: False)",
+      "type": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewaySecurityTests",
+      "method": "MetadataShouldRejectMisboundWorkload",
+      "result": "Pass"
+    },
+    {
+      "id": "b3bc40e3-c78e-46ae-9140-06c4cdf613d4",
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayRouteCatalogPolicyTests.EquivalentCreatesIgnoreEventIdentityTimestampsAndCorrelation",
+      "type": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayRouteCatalogPolicyTests",
+      "method": "EquivalentCreatesIgnoreEventIdentityTimestampsAndCorrelation",
+      "result": "Pass"
+    },
+    {
+      "id": "6a837ad9-417f-469c-b744-9e9acbe605fd",
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayRouteCatalogPolicyTests.ChangedBusinessMeaningOrScopeChangesTheSemanticIntent",
+      "type": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayRouteCatalogPolicyTests",
+      "method": "ChangedBusinessMeaningOrScopeChangesTheSemanticIntent",
+      "result": "Pass"
+    },
+    {
+      "id": "ef26c7fe-9759-40bf-a0bd-b0e592cb3853",
+      "name": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayRouteCatalogPolicyTests.UnallocatedCreateCannotDeclareIntent",
+      "type": "Hexalith.Conversations.IntegrationTests.Projections.ConversationGatewayRouteCatalogPolicyTests",
+      "method": "UnallocatedCreateCannotDeclareIntent",
+      "result": "Pass"
+    }
+  ],
+  "selectedClasses": [
+    "*ConversationProjectionGatewayDispatchLiveTests",
+    "*ConversationGatewaySecurityTests",
+    "*ConversationGatewayAdmissionTests",
+    "*ConversationGatewayRouteCatalogPolicyTests",
+    "*ConversationGatewayCommandAuthorityTests"
+  ],
+  "missingClasses": [],
+  "valid": true
+}

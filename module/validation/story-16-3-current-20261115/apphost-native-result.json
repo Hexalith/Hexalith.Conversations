@@ -9,14 +9,14 @@
   },
   "tests": [
     {
-      "id": "74f0b1e5-3be0-4c74-8050-5ccf55025262",
+      "id": "56490c33-1da1-484b-8a53-72577f222a76",
       "name": "Hexalith.Conversations.AppHost.Tests.ConversationsAppHostRuntimeBoundaryTest.GatewayProvenanceShouldUseTheOwningProjectFrameworkAndSdk",
       "type": "Hexalith.Conversations.AppHost.Tests.ConversationsAppHostRuntimeBoundaryTest",
       "method": "GatewayProvenanceShouldUseTheOwningProjectFrameworkAndSdk",
       "result": "Pass"
     },
     {
-      "id": "e86b3ab1-90c1-44ae-8bff-8ad467c3e08a",
+      "id": "cec21246-3319-4c46-8f4e-89af25efef7a",
       "name": "Hexalith.Conversations.AppHost.Tests.ConversationsAppHostRuntimeBoundaryTest.RetainedAppHostShouldRefuseCommandsWithoutCatalogAuthority",
       "type": "Hexalith.Conversations.AppHost.Tests.ConversationsAppHostRuntimeBoundaryTest",
       "method": "RetainedAppHostShouldRefuseCommandsWithoutCatalogAuthority",

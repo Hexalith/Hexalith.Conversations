@@ -102,11 +102,17 @@ public sealed class Story16_3EvidenceTests(Story16_3LiveFixture fixture)
     {
         AggregateIdentity identity = await CreateFailedAsync();
         ProjectionDeliveryRetryWorkItem work = await ReadTerminalAsync(identity);
+        ProjectionDispatchRequest original = fixture.Wire.Last(item => item.Path == "/project/v2"
+            && item.Request.DispatchId == work.DispatchId).Request;
+        original.Request.NativeSourceProof.ShouldNotBeNull("the original actor dispatch must carry its native source hint");
         int before = fixture.Wire.Count;
         await RecoverAsync(identity, work);
-        fixture.Wire.Skip(before).ShouldContain(observation => observation.Path == "/project/v2/reconcile"
+        Story16_3WireObservation reconcile = fixture.Wire.Skip(before).Last(observation => observation.Path == "/project/v2/reconcile"
             && observation.Request.DispatchId == work.DispatchId && observation.Status == 200
             && observation.ChannelAuthenticated && observation.WorkloadAuthenticated);
+        JsonSerializer.Serialize(reconcile.Request.Request.NativeSourceProof, Json).ShouldBe(
+            JsonSerializer.Serialize(original.Request.NativeSourceProof, Json),
+            "coordinator redispatch must retain the original actor native hint, not mint or drop one");
         (await QueryDetailAsync(identity)).FreshnessState.ShouldBe(ProjectionTrustState.Current);
         await TriggerAsync(identity);
         (await Scheduler.ReadAsync(work.WorkId, Token)).ShouldBeNull();
@@ -156,6 +162,10 @@ public sealed class Story16_3EvidenceTests(Story16_3LiveFixture fixture)
         newer.Detail.Freshness.LastAppliedEventPosition.ShouldBe(2);
         using (var duplicate = await fixture.SendAsync("/project/v2/reconcile", EventStoreWorkloadOperations.DomainServiceProject, original, Token))
             duplicate.StatusCode.ShouldBe(HttpStatusCode.OK);
+        // Assert before the next trigger: redelivering head 2 would otherwise repair, and mask, a duplicate overwrite.
+        JsonSerializer.Serialize(await PersistedAsync(identity), Json).ShouldBe(JsonSerializer.Serialize(newer, Json),
+            "the duplicate original reconcile must not replace the newer persisted generation");
+        (await QueryDetailAsync(identity)).Details!.ProjectId.ShouldBe(new ProjectId("project-newer"));
         await TriggerAsync(identity);
         JsonSerializer.Serialize(await PersistedAsync(identity), Json).ShouldBe(JsonSerializer.Serialize(newer, Json));
         (await QueryDetailAsync(identity)).Details!.ProjectId.ShouldBe(new ProjectId("project-newer"));

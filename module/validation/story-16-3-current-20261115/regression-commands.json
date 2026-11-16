@@ -10,7 +10,7 @@
       "--manifest",
       "module/hexalith.module-manifest.v2.json",
       "--workspace",
-      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.0dwZE2TZ/workspace",
+      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.0AEKTChV/workspace",
       "--mode",
       "source",
       "--output",
@@ -28,7 +28,7 @@
       "-c",
       "Debug",
       "-m:1",
-      "-p:ArtifactsPath=/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.0dwZE2TZ",
+      "-p:ArtifactsPath=/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.0AEKTChV",
       "-p:NuGetAudit=false"
     ],
     "cwd": "/home/administrator/projects/hexalith/conversations",
@@ -38,7 +38,7 @@
   {
     "command": [
       "dotnet",
-      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.0dwZE2TZ/bin/Hexalith.Conversations.IntegrationTests/debug/Hexalith.Conversations.IntegrationTests.dll",
+      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.0AEKTChV/bin/Hexalith.Conversations.IntegrationTests/debug/Hexalith.Conversations.IntegrationTests.dll",
       "-class",
       "*ConversationProjectionGatewayDispatchLiveTests",
       "-class",

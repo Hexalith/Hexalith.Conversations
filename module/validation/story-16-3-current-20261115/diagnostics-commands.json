@@ -7,7 +7,7 @@
       "-c",
       "Debug",
       "-m:1",
-      "-p:ArtifactsPath=/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.M5j7sTMY",
+      "-p:ArtifactsPath=/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.g9wWmWGu",
       "-p:NuGetAudit=false",
       "-p:UseHexalithProjectReferences=true"
     ],
@@ -18,11 +18,13 @@
   {
     "command": [
       "dotnet",
-      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.M5j7sTMY/bin/Hexalith.EventStore.Testing.Integration.Tests/debug/Hexalith.EventStore.Testing.Integration.Tests.dll",
+      "/home/administrator/projects/hexalith/conversations/artifacts/hexalith-job.g9wWmWGu/bin/Hexalith.EventStore.Testing.Integration.Tests/debug/Hexalith.EventStore.Testing.Integration.Tests.dll",
       "-class",
       "*DaprTestPrerequisiteDiagnosticsTests",
       "-class",
       "*GeneratedApiSmokePreflightDiagnosticsTests",
+      "-class",
+      "*DaprReadModelStoreDecoratorTests",
       "-automated",
       "sync",
       "-failSkips",

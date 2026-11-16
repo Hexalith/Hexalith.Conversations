@@ -1,1 +1,1 @@
-{"status": "REJECTED", "reason": "EMPTY_TEST_SELECTION", "expectedTests": 5}
+{"status": "REJECTED", "reason": "EMPTY_TEST_SELECTION", "expectedTests": 5, "xunitExitCode": 0}

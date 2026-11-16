@@ -15,7 +15,8 @@ from datetime import datetime, timezone
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 LOGS = pathlib.Path(__file__).resolve().parent
 CLASSES = {
-    'diagnostics': ['*DaprTestPrerequisiteDiagnosticsTests', '*GeneratedApiSmokePreflightDiagnosticsTests'],
+    'diagnostics': ['*DaprTestPrerequisiteDiagnosticsTests', '*GeneratedApiSmokePreflightDiagnosticsTests',
+        '*DaprReadModelStoreDecoratorTests'],
     'apphost': ['*ConversationsAppHostRuntimeBoundaryTest'],
     'integration': ['*Story16_3EvidenceTests'],
     'regression': ['*ConversationProjectionGatewayDispatchLiveTests', '*ConversationGatewaySecurityTests',
@@ -23,6 +24,8 @@ CLASSES = {
     'server': ['*ConversationAsyncProjectionHandlerTest', '*ConversationProjectionReadModelPersistenceTest',
         '*ConversationProjectionConfigurationTest', '*ConversationTenantIndexLifecycleTest', '*ConversationTenantAccessRegistrationTest'],
 }
+# Exact native row counts per lane, so a test vanishing inside a still-selected class cannot pass.
+EXPECTED_TOTALS = {'diagnostics': 45, 'apphost': 2, 'integration': 5, 'regression': 17, 'server': 117}
 
 
 def archive_files(paths, directory, label):
@@ -83,6 +86,19 @@ def verify_native(path, expected, selected_classes):
     return result
 
 
+def empty_selection_control(exit_code, path, expected=5, selected_classes=('*Story16_3EvidenceTests',)):
+    """Record REJECTED only when xUnit itself accepted the zero-test selection and wrote its XML."""
+    if exit_code != 0:
+        raise RuntimeError('Empty-selection control is inconclusive: xUnit exited ' + str(exit_code))
+    if not path.is_file():
+        raise RuntimeError('Empty-selection control is inconclusive: xUnit wrote no XML result')
+    try:
+        verify_native(path, expected, list(selected_classes))
+    except RuntimeError:
+        return {'status': 'REJECTED', 'reason': 'EMPTY_TEST_SELECTION', 'expectedTests': expected, 'xunitExitCode': exit_code}
+    raise RuntimeError('Empty selection was accepted')
+
+
 def baseline_result(before, after, start_exit, readiness, cleanup_exit, inventory_exit=0):
     """Keep a failed readiness/cleanup attempt distinct from native proof."""
     reasons = []
@@ -107,6 +123,7 @@ def source_identity():
     paths = [ROOT/'references/Hexalith.EventStore/src/Hexalith.EventStore.Testing.Integration'/name
         for name in ['DaprDiagnostics.cs', 'DaprReadModelStoreDecorator.cs']]
     paths += list((ROOT/'references/Hexalith.EventStore/tests/Hexalith.EventStore.Testing.Integration.Tests').glob('*DiagnosticsTests.cs'))
+    paths += [ROOT/'references/Hexalith.EventStore/tests/Hexalith.EventStore.Testing.Integration.Tests/DaprReadModelStoreDecoratorTests.cs']
     paths += list((ROOT/'tests/Hexalith.Conversations.IntegrationTests/Epic16').glob('Story16_3*.cs'))
     paths += [ROOT/'tests/Hexalith.Conversations.IntegrationTests/Projections'/name for name in ['ConversationGatewayLiveFixture.cs', 'ConversationGatewayRouteCatalog.cs']]
     paths += [ROOT/'tests/Hexalith.Conversations.AppHost.Tests'/name for name in ['ConversationsAppHostRuntimeBoundaryTest.cs', 'Hexalith.Conversations.AppHost.Tests.csproj']]
@@ -196,17 +213,13 @@ def main(mode):
         for cls in classes:
             args += ['-class', cls]
         run(args+['-automated', 'sync', '-failSkips', '-diagnostics', '-parallel', 'none', '-xml', str(LOGS/(mode+'.xml'))], mode+'-native')
-        expected = {'diagnostics': 43, 'apphost': 2, 'integration': 5}.get(mode)
-        native = verify_native(LOGS/(mode+'.xml'), expected, classes)
+        native = verify_native(LOGS/(mode+'.xml'), EXPECTED_TOTALS[mode], classes)
         if mode == 'integration':
             empty = LOGS/'empty-selection.xml'
-            run(['dotnet', str(assembly), '-class', '*Story16_3_NoTests*', '-automated', 'sync', '-failSkips', '-xml', str(empty)], 'empty-selection', required=False)
-            try:
-                verify_native(empty, 5, ['*Story16_3EvidenceTests'])
-            except (RuntimeError, FileNotFoundError):
-                (LOGS/'empty-selection-control.json').write_text(json.dumps({'status': 'REJECTED', 'reason': 'EMPTY_TEST_SELECTION', 'expectedTests': 5})+'\n')
-            else:
-                raise RuntimeError('Empty selection was accepted')
+            selection = run(['dotnet', str(assembly), '-class', '*Story16_3_NoTests*', '-automated', 'sync', '-failSkips', '-xml', str(empty)],
+                'empty-selection', required=False)
+            control = empty_selection_control(selection.returncode, empty, EXPECTED_TOTALS['integration'], CLASSES['integration'])
+            (LOGS/'empty-selection-control.json').write_text(json.dumps(control)+'\n')
         if source_identity() != identity:
             raise RuntimeError('Source changed during the native run; rerun before claiming proof.')
         (LOGS/(mode+'-native-result.json')).write_text(json.dumps(native, indent=2)+'\n')
