@@ -2,9 +2,10 @@
 title: 'Story 12.2: Freeze the benchmark method and signal-quality algorithm'
 type: 'feature'
 created: '2026-11-16'
-status: 'ready-for-dev'
+status: 'in-progress'
 route: 'dispatch'
 review_loop_iteration: 0
+baseline_commit: '07b7bca399f3cf68dbc7eb07f2f6c29a744a4206'
 context:
   - '{project-root}/docs/runbooks/current-change-validation.md'
   - '{project-root}/_bmad-output/implementation-artifacts/epic-12-context.md'
@@ -80,8 +81,8 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `docs/release-evidence/sm-c2-measurement-method-v2.schema.json`: a closed schema, `additionalProperties:false` throughout, with the 14 required fields. `threshold.factor` is const `"1.05"`.
-- [ ] `_bmad/scripts/generate_sm_c2_method.py`:
+- [x] `docs/release-evidence/sm-c2-measurement-method-v2.schema.json`: a closed schema, `additionalProperties:false` throughout, with the 14 required fields. `threshold.factor` is const `"1.05"`.
+- [x] `_bmad/scripts/generate_sm_c2_method.py`:
   - Frozen method constants, following the Design Notes.
   - The candidate binding from the Boundaries.
   - Row metadata comes from the baseline.
@@ -89,14 +90,14 @@ context:
   - Deterministic JSON/MD, with approval outside the payload (`--approve-reviewer`, `--decided-at-utc`, `--approved-payload-sha256`).
   - Every Matrix code.
   - `candidate.waivedScenarios`, listing AC-12.2-05.
-- [ ] `_bmad/scripts/verify_sm_c2_method.py`: recompute everything, check JSON/MD parity, scan for substitute keys, validate the approval, and enforce the postdated rule. Output goes through `refuse_foreign_output`.
-- [ ] `tests/Hexalith.Conversations.Conformance.Tests/SmC2MeasurementMethodValidationTest.cs`, test `MethodShouldBePredeclaredAndDeterministic`:
+- [x] `_bmad/scripts/verify_sm_c2_method.py`: recompute everything, check JSON/MD parity, scan for substitute keys, validate the approval, and enforce the postdated rule. Output goes through `refuse_foreign_output`.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/SmC2MeasurementMethodValidationTest.cs`, test `MethodShouldBePredeclaredAndDeterministic`:
   - Pin the frozen values and the payload digest.
   - Re-implement P95 and the bootstrap in C# and reproduce the self-check vectors exactly.
   - Assert retain-all and non-adaptive repetitions.
-- [ ] `_bmad/scripts/tests/test_sm_c2_method.py`: `method_fault_matrix` through the real CLIs. It covers every Matrix row, a postdated approval and unavailable history. Each case checks the exact literal blocker, a nonempty ledger and restored bytes.
+- [x] `_bmad/scripts/tests/test_sm_c2_method.py`: `method_fault_matrix` through the real CLIs. It covers every Matrix row, a postdated approval and unavailable history. Each case checks the exact literal blocker, a nonempty ledger and restored bytes.
 - [ ] Generate the pair, present its digest, and HALT for owner approval. Then regenerate with the approval, verify, and commit after commitlint.
-- [ ] Update this spec, `sprint-status.yaml` and `deferred-work.md`:
+- [x] Update this spec, `sprint-status.yaml` and `deferred-work.md`:
   - Log the stale v1 fixture pin.
   - Log the 12.4 handoff: the old source must build for net11.0, the fixture constants must follow the method, and the contracted `--baseline` v1 input is provenance only.
   - Record the AC-12.2-05 waiver.
@@ -135,6 +136,18 @@ context:
 - Stage the changes, then run `python3 scripts/check-root-submodules.py --repository .` and `git diff --check`.
 
 ## Implementation Notes
+
+- Added the closed 14-field method schema, deterministic JSON/Markdown generator, independent source/Git-recomputing verifier, real-CLI fault matrix and file-only C# conformance test. The four rows remain ordinal APPEND, CREATE, LIST, OPEN, each with exact decimal factor `"1.05"` and usable-signal required. No performance verdict is computed.
+- The canonical payload binds the v9 contract row and exact entry inventory, immutable planning-candidate v1 JSON/Markdown/xUnit and fixture blob, the done Story 12.1 spec/sprint/commit and approved decision pair, and the `f02c4b5d…` fixture basis. The baseline fixture-hash disagreement remains an explicitly open provenance blocker. AC-12.2-05 is recorded as **waived**, never PASS.
+- Python implements SplitMix64 with wrapping unsigned 64-bit arithmetic and exact integer units for the finite decimal input samples. C# independently uses `ulong` and `decimal`; it recomputes canonical payload bytes and all four P95/bootstrap vectors exactly. Those historical vectors are labeled **algorithm conformance, not a verdict**.
+- Approval stays outside the payload. The verifier always requires a bound named approval on its contracted invocation. `--allow-unapproved` is explicitly a draft-only validation path. The generator checks the presented digest, preserves a still-bound approval on regeneration and rejects a postdated approval. Unavailable or shallow history returns BLOCKED (exit 2).
+- The owner approved the presented payload in this session ("yes"), recorded under the existing owner identity Jerome Piquot at `2026-11-16T16:42:29Z`. The signable payload remains `7d6b2d7a6049a80eda5a578ddf097fa5a0eb0a910327dc9227791f2080174bff`. The approved JSON/Markdown pair regenerated successfully and the contracted AC-12.2-02 passed with a nonempty ledger.
+- The fresh mapped-source Conformance Debug/net11.0 build passed with 0 warnings/errors. AC-12.2-03 executed exactly one test: 1 passed, 0 failed, 0 skipped. As already approved in this spec, the contracted Release/net10.0 path is not produced. Build preparation used the pinned CLI `dotnet tool run hexalith-module -- prepare-build --manifest module/hexalith.module-manifest.v2.json --workspace "$TMPDIR/mapping" --mode source --output json`; every generated environment entry was passed to the build and test. The build used `--artifacts-path "$TMPDIR/build"`, `-m:1`, `-p:NuGetAudit=false`, and `-p:MinVerVersionOverride=1.0.0`.
+- The xUnit native runner changes its working directory to the assembly directory. Private-output test execution therefore sets the test-only discovery origin `SMC2_METHOD_REPOSITORY_ROOT` to the repository root and passes it to the existing shared `RepositoryLocator`. Normal output-directory discovery remains the default. The initial failed root-discovery run is preserved in `artifacts/v9/12.2/attempt-1-*`; the successful build/test, TRX and exact generated environment/commands are retained alongside it. All disposable workspaces and build outputs used `run-with-temp`.
+- The stale v1 fixture pin, Story 12.4 paired net11.0/repetition handoff, provenance-only role of `--baseline` and AC-12.2-05 waiver are appended to `deferred-work.md`. No production source, benchmark fixture, v1 evidence, ADR 0005, package configuration or gitlink is changed.
+
+- Before owner approval, AC-12.2-01 ran twice with system `python3`, exited 0 both times and retained byte-identical JSON/Markdown. The draft-only verifier passed with a nonempty ledger. The unsigned contracted AC-12.2-02 initially exited 1 with exactly `SMC2_APPROVAL_MISSING`; after owner approval and regeneration it passed. The initial failure is not counted as a pass.
+- AC-12.2-04 passed 71/71 through the real CLIs, with exact literal blocker expectations, nonempty ledgers and byte restoration. The strengthened generator-approval follow-up also passed (1/1). Both pytest jobs used `TMPDIR=/var/tmp run-with-temp` and system `python3`; receipts are in `artifacts/v9/12.2/`. `python3 scripts/check-root-submodules.py --repository .` and `git diff --check` passed. The protected-path diff is empty. The real index remains untouched until approval regeneration; rerun the staged checks before the eventual commit.
 
 ## Spec Change Log
 

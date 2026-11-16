@@ -1,0 +1,320 @@
+{
+  "schemaVersion": "hexalith.conversations.sm-c2-measurement-method.v2",
+  "candidate": {
+    "storyId": "12.2",
+    "contract": {
+      "path": "_bmad-output/planning-artifacts/v9/story-contracts/12.2.json",
+      "sha256": "b19b096411a3321b2268e30530e699be5d192c9583a4f365fcb37fa12597ba95"
+    },
+    "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
+    "rule": "Bind the authority-bundle contract, exact entry inventory, immutable planning blobs and Story 12.1 done commit; never bind HEAD. Unresolvable history is BLOCKED.",
+    "inventory": {
+      "id": "V9-12.2-ENTRY-v1",
+      "rows": [
+        "V8-6.11-AC5",
+        "V8-6.11-PROHIBITION-NO-THRESHOLD-CHANGE",
+        "V8-6.11-PROHIBITION-NO-ADVERSE-SAMPLE-DISCARD"
+      ],
+      "sha256": "be973a601eee4a029fb225a144a7c4dbbfa4a4ca9966a83e372eb2821ceeb649"
+    },
+    "predecessor": {
+      "storyId": "12.1",
+      "commit": "455b8dea499fef5b0e5e6f8426badbb047ef3edf",
+      "files": [
+        {
+          "path": "_bmad-output/implementation-artifacts/spec-12-1-approve-derived-key-ownership-lifecycle-and-rollback.md",
+          "sha256": "40509329bad98f5c1f8eeff6179ad5144809188d2ef7de1eac7ca781d6cd13e1"
+        },
+        {
+          "path": "docs/release-evidence/derived-key-lifecycle-decision-v1.json",
+          "sha256": "cddf2b9bd5ee5869278247800a1c657399d2b4c431029a9741afd59ea98d9721"
+        },
+        {
+          "path": "docs/release-evidence/derived-key-lifecycle-decision-v1.md",
+          "sha256": "c3d6ac601769cf040463f040dd9606b69512069f2e231bd0bac0ecfecf3ab181"
+        }
+      ],
+      "sprint": {
+        "path": "_bmad-output/implementation-artifacts/sprint-status.yaml",
+        "key": "12-1-approve-derived-key-ownership-lifecycle-and-rollback",
+        "state": "done",
+        "committedSha256": "9fafa79b340bf78ea4c83fa6ff83da00cef09ea1b38934b7aba3a0f1fc54ff0d"
+      }
+    },
+    "immutableProvenance": [
+      {
+        "path": "docs/release-evidence/sm-c2-hot-path-baseline-v1.json",
+        "sha256": "4cb4e66744b26ead0a79a218aed662005f14007e8e103dd019836761569118ea"
+      },
+      {
+        "path": "docs/release-evidence/sm-c2-hot-path-baseline-v1.md",
+        "sha256": "c0a94476ad4a1ceeef73ee601e9079997077830604ff3b1300a08dc20cae8c33"
+      },
+      {
+        "path": "docs/release-evidence/sm-c2-hot-path-baseline-v1.xunit.xml",
+        "sha256": "06d219bb065592b235c842f2fcb6b193dccda6c67045d1e80737725b5927b773"
+      },
+      {
+        "path": "docs/release-evidence/sm-c2-hot-path-post-v1.json",
+        "sha256": "5ce140bc0586e0dfc2acc6ab948624b88e47eb753decf6accf7dc3ead13ef3ef"
+      }
+    ],
+    "planningFixture": {
+      "path": "tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs",
+      "commit": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
+      "sha256": "1a43bacc98fb288a81578893679b6422e1088d1398722f89669f80058688d67b"
+    },
+    "fixtureBasis": {
+      "path": "tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs",
+      "commit": "eea3a88146d5d910be2fa17a5f71cdf7aecef978",
+      "sha256": "f02c4b5d103c591656d4d78181269ef3981e9af6f757200632d13a4038697eff"
+    },
+    "provenanceBlockers": [
+      {
+        "code": "BASELINE_V1_FIXTURE_HASH_DISAGREEMENT",
+        "state": "open",
+        "jsonFixtureSha256": "1a43bacc98fb288a81578893679b6422e1088d1398722f89669f80058688d67b",
+        "markdownFixtureSha256": "4838a5a174b247e3aa4cc6be0c181049a46d884612058df248af8892adaf3fff",
+        "rule": "Preserve both immutable claims; neither resolves the disagreement."
+      }
+    ],
+    "waivedScenarios": [
+      {
+        "id": "AC-12.2-05",
+        "state": "waived",
+        "decision": "Owner decision 2026-11-16; never PASS. Story 12.3 binds the done spec, done sprint row, commit and approved method pair."
+      }
+    ]
+  },
+  "rows": [
+    {
+      "hotPathId": "HP-APPEND",
+      "operation": "Authorize and execute accepted, equivalent-replay, and payload-conflict branches through ConversationTenantAccessGuard and IdempotentConversationCommandExecutor.",
+      "dataShape": "one accepted append, one equivalent duplicate, and one same-key payload mismatch",
+      "commandPath": "ConversationTenantAccessGuard -> IdempotentConversationCommandExecutor (success/replay/conflict)",
+      "threshold": {
+        "factor": "1.05",
+        "rule": "postP95 <= 1.05 * baselineP95",
+        "requiresUsableSignal": true
+      }
+    },
+    {
+      "hotPathId": "HP-CREATE",
+      "operation": "Authorize and create a tenant-bound conversation through ConversationTenantAccessGuard, CreateConversationBoundary.Dispatch, and ConversationAggregate.Handle.",
+      "dataShape": "one v1 command with business, project, folder, label, correlation, causation, and idempotency metadata",
+      "commandPath": "ConversationTenantAccessGuard -> CreateConversationBoundary.Dispatch -> ConversationAggregate.Handle",
+      "threshold": {
+        "factor": "1.05",
+        "rule": "postP95 <= 1.05 * baselineP95",
+        "requiresUsableSignal": true
+      }
+    },
+    {
+      "hotPathId": "HP-LIST",
+      "operation": "Run two cursor-linked pages through ConversationQueryHandler and ConversationProjectionReadStore.",
+      "dataShape": "100 matching production summary/detail/dispatch records, one business filter, and two 25-row pages",
+      "commandPath": "ConversationQueryHandler.ListAsync -> ConversationProjectionReadStore.ListAsync",
+      "threshold": {
+        "factor": "1.05",
+        "rule": "postP95 <= 1.05 * baselineP95",
+        "requiresUsableSignal": true
+      }
+    },
+    {
+      "hotPathId": "HP-OPEN",
+      "operation": "Open a rich conversation through the production query, projection-read, consistency, and hydration path.",
+      "dataShape": "10 messages including a redaction placeholder, two participants, one file reference, evidence metadata, and batched hydration",
+      "commandPath": "ConversationQueryHandler.GetAsync -> ConversationProjectionReadStore.GetAsync -> hydration",
+      "threshold": {
+        "factor": "1.05",
+        "rule": "postP95 <= 1.05 * baselineP95",
+        "requiresUsableSignal": true
+      }
+    }
+  ],
+  "warmup": {
+    "repetitionsPerSession": 5,
+    "includedInRawSamples": false
+  },
+  "repetitions": {
+    "perSide": {
+      "HP-APPEND": 400,
+      "HP-CREATE": 1200,
+      "HP-LIST": 200,
+      "HP-OPEN": 200
+    },
+    "sessionsPerSide": 4,
+    "sessionOrder": [
+      "B",
+      "C",
+      "B",
+      "C",
+      "B",
+      "C",
+      "B",
+      "C"
+    ],
+    "perSession": {
+      "HP-APPEND": 100,
+      "HP-CREATE": 300,
+      "HP-LIST": 50,
+      "HP-OPEN": 50
+    },
+    "operationsPerSample": 2000,
+    "adaptive": false,
+    "pooling": "Pool every sample per side in session order.",
+    "failedSession": "void-entire-pair",
+    "rerunSession": false,
+    "dropSession": false
+  },
+  "retention": {
+    "retainAllRawSamples": true,
+    "outlierRule": "none",
+    "trimming": "none",
+    "sampleDeletion": false,
+    "adaptiveStopping": false,
+    "rerunSelection": false
+  },
+  "classification": {
+    "measured": "warm in-process production path",
+    "coldSubstitution": false,
+    "coldResults": "Separate cold observations; never replace a warm result."
+  },
+  "environment": {
+    "host": {
+      "sameHostForBothSides": true,
+      "recordBeforeObservation": [
+        "kernel",
+        "cpuModel",
+        "logicalProcessors"
+      ]
+    },
+    "sdk": "11.0.100",
+    "runtime": "11.0.0",
+    "configuration": "Release",
+    "concurrency": 1,
+    "runnerFlags": [
+      "-parallel",
+      "none",
+      "-maxThreads",
+      "1"
+    ],
+    "forbiddenOverridePrefixes": [
+      "DOTNET_",
+      "COMPlus_"
+    ],
+    "forbiddenConcurrentProcesses": [
+      "dotnet",
+      "Aspire",
+      "daprd"
+    ],
+    "captureBeforeObservation": true,
+    "driftVoidsPair": true
+  },
+  "percentile": {
+    "method": "nearest-rank",
+    "level": "0.95",
+    "index": "ceil(0.95*n)-1",
+    "interpolation": false
+  },
+  "comparability": {
+    "envelopeRevision": "sm-c2-envelope-v2",
+    "remeasureBothSidesAsPair": true,
+    "baselineSourceCommit": "29def441408becfbbbdc5c59b9af14a7717cb21f",
+    "baselineEventStoreCommit": "b2d3402552fbadf529c220fcc739da9d06d285fe",
+    "fixtureBasisSha256": "f02c4b5d103c591656d4d78181269ef3981e9af6f757200632d13a4038697eff",
+    "fixtureOverlayDifference": "Only repetition constants differ between the two sides; production source is the intended comparison delta.",
+    "v1InputRole": "immutable provenance only; never comparison input",
+    "frozenMembers": [
+      "workload/data shape",
+      "concurrency",
+      "paired environment/runtime",
+      "warm/cold classification"
+    ],
+    "runtimeDecision": "Owner decision 2026-11-16: applying SDK 11.0.100 and runtime 11.0.0 identically to both sides is not a target change.",
+    "openFreshnessAnchor": "ProjectionFreshnessV1 schema version, cursor and last-applied event position",
+    "firstObservation": "Story 12.4 must prove the method approval precedes its first observation."
+  },
+  "signalQuality": {
+    "method": "percentile-bootstrap",
+    "resamples": 10000,
+    "prng": "SplitMix64",
+    "seed": "first 8 bytes, big-endian, of SHA-256(sm-c2-measurement-method-v2|<row>)",
+    "indexDraw": "next() mod n",
+    "drawOrder": "nBase baseline draws, then nCand candidate draws, per resample",
+    "statistic": "P95(candidate*) - P95(baseline*)",
+    "lowerLevel": "0.025",
+    "upperLevel": "0.975",
+    "confidenceIntervalPercentiles": "nearest-rank",
+    "halfWidth": "(hi-lo)/2",
+    "usableRule": "halfWidth <= 0.05 * baselineP95",
+    "maximumHalfWidthFactor": "0.05"
+  },
+  "selfChecks": {
+    "purpose": "algorithm conformance, not a verdict",
+    "baseline": {
+      "path": "docs/release-evidence/sm-c2-hot-path-baseline-v1.json",
+      "sha256": "4cb4e66744b26ead0a79a218aed662005f14007e8e103dd019836761569118ea"
+    },
+    "candidate": {
+      "path": "docs/release-evidence/sm-c2-hot-path-post-v1.json",
+      "sha256": "5ce140bc0586e0dfc2acc6ab948624b88e47eb753decf6accf7dc3ead13ef3ef"
+    },
+    "vectors": [
+      {
+        "hotPathId": "HP-APPEND",
+        "seedHex": "0584078bda73ada5",
+        "baselineCount": 30,
+        "candidateCount": 30,
+        "baselineP95Microseconds": "18.86895",
+        "candidateP95Microseconds": "22.6453",
+        "lowerDifferenceMicroseconds": "-4.4267",
+        "upperDifferenceMicroseconds": "12.12575",
+        "halfWidthMicroseconds": "8.276225"
+      },
+      {
+        "hotPathId": "HP-CREATE",
+        "seedHex": "fd015e1f7c52f628",
+        "baselineCount": 30,
+        "candidateCount": 30,
+        "baselineP95Microseconds": "1.7566",
+        "candidateP95Microseconds": "0.8759",
+        "lowerDifferenceMicroseconds": "-1.14185",
+        "upperDifferenceMicroseconds": "-0.6309",
+        "halfWidthMicroseconds": "0.255475"
+      },
+      {
+        "hotPathId": "HP-LIST",
+        "seedHex": "5bb56fc70826a8e7",
+        "baselineCount": 30,
+        "candidateCount": 30,
+        "baselineP95Microseconds": "746.9148",
+        "candidateP95Microseconds": "3210.6471",
+        "lowerDifferenceMicroseconds": "2289.2198",
+        "upperDifferenceMicroseconds": "2555.6976",
+        "halfWidthMicroseconds": "133.2389"
+      },
+      {
+        "hotPathId": "HP-OPEN",
+        "seedHex": "00debde9af1485b1",
+        "baselineCount": 30,
+        "candidateCount": 30,
+        "baselineP95Microseconds": "22.06615",
+        "candidateP95Microseconds": "410.62355",
+        "lowerDifferenceMicroseconds": "339.5537",
+        "upperDifferenceMicroseconds": "436.9024",
+        "halfWidthMicroseconds": "48.67435"
+      }
+    ]
+  },
+  "approval": {
+    "decision": "approved",
+    "approver": "Jerome Piquot",
+    "decidedAtUtc": "2026-11-16T16:42:29Z",
+    "boundSignablePayloadSha256": "7d6b2d7a6049a80eda5a578ddf097fa5a0eb0a910327dc9227791f2080174bff"
+  },
+  "digests": {
+    "signablePayloadSha256": "7d6b2d7a6049a80eda5a578ddf097fa5a0eb0a910327dc9227791f2080174bff",
+    "markdownSha256": "e80361fc3ceb74d5e433377d89018ebd2d7260aecd7d51b0839397b4e920d86e"
+  }
+}

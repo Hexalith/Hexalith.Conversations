@@ -1,0 +1,1425 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "candidate",
+    "rows",
+    "warmup",
+    "repetitions",
+    "retention",
+    "classification",
+    "environment",
+    "percentile",
+    "comparability",
+    "signalQuality",
+    "selfChecks",
+    "approval",
+    "digests"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "hexalith.conversations.sm-c2-measurement-method.v2"
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "storyId",
+        "contract",
+        "planningCandidate",
+        "rule",
+        "inventory",
+        "predecessor",
+        "immutableProvenance",
+        "planningFixture",
+        "fixtureBasis",
+        "provenanceBlockers",
+        "waivedScenarios"
+      ],
+      "properties": {
+        "storyId": {
+          "type": "string",
+          "const": "12.2"
+        },
+        "contract": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "const": "_bmad-output/planning-artifacts/v9/story-contracts/12.2.json"
+            },
+            "sha256": {
+              "type": "string",
+              "const": "b19b096411a3321b2268e30530e699be5d192c9583a4f365fcb37fa12597ba95"
+            }
+          }
+        },
+        "planningCandidate": {
+          "type": "string",
+          "const": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5"
+        },
+        "rule": {
+          "type": "string",
+          "const": "Bind the authority-bundle contract, exact entry inventory, immutable planning blobs and Story 12.1 done commit; never bind HEAD. Unresolvable history is BLOCKED."
+        },
+        "inventory": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "rows",
+            "sha256"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "const": "V9-12.2-ENTRY-v1"
+            },
+            "rows": {
+              "type": "array",
+              "const": [
+                "V8-6.11-AC5",
+                "V8-6.11-PROHIBITION-NO-THRESHOLD-CHANGE",
+                "V8-6.11-PROHIBITION-NO-ADVERSE-SAMPLE-DISCARD"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "sha256": {
+              "type": "string",
+              "const": "be973a601eee4a029fb225a144a7c4dbbfa4a4ca9966a83e372eb2821ceeb649"
+            }
+          }
+        },
+        "predecessor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "storyId",
+            "commit",
+            "files",
+            "sprint"
+          ],
+          "properties": {
+            "storyId": {
+              "type": "string",
+              "const": "12.1"
+            },
+            "commit": {
+              "type": "string",
+              "const": "455b8dea499fef5b0e5e6f8426badbb047ef3edf"
+            },
+            "files": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "prefixItems": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "path",
+                    "sha256"
+                  ],
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "const": "_bmad-output/implementation-artifacts/spec-12-1-approve-derived-key-ownership-lifecycle-and-rollback.md"
+                    },
+                    "sha256": {
+                      "type": "string",
+                      "const": "40509329bad98f5c1f8eeff6179ad5144809188d2ef7de1eac7ca781d6cd13e1"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "path",
+                    "sha256"
+                  ],
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "const": "docs/release-evidence/derived-key-lifecycle-decision-v1.json"
+                    },
+                    "sha256": {
+                      "type": "string",
+                      "const": "cddf2b9bd5ee5869278247800a1c657399d2b4c431029a9741afd59ea98d9721"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "path",
+                    "sha256"
+                  ],
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "const": "docs/release-evidence/derived-key-lifecycle-decision-v1.md"
+                    },
+                    "sha256": {
+                      "type": "string",
+                      "const": "c3d6ac601769cf040463f040dd9606b69512069f2e231bd0bac0ecfecf3ab181"
+                    }
+                  }
+                }
+              ],
+              "items": false
+            },
+            "sprint": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "key",
+                "state",
+                "committedSha256"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "const": "_bmad-output/implementation-artifacts/sprint-status.yaml"
+                },
+                "key": {
+                  "type": "string",
+                  "const": "12-1-approve-derived-key-ownership-lifecycle-and-rollback"
+                },
+                "state": {
+                  "type": "string",
+                  "const": "done"
+                },
+                "committedSha256": {
+                  "type": "string",
+                  "const": "9fafa79b340bf78ea4c83fa6ff83da00cef09ea1b38934b7aba3a0f1fc54ff0d"
+                }
+              }
+            }
+          }
+        },
+        "immutableProvenance": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "prefixItems": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "sha256"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "const": "docs/release-evidence/sm-c2-hot-path-baseline-v1.json"
+                },
+                "sha256": {
+                  "type": "string",
+                  "const": "4cb4e66744b26ead0a79a218aed662005f14007e8e103dd019836761569118ea"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "sha256"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "const": "docs/release-evidence/sm-c2-hot-path-baseline-v1.md"
+                },
+                "sha256": {
+                  "type": "string",
+                  "const": "c0a94476ad4a1ceeef73ee601e9079997077830604ff3b1300a08dc20cae8c33"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "sha256"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "const": "docs/release-evidence/sm-c2-hot-path-baseline-v1.xunit.xml"
+                },
+                "sha256": {
+                  "type": "string",
+                  "const": "06d219bb065592b235c842f2fcb6b193dccda6c67045d1e80737725b5927b773"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "sha256"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "const": "docs/release-evidence/sm-c2-hot-path-post-v1.json"
+                },
+                "sha256": {
+                  "type": "string",
+                  "const": "5ce140bc0586e0dfc2acc6ab948624b88e47eb753decf6accf7dc3ead13ef3ef"
+                }
+              }
+            }
+          ],
+          "items": false
+        },
+        "planningFixture": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "commit",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "const": "tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs"
+            },
+            "commit": {
+              "type": "string",
+              "const": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5"
+            },
+            "sha256": {
+              "type": "string",
+              "const": "1a43bacc98fb288a81578893679b6422e1088d1398722f89669f80058688d67b"
+            }
+          }
+        },
+        "fixtureBasis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "commit",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "const": "tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs"
+            },
+            "commit": {
+              "type": "string",
+              "const": "eea3a88146d5d910be2fa17a5f71cdf7aecef978"
+            },
+            "sha256": {
+              "type": "string",
+              "const": "f02c4b5d103c591656d4d78181269ef3981e9af6f757200632d13a4038697eff"
+            }
+          }
+        },
+        "provenanceBlockers": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "prefixItems": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "state",
+                "jsonFixtureSha256",
+                "markdownFixtureSha256",
+                "rule"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "const": "BASELINE_V1_FIXTURE_HASH_DISAGREEMENT"
+                },
+                "state": {
+                  "type": "string",
+                  "const": "open"
+                },
+                "jsonFixtureSha256": {
+                  "type": "string",
+                  "const": "1a43bacc98fb288a81578893679b6422e1088d1398722f89669f80058688d67b"
+                },
+                "markdownFixtureSha256": {
+                  "type": "string",
+                  "const": "4838a5a174b247e3aa4cc6be0c181049a46d884612058df248af8892adaf3fff"
+                },
+                "rule": {
+                  "type": "string",
+                  "const": "Preserve both immutable claims; neither resolves the disagreement."
+                }
+              }
+            }
+          ],
+          "items": false
+        },
+        "waivedScenarios": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "prefixItems": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "state",
+                "decision"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "const": "AC-12.2-05"
+                },
+                "state": {
+                  "type": "string",
+                  "const": "waived"
+                },
+                "decision": {
+                  "type": "string",
+                  "const": "Owner decision 2026-11-16; never PASS. Story 12.3 binds the done spec, done sprint row, commit and approved method pair."
+                }
+              }
+            }
+          ],
+          "items": false
+        }
+      }
+    },
+    "rows": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "prefixItems": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "hotPathId",
+            "operation",
+            "dataShape",
+            "commandPath",
+            "threshold"
+          ],
+          "properties": {
+            "hotPathId": {
+              "type": "string",
+              "const": "HP-APPEND"
+            },
+            "operation": {
+              "type": "string",
+              "const": "Authorize and execute accepted, equivalent-replay, and payload-conflict branches through ConversationTenantAccessGuard and IdempotentConversationCommandExecutor."
+            },
+            "dataShape": {
+              "type": "string",
+              "const": "one accepted append, one equivalent duplicate, and one same-key payload mismatch"
+            },
+            "commandPath": {
+              "type": "string",
+              "const": "ConversationTenantAccessGuard -> IdempotentConversationCommandExecutor (success/replay/conflict)"
+            },
+            "threshold": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "factor",
+                "rule",
+                "requiresUsableSignal"
+              ],
+              "properties": {
+                "factor": {
+                  "type": "string",
+                  "const": "1.05"
+                },
+                "rule": {
+                  "type": "string",
+                  "const": "postP95 <= 1.05 * baselineP95"
+                },
+                "requiresUsableSignal": {
+                  "type": "boolean",
+                  "const": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "hotPathId",
+            "operation",
+            "dataShape",
+            "commandPath",
+            "threshold"
+          ],
+          "properties": {
+            "hotPathId": {
+              "type": "string",
+              "const": "HP-CREATE"
+            },
+            "operation": {
+              "type": "string",
+              "const": "Authorize and create a tenant-bound conversation through ConversationTenantAccessGuard, CreateConversationBoundary.Dispatch, and ConversationAggregate.Handle."
+            },
+            "dataShape": {
+              "type": "string",
+              "const": "one v1 command with business, project, folder, label, correlation, causation, and idempotency metadata"
+            },
+            "commandPath": {
+              "type": "string",
+              "const": "ConversationTenantAccessGuard -> CreateConversationBoundary.Dispatch -> ConversationAggregate.Handle"
+            },
+            "threshold": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "factor",
+                "rule",
+                "requiresUsableSignal"
+              ],
+              "properties": {
+                "factor": {
+                  "type": "string",
+                  "const": "1.05"
+                },
+                "rule": {
+                  "type": "string",
+                  "const": "postP95 <= 1.05 * baselineP95"
+                },
+                "requiresUsableSignal": {
+                  "type": "boolean",
+                  "const": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "hotPathId",
+            "operation",
+            "dataShape",
+            "commandPath",
+            "threshold"
+          ],
+          "properties": {
+            "hotPathId": {
+              "type": "string",
+              "const": "HP-LIST"
+            },
+            "operation": {
+              "type": "string",
+              "const": "Run two cursor-linked pages through ConversationQueryHandler and ConversationProjectionReadStore."
+            },
+            "dataShape": {
+              "type": "string",
+              "const": "100 matching production summary/detail/dispatch records, one business filter, and two 25-row pages"
+            },
+            "commandPath": {
+              "type": "string",
+              "const": "ConversationQueryHandler.ListAsync -> ConversationProjectionReadStore.ListAsync"
+            },
+            "threshold": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "factor",
+                "rule",
+                "requiresUsableSignal"
+              ],
+              "properties": {
+                "factor": {
+                  "type": "string",
+                  "const": "1.05"
+                },
+                "rule": {
+                  "type": "string",
+                  "const": "postP95 <= 1.05 * baselineP95"
+                },
+                "requiresUsableSignal": {
+                  "type": "boolean",
+                  "const": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "hotPathId",
+            "operation",
+            "dataShape",
+            "commandPath",
+            "threshold"
+          ],
+          "properties": {
+            "hotPathId": {
+              "type": "string",
+              "const": "HP-OPEN"
+            },
+            "operation": {
+              "type": "string",
+              "const": "Open a rich conversation through the production query, projection-read, consistency, and hydration path."
+            },
+            "dataShape": {
+              "type": "string",
+              "const": "10 messages including a redaction placeholder, two participants, one file reference, evidence metadata, and batched hydration"
+            },
+            "commandPath": {
+              "type": "string",
+              "const": "ConversationQueryHandler.GetAsync -> ConversationProjectionReadStore.GetAsync -> hydration"
+            },
+            "threshold": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "factor",
+                "rule",
+                "requiresUsableSignal"
+              ],
+              "properties": {
+                "factor": {
+                  "type": "string",
+                  "const": "1.05"
+                },
+                "rule": {
+                  "type": "string",
+                  "const": "postP95 <= 1.05 * baselineP95"
+                },
+                "requiresUsableSignal": {
+                  "type": "boolean",
+                  "const": true
+                }
+              }
+            }
+          }
+        }
+      ],
+      "items": false
+    },
+    "warmup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repetitionsPerSession",
+        "includedInRawSamples"
+      ],
+      "properties": {
+        "repetitionsPerSession": {
+          "type": "integer",
+          "const": 5
+        },
+        "includedInRawSamples": {
+          "type": "boolean",
+          "const": false
+        }
+      }
+    },
+    "repetitions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "perSide",
+        "sessionsPerSide",
+        "sessionOrder",
+        "perSession",
+        "operationsPerSample",
+        "adaptive",
+        "pooling",
+        "failedSession",
+        "rerunSession",
+        "dropSession"
+      ],
+      "properties": {
+        "perSide": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "HP-APPEND",
+            "HP-CREATE",
+            "HP-LIST",
+            "HP-OPEN"
+          ],
+          "properties": {
+            "HP-APPEND": {
+              "type": "integer",
+              "const": 400
+            },
+            "HP-CREATE": {
+              "type": "integer",
+              "const": 1200
+            },
+            "HP-LIST": {
+              "type": "integer",
+              "const": 200
+            },
+            "HP-OPEN": {
+              "type": "integer",
+              "const": 200
+            }
+          }
+        },
+        "sessionsPerSide": {
+          "type": "integer",
+          "const": 4
+        },
+        "sessionOrder": {
+          "type": "array",
+          "const": [
+            "B",
+            "C",
+            "B",
+            "C",
+            "B",
+            "C",
+            "B",
+            "C"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "perSession": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "HP-APPEND",
+            "HP-CREATE",
+            "HP-LIST",
+            "HP-OPEN"
+          ],
+          "properties": {
+            "HP-APPEND": {
+              "type": "integer",
+              "const": 100
+            },
+            "HP-CREATE": {
+              "type": "integer",
+              "const": 300
+            },
+            "HP-LIST": {
+              "type": "integer",
+              "const": 50
+            },
+            "HP-OPEN": {
+              "type": "integer",
+              "const": 50
+            }
+          }
+        },
+        "operationsPerSample": {
+          "type": "integer",
+          "const": 2000
+        },
+        "adaptive": {
+          "type": "boolean",
+          "const": false
+        },
+        "pooling": {
+          "type": "string",
+          "const": "Pool every sample per side in session order."
+        },
+        "failedSession": {
+          "type": "string",
+          "const": "void-entire-pair"
+        },
+        "rerunSession": {
+          "type": "boolean",
+          "const": false
+        },
+        "dropSession": {
+          "type": "boolean",
+          "const": false
+        }
+      }
+    },
+    "retention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "retainAllRawSamples",
+        "outlierRule",
+        "trimming",
+        "sampleDeletion",
+        "adaptiveStopping",
+        "rerunSelection"
+      ],
+      "properties": {
+        "retainAllRawSamples": {
+          "type": "boolean",
+          "const": true
+        },
+        "outlierRule": {
+          "type": "string",
+          "const": "none"
+        },
+        "trimming": {
+          "type": "string",
+          "const": "none"
+        },
+        "sampleDeletion": {
+          "type": "boolean",
+          "const": false
+        },
+        "adaptiveStopping": {
+          "type": "boolean",
+          "const": false
+        },
+        "rerunSelection": {
+          "type": "boolean",
+          "const": false
+        }
+      }
+    },
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "measured",
+        "coldSubstitution",
+        "coldResults"
+      ],
+      "properties": {
+        "measured": {
+          "type": "string",
+          "const": "warm in-process production path"
+        },
+        "coldSubstitution": {
+          "type": "boolean",
+          "const": false
+        },
+        "coldResults": {
+          "type": "string",
+          "const": "Separate cold observations; never replace a warm result."
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "host",
+        "sdk",
+        "runtime",
+        "configuration",
+        "concurrency",
+        "runnerFlags",
+        "forbiddenOverridePrefixes",
+        "forbiddenConcurrentProcesses",
+        "captureBeforeObservation",
+        "driftVoidsPair"
+      ],
+      "properties": {
+        "host": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sameHostForBothSides",
+            "recordBeforeObservation"
+          ],
+          "properties": {
+            "sameHostForBothSides": {
+              "type": "boolean",
+              "const": true
+            },
+            "recordBeforeObservation": {
+              "type": "array",
+              "const": [
+                "kernel",
+                "cpuModel",
+                "logicalProcessors"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "sdk": {
+          "type": "string",
+          "const": "11.0.100"
+        },
+        "runtime": {
+          "type": "string",
+          "const": "11.0.0"
+        },
+        "configuration": {
+          "type": "string",
+          "const": "Release"
+        },
+        "concurrency": {
+          "type": "integer",
+          "const": 1
+        },
+        "runnerFlags": {
+          "type": "array",
+          "const": [
+            "-parallel",
+            "none",
+            "-maxThreads",
+            "1"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "forbiddenOverridePrefixes": {
+          "type": "array",
+          "const": [
+            "DOTNET_",
+            "COMPlus_"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "forbiddenConcurrentProcesses": {
+          "type": "array",
+          "const": [
+            "dotnet",
+            "Aspire",
+            "daprd"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "captureBeforeObservation": {
+          "type": "boolean",
+          "const": true
+        },
+        "driftVoidsPair": {
+          "type": "boolean",
+          "const": true
+        }
+      }
+    },
+    "percentile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "level",
+        "index",
+        "interpolation"
+      ],
+      "properties": {
+        "method": {
+          "type": "string",
+          "const": "nearest-rank"
+        },
+        "level": {
+          "type": "string",
+          "const": "0.95"
+        },
+        "index": {
+          "type": "string",
+          "const": "ceil(0.95*n)-1"
+        },
+        "interpolation": {
+          "type": "boolean",
+          "const": false
+        }
+      }
+    },
+    "comparability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "envelopeRevision",
+        "remeasureBothSidesAsPair",
+        "baselineSourceCommit",
+        "baselineEventStoreCommit",
+        "fixtureBasisSha256",
+        "fixtureOverlayDifference",
+        "v1InputRole",
+        "frozenMembers",
+        "runtimeDecision",
+        "openFreshnessAnchor",
+        "firstObservation"
+      ],
+      "properties": {
+        "envelopeRevision": {
+          "type": "string",
+          "const": "sm-c2-envelope-v2"
+        },
+        "remeasureBothSidesAsPair": {
+          "type": "boolean",
+          "const": true
+        },
+        "baselineSourceCommit": {
+          "type": "string",
+          "const": "29def441408becfbbbdc5c59b9af14a7717cb21f"
+        },
+        "baselineEventStoreCommit": {
+          "type": "string",
+          "const": "b2d3402552fbadf529c220fcc739da9d06d285fe"
+        },
+        "fixtureBasisSha256": {
+          "type": "string",
+          "const": "f02c4b5d103c591656d4d78181269ef3981e9af6f757200632d13a4038697eff"
+        },
+        "fixtureOverlayDifference": {
+          "type": "string",
+          "const": "Only repetition constants differ between the two sides; production source is the intended comparison delta."
+        },
+        "v1InputRole": {
+          "type": "string",
+          "const": "immutable provenance only; never comparison input"
+        },
+        "frozenMembers": {
+          "type": "array",
+          "const": [
+            "workload/data shape",
+            "concurrency",
+            "paired environment/runtime",
+            "warm/cold classification"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "runtimeDecision": {
+          "type": "string",
+          "const": "Owner decision 2026-11-16: applying SDK 11.0.100 and runtime 11.0.0 identically to both sides is not a target change."
+        },
+        "openFreshnessAnchor": {
+          "type": "string",
+          "const": "ProjectionFreshnessV1 schema version, cursor and last-applied event position"
+        },
+        "firstObservation": {
+          "type": "string",
+          "const": "Story 12.4 must prove the method approval precedes its first observation."
+        }
+      }
+    },
+    "signalQuality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "resamples",
+        "prng",
+        "seed",
+        "indexDraw",
+        "drawOrder",
+        "statistic",
+        "lowerLevel",
+        "upperLevel",
+        "confidenceIntervalPercentiles",
+        "halfWidth",
+        "usableRule",
+        "maximumHalfWidthFactor"
+      ],
+      "properties": {
+        "method": {
+          "type": "string",
+          "const": "percentile-bootstrap"
+        },
+        "resamples": {
+          "type": "integer",
+          "const": 10000
+        },
+        "prng": {
+          "type": "string",
+          "const": "SplitMix64"
+        },
+        "seed": {
+          "type": "string",
+          "const": "first 8 bytes, big-endian, of SHA-256(sm-c2-measurement-method-v2|<row>)"
+        },
+        "indexDraw": {
+          "type": "string",
+          "const": "next() mod n"
+        },
+        "drawOrder": {
+          "type": "string",
+          "const": "nBase baseline draws, then nCand candidate draws, per resample"
+        },
+        "statistic": {
+          "type": "string",
+          "const": "P95(candidate*) - P95(baseline*)"
+        },
+        "lowerLevel": {
+          "type": "string",
+          "const": "0.025"
+        },
+        "upperLevel": {
+          "type": "string",
+          "const": "0.975"
+        },
+        "confidenceIntervalPercentiles": {
+          "type": "string",
+          "const": "nearest-rank"
+        },
+        "halfWidth": {
+          "type": "string",
+          "const": "(hi-lo)/2"
+        },
+        "usableRule": {
+          "type": "string",
+          "const": "halfWidth <= 0.05 * baselineP95"
+        },
+        "maximumHalfWidthFactor": {
+          "type": "string",
+          "const": "0.05"
+        }
+      }
+    },
+    "selfChecks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "purpose",
+        "baseline",
+        "candidate",
+        "vectors"
+      ],
+      "properties": {
+        "purpose": {
+          "type": "string",
+          "const": "algorithm conformance, not a verdict"
+        },
+        "baseline": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "const": "docs/release-evidence/sm-c2-hot-path-baseline-v1.json"
+            },
+            "sha256": {
+              "type": "string",
+              "const": "4cb4e66744b26ead0a79a218aed662005f14007e8e103dd019836761569118ea"
+            }
+          }
+        },
+        "candidate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "const": "docs/release-evidence/sm-c2-hot-path-post-v1.json"
+            },
+            "sha256": {
+              "type": "string",
+              "const": "5ce140bc0586e0dfc2acc6ab948624b88e47eb753decf6accf7dc3ead13ef3ef"
+            }
+          }
+        },
+        "vectors": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "prefixItems": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "hotPathId",
+                "seedHex",
+                "baselineCount",
+                "candidateCount",
+                "baselineP95Microseconds",
+                "candidateP95Microseconds",
+                "lowerDifferenceMicroseconds",
+                "upperDifferenceMicroseconds",
+                "halfWidthMicroseconds"
+              ],
+              "properties": {
+                "hotPathId": {
+                  "type": "string",
+                  "const": "HP-APPEND"
+                },
+                "seedHex": {
+                  "type": "string",
+                  "const": "0584078bda73ada5"
+                },
+                "baselineCount": {
+                  "type": "integer",
+                  "const": 30
+                },
+                "candidateCount": {
+                  "type": "integer",
+                  "const": 30
+                },
+                "baselineP95Microseconds": {
+                  "type": "string",
+                  "const": "18.86895"
+                },
+                "candidateP95Microseconds": {
+                  "type": "string",
+                  "const": "22.6453"
+                },
+                "lowerDifferenceMicroseconds": {
+                  "type": "string",
+                  "const": "-4.4267"
+                },
+                "upperDifferenceMicroseconds": {
+                  "type": "string",
+                  "const": "12.12575"
+                },
+                "halfWidthMicroseconds": {
+                  "type": "string",
+                  "const": "8.276225"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "hotPathId",
+                "seedHex",
+                "baselineCount",
+                "candidateCount",
+                "baselineP95Microseconds",
+                "candidateP95Microseconds",
+                "lowerDifferenceMicroseconds",
+                "upperDifferenceMicroseconds",
+                "halfWidthMicroseconds"
+              ],
+              "properties": {
+                "hotPathId": {
+                  "type": "string",
+                  "const": "HP-CREATE"
+                },
+                "seedHex": {
+                  "type": "string",
+                  "const": "fd015e1f7c52f628"
+                },
+                "baselineCount": {
+                  "type": "integer",
+                  "const": 30
+                },
+                "candidateCount": {
+                  "type": "integer",
+                  "const": 30
+                },
+                "baselineP95Microseconds": {
+                  "type": "string",
+                  "const": "1.7566"
+                },
+                "candidateP95Microseconds": {
+                  "type": "string",
+                  "const": "0.8759"
+                },
+                "lowerDifferenceMicroseconds": {
+                  "type": "string",
+                  "const": "-1.14185"
+                },
+                "upperDifferenceMicroseconds": {
+                  "type": "string",
+                  "const": "-0.6309"
+                },
+                "halfWidthMicroseconds": {
+                  "type": "string",
+                  "const": "0.255475"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "hotPathId",
+                "seedHex",
+                "baselineCount",
+                "candidateCount",
+                "baselineP95Microseconds",
+                "candidateP95Microseconds",
+                "lowerDifferenceMicroseconds",
+                "upperDifferenceMicroseconds",
+                "halfWidthMicroseconds"
+              ],
+              "properties": {
+                "hotPathId": {
+                  "type": "string",
+                  "const": "HP-LIST"
+                },
+                "seedHex": {
+                  "type": "string",
+                  "const": "5bb56fc70826a8e7"
+                },
+                "baselineCount": {
+                  "type": "integer",
+                  "const": 30
+                },
+                "candidateCount": {
+                  "type": "integer",
+                  "const": 30
+                },
+                "baselineP95Microseconds": {
+                  "type": "string",
+                  "const": "746.9148"
+                },
+                "candidateP95Microseconds": {
+                  "type": "string",
+                  "const": "3210.6471"
+                },
+                "lowerDifferenceMicroseconds": {
+                  "type": "string",
+                  "const": "2289.2198"
+                },
+                "upperDifferenceMicroseconds": {
+                  "type": "string",
+                  "const": "2555.6976"
+                },
+                "halfWidthMicroseconds": {
+                  "type": "string",
+                  "const": "133.2389"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "hotPathId",
+                "seedHex",
+                "baselineCount",
+                "candidateCount",
+                "baselineP95Microseconds",
+                "candidateP95Microseconds",
+                "lowerDifferenceMicroseconds",
+                "upperDifferenceMicroseconds",
+                "halfWidthMicroseconds"
+              ],
+              "properties": {
+                "hotPathId": {
+                  "type": "string",
+                  "const": "HP-OPEN"
+                },
+                "seedHex": {
+                  "type": "string",
+                  "const": "00debde9af1485b1"
+                },
+                "baselineCount": {
+                  "type": "integer",
+                  "const": 30
+                },
+                "candidateCount": {
+                  "type": "integer",
+                  "const": 30
+                },
+                "baselineP95Microseconds": {
+                  "type": "string",
+                  "const": "22.06615"
+                },
+                "candidateP95Microseconds": {
+                  "type": "string",
+                  "const": "410.62355"
+                },
+                "lowerDifferenceMicroseconds": {
+                  "type": "string",
+                  "const": "339.5537"
+                },
+                "upperDifferenceMicroseconds": {
+                  "type": "string",
+                  "const": "436.9024"
+                },
+                "halfWidthMicroseconds": {
+                  "type": "string",
+                  "const": "48.67435"
+                }
+              }
+            }
+          ],
+          "items": false
+        }
+      }
+    },
+    "approval": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "decision",
+            "approver",
+            "decidedAtUtc",
+            "boundSignablePayloadSha256"
+          ],
+          "properties": {
+            "decision": {
+              "const": "approved"
+            },
+            "approver": {
+              "type": "string",
+              "pattern": "\\S"
+            },
+            "decidedAtUtc": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+            },
+            "boundSignablePayloadSha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        }
+      ]
+    },
+    "digests": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "signablePayloadSha256",
+        "markdownSha256"
+      ],
+      "properties": {
+        "signablePayloadSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "markdownSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "hexalith.conversations.sm-c2-measurement-method.v2",
+  "title": "Predeclared SM-C2 measurement method v2"
+}

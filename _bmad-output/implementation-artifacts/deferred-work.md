@@ -1247,3 +1247,17 @@ This closure supersedes only the named entry. The original ledger entry stays un
 - source_spec: `_bmad-output/implementation-artifacts/spec-12-1-approve-derived-key-ownership-lifecycle-and-rollback.md`
   summary: Correct two prose gaps in ADR 0005 at its next digest-bound revision. The story-rollback list should name all three Story 12.1 `.gitattributes` lines, and the Verification section should list every generator blocker code.
   evidence: ADR 0005 `### Rollback` says "the two Story 12.1 lines in `.gitattributes`", but the story added one comment and two rules, so following it leaves the orphan comment "Story 12.1 hashes ADR 0005 …". `## Verification` lists four generator codes, but the generator also emits `PREDECESSOR_CANDIDATE_MISMATCH`, `ENTRY_INVENTORY_MISMATCH` and `EVIDENCE_FORMAT_DRIFT`. The ADR digest `2c946907…` is bound into the approved signable payload and pinned by `DerivedKeyLifecycleAdrValidationTest`. Editing the prose therefore changes both digests and needs a new owner approval, a regenerated pair and new C# pins. It is deferred rather than reopening the approval for two prose corrections.
+
+## Deferred from: Story 12.2 measurement method (2026-11-16)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md`
+  summary: The v1 baseline reconstruction test still requires the current fixture to equal `1a43bacc98fb288a81578893679b6422e1088d1398722f89669f80058688d67b`.
+  evidence: `SmC2BaselineReconstructionValidationTest.BaselineShouldRecordAnAuditableReconstructionMethod` compares the working fixture with that v1 hash; commit `eea3a88146d5d910be2fa17a5f71cdf7aecef978` changed the fixture to `f02c4b5d103c591656d4d78181269ef3981e9af6f757200632d13a4038697eff`. This pre-existing stale pin is outside 12.2; neither the test nor v1 evidence is repaired.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md`
+  summary: Story 12.4 must reconstruct the baseline and candidate as a fresh `sm-c2-envelope-v2` pair before any verdict.
+  evidence: The old source `29def441408becfbbbdc5c59b9af14a7717cb21f` and EventStore `b2d3402552fbadf529c220fcc739da9d06d285fe` must build for net11.0, with SDK 11.0.100/runtime 11.0.0, Release, the shared `f02c4b5d…` fixture basis, and method repetition constants (APPEND 400, CREATE 1200, LIST/OPEN 200 per side over four B,C sessions). The contracted `--baseline` v1 input is immutable provenance only. Record the host/kernel/CPU/logical processors and controlled process/environment state before observation; prove approval precedes the first observation. The baseline Markdown/JSON fixture-hash disagreement remains open.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md`
+  summary: AC-12.2-05 is owner-waived, never PASS; no Story 12.2 final-record pair is generated.
+  evidence: Owner decision 2026-11-16 in the frozen spec. Story 12.3 must bind Story 12.2 through its done spec, done sprint row, commit and approved method JSON/Markdown pair.
