@@ -111,6 +111,119 @@ context:
 - Given each fault, when AC-12.1-05 runs, then the exact blockers occur and the fixture bytes restore.
 - Given the change, when diffed against baseline, then `src/`, benchmarks, packages and gitlinks are untouched.
 
+### Review Findings
+
+Split code review, group 1 (2026-11-16), against `8da7f2bc8997c03a6aea3d72464369496c7b9717..65782e7f`.
+Scope: the generator, verifier, Python tests and decision schema (4 files, 2,885 diff lines).
+Blind Hunter (BH), Edge Case Hunter (ECH), Verification Gap (VG) and Acceptance Auditor (AA) all
+reported; no layer failed or was skipped. The 19 original findings below were individually triaged
+before grouping: 0 decision-needed, 3 patch groups, 0 defer and 15 rejected.
+
+- [x] [Review][Patch] Protect cited test inputs when verification fails before a bundle is available
+  [`_bmad/scripts/verify_derived_key_decision.py:166`] — **medium; BH-01.** Invalid decision JSON returns
+  `bundle=None`, so `readonly_inputs()` receives no evidence-test paths. In a disposable repository with
+  untracked cited inputs, passing a cited `.cs` path as `--output` overwrote that source with the failure
+  report. Read the cited input paths independently from the ADR before writing a report, and exercise
+  early parse/schema failures against colliding output paths. The parent reproduced the overwrite; the
+  existing tracked-file guard does not protect these untracked fixture inputs.
+- [x] [Review][Patch] Assert public blocker strings independently of production expectations
+  [`_bmad/scripts/tests/test_derived_key_decision.py:302`] — **medium; VG-01.** Expected CLI codes come
+  from `gen.FAULT_EXPECTATIONS` and `ver.VERIFIER_FAULT_EXPECTATIONS`, which share the production
+  `BLOCK_*` constants. The verification-gap reviewer changed only `BLOCK_AUTHORITY` to
+  `WRONG_PUBLIC_AUTHORITY_CODE`; all 10 selected authority/inventory/committed-decision tests still
+  passed. Pin the contracted literal strings in the tests so changing a required machine-readable code
+  fails the CLI fault matrix.
+- [x] [Review][Patch] Run the eleven isolated order faults through the restore-checked CLI matrix
+  [`_bmad/scripts/tests/test_derived_key_decision.py:521`] — **medium; BH-09 and AA-01.** BH-09 verified
+  that these AC-12.1-05-selected cases call `order_violations()` directly, bypassing parsing, CLI blocker
+  reporting, the assertion ledger and restoration. AA-01 independently confirmed that several isolated
+  faults, including proof-before-fence, have no equivalent in `SOURCE_FAULTS`, contrary to the spec's
+  real-CLI requirement. Add equivalent ADR mutations to the CLI-backed matrix. No current CLI ordering
+  failure was demonstrated; this finding concerns the promised verification coverage.
+
+Verification: `run-with-temp bash -c 'PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider
+--basetemp "$TMPDIR/pytest" _bmad/scripts/tests/test_derived_key_decision.py'` passed **199/199**, with
+0 skipped, in 76.98 seconds. The published decision independently returned `PASS`, exit 0, with
+`verify_derived_key_decision.py --require-approval`. Additional parent probes used disposable copies
+under the wrapper's `TMPDIR`; all child jobs finished before cleanup. At the initial presentation,
+implementation patches were pending the owner's handling choice.
+
+Group-1 patch resolution (2026-11-16): the owner selected **Apply every patch**. All three items above
+are resolved:
+
+- The verifier's `_report_inputs()` reads cited paths from the ADR independently of the decision bundle
+  and retains any validated bundle citations. Early JSON/schema failures and unavailable history now
+  preserve every cited source when `--output` collides with it. There are 39 CLI regression cases over
+  the 13 cited input files, checking exact blockers, a nonempty safe-output ledger, unchanged input
+  bytes, restoration and a successful verification after recovery. The JSON-parse regression failed
+  before the fix and passed afterward.
+- Test-owned `SOURCE_EXPECTATIONS` and `EVIDENCE_EXPECTATIONS` pin the public blocker strings. CLI
+  assertions use these independent literals; inventory checks also compare production maps against
+  them. Renaming only `BLOCK_AUTHORITY` in a disposable copy now fails both the authority CLI fault
+  and the inventory check, while the unchanged committed-decision positive control still passes.
+- Each of the eleven isolated order cases now mutates the fixture's ADR and uses the shared
+  `assert_source_fault()` path through both CLIs. Each checks the exact unsafe-transition/approval
+  blockers, the verifier ledger, restored bytes and successful recovery, in addition to confirming
+  that its named invariant fails alone.
+
+The same full-file pytest command above passed **238/238**, 0 skipped, in 110.93 seconds. AC-12.1-02
+ran twice with byte-identical outputs and bound approval preserved; AC-12.1-04 returned `PASS`, exit 0.
+The ADR, schema and approved JSON/Markdown remain byte-identical to `65782e7f`. The decision JSON hash
+is `cddf2b9bd5ee5869278247800a1c657399d2b4c431029a9741afd59ea98d9721`; the Markdown hash is
+`c3d6ac601769cf040463f040dd9606b69512069f2e231bd0bac0ecfecf3ab181`. `git diff --check` passed.
+No story/sprint completion transition is made while the remaining split-review group is outstanding.
+
+Remaining split-review group: `.gitattributes`, ADR 0005 and its index, generated JSON/Markdown,
+the C# conformance test, and the spec/sprint/deferred-work tracking changes. This group-1 result does
+not claim that the complete story has passed review.
+
+#### Rejected
+
+- BH-02 — **low:** Opening the approval schema and adding an ignored approval property does pass,
+  as reproduced. It requires editing the trusted validation policy and does not alter the approved
+  signable payload. Binding the schema adds policy/digest machinery for an unlikely metadata-only case.
+- BH-03 — **low:** An unusable schema does cause a traceback and omit the result report, as reproduced.
+  The check still exits nonzero; manually corrupting the trusted schema is unlikely in routine use and
+  recovery requires additional exception/validation branches.
+- BH-04 — **low:** Missing `inventory.sha256` and invalid UTF-8 inventory bytes do cause tracebacks,
+  as reproduced. This remains fail-closed for malformed frozen inputs; the prior owner triage already
+  rejected the inventory-input guard class (ECH-06). Additional validation branches are not warranted.
+- BH-05 — **low:** Comment-only class/method names satisfy citation checks, as reproduced. The prior
+  owner triage explicitly rejected this case (BH-09/ECH-03); adding a C# declaration/test parser is
+  disproportionate for owner-reviewed citations.
+- BH-06 — **low:** The schema pattern and direct path join permit an escaping citation such as
+  `tests/../../outside.cs`. The prior owner triage explicitly rejected this case (ECH-04); a new
+  containment guard addresses an unlikely owner-authored input rather than a routine failure.
+- BH-07 — **low:** Arbitrary pipe-delimited header lines are skipped and generation still passes,
+  as reproduced. All actual lifecycle rows remain checked; header validation adds branches for a
+  cosmetic defect visible in the owner-reviewed ADR.
+- BH-08 — **low:** Appending a conflicting second inventory definition leaves the first definition
+  authoritative to this parser, as reproduced. The frozen first definition still recomputes correctly;
+  uniqueness enforcement would add parsing policy for an unlikely contradictory planning edit.
+- BH-10 — **low:** Default pytest/npm discovery does omit this BMad suite. Current `ci.yml` explicitly
+  assigns BMad artifact/script checks to agent work, and the spec supplies its explicit AC-12.1-05
+  invocation, which passed here. Adding a new CI lane would change that existing policy rather than
+  correct this review group's required execution path.
+- ECH-01 — **low:** Independently searching the cited class and method can accept a method from another
+  class. The declaration regexes confirm this; the prior owner rejection BH-09/ECH-03 applies, and a
+  class-aware parser adds complexity for an unlikely citation mistake.
+- ECH-02 — **low:** Missing `inventory.sha256` or a numeric inventory id escapes the limited contract
+  validation. The parent reproduced the missing-field traceback; the subsequent indexing/regex calls
+  confirm the type failure. These malformed frozen-input cases still fail closed and need extra guards.
+- ECH-03 — **low:** Invalid schema types/references escape the verifier's handlers and omit its report.
+  The parent reproduced an invalid-type failure. This is the same unlikely trusted-schema corruption
+  class as BH-03 and needs additional validation/exception branches.
+- ECH-04 — **low:** A 5,000-digit order position raises `ValueError`, independently reproduced through
+  `parse_order()`. Such an owner-authored position is implausible in routine use; a length/exception
+  guard adds complexity while the malformed input already fails nonzero.
+- ECH-05 — **low:** Non-UTF-8 inventory text raises an uncaught decode error, independently reproduced.
+  This is the previously rejected malformed-input class; another decoding guard is not warranted.
+- VG-02 — **low:** The parent reproduced the unusable-schema traceback and missing report. The result
+  remains nonzero; extra schema validation/exception branches address unlikely trusted-input damage.
+- VG-03 — **low:** The parent reproduced `KeyError: 'sha256'` for a truncated contract and no result
+  report. The frozen-input defect still fails closed; the prior owner rejection of additional inventory
+  input guards applies here as well.
+
 ## Implementation Notes
 
 2026-11-16 implementation, **halted for owner approval** at the "present its digest" task. Nothing is

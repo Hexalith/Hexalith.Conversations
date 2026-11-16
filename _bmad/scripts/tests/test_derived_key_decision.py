@@ -27,6 +27,56 @@ RESULT = "out/result.json"
 FAULT_NOT_DETECTED = "FAULT_NOT_DETECTED"
 FIXTURE_NOT_RESTORED = "FIXTURE_NOT_RESTORED"
 
+# Public protocol expectations belong to the tests, independently of production BLOCK_* constants.
+SOURCE_EXPECTATIONS = {
+    **{f"omit-family-{family}": ("DERIVED_KEY_ADR_INCOMPLETE",) for family in gen.FAMILIES},
+    **{f"omit-{family}-{field}": ("DERIVED_KEY_ADR_INCOMPLETE",)
+       for family, field in itertools.product(gen.FAMILIES, gen.FIELDS)},
+    **{f"{fault}-{family}": (code,) for fault, code in (
+        ("second-writer", "EVENTSTORE_AUTHORITY_VIOLATED"),
+        ("read-repair", "EVENTSTORE_AUTHORITY_VIOLATED"),
+        ("authoritative-owner", "EVENTSTORE_AUTHORITY_VIOLATED"),
+        ("reverse-write-rollback", "ROLLBACK_PLAN_INVALID"),
+    ) for family in gen.FAMILIES},
+    **{f"blank-{part}-{field}": ("DERIVED_KEY_ADR_INCOMPLETE",)
+       for part, field in itertools.product(("statement", "rule"), gen.FIELDS)},
+    **{fault: ("DERIVED_KEY_ADR_INCOMPLETE",) for fault in (
+        "unlabeled-proposed-rollback", "current-row-without-evidence", "unknown-evidence-id",
+        "evidence-test-absent", "duplicate-row", "malformed-order", "omit-lifecycle-marker",
+        "wrong-cell-count", "mistyped-field", "malformed-evidence-row",
+    )},
+    **{fault: ("DERIVED_KEY_TRANSITION_UNSAFE",) for fault in (
+        "undeclared-family", "key-grammar-changed", "in-place-migration",
+        "interrupted-rebuild-resumes-partial-plan", "read-time-backfill", "query-delete",
+        "proof-expires-with-ledger", "ledger-never-expires", "ledger-completes-before-proof",
+        "index-merge-before-conversation-write", "rebuild-plan-proof-not-first", "proof-completion-dropped",
+    )},
+    "rollback-repeats-side-effects": ("ROLLBACK_PLAN_INVALID",),
+    **{fault: ("PREDECESSOR_CANDIDATE_MISMATCH",) for fault in (
+        "story-6-2-record-mutated", "baseline-v1-json-mutated", "baseline-v1-md-mutated",
+        "baseline-v1-xunit-mutated", "contract-edited", "story-16-3-binding-commit-replaced",
+    )},
+    "inventory-row-reordered": ("ENTRY_INVENTORY_MISMATCH",),
+    "schema-rejects-generated-bundle": ("EVIDENCE_FORMAT_DRIFT",),
+    **{fault: ("HISTORY_UNAVAILABLE",) for fault in (
+        "history-unavailable", "git-unavailable", "planning-candidate-unresolvable",
+    )},
+    "approval-presented-digest-mismatch": ("ADR_APPROVAL_MISSING",),
+    "non-closed-path": ("ARGUMENT_INVALID",),
+}
+EVIDENCE_EXPECTATIONS = {
+    **{fault: ("ADR_APPROVAL_MISSING",) for fault in (
+        "approval-removed", "approval-bound-to-stale-digest", "approval-unnamed", "adr-edited-after-approval",
+    )},
+    **{fault: ("EVIDENCE_FORMAT_DRIFT",) for fault in (
+        "markdown-edited", "json-unparseable", "json-noncanonical", "schema-opened", "resigned-key-prefix",
+    )},
+    "resigned-second-writer": ("EVENTSTORE_AUTHORITY_VIOLATED", "EVIDENCE_FORMAT_DRIFT"),
+    "resigned-read-repair": ("EVENTSTORE_AUTHORITY_VIOLATED", "EVIDENCE_FORMAT_DRIFT"),
+    "resigned-proof-expiry": ("DERIVED_KEY_TRANSITION_UNSAFE", "EVIDENCE_FORMAT_DRIFT"),
+    "resigned-reverse-write-rollback": ("ROLLBACK_PLAN_INVALID", "EVIDENCE_FORMAT_DRIFT"),
+}
+
 
 def run(script: str, *args: str, cwd: Path) -> subprocess.CompletedProcess:
     return subprocess.run([sys.executable, str(SCRIPTS / script), *args], cwd=cwd, capture_output=True,
@@ -297,24 +347,29 @@ def saved_inputs(repo: Path) -> dict[str, bytes]:
     return {path: (repo / path).read_bytes() for path in paths}
 
 
-@pytest.mark.parametrize("fault", sorted(SOURCE_FAULTS))
-def test_lifecycle_fault_matrix_source_faults(repo: Path, fault: str) -> None:
-    expected = list(gen.FAULT_EXPECTATIONS[fault])
+def assert_source_fault(repo: Path, mutate, expected: tuple[str, ...], *, blocked: bool = False,
+                        adr_changed: bool = False) -> None:
+    """Check a source mutation through both real CLIs, including restoration and recovery."""
     pristine, saved = snapshot(repo), saved_inputs(repo)
-    SOURCE_FAULTS[fault](repo)
+    mutate(repo)
     assert snapshot(repo) != pristine, f"{FAULT_NOT_DETECTED}: the mutation changed nothing"
     generated = generate(repo)
-    blocked = fault in HISTORY_FAULTS
     assert generated.returncode == (2 if blocked else 1), f"{FAULT_NOT_DETECTED}: {generated.stdout}{generated.stderr}"
-    assert codes(generated) == expected, f"{FAULT_NOT_DETECTED}: {generated.stderr}"
+    assert codes(generated) == list(expected), f"{FAULT_NOT_DETECTED}: {generated.stderr}"
     exit_code, blockers, report = verify(repo)
-    verifier_expected = set(expected) | ({gen.BLOCK_APPROVAL} if fault in ADR_FAULTS else set())
+    verifier_expected = set(expected) | ({"ADR_APPROVAL_MISSING"} if adr_changed else set())
     assert (exit_code, set(blockers)) == (2 if blocked else 1, verifier_expected), f"{FAULT_NOT_DETECTED}: {report}"
     assert report["assertionLedger"], "a vacuous verifier ledger is never evidence"
     assert (report["result"] == "BLOCKED") == blocked
     restore(repo, saved)
     assert snapshot(repo) == pristine, FIXTURE_NOT_RESTORED
     assert verify(repo)[:2] == (0, [])
+
+
+@pytest.mark.parametrize("fault", sorted(SOURCE_FAULTS))
+def test_lifecycle_fault_matrix_source_faults(repo: Path, fault: str) -> None:
+    assert_source_fault(repo, SOURCE_FAULTS[fault], SOURCE_EXPECTATIONS[fault],
+                        blocked=fault in HISTORY_FAULTS, adr_changed=fault in ADR_FAULTS)
 
 
 def approval_presented_digest_mismatch(repo: Path) -> subprocess.CompletedProcess:
@@ -325,7 +380,7 @@ def approval_presented_digest_mismatch(repo: Path) -> subprocess.CompletedProces
 def test_lifecycle_fault_matrix_approval_of_a_different_digest_is_refused(repo: Path) -> None:
     pristine = snapshot(repo)
     refused = approval_presented_digest_mismatch(repo)
-    assert refused.returncode == 1 and codes(refused) == list(gen.FAULT_EXPECTATIONS["approval-presented-digest-mismatch"])
+    assert refused.returncode == 1 and codes(refused) == list(SOURCE_EXPECTATIONS["approval-presented-digest-mismatch"])
     assert snapshot(repo) == pristine, FIXTURE_NOT_RESTORED
     exit_code, blockers, report = verify(repo)
     assert (exit_code, blockers) == (0, []) and report["assertionLedger"]
@@ -336,13 +391,13 @@ def test_lifecycle_fault_matrix_non_closed_path_is_refused(repo: Path) -> None:
     other = "docs/release-evidence/derived-key-lifecycle-decision-other.json"
     refused = run("generate_derived_key_decision.py", "--repository", ".", "--contract", gen.CONTRACT_PATH, "--adr",
                   gen.ADR_PATH, "--output-json", other, "--output-markdown", gen.MARKDOWN_PATH, cwd=repo)
-    assert refused.returncode == 2 and codes(refused) == list(gen.FAULT_EXPECTATIONS["non-closed-path"]), refused.stderr
+    assert refused.returncode == 2 and codes(refused) == list(SOURCE_EXPECTATIONS["non-closed-path"]), refused.stderr
     completed = run("verify_derived_key_decision.py", "--repository", ".", "--evidence", other, "--markdown",
                     gen.MARKDOWN_PATH, "--require-approval", "--output", RESULT, cwd=repo)
     assert (repo / RESULT).is_file(), f"the verifier wrote no report: {completed.stderr}"
     report = json.loads((repo / RESULT).read_text(encoding="utf-8"))
     assert completed.returncode == 2 and report["result"] == "BLOCKED"
-    assert [b["code"] for b in report["blockers"]] == list(gen.FAULT_EXPECTATIONS["non-closed-path"])
+    assert [b["code"] for b in report["blockers"]] == list(SOURCE_EXPECTATIONS["non-closed-path"])
     assert report["assertionLedger"], "a vacuous verifier ledger is never evidence"
     assert not (repo / other).exists() and snapshot(repo) == pristine, FIXTURE_NOT_RESTORED
     assert verify(repo)[:2] == (0, [])
@@ -438,8 +493,32 @@ def test_lifecycle_fault_matrix_evidence_faults(repo: Path, fault: str) -> None:
     EVIDENCE_FAULTS[fault](repo)
     assert snapshot(repo) != pristine, f"{FAULT_NOT_DETECTED}: the mutation changed nothing"
     exit_code, blockers, report = verify(repo)
-    assert (exit_code, blockers) == (1, list(ver.VERIFIER_FAULT_EXPECTATIONS[fault])), f"{FAULT_NOT_DETECTED}: {report}"
+    assert (exit_code, blockers) == (1, list(EVIDENCE_EXPECTATIONS[fault])), f"{FAULT_NOT_DETECTED}: {report}"
     assert report["assertionLedger"], "a vacuous verifier ledger is never evidence"
+    restore(repo, saved)
+    assert snapshot(repo) == pristine, FIXTURE_NOT_RESTORED
+    assert verify(repo)[:2] == (0, [])
+
+
+@pytest.mark.parametrize("target", sorted(set(evidence_paths())))
+@pytest.mark.parametrize(("fault", "expected_code"), (
+    ("json-unparseable", "EVIDENCE_FORMAT_DRIFT"),
+    ("schema-opened", "EVIDENCE_FORMAT_DRIFT"),
+    ("history-unavailable", "HISTORY_UNAVAILABLE"),
+))
+def test_lifecycle_fault_matrix_report_output_preserves_cited_inputs(repo: Path, target: str, fault: str,
+                                                                   expected_code: str) -> None:
+    pristine, saved = snapshot(repo), saved_inputs(repo)
+    {**EVIDENCE_FAULTS, **HISTORY_FAULTS}[fault](repo)
+    exit_code, blockers, report = verify(repo)
+    assert (exit_code, blockers) == (2 if fault in HISTORY_FAULTS else 1, [expected_code]), report
+    assert report["assertionLedger"], "a vacuous verifier ledger is never evidence"
+    mutated = snapshot(repo)
+    completed = run("verify_derived_key_decision.py", "--repository", ".", "--evidence", gen.JSON_PATH,
+                    "--markdown", gen.MARKDOWN_PATH, "--require-approval", "--output", target, cwd=repo)
+    assert completed.returncode == 2 and completed.stdout.strip() == "BLOCKED", completed.stderr
+    assert codes(completed) == [expected_code, "OUTPUT_WRITE_FAILED"], completed.stderr
+    assert snapshot(repo) == mutated, "report output changed a cited input"
     restore(repo, saved)
     assert snapshot(repo) == pristine, FIXTURE_NOT_RESTORED
     assert verify(repo)[:2] == (0, [])
@@ -464,10 +543,11 @@ def test_lifecycle_fault_matrix_complete_lifecycle_is_deterministic_and_verified
 
 def test_lifecycle_fault_matrix_inventory_matches_the_tools() -> None:
     argument_faults = {"approval-presented-digest-mismatch", "non-closed-path"}
-    assert {fault: gen.FAULT_EXPECTATIONS[fault] for fault in SOURCE_FAULTS} == {
-        fault: code for fault, code in gen.FAULT_EXPECTATIONS.items() if fault not in argument_faults}
+    assert set(SOURCE_FAULTS) == set(SOURCE_EXPECTATIONS) - argument_faults
+    assert gen.FAULT_EXPECTATIONS == SOURCE_EXPECTATIONS
     assert set(ORDER_REORDERS) == set(gen.ORDER_INVARIANTS)
-    assert set(EVIDENCE_FAULTS) == set(ver.VERIFIER_FAULT_EXPECTATIONS)
+    assert set(EVIDENCE_FAULTS) == set(EVIDENCE_EXPECTATIONS)
+    assert ver.VERIFIER_FAULT_EXPECTATIONS == EVIDENCE_EXPECTATIONS
     assert {(family, field) for family in gen.FAMILIES for field in gen.FIELDS} <= {
         (family, field) for family in gen.FAMILIES for field in gen.FIELDS if f"omit-{family}-{field}" in SOURCE_FAULTS}
 
@@ -519,8 +599,16 @@ def test_lifecycle_fault_matrix_decided_order_has_no_violation() -> None:
 
 
 @pytest.mark.parametrize("invariant", gen.ORDER_INVARIANTS)
-def test_lifecycle_fault_matrix_order_invariant_isolated(invariant: str) -> None:
-    assert gen.order_violations(ORDER_REORDERS[invariant]()) == [invariant], FAULT_NOT_DETECTED
+def test_lifecycle_fault_matrix_order_invariant_isolated(repo: Path, invariant: str) -> None:
+    orders = ORDER_REORDERS[invariant]()
+    assert gen.order_violations(orders) == [invariant], FAULT_NOT_DETECTED
+
+    def mutate(repo: Path) -> None:
+        for family, (live, rebuild) in orders.items():
+            token = "live=" + ",".join(f"{position}:{action}" for action, position in live.items())
+            set_rule(family, "order", token + f";rebuild={rebuild}")(repo)
+
+    assert_source_fault(repo, mutate, ("DERIVED_KEY_TRANSITION_UNSAFE",), adr_changed=True)
 
 
 def test_lifecycle_fault_matrix_rebuild_invariants_pin_the_exact_sequence() -> None:

@@ -131,6 +131,17 @@ def verify(repository: Path, evidence: str, markdown: str, require_approval: boo
     return ledger, bundle
 
 
+def _report_inputs(repository: Path, bundle: dict | None) -> tuple[str, ...]:
+    """Protect ADR citations even when decision parsing or verification did not return a bundle."""
+    try:
+        _, evidence_tests, _ = gen.parse_adr(gen.read_file(repository, gen.ADR_PATH).decode("utf-8"))
+    except (gen.Blocked, UnicodeDecodeError):
+        evidence_tests = []
+    if isinstance(bundle, dict):
+        evidence_tests += bundle["evidenceTests"]
+    return gen.readonly_inputs(evidence_tests)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     parser.add_argument("--repository", required=True)
@@ -165,8 +176,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.output:
         try:
             output_writer.write_outputs(repository, [(args.output, (json.dumps(report, indent=2) + "\n").encode("utf-8"))],
-                                        (gen.JSON_PATH, gen.MARKDOWN_PATH, *gen.readonly_inputs(
-                                            bundle["evidenceTests"] if isinstance(bundle, dict) else None)))
+                                        (gen.JSON_PATH, gen.MARKDOWN_PATH, *_report_inputs(repository, bundle)))
         except output_writer.OutputError as error:
             report["blockers"].append({"code": gen.OUTPUT_WRITE_FAILED, "message": str(error)})
             result, code = "BLOCKED", 2
