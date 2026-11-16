@@ -37,7 +37,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-06-02
-last_updated: 2026-11-15
+last_updated: 2026-11-16
 # HISTORICAL V14 PUBLICATION: v9-authority-bundle-v1.json retains the candidate-bound August 18 planning state. That publication's hold, unrun IR-0 and backlog statements describe its historical boundary.
 # CURRENT TRACKING: development_status below records lifecycle progress. docs/runbooks/current-change-validation.md governs routine work and links the later IR-0 disposition; historical records retain their original results and authority limits.
 # PROVENANCE LEDGER: the 90 lifecycle-transition comments previously recorded here are preserved byte-exact in _bmad-output/implementation-artifacts/sprint-status-provenance-v1.md (sha256 pinned by v14-current-candidate-authority-v1.json). That relocation changed no lifecycle or action-item status value.
@@ -135,10 +135,10 @@ development_status:
   epic-16: in-progress
   16-1-persist-tenant-access-projection-state-and-prove-convergence: done
   16-2-make-replay-time-deterministic-and-missing-index-state-truthful: done
-  # 16.3: native proof 5/5 and independent review complete; ready for human review.
+  # 16.3: native proof 186/186 after both review passes resolved (2026-11-16); done.
   # Entry/final-pair/test-AppHost owner ceremony are user-waived; historical hold/flags unchanged.
-  16-3-diagnose-apphost-preflight-failures-and-prove-terminal-reconciliation-live: review
-  epic-16-retrospective: optional
+  16-3-diagnose-apphost-preflight-failures-and-prove-terminal-reconciliation-live: done
+  epic-16-retrospective: done
 action_items:
   - epic: 3
     action: "Make final story record generation mechanical from final test counts, file list, submodule state, and root gitlink state."
@@ -261,19 +261,19 @@ action_items:
     epic: 6
     action: "Create approved successor work for a durable event-fed tenant-access projection with freshness, gap detection, restart, and multi-replica convergence proof before scaling beyond one replica."
     owner: "Architect / Runtime owner"
-    status: open
+    status: done
     ref: "_bmad-output/implementation-artifacts/epic-6-retro-2026-08-03.md"
   - id: "epic-6-retro-item-28-create-approved-successor-work-for-deter"
     epic: 6
     action: "Create approved successor work for deterministic event-derived replay timestamps and trustworthy missing-index semantics, with exact replay and derived-state-deletion tests."
     owner: "Projection owner"
-    status: open
+    status: done
     ref: "_bmad-output/implementation-artifacts/epic-6-retro-2026-08-03.md"
   - id: "epic-6-retro-item-29-add-explicit-preflight-diagnostics-for-a"
     epic: 6
     action: "Add explicit preflight diagnostics for AppHost endpoint readiness and Dapr control-plane port collisions, and cover the Conversations terminal reconciliation route end to end."
     owner: "Test / AppHost owner"
-    status: open
+    status: done
     ref: "_bmad-output/implementation-artifacts/epic-6-retro-2026-08-03.md"
   - id: "epic-7-retro-item-30-generalize-the-v2-story-record-generator"
     epic: 7
@@ -389,3 +389,75 @@ action_items:
     owner: "Architecture / Product owner"
     status: done
     ref: "_bmad-output/implementation-artifacts/epic-11-retro-2026-10-21.md"
+  - id: "epic-16-retro-item-49-commit-story-16-3-completion-across-repositories"
+    epic: 16
+    action: "Commit and push Story 16.3's uncommitted completion: EventStore test files first, then a root build(deps) gitlink bump, then the 16.3 resolution commit (spec, sprint row, tests, evidence) with validated commitlint; add a done-transition check that fails on content dirt in any changed submodule."
+    owner: "Story 16.3 owner / Dev workflow"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-16-retro-2026-11-16.md"
+  - id: "epic-16-retro-item-50-restore-package-mode-ci"
+    epic: 16
+    action: "Restore package-mode CI: repair the root Platform/Builds/tool tuple (HXW011/HXW009/HXW010), publish an EventStore release containing d24bd5166 and bump HexalithEventStoreVersion, track that dependency in deferred-work.md, and prove green build-and-test and aspire-tests with nonzero Story16_3EvidenceTests; add a /pushall package-mode preflight."
+    owner: "Release / CI owner, EventStore owner"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-16-retro-2026-11-16.md"
+  - id: "epic-16-retro-item-51-fix-keycloak-realm-client-description"
+    epic: 16
+    action: "Shorten the conversations-tenant-access Keycloak client description to 255 characters or fewer, add a topology test bounding every realm client description, and rerun the default-Keycloak AppHost baseline."
+    owner: "Conversations AppHost owner"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-16-retro-2026-11-16.md"
+  - id: "epic-16-retro-item-52-reconcile-duplicate-event-identity-semantics"
+    epic: 16
+    action: "Decide and align duplicate-identity semantics between ConversationReplayVerifier (same EventId at a later position is a no-op for ParticipantAdded/ProjectChanged) and the 16.2 AD-8 binding (contradictory); separate MessageId and EventId namespaces; add a projection test over a domain-accepted duplicate history and decide how contradictory input for an existing generation becomes read-visible."
+    owner: "Projection owner / Domain owner"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-16-retro-2026-11-16.md"
+  - id: "epic-16-retro-item-53-disclose-epic-16-public-behavior-changes"
+    epic: 16
+    action: "Publish release notes and handoff text for the 16.1 unsafe-tenant denial change, LastEvaluatedAt replay-anchor/epoch semantics, the list 200-to-503 change, and internal replay fields on the legacy /project response (or exclude them)."
+    owner: "Release owner / Tech writer"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-16-retro-2026-11-16.md"
+  - id: "epic-16-retro-item-54-correct-platform-handoff-safety-claims"
+    epic: 16
+    action: "Correct module/platform-handoff.md: stuck revocations keep prior grants authorizing (add a lag alert owner action), rolling-update guidance for the 16.2 index, the DAPR_EXECUTABLE_NOT_FOUND scope, the stale release-train item, and the publish-mode gateway origin."
+    owner: "Conversations / Platform handoff owner"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-16-retro-2026-11-16.md"
+  - id: "epic-16-retro-item-55-harden-epic-16-live-lane-boundaries"
+    epic: 16
+    action: "Assert the v2 Ready lifecycle and watermarks after each 16.3 recovery, move Story16_1LiveSidecar onto DaprDiagnostics.RequireDaprExecutable, give the 16.1/16.2 lanes a private or port-resolved Redis, and reuse Story16_1Replica in 16.2."
+    owner: "Test owner"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-16-retro-2026-11-16.md"
+  - id: "epic-16-retro-item-56-publish-versioned-replay-canonicalizer"
+    epic: 16
+    action: "Expose a public, versioned EventStore canonicalizer with golden vectors for ReplayStateHash and retire the InternalsVisibleTo entry for Hexalith.Conversations.Server."
+    owner: "EventStore owner"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-16-retro-2026-11-16.md"
+  - id: "epic-16-retro-item-57-reconcile-epic-16-planning-authority"
+    epic: 16
+    action: "Reconcile epic-16-context.md, epic-16-prerequisites-v1/epic.md, AR-2, the stale sprint-status 12.1 question comment and the 16.1 release-train ledger entry with the as-built and waived state so Epic 12-15 specs stop re-importing the hold."
+    owner: "Product / Release owner"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-16-retro-2026-11-16.md"
+  - id: "epic-16-retro-item-58-retire-epic-16-successor-tooling"
+    epic: 16
+    action: "Retire the Epic 16 tooling and prerequisite pytest suites through conftest.py, mark the tooling v1-v3 and adoption packages historical, and close the tooling-v3 re-bind deferral as retired."
+    owner: "Dev workflow / Evidence tooling owner"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-16-retro-2026-11-16.md"
+  - id: "epic-16-retro-item-59-decide-qualification-evidence-retention"
+    epic: 16
+    action: "Decide retention of the ~2.2 GB of tracked Epic 16 qualification binaries and tool caches (keep, or replace with digest manifests in a separately approved history-preserving step); add an ignore guard for module/validation/**/isolated/ and keep tool caches out of evidence capture and /pushall."
+    owner: "Release / Repository owner"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-16-retro-2026-11-16.md"
+  - id: "epic-16-retro-item-60-pass-known-deferrals-to-code-review"
+    epic: 16
+    action: "Feed each story spec's open deferred-work.md entries to bmad-code-review lenses as known items so review passes stop re-reporting carried deferrals."
+    owner: "Dev workflow"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-16-retro-2026-11-16.md"
