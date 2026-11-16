@@ -18,6 +18,7 @@ import authoring_outputs as output_writer
 import generate_sm_c2_method as gen
 
 RESULT_SCHEMA = "hexalith.conversations.sm-c2-measurement-method-result.v2"
+SCHEMA_SHA256 = "73238d2795ea20f19f0918269e6333e160fb9e3894e9ddeaa003f7fa0dae61d8"
 
 
 class Ledger:
@@ -42,6 +43,11 @@ def substitute_keys(value) -> list[str]:
             if any(token in normalized for token in ("ceiling", "disclosure", "approval", "recordedonly",
                                                        "correctnessrationale", "owneracceptance")):
                 found.append(key)
+            if normalized in ("gate", "result", "status", "rule") and isinstance(item, str) \
+                    and re.sub(r"[^a-z]", "", item.lower()) in (
+                        "recorded", "recordedonly", "recordednotgated", "approvedcostceiling",
+                        "costceiling", "disclosureonly", "ownerapproval", "correctnessrationale"):
+                found.append(f"{key}={item}")
             found.extend(substitute_keys(item))
     elif isinstance(value, list):
         for item in value:
@@ -79,11 +85,11 @@ def inspect_method(bundle: dict, expected: dict, ledger: Ledger) -> None:
     if inventory_ok:
         for actual, wanted in zip(recorded_rows, expected["rows"], strict=True):
             threshold = actual.get("threshold")
-            ledger.check(f"threshold:{wanted['hotPathId']}", threshold == wanted["threshold"], gen.BLOCK_THRESHOLD,
+            ledger.check(f"threshold:{wanted['hotPathId']}", gen.canonical(threshold) == gen.canonical(wanted["threshold"]), gen.BLOCK_THRESHOLD,
                          "Every row requires usable signal and the exact decimal 1.05 threshold.")
             ledger.check(f"metadata:{wanted['hotPathId']}",
-                         {key: value for key, value in actual.items() if key != "threshold"}
-                         == {key: value for key, value in wanted.items() if key != "threshold"},
+                         gen.canonical({key: value for key, value in actual.items() if key != "threshold"})
+                         == gen.canonical({key: value for key, value in wanted.items() if key != "threshold"}),
                          gen.BLOCK_INCOMPLETE, "Row metadata comes from the immutable baseline.")
     groups = {
         gen.BLOCK_INCOMPLETE: ("schemaVersion", "candidate"),
@@ -96,7 +102,7 @@ def inspect_method(bundle: dict, expected: dict, ledger: Ledger) -> None:
             if field not in payload:
                 ledger.check(f"method:{field}", False, gen.BLOCK_INCOMPLETE, f"Required method field {field} exists.")
             else:
-                ledger.check(f"method:{field}", payload[field] == expected[field], code,
+                ledger.check(f"method:{field}", gen.canonical(payload[field]) == gen.canonical(expected[field]), code,
                              f"Recompute frozen {field} from independent constants and bound sources.")
     ledger.check("method:fields", set(payload) == set(expected), gen.BLOCK_INCOMPLETE, "The 12 payload fields are exact.")
 
@@ -115,9 +121,10 @@ def verify(repository: Path, evidence: str, markdown: str, allow_unapproved: boo
         ledger.check("json:object", False, gen.BLOCK_INCOMPLETE, "The method must be a JSON object.")
         return ledger, None
     try:
+        schema = gen.load_schema(repository, SCHEMA_SHA256)
         expected = gen.build_payload(repository)
     except gen.MethodError as error:
-        ledger.rows.append({"id": "candidate:binding", "subject": "historical input binding", "state": "FAIL"})
+        ledger.rows.append({"id": "inputs:binding", "subject": "approved schema and historical input binding", "state": "FAIL"})
         ledger.blockers += error.errors
         return ledger, bundle
     inspect_method(bundle, expected, ledger)
@@ -125,13 +132,6 @@ def verify(repository: Path, evidence: str, markdown: str, allow_unapproved: boo
         import jsonschema
     except ImportError:
         raise gen.Blocked(gen.TOOLING_UNAVAILABLE, "jsonschema is unavailable") from None
-    try:
-        schema = json.loads(gen.read_file(repository, gen.SCHEMA_PATH))
-        if not isinstance(schema, dict):
-            raise ValueError("the method schema must be an object")
-        jsonschema.Draft202012Validator.check_schema(schema)
-    except (ValueError, jsonschema.SchemaError) as error:
-        raise gen.Blocked(gen.INPUT_UNAVAILABLE, f"the method schema cannot be applied: {error}") from None
     ledger.check("schema:closed", schema_closed(schema) and len(schema.get("required", [])) == 14,
                  gen.BLOCK_INCOMPLETE, "All schema objects are closed and all 14 top-level fields are required.")
     # Semantic diagnostics take precedence over the schema's const diagnostics for the same mutation.

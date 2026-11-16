@@ -2,7 +2,7 @@
 title: 'Story 12.2: Freeze the benchmark method and signal-quality algorithm'
 type: 'feature'
 created: '2026-11-16'
-status: 'in-progress'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: '07b7bca399f3cf68dbc7eb07f2f6c29a744a4206'
@@ -96,7 +96,7 @@ context:
   - Re-implement P95 and the bootstrap in C# and reproduce the self-check vectors exactly.
   - Assert retain-all and non-adaptive repetitions.
 - [x] `_bmad/scripts/tests/test_sm_c2_method.py`: `method_fault_matrix` through the real CLIs. It covers every Matrix row, a postdated approval and unavailable history. Each case checks the exact literal blocker, a nonempty ledger and restored bytes.
-- [ ] Generate the pair, present its digest, and HALT for owner approval. Then regenerate with the approval, verify, and commit after commitlint.
+- [x] Generate the pair, present its digest, and HALT for owner approval. Then regenerate with the approval, verify, and commit after commitlint.
 - [x] Update this spec, `sprint-status.yaml` and `deferred-work.md`:
   - Log the stale v1 fixture pin.
   - Log the 12.4 handoff: the old source must build for net11.0, the fixture constants must follow the method, and the contracted `--baseline` v1 input is provenance only.
@@ -147,8 +147,45 @@ context:
 - The stale v1 fixture pin, Story 12.4 paired net11.0/repetition handoff, provenance-only role of `--baseline` and AC-12.2-05 waiver are appended to `deferred-work.md`. No production source, benchmark fixture, v1 evidence, ADR 0005, package configuration or gitlink is changed.
 
 - Before owner approval, AC-12.2-01 ran twice with system `python3`, exited 0 both times and retained byte-identical JSON/Markdown. The draft-only verifier passed with a nonempty ledger. The unsigned contracted AC-12.2-02 initially exited 1 with exactly `SMC2_APPROVAL_MISSING`; after owner approval and regeneration it passed. The initial failure is not counted as a pass.
-- AC-12.2-04 passed 71/71 through the real CLIs, with exact literal blocker expectations, nonempty ledgers and byte restoration. The strengthened generator-approval follow-up also passed (1/1). Both pytest jobs used `TMPDIR=/var/tmp run-with-temp` and system `python3`; receipts are in `artifacts/v9/12.2/`. `python3 scripts/check-root-submodules.py --repository .` and `git diff --check` passed. The protected-path diff is empty. The real index remains untouched until approval regeneration; rerun the staged checks before the eventual commit.
+- AC-12.2-04 passed 71/71 through the real CLIs, with exact literal blocker expectations, nonempty ledgers and byte restoration. The strengthened generator-approval follow-up also passed (1/1). Both pytest jobs used `TMPDIR=/var/tmp run-with-temp` and system `python3`; receipts are in `artifacts/v9/12.2/`. `python3 scripts/check-root-submodules.py --repository .` and `git diff --check` passed. The protected-path diff is empty. After owner approval, the exact ten story paths were staged; the staged root-submodule and whitespace checks passed before the implementation commit.
+
+- Post-approval: AC-12.2-01 regenerated the approved pair twice with byte-identical results. The full source commit message passed the pinned commitlint CLI (successful evidence retained at `artifacts/v9/12.2/source-commitlint.log`). The implementation is committed locally; no remote operation was performed.
+- Evidence-boundary transition: **not-applicable**. This routine story has its own scoped method contract and does not request the retired historical evidence-boundary verifier; focused checks follow the current-change runbook.
 
 ## Spec Change Log
 
 ## Review Triage Log
+
+### Review pass 1 — 2026-11-16
+
+Each row is a verdict on the original finding before grouping.
+
+| Finding | Verdict | Evidence and route |
+| --- | --- | --- |
+| BH-01 — older epic field names | medium | The older epic lists `inventoryVersion`, `p95Algorithm`, `signalAlgorithm` and top-level `threshold`; the presented bundle instead uses `schemaVersion`, `percentile`, `signalQuality`, `selfChecks`, and per-row thresholds, with inventory identity bound in `candidate.inventory`. This shape is visible in the exact payload the owner approved in this session. Its semantics and digest stay frozen. Reject the proposed spec-only amendment as prescribed by this workflow; disclose the historical field-name difference here rather than silently claiming those older names exist. |
+| BH-02 — permissive schema accepted | medium | `schema_closed({})` returns true and approval metadata is excluded from the payload digest. A valid but relaxed schema can therefore make the verifier assert closure incorrectly. Patch: independently pin the current schema bytes in consuming tooling and retain metaschema validation. Group with EC-01. |
+| BH-03 — invalid generator schema crashes | medium | The generator instantiates a validator without `check_schema`; invalid types or a null root can escape the CLI result protocol. Patch: validate shape/metaschema and translate invalid input into `INPUT_UNAVAILABLE`/BLOCKED. Group with EC-04. |
+| BH-04 — authority artifact scalar crashes | medium | The artifact comprehension calls `.get` on every entry, while its exception handler does not cover `AttributeError`. Patch: check the object/list/item shapes before member access; preserve the structured nonempty-ledger BLOCKED result. Group with EC-02. |
+| BH-05 — verifier reuses calculations | false | The verifier recomputes the expected values from bound raw inputs rather than trusting generated fields, following the predecessor verifier pattern. The file-only C# test separately pins the canonical digest and independently implements nearest-rank and SplitMix64/bootstrap. The claimed common calculation error has no demonstrated surviving outcome across the required gates; duplicating all candidate-binding and algorithm code in another Python module is not needed for this contract. |
+| BH-06 — legacy gate values use generic code | medium | A row with `gate: recorded-only` is rejected as incomplete but is a demonstrated legacy substitute deserving `SMC2_THRESHOLD_MUTATED`. Patch: classify those demonstrated gate values and test their literal blocker. |
+| BH-07 — bool/integer equality hides classification | medium | Python dictionary equality equates `true` with `1`; the schema rejects it later with the generic incomplete code. Patch: use type-sensitive canonical comparisons and test threshold, retention and environment examples. |
+| BH-08 — C# excludes approval | low | The C# lane deliberately verifies payload/algorithm conformance and can run before owner approval. The mandatory separate AC-12.2-02 rejects missing, unnamed, stale and postdated approval. No combined acceptance bypass was shown. Reject adding another approval/time/history gate to this file-only algorithm test; its publication-time implementation would add unnecessary complexity. |
+| BH-09 — no committed approval regression | medium | The existing future-year case uses an unborn fixture repository, so it never exercises first publication. Patch: use real publication history and reject a later approval that is already before verification time through both CLIs. Group with VG-01. |
+| BH-10 — runner/session comparability | maybe-false | The approved method fixes fixture basis, same-host/runtime/configuration/concurrency, runner flags and no concurrent processes, but does not enumerate runner version or process lifecycle separately. No paired Story 12.4 observation exists to demonstrate divergent behavior. Defer as medium/unverified: Story 12.4 should bind the actual runner binary/version and session invocation/process lifecycle and prove both sides use the same choices before observation. |
+| EC-01 — empty approval schema accepted | medium | Same verified schema-closure defect as BH-02; patch the consuming schema trust pin and cover the empty approval/digest subschemas. |
+| EC-02 — nonobject authority row | medium | Same verified authority shape defect as BH-04; guard null/scalar/array rows and check real-CLI reports. |
+| EC-03 — nonobject predecessor decision | medium | `decision.items()` runs even after predecessor byte drift has been recorded, so an array/scalar causes `AttributeError` and prevents a report. Patch: validate the decision's object shape in its existing evaluated-input handler and test the exact incomplete blocker with restoration. |
+| EC-04 — invalid generator schema root | medium | Same invalid-schema CLI defect as BH-03; cover null root and invalid schema type in both CLIs. |
+| VG-01 — publication lookup can regress undetected | medium | Pre-verified reviewer mutation removed publication lookup while the future-year test remained green. Patch the historical real-CLI fixture as in BH-09. |
+| VG-02 — foreign-output test exercises another guard | medium | Pre-verified reviewer mutation removed `refuse_foreign_output` while the existing protected-input case stayed green because `write_outputs` separately protects `POST_PATH`. Patch: test unrelated untracked text and foreign-schema JSON outputs and byte preservation. |
+
+Surviving patches are eight groups: schema trust, malformed schema, authority shapes, predecessor shape, legacy gate classification, type-sensitive comparisons, historical approval regression, and foreign-output regression. Their fixes alter tooling/tests only and preserve the approved payload/schema bytes. No frozen intent change or specification re-derivation is needed.
+
+### Review resolution and completion
+
+- All eight patch groups are fixed in the generator, verifier and CLI tests. Both consuming tools pin the exact approved schema bytes (`73238d2795ea20f19f0918269e6333e160fb9e3894e9ddeaa003f7fa0dae61d8`), reject unusable schemas through the BLOCKED protocol, and preserve semantic blocker classification for legacy gates and type lookalikes. Malformed authority and predecessor inputs now produce structured reports.
+- The 37 focused review regressions passed; the complete final AC-12.2-04 matrix passed **108/108**, with no failures or skips. Every applicable matrix row ran through real CLIs, checked literal blocker identities and a nonempty verifier ledger, and restored the fixture bytes. Publication regressions use the existing implementation commit and test approval on both sides of publication time, including a postdated approval already before verification time. Foreign-output regressions preserve unrelated untracked text and foreign-schema JSON.
+- The approved JSON, Markdown and schema remain byte-identical to source publication `0cb5cf651e24ac69b9c60335cb0b058355b4c76f`. AC-12.2-01 regenerated the approved pair twice after review fixes; AC-12.2-02 passed against the committed publication and actual approval timestamp. The C# source and its consumed signable payload/v1 inputs did not change during review, so the previously measured exact 1/1 Debug/net11.0 result remains applicable without another native build.
+- Owner approval in this session binds the presented bundle, including its explicit `candidate.waivedScenarios` entry for **AC-12.2-05**. That existing owner waiver controls completion: no final-record pair is generated, inserted or reported PASS. Stories 12.3/12.4 consume the approved pair and this lifecycle state as already specified. Evidence-boundary verification remains **not-applicable** under the current-change runbook.
+- The runner/session comparability question is recorded as medium/unverified deferred work for Story 12.4. The existing v1 fixture pin and provenance disagreement remain open as already disclosed. No production source, benchmark fixture, v1 evidence, ADR, package configuration or gitlink changed.
+- Completion guards: AC-7.3-01 and AC-7.3-02 passed with their exact contracted output paths. Fresh observations were copied into the 12.2 operational logs and the prior 7.3 operational receipt bytes restored. An initial custom-output invocation returned `ARGUMENT_INVALID`/BLOCKED and was corrected to the declared commands before completion. Staged whitespace and root-submodule checks passed. The spec is done; the sprint row moves to `review` as required by the build workflow.

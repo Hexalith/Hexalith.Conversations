@@ -24,6 +24,7 @@ from generate_derived_key_decision import canonical, frontmatter_value, sha256_b
 SCHEMA_VERSION = "hexalith.conversations.sm-c2-measurement-method.v2"
 PREFIX = "docs/release-evidence/sm-c2-measurement-method-v2"
 SCHEMA_PATH, JSON_PATH, MARKDOWN_PATH = (PREFIX + suffix for suffix in (".schema.json", ".json", ".md"))
+SCHEMA_SHA256 = "73238d2795ea20f19f0918269e6333e160fb9e3894e9ddeaa003f7fa0dae61d8"
 CONTRACT_PATH = "_bmad-output/planning-artifacts/v9/story-contracts/12.2.json"
 AUTHORITY_PATH = "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json"
 EPICS_PATH = "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md"
@@ -118,6 +119,25 @@ def file_binding(repository: Path, path: str) -> dict:
     return {"path": path, "sha256": sha256_bytes(read_file(repository, path))}
 
 
+def load_schema(repository: Path, expected_sha256: str = SCHEMA_SHA256) -> dict:
+    """Validate the metaschema before requiring the exact approved schema bytes."""
+    try:
+        import jsonschema
+    except ImportError:
+        raise Blocked(TOOLING_UNAVAILABLE, "jsonschema is unavailable") from None
+    raw = read_file(repository, SCHEMA_PATH)
+    try:
+        schema = json.loads(raw)
+        if not isinstance(schema, dict):
+            raise ValueError("the method schema must be an object")
+        jsonschema.Draft202012Validator.check_schema(schema)
+    except (ValueError, jsonschema.SchemaError) as error:
+        raise Blocked(INPUT_UNAVAILABLE, f"the method schema cannot be applied: {error}") from None
+    if sha256_bytes(raw) != expected_sha256:
+        raise MethodError([(BLOCK_INCOMPLETE, "The schema differs from the exact approved schema bytes.")])
+    return schema
+
+
 def bind_candidate(repository: Path) -> dict:
     errors = []
     top = git(repository, "rev-parse", "--show-toplevel").stdout.decode().strip()
@@ -129,6 +149,9 @@ def bind_candidate(repository: Path) -> dict:
         contract_raw = read_file(repository, CONTRACT_PATH)
         contract = json.loads(contract_raw)
         authority = json.loads(read_file(repository, AUTHORITY_PATH))
+        if not isinstance(authority, dict) or not isinstance(authority.get("artifacts"), list) \
+                or not all(isinstance(row, dict) for row in authority["artifacts"]):
+            raise ValueError("the authority bundle must contain an artifacts array of objects")
         if contract["storyId"] != "12.2" or contract["authority"]["planningCandidate"] != PLANNING_COMMIT \
                 or contract["predecessors"] != ["12.1"]:
             errors.append((BLOCK_INCOMPLETE, "The Story 12.2 contract identity changed."))
@@ -176,6 +199,8 @@ def bind_candidate(repository: Path) -> dict:
         errors.append((BLOCK_INCOMPLETE, "Story 12.1's spec and sprint row must both read done."))
     try:
         decision = json.loads(read_file(repository, DECISION_PATH))
+        if not isinstance(decision, dict):
+            raise ValueError("the predecessor decision must be an object")
         payload = {key: value for key, value in decision.items() if key not in ("approval", "digests")}
         actual = sha256_bytes(canonical(payload))
         approval = decision["approval"]
@@ -378,6 +403,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if [args.contract, args.baseline, args.output_json, args.output_markdown] != [CONTRACT_PATH, BASELINE_PATH, JSON_PATH, MARKDOWN_PATH]:
             raise Blocked(ARGUMENT_INVALID, "the contracted Story 12.2 input and output paths are required")
+        schema = load_schema(repository)
         payload = build_payload(repository)
         digest = sha256_bytes(canonical(payload))
         approval = None
@@ -401,7 +427,6 @@ def main(argv: list[str] | None = None) -> int:
             import jsonschema
         except ImportError:
             raise Blocked(TOOLING_UNAVAILABLE, "jsonschema is unavailable") from None
-        schema = json.loads(read_file(repository, SCHEMA_PATH))
         if list(jsonschema.Draft202012Validator(schema).iter_errors(json.loads(json_text))):
             raise MethodError([(BLOCK_INCOMPLETE, "The generated method violates its closed schema.")])
         output_writer.write_outputs(repository, [(JSON_PATH, json_text.encode()), (MARKDOWN_PATH, markdown.encode())], readonly_inputs())

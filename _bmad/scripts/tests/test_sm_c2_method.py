@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from datetime import datetime, timedelta, timezone
 import json
 from pathlib import Path
 import shutil
@@ -18,6 +19,8 @@ import generate_sm_c2_method as gen
 RESULT = "out/result.json"
 FAULT_NOT_DETECTED = "FAULT_NOT_DETECTED"
 FIXTURE_NOT_RESTORED = "FIXTURE_NOT_RESTORED"
+PUBLICATION_COMMIT = "0cb5cf651e24ac69b9c60335cb0b058355b4c76f"
+PUBLICATION_REF = ".git/refs/heads/sm-c2-publication"
 
 
 def run(script: str, repo: Path, *args: str):
@@ -41,7 +44,8 @@ def verify(repo: Path, *args: str):
 
 
 def snapshot(repo: Path) -> dict[str, bytes | None]:
-    paths = [*gen.readonly_inputs(), gen.JSON_PATH, gen.MARKDOWN_PATH, ".git/objects/info/alternates", ".git/shallow"]
+    paths = [*gen.readonly_inputs(), gen.JSON_PATH, gen.MARKDOWN_PATH, ".git/objects/info/alternates", ".git/shallow",
+             PUBLICATION_REF, ".git/logs/refs/heads/sm-c2-publication"]
     return {path: (repo / path).read_bytes() if (repo / path).exists() else None for path in paths}
 
 
@@ -154,6 +158,82 @@ def test_method_fault_matrix_semantics(repository, name, mutation, expected):
     assert snapshot(repository) == before, FIXTURE_NOT_RESTORED
 
 
+@pytest.mark.parametrize("target", ["approval", "digests", "extra-approval-metadata", "formatting"])
+def test_method_fault_matrix_schema_pin(repository, target):
+    before = snapshot(repository)
+    try:
+        schema = json.loads(before[gen.SCHEMA_PATH])
+        if target == "formatting":
+            (repository / gen.SCHEMA_PATH).write_bytes(before[gen.SCHEMA_PATH] + b"\n")
+        else:
+            schema["properties"]["approval" if target == "extra-approval-metadata" else target] = {}
+            (repository / gen.SCHEMA_PATH).write_text(json.dumps(schema))
+            if target == "extra-approval-metadata":
+                bundle = json.loads(before[gen.JSON_PATH])
+                bundle["approval"]["unapprovedMetadata"] = True
+                write_bundle(repository, bundle)
+        generated = generate(repository)
+        assert generated.returncode == 1
+        assert generated.stderr.split(":", 1)[0] == "SMC2_METHOD_INCOMPLETE", generated.stderr
+        completed, report = verify(repository)
+        assert completed.returncode == 1
+        assert [item["code"] for item in report["blockers"]] == ["SMC2_METHOD_INCOMPLETE"], report
+    finally:
+        restore(repository, before)
+    assert snapshot(repository) == before, FIXTURE_NOT_RESTORED
+
+
+@pytest.mark.parametrize("schema", [None, {"type": "invalid-type"}], ids=["null-root", "invalid-type"])
+def test_method_fault_matrix_unusable_schema(repository, schema):
+    before = snapshot(repository)
+    try:
+        (repository / gen.SCHEMA_PATH).write_text(json.dumps(schema))
+        generated = generate(repository)
+        assert generated.returncode == 2 and "Traceback" not in generated.stderr
+        assert generated.stderr.split(":", 1)[0] == "INPUT_UNAVAILABLE", generated.stderr
+        completed, report = verify(repository)
+        assert completed.returncode == 2 and report["result"] == "BLOCKED"
+        assert [item["code"] for item in report["blockers"]] == ["INPUT_UNAVAILABLE"], report
+    finally:
+        restore(repository, before)
+    assert snapshot(repository) == before, FIXTURE_NOT_RESTORED
+
+
+@pytest.mark.parametrize("authority", [None, [], 1, {"artifacts": None}, {"artifacts": {}}, {"artifacts": "bad"},
+                                      *[{"artifacts": [value]} for value in (None, 1, "bad", [])]],
+                         ids=["root-null", "root-array", "root-scalar", "collection-null", "collection-object",
+                              "collection-string", "item-null", "item-scalar", "item-string", "item-array"])
+def test_method_fault_matrix_authority_shape(repository, authority):
+    before = snapshot(repository)
+    try:
+        (repository / gen.AUTHORITY_PATH).write_text(json.dumps(authority))
+        generated = generate(repository)
+        assert generated.returncode == 2 and "Traceback" not in generated.stderr
+        assert generated.stderr.split(":", 1)[0] == "INPUT_UNAVAILABLE", generated.stderr
+        completed, report = verify(repository)
+        assert completed.returncode == 2 and report["result"] == "BLOCKED"
+        assert [item["code"] for item in report["blockers"]] == ["INPUT_UNAVAILABLE"], report
+    finally:
+        restore(repository, before)
+    assert snapshot(repository) == before, FIXTURE_NOT_RESTORED
+
+
+@pytest.mark.parametrize("decision", [None, [], 1, "bad"], ids=["null", "array", "number", "string"])
+def test_method_fault_matrix_predecessor_shape(repository, decision):
+    before = snapshot(repository)
+    try:
+        (repository / gen.DECISION_PATH).write_text(json.dumps(decision))
+        generated = generate(repository)
+        assert generated.returncode == 1 and "Traceback" not in generated.stderr
+        assert generated.stderr.split(":", 1)[0] == "SMC2_METHOD_INCOMPLETE", generated.stderr
+        completed, report = verify(repository)
+        assert completed.returncode == 1
+        assert [item["code"] for item in report["blockers"]] == ["SMC2_METHOD_INCOMPLETE"], report
+    finally:
+        restore(repository, before)
+    assert snapshot(repository) == before, FIXTURE_NOT_RESTORED
+
+
 @pytest.mark.parametrize("field", ["schemaVersion", "candidate", "rows", "warmup", "repetitions", "retention",
                                   "classification", "environment", "percentile", "comparability", "signalQuality", "selfChecks"])
 def test_method_fault_matrix_missing_field(repository, field):
@@ -250,3 +330,90 @@ def test_method_fault_matrix_generator_approval_digest(repository):
     completed, report = verify(repository)
     assert completed.returncode == 0 and report["assertionLedger"], report
     assert snapshot(repository) == before, FIXTURE_NOT_RESTORED
+
+
+@pytest.mark.parametrize("field,value,expected", [
+    ("rows.0.threshold.requiresUsableSignal", 1, "SMC2_THRESHOLD_MUTATED"),
+    ("retention.retainAllRawSamples", 1, "SMC2_SAMPLE_DISCARDED"),
+    ("retention.sampleDeletion", 0, "SMC2_SAMPLE_DISCARDED"),
+    ("repetitions.adaptive", 0, "SMC2_SAMPLE_DISCARDED"),
+    ("environment.concurrency", True, "SMC2_ENVIRONMENT_UNCONTROLLED"),
+    ("environment.host.sameHostForBothSides", 1, "SMC2_ENVIRONMENT_UNCONTROLLED"),
+    ("percentile.interpolation", 0, "SMC2_SIGNAL_RULE_MUTATED"),
+])
+def test_method_fault_matrix_semantic_types(repository, field, value, expected):
+    before = snapshot(repository)
+    try:
+        bundle = json.loads(before[gen.JSON_PATH])
+        replace(field, value)(bundle)
+        write_bundle(repository, bundle)
+        completed, report = verify(repository)
+        assert completed.returncode == 1
+        assert [item["code"] for item in report["blockers"]] == [expected], report
+    finally:
+        restore(repository, before)
+    assert snapshot(repository) == before, FIXTURE_NOT_RESTORED
+
+
+@pytest.mark.parametrize("key,value", [("gate", "recorded-only"), ("gate", "recorded-not-gated"),
+                                      ("gate", "approved-cost-ceiling"), ("gate", "disclosure-only"),
+                                      ("result", "recorded"), ("gate", "owner-approval")])
+def test_method_fault_matrix_legacy_gate(repository, key, value):
+    before = snapshot(repository)
+    try:
+        bundle = json.loads(before[gen.JSON_PATH])
+        bundle["rows"][0][key] = value
+        write_bundle(repository, bundle)
+        completed, report = verify(repository)
+        assert completed.returncode == 1
+        assert [item["code"] for item in report["blockers"]] == ["SMC2_THRESHOLD_MUTATED"], report
+    finally:
+        restore(repository, before)
+    assert snapshot(repository) == before, FIXTURE_NOT_RESTORED
+
+
+@pytest.mark.parametrize("after_publication", [False, True], ids=["before-publication", "after-publication-before-now"])
+def test_method_fault_matrix_publication_history(repository, after_publication):
+    before = snapshot(repository)
+    try:
+        # Reuse an existing validated publication object. No fixture commit or commit message is created.
+        subprocess.run(["git", "-C", str(repository), "update-ref", "refs/heads/sm-c2-publication", PUBLICATION_COMMIT],
+                       check=True, capture_output=True)
+        stamp = subprocess.run(["git", "-C", str(repository), "show", "-s", "--format=%cI", PUBLICATION_COMMIT],
+                               check=True, capture_output=True, text=True).stdout.strip()
+        publication = datetime.fromisoformat(stamp).astimezone(timezone.utc)
+        decided = publication + timedelta(seconds=1 if after_publication else -1)
+        assert decided < datetime.now(timezone.utc), "The postdated fault must precede verification time."
+        bundle = json.loads(before[gen.JSON_PATH])
+        bundle["approval"]["decidedAtUtc"] = decided.strftime("%Y-%m-%dT%H:%M:%SZ")
+        write_bundle(repository, bundle)
+        generated = generate(repository)
+        completed, report = verify(repository)
+        expected = ["SMC2_APPROVAL_POSTDATED"] if after_publication else []
+        assert generated.returncode == completed.returncode == (1 if after_publication else 0), (generated.stderr, report)
+        assert [line.split(":", 1)[0] for line in generated.stderr.splitlines()] == expected, generated.stderr
+        assert [item["code"] for item in report["blockers"]] == expected, report
+    finally:
+        restore(repository, before)
+    assert snapshot(repository) == before, FIXTURE_NOT_RESTORED
+
+
+@pytest.mark.parametrize("raw", [b"unrelated existing untracked text\n", b'{"schemaVersion":"foreign.report.v1"}\n'],
+                         ids=["untracked-text", "foreign-schema-json"])
+def test_method_fault_matrix_foreign_output(repository, raw):
+    before = snapshot(repository)
+    target = repository / "out/foreign-output"
+    assert not target.exists()
+    try:
+        completed, report = verify(repository)
+        assert completed.returncode == 0 and report["assertionLedger"], report
+        target.write_bytes(raw)
+        denied = run("verify_sm_c2_method.py", repository, "--evidence", gen.JSON_PATH,
+                     "--markdown", gen.MARKDOWN_PATH, "--output", "out/foreign-output")
+        assert denied.returncode == 2 and denied.stdout.strip() == "BLOCKED"
+        assert [line.split(":", 1)[0] for line in denied.stderr.splitlines()] == ["OUTPUT_WRITE_FAILED"], denied.stderr
+        assert target.read_bytes() == raw, FIXTURE_NOT_RESTORED
+    finally:
+        target.unlink(missing_ok=True)
+        restore(repository, before)
+    assert not target.exists() and snapshot(repository) == before, FIXTURE_NOT_RESTORED

@@ -1261,3 +1261,7 @@ This closure supersedes only the named entry. The original ledger entry stays un
 - source_spec: `_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md`
   summary: AC-12.2-05 is owner-waived, never PASS; no Story 12.2 final-record pair is generated.
   evidence: Owner decision 2026-11-16 in the frozen spec. Story 12.3 must bind Story 12.2 through its done spec, done sprint row, commit and approved method JSON/Markdown pair.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md`
+  summary: Story 12.4 should bind and compare the runner version and each session's process lifecycle before observation (medium, unverified).
+  evidence: Review finding BH-10. The approved method fixes runtime, SDK, configuration, host, concurrency, runner flags and fixture basis but does not separately enumerate the runner binary/version or session process lifecycle. No paired observation exists yet. Record the actual runner identity and exact B/C invocation process lifecycle and prove both sides use the same choices; an actual mismatch would settle the comparability concern. This does not alter the approved 12.2 payload or claim a measured defect.
