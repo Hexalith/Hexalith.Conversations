@@ -127,6 +127,7 @@ REBUILD_SEQUENCE = ("resolution-proof", "resolution-metadata", "conversation", "
                     "resolution-fence", "resolution-selection")
 # Named write-order invariants of the accepted-append path. "The proof claim precedes every rich write" is not
 # listed: it follows from the claim, pending-reference, write and merge chain below, so it could never fail alone.
+# The chain orders every live step, so contiguous numbering from 1 pins the decided positions 1 to 10 exactly.
 ORDER_INVARIANTS = (
     "the dispatch ledger is acquired before any other family is written",
     "the dispatch ledger completes after every other family",
@@ -136,7 +137,8 @@ ORDER_INVARIANTS = (
     "the conversation write precedes the summary merge",
     "metadata, selection and fence share one batch after the summary merge",
     "the fence completes after its batch and before the proof",
-    "every family appears exactly once in the rebuild plan",
+    "the accepted-append positions are numbered contiguously from 1",
+    "the rebuild plan gives every family a distinct position, numbered contiguously from 1",
     "the rebuild plan installs the proof first",
     "the rebuild plan orders metadata, conversation, tenant-index, dispatch-ledger, fence, then selection",
 )
@@ -411,6 +413,7 @@ def order_violations(orders: dict[str, tuple[dict[str, int], int]]) -> list[str]
     others = [position for key, position in live.items() if key[0] != "dispatch-ledger"]
     batch = {p(("resolution-metadata", "batch")), p(("resolution-selection", "batch")), p(("resolution-fence", "batch"))}
     after_proof = [rebuild[family] for family in REBUILD_SEQUENCE[1:]]
+    live_positions = sorted(set(live.values()))
     checks = dict(zip(ORDER_INVARIANTS, (
         all(ledger_acquire < o for o in others),
         all(ledger_complete > o for o in others),
@@ -420,6 +423,7 @@ def order_violations(orders: dict[str, tuple[dict[str, int], int]]) -> list[str]
         p(("conversation", "write")) < p(("tenant-index", "merge")),
         len(batch) == 1 and min(batch) > p(("tenant-index", "merge")),
         min(batch) < p(("resolution-fence", "complete")) < p(("resolution-proof", "complete")),
+        live_positions == list(range(1, len(live_positions) + 1)),
         sorted(rebuild.values()) == list(range(1, len(FAMILIES) + 1)),
         rebuild[REBUILD_SEQUENCE[0]] == 1,
         all(first < second for first, second in zip(after_proof, after_proof[1:])),

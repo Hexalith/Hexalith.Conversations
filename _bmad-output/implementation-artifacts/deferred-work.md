@@ -1233,11 +1233,17 @@ This closure supersedes only the named entry. The original ledger entry stays un
 ## Deferred from: Story 12.1 owner waiver (2026-11-16)
 
 - source_spec: `_bmad-output/implementation-artifacts/spec-12-1-approve-derived-key-ownership-lifecycle-and-rollback.md`
-  summary: Story 12.2 must bind Story 12.1 by its done spec, sprint row, commit and approved decision pair, not by a Story 12.1 final record.
-  evidence: The Story 12.2 contract's `candidateBinding` and AC-12.2-05 require the "Story 12.1 record". The owner decision of 2026-11-16 waived that record (AC-12.1-06, the v2 final pair), so it will not exist. Story 12.2 must instead bind the done 12.1 spec, its `sprint-status.yaml` row, the 12.1 commit and the approved `docs/release-evidence/derived-key-lifecycle-decision-v1.{json,md}` pair.
+  summary: Story 12.2 must bind Story 12.1 by its done spec, its done sprint row, its commit and the approved decision pair, not by a Story 12.1 final record.
+  evidence: The Story 12.2 contract's `candidateBinding` and AC-12.2-05 require the "Story 12.1 record". The owner decision of 2026-11-16 waived that record (AC-12.1-06, the v2 final pair), so it will not exist. Story 12.2 must instead bind the done 12.1 spec, its `sprint-status.yaml` row, the 12.1 commit and the approved `docs/release-evidence/derived-key-lifecycle-decision-v1.{json,md}` pair. The spec frontmatter alone is not enough: bmad-build sets it to `done` at build completion, while the sprint row stays `review` until code review closes (as with Story 16.3). A binder must require the row itself to read `done`.
 
 ## Deferred from: Story 12.1 review pass 1 (2026-11-16)
 
 - source_spec: `_bmad-output/implementation-artifacts/spec-12-1-approve-derived-key-ownership-lifecycle-and-rollback.md`
   summary: Run `DerivedKeyLifecycleAdrValidationTest.EventStoreShouldRemainOnlyWriteAuthority` in CI once the `ci / conformance` job builds again.
   evidence: Review finding VG-O1, pre-existing. At baseline `8da7f2bc` the `ci / conformance` job fails at "Prepare package build imports" (run 43831430224), so the internal Conformance assembly is never built in CI and the new derived-key guard runs only locally. The test is not in the job's `-class-` exclusions and reads files only, so it runs once package-mode CI is restored under `epic-16-retro-item-50-restore-package-mode-ci`. Locally it ran from `bin/Debug/net11.0` (source mode allows only Debug, HXW006).
+
+## Deferred from: Story 12.1 code review, group 2 (2026-11-16)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-1-approve-derived-key-ownership-lifecycle-and-rollback.md`
+  summary: Correct two prose gaps in ADR 0005 at its next digest-bound revision. The story-rollback list should name all three Story 12.1 `.gitattributes` lines, and the Verification section should list every generator blocker code.
+  evidence: ADR 0005 `### Rollback` says "the two Story 12.1 lines in `.gitattributes`", but the story added one comment and two rules, so following it leaves the orphan comment "Story 12.1 hashes ADR 0005 …". `## Verification` lists four generator codes, but the generator also emits `PREDECESSOR_CANDIDATE_MISMATCH`, `ENTRY_INVENTORY_MISMATCH` and `EVIDENCE_FORMAT_DRIFT`. The ADR digest `2c946907…` is bound into the approved signable payload and pinned by `DerivedKeyLifecycleAdrValidationTest`. Editing the prose therefore changes both digests and needs a new owner approval, a regenerated pair and new C# pins. It is deferred rather than reopening the approval for two prose corrections.

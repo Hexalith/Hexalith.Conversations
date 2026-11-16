@@ -224,6 +224,87 @@ not claim that the complete story has passed review.
   report. The frozen-input defect still fails closed; the prior owner rejection of additional inventory
   input guards applies here as well.
 
+#### Group 2
+
+Split code review, group 2 (2026-11-16), against `8da7f2bc..9e24c280`. Scope: the whole story, which covers the
+outstanding group (`.gitattributes`, ADR 0005 and its index, the decision pair, the C# conformance test and the
+tracking changes) and the group-1 fix commit. The 12 findings: 10 patched, 2 deferred, 0 rejected.
+
+- [x] [Review][Patch] `--output` replaced untracked files that are not inputs
+  [`_bmad/scripts/verify_derived_key_decision.py:179`] — **medium.** Confirmed in a disposable repository: an
+  untracked `_bmad/scripts/new_uncommitted_tool.py` passed as `--output` was replaced by the report, with exit 0
+  and `PASS`.
+- [x] [Review][Patch] The strict ADR re-parse dropped hidden citations from protection
+  [`_bmad/scripts/verify_derived_key_decision.py:137`] — **medium.** Confirmed: changing legend row `E19` to `E9`
+  and making the decision JSON unparseable let the report overwrite
+  `ConversationProjectionReadStorePopulationLiveTests.cs`. That is the overwrite group 1 meant to close.
+- [x] [Review][Patch] The spec reads `done` while the sprint row reads `review`
+  [this spec:5] — **low.** That pair is the bmad-build convention: Story 16.3 carried it through its review. The
+  gap is that the 12.2 handoff could accept the frontmatter alone. Resolved in `deferred-work.md`.
+- [x] [Review][Patch] The C# coverage loop skipped `expiry` and `compatibility.families`
+  [`DerivedKeyLifecycleAdrValidationTest.cs:110`] — **medium.** Their rule checks passed on missing rows, so
+  BH-04 was only partly closed.
+- [x] [Review][Patch] The C# reflection saw only non-public builders named `*Key`
+  [`DerivedKeyLifecycleAdrValidationTest.cs:126`] — **medium.** A public builder or one with another suffix
+  added an eighth family unseen, so BH-03 was only partly closed.
+- [x] [Review][Patch] The rebuild invariant's name described uniqueness but its check was contiguity
+  [`_bmad/scripts/generate_derived_key_decision.py:423`] — **low.**
+- [x] [Review][Patch] No Python check pinned the live numbering 1..10
+  [`_bmad/scripts/generate_derived_key_decision.py:405`] — **medium.** `live=1:acquire,99:complete` generated and
+  verified `PASS`. Only the C# `_liveSequence` caught it, and that test does not run in CI (VG-O1).
+- [x] [Review][Patch] The AC-12.1-05 receipt predated the fix commit [this spec:297] — **low.**
+- [ ] [Review][Defer] The story rollback names two `.gitattributes` lines, but the story added three
+  [`docs/adrs/0005-conversation-derived-key-lifecycle.md:150`] — **low.** Deferred to `deferred-work.md`: the ADR
+  digest is bound into the approval.
+- [ ] [Review][Defer] The ADR Verification section lists four of the generator's seven blocker codes
+  [`docs/adrs/0005-conversation-derived-key-lifecycle.md:306`] — **low.** Deferred with the item above.
+- [x] [Review][Patch] The 39-case collision grid tested a property that does not depend on its target
+  [`_bmad/scripts/tests/test_derived_key_decision.py:503`] — **low.**
+- [x] [Review][Patch] `_report_inputs()` re-read the ADR after `verify()` had read it
+  [`_bmad/scripts/verify_derived_key_decision.py:134`] — **low.**
+
+Group-2 resolution (2026-11-16):
+
+- **Verifier.** `refuse_foreign_output()` lets `--output` create a report or replace an earlier verifier report,
+  meaning a regular file whose JSON `schemaVersion` is the result schema. Any other existing file is refused with
+  `OUTPUT_WRITE_FAILED`. This protects every existing input without listing it, so `_report_inputs()` and its
+  second ADR read are removed. The read-only list keeps the fixed inputs and any validated bundle citations.
+- **Generator.** A new live invariant, "the accepted-append positions are numbered contiguously from 1", is added.
+  The relative-order chain orders every live step, so this pins positions 1 to 10 exactly and matches the C#
+  `_liveSequence`. The rebuild invariant is renamed "the rebuild plan gives every family a distinct position,
+  numbered contiguously from 1". There are now 12 named invariants. Their names are only blocker messages, so the
+  ADR, signable payload, approval and pair are byte-identical to `9e24c280` (JSON `cddf2b9b…`, MD `c3d6ac60…`).
+- **Python tests.**
+  - Four isolating reorders that collided two steps now swap them, so each invariant still fails alone under the
+    numbering pin. A twelfth CLI-backed isolated case covers the new invariant (`1:acquire,11:complete`).
+  - A new check moves each of the 12 live steps to every other position from 1 to 12, then shifts all positions by
+    one. Every variant violates a live invariant.
+  - The 39 collision cases are replaced by five CLI cases: the three early-failure faults, the hidden `E19` citation
+    and an uncited untracked file. A direct check covers every input either tool reads, and another confirms that
+    an earlier report is replaced while a foreign JSON file is not.
+- **C# guard.** The coverage loop now includes `expiry` and `compatibility.families`. Reflection lists every static
+  string method that is not an accessor, public or not. That list must equal the seven builders plus the two
+  encoders `EncodeKeySegment` and `ResolutionStorageToken`. `RuntimeKey` also binds public builders.
+- **12.2 handoff.** The Story 12.1 owner-waiver entry in `deferred-work.md` now requires the sprint row itself to
+  read `done`.
+
+Group-2 verification. Each probe was restored byte-identical afterwards.
+
+- Dropping the `resolution-proof` expiry row, or emptying `compatibility.families`, in the decision JSON fails the
+  C# guard.
+- Adding `public static string ResolutionAuditKey(TenantId)` or `internal static string AuditKeyFor(TenantId)` to
+  `ConversationProjectionReadModelKeys` fails it with "neither a decided family builder nor a known encoder". The
+  restored source was rebuilt and passes.
+- AC-12.1-02 ran twice: exit 0, `PASS`, approval bound, pair byte-identical to HEAD.
+- AC-12.1-03: 1/1 passed from a mapped-source Debug/net11.0 build with 0 warnings. The TRX was refreshed.
+- AC-12.1-04: `PASS`, exit 0. The report was refreshed and replaced its earlier report through the new guard.
+- AC-12.1-05: the contracted `-k lifecycle_fault_matrix` command passed 207 cases, 0 skipped, exit 0, in 83.62 s
+  (system `python3` 3.14.4, `TMPDIR` under `/var/tmp`). The receipt `artifacts/v9/12.1/AC-12.1-05.xml` was refreshed.
+- The full file passed 208/208, 0 skipped, in 90.01 s, against 238 in 110.93 s before the grid was replaced.
+  `git diff --check` passed, and `src/`, packages and gitlinks are untouched.
+
+Group 2 completes the split review. The owner moved the sprint row to `done` on 2026-11-16.
+
 ## Implementation Notes
 
 2026-11-16 implementation, **halted for owner approval** at the "present its digest" task. Nothing is
@@ -294,7 +375,7 @@ staged or committed.
   - AC-12.1-02: exit 0, byte-identical, approval preserved. JSON `cddf2b9b…`, MD `c3d6ac60…`.
   - AC-12.1-03: 1/1 passed (Debug/net11.0, as disclosed above).
   - AC-12.1-04: PASS, exit 0.
-  - AC-12.1-05: 198 passed, 0 skipped, exit 0.
+  - AC-12.1-05: 198 passed, 0 skipped, exit 0. Superseded by the group-2 rerun under Review Findings (207 passed).
   - Receipts are in the git-ignored `artifacts/v9/12.1/`.
   - Waived, observed, never PASS:
     - AC-12.1-01 exit 1, FAIL `CHECKPOINT_CANDIDATE_MISMATCH`: the candidate verifier accepts only 11.3.

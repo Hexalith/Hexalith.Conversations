@@ -500,28 +500,75 @@ def test_lifecycle_fault_matrix_evidence_faults(repo: Path, fault: str) -> None:
     assert verify(repo)[:2] == (0, [])
 
 
-@pytest.mark.parametrize("target", sorted(set(evidence_paths())))
-@pytest.mark.parametrize(("fault", "expected_code"), (
-    ("json-unparseable", "EVIDENCE_FORMAT_DRIFT"),
-    ("schema-opened", "EVIDENCE_FORMAT_DRIFT"),
-    ("history-unavailable", "HISTORY_UNAVAILABLE"),
-))
-def test_lifecycle_fault_matrix_report_output_preserves_cited_inputs(repo: Path, target: str, fault: str,
-                                                                   expected_code: str) -> None:
+def evidence_path(identity: str) -> str:
+    _, legend, _ = gen.parse_adr((ROOT / gen.ADR_PATH).read_text(encoding="utf-8"))
+    return next(row["path"] for row in legend if row["id"] == identity)
+
+
+# E19 is the only citation of its live test, so breaking that legend row hides the path from every parser.
+LIVE_CITATION = evidence_path("E19")
+UNCOMMITTED_TOOL = "_bmad/scripts/new_uncommitted_tool.py"
+
+
+def uncommitted_tool(repo: Path) -> None:
+    (repo / UNCOMMITTED_TOOL).parent.mkdir(parents=True, exist_ok=True)
+    (repo / UNCOMMITTED_TOOL).write_text("print('an untracked tool that cites nothing')\n", encoding="utf-8")
+
+
+def live_citation_hidden(repo: Path) -> None:
+    edit(repo, gen.ADR_PATH, "| `E19` |", "| `E9` |")
+    json_unparseable(repo)
+
+
+OUTPUT_COLLISIONS = {
+    "json-unparseable": (json_unparseable, LIVE_CITATION, 1, ["EVIDENCE_FORMAT_DRIFT"]),
+    "schema-opened": (schema_opened, LIVE_CITATION, 1, ["EVIDENCE_FORMAT_DRIFT"]),
+    "history-unavailable": (history_unavailable, LIVE_CITATION, 2, ["HISTORY_UNAVAILABLE"]),
+    "citation-hidden-from-parsers": (live_citation_hidden, LIVE_CITATION, 1, ["EVIDENCE_FORMAT_DRIFT"]),
+    "uncited-untracked-file": (uncommitted_tool, UNCOMMITTED_TOOL, 0, []),
+}
+
+
+@pytest.mark.parametrize("collision", sorted(OUTPUT_COLLISIONS))
+def test_lifecycle_fault_matrix_report_output_never_replaces_an_existing_file(repo: Path, collision: str) -> None:
+    mutate, target, exit_code, expected = OUTPUT_COLLISIONS[collision]
     pristine, saved = snapshot(repo), saved_inputs(repo)
-    {**EVIDENCE_FAULTS, **HISTORY_FAULTS}[fault](repo)
-    exit_code, blockers, report = verify(repo)
-    assert (exit_code, blockers) == (2 if fault in HISTORY_FAULTS else 1, [expected_code]), report
-    assert report["assertionLedger"], "a vacuous verifier ledger is never evidence"
+    mutate(repo)
+    assert verify(repo)[:2] == (exit_code, expected), f"{FAULT_NOT_DETECTED}: {collision}"
     mutated = snapshot(repo)
     completed = run("verify_derived_key_decision.py", "--repository", ".", "--evidence", gen.JSON_PATH,
                     "--markdown", gen.MARKDOWN_PATH, "--require-approval", "--output", target, cwd=repo)
     assert completed.returncode == 2 and completed.stdout.strip() == "BLOCKED", completed.stderr
-    assert codes(completed) == [expected_code, "OUTPUT_WRITE_FAILED"], completed.stderr
-    assert snapshot(repo) == mutated, "report output changed a cited input"
+    assert codes(completed) == [*expected, "OUTPUT_WRITE_FAILED"], completed.stderr
+    assert snapshot(repo) == mutated, "report output replaced an existing file"
+    (repo / UNCOMMITTED_TOOL).unlink(missing_ok=True)
     restore(repo, saved)
     assert snapshot(repo) == pristine, FIXTURE_NOT_RESTORED
     assert verify(repo)[:2] == (0, [])
+
+
+def test_lifecycle_fault_matrix_every_existing_input_refuses_report_output(repo: Path) -> None:
+    """Every input either tool reads is an existing non-report file, so the writer guard alone protects it."""
+    inputs = sorted({*gen.readonly_inputs(), *evidence_paths(), gen.JSON_PATH, gen.MARKDOWN_PATH})
+    assert inputs and all((repo / path).is_file() for path in inputs)
+    for path in inputs:
+        with pytest.raises(ver.output_writer.OutputError, match="not an earlier verifier report"):
+            ver.refuse_foreign_output(repo, path)
+
+
+def test_lifecycle_fault_matrix_report_output_replaces_only_an_earlier_report(repo: Path) -> None:
+    assert verify(repo)[:2] == (0, [])
+    markdown_edited(repo)
+    completed = run("verify_derived_key_decision.py", "--repository", ".", "--evidence", gen.JSON_PATH,
+                    "--markdown", gen.MARKDOWN_PATH, "--require-approval", "--output", RESULT, cwd=repo)
+    assert completed.returncode == 1, completed.stderr
+    assert json.loads((repo / RESULT).read_text(encoding="utf-8"))["result"] == "FAIL", "an earlier report is replaced"
+    foreign = b'{"schemaVersion": "another.report.v1"}\n'
+    (repo / RESULT).write_bytes(foreign)
+    completed = run("verify_derived_key_decision.py", "--repository", ".", "--evidence", gen.JSON_PATH,
+                    "--markdown", gen.MARKDOWN_PATH, "--require-approval", "--output", RESULT, cwd=repo)
+    assert completed.returncode == 2 and codes(completed) == ["EVIDENCE_FORMAT_DRIFT", "OUTPUT_WRITE_FAILED"]
+    assert (repo / RESULT).read_bytes() == foreign, "a foreign JSON file is not an earlier report"
 
 
 def test_lifecycle_fault_matrix_complete_lifecycle_is_deterministic_and_verified(repo: Path) -> None:
@@ -574,17 +621,19 @@ def reorder(**families: tuple[dict, int]):
     return apply
 
 
+# Live reorders swap two positions rather than collide, so the contiguous-numbering invariant still holds.
 ORDER_REORDERS = dict(zip(gen.ORDER_INVARIANTS, (
-    reorder(dispatch_ledger=({"acquire": 2, "complete": 10}, 5)),
+    reorder(dispatch_ledger=({"acquire": 2, "complete": 10}, 5), resolution_proof=({"pending": 1, "complete": 9}, 1)),
     reorder(dispatch_ledger=({"acquire": 1, "complete": 9}, 5)),
     reorder(resolution_proof=({"pending": 3, "complete": 9}, 1),
             resolution_fence=({"pending": 2, "batch": 7, "complete": 8}, 6)),
-    reorder(resolution_fence=({"pending": 4, "batch": 7, "complete": 8}, 6)),
-    reorder(tenant_index=({"pending": 5, "merge": 6}, 4)),
-    reorder(conversation=({"write": 6}, 3)),
+    reorder(resolution_fence=({"pending": 4, "batch": 7, "complete": 8}, 6), tenant_index=({"pending": 3, "merge": 6}, 4)),
+    reorder(tenant_index=({"pending": 5, "merge": 6}, 4), conversation=({"write": 4}, 3)),
+    reorder(conversation=({"write": 6}, 3), tenant_index=({"pending": 4, "merge": 5}, 4)),
     reorder(resolution_selection=({"batch": 8}, 7)),
     reorder(resolution_fence=({"pending": 3, "batch": 7, "complete": 9}, 6),
             resolution_proof=({"pending": 2, "complete": 8}, 1)),
+    reorder(dispatch_ledger=({"acquire": 1, "complete": 11}, 5)),
     reorder(resolution_selection=({"batch": 7}, 8)),
     reorder(resolution_proof=({"pending": 2, "complete": 9}, 7), resolution_metadata=({"batch": 7}, 1),
             conversation=({"write": 5}, 2), tenant_index=({"pending": 4, "merge": 6}, 3),
@@ -609,6 +658,22 @@ def test_lifecycle_fault_matrix_order_invariant_isolated(repo: Path, invariant: 
             set_rule(family, "order", token + f";rebuild={rebuild}")(repo)
 
     assert_source_fault(repo, mutate, ("DERIVED_KEY_TRANSITION_UNSAFE",), adr_changed=True)
+
+
+def test_lifecycle_fault_matrix_live_invariants_pin_the_decided_positions() -> None:
+    """Moving any one live step, or renumbering them all, violates at least one live invariant."""
+    decided = decided_orders()
+    live_names = set(gen.ORDER_INVARIANTS[:-3])
+    steps = [(family, action) for family in gen.FAMILIES for action in decided[family][0]]
+    for family, action in steps:
+        for position in range(1, 13):
+            if position == decided[family][0][action]:
+                continue
+            orders = {**decided, family: ({**decided[family][0], action: position}, decided[family][1])}
+            assert live_names & set(gen.order_violations(orders)), f"{family}:{action} at {position} passed"
+    shifted = {family: ({action: position + 1 for action, position in live.items()}, rebuild)
+               for family, (live, rebuild) in decided.items()}
+    assert gen.order_violations(shifted) == ["the accepted-append positions are numbered contiguously from 1"]
 
 
 def test_lifecycle_fault_matrix_rebuild_invariants_pin_the_exact_sequence() -> None:

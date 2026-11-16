@@ -20,7 +20,9 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// </summary>
 /// <remarks>
 /// Pinned here: the ADR file's SHA-256, which the test recomputes, the decision's recorded signable-payload digest,
-/// the family set, the decided write sequences and the runtime key-builder set. The test compares the recorded
+/// the family set, the decided write sequences and every static string method of the runtime key-builder type,
+/// whatever its visibility or name. Every per-family decision section, expiry and compatibility included, must
+/// cover exactly the seven families, so no rule check passes on a missing row. The test compares the recorded
 /// payload digest with its pin but does not recompute it; <c>verify_derived_key_decision.py</c> (AC-12.1-04) does.
 /// It reads files only and never Git history, so it is safe in CI.
 /// </remarks>
@@ -56,6 +58,9 @@ public sealed class DerivedKeyLifecycleAdrValidationTest
         ["resolution-proof"] = "ResolutionProofKey",
         ["resolution-fence"] = "ResolutionFenceKey",
     };
+
+    // Static string methods of the key-builder type that encode identities but build no family key.
+    private static readonly string[] _keyEncoders = ["EncodeKeySegment", "ResolutionStorageToken"];
 
     private static readonly string[] _liveSequence =
     [
@@ -115,6 +120,8 @@ public sealed class DerivedKeyLifecycleAdrValidationTest
             decision.GetProperty("rebuild"),
             decision.GetProperty("backfill"),
             decision.GetProperty("deletion"),
+            decision.GetProperty("expiry"),
+            decision.GetProperty("compatibility").GetProperty("families"),
             decision.GetProperty("rollback").GetProperty("families"),
         })
         {
@@ -123,11 +130,13 @@ public sealed class DerivedKeyLifecycleAdrValidationTest
         }
 
         Type keys = typeof(ConversationProjectionStoreOptions).Assembly.GetType(KeysTypeName, throwOnError: true)!;
-        keys.GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
-            .Where(static method => method.ReturnType == typeof(string) && method.Name.EndsWith("Key", StringComparison.Ordinal))
+        keys.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
+            .Where(static method => method.ReturnType == typeof(string) && !method.IsSpecialName)
             .Select(static method => method.Name)
             .Order(StringComparer.Ordinal)
-            .ShouldBe(_keyBuilders.Values.Order(StringComparer.Ordinal), $"{Violation}: the runtime key builders differ from the decided families.");
+            .ShouldBe(
+                _keyBuilders.Values.Concat(_keyEncoders).Order(StringComparer.Ordinal),
+                $"{Violation}: the runtime key-builder type declares a string method that is neither a decided family builder nor a known encoder.");
         foreach (JsonElement family in decision.GetProperty("keyFamilies").EnumerateArray())
         {
             string id = family.GetProperty("family").GetString()!;
@@ -182,7 +191,7 @@ public sealed class DerivedKeyLifecycleAdrValidationTest
     /// <returns>The runtime state key.</returns>
     private static string RuntimeKey(Type keys, string family, (string Tenant, string Conversation, string Dispatch) identities)
     {
-        MethodInfo builder = keys.GetMethod(_keyBuilders[family], BindingFlags.Static | BindingFlags.NonPublic)
+        MethodInfo builder = keys.GetMethod(_keyBuilders[family], BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
             ?? throw new InvalidOperationException($"{Violation}: no runtime key builder for {family}.");
         object[] arguments = [.. builder.GetParameters().Select(parameter => parameter.ParameterType switch
         {

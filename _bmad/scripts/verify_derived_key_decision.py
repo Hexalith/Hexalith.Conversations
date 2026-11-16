@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -131,15 +132,21 @@ def verify(repository: Path, evidence: str, markdown: str, require_approval: boo
     return ledger, bundle
 
 
-def _report_inputs(repository: Path, bundle: dict | None) -> tuple[str, ...]:
-    """Protect ADR citations even when decision parsing or verification did not return a bundle."""
+def refuse_foreign_output(repository: Path, output: str) -> None:
+    """Let --output create a report or replace an earlier one, never any other existing file.
+
+    Untracked inputs, including cited evidence tests that an early failure never parsed, stay intact without
+    listing them: only a regular file that already holds a verifier report can be replaced.
+    """
+    target = output_writer.output_target(repository, output)
+    if not os.path.lexists(target):
+        return
     try:
-        _, evidence_tests, _ = gen.parse_adr(gen.read_file(repository, gen.ADR_PATH).decode("utf-8"))
-    except (gen.Blocked, UnicodeDecodeError):
-        evidence_tests = []
-    if isinstance(bundle, dict):
-        evidence_tests += bundle["evidenceTests"]
-    return gen.readonly_inputs(evidence_tests)
+        existing = json.loads(target.read_bytes()) if target.is_file() and not target.is_symlink() else None
+    except (OSError, ValueError):
+        existing = None
+    if not isinstance(existing, dict) or existing.get("schemaVersion") != RESULT_SCHEMA:
+        raise output_writer.OutputError("output would replace an existing file that is not an earlier verifier report")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -175,8 +182,10 @@ def main(argv: list[str] | None = None) -> int:
     }
     if args.output:
         try:
+            refuse_foreign_output(repository, args.output)
             output_writer.write_outputs(repository, [(args.output, (json.dumps(report, indent=2) + "\n").encode("utf-8"))],
-                                        (gen.JSON_PATH, gen.MARKDOWN_PATH, *_report_inputs(repository, bundle)))
+                                        (gen.JSON_PATH, gen.MARKDOWN_PATH, *gen.readonly_inputs(
+                                            bundle["evidenceTests"] if isinstance(bundle, dict) else None)))
         except output_writer.OutputError as error:
             report["blockers"].append({"code": gen.OUTPUT_WRITE_FAILED, "message": str(error)})
             result, code = "BLOCKED", 2

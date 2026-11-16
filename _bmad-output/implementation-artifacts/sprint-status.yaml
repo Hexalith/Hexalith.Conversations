@@ -112,7 +112,7 @@ development_status:
   11-3-generate-authoritative-sm-2-v2-evidence-and-decide-oq-2: done
   epic-11-retrospective: done
   epic-12: in-progress
-  12-1-approve-derived-key-ownership-lifecycle-and-rollback: review
+  12-1-approve-derived-key-ownership-lifecycle-and-rollback: done
   #  AC-01/06 waived (owner, 2026-11-16)
   12-2-freeze-the-benchmark-method-and-signal-quality-algorithm: backlog
   12-3-implement-correctness-preserving-list-open-optimization-and-migration-behavior: backlog
