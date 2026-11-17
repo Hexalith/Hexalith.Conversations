@@ -126,6 +126,7 @@ public sealed class Story16_3LiveFixture : IAsyncLifetime
         builder.Configuration["Tenants:PubSubName"] = "conversations-gateway-test-events";
         builder.Configuration["Tenants:TopicName"] = "tenants.events";
         builder.Configuration["Dapr:DeclarativeSubscriptions"] = "true";
+        builder.Configuration["Authentication:QueryAuthority:GatewayWorkloadId"] = Gateway.AppId;
         builder.Configuration[ConversationTenantAccessServiceCollectionExtensions.GatewayBaseAddressKey] = _workerAuthority.BaseAddress + "/";
         builder.Configuration["EventStore:Authentication:Authority"] = _workerAuthority.BaseAddress + "/";
         builder.Configuration["EventStore:Authentication:TokenEndpoint"] = _workerAuthority.BaseAddress + "/connect/token";
@@ -201,14 +202,14 @@ public sealed class Story16_3LiveFixture : IAsyncLifetime
 
     /// <summary>Sends a signed operation request to the production receiver without bypassing its policies.</summary>
     internal async Task<HttpResponseMessage> SendAsync<T>(string path, string operation, T payload, CancellationToken token,
-        bool authenticate = true)
+        bool authenticate = true, IReadOnlyDictionary<string, string>? bindings = null)
     {
         using var request = Gateway.CreateAppChannelRequest(path, HttpMethod.Post);
         request.Content = JsonContent.Create(payload);
         if (authenticate)
         {
             string? assertion = await Gateway.Services.GetRequiredService<IWorkloadAssertionIssuer>()
-                .IssueAsync(new(Gateway.AppId, operation), token);
+                .IssueAsync(new WorkloadAssertionRequest(Gateway.AppId, operation) { Bindings = bindings }, token);
             assertion.ShouldNotBeNullOrWhiteSpace();
             request.Headers.Add(EventStoreWorkloadAuthenticationDefaults.AssertionHeaderName, assertion);
             request.Headers.Add(EventStoreWorkloadAuthenticationDefaults.DaprCallerHeaderName, Gateway.AppId);

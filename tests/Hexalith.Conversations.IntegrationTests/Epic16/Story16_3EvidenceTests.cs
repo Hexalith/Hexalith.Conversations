@@ -71,6 +71,11 @@ public sealed class Story16_3EvidenceTests(Story16_3LiveFixture fixture)
         request.Content = JsonContent.Create(new { Domains = new[] { "conversation" } });
         using var denied = await client.SendAsync(request, Token);
         denied.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        QueryEnvelope query = WithAuthenticatedCaller(new(Tenant, "conversations", "authority-probe",
+            "conversation-detail", [], "query-authority-probe", Story16_3LiveFixture.Caller));
+        await RequireQueryDenialAsync(query, bindings: null);
+        await RequireQueryDenialAsync(query with { AggregateId = "mutated-after-signing" },
+            QueryCallerAuthorityBinding.Bind(query));
         fixture.Complete(nameof(Scenario01));
     }
 
@@ -256,9 +261,29 @@ public sealed class Story16_3EvidenceTests(Story16_3LiveFixture fixture)
     private Task<ConversationListResult> QueryListAsync() => QueryAsync<ConversationListResult>(new(Tenant, "conversations", "tenant-list",
         "conversation-list", [], "query-list", Story16_3LiveFixture.Caller));
 
+    private static QueryEnvelope WithAuthenticatedCaller(QueryEnvelope query) => query with
+    {
+        OriginalActorId = query.UserId,
+        CallerAuthority = new("authenticated-caller", [], []),
+    };
+
+    private async Task RequireQueryDenialAsync(QueryEnvelope query, IReadOnlyDictionary<string, string>? bindings)
+    {
+        using var response = await fixture.SendAsync("/query", EventStoreWorkloadOperations.DomainServiceQuery,
+            query, Token, bindings: bindings);
+        response.StatusCode.ShouldBe(HttpStatusCode.OK, await response.Content.ReadAsStringAsync(Token));
+        var result = await response.Content.ReadFromJsonAsync<QueryResult>(Json, Token);
+        result.ShouldNotBeNull();
+        result!.Success.ShouldBeFalse();
+        result.ErrorMessage.ShouldBe("safe-denial");
+        result.PayloadBytes.ShouldBeNull();
+    }
+
     private async Task<T> QueryAsync<T>(QueryEnvelope query)
     {
-        using var response = await fixture.SendAsync("/query", EventStoreWorkloadOperations.DomainServiceQuery, query, Token);
+        query = WithAuthenticatedCaller(query);
+        using var response = await fixture.SendAsync("/query", EventStoreWorkloadOperations.DomainServiceQuery,
+            query, Token, bindings: QueryCallerAuthorityBinding.Bind(query));
         response.StatusCode.ShouldBe(HttpStatusCode.OK, await response.Content.ReadAsStringAsync(Token));
         var result = await response.Content.ReadFromJsonAsync<QueryResult>(Json, Token);
         result.ShouldNotBeNull();

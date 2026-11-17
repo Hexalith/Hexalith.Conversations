@@ -130,11 +130,8 @@ internal sealed class ConversationGatewayRouteCatalog : IDisposable
         builder.Configuration["EventStore:RouteCatalog:StateStore"] = CatalogStore;
         builder.Configuration["EventStore:RouteCatalog:StateKey"] = "fixture-" + _appId;
         const string prefix = "EventStore:RouteCatalog:DevelopmentBootstrap:";
-        if (_includeProgress)
-        {
-            builder.Configuration[prefix + "Directory"] = _directory;
-            builder.Services.AddSingleton<FiniteRouteCatalogReceiver>();
-        }
+        builder.Configuration[prefix + "Directory"] = _directory;
+        builder.Services.AddSingleton<FiniteRouteCatalogReceiver>();
         builder.Configuration[prefix + "HostId"] = _appId;
         builder.Configuration[prefix + "RequiredHostIds:0"] = _appId;
         builder.Configuration[prefix + "ComponentPath"] = _componentPath;
@@ -302,7 +299,7 @@ internal sealed class ConversationGatewayRouteCatalog : IDisposable
             admission, RouteCatalogDomainObservation.Capabilities(local), auxiliary, token).ConfigureAwait(false);
         return actual with
         {
-            ReceiverSurface = _includeProgress ? provider.GetRequiredService<FiniteRouteCatalogReceiver>().Observe() : null,
+            ReceiverSurface = provider.GetRequiredService<FiniteRouteCatalogReceiver>().Observe(),
             AuthorityCoordinates = provider.GetRequiredService<IRouteCatalogStateStore>().Coordinates,
             Operations = _operations,
             TopologyDocuments = [.. actual.TopologyDocuments,
