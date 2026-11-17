@@ -1,0 +1,66 @@
+<Project>
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+  <PropertyGroup>
+    <IsTestProject>false</IsTestProject>
+    <IsPackable>false</IsPackable>
+    <IsPublishable>false</IsPublishable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <_FixtureRoot>$(MSBuildThisFileDirectory)../../fixtures/Hexalith.Conversations.MinimalModule</_FixtureRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <Using Remove="Shouldly" />
+    <Using Remove="Xunit" />
+  </ItemGroup>
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+  <!-- Capture the complete SDK common-targets chain after SDK.targets, then
+       bind the isolated graph to those actual parent imports. -->
+  <PropertyGroup>
+    <!-- The SDK's default hook is optional and imports only when it exists.
+         Preserve every existing or authored parent hook unchanged. -->
+    <_FixtureSdkOptionalCommonTargets>$([MSBuild]::NormalizePath('$(MSBuildExtensionsPath)', 'v$(MSBuildToolsVersion)', 'Custom.After.Microsoft.Common.targets'))</_FixtureSdkOptionalCommonTargets>
+    <CustomAfterMicrosoftCommonTargets Condition="'$(CustomAfterMicrosoftCommonTargets)' == '$(_FixtureSdkOptionalCommonTargets)' and !Exists('$(CustomAfterMicrosoftCommonTargets)')" />
+    <_FixtureProperties>Configuration=Release;TargetFramework=net11.0;UseHexalithProjectReferences=false;UseNuGetDeps=true;RestoreLockedMode=true;MinimalModuleCompatibilityMode=package;MinimalModuleCompatibilityUseSuccessorLocks=true;CustomBeforeDirectoryBuildProps=;CustomBeforeDirectoryBuildTargets=;CustomAfterDirectoryBuildTargets=;AfterMicrosoftNETSdkTargets=;CustomAfterMicrosoftCommonProps=$(MSBuildThisFileDirectory)Framework.props;CustomAfterMicrosoftCommonTargets=$(MSBuildThisFileDirectory)RegisteredCommand.targets;HexalithIsolatedParentCommonTargets=$(CustomAfterMicrosoftCommonTargets);WarningsNotAsErrors=;HexalithBuildsRoot=$(HexalithBuildsRoot);ShouldUnsetParentConfigurationAndPlatform=false</_FixtureProperties>
+  </PropertyGroup>
+  <!-- The compatibility graph is a Release package qualification; Debug keeps
+       the existing source-development graph without introducing the fixture. -->
+  <ItemGroup Condition="'$(Configuration)' == 'Release'">
+    <ProjectReference Include="$(_FixtureRoot)/tests/Hexalith.Conversations.MinimalModule.Tests/Hexalith.Conversations.MinimalModule.Tests.csproj"
+                      ReferenceOutputAssembly="false" AdditionalProperties="$(_FixtureProperties)" HexalithIsolatedBuildContract="tests/compatibility/MinimalModule/hexalith.isolated-build.v1.json" />
+    <ProjectReference Include="$(_FixtureRoot)/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj"
+                      ReferenceOutputAssembly="false" AdditionalProperties="$(_FixtureProperties)" HexalithIsolatedBuildContract="tests/compatibility/MinimalModule/hexalith.isolated-build.v1.json" />
+  </ItemGroup>
+  <!-- NuGet normally converts ProjectReference to a bare path, discarding its
+       AdditionalProperties twice: during path discovery and on the returned
+       recursive walk. Retain the exact isolated global set at both boundaries.
+       The adapter itself keeps the root producer imports and normal restore. -->
+  <Target Name="_GenerateRestoreProjectPathItemsPerFramework" Returns="@(_RestoreProjectPathItems)">
+    <ItemGroup>
+      <_RestoreProjectPathItems Include="@(ProjectReference->'%(FullPath)')">
+        <AdditionalProperties>$(_FixtureProperties)</AdditionalProperties>
+      </_RestoreProjectPathItems>
+    </ItemGroup>
+  </Target>
+  <Target Name="_GenerateRestoreProjectPathWalk"
+          DependsOnTargets="_GenerateRestoreProjectPathItems"
+          Returns="@(_GenerateRestoreProjectPathWalkOutputs)">
+    <MSBuild Projects="@(_CurrentRestoreProjectPathItems)"
+             Targets="_GenerateRestoreProjectPathWalk"
+             BuildInParallel="$(BuildInParallel)"
+             Properties="$(_GenerateRestoreGraphProjectEntryInputProperties)">
+      <Output TaskParameter="TargetOutputs" ItemName="_GenerateRestoreProjectPathWalkOutputs" />
+    </MSBuild>
+    <ItemGroup>
+      <_GenerateRestoreProjectPathWalkOutputs Update="@(_GenerateRestoreProjectPathWalkOutputs)">
+        <AdditionalProperties>$(_FixtureProperties)</AdditionalProperties>
+      </_GenerateRestoreProjectPathWalkOutputs>
+      <_GenerateRestoreProjectPathWalkOutputs Include="$(MSBuildProjectFullPath)" />
+    </ItemGroup>
+    <RemoveDuplicates Inputs="@(_GenerateRestoreProjectPathWalkOutputs)">
+      <Output TaskParameter="Filtered" ItemName="_UniqueFixtureRestoreProjects" />
+    </RemoveDuplicates>
+    <ItemGroup>
+      <_GenerateRestoreProjectPathWalkOutputs Remove="@(_GenerateRestoreProjectPathWalkOutputs)" />
+      <_GenerateRestoreProjectPathWalkOutputs Include="@(_UniqueFixtureRestoreProjects)" />
+    </ItemGroup>
+  </Target>
+</Project>

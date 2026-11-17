@@ -6,8 +6,8 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 
-def verify(path: Path) -> None:
-    """Fail on missing, duplicate, skipped, failed, or undiscovered checks."""
+def expected_tests() -> frozenset[str]:
+    """Return the six frozen assertions and the registered-command assertion."""
     prefix = "Hexalith.Conversations.MinimalModule.Tests."
     expected = {
         prefix + "MinimalModuleFixtureTests." + method
@@ -21,6 +21,12 @@ def verify(path: Path) -> None:
         )
     }
     expected.add(prefix + "RegisteredCommandTests.RegisteredCommandProducesCreatedEventAndIsIdempotentAfterReplay")
+    return frozenset(expected)
+
+
+def verify(path: Path) -> None:
+    """Fail on missing, duplicate, skipped, failed, or undiscovered checks."""
+    expected = expected_tests()
     root = ET.parse(path).getroot()
     assemblies = root.findall("assembly")
     tests = root.findall("./assembly/collection/test")

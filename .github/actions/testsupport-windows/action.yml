@@ -1,0 +1,10 @@
+name: TestSupport Windows product checks
+description: Run the already built descendant cleanup and cancellation tests on Windows.
+runs:
+  using: composite
+  steps:
+    - name: Run all built TestSupport tests
+      shell: pwsh
+      run: |
+        & dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net11.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -noAutoReporters
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

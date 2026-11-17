@@ -100,7 +100,7 @@ public sealed class PublicContractShapeSnapshotGenerationTest
     public void CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting()
     {
         string root = FindRepositoryRoot();
-        string baselinePath = Path.Combine(root, "docs", "release-evidence", "public-contract-shape-story-6.4-v3.json");
+        string baselinePath = Path.Combine(root, "docs", "release-evidence", "public-contract-shape-bounded-read-v4.json");
         string committedBaseline = RepositoryLocator.ReadAllText(baselinePath);
         var baseline = JsonSerializer.Deserialize<PublicContractShapeSnapshotV1>(committedBaseline, SnapshotOptions)!;
         JsonSerializer.Serialize(baseline, SnapshotOptions).ShouldBe(committedBaseline,
@@ -109,7 +109,7 @@ public sealed class PublicContractShapeSnapshotGenerationTest
 
         currentSnapshot.ShouldBe(
             JsonSerializer.Serialize(NormalizeLegacyParameterTypes(baseline), SnapshotOptions),
-            "The full live public contract shape differs from the reviewed additive Story 6.4 successor. "
+            "The full live public contract shape differs from the reviewed additive bounded-read successor. "
             + "Review the member-level diff and obtain explicit approval instead of regenerating the baseline.");
     }
 
@@ -135,10 +135,195 @@ public sealed class PublicContractShapeSnapshotGenerationTest
                     "ResolutionScoringLabel", "Hexalith.Conversations.Contracts.Queries.ConversationResolutionScoringLabel", true, true, false));
                 actual = actual with { Properties = actual.Properties!.Where(property => property.Name != "ResolutionScoringLabel").ToArray() };
             }
+            actual = WithoutApprovedBoundedReadMembers(actual);
             JsonSerializer.Serialize(actual, SnapshotOptions).ShouldBe(JsonSerializer.Serialize(retained, SnapshotOptions), retained.Name);
         }
         current.Types.Count.ShouldBe(prior.Types.Count + addedTypes.Length);
     }
+
+    [Fact]
+    public void BoundedReadSuccessorShouldPreserveV3ExceptExactlyFiveDescriptors()
+    {
+        AssertOnlyBoundedReadAdditions(ReadPriorBoundedReadSnapshot(), BuildSnapshot());
+    }
+
+    public static IEnumerable<object[]> BoundedReadDescriptorChanges()
+    {
+        foreach ((string type, string member) in new[]
+        {
+            ("ConversationDetailResult", "ReadPurpose"),
+            ("GetConversationQuery", "AdvisoryMetadataOnly"),
+            ("GetConversationQuery", "NativeMembershipOnly"),
+        })
+        {
+            foreach (string change in new[] { "omitted", "name", "type", "read", "write", "static" })
+                yield return [type, member, change];
+        }
+        foreach (string member in new[] { "NativeMembershipPurpose", "QueryType" })
+        {
+            foreach (string change in new[] { "omitted", "name", "type", "constant", "static" })
+                yield return ["GetConversationQuery", member, change];
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(BoundedReadDescriptorChanges))]
+    public void BoundedReadSuccessorShouldRejectOmittedOrChangedDescriptors(string typeName, string member, string change)
+    {
+        PublicContractShapeSnapshotV1 current = BuildSnapshot();
+        PublicTypeShape original = current.Types.Single(type => type.Namespace == "Hexalith.Conversations.Contracts.Queries" && type.Name == typeName);
+        bool isField = member is "NativeMembershipPurpose" or "QueryType";
+        PublicTypeShape changed = isField ? original with
+        {
+            Fields = original.Fields!.Where(field => change != "omitted" || field.Name != member).Select(field => field.Name != member ? field : change switch
+            {
+                "name" => field with { Name = "Changed" + field.Name },
+                "type" => field with { Type = "System.Object" },
+                "constant" => field with { IsConstant = !field.IsConstant },
+                "static" => field with { IsStatic = !field.IsStatic },
+                _ => field,
+            }).ToArray(),
+        } : original with
+        {
+            Properties = original.Properties!.Where(property => change != "omitted" || property.Name != member).Select(property => property.Name != member ? property : change switch
+            {
+                "name" => property with { Name = "Changed" + property.Name },
+                "type" => property with { Type = "System.Object" },
+                "read" => property with { CanRead = !property.CanRead },
+                "write" => property with { CanWrite = !property.CanWrite },
+                "static" => property with { IsStatic = !property.IsStatic },
+                _ => property,
+            }).ToArray(),
+        };
+        PublicContractShapeSnapshotV1 tampered = ReplaceSnapshotType(current, original, changed);
+        JsonSerializer.Serialize(tampered, SnapshotOptions).ShouldNotBe(JsonSerializer.Serialize(current, SnapshotOptions));
+        Should.Throw<ShouldAssertException>(() => AssertOnlyBoundedReadAdditions(ReadPriorBoundedReadSnapshot(), tampered));
+    }
+
+    [Theory]
+    [InlineData("extra-property")]
+    [InlineData("extra-field")]
+    [InlineData("extra-constructor")]
+    [InlineData("extra-method")]
+    [InlineData("duplicate-approved-property")]
+    [InlineData("prior-property")]
+    [InlineData("prior-constructor")]
+    [InlineData("prior-method")]
+    [InlineData("type-kind")]
+    [InlineData("type-flag")]
+    [InlineData("type-interface")]
+    [InlineData("extra-type")]
+    [InlineData("missing-type")]
+    [InlineData("type-count")]
+    [InlineData("header")]
+    [InlineData("unrelated-type")]
+    public void BoundedReadSuccessorShouldRejectEveryOtherSurfaceChange(string change)
+    {
+        PublicContractShapeSnapshotV1 current = BuildSnapshot();
+        PublicTypeShape original = current.Types.Single(type => type.Namespace == "Hexalith.Conversations.Contracts.Queries" && type.Name == "ConversationDetailResult");
+        PublicTypeShape changed = change switch
+        {
+            "extra-property" => original with { Properties = [.. original.Properties!, new("Unexpected", "System.String", true, true, false)] },
+            "extra-field" => original with { Fields = [new("Unexpected", "System.String", true, true)] },
+            "extra-constructor" => original with { Constructors = [.. original.Constructors!, new("(ctor)", null, [])] },
+            "extra-method" => original with { Methods = [.. original.Methods!, new("Unexpected", "System.Void", [])] },
+            "duplicate-approved-property" => original with { Properties = [.. original.Properties!, original.Properties!.Single(property => property.Name == "ReadPurpose")] },
+            "prior-property" => original with { Properties = original.Properties!.Select(property => property.Name == "Details" ? property with { Type = "System.Object" } : property).ToArray() },
+            "prior-constructor" => original with { Constructors = original.Constructors!.Select(method => method with { Parameters = method.Parameters.Select((parameter, index) => index == 0 ? parameter with { Type = "System.Object" } : parameter).ToArray() }).ToArray() },
+            "prior-method" => original with { Methods = original.Methods!.Select(method => method.Name == "Deconstruct" ? method with { ReturnType = "System.Object" } : method).ToArray() },
+            "type-kind" => original with { Kind = original.Kind == "class" ? "record" : "class" },
+            "type-flag" => original with { IsSealed = !original.IsSealed },
+            "type-interface" => original with { Interfaces = ["Changed.Interface"] },
+            _ => original,
+        };
+        PublicContractShapeSnapshotV1 tampered = ReplaceSnapshotType(current, original, changed);
+        if (change == "extra-type")
+            tampered = current with { Types = [.. current.Types, original with { Name = "Unexpected" }], TypeCount = current.TypeCount + 1 };
+        else if (change == "missing-type")
+            tampered = current with { Types = current.Types.Where(type => type != original).ToArray(), TypeCount = current.TypeCount - 1 };
+        else if (change == "type-count")
+            tampered = current with { TypeCount = current.TypeCount + 1 };
+        else if (change == "header")
+            tampered = current with { Description = current.Description + " changed" };
+        else if (change == "unrelated-type")
+        {
+            PublicTypeShape unrelated = current.Types.First(type => type.Namespace != "Hexalith.Conversations.Contracts.Queries");
+            tampered = ReplaceSnapshotType(current, unrelated, unrelated with { IsAbstract = !unrelated.IsAbstract });
+        }
+        JsonSerializer.Serialize(tampered, SnapshotOptions).ShouldNotBe(JsonSerializer.Serialize(current, SnapshotOptions));
+        Should.Throw<ShouldAssertException>(() => AssertOnlyBoundedReadAdditions(ReadPriorBoundedReadSnapshot(), tampered));
+    }
+
+    public static IEnumerable<object[]> FrozenApiArtifactCases()
+    {
+        yield return ["public-contract-shape-baseline-v1.json", "EBFC2F67E90ECC8A7734719C6E2673B6E8392AB2CAE9956A8E98B7BF769ACFCA"];
+        yield return ["public-contract-shape-story-9.2-v2.json", "0160A2BE428C681D22C014AFA109FC80EB97706FE6F47367AC571B9A9A7595F8"];
+        yield return ["public-contract-shape-story-6.4-v3.json", "EE61D0E210E5D43B9AE906E0ED422CD791D24722C5074C995BF14FEA3C5041EC"];
+        yield return ["public-contract-shape-story-6.4-v3-review.json", "721EED2082089F61A7B4105BFBCA263FF9E3136180CA49C2703CE1F887127C62"];
+    }
+
+    [Theory]
+    [MemberData(nameof(FrozenApiArtifactCases))]
+    public void BoundedReadSuccessorShouldRetainEveryFrozenArtifactByte(string fileName, string expectedDigest)
+    {
+        AssertFrozenApiArtifact(RepositoryLocator.ReadAllBytes(Path.Combine(FindRepositoryRoot(), "docs", "release-evidence", fileName)), expectedDigest);
+    }
+
+    [Theory]
+    [MemberData(nameof(FrozenApiArtifactCases))]
+    public void FrozenApiArtifactGuardShouldRejectChangedBytes(string fileName, string expectedDigest)
+    {
+        byte[] changed = RepositoryLocator.ReadAllBytes(Path.Combine(FindRepositoryRoot(), "docs", "release-evidence", fileName));
+        changed[changed.Length / 2] ^= 1;
+        Should.Throw<ShouldAssertException>(() => AssertFrozenApiArtifact(changed, expectedDigest));
+    }
+
+    private static void AssertFrozenApiArtifact(byte[] bytes, string expectedDigest)
+        => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)).ShouldBe(expectedDigest);
+
+    private static PublicContractShapeSnapshotV1 ReadPriorBoundedReadSnapshot()
+        => NormalizeLegacyParameterTypes(JsonSerializer.Deserialize<PublicContractShapeSnapshotV1>(RepositoryLocator.ReadAllText(
+            Path.Combine(FindRepositoryRoot(), "docs", "release-evidence", "public-contract-shape-story-6.4-v3.json")), SnapshotOptions)!);
+
+    private static PublicContractShapeSnapshotV1 ReplaceSnapshotType(PublicContractShapeSnapshotV1 snapshot, PublicTypeShape original, PublicTypeShape changed)
+        => snapshot with { Types = snapshot.Types.Select(type => type == original ? changed : type).ToArray() };
+
+    private static void AssertOnlyBoundedReadAdditions(PublicContractShapeSnapshotV1 prior, PublicContractShapeSnapshotV1 current)
+    {
+        PublicContractShapeSnapshotV1 retained = current with { Types = current.Types.Select(WithoutApprovedBoundedReadMembers).ToArray() };
+        JsonSerializer.Serialize(retained, SnapshotOptions).ShouldBe(JsonSerializer.Serialize(prior, SnapshotOptions),
+            "Only the five explicitly approved complete bounded-read member descriptors may differ from v3.");
+    }
+
+    private static PublicTypeShape WithoutApprovedBoundedReadMembers(PublicTypeShape actual)
+    {
+        if (actual.Namespace == "Hexalith.Conversations.Contracts.Queries" && actual.Name == "ConversationDetailResult")
+        {
+            actual.Properties!.Count(property => property.Name == "ReadPurpose").ShouldBe(1);
+            actual.Properties!.Single(property => property.Name == "ReadPurpose")
+                .ShouldBe(new PropertyShape("ReadPurpose", "System.String", true, true, false));
+            actual = actual with { Properties = actual.Properties!.Where(property => property.Name != "ReadPurpose").ToArray() };
+        }
+        if (actual.Namespace == "Hexalith.Conversations.Contracts.Queries" && actual.Name == "GetConversationQuery")
+        {
+            actual.Properties!.Count(property => property.Name == "AdvisoryMetadataOnly").ShouldBe(1);
+            actual.Properties!.Count(property => property.Name == "NativeMembershipOnly").ShouldBe(1);
+            actual.Properties!.Single(property => property.Name == "AdvisoryMetadataOnly")
+                .ShouldBe(new PropertyShape("AdvisoryMetadataOnly", "System.Boolean", true, true, false));
+            actual.Properties!.Single(property => property.Name == "NativeMembershipOnly")
+                .ShouldBe(new PropertyShape("NativeMembershipOnly", "System.Boolean", true, true, false));
+            actual.Fields.ShouldBe([
+                new FieldShape("NativeMembershipPurpose", "System.String", true, true),
+                new FieldShape("QueryType", "System.String", true, true)]);
+            actual = actual with
+            {
+                Properties = actual.Properties!.Where(property => property.Name is not "AdvisoryMetadataOnly" and not "NativeMembershipOnly").ToArray(),
+                Fields = null,
+            };
+        }
+        return actual;
+    }
+
 
     [Theory]
     [InlineData(typeof(long?), "System.Int64?&")]

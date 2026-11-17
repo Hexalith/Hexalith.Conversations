@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import subprocess
 import sys
@@ -51,14 +52,18 @@ def package_version(package_directory: Path) -> str:
 
 
 def catalog_versions() -> dict[str, str]:
-    """Read test-tool versions from the pinned Builds catalog."""
-    catalog = ROOT / "references" / "Hexalith.Builds" / "Props" / "Directory.Packages.props"
-    root = ElementTree.parse(catalog).getroot()
-    versions = {
-        element.attrib["Include"]: element.attrib["Version"]
-        for element in root.findall(".//PackageVersion")
-        if "Include" in element.attrib and "Version" in element.attrib
-    }
+    """Read test-tool versions from the already producer-selected evaluated catalog."""
+    result = subprocess.run([
+        "dotnet", "msbuild", "src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj",
+        "-nologo", "-noAutoResponse", "-verbosity:quiet", "-p:Configuration=Release", "-getItem:PackageVersion",
+    ], cwd=ROOT, check=True, capture_output=True, text=True)
+    items = json.loads(result.stdout)["Items"]["PackageVersion"]
+    versions = {}
+    for item in items:
+        identity, version = item["Identity"], item["Version"]
+        if identity in versions or not version or "$" in version:
+            raise ValueError(f"evaluated Builds catalog has an invalid/duplicate package selection: {identity}")
+        versions[identity] = version
     required = ("Microsoft.NET.Test.Sdk", "xunit.v3", "xunit.runner.visualstudio")
     missing = [package_id for package_id in required if package_id not in versions]
     if missing:

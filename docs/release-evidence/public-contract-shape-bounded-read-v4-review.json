@@ -1,0 +1,87 @@
+{
+  "artifactKind": "reviewed-additive-public-contract-successor",
+  "version": "bounded-read-v4",
+  "sourceRevision": "f1a2b3da468760d4188f604045deb098af8ead52",
+  "productHeadBeforeApproval": "4239b6188a82608784f726b35a802784a1da0b4d",
+  "previousSnapshot": {
+    "path": "docs/release-evidence/public-contract-shape-story-6.4-v3.json",
+    "sha256": "ee61d0e210e5d43b9ae906e0ed422cd791d24722c5074c995bf14fea3c5041ec"
+  },
+  "currentSnapshot": {
+    "path": "docs/release-evidence/public-contract-shape-bounded-read-v4.json",
+    "sha256": "4de710b386ff63a2316c603e40556bc78b0f61bbf1635a419cf0d436a1353d74"
+  },
+  "scopeApproval": {
+    "source": "Explicit user decision in the interactive Story16 session",
+    "decision": "Approve scoped v4 successor (Recommended)",
+    "recordedAtUtc": "2026-11-17 07:30:18 UTC",
+    "recordedTimeMeaning": "Time this approval record was prepared; the user-message timestamp is not asserted.",
+    "scope": "Exactly ReadPurpose, AdvisoryMetadataOnly, NativeMembershipOnly, NativeMembershipPurpose and QueryType; preserve all v1/v2/v3 bytes, 225 types and every prior member. No release authority is granted."
+  },
+  "retainedTypeCount": 225,
+  "currentTypeCount": 225,
+  "removedTypes": [],
+  "addedTypes": [],
+  "removedOrChangedPriorMembers": [],
+  "addedMembers": {
+    "Hexalith.Conversations.Contracts.Queries.ConversationDetailResult": {
+      "properties": [
+        {
+          "name": "ReadPurpose",
+          "type": "System.String",
+          "canRead": true,
+          "canWrite": true,
+          "isStatic": false
+        }
+      ]
+    },
+    "Hexalith.Conversations.Contracts.Queries.GetConversationQuery": {
+      "fields": [
+        {
+          "name": "NativeMembershipPurpose",
+          "type": "System.String",
+          "isConstant": true,
+          "isStatic": true
+        },
+        {
+          "name": "QueryType",
+          "type": "System.String",
+          "isConstant": true,
+          "isStatic": true
+        }
+      ],
+      "properties": [
+        {
+          "name": "AdvisoryMetadataOnly",
+          "type": "System.Boolean",
+          "canRead": true,
+          "canWrite": true,
+          "isStatic": false
+        },
+        {
+          "name": "NativeMembershipOnly",
+          "type": "System.Boolean",
+          "canRead": true,
+          "canWrite": true,
+          "isStatic": false
+        }
+      ]
+    }
+  },
+  "unchangedFrozenArtifacts": {
+    "docs/release-evidence/public-contract-shape-baseline-v1.json": "ebfc2f67e90ecc8a7734719c6e2673b6e8392ab2cae9956a8e98b7bf769acfca",
+    "docs/release-evidence/public-contract-shape-story-9.2-v2.json": "0160a2be428c681d22c014afa109fc80eb97706fe6f47367ac571b9a9a7595f8",
+    "docs/release-evidence/public-contract-shape-story-6.4-v3.json": "ee61d0e210e5d43b9ae906e0ed422cd791d24722c5074c995bf14fea3c5041ec",
+    "docs/release-evidence/public-contract-shape-story-6.4-v3-review.json": "721eed2082089f61a7b4105bfbca263ff9e3136180ca49c2703ce1f887127c62"
+  },
+  "measurement": {
+    "snapshotSha256": "aeaab60838d32bb11743b3673a66fae809f26ebe94dc56f5f696894534b6701c",
+    "releasedProducerVersion": "6.2.0",
+    "releasedProducerSourceCommit": "0ccd12af6576a3aac601340dec7dba53e86768c3"
+  },
+  "shapeFormatLimitations": [
+    "Reference nullability and init-versus-set are not encoded by the existing shape format.",
+    "Constant descriptors encode name/type/static/constant, not literal values."
+  ],
+  "compatibility": "All 225 existing types, prior constructors, methods, fields, properties and type metadata remain unchanged. Three instance properties and two static constant fields are added on two existing query types; every older snapshot and review artifact remains byte-identical."
+}

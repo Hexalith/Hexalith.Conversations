@@ -195,13 +195,13 @@
       },
       "Hexalith.EventStore.Client": {
         "type": "Transitive",
-        "resolved": "5.1.0",
-        "contentHash": "muFX57xIuJgc7qjEE5BsWdogrfmkU8yBKGb3AZTXTu4oCcrsVe9CM/w3KR6ekuc/r0h+ZgxOZT+235Bbwbf1Aw==",
+        "resolved": "5.2.0",
+        "contentHash": "shzpGSnZbENwVx4o9N4BBlHNpFxMWSqfk+eg3CMqCxz6eyLV1P8HPUGfD5LrQsN9dL7yeR6bWNgKCV8a4Q0x3A==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2",
           "Dapr.Client": "1.19.1",
           "Hexalith.Commons.UniqueIds": "3.0.0",
-          "Hexalith.EventStore.Contracts": "5.1.0",
+          "Hexalith.EventStore.Contracts": "5.2.0",
           "Microsoft.AspNetCore.DataProtection.Abstractions": "11.0.0",
           "Microsoft.Extensions.Configuration": "11.0.0",
           "Microsoft.Extensions.Configuration.Binder": "11.0.0",
@@ -212,8 +212,8 @@
       },
       "Hexalith.EventStore.Contracts": {
         "type": "Transitive",
-        "resolved": "5.1.0",
-        "contentHash": "0AqqPARa5lLzS/TDRF5qlOF7sr1poT1JMAfgsM99DdmeKE7tqI6o8nSNOSW48qq6eqzsZmWN8rAm6IeZ6VKkIQ==",
+        "resolved": "5.2.0",
+        "contentHash": "CkdGFCpAV02uzCuFctOWV3mNTW2IR4voTv2MaSIOfE7vMVQy64H5fT50eFORRRDTY919H2aL9Krr/uA129a9Ow==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2",
           "Hexalith.Commons.UniqueIds": "3.0.0"
@@ -221,8 +221,8 @@
       },
       "Hexalith.EventStore.DomainService": {
         "type": "Transitive",
-        "resolved": "5.1.0",
-        "contentHash": "SOhxcE5I+EAIwNAB5Zkr+UzSl3CR+NngxQZTdftXbBB4gMarFFxDxZM1jDi7YM4+yVAG1tw3oUPa7EqdJYucuQ==",
+        "resolved": "5.2.0",
+        "contentHash": "ktgZLz4eVK0aInIn/xuHhFDKyxgC3ZgkRKGOEEDpA4UeNtVrjQaUs+DIb81m+pSVamLkAvaDpP4fsdQGvtA9Mw==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2",
           "Dapr.Actors": "1.19.1",
@@ -230,8 +230,8 @@
           "Dapr.AspNetCore": "1.19.1",
           "Dapr.Client": "1.19.1",
           "Hexalith.Commons.UniqueIds": "3.0.0",
-          "Hexalith.EventStore.Client": "5.1.0",
-          "Hexalith.EventStore.ServiceDefaults": "5.1.0",
+          "Hexalith.EventStore.Client": "5.2.0",
+          "Hexalith.EventStore.ServiceDefaults": "5.2.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "11.0.0",
           "Microsoft.Extensions.Http.Resilience": "11.0.0",
           "Microsoft.Extensions.ServiceDiscovery": "11.0.0",
@@ -252,12 +252,12 @@
       },
       "Hexalith.EventStore.ServiceDefaults": {
         "type": "Transitive",
-        "resolved": "5.1.0",
-        "contentHash": "frCipQGFm3wKuiu9KajHEzC/Z1GdWJxfaDItNUr+y4KDDrt2pNYdqF/UjmNJHhCouvQngGWsdGVc/4LkZmPZiw==",
+        "resolved": "5.2.0",
+        "contentHash": "rFo9OgDctwXOagPhSSrYbt862tDvBlyZH6/Nlvx6N5nERLB7mcrAX+cGnpb75ZYGh2zE77ndJUVl8pc7Ccwd9g==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2",
           "Hexalith.Commons.UniqueIds": "3.0.0",
-          "Hexalith.EventStore.Contracts": "5.1.0",
+          "Hexalith.EventStore.Contracts": "5.2.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "11.0.0",
           "Microsoft.Extensions.Http.Resilience": "11.0.0",
           "Microsoft.Extensions.ServiceDiscovery": "11.0.0",
@@ -782,15 +782,15 @@
       "hexalith.conversations.minimalmodule.contracts": {
         "type": "Project",
         "dependencies": {
-          "Hexalith.EventStore.Contracts": "[5.1.0, )"
+          "Hexalith.EventStore.Contracts": "[5.2.0, )"
         }
       },
       "hexalith.conversations.minimalmodule.server": {
         "type": "Project",
         "dependencies": {
           "Hexalith.Conversations.MinimalModule.Contracts": "[1.0.0, )",
-          "Hexalith.EventStore.Client": "[5.1.0, )",
-          "Hexalith.EventStore.DomainService": "[5.1.0, )",
+          "Hexalith.EventStore.Client": "[5.2.0, )",
+          "Hexalith.EventStore.DomainService": "[5.2.0, )",
           "Microsoft.IdentityModel.Protocols.OpenIdConnect": "[8.23.0, )",
           "System.IdentityModel.Tokens.Jwt": "[8.23.0, )"
         }

@@ -39,6 +39,7 @@ def main() -> int:
                 "dotnet",
                 "pack",
                 package.project,
+                "--no-build",
                 "--no-restore",
                 "--configuration",
                 "Release",

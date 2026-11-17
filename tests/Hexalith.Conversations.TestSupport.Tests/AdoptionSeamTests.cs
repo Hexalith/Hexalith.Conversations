@@ -71,7 +71,7 @@ public sealed class AdoptionSeamTests
             + "move=args[0]=='ls-tree' and not pathlib.Path('race-fired').exists(); "
             + $"subprocess.run(['git','update-ref','HEAD','{symbolic}'],check=True) if move else None; "
             + "pathlib.Path('race-fired').touch() if move else None; sys.stdout.buffer.write(result.stdout); sys.stderr.buffer.write(result.stderr); sys.exit(result.returncode)";
-        GitFacts facts = new("python3", ["-c", script], false);
+        GitFacts facts = new(OperatingSystem.IsWindows() ? "python" : "python3", ["-c", script], false);
         GitFact<GitBlob> result = await facts.ReadRegularBlobAsync(fixture.Root, "HEAD", "evidence.txt", TestContext.Current.CancellationToken);
         result.IsSuccess.ShouldBeTrue(result.Message);
         result.Value!.Revision.ShouldBe(regular);
@@ -85,7 +85,7 @@ public sealed class AdoptionSeamTests
     public async Task OrchestrationShouldHaveAnExplicitIndependentBudget()
     {
         using GitFixture fixture = new();
-        GitFacts orchestration = new("python3", ["-c", "import time; time.sleep(31); print('completed')"], false);
+        GitFacts orchestration = new(OperatingSystem.IsWindows() ? "python" : "python3", ["-c", "import time; time.sleep(31); print('completed')"], false);
         GitFact<GitCommandResult> result = await orchestration.RunOrchestrationAsync(fixture.Root, [], TestContext.Current.CancellationToken, TimeSpan.FromSeconds(35));
         result.IsSuccess.ShouldBeTrue(result.Message);
         result.Value!.ExitCode.ShouldBe(0);
@@ -95,7 +95,7 @@ public sealed class AdoptionSeamTests
         using CancellationTokenSource cancelled = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
         cancelled.CancelAfter(TimeSpan.FromMilliseconds(100));
         (await orchestration.RunOrchestrationAsync(fixture.Root, [], cancelled.Token)).Code.ShouldBe("GIT_CANCELLED");
-        GitFacts overflow = new("python3", ["-c", "import os; os.write(1,b'o'*(17*1024*1024))"], false);
+        GitFacts overflow = new(OperatingSystem.IsWindows() ? "python" : "python3", ["-c", "import os; os.write(1,b'o'*(17*1024*1024))"], false);
         (await overflow.RunOrchestrationAsync(fixture.Root, [], TestContext.Current.CancellationToken)).Code.ShouldBe("GIT_OUTPUT_LIMIT_EXCEEDED");
     }
 

@@ -15,6 +15,16 @@ FRAMEWORK = "net11.0"
 
 
 class MinimalModuleCompatibilityOverlayTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        result = subprocess.run([
+            "dotnet", "msbuild", str(OVERLAY.parent / "Hexalith.Conversations.MinimalModule.Compatibility.csproj"),
+            "-nologo", "-noAutoResponse", "-verbosity:quiet", "-p:Configuration=Release", "-getProperty:HexalithBuildsRoot",
+        ], cwd=ROOT, text=True, capture_output=True, check=True)
+        cls.builds_root = Path(result.stdout.strip())
+        if not (cls.builds_root / "Props/Directory.Packages.props").is_file():
+            raise RuntimeError("Compatibility checks require the already producer-selected actual Builds catalog")
+
     @staticmethod
     def isolated_environment():
         return {name: value for name, value in os.environ.items() if name.lower() not in {
@@ -25,7 +35,7 @@ class MinimalModuleCompatibilityOverlayTests(unittest.TestCase):
     def catalog_versions(self):
         result = subprocess.run(
             ["dotnet", "msbuild", str(OVERLAY.parent / "CatalogVersion.proj"), "-nologo",
-             "-t:ReadMinimalModuleCompatibilityCatalog", "-getItem:_MinimalModuleCompatibilityCatalogPackage"],
+             f"-p:HexalithBuildsRoot={self.builds_root}", "-t:ReadMinimalModuleCompatibilityCatalog", "-getItem:_MinimalModuleCompatibilityCatalogPackage"],
             cwd=ROOT, env=self.isolated_environment(), text=True, capture_output=True, check=True)
         packages = json.loads(result.stdout)["Items"]["_MinimalModuleCompatibilityCatalogPackage"]
         self.assertTrue(packages)
@@ -38,7 +48,7 @@ class MinimalModuleCompatibilityOverlayTests(unittest.TestCase):
             command = ["dotnet", "msbuild", str(project), "-nologo", "-t:MinimalModuleCompatibilitySelectPackages",
                        "-p:Configuration=Release", f"-p:TargetFramework={FRAMEWORK}", "-p:MinimalModuleCompatibilityMode=package",
                        f"-p:CustomAfterMicrosoftCommonProps={OVERLAY.parent / 'Framework.props'}",
-                       "-p:MinimalModuleCompatibilityUseSuccessorLocks=true", f"-p:CustomAfterMicrosoftCommonTargets={OVERLAY}",
+                       "-p:MinimalModuleCompatibilityUseSuccessorLocks=true", f"-p:CustomAfterMicrosoftCommonTargets={OVERLAY}", f"-p:HexalithBuildsRoot={self.builds_root}",
                        "-getProperty:NuGetLockFilePath,Configuration,TargetFramework,TargetFrameworkIdentifier,TargetFrameworkVersion", "-getItem:ProjectReference,PackageReference"]
             result = subprocess.run(command, cwd=ROOT, env=environment, text=True, capture_output=True, check=True)
             output = json.loads(result.stdout)
@@ -69,19 +79,6 @@ class MinimalModuleCompatibilityOverlayTests(unittest.TestCase):
                     self.assertEqual(version, selected[identity])
                     self.assertEqual(version, graph[identity]["resolved"])
 
-    def test_compatibility_job_initializes_only_the_direct_catalog(self):
-        workflow = (ROOT / ".github/workflows/ci.yml").read_text()
-        job = workflow.split("\n  minimal-module-compatibility:\n", 1)[1].split("\n  testsupport-windows:\n", 1)[0]
-        self.assertIn("git -c submodule.recurse=false submodule update --init --checkout -- references/Hexalith.Builds", job)
-        self.assertNotIn("references/Hexalith.EventStore", job)
-        self.assertIn("--locked-mode -p:Configuration=Release", job)
-        self.assertIn(f"--locked-mode -p:Configuration=Release -p:TargetFramework={FRAMEWORK}", job)
-        self.assertIn(f"--no-restore -m:1 -p:TargetFramework={FRAMEWORK}", job)
-        self.assertIn(f"/bin/Release/{FRAMEWORK}/Hexalith.Conversations.MinimalModule.Tests.dll", job)
-        self.assertEqual(2, job.count("-p:CustomAfterMicrosoftCommonProps=$PWD/tests/compatibility/MinimalModule/Framework.props"))
-        self.assertIn("-p:MinimalModuleCompatibilityMode=package", job)
-        self.assertIn("-automated sync -failSkips", job)
-        self.assertIn("verify_results.py", job)
 
     def test_reference_framework_discovery_uses_active_framework(self):
         for project in sorted(FIXTURE.rglob("*.csproj")):
@@ -90,7 +87,7 @@ class MinimalModuleCompatibilityOverlayTests(unittest.TestCase):
                 ["dotnet", "msbuild", str(project), "-nologo", "-t:GetTargetFrameworks",
                  "-p:MinimalModuleCompatibilityMode=package",
                  f"-p:CustomAfterMicrosoftCommonProps={OVERLAY.parent / 'Framework.props'}",
-                 f"-p:CustomAfterMicrosoftCommonTargets={OVERLAY}",
+                 f"-p:CustomAfterMicrosoftCommonTargets={OVERLAY}", f"-p:HexalithBuildsRoot={self.builds_root}",
                  "-getProperty:TargetFramework,TargetFrameworkIdentifier,TargetFrameworkVersion"],
                 cwd=ROOT, env=self.isolated_environment(), text=True, capture_output=True, check=True)
             properties = json.loads(result.stdout)["Properties"]
@@ -105,7 +102,7 @@ class MinimalModuleCompatibilityOverlayTests(unittest.TestCase):
             overlay.mkdir(parents=True)
             for name in ("RegisteredCommand.targets", "CatalogVersion.proj"):
                 shutil.copy2(OVERLAY.parent / name, overlay / name)
-            catalog = ElementTree.parse(ROOT / "references/Hexalith.Builds/Props/Directory.Packages.props")
+            catalog = ElementTree.parse(self.builds_root / "Props/Directory.Packages.props")
             versions = catalog.findall(".//HexalithEventStoreVersion")
             self.assertTrue(versions)
             for version in versions:

@@ -417,6 +417,15 @@ public sealed class ConversationsAppHostTopologyTest
     private static IDistributedApplicationBuilder CreateBuilder(bool enableKeycloak = true, string[]? args = null)
     {
         IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args ?? []);
+        if (typeof(ConversationsAppHostTopologyTest).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
+            .Single(attribute => attribute.Key == "EnrolledReferenceMode").Value == "package")
+        {
+            _ = builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [ConversationsAppHostTopology.TestingUseBuildsGatewayConfigurationKey] = "true",
+            });
+        }
+
         if (!enableKeycloak)
         {
             _ = builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>

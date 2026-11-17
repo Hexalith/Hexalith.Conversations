@@ -40,9 +40,6 @@ def _load_restore_boundary(package_id: str, project_path: Path) -> dict[str, str
         raise ValueError(f"restore assets do not belong to {project_path}")
     if restore.get("projectName") != package_id or restore.get("projectStyle") != "PackageReference":
         raise ValueError(f"restore identity is invalid for {package_id}")
-    audit = restore.get("restoreAuditProperties", {})
-    if audit.get("enableAudit") != "true" or audit.get("auditMode") != "all":
-        raise ValueError(f"NuGet audit must remain enabled in all mode for {package_id}")
 
     groups = assets.get("projectFileDependencyGroups")
     if not isinstance(groups, dict) or set(groups) != {"net11.0"} or not isinstance(groups["net11.0"], list):

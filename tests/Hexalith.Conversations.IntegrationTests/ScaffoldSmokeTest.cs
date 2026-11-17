@@ -84,6 +84,7 @@ public sealed class ScaffoldSmokeTest
     [Fact]
     public void SolutionShouldIncludeEverySourceAndTestProjectOnDisk()
     {
+        const string isolatedCompatibilityAdapter = "tests/compatibility/MinimalModule/Hexalith.Conversations.MinimalModule.Compatibility.csproj";
         string root = FindRepositoryRoot();
         string solutionPath = Path.Combine(root, "Hexalith.Conversations.slnx");
         XDocument solution = XDocument.Load(solutionPath);
@@ -98,12 +99,24 @@ public sealed class ScaffoldSmokeTest
                 || path.StartsWith("tests/", StringComparison.Ordinal))
             .Order(StringComparer.OrdinalIgnoreCase)];
 
+        // This nonshipping adapter owns the separately qualified fixture build graph.
+        // All other source/test projects still belong in the root solution.
+        solutionProjectPaths.ShouldNotContain(isolatedCompatibilityAdapter);
+        string adapterPath = Path.Combine(root, isolatedCompatibilityAdapter);
+        File.Exists(adapterPath).ShouldBeTrue();
+        XDocument adapter = XDocument.Load(adapterPath);
+        foreach (string flag in new[] { "IsTestProject", "IsPackable", "IsPublishable", "EnableDefaultCompileItems" })
+        {
+            adapter.Descendants(flag).Single().Value.ShouldBe("false", flag);
+        }
+
         string[] diskProjectPaths = [.. Directory
             .GetFiles(Path.Combine(root, "src"), "*.csproj", SearchOption.AllDirectories)
             .Concat(Directory.GetFiles(Path.Combine(root, "tests"), "*.csproj", SearchOption.AllDirectories))
             .Select(path => NormalizePath(Path.GetRelativePath(root, path)))
             // The self-contained minimal-module fixture owns its own solution, build root, and locked restore.
             .Where(path => !path.StartsWith("tests/fixtures/", StringComparison.Ordinal))
+            .Where(path => !string.Equals(path, isolatedCompatibilityAdapter, StringComparison.Ordinal))
             .Order(StringComparer.OrdinalIgnoreCase)];
 
         solutionProjectPaths.ShouldBe(diskProjectPaths);
@@ -307,6 +320,109 @@ public sealed class ScaffoldSmokeTest
         Directory.GetDirectories(root, "Hexalith.*", SearchOption.TopDirectoryOnly).ShouldBeEmpty();
     }
 
+    /// <summary>Source declarations have the same boundary with initialized or absent sibling checkouts.</summary>
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void DeclaredSourceRootsShouldNotDependOnInitializedCheckouts(bool initialized)
+    {
+        WithSyntheticScaffold(root =>
+        {
+            if (initialized)
+            {
+                foreach (string marker in new[]
+                {
+                    "references/Hexalith.Commons/src/libraries/Hexalith.Commons.Http",
+                    "references/Hexalith.EventStore/src/Hexalith.EventStore.Contracts",
+                    "references/Hexalith.Tenants/src/Hexalith.Tenants.Contracts",
+                })
+                {
+                    Directory.CreateDirectory(Path.Combine(root, marker));
+                }
+            }
+
+            IReadOnlyDictionary<string, string> roots = ResolveKnownProjectReferenceRoots(root);
+            NormalizePath(Path.GetRelativePath(root, roots["HexalithCommonsRoot"])).ShouldBe("references/Hexalith.Commons");
+            NormalizePath(Path.GetRelativePath(root, roots["HexalithEventStoreRoot"])).ShouldBe("references/Hexalith.EventStore");
+            NormalizePath(Path.GetRelativePath(root, roots["HexalithTenantsRoot"])).ShouldBe("references/Hexalith.Tenants");
+            string project = WriteSourceBoundaryFixture(root, "'$(UseHexalithProjectReferences)' == 'true'", "");
+            AssertProjectReferences(root, project, "references/Hexalith.Commons/src/libraries/Hexalith.Commons.Serialization/Hexalith.Commons.Serialization.csproj");
+        });
+    }
+
+    /// <summary>Both parent mode and item root clauses select the authored source graph.</summary>
+    [Theory]
+    [InlineData("'$(UseHexalithProjectReferences)' == 'true'", "", true)]
+    [InlineData("'$(UseHexalithProjectReferences)' == 'false'", "", false)]
+    [InlineData("'$(UseHexalithProjectReferences)' != 'true'", "", false)]
+    [InlineData("'$(UseHexalithProjectReferences)' == 'true'", "'$(HexalithCommonsRoot)' != ''", true)]
+    [InlineData("'$(UseHexalithProjectReferences)' == 'true'", "'$(HexalithCommonsRoot)' == ''", false)]
+    public void SourceBoundaryShouldRespectParentAndItemConditions(string groupCondition, string itemCondition, bool included)
+    {
+        WithSyntheticScaffold(root =>
+        {
+            string project = WriteSourceBoundaryFixture(root, groupCondition, itemCondition);
+            string[] expected = included
+                ? ["references/Hexalith.Commons/src/libraries/Hexalith.Commons.Serialization/Hexalith.Commons.Serialization.csproj"]
+                : [];
+            AssertProjectReferences(root, project, expected);
+        });
+    }
+
+    /// <summary>Unmodelled parent and item clauses remain explicit failures.</summary>
+    [Theory]
+    [InlineData("'$(UnknownSourceMode)' == 'true'", "")]
+    [InlineData("'$(UseHexalithProjectReferences)' == 'true'", "'$(UnknownSourceRoot)' != ''")]
+    public void SourceBoundaryShouldRefuseUnknownConditions(string groupCondition, string itemCondition)
+    {
+        WithSyntheticScaffold(root =>
+        {
+            string project = WriteSourceBoundaryFixture(root, groupCondition, itemCondition);
+            Should.Throw<InvalidOperationException>(() => AssertProjectReferences(root, project));
+        });
+    }
+
+    /// <summary>An extra dependency still fails the complete reference equality.</summary>
+    [Fact]
+    public void SourceBoundaryShouldRejectUnexpectedProjectReferences()
+    {
+        WithSyntheticScaffold(root =>
+        {
+            string project = WriteSourceBoundaryFixture(root, "'$(UseHexalithProjectReferences)' == 'true'", "");
+            string path = Path.Combine(root, project);
+            XDocument document = XDocument.Load(path);
+            document.Root!.Element("ItemGroup")!.Add(new XElement("ProjectReference", new XAttribute("Include", "../Unexpected/Unexpected.csproj")));
+            document.Save(path);
+            Should.Throw<ShouldAssertException>(() => AssertProjectReferences(root, project, "references/Hexalith.Commons/src/libraries/Hexalith.Commons.Serialization/Hexalith.Commons.Serialization.csproj"));
+        });
+    }
+
+    private static void WithSyntheticScaffold(Action<string> action)
+    {
+        string root = Path.Combine(Path.GetTempPath(), "conversations-source-boundary-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        try
+        {
+            action(root);
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    private static string WriteSourceBoundaryFixture(string root, string groupCondition, string itemCondition)
+    {
+        const string project = "src/SourceBoundary/SourceBoundary.csproj";
+        string path = Path.Combine(root, project);
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        XElement reference = new("ProjectReference", new XAttribute("Condition", itemCondition), new XAttribute("Include", "$(HexalithCommonsRoot)/src/libraries/Hexalith.Commons.Serialization/Hexalith.Commons.Serialization.csproj"));
+        XElement group = new("ItemGroup", new XAttribute("Condition", groupCondition), reference);
+        new XDocument(new XElement("Project", group)).Save(path);
+        return project;
+    }
+
+
     private static void AssertProjectReferences(string root, string projectPath, params string[] expectedReferencePaths)
     {
         XDocument project = XDocument.Load(Path.Combine(root, projectPath));
@@ -316,9 +432,11 @@ public sealed class ScaffoldSmokeTest
 
         string[] actualReferences = [.. project
             .Descendants("ProjectReference")
-            .Where(reference => IsProjectReferenceConditionActive(
-                reference.Attribute("Condition")?.Value,
-                projectReferenceRoots))
+            // Audit the authored source-mode boundary even when qualification consumes packages.
+            // Group conditions participate just like item conditions; unknown clauses still refuse.
+            .Where(reference => reference.AncestorsAndSelf().All(element => IsProjectReferenceConditionActive(
+                element.Attribute("Condition")?.Value,
+                projectReferenceRoots)))
             .Select(reference => reference.Attribute("Include")?.Value)
             .OfType<string>()
             .Where(path => !string.IsNullOrWhiteSpace(path))
@@ -387,9 +505,9 @@ public sealed class ScaffoldSmokeTest
     private static IReadOnlyDictionary<string, string> ResolveKnownProjectReferenceRoots(string root)
         => new Dictionary<string, string>(StringComparer.Ordinal)
         {
-            ["HexalithCommonsRoot"] = ResolveModuleRoot(root, "Hexalith.Commons", "src/libraries/Hexalith.Commons.Http"),
-            ["HexalithEventStoreRoot"] = ResolveModuleRoot(root, "Hexalith.EventStore", "src/Hexalith.EventStore.Contracts"),
-            ["HexalithTenantsRoot"] = ResolveModuleRoot(root, "Hexalith.Tenants", "src/Hexalith.Tenants.Contracts"),
+            ["HexalithCommonsRoot"] = Path.GetFullPath(Path.Combine(root, "references", "Hexalith.Commons")),
+            ["HexalithEventStoreRoot"] = Path.GetFullPath(Path.Combine(root, "references", "Hexalith.EventStore")),
+            ["HexalithTenantsRoot"] = Path.GetFullPath(Path.Combine(root, "references", "Hexalith.Tenants")),
         };
 
     private static string ResolveExpectedModuleReferenceRoot(string root, string moduleName, string markerPath)
@@ -438,6 +556,16 @@ public sealed class ScaffoldSmokeTest
         string condition,
         IReadOnlyDictionary<string, string> projectReferenceRoots)
     {
+        // This structural assertion checks the declared source graph, not the active package graph.
+        if (string.Equals(clause, "'$(UseHexalithProjectReferences)' == 'true'", StringComparison.Ordinal))
+        {
+            return true;
+        }
+        if (string.Equals(clause, "'$(UseHexalithProjectReferences)' == 'false'", StringComparison.Ordinal)
+            || string.Equals(clause, "'$(UseHexalithProjectReferences)' != 'true'", StringComparison.Ordinal))
+        {
+            return false;
+        }
         foreach (KeyValuePair<string, string> projectReferenceRoot in projectReferenceRoots)
         {
             if (string.Equals(clause, $"'$({projectReferenceRoot.Key})' != ''", StringComparison.Ordinal))

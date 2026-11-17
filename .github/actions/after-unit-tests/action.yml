@@ -1,0 +1,17 @@
+name: Conversations package and compatibility checks
+description: Exercise built fixture tests, package payloads and isolated package consumers.
+runs:
+  using: composite
+  steps:
+    - name: Product package and mapping contracts
+      shell: bash
+      run: python3 -m unittest discover -s tests/tooling -p test_package_contract.py
+    - name: Fixture package graph and lock boundaries
+      shell: bash
+      run: python3 -m unittest discover -s tests/tooling -p test_minimal_module_compatibility_overlay.py
+    - name: Seven built minimal-module compatibility tests
+      shell: bash
+      run: python3 tests/compatibility/MinimalModule/run_compatibility.py
+    - name: Five package payloads, symbols and isolated public/testing consumers
+      shell: bash
+      run: python3 scripts/validate-built-packages.py

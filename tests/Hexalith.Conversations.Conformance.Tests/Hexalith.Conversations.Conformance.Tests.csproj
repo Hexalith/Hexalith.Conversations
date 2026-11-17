@@ -4,7 +4,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj" />
-    <Compile Include="../Hexalith.Conversations.Conformance.Portable.Tests/Story92TieringVerification.cs" Link="Story92/Story92TieringVerification.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Hexalith.Conversations.Contracts\Hexalith.Conversations.Contracts.csproj" />
@@ -23,37 +22,21 @@
   <ItemGroup>
     <Compile Remove="AdopterConformanceSuite.cs" />
     <Compile Remove="AdopterConformanceSuiteTest.cs" />
-    <Compile Remove="ArchitecturePlanningAuthorityValidationTest.cs" />
-    <Compile Remove="AtRiskTestRegisterGenerationTest.cs" />
     <Compile Remove="BuyerAcceptanceConformanceFixtures.cs" />
     <Compile Remove="BuyerAcceptanceConformanceSuite.cs" />
     <Compile Remove="BuyerAcceptanceConformanceSuiteTest.cs" />
-    <Compile Remove="ClassificationChangeProcedureValidationTest.cs" />
     <Compile Remove="ConformanceManifestValidationTest.cs" />
-    <Compile Remove="ConformanceOracleTieringValidationTest.cs" />
-    <Compile Remove="ConformanceTieringIlReferenceReader.cs" />
-    <Compile Remove="ConsumePromoteKeepInventoryValidationTest.cs" />
     <Compile Remove="ContractValidationConformanceSuite.cs" />
     <Compile Remove="ContractValidationConformanceSuiteTest.cs" />
     <Compile Remove="CoreFixtureContentSafetyTest.cs" />
     <Compile Remove="EventSchemaEvolutionConformanceSuite.cs" />
     <Compile Remove="EventSchemaEvolutionConformanceSuiteTest.cs" />
-    <Compile Remove="FinalConformanceContractDiffEvidenceValidationTest.cs" />
     <Compile Remove="GovernanceAuditPairingSafetyNetConformanceTest.cs" />
     <Compile Remove="IdempotencyConformanceSuite.cs" />
     <Compile Remove="IdempotencyConformanceSuiteTest.cs" />
     <Compile Remove="NoInModuleSharedFakeDuplicateConformanceTest.cs" />
-    <Compile Remove="OqTwoTargetInterpretationDecisionValidationTest.cs" />
-    <Compile Remove="OracleBlindSpotAnalysisArtifactGenerationTest.cs" />
-    <Compile Remove="PackageEnvironmentAuthorityV18ValidationTest.cs" />
-    <Compile Remove="PlanningAuthorityV8ValidationTest.cs" />
-    <Compile Remove="PlanningAuthorityV9ValidationTest.cs" />
-    <Compile Remove="PlanningToolingEnvironmentAuthorityV15ValidationTest.cs" />
-    <Compile Remove="PlanningToolingLifecycleAuthorityV16ValidationTest.cs" />
     <Compile Remove="PlatformEvidenceSeparationConformanceSuite.cs" />
     <Compile Remove="PlatformEvidenceSeparationConformanceSuiteTest.cs" />
-    <Compile Remove="PreservationTraceabilityManifestValidationTest.cs" />
-    <Compile Remove="ProjectionReadStorePopulationProofValidationTest.cs" />
     <Compile Remove="ProviderPortabilityConformanceSuite.cs" />
     <Compile Remove="ProviderPortabilityConformanceSuiteTest.cs" />
     <Compile Remove="PublicContractShapeSnapshotGenerationTest.cs" />
@@ -66,16 +49,10 @@
     <Compile Remove="ReleaseScopeConformanceSuite.cs" />
     <Compile Remove="ReleaseScopeConformanceSuiteTest.cs" />
     <Compile Remove="ReleaseWaiverValidationTest.cs" />
-    <Compile Remove="RemovedTestJustificationLedgerReconciliationValidationTest.cs" />
-    <Compile Remove="RepositoryEvidencePathResolver.cs" />
     <Compile Remove="SecondAdopterConformanceFixtures.cs" />
     <Compile Remove="SecondAdopterConformanceSuite.cs" />
     <Compile Remove="SecondAdopterConformanceSuiteTest.cs" />
-    <Compile Remove="SmC2BaselineReconstructionValidationTest.cs" />
-    <Compile Remove="StoryFinalRecordGenerationValidationTest.cs" />
-    <Compile Remove="SuccessMetricReportAndAttestationValidationTest.cs" />
     <Compile Remove="TenantIsolationConformanceSuite.cs" />
     <Compile Remove="TenantIsolationConformanceSuiteTest.cs" />
-    <Compile Remove="UxPreservationDispositionValidationTest.cs" />
   </ItemGroup>
 </Project>

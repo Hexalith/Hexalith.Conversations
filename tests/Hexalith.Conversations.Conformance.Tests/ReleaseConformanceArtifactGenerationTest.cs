@@ -12,7 +12,6 @@ using Shouldly;
 
 using Xunit;
 
-using Hexalith.Conversations.TestSupport;
 
 namespace Hexalith.Conversations.Conformance.Tests;
 
@@ -183,30 +182,15 @@ public sealed class ReleaseConformanceArtifactGenerationTest
     }
 
     [Fact]
-    public void GenerateAndSaveFixtureArtifactFile()
+    public void FixtureArtifactRoundTripsInMemory()
     {
-        // This test generates the committed fixture artifact file at docs/release-evidence/
-        // and also validates the generated artifact in the same pass.
         ReleaseConformanceArtifactV1 artifact = BuildFromCoreFixture();
         string json = JsonSerializer.Serialize(artifact, new JsonSerializerOptions(WebOptions) { WriteIndented = true });
-
-        string root = FindRepositoryRoot();
-        string dir = Path.Combine(root, "docs", "release-evidence");
-        string path = Path.Combine(dir, "release-conformance-artifact-v1-fixture.json");
-
-        Directory.CreateDirectory(dir);
-        File.WriteAllText(path, json);
-
-        // Validate the generated file round-trips correctly
-        string readBack = RepositoryLocator.ReadAllText(path);
-        ReleaseConformanceArtifactV1? parsed = JsonSerializer.Deserialize<ReleaseConformanceArtifactV1>(readBack, WebOptions);
+        ReleaseConformanceArtifactV1? parsed = JsonSerializer.Deserialize<ReleaseConformanceArtifactV1>(json, WebOptions);
         parsed.ShouldNotBeNull();
         IReadOnlyList<string> errors = ReleaseConformanceArtifactV1.ValidateArtifact(parsed!);
         errors.ShouldBeEmpty();
     }
-
-    private static string FindRepositoryRoot()
-        => RepositoryLocator.FindRepositoryRoot();
 
     /// <summary>
     /// Simple test-time <see cref="TimeProvider"/> that always returns a fixed time.

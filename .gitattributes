@@ -175,3 +175,12 @@ tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs whitespace=cr
 # Story 12.1 hashes ADR 0005 and compares the SM-C2 baseline v1 xUnit result with its planning-candidate blob.
 docs/adrs/0005-conversation-derived-key-lifecycle.md text eol=lf
 docs/release-evidence/sm-c2-hot-path-baseline-v1.xunit.xml text eol=lf
+
+# Preserve the repository C# CRLF convention while checking new product-test lines.
+tests/Hexalith.Conversations.Conformance.Tests/ReleaseBaselineValidationTest.cs whitespace=cr-at-eol
+tests/Hexalith.Conversations.Conformance.Tests/ReleaseConformanceArtifactGenerationTest.cs whitespace=cr-at-eol
+tests/Hexalith.Conversations.Conformance.Tests/DerivedProjectionKeyConformanceTest.cs whitespace=cr-at-eol
+tests/Hexalith.Conversations.Conformance.Portable.Tests/PortableCompileSurfaceValidationTest.cs whitespace=cr-at-eol
+tests/Hexalith.Conversations.Conformance.Portable.Tests/PortableSurfaceVerification.cs whitespace=cr-at-eol
+tests/Hexalith.Conversations.Conformance.Portable.Tests/ClientPublicApiConformanceTest.cs whitespace=cr-at-eol
+tests/Hexalith.Conversations.TestSupport.Tests/AdoptionSeamTests.cs whitespace=cr-at-eol

@@ -1,0 +1,17 @@
+{
+  "schema": "hexalith.isolated-build.v1",
+  "owner": "tests/compatibility/MinimalModule/Hexalith.Conversations.MinimalModule.Compatibility.csproj",
+  "projects": [
+    "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/Hexalith.Conversations.MinimalModule.Tests.csproj",
+    "tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj"
+  ],
+  "roots": ["tests/compatibility/MinimalModule", "tests/fixtures/Hexalith.Conversations.MinimalModule"],
+  "framework": "net11.0",
+  "propertyPrefix": "MinimalModuleCompatibility",
+  "properties": {
+    "MinimalModuleCompatibilityMode": "package",
+    "MinimalModuleCompatibilityUseSuccessorLocks": "true"
+  },
+  "props": "tests/compatibility/MinimalModule/Framework.props",
+  "targets": "tests/compatibility/MinimalModule/RegisteredCommand.targets"
+}
