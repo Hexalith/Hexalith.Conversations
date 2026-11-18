@@ -49,14 +49,33 @@ public sealed class GetConversationAdvisoryMetadataDomainQueryHandler(
         return await ReadAuthorizedAsync(new(query.TenantId), new(query.AggregateId), query.UserId, cancellationToken).ConfigureAwait(false);
     }
 
-    /// <summary>Shares the isolated owner evidence read after the existing transport has authenticated its actor.</summary>
-    internal async Task<QueryResult> ReadAuthorizedAsync(TenantId tenant, ConversationId resource, string actor, CancellationToken cancellationToken)
+    private async Task<QueryResult> ReadAuthorizedAsync(TenantId tenant, ConversationId resource, string actor, CancellationToken cancellationToken)
     {
         try
         {
             if (!await AllowedAsync(tenant, actor, cancellationToken).ConfigureAwait(false))
                 return QueryResult.Failure("safe-denial");
 
+            QueryResult result = await ReadCommittedEvidenceAsync(tenant, resource, cancellationToken).ConfigureAwait(false);
+            if (!await AllowedAsync(tenant, actor, cancellationToken).ConfigureAwait(false))
+                return QueryResult.Failure("safe-denial");
+
+            cancellationToken.ThrowIfCancellationRequested();
+            return result;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
+        catch (Exception) { return Unavailable(); }
+    }
+
+    /// <summary>Reads isolated committed evidence within the caller's tenant Read boundary.</summary>
+    /// <param name="tenant">The tenant bound by the caller's preliminary Read decision.</param>
+    /// <param name="resource">The requested conversation identity.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The in-memory result that the caller must reauthorize before returning.</returns>
+    internal async Task<QueryResult> ReadCommittedEvidenceAsync(TenantId tenant, ConversationId resource, CancellationToken cancellationToken)
+    {
+        try
+        {
             // The optional isolated fence rejects known pending rebuilds without requiring native-head proof.
             string proofKey = ConversationProjectionReadModelKeys.ResolutionProofKey(tenant, resource);
             var before = await store.GetCompactedAsync<ConversationResolutionMetadataProof>(
@@ -92,8 +111,6 @@ public sealed class GetConversationAdvisoryMetadataDomainQueryHandler(
                 && ConversationResolutionScoringPolicy.CanClassify(value.Metadata.SafeLabel, value.LabelPurpose);
             // Missing legacy classification omits the label; it cannot be inferred from label text.
             var metadata = value.Metadata with { SafeLabel = classified ? value.Metadata.SafeLabel : null };
-            if (!await AllowedAsync(tenant, actor, cancellationToken).ConfigureAwait(false))
-                return QueryResult.Failure("safe-denial");
             cancellationToken.ThrowIfCancellationRequested();
             return Success(new(metadata, !classified));
         }

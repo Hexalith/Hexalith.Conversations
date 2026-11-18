@@ -70,6 +70,36 @@ public sealed class ConversationQueryHandlerTest
     }
 
     /// <summary>
+    /// A detail response requires the same tenant Read decision after any response view is composed.
+    /// </summary>
+    /// <param name="nativeMembershipOnly">Whether the request selects native membership evidence.</param>
+    /// <param name="advisoryMetadataOnly">Whether the request selects classified advisory evidence.</param>
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public async Task DetailShouldHideResponseWhenTenantReadAccessChanges(bool nativeMembershipOnly, bool advisoryMetadataOnly)
+    {
+        FakeTenantAccessService access = new(
+            ConversationTenantAccessDecision.Allowed(ConversationTenantAccessRequirement.Read, Tenant, "caller-001"),
+            ConversationTenantAccessDecision.Denied(
+                ConversationTenantAccessRequirement.Read, Tenant, "caller-001", ConversationTenantAccessDenialReason.MissingMember));
+        FakeProjectionReadStore store = new() { Models = ProjectedModels(Tenant, Conversation) };
+        ConversationQueryHandler handler = CreateHandler(access, store);
+        GetConversationQuery query = new(SchemaVersion.Current, Tenant, "caller-001", "correlation-001", Conversation)
+        {
+            NativeMembershipOnly = nativeMembershipOnly,
+            AdvisoryMetadataOnly = advisoryMetadataOnly,
+        };
+
+        ConversationDetailResult result = await handler.GetAsync(query, TestContext.Current.CancellationToken);
+
+        result.ShouldBe(ConversationDetailResult.Hidden(SchemaVersion.Current));
+        store.DetailReads.ShouldBe(1);
+        access.Calls.ShouldBe(2);
+    }
+
+    /// <summary>
     /// Projection poison data is denied instead of trusting tenant ids returned by storage.
     /// </summary>
     [Fact]
@@ -2375,7 +2405,9 @@ public sealed class ConversationQueryHandlerTest
             reason ?? ProjectionFreshnessReasonCode.Current);
     }
 
-    private sealed class FakeTenantAccessService(ConversationTenantAccessDecision decision) : IConversationTenantAccessService
+    private sealed class FakeTenantAccessService(
+        ConversationTenantAccessDecision decision,
+        ConversationTenantAccessDecision? subsequentDecision = null) : IConversationTenantAccessService
     {
         public int Calls { get; private set; }
 
@@ -2391,7 +2423,7 @@ public sealed class ConversationQueryHandlerTest
             CancellationToken cancellationToken = default)
         {
             Calls++;
-            return ValueTask.FromResult(decision);
+            return ValueTask.FromResult(Calls > 1 && subsequentDecision is not null ? subsequentDecision : decision);
         }
     }
 

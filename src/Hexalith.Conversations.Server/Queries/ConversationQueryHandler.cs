@@ -122,20 +122,43 @@ public sealed class ConversationQueryHandler
                 "Retry after the read model finishes rebuilding.");
         }
 
+        ConversationDetailResult detail = await ReadRequestedDetailAsync(query, result.Projection, cancellationToken)
+            .ConfigureAwait(false);
+
+        ConversationTenantAccessDecision decision = await _tenantAccessService.CheckAccessAsync(
+            ConversationTenantAccessRequirement.Read,
+            query.TenantId,
+            query.CallerPrincipalId,
+            routeTenantId: query.TenantId,
+            aggregateTenantId: query.TenantId,
+            projectionTenantId: result.Projection.TenantId,
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        cancellationToken.ThrowIfCancellationRequested();
+        return decision.IsAllowed && decision.Requirement == ConversationTenantAccessRequirement.Read
+            && decision.TenantId == query.TenantId && decision.CallerPrincipalId == query.CallerPrincipalId
+            ? detail
+            : ConversationDetailResult.Hidden(query.SchemaVersion);
+    }
+
+    private async ValueTask<ConversationDetailResult> ReadRequestedDetailAsync(
+        GetConversationQuery query,
+        ConversationDetailProjectionV1 projection,
+        CancellationToken cancellationToken)
+    {
         if (query.NativeMembershipOnly && query.AdvisoryMetadataOnly)
             return ConversationDetailResult.Unavailable(query.SchemaVersion);
         if (query.AdvisoryMetadataOnly)
         {
             if (_advisoryMetadata is null) return ConversationDetailResult.Unavailable(query.SchemaVersion);
-            var read = await _advisoryMetadata.ReadAuthorizedAsync(query.TenantId, query.ConversationId,
-                query.CallerPrincipalId, cancellationToken).ConfigureAwait(false);
+            var read = await _advisoryMetadata.ReadCommittedEvidenceAsync(query.TenantId, query.ConversationId,
+                cancellationToken).ConfigureAwait(false);
             var evidence = read.Success && read.PayloadBytes is not null
                 ? JsonSerializer.Deserialize(read.PayloadBytes, Hexalith.Conversations.Contracts.Serialization.ConversationsJsonContext.Default.ConversationAdvisoryMetadataResult) : null;
             if (evidence is not { Incomplete: false, Metadata: { } metadata }) return ConversationDetailResult.Unavailable(query.SchemaVersion);
-            var source = result.Projection;
             return ConversationDetailResult.Visible(query.SchemaVersion,
-                new ConversationDetailsV1(source.SchemaVersion, source.TenantId, source.ConversationId,
-                    source.Freshness, metadata.LifecycleState, metadata.SafeLabel,
+                new ConversationDetailsV1(projection.SchemaVersion, projection.TenantId, projection.ConversationId,
+                    projection.Freshness, metadata.LifecycleState, metadata.SafeLabel,
                     ProjectId: metadata.ProjectId is null ? null : new ProjectId(metadata.ProjectId)),
                 "Classified advisory evidence is available.") with { ReadPurpose = ConversationResolutionScoringLabel.SupportedPurpose };
         }
@@ -144,7 +167,6 @@ public sealed class ConversationQueryHandler
         {
             // Native source fields only. No hydration, labels, timeline, participants, references
             // or evidence records are read into the transport response for Project admission.
-            var projection = result.Projection;
             return ConversationDetailResult.Visible(query.SchemaVersion,
                 new ConversationDetailsV1(projection.SchemaVersion, projection.TenantId, projection.ConversationId,
                     projection.Freshness, projection.LifecycleState, ProjectId: projection.ProjectId),
@@ -153,7 +175,7 @@ public sealed class ConversationQueryHandler
 
         ConversationDetailsV1 details = await _hydrationService
             .HydrateDetailAsync(
-                ConversationDetailsV1.FromProjection(result.Projection),
+                ConversationDetailsV1.FromProjection(projection),
                 new ConversationHydrationContext(query.TenantId, query.CallerPrincipalId, query.CorrelationId),
                 cancellationToken)
             .ConfigureAwait(false);

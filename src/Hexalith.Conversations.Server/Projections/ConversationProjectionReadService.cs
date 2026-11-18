@@ -58,7 +58,8 @@ public sealed class ConversationProjectionReadService(
                 cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
-        if (!decision.IsAllowed)
+        if (!decision.IsAllowed || decision.Requirement != ConversationTenantAccessRequirement.Read
+            || decision.TenantId != trustedTenantId || decision.CallerPrincipalId != callerPrincipalId)
         {
             return Forbidden();
         }
