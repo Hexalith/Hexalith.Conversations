@@ -14,7 +14,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Hexalith.Conversations.Admin.Web\Hexalith.Conversations.Admin.Web.csproj" />
     <ProjectReference Include="..\Hexalith.Conversations.Server\Hexalith.Conversations.Server.csproj" />
-    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <!-- Older managed package catalogs leave this reference to the AppHost SDK. -->
+    <PackageReference Include="Aspire.Hosting.AppHost" Condition="'@(PackageVersion->WithMetadataValue('Identity', 'Aspire.Hosting.AppHost'))' != ''" />
     <PackageReference Include="CommunityToolkit.Aspire.Hosting.Dapr" />
   </ItemGroup>
   <ItemGroup Condition="'$(UseHexalithProjectReferences)' == 'true'">
