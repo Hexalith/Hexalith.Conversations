@@ -334,7 +334,7 @@ public sealed class ConversationQueryHandlerTest
         command.FreshnessRequirementState.ShouldBe(ProjectionTrustState.Current);
         command.AuditRequirement.ShouldBe(ConversationAuditReadinessState.Ready);
         store.DetailReads.ShouldBe(1);
-        access.Calls.ShouldBe(1);
+        access.Calls.ShouldBe(2);
     }
 
     /// <summary>

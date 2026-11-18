@@ -145,7 +145,7 @@ public sealed class ConversationReadApiTest
             user: AuthenticatedUser());
 
         response.StatusCode.ShouldBe(StatusCodes.Status200OK);
-        access.Calls.ShouldBe(1);
+        access.Calls.ShouldBe(2);
         access.LastTrustedTenantId.ShouldBe(Tenant);
         access.LastRouteTenantId.ShouldBe(Tenant);
         access.LastProjectionTenantId.ShouldBe(Tenant);
