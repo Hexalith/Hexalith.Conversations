@@ -2,6 +2,8 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <AspireUseCliBundle>true</AspireUseCliBundle>
+    <SuppressAspireAppHostSdkObsoleteWarning>true</SuppressAspireAppHostSdkObsoleteWarning>
+    <NoWarn>$(NoWarn);ASPIRE012;CS0618</NoWarn>
     <IsPackable>false</IsPackable>
     <IsPublishable>false</IsPublishable>
     <UserSecretsId>hexalith-conversations</UserSecretsId>
