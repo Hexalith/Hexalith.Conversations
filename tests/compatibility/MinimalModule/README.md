@@ -2,7 +2,7 @@
 
 This CI-only compatibility suite compiles and runs the frozen Story 11.2 fixture against
 the external package compatibility selection in `RegisteredCommand.targets` (EventStore
-5.3.0 on net11.0, matching the selected Builds catalog). It runs the original six tests and
+5.3.1 on net11.0, matching the selected Builds catalog). It runs the original six tests and
 adds one registered-command assertion through the public in-process domain router.
 The assertion resolves the keyed processor, checks the serialized creation event,
 replays it through the public in-process router in a fresh service scope, and checks
@@ -14,7 +14,9 @@ checked at the replay output boundary.
 
 The external `RegisteredCommand.targets` import adds the assertion only to the fixture
 test project. With `MinimalModuleCompatibilityMode=package`, the overlay aligns the
-AppHost's Dapr hosting package to EventStore.Aspire's published 13.6.2-beta.959 dependency.
+AppHost's Dapr hosting package to EventStore.Aspire's published 17.0.0-beta.1052 dependency.
+The package-mode AppHost keeps its legacy AddProject call for EventStore's ProjectResource
+extension and suppresses the Aspire 17 deprecation diagnostic in that project.
 Its initial target replaces only external EventStore project edges with exact package
 references. Internal fixture project edges stay intact. A separate read-only MSBuild
 catalog evaluation compares that deliberately qualified selection with the direct pinned

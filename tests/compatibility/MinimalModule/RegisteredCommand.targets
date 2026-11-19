@@ -5,12 +5,16 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(MinimalModuleCompatibilityMode)' == 'package'">
     <!-- Qualified dependency selection for this external compatibility graph, independent of product imports. -->
-    <MinimalModuleCompatibilityEventStoreVersion>5.3.0</MinimalModuleCompatibilityEventStoreVersion>
+    <MinimalModuleCompatibilityEventStoreVersion>5.3.1</MinimalModuleCompatibilityEventStoreVersion>
     <!-- Match the published EventStore.Aspire dependency without changing the frozen AppHost. -->
-    <AspireDaprVersion>13.6.2-beta.959</AspireDaprVersion>
-    <MinimalModuleCompatibilityAspireVersion>13.6.5</MinimalModuleCompatibilityAspireVersion>
+    <AspireDaprVersion>17.0.0-beta.1052</AspireDaprVersion>
+    <MinimalModuleCompatibilityAspireVersion>17.0.0</MinimalModuleCompatibilityAspireVersion>
     <MinimalModuleCompatibilityTestSdkVersion>18.12.0</MinimalModuleCompatibilityTestSdkVersion>
     <MinimalModuleCompatibilityXunitVersion>4.0.3</MinimalModuleCompatibilityXunitVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MinimalModuleCompatibilityMode)' == 'package' and '$(MSBuildProjectName)' == 'Hexalith.Conversations.MinimalModule.AppHost'">
+    <!-- The frozen AppHost calls the legacy AddProject API required by EventStore's ProjectResource extension. -->
+    <NoWarn>$(NoWarn);CS0618</NoWarn>
   </PropertyGroup>
   <ItemGroup Condition="'$(MinimalModuleCompatibilityMode)' == 'package'">
     <PackageReference Update="Microsoft.NET.Test.Sdk" Version="$(MinimalModuleCompatibilityTestSdkVersion)" />
