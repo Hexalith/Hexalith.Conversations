@@ -4496,3 +4496,64 @@ story, authorizes release, or modifies product, dependency, submodule, or
 gitlink state.
 
 <!-- EPIC-6-AUTHORITY-OVERLAY-V14:END version=epic-6-authority-2026-08-18-v14 architecture-authority=conversations-architecture-2026-08-18-v14 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->
+
+## Current sprint supplement · 20 November 2026
+
+These stories apply to current-main development. The sprint tracker records their lifecycle. The dated proposal gives the audit evidence, implementation order and estimates. [Sprint change proposal](../../sprint-change-proposal-2026-11-20.md)
+
+### Story 11.4: Restore package qualification and maintainer commands
+
+As a release maintainer, I can qualify the module and follow its setup instructions from a clean checkout.
+
+- Reconcile the external MinimalModule overlay with the directly pinned Builds catalog. Restore its four successor locks from the published feed in an isolated cache, then run a locked restore in a second empty cache. Require identical locks, a Release build, seven named fixture assertions and byte-identical copies of the 17 frozen fixture files.
+- Run the release packaging and clean consumer checks for all five Conversations packages. Retain the catalog drift guard. Coordinate changes to generated CI or a shared tool through its owning repository if required.
+- Align the supported workspace-tool version, producer mapping and target framework examples. Run the documented restore, build and focused test from a fresh checkout with direct submodules. Make the root tooling test command execute the maintained suite and resolve the release-plan script with its owner. If that check is retired, remove its public command and references together.
+
+### Story 9.3: Prove the packaged conversation client against its supported host
+
+As a consuming application, I can create, append to and read a conversation using the published client and a documented service address.
+
+- Identify the owner and deployed composition of the versioned HTTP routes. If supplied by the platform, exercise that versioned artifact. Otherwise supply the missing translation at the agreed ownership boundary. Document the base address, authentication and required dependencies.
+- Use the built client package against that host, its actual command bus and its projection store. Create and retry with the same idempotency key, append and retry one message, and wait for a Current detail and list result within a bounded timeout. Assert the same conversation ID and exactly one stored message.
+- Exercise a mismatched identity and another tenant through the same host. Require the contract's hidden response and absence of private content. Test-only mappings and handlers cannot establish this consumer result.
+
+### Story 16.4: Recover missing and legacy tenant indexes truthfully
+
+As a tenant operator, I can recover a lost or older index while readers see the true freshness of the collection.
+
+- Make empty Current contingent on durable evidence of a genuinely new tenant. With existing conversations, remove only the derived index and restart, then redeliver TenantCreated. Assert an unavailable or rebuilding response until coverage of the tenant's authoritative history is demonstrated.
+- Define the tenant-wide source, replay cutoff and atomic completion condition. Exercise a concurrent append, duplicate delivery, interrupted rebuild, retry and legacy index. Assert that completion includes every authorized conversation through the cutoff and applies concurrent progress without loss or regression.
+- Use the pinned EventStore shared-projection rebuild seam if it supplies the necessary source and atomicity. Otherwise document the missing platform guarantee with its owner and continue returning the truthful unavailable state. Prove tenant isolation, genuine empty-tenant behavior and rollback on the production store path. Update the operator recovery procedure with observable completion criteria.
+
+### Story 9.4: Preserve typed client errors and enforce read scope consistently
+
+As an API consumer, I can distinguish a typed service failure and receive a consistent answer when my requested scope conflicts with my credentials.
+
+- Consume a forward-only response body once. Verify the exact error code, category and correlation for a typed non-success HTTP response. Cover command, detail and list contracts plus valid success, empty or malformed bodies and the defined unknown-outcome fallback.
+- Keep authenticated claims authoritative. List and detail must accept omitted optional scope headers and single matching values. Reject mismatched or multi-value tenant and caller headers with the same hidden response before invoking the query store. Exercise the other read routes that share the resolver and assert the absence of tenant data or existence signals.
+
+### Story 9.5: Bind discovery compatibility to shipped package versions
+
+As an integrator, I can determine whether the client and contracts packages I installed support the advertised wire contract.
+
+- Specify the supported package range for each artifact and wire schema with the package owner. Align the resolver, public discovery examples and package tests with that decision.
+- Pack and install the real artifacts into an isolated consumer. Verify accepted supported boundaries, deprecated versions, each unsupported boundary and an unknown wire schema. Include the audited 2.1.0 package and wire-v1 combination in the matrix with an explicit owner-supported disposition.
+
+### Story 16.5: Publish projection freshness through the supported host
+
+As an operator, I can observe projection freshness and publication failures from the running service.
+
+- Register the existing projection telemetry in production composition and subscribe its meter in the supported exporter pipeline. Exercise a current and a degraded read and a publication failure through the host. Observe the expected bounded dimensions through a test collector attached to that pipeline.
+- Verify emitted metric attributes omit tenant, conversation, actor and correlation identifiers and emitted telemetry omits message contents. Give operators the meter, expected classes and a query that distinguishes healthy operation from degradation.
+
+### Story 8.3: Isolate browser evidence from reviewed baselines
+
+As a contributor, I can run the browser suite concurrently and inspect its results without overwriting reviewed evidence.
+
+- Make the responsive and accessibility fixtures write to unique per-run directories, including their default path. Honor a caller-selected artifact parent and expose each run's output path to CI. Give maintainers an explicit baseline-update operation with a reviewable diff.
+- From a clean checkout, run the full Admin.Web test project twice concurrently. Require both runs to pass, produce distinct evidence directories and leave tracked files clean. Preserve viewport, accessibility, redaction and failure-artifact assertions.
+
+### Additional acceptance for existing Stories 12.3 and 12.4
+
+- **12.3** Measure the actual list and open handlers at 100, 1,000 and 10,000 rows, including page two, with state-store access and response processing. Capture allocated bytes, store operations and latency. Compare read and write costs before choosing a change. Where evidence justifies moving generation computation to writes, persist it with the existing conditional index update. Check token stability, invalidation after writes, legacy formats, concurrent writes, replay, rollback and fail-closed reads under ADR 0005.
+- **12.4** Run the approved four-row SM-C2 method on matched baseline and candidate in the same environment. Retain warm and cold samples, tenant sizes, page sizes, store mode, repetitions, allocations and P95. Each hot path must satisfy candidate P95 ≤ 1.05 × baseline P95. Report diagnostic size sweeps alongside the four-row verdict. Mark missing or noisy measurements inconclusive according to the existing method.

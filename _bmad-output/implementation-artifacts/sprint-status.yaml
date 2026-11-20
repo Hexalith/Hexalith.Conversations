@@ -1,5 +1,5 @@
 # generated: 2026-06-02
-# last_updated: 2026-11-04
+# last_updated: 2026-11-20
 # project: Conversations
 # project_key: NOKEY
 # tracking_system: file-system
@@ -37,7 +37,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-06-02
-last_updated: 2026-11-16
+last_updated: 2026-11-20
 # HISTORICAL V14 PUBLICATION: v9-authority-bundle-v1.json retains the candidate-bound August 18 planning state. That publication's hold, unrun IR-0 and backlog statements describe its historical boundary.
 # CURRENT TRACKING: development_status below records lifecycle progress. docs/runbooks/current-change-validation.md governs routine work and links the later IR-0 disposition; historical records retain their original results and authority limits.
 # PROVENANCE LEDGER: the 90 lifecycle-transition comments previously recorded here are preserved byte-exact in _bmad-output/implementation-artifacts/sprint-status-provenance-v1.md (sha256 pinned by v14-current-candidate-authority-v1.json). That relocation changed no lifecycle or action-item status value.
@@ -95,10 +95,14 @@ development_status:
   epic-8: in-progress
   8-1-generate-the-versioned-ux-disposition-contract: done
   8-2-enforce-the-52-decision-28-acceptance-zero-gap-validator: done
+  8-3-isolate-browser-evidence-from-reviewed-baselines: backlog
   epic-8-retrospective: done
   epic-9: in-progress
   9-1-freeze-the-conformance-assertion-inventory-tier-decisions-digest-and-approvals: done
   9-2-make-the-portable-tier-structural-and-prove-complete-monotonic-tier-execution: done
+  9-3-prove-the-packaged-conversation-client-against-its-supported-host: backlog
+  9-4-preserve-typed-client-errors-and-enforce-read-scope-consistently: backlog
+  9-5-bind-discovery-compatibility-to-shipped-package-versions: backlog
   epic-9-retrospective: done
   epic-10: in-progress
   10-1-provide-neutral-testsupport-helpers-and-a-safe-git-facts-runner: done
@@ -110,12 +114,14 @@ development_status:
   11-1-correct-and-validate-platform-hosted-thin-module-authoring-guidance: done
   11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis: done
   11-3-generate-authoritative-sm-2-v2-evidence-and-decide-oq-2: done
+  11-4-restore-package-qualification-and-maintainer-commands: backlog
   epic-11-retrospective: done
   epic-12: in-progress
   12-1-approve-derived-key-ownership-lifecycle-and-rollback: done
   #  AC-01/06 waived (owner, 2026-11-16)
   12-2-freeze-the-benchmark-method-and-signal-quality-algorithm: done
   #  AC-12.2-05 waived (owner, 2026-11-16); method payload approved.
+  # Audit evidence and additional 12.3/12.4 acceptance: _bmad-output/planning-artifacts/sprint-change-proposal-2026-11-20.md
   12-3-implement-correctness-preserving-list-open-optimization-and-migration-behavior: backlog
   12-4-produce-candidate-bound-evidence-and-enforce-universal-sm-c2: backlog
   epic-12-retrospective: optional
@@ -139,6 +145,8 @@ development_status:
   # 16.3: native proof 186/186 after both review passes resolved (2026-11-16); done.
   # Entry/final-pair/test-AppHost owner ceremony are user-waived; historical hold/flags unchanged.
   16-3-diagnose-apphost-preflight-failures-and-prove-terminal-reconciliation-live: done
+  16-4-recover-missing-and-legacy-tenant-indexes-truthfully: backlog
+  16-5-publish-projection-freshness-through-the-supported-host: backlog
   epic-16-retrospective: done
 action_items:
   - epic: 3
