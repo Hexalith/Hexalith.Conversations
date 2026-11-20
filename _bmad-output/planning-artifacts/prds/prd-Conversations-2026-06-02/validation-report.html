@@ -1,151 +1,209 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <title>PRD Validation: Conversations Boilerplate Reduction</title>
 <style>
   :root {
-    --bg: #fafaf9; --surface: #ffffff; --border: #e7e5e4; --text: #1c1917; --muted: #78716c;
-    --verdict-strong: #16a34a; --verdict-adequate: #65a30d; --verdict-thin: #d97706; --verdict-broken: #dc2626;
-    --sev-low: #64748b; --sev-medium: #ca8a04; --sev-high: #ea580c; --sev-critical: #dc2626;
-    --grade-exc: #16a34a; --grade-good: #65a30d; --grade-fair: #d97706; --grade-poor: #dc2626;
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --border: #e7e5e4;
+    --text: #1c1917;
+    --muted: #78716c;
+
+    --verdict-strong: #16a34a;
+    --verdict-adequate: #65a30d;
+    --verdict-thin: #d97706;
+    --verdict-broken: #dc2626;
+
+    --sev-low: #64748b;
+    --sev-medium: #ca8a04;
+    --sev-high: #ea580c;
+    --sev-critical: #dc2626;
+
+    --grade-exc: #16a34a;
+    --grade-good: #65a30d;
+    --grade-fair: #d97706;
+    --grade-poor: #dc2626;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; font-size: 15px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+  }
   .container { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
-  header.report-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+
+  header.report-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
   .title h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
   .title .subtitle { color: var(--muted); font-size: 13px; margin-top: 4px; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
-  .grade { padding: 10px 18px; border-radius: 8px; font-weight: 600; color: white; font-size: 15px; white-space: nowrap; }
-  .grade-excellent { background: var(--grade-exc); } .grade-good { background: var(--grade-good); } .grade-fair { background: var(--grade-fair); } .grade-poor { background: var(--grade-poor); }
-  .synthesis { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--muted); border-radius: 8px; padding: 18px 22px; margin-bottom: 24px; font-size: 15.5px; }
-  .synthesis p { margin: 0 0 10px; } .synthesis p:last-child { margin-bottom: 0; }
-  .dimension-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 24px; }
-  .dim-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
-  .dim-card .dim-name { font-size: 13px; color: var(--muted); margin-bottom: 6px; } .dim-card .dim-verdict { font-size: 14px; font-weight: 600; }
+  .grade {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    color: white;
+    font-size: 15px;
+    white-space: nowrap;
+  }
+  .grade-excellent { background: var(--grade-exc); }
+  .grade-good { background: var(--grade-good); }
+  .grade-fair { background: var(--grade-fair); }
+  .grade-poor { background: var(--grade-poor); }
+
+  .synthesis {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--muted);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    font-size: 15.5px;
+  }
+  .synthesis p { margin: 0 0 10px; }
+  .synthesis p:last-child { margin-bottom: 0; }
+
+  .dimension-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .dim-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .dim-card .dim-name { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .dim-card .dim-verdict { font-size: 14px; font-weight: 600; }
+
   section.dimension, section.reviewer-section { margin-bottom: 14px; }
-  section.dimension details, section.reviewer-section details { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-  section summary { padding: 14px 20px; cursor: pointer; user-select: none; list-style: none; display: flex; align-items: center; gap: 12px; }
-  section summary::-webkit-details-marker { display: none; } section summary::before { content: "▸"; display: inline-block; color: var(--muted); transition: transform 0.15s ease; }
+  section.dimension details, section.reviewer-section details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  section summary {
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  section summary::-webkit-details-marker { display: none; }
+  section summary::before {
+    content: "▸";
+    display: inline-block;
+    color: var(--muted);
+    transition: transform 0.15s ease;
+  }
   section details[open] summary::before { transform: rotate(90deg); }
-  section summary h2 { display: inline; margin: 0; font-size: 16px; font-weight: 600; letter-spacing: -0.005em; flex: 1; }
-  .verdict-pill { font-size: 11px; padding: 3px 10px; border-radius: 999px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: white; }
-  .verdict-strong { background: var(--verdict-strong); } .verdict-adequate { background: var(--verdict-adequate); } .verdict-thin { background: var(--verdict-thin); } .verdict-broken { background: var(--verdict-broken); }
-  .dim-body { padding: 4px 20px 18px; } .dim-judgment { color: var(--text); font-size: 14.5px; } .dim-judgment p { margin: 0 0 10px; }
+  section summary h2 {
+    display: inline;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    flex: 1;
+  }
+  .verdict-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: white;
+  }
+  .verdict-strong { background: var(--verdict-strong); }
+  .verdict-adequate { background: var(--verdict-adequate); }
+  .verdict-thin { background: var(--verdict-thin); }
+  .verdict-broken { background: var(--verdict-broken); }
+
+  .dim-body { padding: 4px 20px 18px; }
+  .dim-judgment { color: var(--text); font-size: 14.5px; }
+  .dim-judgment p { margin: 0 0 10px; }
+
   .findings-list { padding: 0 20px 4px; }
-  article.finding { padding: 14px 0; border-top: 1px solid var(--border); } article.finding:first-child { border-top: none; }
-  article.finding header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
-  .badge { font-size: 10.5px; padding: 3px 8px; border-radius: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; line-height: 1.4; }
-  .badge-sev-low { background: rgba(100,116,139,.12); color: var(--sev-low); } .badge-sev-medium { background: rgba(202,138,4,.14); color: var(--sev-medium); }
-  .badge-sev-high { background: rgba(234,88,12,.14); color: var(--sev-high); } .badge-sev-critical { background: rgba(220,38,38,.14); color: var(--sev-critical); }
+  article.finding {
+    padding: 14px 0;
+    border-top: 1px solid var(--border);
+  }
+  article.finding:first-child { border-top: none; }
+  article.finding header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .badge {
+    font-size: 10.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+  }
+  .badge-sev-low { background: rgba(100, 116, 139, 0.12); color: var(--sev-low); }
+  .badge-sev-medium { background: rgba(202, 138, 4, 0.14); color: var(--sev-medium); }
+  .badge-sev-high { background: rgba(234, 88, 12, 0.14); color: var(--sev-high); }
+  .badge-sev-critical { background: rgba(220, 38, 38, 0.14); color: var(--sev-critical); }
   .finding-title { margin: 0; font-size: 15px; font-weight: 500; flex: 1; min-width: 200px; }
   .finding-location { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; color: var(--muted); }
-  .finding-note, .finding-fix { margin-top: 6px; font-size: 14px; } .finding-fix strong { color: var(--muted); font-weight: 500; }
-  .reviewer-source { font-size: 12px; color: var(--muted); font-family: ui-monospace, "SF Mono", Menlo, monospace; }
-  .mechanical { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin-top: 24px; font-size: 14px; }
-  .mechanical h3 { margin: 0 0 10px; font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
-  .mechanical ul { margin: 0; padding-left: 20px; } .mechanical li { margin-bottom: 4px; color: var(--text); }
-  footer.report-footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  .finding-note, .finding-fix { margin-top: 6px; font-size: 14px; }
+  .finding-fix strong { color: var(--muted); font-weight: 500; }
+
+  .reviewer-source {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  .mechanical {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 24px;
+    font-size: 14px;
+  }
+  .mechanical h3 { margin: 0 0 10px; font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .mechanical ul { margin: 0; padding-left: 20px; }
+  .mechanical li { margin-bottom: 4px; color: var(--text); }
+
+  footer.report-footer {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
   footer .meta { display: flex; gap: 24px; flex-wrap: wrap; }
 </style>
 </head>
-<body>
-<div class="container">
-  <header class="report-header">
-    <div class="title">
-      <h1>Conversations Boilerplate Reduction — Validation Report</h1>
-      <div class="subtitle">_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md</div>
-    </div>
-    <div class="grade grade-poor">Poor</div>
-  </header>
-
-  <div class="synthesis">
-    <p>This is a strategically coherent, unusually well-bounded refactor PRD: its thesis is specific, its scope cuts are explicit, and most requirements carry concrete consequences plus preservation counter-metrics. The current artifact is nevertheless only fair under the rubric because its active implementation hold, executed-phase claim, unresolved architecture dependency, and provisional acceptance evidence are not reconciled into one actionable current disposition.</p>
-    <p>The adversarial pass materially lowers the consolidated grade to <strong>Poor</strong>. It found two release-blocking contradictions: the evidence system enforces a materially weaker SM-C2 rule than the PRD's universal 5% regression gate, and FR-20's cited 14-suite baseline does not demonstrably cover two behaviors in its declared closed category set. Seven additional high findings make the PRD unsafe as a current release, architecture, or story-generation authority.</p>
-  </div>
-
-  <div class="dimension-summary">
-    <div class="dim-card"><div class="dim-name">Decision-readiness</div><div class="dim-verdict" style="color: var(--verdict-thin)">thin</div></div>
-    <div class="dim-card"><div class="dim-name">Substance over theater</div><div class="dim-verdict" style="color: var(--verdict-strong)">strong</div></div>
-    <div class="dim-card"><div class="dim-name">Strategic coherence</div><div class="dim-verdict" style="color: var(--verdict-strong)">strong</div></div>
-    <div class="dim-card"><div class="dim-name">Done-ness clarity</div><div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div></div>
-    <div class="dim-card"><div class="dim-name">Scope honesty</div><div class="dim-verdict" style="color: var(--verdict-strong)">strong</div></div>
-    <div class="dim-card"><div class="dim-name">Downstream usability</div><div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div></div>
-    <div class="dim-card"><div class="dim-name">Shape fit</div><div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div></div>
-  </div>
-
-  <section class="dimension"><details open><summary><h2>Decision-readiness</h2><span class="verdict-pill verdict-thin">thin</span></summary>
-    <div class="dim-body"><div class="dim-judgment">
-      <p>The intended decision is clear: Conversations is the pilot, FR-16 and fleet migration are deferred, preservation is inviolable, and landing zones are delegated. The current decision boundary is not. The active hold has no in-PRD question, owner, outcomes, evidence set, or unblock rule; executed phases coexist with unresolved pre-story architecture and provisional acceptance evidence.</p>
-    </div></div>
-    <div class="findings-list">
-      <article class="finding"><header><span class="badge badge-sev-high">high</span><h3 class="finding-title">Active hold is not an actionable decision</h3><span class="finding-location">§2</span></header><div class="finding-note">The PRD outsources the decisive blocker and does not state what must be decided.</div><div class="finding-fix"><strong>Fix:</strong> Add the decision question, owner, permitted outcomes, evidence, and resume/stop condition.</div></article>
-      <article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">Execution and acceptance states are not reconciled</h3><span class="finding-location">§§2, 5.3, 7, 12; FR-20</span></header><div class="finding-note">Performed work, evidence, acceptance, and hold status are collapsed into “executed.”</div><div class="finding-fix"><strong>Fix:</strong> Report each in-scope FR group and gate as performed, evidenced, accepted, held, or not accepted.</div></article>
-    </div>
-  </details></section>
-
-  <section class="dimension"><details><summary><h2>Substance over theater</h2><span class="verdict-pill verdict-strong">strong</span></summary>
-    <div class="dim-body"><div class="dim-judgment"><p>The vision, inventory, feature boundaries, developer journeys, NFRs, and counter-metrics are specific to this refactor and supported by evidence. Section 14 is large but has a defensible preservation purpose.</p></div></div>
-  </details></section>
-
-  <section class="dimension"><details><summary><h2>Strategic coherence</h2><span class="verdict-pill verdict-strong">strong</span></summary>
-    <div class="dim-body"><div class="dim-judgment"><p>The consume/promote/adopt sequence, primary metrics, and preservation/performance counter-metrics all serve a clear platform-pilot thesis. Non-goals resist speculative extraction and fleet-wide scope creep.</p></div></div>
-  </details></section>
-
-  <section class="dimension"><details><summary><h2>Done-ness clarity</h2><span class="verdict-pill verdict-adequate">adequate</span></summary>
-    <div class="dim-body"><div class="dim-judgment"><p>Most FRs have concrete consequences and named evidence. Initiative-level acceptance is stronger than story-slice acceptance: several behavior-preservation clauses do not bind exact operational, client, or telemetry oracles.</p></div></div>
-    <div class="findings-list">
-      <article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">Several preservation consequences lack explicit frozen oracles</h3><span class="finding-location">FR-10, FR-12, FR-15</span></header><div class="finding-note">“Existing behavior,” “contract-compatible,” and “established metric names” are not fully bound to exact baseline identifiers.</div><div class="finding-fix"><strong>Fix:</strong> Bind each consequence to a named baseline/test ID or add it explicitly to the FR-20 package.</div></article>
-    </div>
-  </details></section>
-
-  <section class="dimension"><details><summary><h2>Scope honesty</h2><span class="verdict-pill verdict-strong">strong</span></summary>
-    <div class="dim-body"><div class="dim-judgment"><p>Exclusions, follow-ons, assumptions, and historical dispositions are explicit. The refactor scope does not silently activate the preserved feature roadmap.</p></div></div>
-  </details></section>
-
-  <section class="dimension"><details><summary><h2>Downstream usability</h2><span class="verdict-pill verdict-adequate">adequate</span></summary>
-    <div class="dim-body"><div class="dim-judgment"><p>ID continuity, named protagonists, glossary, crosswalks, and technical links support extraction. The unreconciled readiness state and the large dual-purpose contract section keep this below strong.</p></div></div>
-  </details></section>
-
-  <section class="dimension"><details><summary><h2>Shape fit</h2><span class="verdict-pill verdict-adequate">adequate</span></summary>
-    <div class="dim-body"><div class="dim-judgment"><p>The capability-spec shape fits a chain-top internal developer-platform refactor. Embedding the 181-item preserved contract makes the document heavy, but authority and namespace controls prevent a fundamental shape failure.</p></div></div>
-  </details></section>
-
-  <section class="reviewer-section"><details><summary><h2>Adversarial review</h2><span class="reviewer-source">review-adversarial-general.md</span></summary>
-    <div class="dim-body"><div class="dim-judgment"><p><strong>Reject as a current release, architecture, or story-generation authority.</strong> The refactor intent is coherent, but gate rules, denominator coverage, execution state, scope, and cross-repository authority conflict with current evidence.</p></div></div>
-    <div class="findings-list">
-      <article class="finding"><header><span class="badge badge-sev-critical">critical</span><h3 class="finding-title">Enforced SM-C2 rule contradicts the universal 5% gate</h3><span class="finding-location">§2; §7 SM-C2; §12 OQ-5</span></header><div class="finding-note">Current evidence accepts regressions up to +1760.88% under rules the PRD does not authorize.</div><div class="finding-fix"><strong>Fix:</strong> Restore the universal gate or version and approve the exact per-path alternative.</div></article>
-      <article class="finding"><header><span class="badge badge-sev-critical">critical</span><h3 class="finding-title">FR-20 denominator does not match its closed behavior set</h3><span class="finding-location">§4; §6.5 FR-20</span></header><div class="finding-note">Projection freshness and governance audit-pairing are not identifiable in the cited 14-suite baseline; traceability is still draft.</div><div class="finding-fix"><strong>Fix:</strong> Publish one approved test/category/requirement denominator with zero orphaned active obligations.</div></article>
-      <article class="finding"><header><span class="badge badge-sev-high">high</span><h3 class="finding-title">Final and executed claims are stale</h3><span class="finding-location">§2; §5.3</span></header><div class="finding-note">The snapshot omits Epics 10–16, corrective work, and the current global hold.</div><div class="finding-fix"><strong>Fix:</strong> Make the snapshot historical or synchronize it from one current authority.</div></article>
-      <article class="finding"><header><span class="badge badge-sev-high">high</span><h3 class="finding-title">OQ-1 remains open after gated work executed</h3><span class="finding-location">§2; §5.3; §12; addendum §B</span></header><div class="finding-note">Landing zones had to be chosen, but no per-FR decisions or owner approvals are bound.</div><div class="finding-fix"><strong>Fix:</strong> Recover the per-FR architecture decision table or reopen nonconforming stories.</div></article>
-      <article class="finding"><header><span class="badge badge-sev-high">high</span><h3 class="finding-title">FR-16 crossed the declared scope boundary</h3><span class="finding-location">§2; §5.2; FR-16; addendum §F</span></header><div class="finding-note">Unconsumed EventStore metadata work was built despite explicit deferral.</div><div class="finding-fix"><strong>Fix:</strong> Separate-authorize the platform work or version the PRD to activate the exact subset.</div></article>
-      <article class="finding"><header><span class="badge badge-sev-high">high</span><h3 class="finding-title">Template and SM-2 proof remain provisional</h3><span class="finding-location">§5.3; §7; FR-18; FR-19</span></header><div class="finding-note">“Adopt &amp; Prove” is called executed while target attainment and corrective template evidence remain pending.</div><div class="finding-fix"><strong>Fix:</strong> Mark proof pending until the fixture, walkthrough, measurement, and named acceptance exist.</div></article>
-      <article class="finding"><header><span class="badge badge-sev-high">high</span><h3 class="finding-title">SM-1 denominator lacks required named acceptance</h3><span class="finding-location">§7; addendum §A</span></header><div class="finding-note">The authoritative denominator has no named acceptor.</div><div class="finding-fix"><strong>Fix:</strong> Ratify the exact hash retrospectively with disclosure or mark it provisional.</div></article>
-      <article class="finding"><header><span class="badge badge-sev-high">high</span><h3 class="finding-title">§14 has no safe activation model</h3><span class="finding-location">§0; §14.1; §14.4</span></header><div class="finding-note">Downstream tooling cannot distinguish active, preserved, historical, conditional, or unguarded requirements.</div><div class="finding-fix"><strong>Fix:</strong> Create a versioned contract catalog and signed per-requirement activation manifest.</div></article>
-      <article class="finding"><header><span class="badge badge-sev-high">high</span><h3 class="finding-title">Cross-repository authorization lacks accountable grants</h3><span class="finding-location">§5.1; §9; §11</span></header><div class="finding-note">No owner, consumer matrix, release order, compatibility period, or rollback authority is bound.</div><div class="finding-fix"><strong>Fix:</strong> Add a signed cross-repository change charter and exact compatibility gate.</div></article>
-      <article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">Internal-only framing understates affected contracts</h3><span class="finding-location">§3; §10; §14</span></header><div class="finding-note">Adopter APIs, tenant isolation, operator workflows, and customer-visible failures remain in the blast radius.</div><div class="finding-fix"><strong>Fix:</strong> Add preservation-failure stakeholders and their review responsibilities.</div></article>
-      <article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">No-sync-cross-service-call NFR lacks a closed verifier</h3><span class="finding-location">§8</span></header><div class="finding-note">The evidence mechanism and oracle are left open.</div><div class="finding-fix"><strong>Fix:</strong> Specify one verifier, command, schema, forbidden edges, and pass rule.</div></article>
-      <article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">Decision roles are generic</h3><span class="finding-location">§12–§14; FR-20; SM-1</span></header><div class="finding-note">Approval validity cannot be tied to a person, date, and delegated scope.</div><div class="finding-fix"><strong>Fix:</strong> Reference a versioned authority registry and bind signatures to it.</div></article>
-      <article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">Superseded inventory is easy to reuse</h3><span class="finding-location">addendum opening; §C</span></header><div class="finding-note">Historical recommendations remain copy/paste-ready while the current authority is external JSON.</div><div class="finding-fix"><strong>Fix:</strong> Move them to a historical appendix or render the accepted inventory first with a superseded marker and hash.</div></article>
-    </div>
-  </details></section>
-
-  <div class="mechanical">
-    <h3>Mechanical notes</h3>
-    <ul>
-      <li>Primary requirement and journey IDs are contiguous and unique.</li>
-      <li>Every UJ has a named protagonist, and checked local Markdown targets exist.</li>
-      <li>All eight inline assumption callouts round-trip through §13.</li>
-      <li>Narrow the addendum's broad “first-pass and approximate” disclaimer so it does not cast doubt on the accepted 13,289-LOC baseline.</li>
-      <li>Historical reviewer files were read for audit context but did not carry forward the superseded 2026-08-18 grade.</li>
-    </ul>
-  </div>
-
-  <footer class="report-footer"><div class="meta">
-    <span>Rubric: .agents/skills/bmad-prd/assets/prd-validation-checklist.md</span>
-    <span>Generated: 2026-09-16T18:02:53+02:00</span>
-  </div></footer>
-</div>
-</body>
-</html>
+<body><main class="container">
+<header class="report-header"><div class="title"><h1>Conversations Boilerplate Reduction — Validation report</h1><div class="subtitle"><a href="prd.md">_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md</a></div></div><div class="grade grade-excellent">Excellent</div></header>
+<div class="synthesis"><p><strong>0 critical · 0 high · 0 medium · 0 low</strong></p><p>The amended PRD closes all four findings. An engineer can now keep the required test harness, use the documented retry contract, and identify which shared capabilities already exist. Pilot acceptance remains open pending preservation approval, a passing performance benchmark and effective successor grants.</p></div>
+<div class="dimension-summary"><div class="dim-card"><div class="dim-name">Decision-readiness</div><div class="dim-verdict" style="color:var(--verdict-strong)">Strong</div></div><div class="dim-card"><div class="dim-name">Substance over theater</div><div class="dim-verdict" style="color:var(--verdict-strong)">Strong</div></div><div class="dim-card"><div class="dim-name">Strategic coherence</div><div class="dim-verdict" style="color:var(--verdict-strong)">Strong</div></div><div class="dim-card"><div class="dim-name">Done-ness clarity</div><div class="dim-verdict" style="color:var(--verdict-strong)">Strong</div></div><div class="dim-card"><div class="dim-name">Scope honesty</div><div class="dim-verdict" style="color:var(--verdict-strong)">Strong</div></div><div class="dim-card"><div class="dim-name">Downstream usability</div><div class="dim-verdict" style="color:var(--verdict-strong)">Strong</div></div><div class="dim-card"><div class="dim-name">Shape fit</div><div class="dim-verdict" style="color:var(--verdict-strong)">Strong</div></div></div>
+<section class="dimension"><details><summary><h2>Decision-readiness</h2><span class="verdict-pill verdict-strong">strong</span></summary><div class="dim-body"><div class="dim-judgment"><p>Sections 2, 4 and 12 agree that the three immutable v1 grants remain ineffective. Each repository must issue a hash-bound successor that supersedes its v1 grant and records its effective state and time. The Conversations successor also depends on the EventStore and Commons successors, runtime and assembly-version evidence, and accepted rollback evidence. The November backlog gives owners work they can schedule under current policy. <a href="../../oq-1-eventstore-change-grant-v1.json">EventStore grant</a> · <a href="../../oq-1-commons-change-grant-v1.json">Commons grant</a> · <a href="../../oq-1-conversations-consumer-grant-v1.json">Conversations grant</a></p></div></div><div class="findings-list"></div></details></section><section class="dimension"><details><summary><h2>Substance over theater</h2><span class="verdict-pill verdict-strong">strong</span></summary><div class="dim-body"><div class="dim-judgment"><p>SM-2 counts 13 hand-authored fixture files, including its test AppHost project and source file. The draft qualifies the 77.59% reduction against an estimated 58-file baseline and explains why the LOC comparison is indicative. SM-1 continues to identify the missing named ratification for its own denominator. <a href="../../../../docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md">Measured SM-2 evidence</a></p></div></div><div class="findings-list"></div></details></section><section class="dimension"><details><summary><h2>Strategic coherence</h2><span class="verdict-pill verdict-strong">strong</span></summary><div class="dim-body"><div class="dim-judgment"><p>The pilot makes a domain module cheaper to author while preserving the behavior its consumers rely on. Sections 2.1 and 7 connect that goal to observable outcomes, including tenant-safe reads, retry behavior and per-path performance. Package qualification and the production client journey remain backlog work. <a href="epics.md#current-sprint-supplement--20-november-2026">Sprint supplement</a></p></div></div><div class="findings-list"></div></details></section><section class="dimension"><details><summary><h2>Done-ness clarity</h2><span class="verdict-pill verdict-strong">strong</span></summary><div class="dim-body"><div class="dim-judgment"><p>FR-3, FR-13, FR-18 and addendum §§A, D and F agree on hosting ownership. The platform provides production orchestration. Each module keeps exactly one repository-only test AppHost with packing and publishing disabled. The measured minimal module has its own fixture harness, whose two hand-authored files count toward SM-2. Story 9.3 still calls for verification through the supported deployed host. <a href="../../../../docs/release-evidence/thin-authoring-guidance-v2.md#test-apphost">Approved test AppHost criteria</a> · <a href="../../../../docs/release-evidence/thin-module-fixture-proof-v1.md#fixture-inventory">Fixture inventory</a></p></div></div><div class="findings-list"></div></details></section><section class="dimension"><details><summary><h2>Scope honesty</h2><span class="verdict-pill verdict-strong">strong</span></summary><div class="dim-body"><div class="dim-judgment"><p>The draft limits new work to the pilot, retains FR-16 as deferred, and keeps fleet migration separate. The confirmed host exception, observed registrations and caller-supplied key contract provide no new release approval. Sections 2 and 12 retain the current-gitlink proof requirement, and §14 preserves the product contracts with their existing activation rules. <a href="../../../../docs/runbooks/current-change-validation.md">Current change policy</a></p></div></div><div class="findings-list"></div></details></section><section class="dimension"><details><summary><h2>Downstream usability</h2><span class="verdict-pill verdict-strong">strong</span></summary><div class="dim-body"><div class="dim-judgment"><p>Story 9.3 and addendum §B give create and append distinct caller-supplied keys and reuse each command’s original key and metadata on retry. The command validator rejects a missing key. Addendum §F records the existing shared tenant-access and HTTP registrations and identifies the remaining FR-11 parity and FR-12 compatibility evidence. These entries give developers a concrete integration starting point. <a href="../../../../docs/integration-guide.md">Integration guide</a> · <a href="../../../../src/Hexalith.Conversations/Validation/ConversationCommandSchemaValidation.cs">Command validator</a> · <a href="../../../../src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessServiceCollectionExtensions.cs">Tenant registration</a> · <a href="../../../../src/Hexalith.Conversations.Client/ConversationClientServiceCollectionExtensions.cs">Client registration</a></p></div></div><div class="findings-list"></div></details></section><section class="dimension"><details><summary><h2>Shape fit</h2><span class="verdict-pill verdict-strong">strong</span></summary><div class="dim-body"><div class="dim-judgment"><p>The readiness table and dated sprint supplement serve the immediate planning decision. The three named developer journeys, capability sections and stable requirement IDs support engineering handoff. The addendum carries implementation detail, and the preserved baseline remains available to release and conformance reviewers.</p></div></div><div class="findings-list"></div></details></section>
+<section class="mechanical"><h3>Release evidence</h3><p>FR-20 and SM-C1 await approval of the preservation evidence. The recorded SM-C2 benchmark exceeds the allowed 5% regression on three of the four hot paths. The failed performance gate and pending preservation approval continue to block pilot acceptance. <a href="prd.md#2-implementation-decision-and-readiness-snapshot">PRD §2</a> · <a href="../../../../docs/release-evidence/sm-c2-hot-path-post-v1.json">Benchmark results</a></p></section>
+<section class="mechanical"><h3>Mechanical and source checks</h3><ul><li>All 20 initiative FRs, 104 preserved Feature-FRs and 77 preserved Feature-NFRs have unique, contiguous definition IDs. UJ-1 through UJ-3 each name a protagonist.</li><li>The five inline assumption tags map to §13. The preserved contract section is byte-identical to its pre-amendment version. The local Markdown links and anchors in the amended PRD and addendum resolve.</li><li>The document grades Excellent across seven strong dimensions. Open findings total zero at every severity.</li><li>The disposition of each November validation finding is recorded in the <a href="reconcile-validation-2026-11-20.md">four-finding reconciliation</a>.</li><li>All ten November audit findings map to seven new and two existing backlog stories. The preserved product-contract section matches the committed baseline byte for byte. <a href="../../sprint-change-proposal-2026-11-20.md">Sprint proposal</a> · <a href="../../../implementation-artifacts/sprint-status.yaml">Sprint tracker</a></li><li>Story 11.3 records 13 measured files against 58 estimated, a 77.59% reduction on the accepted estimate. The historical comparison has low confidence. <a href="../../../../docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md">SM-2 measurement</a></li></ul></section>
+<footer class="report-footer"><p>Working draft dated 2026-11-20, based on repository revision <code>698684f8e05c</code>. Reviewed PRD SHA-256 <code>9b89e9b36392af6d1e2bcc8e001f8d1db18c665005b661ea0d76a1d405cbefd0</code> and addendum SHA-256 <code>e258bec29df5223fc8051e9124bcb2b7fe665d71a6fa9b7235ba3713075e1b12</code>.</p><div class="meta"><a href="../../../../.agents/skills/bmad-prd/assets/prd-validation-checklist.md">PRD validation rubric</a><a href="review-rubric.md">Reviewer findings</a><a href="validation-report.md">Markdown report</a><span>Generated 2026-11-20T18:01:28+01:00</span></div></footer>
+</main></body></html>

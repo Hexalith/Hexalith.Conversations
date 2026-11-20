@@ -1,133 +1,48 @@
-# Validation Report — Conversations Boilerplate Reduction
+# Validation report — Conversations Boilerplate Reduction
 
-- **PRD:** `_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md`
-- **Rubric:** `.agents/skills/bmad-prd/assets/prd-validation-checklist.md`
-- **Run at:** 2026-09-16T18:02:53+02:00
-- **Grade:** Poor
+**Document grade** Excellent
+
+0 critical · 0 high · 0 medium · 0 low
+
+**Reviewed** 2026-11-20T18:01:28+01:00
+
+[PRD](prd.md) · [Addendum](addendum.md) · [Full rubric review](review-rubric.md)
 
 ## Overall verdict
 
-This is a strategically coherent, unusually well-bounded refactor PRD: its thesis is specific, its scope cuts are explicit, and most requirements carry concrete consequences plus preservation counter-metrics. The current artifact is nevertheless only fair under the rubric because its active implementation hold, executed-phase claim, unresolved architecture dependency, and provisional acceptance evidence are not reconciled into one actionable current disposition.
+The amended PRD closes all four findings. An engineer can now keep the required test harness, use the documented retry contract, and identify which shared capabilities already exist. Pilot acceptance remains open pending preservation approval, a passing performance benchmark and effective successor grants.
 
-The adversarial pass materially lowers the consolidated grade to **Poor**. It found two release-blocking contradictions: the evidence system enforces a materially weaker SM-C2 rule than the PRD's universal 5% regression gate, and FR-20's cited 14-suite baseline does not demonstrably cover two behaviors in its declared closed category set. Seven additional high findings show that execution state, scope, ownership, and acceptance evidence have drifted far enough that this PRD is not safe as a current release, architecture, or story-generation authority.
+## Release evidence
+
+FR-20 and SM-C1 await approval of the preservation evidence. The recorded SM-C2 benchmark exceeds the allowed 5% regression on three of the four hot paths. The failed performance gate and pending preservation approval continue to block pilot acceptance. [PRD §2](prd.md#2-implementation-decision-and-readiness-snapshot) · [Benchmark results](../../../../docs/release-evidence/sm-c2-hot-path-post-v1.json)
 
 ## Dimension verdicts
 
-- Decision-readiness — thin
-- Substance over theater — strong
-- Strategic coherence — strong
-- Done-ness clarity — adequate
-- Scope honesty — strong
-- Downstream usability — adequate
-- Shape fit — adequate
+| Dimension | Verdict | Judgment |
+| --- | --- | --- |
+| Decision-readiness | Strong | Sections 2, 4 and 12 agree that the three immutable v1 grants remain ineffective. Each repository must issue a hash-bound successor that supersedes its v1 grant and records its effective state and time. The Conversations successor also depends on the EventStore and Commons successors, runtime and assembly-version evidence, and accepted rollback evidence. The November backlog gives owners work they can schedule under current policy. [EventStore grant](../../oq-1-eventstore-change-grant-v1.json) · [Commons grant](../../oq-1-commons-change-grant-v1.json) · [Conversations grant](../../oq-1-conversations-consumer-grant-v1.json) |
+| Substance over theater | Strong | SM-2 counts 13 hand-authored fixture files, including its test AppHost project and source file. The draft qualifies the 77.59% reduction against an estimated 58-file baseline and explains why the LOC comparison is indicative. SM-1 continues to identify the missing named ratification for its own denominator. [Measured SM-2 evidence](../../../../docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md) |
+| Strategic coherence | Strong | The pilot makes a domain module cheaper to author while preserving the behavior its consumers rely on. Sections 2.1 and 7 connect that goal to observable outcomes, including tenant-safe reads, retry behavior and per-path performance. Package qualification and the production client journey remain backlog work. [Sprint supplement](epics.md#current-sprint-supplement--20-november-2026) |
+| Done-ness clarity | Strong | FR-3, FR-13, FR-18 and addendum §§A, D and F agree on hosting ownership. The platform provides production orchestration. Each module keeps exactly one repository-only test AppHost with packing and publishing disabled. The measured minimal module has its own fixture harness, whose two hand-authored files count toward SM-2. Story 9.3 still calls for verification through the supported deployed host. [Approved test AppHost criteria](../../../../docs/release-evidence/thin-authoring-guidance-v2.md#test-apphost) · [Fixture inventory](../../../../docs/release-evidence/thin-module-fixture-proof-v1.md#fixture-inventory) |
+| Scope honesty | Strong | The draft limits new work to the pilot, retains FR-16 as deferred, and keeps fleet migration separate. The confirmed host exception, observed registrations and caller-supplied key contract provide no new release approval. Sections 2 and 12 retain the current-gitlink proof requirement, and §14 preserves the product contracts with their existing activation rules. [Current change policy](../../../../docs/runbooks/current-change-validation.md) |
+| Downstream usability | Strong | Story 9.3 and addendum §B give create and append distinct caller-supplied keys and reuse each command’s original key and metadata on retry. The command validator rejects a missing key. Addendum §F records the existing shared tenant-access and HTTP registrations and identifies the remaining FR-11 parity and FR-12 compatibility evidence. These entries give developers a concrete integration starting point. [Integration guide](../../../../docs/integration-guide.md) · [Command validator](../../../../src/Hexalith.Conversations/Validation/ConversationCommandSchemaValidation.cs) · [Tenant registration](../../../../src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessServiceCollectionExtensions.cs) · [Client registration](../../../../src/Hexalith.Conversations.Client/ConversationClientServiceCollectionExtensions.cs) |
+| Shape fit | Strong | The readiness table and dated sprint supplement serve the immediate planning decision. The three named developer journeys, capability sections and stable requirement IDs support engineering handoff. The addendum carries implementation detail, and the preserved baseline remains available to release and conformance reviewers. |
 
 ## Findings by severity
 
-### Critical (2)
+No open documentation findings.
 
-**[Adversarial]** — Enforced SM-C2 rule contradicts the PRD's inviolable performance gate (§2, §7 SM-C2, §12 OQ-5)
+## Mechanical and source checks
 
-The PRD requires every identified command/read hot path to remain within 5% of the frozen P95 baseline. Current post-refactor evidence instead records HP-APPEND at +20.01% as ungated and accepts HP-LIST at +329.85% and HP-OPEN at +1760.88% against separate approved-cost ceilings. The normative requirement and enforced evidence can therefore produce opposite release decisions.
+- All 20 initiative FRs, 104 preserved Feature-FRs and 77 preserved Feature-NFRs have unique, contiguous definition IDs. UJ-1 through UJ-3 each name a protagonist.
+- The five inline assumption tags map to §13. The preserved contract section is byte-identical to its pre-amendment version. The local Markdown links and anchors in the amended PRD and addendum resolve.
+- The document grades Excellent across seven strong dimensions. Open findings total zero at every severity.
+- The disposition of each November validation finding is recorded in the [four-finding reconciliation](reconcile-validation-2026-11-20.md).
+- All ten November audit findings map to seven new and two existing backlog stories. The preserved product-contract section matches the committed baseline byte for byte. [Sprint proposal](../../sprint-change-proposal-2026-11-20.md) · [Sprint tracker](../../../implementation-artifacts/sprint-status.yaml)
+- Story 11.3 records 13 measured files against 58 estimated, a 77.59% reduction on the accepted estimate. The historical comparison has low confidence. [SM-2 measurement](../../../../docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md)
 
-Fix: Choose one rule through explicit change control. Either restore the universal 5% gate and mark current results failed, or version the PRD with exact per-path rules, approver, rationale, expiry, successor work, ceilings, and evidence-schema binding.
+## Review record
 
-**[Adversarial + Rubric done-ness]** — FR-20's closed preservation denominator does not contain the behaviors it claims to close (§4, §6.5 FR-20)
+Working draft dated 2026-11-20, based on repository revision `698684f8e05c`. Reviewed PRD SHA-256 `9b89e9b36392af6d1e2bcc8e001f8d1db18c665005b661ea0d76a1d405cbefd0` and addendum SHA-256 `e258bec29df5223fc8051e9124bcb2b7fe665d71a6fa9b7235ba3713075e1b12`.
 
-The cited 14-suite / 214-test baseline does not identify projection-freshness or governance-audit-pairing suites even though both are members of the PRD's closed seven-category behavior set. The requirements-to-tests traceability manifest remains draft and pending prerequisites, so 100% of the current manifest is not proof of 100% of the declared preservation boundary. This also subsumes the rubric concern that several preservation consequences lack an explicit frozen oracle.
-
-Fix: Publish and approve one denominator artifact containing exact test IDs, categories, requirement IDs, source commit, and hashes; reconcile all seven declared categories against the 14 suites; and require zero orphaned active obligations before FR-20/SM-C1 acceptance or hold lift.
-
-### High (7)
-
-**[Adversarial + Rubric decision-readiness]** — “Final” and “executed” are stale, non-actionable readiness claims (§2, §5.3)
-
-The PRD says Epics 1–6 executed and Epics 7–9 remain backlog, but current sprint status also contains Epics 10–16, corrective work, and an active global hold. The PRD neither summarizes the hold decision nor names its owner, outcomes, evidence, and resume/stop condition. A historical snapshot is being presented as the current chain-top readiness authority.
-
-Fix: Mark the snapshot historical or generate it from one current authority. Add a compact hold decision row with question, owner, permitted outcomes, evidence inputs, and unblock condition; separate work performed from work evidenced, accepted, held, or rejected.
-
-**[Adversarial]** — OQ-1 remains open after the implementation it was required to gate (§2, §5.3, §12; addendum §B)
-
-If FR-10 through FR-15 stories executed, their landing zones were necessarily chosen, yet the PRD and addendum still call them open and do not bind per-FR decisions or owning-repository approval.
-
-Fix: Publish a per-FR decision table covering repository/package, rejected options, approver, decision artifact, implementing revision, release vehicle, compatibility evidence, and rollback owner. Close OQ-1 or mark affected stories nonconforming.
-
-**[Adversarial]** — FR-16 crossed the declared scope boundary through unconsumed platform work (§2, §5.2, FR-16; addendum §F)
-
-Story 3.7 added shared EventStore command/event metadata and resolvers while direct Conversations adoption remained deferred—the exact unconsumed promotion the PRD excludes from the pilot.
-
-Fix: Move that work to a separately authorized platform initiative or version the PRD to activate the precise FR-16 subset. Exclude it from pilot metrics and split platform creation from Conversations adoption in story status.
-
-**[Adversarial]** — Template and SM-2 proof are called executed while mandatory evidence remains provisional (§5.3, §7 SM-2, FR-18, FR-19)
-
-Phase 3 “Adopt & Prove” is reported as executed, but SM-2 expressly does not establish target attainment and Epic 11 still carries corrective fixture/template evidence work.
-
-Fix: Mark FR-18, FR-19, SM-2, UJ-3, and Phase 3 proof pending until the reproducible fixture, walkthrough, measurement, and named acceptance exist.
-
-**[Adversarial]** — The authoritative SM-1 denominator lacks required named acceptance (§7 SM-1; addendum §A)
-
-The inventory is called accepted and authoritative while the addendum admits that it has no named acceptor. A JSON `status: accepted` field is not the approval discipline required by the PRD.
-
-Fix: Obtain retrospective ratification bound to the exact hash and disclose its timing, or mark the denominator provisional and recalculate only after approval.
-
-**[Adversarial]** — §14 has no machine-safe activation model (§0, §14.1, §14.4)
-
-The section presents 181 normative-looking requirements while also saying their implementation and release activation are unknown. Downstream tooling cannot reliably distinguish implemented, preservation-gated, conditional, historical-only, active-release, and unguarded obligations.
-
-Fix: Put §14 in a versioned contract catalog with explicit per-requirement state and a signed activation manifest. Keep only the active preservation subset and its hash in this refactor PRD.
-
-**[Adversarial]** — Cross-repository authorization is asserted without an accountable grant (§5.1, §9, §11)
-
-The PRD authorizes technical-module changes without naming EventStore, Commons, or FrontComposer owners or defining consumer coverage, release order, compatibility period, and rollback authority.
-
-Fix: Add a signed cross-repository change charter with per-capability owners, pinned consumer matrix, required CI evidence, version/release sequence, compatibility window, and rollback procedure.
-
-### Medium (3)
-
-**[Adversarial]** — “No external/customer-facing surface” understates the preservation blast radius (§3, §3.2, §10, §14)
-
-Developers are the direct users of the refactor, but adopter APIs, tenant isolation, operator workflows, publication behavior, and customer-visible failure modes are affected surfaces.
-
-Fix: Distinguish refactor users from preservation-failure stakeholders and assign adopter, release, operator, and tenant-user review responsibilities.
-
-**[Adversarial]** — No-sync-cross-service-call NFR lacks a closed verifier (§8)
-
-The PRD permits either a dependency/call-boundary check or a trace assertion and names no fixed oracle, command, artifact schema, or pass criteria.
-
-Fix: Select one required verifier; define hot-path boundaries, forbidden edges, command, artifact path/schema, and pass rule; bind it to the SM-C2 release gate.
-
-**[Adversarial]** — Gate roles are generic where named authority is required (§12–§14, FR-20, SM-1)
-
-Roles such as platform architect and release owner are not linked to named people or a versioned authority source, so approval validity cannot be checked for a decision date and scope.
-
-Fix: Reference a versioned authority registry with person, role, effective dates, delegated scope, and supersession; bind approval evidence to the person and registry version.
-
-### Low (1)
-
-**[Adversarial]** — Superseded inventory remains easy to misuse as active architecture input (addendum opening and §C)
-
-The warning is explicit, but the superseded table still contains implementation-ready recommendations while the authoritative JSON is not rendered alongside it.
-
-Fix: Move the table to a historical appendix or render the accepted inventory as primary; add a machine-visible `superseded: true` marker plus the authority hash.
-
-## Mechanical notes
-
-- Primary IDs are contiguous and unique: FR-1..FR-20; UJ-1..UJ-3; Feature-FR1..Feature-FR104; Feature-NFR1..Feature-NFR77.
-- Every UJ has a named protagonist, and checked local Markdown targets exist.
-- All eight inline `[ASSUMPTION]` callouts round-trip through §13.
-- The addendum opening broadly calls figures “first-pass and approximate” while §A declares the 13,289-LOC baseline authoritative. Narrow that disclaimer to historical estimates and candidate mappings.
-- Historical review artifacts were read for audit context but were not used to carry forward the superseded 2026-08-18 grade or findings.
-
-## Gate recommendation
-
-Do not use this PRD to lift the implementation hold, authorize release, generate implementation stories, or certify the thin authoring template. Correct the critical and high findings, then rerun validation against the revised PRD, addendum, current sprint/authority bundle, and exact evidence hashes.
-
-## Reviewer files
-
-- `review-rubric.md` — current run, 2026-09-16
-- `review-adversarial-general.md` — current run, 2026-09-16
-- `review-editorial-prose-addendum.md` — historical audit context
-- `review-editorial-prose-prd.md` — historical audit context
-- `review-editorial-structure-addendum.md` — historical audit context
-- `review-editorial-structure-prd.md` — historical audit context
-- `review-legacy-preservation.md` — historical audit context
-- `review-remediation-verification.md` — historical audit context
+[Rubric](../../../../.agents/skills/bmad-prd/assets/prd-validation-checklist.md) · [Reviewer findings](review-rubric.md)
