@@ -1,6 +1,7 @@
 <Project>
   <PropertyGroup>
     <!-- Inert bootstrap only. The Platform tool owns all dependency roots and mode selection. -->
+    <HexalithBuildsRoot Condition="'$(HexalithBuildsRoot)' == '' and !Exists('$(MSBuildThisFileDirectory)references/Hexalith.Builds/Props/Directory.Packages.props') and Exists('$(MSBuildThisFileDirectory)../Hexalith.Builds/Props/Directory.Packages.props')">$(MSBuildThisFileDirectory)../Hexalith.Builds</HexalithBuildsRoot>
     <HexalithBuildsRoot Condition="'$(HexalithBuildsRoot)' == ''">$(MSBuildThisFileDirectory)references/Hexalith.Builds</HexalithBuildsRoot>
   </PropertyGroup>
 
