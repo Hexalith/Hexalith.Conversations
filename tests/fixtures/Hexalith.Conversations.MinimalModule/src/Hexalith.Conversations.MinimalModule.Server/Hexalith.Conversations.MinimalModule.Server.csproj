@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\Hexalith.Conversations.MinimalModule.Contracts\Hexalith.Conversations.MinimalModule.Contracts.csproj" />
-    <ProjectReference Include="$(FixtureEventStoreRoot)/src/Hexalith.EventStore.Client/Hexalith.EventStore.Client.csproj" />
-    <ProjectReference Include="$(FixtureEventStoreRoot)/src/Hexalith.EventStore.DomainService/Hexalith.EventStore.DomainService.csproj" />
+    <PackageReference Include="Hexalith.EventStore.Client" />
+    <PackageReference Include="Hexalith.EventStore.DomainService" />
   </ItemGroup>
   <!-- Source-referenced EventStore assemblies are built against this IdentityModel family; keep the module on it. -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="$(IdentityModelVersion)" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="$(IdentityModelVersion)" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.6.1">
+<Project Sdk="Aspire.AppHost.Sdk/17.0.0">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <AspireUseCliBundle>true</AspireUseCliBundle>
@@ -8,7 +8,7 @@
   <ItemGroup>
     <!-- Build-order edge only: the module is composed by path, so it is not an Aspire project resource. -->
     <ProjectReference Include="..\..\src\Hexalith.Conversations.MinimalModule.Server\Hexalith.Conversations.MinimalModule.Server.csproj" IsAspireProjectResource="false" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="$(FixtureEventStoreRoot)/src/Hexalith.EventStore.Aspire/Hexalith.EventStore.Aspire.csproj" IsAspireProjectResource="false" />
-    <PackageReference Include="CommunityToolkit.Aspire.Hosting.Dapr" Version="$(AspireDaprVersion)" />
+    <PackageReference Include="Hexalith.EventStore.Aspire" />
+    <PackageReference Include="CommunityToolkit.Aspire.Hosting.Dapr" />
   </ItemGroup>
 </Project>
