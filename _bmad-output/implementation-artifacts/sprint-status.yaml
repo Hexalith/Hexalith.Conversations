@@ -1,11 +1,25 @@
 # generated: 2026-06-02
-# last_updated: 2026-11-20
+# last_updated: 11-21-2026 16:59
 # project: Conversations
 # project_key: NOKEY
 # tracking_system: file-system
-# story_location: /home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts
+# story_location: _bmad-output/implementation-artifacts
 # source_epics: _bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md
 # initiative: Conversations Boilerplate Reduction (Behavior-Preservation Refactor)
+
+# Sprint priorities · 21 November 2026
+# 11.4 first. Release and Builds reconcile the fixture with the package catalog
+# and qualify all five packages from a clean checkout.
+# In parallel, API and Platform identify the deployed client host (9.3), and
+# Projection and EventStore reproduce index loss and establish safe recovery (16.4).
+# Client and API can take typed failures and read scope (9.4) while UI test
+# maintainers isolate browser evidence per run (8.3).
+# Use the qualified packages for the compatibility matrix (9.5) and the
+# supported host for freshness telemetry (16.5).
+# Measure list and open early (12.3). Settle recovery semantics before changing
+# the stored index, then verify all four latency thresholds (12.4).
+# Scope and estimates are in _bmad-output/planning-artifacts/sprint-change-proposal-2026-11-20.md.
+# Pilot acceptance criteria are in the November 21 section of _bmad-output/planning-artifacts/architecture.md.
 
 # STATUS DEFINITIONS:
 # ==================
@@ -37,14 +51,14 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-06-02
-last_updated: 2026-11-20
+last_updated: 11-21-2026 16:59
 # HISTORICAL V14 PUBLICATION: v9-authority-bundle-v1.json retains the candidate-bound August 18 planning state. That publication's hold, unrun IR-0 and backlog statements describe its historical boundary.
 # CURRENT TRACKING: development_status below records lifecycle progress. docs/runbooks/current-change-validation.md governs routine work and links the later IR-0 disposition; historical records retain their original results and authority limits.
 # PROVENANCE LEDGER: the 90 lifecycle-transition comments previously recorded here are preserved byte-exact in _bmad-output/implementation-artifacts/sprint-status-provenance-v1.md (sha256 pinned by v14-current-candidate-authority-v1.json). That relocation changed no lifecycle or action-item status value.
 project: Conversations
 project_key: NOKEY
 tracking_system: file-system
-story_location: /home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts
+story_location: _bmad-output/implementation-artifacts
 
 development_status:
   epic-1: done
