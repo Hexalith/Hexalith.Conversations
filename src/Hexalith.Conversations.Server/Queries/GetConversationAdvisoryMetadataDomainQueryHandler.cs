@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Contracts.Queries;
 using Hexalith.Conversations.Contracts.Serialization;
 using Hexalith.Conversations.Contracts.Versioning;
@@ -46,33 +47,54 @@ public sealed class GetConversationAdvisoryMetadataDomainQueryHandler(
         ArgumentNullException.ThrowIfNull(query);
         cancellationToken.ThrowIfCancellationRequested();
         if (!Verified(query)) return QueryResult.Failure("safe-denial");
-        return await ReadAuthorizedAsync(new(query.TenantId), new(query.AggregateId), query.UserId, cancellationToken).ConfigureAwait(false);
+        var observation = await ReadAuthorizedAsync(new(query.TenantId), new(query.AggregateId), query.UserId,
+            cancellationToken, requireMatchingGeneration: false).ConfigureAwait(false);
+        return observation.Result is { } result ? Success(result) : QueryResult.Failure("safe-denial");
     }
 
-    private async Task<QueryResult> ReadAuthorizedAsync(TenantId tenant, ConversationId resource, string actor, CancellationToken cancellationToken)
+    /// <summary>Composes bounded detail from the authorized isolated metadata and its freshness.</summary>
+    internal async Task<ConversationDetailResult> ReadDetailAsync(GetConversationQuery query, CancellationToken cancellationToken)
+    {
+        var observation = await ReadAuthorizedAsync(query.TenantId, query.ConversationId, query.CallerPrincipalId,
+            cancellationToken, requireMatchingGeneration: true)
+            .ConfigureAwait(false);
+        if (observation.Result is null)
+        {
+            return ConversationDetailResult.Hidden(query.SchemaVersion);
+        }
+
+        if (observation.Result is not { Incomplete: false, Metadata: { } metadata } || observation.Freshness is not { } freshness)
+        {
+            return ConversationDetailResult.Unavailable(query.SchemaVersion);
+        }
+
+        var detail = new ConversationDetailsV1(freshness.ProjectionContractSchemaVersion, query.TenantId, query.ConversationId,
+            freshness, metadata.LifecycleState, metadata.SafeLabel, ProjectId: metadata.ProjectId is null ? null : new ProjectId(metadata.ProjectId));
+        return ConversationDetailResult.Visible(query.SchemaVersion, detail, "Classified advisory evidence is available.")
+            with { ReadPurpose = ConversationResolutionScoringLabel.SupportedPurpose };
+    }
+
+    private async Task<(ConversationAdvisoryMetadataResult? Result, ProjectionFreshnessV1? Freshness)> ReadAuthorizedAsync(
+        TenantId tenant, ConversationId resource, string actor, CancellationToken cancellationToken, bool requireMatchingGeneration)
     {
         try
         {
             if (!await AllowedAsync(tenant, actor, cancellationToken).ConfigureAwait(false))
-                return QueryResult.Failure("safe-denial");
+                return default;
 
-            QueryResult result = await ReadCommittedEvidenceAsync(tenant, resource, cancellationToken).ConfigureAwait(false);
+            var observation = await ReadCommittedEvidenceAsync(tenant, resource, cancellationToken, requireMatchingGeneration).ConfigureAwait(false);
             if (!await AllowedAsync(tenant, actor, cancellationToken).ConfigureAwait(false))
-                return QueryResult.Failure("safe-denial");
+                return default;
 
             cancellationToken.ThrowIfCancellationRequested();
-            return result;
+            return observation;
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
         catch (Exception) { return Unavailable(); }
     }
 
-    /// <summary>Reads isolated committed evidence within the caller's tenant Read boundary.</summary>
-    /// <param name="tenant">The tenant bound by the caller's preliminary Read decision.</param>
-    /// <param name="resource">The requested conversation identity.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The in-memory result that the caller must reauthorize before returning.</returns>
-    internal async Task<QueryResult> ReadCommittedEvidenceAsync(TenantId tenant, ConversationId resource, CancellationToken cancellationToken)
+    private async Task<(ConversationAdvisoryMetadataResult? Result, ProjectionFreshnessV1? Freshness)> ReadCommittedEvidenceAsync(
+        TenantId tenant, ConversationId resource, CancellationToken cancellationToken, bool requireMatchingGeneration)
     {
         try
         {
@@ -90,7 +112,7 @@ public sealed class GetConversationAdvisoryMetadataDomainQueryHandler(
                     _storeOptions.StateStoreName,
                     ConversationProjectionReadModelKeys.TenantIndexKey(tenant), cancellationToken).ConfigureAwait(false);
                 return summaries.Value?.Summaries?.Any(summary => summary.TenantId == tenant && summary.ConversationId == resource) == true
-                    ? Unavailable() : QueryResult.Failure("safe-denial");
+                    ? Unavailable() : default;
             }
             var value = entry.Value;
             if (string.IsNullOrEmpty(entry.ETag) || value.TenantId != tenant || value.ConversationId != resource
@@ -104,6 +126,7 @@ public sealed class GetConversationAdvisoryMetadataDomainQueryHandler(
             var after = await store.GetCompactedAsync<ConversationResolutionMetadataProof>(
                 _storeOptions.StateStoreName, proofKey, cancellationToken).ConfigureAwait(false);
             if (Pending(after) || before.ETag != after.ETag || before.Value != after.Value) return Unavailable();
+            if (requireMatchingGeneration && before.Value?.Current is { } generation && !generation.Matches(value)) return Unavailable();
 
             bool classified = value.IsLabelComplete
                 && value.LabelPurpose == ConversationResolutionScoringPolicy.Purpose
@@ -112,7 +135,7 @@ public sealed class GetConversationAdvisoryMetadataDomainQueryHandler(
             // Missing legacy classification omits the label; it cannot be inferred from label text.
             var metadata = value.Metadata with { SafeLabel = classified ? value.Metadata.SafeLabel : null };
             cancellationToken.ThrowIfCancellationRequested();
-            return Success(new(metadata, !classified));
+            return (new(metadata, !classified), value.Freshness);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
         catch (Exception) { return Unavailable(); }
@@ -155,7 +178,7 @@ public sealed class GetConversationAdvisoryMetadataDomainQueryHandler(
         => entry.Value is not null && (string.IsNullOrEmpty(entry.ETag) || entry.Value.Current is null
             || entry.Value.Current.IsPending || entry.Value.Barrier is not null);
     private static bool Canonical(string? value) => !string.IsNullOrWhiteSpace(value) && value == value.Trim();
-    private static QueryResult Unavailable() => Success(new(null, true));
+    private static (ConversationAdvisoryMetadataResult Result, ProjectionFreshnessV1? Freshness) Unavailable() => (new(null, true), null);
     private static QueryResult Success(ConversationAdvisoryMetadataResult result)
         => QueryResult.FromPayload(JsonSerializer.SerializeToElement(result, ConversationsJsonContext.Default.ConversationAdvisoryMetadataResult));
 }

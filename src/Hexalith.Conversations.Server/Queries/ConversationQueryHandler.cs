@@ -93,6 +93,13 @@ public sealed class ConversationQueryHandler
     {
         ArgumentNullException.ThrowIfNull(query);
 
+        if (query.AdvisoryMetadataOnly)
+        {
+            return query.NativeMembershipOnly || _advisoryMetadata is null
+                ? ConversationDetailResult.Unavailable(query.SchemaVersion)
+                : await _advisoryMetadata.ReadDetailAsync(query, cancellationToken).ConfigureAwait(false);
+        }
+
         ConversationProjectionReadResult result = await _projectionReadService
             .ReadDetailAsync(
                 query.TenantId,
@@ -146,23 +153,6 @@ public sealed class ConversationQueryHandler
         ConversationDetailProjectionV1 projection,
         CancellationToken cancellationToken)
     {
-        if (query.NativeMembershipOnly && query.AdvisoryMetadataOnly)
-            return ConversationDetailResult.Unavailable(query.SchemaVersion);
-        if (query.AdvisoryMetadataOnly)
-        {
-            if (_advisoryMetadata is null) return ConversationDetailResult.Unavailable(query.SchemaVersion);
-            var read = await _advisoryMetadata.ReadCommittedEvidenceAsync(query.TenantId, query.ConversationId,
-                cancellationToken).ConfigureAwait(false);
-            var evidence = read.Success && read.PayloadBytes is not null
-                ? JsonSerializer.Deserialize(read.PayloadBytes, Hexalith.Conversations.Contracts.Serialization.ConversationsJsonContext.Default.ConversationAdvisoryMetadataResult) : null;
-            if (evidence is not { Incomplete: false, Metadata: { } metadata }) return ConversationDetailResult.Unavailable(query.SchemaVersion);
-            return ConversationDetailResult.Visible(query.SchemaVersion,
-                new ConversationDetailsV1(projection.SchemaVersion, projection.TenantId, projection.ConversationId,
-                    projection.Freshness, metadata.LifecycleState, metadata.SafeLabel,
-                    ProjectId: metadata.ProjectId is null ? null : new ProjectId(metadata.ProjectId)),
-                "Classified advisory evidence is available.") with { ReadPurpose = ConversationResolutionScoringLabel.SupportedPurpose };
-        }
-
         if (query.NativeMembershipOnly)
         {
             // Native source fields only. No hydration, labels, timeline, participants, references

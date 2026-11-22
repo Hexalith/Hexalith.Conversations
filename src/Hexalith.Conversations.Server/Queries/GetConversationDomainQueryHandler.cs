@@ -21,6 +21,11 @@ namespace Hexalith.Conversations.Server.Queries;
 public sealed class GetConversationDomainQueryHandler(ConversationQueryHandler queryHandler, Microsoft.AspNetCore.Http.IHttpContextAccessor? accessor = null)
     : ConversationDomainQueryHandlerBase(queryHandler)
 {
+    private static readonly JsonSerializerOptions s_detailJsonOptions = new(ConversationQuerySerialization.Options)
+    {
+        AllowDuplicateProperties = false,
+    };
+
     /// <summary>Preserves the original direct owner constructor signature.</summary>
     /// <param name="queryHandler">The ordinary owner authorization and native read handler.</param>
     public GetConversationDomainQueryHandler(ConversationQueryHandler queryHandler) : this(queryHandler, null) { }
@@ -53,7 +58,9 @@ public sealed class GetConversationDomainQueryHandler(ConversationQueryHandler q
         }
         else if (!trustedDirectCall && query.CallerAuthority?.Origin != "authenticated-caller") return QueryResult.Failure("safe-denial");
 
-        GetConversationPayload? payload = DeserializePayload<GetConversationPayload>(query.Payload);
+        GetConversationPayload? payload = query.Payload is { Length: > 0 } payloadBytes
+            ? JsonSerializer.Deserialize<GetConversationPayload>(payloadBytes, s_detailJsonOptions)
+            : null;
 
         // Fall back to the envelope aggregate id when the payload omits the conversation id, so a
         // gateway that routes by aggregate identity does not need to duplicate it in the body.

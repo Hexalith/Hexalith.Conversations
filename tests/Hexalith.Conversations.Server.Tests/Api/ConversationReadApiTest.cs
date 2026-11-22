@@ -27,6 +27,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Primitives;
 
 namespace Hexalith.Conversations.Server.Tests.Api;
 
@@ -153,6 +154,71 @@ public sealed class ConversationReadApiTest
         response.Body.ShouldNotContain("tenant-evil", Case.Insensitive);
         response.Body.ShouldNotContain("caller-evil", Case.Insensitive);
         response.Body.ShouldNotContain("commandPermission", Case.Insensitive);
+    }
+
+    [Theory]
+    [InlineData("?nativeMembershipOnly=invalid")]
+    [InlineData("?advisoryMetadataOnly=")]
+    [InlineData("?nativeMembershipOnly=true&nativeMembershipOnly=false")]
+    [InlineData("?advisoryMetadataOnly=true&advisoryMetadataOnly=true")]
+    [InlineData("?nativeMembershipOnly=true&advisoryMetadataOnly=true")]
+    public async Task InvalidBoundedDetailSelectorsShouldStopBeforeReading(string query)
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new() { Models = ProjectedModels(Tenant, Conversation) };
+        using WebApplication app = BuildApp(access, store);
+
+        ApiResponse response = await InvokeAsync(app, "/api/v1/conversations/{conversationId}",
+            new Dictionary<string, object?> { ["conversationId"] = Conversation.Value }, query, AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(StatusCodes.Status503ServiceUnavailable);
+        JsonSerializer.Deserialize<ConversationDetailResult>(response.Body, JsonSerializerOptions.Web)
+            .ShouldBe(ConversationDetailResult.Unavailable(SchemaVersion.Current));
+        access.Calls.ShouldBe(0);
+        store.DetailReads.ShouldBe(0);
+    }
+
+    [Theory]
+    [InlineData("matching")]
+    [InlineData("different-tenant-header")]
+    [InlineData("repeated-caller-header")]
+    [InlineData("different-tenant-claim")]
+    [InlineData("different-caller-claim")]
+    public async Task BoundedDetailShouldCheckClaimAliasesAndScopeHeadersBeforeReading(string scenario)
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new() { Models = ProjectedModels(Tenant, Conversation) };
+        using WebApplication app = BuildApp(access, store);
+        ClaimsPrincipal user = AuthenticatedUser();
+        (user.Identity as ClaimsIdentity)!.AddClaims([
+            new Claim("tenant_id", scenario == "different-tenant-claim" ? OtherTenant.Value : Tenant.Value),
+            new Claim("sub", scenario == "different-caller-claim" ? "caller-other" : "caller-001"),
+        ]);
+        var headers = new Dictionary<string, StringValues>
+        {
+            ["X-Tenant-Id"] = scenario == "different-tenant-header" ? OtherTenant.Value : Tenant.Value,
+            ["X-Caller-Principal-Id"] = scenario == "repeated-caller-header" ? new StringValues(["caller-001", "caller-001"]) : "caller-001",
+        };
+
+        ApiResponse response = await InvokeAsync(app, "/api/v1/conversations/{conversationId}",
+            new Dictionary<string, object?> { ["conversationId"] = Conversation.Value }, "?nativeMembershipOnly=True&advisoryMetadataOnly=false", user, headers);
+
+        var detail = JsonSerializer.Deserialize<ConversationDetailResult>(response.Body, JsonSerializerOptions.Web).ShouldNotBeNull();
+        if (scenario == "matching")
+        {
+            response.StatusCode.ShouldBe(StatusCodes.Status200OK);
+            detail.ReadPurpose.ShouldBe(GetConversationQuery.NativeMembershipPurpose);
+            detail.Details.ShouldNotBeNull().Messages.ShouldBeEmpty();
+            store.DetailReads.ShouldBe(1);
+            access.Calls.ShouldBe(2);
+        }
+        else
+        {
+            response.StatusCode.ShouldBe(StatusCodes.Status404NotFound);
+            detail.ShouldBe(ConversationDetailResult.Hidden(SchemaVersion.Current));
+            access.Calls.ShouldBe(0);
+            store.DetailReads.ShouldBe(0);
+        }
     }
 
     [Fact]
@@ -711,7 +777,8 @@ public sealed class ConversationReadApiTest
         string routePattern,
         IReadOnlyDictionary<string, object?>? routeValues = null,
         string? queryString = null,
-        ClaimsPrincipal? user = null)
+        ClaimsPrincipal? user = null,
+        IReadOnlyDictionary<string, StringValues>? headers = null)
     {
         RouteEndpoint endpoint = FindEndpoint(app, routePattern);
         DefaultHttpContext context = new()
@@ -722,6 +789,14 @@ public sealed class ConversationReadApiTest
         context.Request.Method = HttpMethods.Get;
         context.Request.QueryString = new QueryString(queryString ?? string.Empty);
         context.Response.Body = new MemoryStream();
+
+        if (headers is not null)
+        {
+            foreach (var (name, value) in headers)
+            {
+                context.Request.Headers[name] = value;
+            }
+        }
 
         if (routeValues is not null)
         {

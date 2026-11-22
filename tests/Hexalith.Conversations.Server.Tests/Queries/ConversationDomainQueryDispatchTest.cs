@@ -3,19 +3,37 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Globalization;
+using System.Net;
+using System.Net.Http.Json;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
+using Hexalith.Conversations.Aggregates;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Projections;
+using Hexalith.Conversations.Contracts.Queries;
+using Hexalith.Conversations.Contracts.TrustStates;
+using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
+using Hexalith.Conversations.Server.Tests.Projections;
+using Hexalith.Conversations.Server.Tests.ResolutionMetadata;
+using Hexalith.EventStore.Client.Projections;
 using Hexalith.EventStore.Contracts.Queries;
 using Hexalith.EventStore.DomainService;
-using Hexalith.Conversations.Server.Tests.Projections;
+using Hexalith.EventStore.ServiceDefaults.Authentication;
+using Hexalith.EventStore.ServiceDefaults.Routing;
 
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Hexalith.Conversations.Server.Tests.Queries;
 
@@ -83,6 +101,138 @@ public sealed class ConversationDomainQueryDispatchTest
 
         result.Success.ShouldBeTrue();
         result.GetPayload().ValueKind.ShouldBe(JsonValueKind.Object);
+    }
+
+    /// <summary>Checks bounded selection and owner admission over the authenticated SDK receiver.</summary>
+    /// <param name="scenario">The caller and detail mode used in the request.</param>
+    [Theory]
+    [InlineData("projects")]
+    [InlineData("projects-missing-scope")]
+    [InlineData("caller-advisory")]
+    [InlineData("caller-duplicate-selector")]
+    public async Task BoundedDetailShouldEnforceAdmissionThroughSdkHttp(string scenario)
+    {
+        const string appId = ResolutionRouteCatalog.AppId;
+        const string issuer = "conversations-query-test";
+        const string channelToken = "conversations-query-test-channel";
+        string signingKey = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+        bool isAdvisory = scenario == "caller-advisory";
+        bool isDelegated = scenario is "projects" or "projects-missing-scope";
+        var reference = ResolutionMetadataFixture.Query() with { QueryType = GetConversationQuery.QueryType };
+        var envelope = isDelegated
+            ? reference with
+            {
+                CallerAuthority = reference.CallerAuthority! with
+                {
+                    OriginatingContext = reference.CallerAuthority!.OriginatingContext! with
+                    { Scopes = scenario == "projects" ? ["projects.read"] : ["projects.list"] },
+                },
+            }
+            : reference with
+            {
+                IsDelegated = false,
+                AuthenticatedWorkloadId = null,
+                CallerAuthority = new("authenticated-caller", [], []),
+                Payload = isAdvisory ? """{"advisoryMetadataOnly":true}"""u8.ToArray()
+                    : """{"nativeMembershipOnly":true,"nativeMembershipOnly":false}"""u8.ToArray(),
+            };
+        var tenant = new TenantId(envelope.TenantId);
+        var conversation = new ConversationId(envelope.AggregateId);
+        var now = DateTimeOffset.UtcNow;
+        var freshness = new ProjectionFreshnessV1(SchemaVersion.Current, "pos:0000000001", 1, now, now, TimeSpan.Zero,
+            false, ProjectionTrustState.Current, ProjectionFreshnessReasonCode.Current);
+        var stale = new ProjectionFreshnessV1(SchemaVersion.Current, "pos:0000000002", 2, now.AddMinutes(-5), now, TimeSpan.FromMinutes(5),
+            true, ProjectionTrustState.Stale, ProjectionFreshnessReasonCode.StaleThresholdExceeded);
+        var fixture = new ResolutionMetadataFixture();
+        if (isAdvisory)
+        {
+            await fixture.ProjectAsync();
+            fixture.SeedMetadata(fixture.Metadata with { Freshness = stale });
+        }
+
+        var project = new ProjectId("project-member");
+        var author = new PartyId("author");
+        var store = new RecordingProjectionReadStore
+        {
+            Models = isAdvisory ? null : new(
+                new ConversationSummaryProjectionV1(SchemaVersion.Current, tenant, conversation, freshness, "Open", ProjectId: project),
+                new ConversationDetailProjectionV1(SchemaVersion.Current, tenant, conversation, freshness, "Open", "Private label", ProjectId: project,
+                    Messages: [new ConversationTimelineMessageProjectionV1(new MessageId("message-001"), author, "Timeline text", now)])),
+        };
+        var builder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = "Development" });
+        builder.WebHost.UseTestServer();
+        builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            [DaprAppChannelToken.ConfigurationKey] = channelToken,
+            ["EventStore:DomainService:AppId"] = appId,
+            ["Authentication:JwtBearer:Issuer"] = issuer,
+            ["Authentication:JwtBearer:Audience"] = "hexalith-eventstore",
+            ["Authentication:JwtBearer:SigningKey"] = signingKey,
+            ["Authentication:JwtBearer:AllowedAlgorithms:0"] = SecurityAlgorithms.HmacSha256,
+            ["Authentication:JwtBearer:RequireHttpsMetadata"] = "false",
+        });
+        builder.AddEventStoreDomainService(typeof(ConversationAggregate).Assembly, typeof(ServerAssemblyMarker).Assembly);
+        builder.Services.AddConversationQueries(_ => { });
+        builder.Services.AddSingleton<IConversationTenantAccessService>(new AllowAllTenantAccessService());
+        builder.Services.AddSingleton<IConversationProjectionReadStore>(store);
+        builder.Services.AddSingleton<IReadModelStore>(fixture.Store);
+        string fingerprint = Convert.ToHexStringLower(SHA256.HashData("conversation-detail-http-test"u8));
+        builder.Services.Configure<DomainProjectionIdentityOptions>(options => { options.AppId = appId; options.ServiceVersion = "v1"; });
+        builder.Services.Configure<RouteCatalogHostOptions>(options => options.Identity = new(appId, appId, fingerprint, fingerprint, fingerprint));
+        builder.Services.AddSingleton<ResolutionRouteCatalog>(services => new(services, tenant.Value,
+            () => services.GetRequiredService<EventStoreDomainServiceEndpointSource>().Endpoints!.DataSources.SelectMany(source => source.Endpoints),
+            includeDetailQuery: true));
+        builder.Services.AddSingleton<IRouteCatalogAuthority>(services => services.GetRequiredService<ResolutionRouteCatalog>());
+
+        var token = TestContext.Current.CancellationToken;
+        await using var app = builder.Build();
+        app.MapEventStoreDomainService();
+        await app.StartAsync(token);
+
+        var claims = QueryCallerAuthorityBinding.Bind(envelope).ToDictionary(pair => pair.Key, pair => (object)pair.Value, StringComparer.Ordinal);
+        claims[EventStoreWorkloadAuthenticationDefaults.CallerClaimType] = "eventstore";
+        claims[EventStoreWorkloadAuthenticationDefaults.OperationClaimType] = new[] { EventStoreWorkloadOperations.DomainServiceQuery };
+        claims[RouteCatalogSurfacePolicy.ClaimType] = "service";
+        var assertion = new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor
+        {
+            Issuer = issuer,
+            Audience = appId,
+            IssuedAt = now.UtcDateTime,
+            NotBefore = now.UtcDateTime,
+            Expires = now.AddMinutes(2).UtcDateTime,
+            Claims = claims,
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey)), SecurityAlgorithms.HmacSha256),
+        });
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/query") { Content = JsonContent.Create(envelope) };
+        request.Headers.Add(DaprAppChannelToken.HeaderName, channelToken);
+        request.Headers.Add(EventStoreWorkloadAuthenticationDefaults.AssertionHeaderName, assertion);
+        var catalog = app.Services.GetRequiredService<ResolutionRouteCatalog>().Snapshot;
+        request.Headers.Add(RouteCatalogInvocationHandler.RootHeader, catalog.RootDigest);
+        request.Headers.Add(RouteCatalogInvocationHandler.EpochHeader, catalog.Epoch.ToString(CultureInfo.InvariantCulture));
+        using var client = app.GetTestClient();
+        using var response = await client.SendAsync(request, token);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var result = (await response.Content.ReadFromJsonAsync<QueryResult>(token)).ShouldNotBeNull();
+        result.Success.ShouldBe(scenario is "projects" or "caller-advisory");
+        if (result.Success)
+        {
+            var bounded = result.GetPayload().Deserialize<ConversationDetailResult>(JsonSerializerOptions.Web).ShouldNotBeNull();
+            bounded.ReadPurpose.ShouldBe(isAdvisory ? ConversationResolutionScoringLabel.SupportedPurpose : GetConversationQuery.NativeMembershipPurpose);
+            var details = bounded.Details.ShouldNotBeNull();
+            details.ProjectId.ShouldBe(isAdvisory ? new ProjectId("project-original") : project);
+            details.Label.ShouldBe(isAdvisory ? "Scoring label" : null);
+            details.Freshness.ShouldBe(isAdvisory ? stale : freshness);
+            details.Messages.ShouldBeEmpty();
+            details.Participants.ShouldBeEmpty();
+            store.DetailReads.ShouldBe(isAdvisory ? 0 : 1);
+        }
+        else
+        {
+            result.ErrorMessage.ShouldBe(isDelegated ? "safe-denial" : "The conversation query could not be served.");
+            result.PayloadBytes.ShouldBeNull();
+            store.DetailReads.ShouldBe(0);
+        }
     }
 
     [Fact]
@@ -172,7 +322,7 @@ public sealed class ConversationDomainQueryDispatchTest
     [Fact]
     public async Task DetailQueryShouldResolveConversationIdFromAggregateIdWhenPayloadOmitsIt()
     {
-        EmptyProjectionReadStore store = new();
+        RecordingProjectionReadStore store = new();
         await using ServiceProvider provider = BuildProvider(store);
         using IServiceScope scope = provider.CreateScope();
 
@@ -202,7 +352,7 @@ public sealed class ConversationDomainQueryDispatchTest
     [Fact]
     public async Task DetailQueryWithNoResolvableConversationIdShouldFailClosed()
     {
-        EmptyProjectionReadStore store = new();
+        RecordingProjectionReadStore store = new();
         await using ServiceProvider provider = BuildProvider(store);
         using IServiceScope scope = provider.CreateScope();
 
@@ -238,7 +388,7 @@ public sealed class ConversationDomainQueryDispatchTest
     [Fact]
     public async Task MissingAuthenticatedUserShouldFailClosedBeforeProjectionRead()
     {
-        EmptyProjectionReadStore store = new();
+        RecordingProjectionReadStore store = new();
         await using ServiceProvider provider = BuildProvider(store);
         using IServiceScope scope = provider.CreateScope();
 
@@ -284,9 +434,9 @@ public sealed class ConversationDomainQueryDispatchTest
         }
     }
 
-    private static ServiceProvider BuildProvider() => BuildProvider(new EmptyProjectionReadStore());
+    private static ServiceProvider BuildProvider() => BuildProvider(new RecordingProjectionReadStore());
 
-    private static ServiceProvider BuildProvider(EmptyProjectionReadStore store)
+    private static ServiceProvider BuildProvider(RecordingProjectionReadStore store)
     {
         ServiceCollection services = new();
         services.AddSingleton<IConversationTenantAccessService>(new AllowAllTenantAccessService());
@@ -319,8 +469,10 @@ public sealed class ConversationDomainQueryDispatchTest
                 callerPrincipalId ?? "caller-001"));
     }
 
-    private sealed class EmptyProjectionReadStore : IConversationProjectionReadStore
+    private sealed class RecordingProjectionReadStore : IConversationProjectionReadStore
     {
+        public ConversationProjectedReadModels? Models { get; init; }
+
         public int ListReads { get; private set; }
 
         public int DetailReads { get; private set; }
@@ -331,7 +483,7 @@ public sealed class ConversationDomainQueryDispatchTest
             CancellationToken cancellationToken = default)
         {
             DetailReads++;
-            return ValueTask.FromResult<ConversationProjectedReadModels?>(null);
+            return ValueTask.FromResult(Models);
         }
 
         public ValueTask<IReadOnlySet<string>> ValidatePageAsync(

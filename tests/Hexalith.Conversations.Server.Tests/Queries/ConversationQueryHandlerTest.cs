@@ -19,8 +19,10 @@ using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.EventStore.Client.Queries;
 using Hexalith.Conversations.Server.Tests.Projections;
+using Hexalith.Conversations.Server.Tests.ResolutionMetadata;
 
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
 namespace Hexalith.Conversations.Server.Tests.Queries;
@@ -73,12 +75,10 @@ public sealed class ConversationQueryHandlerTest
     /// A detail response requires the same tenant Read decision after any response view is composed.
     /// </summary>
     /// <param name="nativeMembershipOnly">Whether the request selects native membership evidence.</param>
-    /// <param name="advisoryMetadataOnly">Whether the request selects classified advisory evidence.</param>
     [Theory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    public async Task DetailShouldHideResponseWhenTenantReadAccessChanges(bool nativeMembershipOnly, bool advisoryMetadataOnly)
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task DetailShouldHideResponseWhenTenantReadAccessChanges(bool nativeMembershipOnly)
     {
         FakeTenantAccessService access = new(
             ConversationTenantAccessDecision.Allowed(ConversationTenantAccessRequirement.Read, Tenant, "caller-001"),
@@ -89,7 +89,6 @@ public sealed class ConversationQueryHandlerTest
         GetConversationQuery query = new(SchemaVersion.Current, Tenant, "caller-001", "correlation-001", Conversation)
         {
             NativeMembershipOnly = nativeMembershipOnly,
-            AdvisoryMetadataOnly = advisoryMetadataOnly,
         };
 
         ConversationDetailResult result = await handler.GetAsync(query, TestContext.Current.CancellationToken);
@@ -97,6 +96,81 @@ public sealed class ConversationQueryHandlerTest
         result.ShouldBe(ConversationDetailResult.Hidden(SchemaVersion.Current));
         store.DetailReads.ShouldBe(1);
         access.Calls.ShouldBe(2);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task AdvisoryDetailShouldCarryItsOwnStaleGeneration(bool nativeDetailAvailable)
+    {
+        var fixture = new ResolutionMetadataFixture();
+        await fixture.ProjectAsync();
+        var query = AdvisoryQuery();
+        var freshness = Freshness(cursor: "pos:0000000007", freshnessState: ProjectionTrustState.Stale,
+            reason: ProjectionFreshnessReasonCode.StaleThresholdExceeded);
+        fixture.SeedMetadata(fixture.Metadata with { Freshness = freshness });
+        var native = new FakeProjectionReadStore
+        {
+            Models = nativeDetailAvailable ? ProjectedModels(query.TenantId, query.ConversationId) : null,
+            DetailException = nativeDetailAvailable ? null : new InvalidOperationException("Native detail unavailable"),
+        };
+
+        var result = await CreateAdvisoryHandler(fixture, native).GetAsync(query, TestContext.Current.CancellationToken);
+
+        result.ReadPurpose.ShouldBe(ConversationResolutionScoringLabel.SupportedPurpose);
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Stale);
+        result.ReasonCode.ShouldBe(freshness.ReasonCode);
+        var details = result.Details.ShouldNotBeNull();
+        details.Freshness.ShouldBe(freshness);
+        details.Label.ShouldBe("Scoring label");
+        details.ProjectId.ShouldBe(new ProjectId("project-original"));
+        details.Messages.ShouldBeEmpty();
+        details.Participants.ShouldBeEmpty();
+        details.BusinessReference.ShouldBeNull();
+        native.DetailReads.ShouldBe(0);
+        fixture.Access.Checks.ShouldBe(2);
+    }
+
+    [Theory]
+    [InlineData("incomplete")]
+    [InlineData("generation-mismatch")]
+    [InlineData("initial-denial")]
+    [InlineData("revoked")]
+    public async Task AdvisoryDetailShouldWithholdIncompleteOrDeniedMetadata(string scenario)
+    {
+        var fixture = new ResolutionMetadataFixture();
+        await fixture.ProjectAsync(label: scenario == "incomplete" ? new string('x', ConversationResolutionScoringLabel.MaximumLength + 1) : "Scoring label");
+        if (scenario == "generation-mismatch")
+        {
+            fixture.SeedMetadata(fixture.Metadata with { DispatchId = "different-dispatch" }, bindProof: false);
+        }
+
+        fixture.Access.Denied = scenario == "initial-denial";
+        if (scenario == "revoked") fixture.Access.OnCheck = checks => fixture.Access.Denied = checks == 2;
+        var native = new FakeProjectionReadStore();
+
+        var result = await CreateAdvisoryHandler(fixture, native).GetAsync(AdvisoryQuery(), TestContext.Current.CancellationToken);
+
+        result.ShouldBe(scenario is "incomplete" or "generation-mismatch" ? ConversationDetailResult.Unavailable(SchemaVersion.Current)
+            : ConversationDetailResult.Hidden(SchemaVersion.Current));
+        fixture.Access.Checks.ShouldBe(scenario == "initial-denial" ? 1 : 2);
+        if (scenario == "initial-denial") fixture.Guard.ReadKeys.ShouldBeEmpty();
+        native.DetailReads.ShouldBe(0);
+    }
+
+    private static GetConversationQuery AdvisoryQuery()
+        => new(SchemaVersion.Current, ResolutionMetadataFixture.Tenant, "actor", "correlation", ResolutionMetadataFixture.Conversation)
+        { AdvisoryMetadataOnly = true };
+
+    private static ConversationQueryHandler CreateAdvisoryHandler(ResolutionMetadataFixture fixture, FakeProjectionReadStore native)
+    {
+        fixture.Guard.ForbidLegacyReads = true;
+        fixture.Guard.ForbidWrites = true;
+        var advisory = new GetConversationAdvisoryMetadataDomainQueryHandler(fixture.Access, new HttpContextAccessor(), fixture.Guard);
+        return new(fixture.Access, native, new ConversationProjectionReadService(fixture.Access, native), CreateCodec(),
+            cursorOptions: null, timeProvider: null, hydrationService: null, citationAccessService: null,
+            temporalReconstructionService: null, auditRecordAccessService: null, privilegedJustificationReviewService: null,
+            advisoryMetadata: advisory);
     }
 
     /// <summary>
@@ -1977,7 +2051,9 @@ public sealed class ConversationQueryHandlerTest
     public async Task OwnerEnvelopeHonorsBoundedModesWithoutReturningRichDetail(bool nativeMembershipOnly, bool advisoryMetadataOnly)
     {
         var store = new FakeProjectionReadStore { Models = ProjectedModels(Tenant, Conversation) };
-        var reader = new GetConversationDomainQueryHandler(CreateHandler(AllowedAccess(), store));
+        var hydration = new FakeReferenceHydrationDirectory();
+        var reader = new GetConversationDomainQueryHandler(CreateHandler(AllowedAccess(), store,
+            hydration: new ConversationReadHydrationService(hydration)));
         var query = new Hexalith.EventStore.Contracts.Queries.QueryEnvelope(Tenant.Value, reader.Domain, Conversation.Value,
             reader.QueryType, JsonSerializer.SerializeToUtf8Bytes(new { nativeMembershipOnly, advisoryMetadataOnly }),
             "correlation-001", "caller-001");
@@ -1987,8 +2063,14 @@ public sealed class ConversationQueryHandlerTest
         if (nativeMembershipOnly)
         {
             bounded.ReadPurpose.ShouldBe(GetConversationQuery.NativeMembershipPurpose);
-            bounded.Details.ShouldNotBeNull().Messages.ShouldBeEmpty();
-            bounded.Details.Label.ShouldBeNull();
+            var details = bounded.Details.ShouldNotBeNull();
+            details.ProjectId.ShouldBe(Project);
+            details.Messages.ShouldBeEmpty();
+            details.Participants.ShouldBeEmpty();
+            details.Label.ShouldBeNull();
+            details.BusinessReference.ShouldBeNull();
+            details.FolderId.ShouldBeNull();
+            details.EvidenceEntries.ShouldBeEmpty();
         }
         else
         {
@@ -1996,6 +2078,8 @@ public sealed class ConversationQueryHandlerTest
             bounded.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
             bounded.Details.ShouldBeNull();
         }
+
+        hydration.PartyBatchCalls.ShouldBe(0);
     }
 
     private static IQueryCursorCodec CreateCodec(string purpose = ConversationQueryServiceCollectionExtensions.CursorCodecPurpose)

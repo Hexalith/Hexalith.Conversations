@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using Hexalith.Conversations.Contracts.Queries;
+using Hexalith.Conversations.Contracts.Routing;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.EventStore.Contracts.Authorization;
 using Hexalith.EventStore.Contracts.Projections;
@@ -18,8 +20,9 @@ namespace Hexalith.Conversations.Server.Tests.ResolutionMetadata;
 /// <param name="services">The isolated owner services.</param>
 /// <param name="tenant">The exact committed tenant scope.</param>
 /// <param name="endpoints">The actual mapped SDK receiver endpoints.</param>
+/// <param name="includeDetailQuery">Whether to enroll the conversation detail receiver.</param>
 internal sealed class ResolutionRouteCatalog(
-    IServiceProvider services, string tenant, Func<IEnumerable<Endpoint>> endpoints) : IRouteCatalogAuthority
+    IServiceProvider services, string tenant, Func<IEnumerable<Endpoint>> endpoints, bool includeDetailQuery = false) : IRouteCatalogAuthority
 {
     /// <summary>Gets the exact application identity of the isolated owner.</summary>
     public const string AppId = "conversations-enrollment-fixture";
@@ -80,6 +83,17 @@ internal sealed class ResolutionRouteCatalog(
         {
             Add(handler.Domain + "-legacy", handler.Domain, ConversationProjectionHandler.ConversationProjectionType,
                 handler.GetType(), "project");
+        }
+
+        if (includeDetailQuery)
+        {
+            var declaration = ConversationsCatalogDeclarations.Routes.Single(route => route.MessageType == GetConversationQuery.QueryType);
+            var operation = ConversationsCatalogDeclarations.CreateOperations(typeof(ConversationsAssemblyMarker).Assembly)
+                .Single(item => item.RouteId == declaration.RouteId);
+            declarations.Add(declaration);
+            operations.Add(operation);
+            targets.Add(new(declaration.RouteId, 1, RouteCatalogCodec.ComputeDeclarationDigest(declaration), AppId, "query",
+                declaration.ContractVersion, declaration.CredentialKind, declaration.Operation, false, tenant, operation.Digest));
         }
 
         RouteCatalogEnvelope envelope = RouteCatalogCodec.Seal(new(3, 1, "Production", false,

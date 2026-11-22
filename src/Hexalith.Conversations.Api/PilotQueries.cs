@@ -16,9 +16,7 @@ internal static class PilotQueries
             return ConversationReadApi.HiddenDetail();
         try
         {
-            if (!TryMode(context, "nativeMembershipOnly", out bool nativeMembershipOnly)
-                || !TryMode(context, "advisoryMetadataOnly", out bool advisoryMetadataOnly)
-                || (nativeMembershipOnly && advisoryMetadataOnly))
+            if (!ConversationReadApi.TryGetDetailModes(context.Request.Query, out bool nativeMembershipOnly, out bool advisoryMetadataOnly))
                 return ConversationReadApi.UnavailableDetail();
             string? purpose = nativeMembershipOnly ? GetConversationQuery.NativeMembershipPurpose
                 : advisoryMetadataOnly ? ConversationResolutionScoringLabel.SupportedPurpose : null;
@@ -46,13 +44,6 @@ internal static class PilotQueries
         catch (EventStoreGatewayException ex) when (ex.StatusCode == 401) { return Results.Unauthorized(); }
         catch (EventStoreGatewayException ex) when (ex.StatusCode is 400 or 403 or 404) { return ConversationReadApi.HiddenDetail(); }
         catch (Exception) when (!token.IsCancellationRequested) { return ConversationReadApi.UnavailableDetail(); }
-    }
-
-    private static bool TryMode(HttpContext context, string name, out bool enabled)
-    {
-        enabled = false;
-        if (!context.Request.Query.TryGetValue(name, out var values)) return true;
-        return values.Count == 1 && bool.TryParse(values[0], out enabled);
     }
 
     internal static async Task<IResult> ListAsync(HttpContext context, IEventStoreGatewayClient gateway, CancellationToken token)

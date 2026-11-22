@@ -1329,3 +1329,27 @@ This closure supersedes only the named entry. The original ledger entry stays un
 ## Deferred from code review of spec-9-3-prove-the-packaged-conversation-client-against-its-supported-host.md (2026-11-22)
 
 - **Story 9.4 — preserve typed mutation errors in the installed client.** Story 9.3 review observed HTTP 400 `idempotency_key_missing` decode to `command_validation_failed` and HTTP 409 `idempotency_outcome_unknown` decode to `idempotency_conflict`. Assert the wire status, code, correlation and safe action on the object returned to the adopter. See the Story 9.3 review findings and `src/Hexalith.Conversations.Client/ConversationClient.cs:239`.
+
+## Resolved by bounded conversation detail fixes (2026-11-22)
+
+These resolutions cover five findings from the Story 12.2 build verification review.
+
+- source_spec: `spec-five-deferred-bounded-detail-fixes.md`
+  summary: BH-01. The client validates the bounded detail response against the requested purpose, resource, HTTP status, freshness and permitted fields.
+  evidence: `ConversationClientTest` covers accepted native and advisory details, unexpected owner responses, and typed hidden, rebuilding and unavailable results with client-owned guidance.
+
+- source_spec: `spec-five-deferred-bounded-detail-fixes.md`
+  summary: BH-02/EC-03. Both HTTP detail entry points validate the selector combination before dispatch. The SDK receiver rejects duplicate JSON properties.
+  evidence: `ConversationReadApiTest` verifies invalid and repeated selector responses with zero reads. `ConversationDomainQueryDispatchTest` verifies duplicate selector denial over the authenticated SDK receiver.
+
+- source_spec: `spec-five-deferred-bounded-detail-fixes.md`
+  summary: BH-03. Advisory detail reads isolated committed metadata between two tenant Read decisions.
+  evidence: `ConversationQueryHandlerTest` and `ConversationDomainQueryDispatchTest` return classified advisory detail when the native detail is unavailable and verify zero native reads. Direct handler controls withhold incomplete metadata and results after permission changes.
+
+- source_spec: `spec-five-deferred-bounded-detail-fixes.md`
+  summary: BH-04/EC-02. Advisory detail reports freshness from the accepted advisory row and checks its generation against any present completed proof.
+  evidence: The direct and authenticated SDK tests return the advisory cursor, time, state and reason. A mismatched completed proof makes bounded detail unavailable.
+
+- source_spec: `spec-five-deferred-bounded-detail-fixes.md`
+  summary: BH-07/VG-01–04. Runtime tests cover bounded response fields and caller admission.
+  evidence: Native and advisory assertions cover purpose, project, label, and omitted rich fields. The authenticated SDK receiver verifies Projects scope, and the HTTP tests verify matching and conflicting claim aliases and repeated or conflicting scope headers.

@@ -69,6 +69,10 @@ public static class ConversationReadApi
         // The typed client carries scope assertions. They must agree with the authenticated
         // actor, never turn a service principal or a caller-supplied header into authority.
         if (!ScopeHeadersMatch(context, tenantId!, callerPrincipalId!)) return HiddenDetail();
+        if (!TryGetDetailModes(context.Request.Query, out bool nativeMembershipOnly, out bool advisoryMetadataOnly))
+        {
+            return UnavailableDetail();
+        }
 
         ConversationDetailResult result;
         try
@@ -81,8 +85,8 @@ public static class ConversationReadApi
                     correlationId,
                     new ConversationId(conversationId))
                 {
-                    NativeMembershipOnly = context.Request.Query["nativeMembershipOnly"] is { Count: 1 } mode && mode[0] == "true",
-                    AdvisoryMetadataOnly = context.Request.Query["advisoryMetadataOnly"] is { Count: 1 } advisoryMode && advisoryMode[0] == "true",
+                    NativeMembershipOnly = nativeMembershipOnly,
+                    AdvisoryMetadataOnly = advisoryMetadataOnly,
                 },
                 cancellationToken)
                 .ConfigureAwait(false);
@@ -97,6 +101,20 @@ public static class ConversationReadApi
         }
 
         return DetailToHttpResult(result);
+    }
+
+    /// <summary>Reads the mutually exclusive detail selectors used by both HTTP entry points.</summary>
+    internal static bool TryGetDetailModes(IQueryCollection query, out bool nativeMembershipOnly, out bool advisoryMetadataOnly)
+    {
+        bool nativeIsValid = TryReadBoolean(query, "nativeMembershipOnly", out nativeMembershipOnly);
+        bool advisoryIsValid = TryReadBoolean(query, "advisoryMetadataOnly", out advisoryMetadataOnly);
+        return nativeIsValid && advisoryIsValid && !(nativeMembershipOnly && advisoryMetadataOnly);
+    }
+
+    private static bool TryReadBoolean(IQueryCollection query, string name, out bool enabled)
+    {
+        enabled = false;
+        return !query.TryGetValue(name, out var values) || (values.Count == 1 && bool.TryParse(values[0], out enabled));
     }
 
     private static async Task<IResult> GetCitationAsync(

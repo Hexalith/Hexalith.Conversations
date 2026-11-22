@@ -167,6 +167,120 @@ public sealed class ConversationClientTest
         result.Value.Details.ConversationId.ShouldBe(Conversation);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task GetConversationShouldAcceptMatchingBoundedDetail(bool advisory)
+    {
+        using FakeHttpMessageHandler handler = new();
+        string purpose = advisory ? ConversationResolutionScoringLabel.SupportedPurpose : GetConversationQuery.NativeMembershipPurpose;
+        handler.EnqueueJson(HttpStatusCode.OK, ConversationDetailResult.Visible(SchemaVersion.Current, BoundedDetails(advisory),
+            "Bounded detail is available.") with { ReadPurpose = purpose });
+
+        var result = await CreateClient(handler).GetConversationAsync(
+            Query() with { NativeMembershipOnly = !advisory, AdvisoryMetadataOnly = advisory }, TestContext.Current.CancellationToken);
+
+        var detail = result.Value.ShouldNotBeNull().Details.ShouldNotBeNull();
+        result.Value.ReadPurpose.ShouldBe(purpose);
+        detail.ProjectId.ShouldBe(new ProjectId("project-001"));
+        detail.Label.ShouldBe(advisory ? "Case 123" : null);
+        detail.Messages.ShouldBeEmpty();
+        result.Value.FreshnessState.ShouldBe(advisory ? ProjectionTrustState.Stale : ProjectionTrustState.Current);
+        result.Value.SafeNextAction.ShouldBe(advisory ? "Classified advisory evidence is available." : "Native membership evidence is available.");
+        handler.Requests.Single().PathAndQuery.ShouldBe(
+            $"/api/v1/conversations/conversation-001?{(advisory ? "advisoryMetadataOnly" : "nativeMembershipOnly")}=true");
+    }
+
+    [Theory]
+    [InlineData("missing-purpose")]
+    [InlineData("wrong-purpose")]
+    [InlineData("rich-shape")]
+    [InlineData("different-tenant")]
+    [InlineData("different-conversation")]
+    [InlineData("native-label")]
+    [InlineData("unclassified-advisory-label")]
+    [InlineData("rich-trust-posture")]
+    [InlineData("visible-on-error-status")]
+    [InlineData("stale-native-membership")]
+    [InlineData("forbidden-advisory-detail")]
+    public async Task GetConversationShouldRejectAnOwnerResponseOutsideTheRequestedBound(string mismatch)
+    {
+        bool advisory = mismatch is "unclassified-advisory-label" or "forbidden-advisory-detail";
+        string? purpose = mismatch switch
+        {
+            "missing-purpose" => null,
+            "wrong-purpose" => ConversationResolutionScoringLabel.SupportedPurpose,
+            _ when advisory => ConversationResolutionScoringLabel.SupportedPurpose,
+            _ => GetConversationQuery.NativeMembershipPurpose,
+        };
+        ConversationDetailsV1 detail = BoundedDetails(advisory);
+        detail = mismatch switch
+        {
+            "rich-shape" => Details(ProjectionTrustState.Current, ProjectionFreshnessReasonCode.Current, isStale: false) with { Label = null },
+            "different-tenant" => BoundedDetails(false, tenant: new TenantId("tenant-002")),
+            "different-conversation" => BoundedDetails(false, conversation: new ConversationId("conversation-002")),
+            "native-label" => detail with { Label = "Case 123" },
+            "unclassified-advisory-label" => detail with { Label = new string('x', ConversationResolutionScoringLabel.MaximumLength + 1) },
+            "rich-trust-posture" => BoundedDetails(false, withRichTrustPosture: true),
+            "stale-native-membership" => BoundedDetails(false, freshness: Freshness(
+                ProjectionTrustState.Stale, ProjectionFreshnessReasonCode.StaleThresholdExceeded, isStale: true)),
+            "forbidden-advisory-detail" => BoundedDetails(true, freshness: Freshness(
+                ProjectionTrustState.Forbidden, ProjectionFreshnessReasonCode.Forbidden, isStale: false)),
+            _ => detail,
+        };
+        HttpStatusCode status = mismatch == "visible-on-error-status" ? HttpStatusCode.ServiceUnavailable : HttpStatusCode.OK;
+        using FakeHttpMessageHandler handler = new();
+        handler.EnqueueJson(status, ConversationDetailResult.Visible(SchemaVersion.Current, detail,
+            "Detail is available.") with { ReadPurpose = purpose });
+
+        var result = await CreateClient(handler).GetConversationAsync(
+            Query() with { NativeMembershipOnly = !advisory, AdvisoryMetadataOnly = advisory }, TestContext.Current.CancellationToken);
+
+        result.IsSuccess.ShouldBeFalse();
+        result.Value.ShouldBeNull();
+        result.StatusCode.ShouldBe(status);
+        result.Error.ShouldNotBeNull().Errors.Single().Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
+    }
+
+    [Theory]
+    [InlineData("hidden", HttpStatusCode.NotFound)]
+    [InlineData("rebuilding", HttpStatusCode.NotFound)]
+    [InlineData("unavailable", HttpStatusCode.ServiceUnavailable)]
+    public async Task GetConversationShouldPreserveContentFreeBoundedOutcomes(string state, HttpStatusCode status)
+    {
+        using FakeHttpMessageHandler handler = new();
+        ConversationDetailResult expected = state switch
+        {
+            "hidden" => ConversationDetailResult.Hidden(SchemaVersion.Current),
+            "rebuilding" => new(SchemaVersion.Current, ProjectionTrustState.Rebuilding, ProjectionFreshnessReasonCode.GapDetected,
+                null, "Retry after the read model finishes rebuilding."),
+            _ => ConversationDetailResult.Unavailable(SchemaVersion.Current),
+        };
+        handler.EnqueueJson(status, new ConversationDetailResult(expected.SchemaVersion, expected.FreshnessState, expected.ReasonCode,
+            null, "Owner supplied guidance."));
+
+        var result = await CreateClient(handler).GetConversationAsync(
+            Query() with { AdvisoryMetadataOnly = true }, TestContext.Current.CancellationToken);
+
+        result.Value.ShouldBe(expected);
+        result.StatusCode.ShouldBe(status);
+    }
+
+    [Fact]
+    public async Task GetConversationShouldRejectInconsistentContentFreeResponse()
+    {
+        using FakeHttpMessageHandler handler = new();
+        handler.EnqueueJson(HttpStatusCode.NotFound, new ConversationDetailResult(SchemaVersion.Current, ProjectionTrustState.Forbidden,
+            ProjectionFreshnessReasonCode.Current, null, "Owner supplied guidance."));
+
+        var result = await CreateClient(handler).GetConversationAsync(
+            Query() with { NativeMembershipOnly = true }, TestContext.Current.CancellationToken);
+
+        result.Value.ShouldBeNull();
+        result.Error.ShouldNotBeNull();
+        result.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+    }
+
     [Fact]
     public async Task ListConversationsShouldUseReadListRouteWithProjectFilterAndPaging()
     {
@@ -542,6 +656,22 @@ public sealed class ConversationClientTest
             "corr-001",
             idempotencyKey,
             new ReadModelVisibility(ProjectionTrustState.Rebuilding, "Read model is catching up."));
+
+    private static ConversationDetailsV1 BoundedDetails(
+        bool advisory, TenantId? tenant = null, ConversationId? conversation = null, bool withRichTrustPosture = false,
+        ProjectionFreshnessV1? freshness = null)
+    {
+        tenant ??= Tenant;
+        conversation ??= Conversation;
+        freshness ??= advisory ? Freshness(ProjectionTrustState.Stale, ProjectionFreshnessReasonCode.StaleThresholdExceeded, isStale: true)
+            : Freshness(ProjectionTrustState.Current, ProjectionFreshnessReasonCode.Current, isStale: false);
+        var trustPosture = withRichTrustPosture
+            ? ConversationEvidenceTrustPostureV1.FromFreshness(SchemaVersion.Current, tenant, conversation, freshness)
+                .WithParticipantResolution(ProjectionTrustState.Current)
+            : null;
+        return new(SchemaVersion.Current, tenant, conversation, freshness, "Open", advisory ? "Case 123" : null,
+            ProjectId: new ProjectId("project-001"), TrustPosture: trustPosture);
+    }
 
     private static ConversationDetailsV1 Details(
         ProjectionTrustState state,

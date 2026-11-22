@@ -125,7 +125,8 @@ public sealed class ConversationClient : IConversationClient
         AddHeader(request, CorrelationIdHeaderName, query.CorrelationId);
         AddHeader(request, TenantIdHeaderName, query.TenantId.Value);
         AddHeader(request, CallerPrincipalIdHeaderName, query.CallerPrincipalId);
-        return SendAsync<ConversationDetailResult>(request, query.CorrelationId, cancellationToken);
+        return SendAsync<ConversationDetailResult>(request, query.CorrelationId, cancellationToken,
+            query.NativeMembershipOnly || query.AdvisoryMetadataOnly ? (result, status) => BoundedConversationDetailResponse.Accept(query, result, status) : null);
     }
 
     /// <inheritdoc />
@@ -227,7 +228,8 @@ public sealed class ConversationClient : IConversationClient
     private async Task<ConversationClientResult<T>> SendAsync<T>(
         HttpRequestMessage request,
         string correlationId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        Func<T, HttpStatusCode, T?>? validateResponse = null)
         where T : class
     {
         try
@@ -237,12 +239,19 @@ public sealed class ConversationClient : IConversationClient
                 .ConfigureAwait(false);
 
             T? value = await TryReadAsync<T>(response.Content, cancellationToken).ConfigureAwait(false);
+            bool rejected = false;
             if (value is not null && (response.IsSuccessStatusCode || IsReadResult<T>()))
             {
-                return ConversationClientResult<T>.Success(value, response.StatusCode);
+                value = validateResponse is null ? value : validateResponse(value, response.StatusCode);
+                if (value is not null)
+                {
+                    return ConversationClientResult<T>.Success(value, response.StatusCode);
+                }
+
+                rejected = true;
             }
 
-            if (response.IsSuccessStatusCode)
+            if (response.IsSuccessStatusCode || rejected)
             {
                 return ConversationClientResult<T>.Failure(
                     FallbackError(

@@ -171,6 +171,17 @@ internal sealed class ResolutionMetadataFixture
 
     public ConversationResolutionMetadataReadModel Metadata => Store.Snapshot<ConversationResolutionMetadataReadModel>("statestore",
         ConversationProjectionReadModelKeys.ResolutionMetadataKey(Tenant, Conversation))!;
+
+    public void SeedMetadata(ConversationResolutionMetadataReadModel metadata, bool bindProof = true)
+    {
+        Store.SeedRaw("statestore", ConversationProjectionReadModelKeys.ResolutionMetadataKey(Tenant, Conversation), metadata);
+        if (bindProof)
+        {
+            Store.SeedRaw("statestore", ConversationProjectionReadModelKeys.ResolutionProofKey(Tenant, Conversation),
+                new ConversationResolutionMetadataProof(ConversationResolutionGeneration.From(metadata, false)));
+        }
+    }
+
     public ConversationResolutionMetadataProof Proof => Store.Snapshot<ConversationResolutionMetadataProof>("statestore",
         ConversationProjectionReadModelKeys.ResolutionProofKey(Tenant, Conversation))!;
 }
