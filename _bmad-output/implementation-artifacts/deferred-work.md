@@ -1325,3 +1325,7 @@ This closure supersedes only the named entry. The original ledger entry stays un
   evidence: Owner decision 2026-11-16 (Story 12.2 review pass 3): the class stays excluded from CI as BMAD evidence work, as decided in review pass 2. Its runtime key-format guard now runs in the CI unit lane as `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadModelKeysTest.cs`, which pins all seven derived-key families to literal keys and checks tenant isolation without reading ADR or decision files. The ADR and decision digest pins and the undeclared-builder reflection check stay in the BMAD-only conformance lane.
 
 This closure supersedes only the named entry. The original ledger entry stays unchanged.
+
+## Deferred from code review of spec-9-3-prove-the-packaged-conversation-client-against-its-supported-host.md (2026-11-22)
+
+- **Story 9.4 — preserve typed mutation errors in the installed client.** Story 9.3 review observed HTTP 400 `idempotency_key_missing` decode to `command_validation_failed` and HTTP 409 `idempotency_outcome_unknown` decode to `idempotency_conflict`. Assert the wire status, code, correlation and safe action on the object returned to the adopter. See the Story 9.3 review findings and `src/Hexalith.Conversations.Client/ConversationClient.cs:239`.
