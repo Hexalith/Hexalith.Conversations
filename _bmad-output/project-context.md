@@ -11,6 +11,8 @@ optimized_for_llm: true
 
 # Project Context for AI Agents
 
+> Update, 2026-11-22. The [Conversations project context](../PROJECT_CONTEXT.md) supersedes this May record's .NET 10, greenfield, and AppHost scaffolding guidance. The module now targets `net11.0`. The Platform hosts the pilot, and the two inventory-listed AppHosts are frozen.
+
 _This file contains critical rules and patterns that AI agents must follow when implementing code in this project. Focus on unobvious details that agents might otherwise miss._
 
 ---

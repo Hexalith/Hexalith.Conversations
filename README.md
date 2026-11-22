@@ -2,6 +2,8 @@
 
 Hexalith.Conversations is a tenant-scoped conversations module scaffold for the Hexalith ecosystem.
 
+For domain boundaries, pilot hosting, and packaged-client verification, read the [Conversations project context](PROJECT_CONTEXT.md).
+
 This module began as an intentionally non-operative scaffold establishing project boundaries, central package management, smoke tests, and ADR tracking. The `Hexalith.Conversations.Server` host consumes the platform-owned EventStore domain-service host (`AddEventStoreDomainService` / `UseEventStoreDomainService`), including generic Dapr client and ServiceDefaults ownership. Conversations owns only its domain registrations and behavior. The retained `Hexalith.Conversations.AppHost` is a non-packable, non-publishable module test harness for local production-boundary verification; it is not a deployment or reusable hosting surface. The core domain behavior is conformance-gated: aggregate command dispatch/replay on `EventStoreAggregate<TState>`, query handling via the SDK query-handler and cursor-codec seams, read-model persistence via the shared read-model store and write policy, named/rebuild projection dispatch, and fail-closed tenant authorization. Provider integrations, workers, and FrontComposer runtime behavior remain out of scope.
 
 ## Contract Package Guidance
