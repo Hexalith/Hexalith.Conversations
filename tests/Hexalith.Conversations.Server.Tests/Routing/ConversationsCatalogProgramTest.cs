@@ -69,7 +69,7 @@ public sealed class ConversationsCatalogProgramTest
             stopped.Message.ShouldBe("observation-captured");
             var actual = JsonSerializer.Deserialize<RouteCatalogHostObservation>(File.ReadAllBytes(Path.Combine(directory, "conversations.observation.json")))!;
             actual.AppId.ShouldBe("conversation");
-            actual.Declarations.Count.ShouldBe(22); actual.Targets.Count.ShouldBe(22); actual.Operations!.Count.ShouldBe(22);
+            actual.Declarations.Count.ShouldBe(24); actual.Targets.Count.ShouldBe(24); actual.Operations!.Count.ShouldBe(24);
             actual.Declarations.Select(RouteCatalogCodec.ComputeDeclarationDigest).Order()
                 .ShouldBe(ConversationsCatalogDeclarations.Routes.Select(RouteCatalogCodec.ComputeDeclarationDigest).Order());
             actual.Operations.Select(operation => operation.Digest).Order().ShouldBe(ConversationsCatalogDeclarations.Operations.Select(operation => operation.Digest).Order());

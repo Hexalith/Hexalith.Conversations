@@ -19,9 +19,9 @@ namespace Hexalith.Conversations.Contracts.Routing;
 /// <summary>Complete internal owner metadata for actual Conversations SDK receivers; grants no business authority.</summary>
 internal static class ConversationsCatalogDeclarations
 {
-    /// <summary>The exact thirteen aggregate payloads and their local semantic policies.</summary>
+    /// <summary>The exact aggregate payloads and their local semantic policies.</summary>
     public static IReadOnlyList<CommandIntentDeclaration> Commands { get; } = [
-        Command("CreateConversation"), Command("AddParticipant"), Command("ReassignConversationProject"),
+        Command("CreateConversation"), Command("CreateHumanConversation"), Command("AppendMessage"), Command("AddParticipant"), Command("ReassignConversationProject"),
         Command("SetConversationRetentionPolicy"), Command("MarkConversationContentSensitive"), Command("RedactMessageContent"),
         Command("AddAgentParticipant"), Command("RemoveAgentParticipant"), Command("AppendAgentMessage"),
         Command("ApproveConversationDeletion"), Command("RecordConversationDeletionDelivery"),
@@ -121,7 +121,8 @@ internal static class ConversationsCatalogDeclarations
         }
         JsonSerializerOptions serializer = route.MessageType is "conversation-list" or "conversation-detail"
             ? ConversationQuerySerialization.Options : EventStorePayloadSerialization.Options;
-        var operation = RouteOperationSchema.Create(route, request, result, "internal", "UI-only", serializer, ConversationScalarSchemas.ExporterOptions);
+        bool pilot = route.MessageType is "CreateHumanConversation" or "AppendMessage" or "conversation-detail" or "conversation-list";
+        var operation = RouteOperationSchema.Create(route, request, result, pilot ? "public" : "internal", "UI-only", serializer, ConversationScalarSchemas.ExporterOptions);
         if (request == typeof(GetConversationResolutionMetadataQuery) || request == typeof(GetConversationAdvisoryMetadataQuery))
         {
             // These receivers explicitly reject any payload member before authorization or source reads.
@@ -137,12 +138,16 @@ internal static class ConversationsCatalogDeclarations
     private static CommandIntentDeclaration Command(string wire, Type? contract = null)
     {
         string id = Kebab(wire);
+        bool human = wire is "CreateHumanConversation" or "AppendMessage";
+        IdempotencyDescriptorField[] fields = human
+            ? [new("target", "string"), new("acting-subject", "string"), new("intent-sha256", "string")]
+            : [new("target", "string"), new("intent-sha256", "string")];
         return new(new("conversation-" + id, "command", "conversation", wire, null, "v1", 1, "workload",
             EventStoreOperationIdentifiers.DomainServiceProcess, null, [],
             new(contract?.FullName ?? "Hexalith.Conversations.Commands." + wire, "clr-short-name-v1", [wire], "domain-service", null, [])),
             "hexalith:conversation:" + id + ":intent-v1", "conversation:" + id, "conversation:" + id + ":local-policy-v1",
-            new("hexalith:conversation:" + id + ":descriptor-v1", 1, [new("target", "string"), new("intent-sha256", "string")]),
-            IdempotencyReplayRetentionTier.Mutation, false);
+            new("hexalith:conversation:" + id + ":descriptor-v1", 1, fields),
+            IdempotencyReplayRetentionTier.Mutation, human);
     }
 
     private static RouteContractDeclaration Query(string wire, string domain, string handler, bool delegated = false) =>

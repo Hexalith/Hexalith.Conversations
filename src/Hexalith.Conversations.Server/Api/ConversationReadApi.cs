@@ -68,10 +68,7 @@ public static class ConversationReadApi
 
         // The typed client carries scope assertions. They must agree with the authenticated
         // actor, never turn a service principal or a caller-supplied header into authority.
-        if ((context.Request.Headers.TryGetValue("X-Tenant-Id", out var requestedTenant)
-                && (requestedTenant.Count != 1 || requestedTenant[0] != tenantId!.Value))
-            || (context.Request.Headers.TryGetValue("X-Caller-Principal-Id", out var requestedActor)
-                && (requestedActor.Count != 1 || requestedActor[0] != callerPrincipalId))) return HiddenDetail();
+        if (!ScopeHeadersMatch(context, tenantId!, callerPrincipalId!)) return HiddenDetail();
 
         ConversationDetailResult result;
         try
@@ -276,7 +273,7 @@ public static class ConversationReadApi
         return ListToHttpResult(result);
     }
 
-    private static IResult DetailToHttpResult(ConversationDetailResult result)
+    internal static IResult DetailToHttpResult(ConversationDetailResult result)
     {
         // AC 3 / response matrix:
         //   Visible          → 200 OK with body
@@ -292,7 +289,7 @@ public static class ConversationReadApi
             : Results.Json(result, statusCode: StatusCodes.Status200OK);
     }
 
-    private static IResult ListToHttpResult(ConversationListResult result)
+    internal static IResult ListToHttpResult(ConversationListResult result)
     {
         if (result.FreshnessState == ProjectionTrustState.Unavailable)
         {
@@ -343,10 +340,10 @@ public static class ConversationReadApi
             : Results.Json(result, statusCode: StatusCodes.Status200OK);
     }
 
-    private static IResult HiddenDetail()
+    internal static IResult HiddenDetail()
         => Results.Json(ConversationDetailResult.Hidden(SchemaVersion.Current), statusCode: StatusCodes.Status404NotFound);
 
-    private static IResult UnavailableDetail()
+    internal static IResult UnavailableDetail()
         => Results.Json(ConversationDetailResult.Unavailable(SchemaVersion.Current), statusCode: StatusCodes.Status503ServiceUnavailable);
 
     private static IResult HiddenCitation()
@@ -381,13 +378,13 @@ public static class ConversationReadApi
                 "Retry after the audit detail is available."),
             statusCode: StatusCodes.Status503ServiceUnavailable);
 
-    private static IResult HiddenList()
+    internal static IResult HiddenList()
         => Results.Json(ConversationListResult.Hidden(SchemaVersion.Current), statusCode: StatusCodes.Status200OK);
 
-    private static IResult UnavailableList()
+    internal static IResult UnavailableList()
         => Results.Json(ConversationListResult.Unavailable(SchemaVersion.Current), statusCode: StatusCodes.Status503ServiceUnavailable);
 
-    private static ConversationListFilterV1 BuildFilter(IQueryCollection query)
+    internal static ConversationListFilterV1 BuildFilter(IQueryCollection query)
     {
         bool hasSystem = TryGet(query, "businessSystem", out string? businessSystem);
         bool hasValue = TryGet(query, "businessValue", out string? businessValue);
@@ -421,7 +418,7 @@ public static class ConversationReadApi
                 : null);
     }
 
-    private static ConversationPageRequest BuildPage(IQueryCollection query)
+    internal static ConversationPageRequest BuildPage(IQueryCollection query)
     {
         int pageSize = 25;
         if (TryGet(query, "pageSize", out string? pageSizeText)
@@ -433,7 +430,13 @@ public static class ConversationReadApi
         return new ConversationPageRequest(pageSize, TryGet(query, "cursor", out string? cursor) ? cursor : null);
     }
 
-    private static bool TryGetTenantCaller(
+    internal static bool ScopeHeadersMatch(HttpContext context, TenantId tenant, string principal)
+        => HeaderMatches(context, "X-Tenant-Id", tenant.Value) && HeaderMatches(context, "X-Caller-Principal-Id", principal);
+
+    internal static bool HeaderMatches(HttpContext context, string name, string? expected)
+        => !context.Request.Headers.TryGetValue(name, out var values) || values.Count == 1 && values[0] == expected;
+
+    internal static bool TryGetTenantCaller(
         HttpContext context,
         out TenantId? tenantId,
         out string? callerPrincipalId,

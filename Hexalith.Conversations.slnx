@@ -10,6 +10,7 @@
     <File Path="README.md" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/Hexalith.Conversations.Api/Hexalith.Conversations.Api.csproj" />
     <Project Path="src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj" />
     <Project Path="src/Hexalith.Conversations.Admin.Web/Hexalith.Conversations.Admin.Web.csproj" />
     <Project Path="src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj" />

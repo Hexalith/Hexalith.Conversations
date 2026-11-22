@@ -352,7 +352,7 @@ existing workload policies, operation catalog, sidecar token and authorization.
 | Dapr and acceptance evidence | Reference / owner / status |
 | --- | --- |
 | Capabilities / injected scoped components | declaration's four scoped state keys and two event capabilities; physical names/provider versions/backup policy pending Platform owner |
-| Declarative subscriptions / delivery routes / dead-letter policy | declaration: `/tenants/events`, configured `Tenants:TopicName` (`system.tenants.events` in declaration), logical `tenants-events` and `tenants-dead-letter`; verify actual scoped pub/sub binding and dead-letter delivery/retention; pending |
+| Declarative subscriptions / delivery routes / dead-letter policy | declaration: `/tenants/events`, configured `Tenants:TopicName` (`tenants.events` in declaration), logical `tenants-events` and `tenants-dead-letter`; verify actual scoped pub/sub binding and dead-letter delivery/retention; pending |
 | Deny-by-default receiver ACL / approved callers and verbs / mTLS | exact manifest caller `eventstore`, protected POST route catalog, SDK sidecar policy; deployment ACLs, token adapters and mTLS proof pending Platform/Identity |
 | Static/model policy evidence | mapped source/Debug and package/Release reference evaluation are synthetic; isolated SDK store contents and host construction are source evidence only |
 | Ordinary public CLI run/debug/down command and diagnostics | not run; approved offline pre-edit AppHost exception applies only to this prerequisite slice |
@@ -600,3 +600,50 @@ the version 2 fields and read a missing index as an empty current tenant again
 version 1 on its next delivery. On roll-forward, indexes the old writer rewrote
 as version 1 read `Rebuilding`, and tenants created during the rollback window
 have no index and read `Unavailable` until the follow-up rebuild.
+
+## Pilot API source composition
+
+The source deployment consists of `Hexalith.Conversations.Api` (Platform resource and Dapr app ID `conversations-api`), the internal `conversation` domain app, EventStore and the Tenants subscription. The API forwards the human bearer through its Dapr sidecar. EventStore submits commands to domain `conversation` and queries to `conversations`. The domain owns both write admission and the persisted read model. Source enrollment and the installed-package checks below describe the candidate. Release qualification is pending.
+
+For a Platform source AppHost, select `Platform:ActiveModule=conversations` and its owner manifest. Supply the domain operator values through `Platform:Conversations:Domain:<key>` in AppHost configuration. Use a protected configuration provider for the history client secret. The binding value for `Conversations:Pilot:HumanPartyBindings` is a JSON array with one exact `TenantId`, `PrincipalId` and `PartyId` per enrolled human. For example, one entry has the shape `[{"TenantId":"pilot-a","PrincipalId":"reader-a","PartyId":"party-a"}]`. The workload verifier uses `Authentication:WorkloadJwtBearer:Authority` and `Issuer`. The history reader uses the four `EventStore:Authentication` settings `Authority`, `TokenEndpoint`, `ClientId` and `ClientSecret` with the `client_credentials` grant. Its authority must allow reading Tenants history in `platform:tenants`. The API uses the same human JWT issuer and audience as the gateway. Keep the domain and its state sidecar private.
+
+The source profile binds `Authentication:QueryAuthority:RequiredQueries:conversations` on the gateway to include both `conversation-detail` and `conversation-list`. The gateway's workload issuer must be able to obtain a resource-bound `domain-service:query` assertion for the selected tenant and Conversations domain. The API forwards the authenticated human bearer to the gateway. Its Dapr grants cover POST on the human command and query actions at `/api/v1/commands/submit` and `/api/v1/queries/submit`, and GET on a single message ID under `/api/v1/commands/status/`. The submission actions use separate leaf paths because Dapr resolves a populated parent rule before its children. Only the internal domain service consumes the operator's Party bindings and Tenants history credentials. The read-model store and its Dapr credentials belong to that internal workload.
+
+For an isolated Platform source deployment with a separately managed OIDC issuer, configure the gateway, Tenants and Conversations domain workload verifiers with the issuer, each receiver's own audience and the issuer's signing algorithm. Install the issuer trust chain. On the gateway and Tenants, set `Authentication:WorkloadIssuer:TokenEndpoint`, `Workload`, `ClientId`, the protected `ClientSecret`, and `EnableResourceBindingRequests=true`. The issuer must grant only the operations and resource bindings each client needs. A fresh installation uses the Tenants owner's authenticated administrator bootstrap and its gateway binding. Once the administrator is available, use the Tenants commands to create two tenants and assign a contributor in one and a reader in the other. Wait for both membership events on `tenants.events` to reach the Conversations domain before starting the package consumer.
+
+To prepare a local feed in a producer-mapped Release shell, set `PACKAGE_FEED` to an empty directory outside the source tree and `PACKAGE_VERSION` to a fresh prerelease version. Run from the Conversations root.
+
+```bash
+dotnet pack src/Hexalith.Conversations.Contracts -c Release -p:Version="$PACKAGE_VERSION" -p:PackageVersion="$PACKAGE_VERSION" -o "$PACKAGE_FEED"
+dotnet pack src/Hexalith.Conversations.Client -c Release -p:Version="$PACKAGE_VERSION" -p:PackageVersion="$PACKAGE_VERSION" -o "$PACKAGE_FEED"
+python3 tests/packaged-client-journey/run.py --feed "$PACKAGE_FEED" --version "$PACKAGE_VERSION"
+```
+
+The versioned `tests/packaged-client-journey/platform-apphost.cs.template` hosts the local qualification graph using the ordinary Platform composition API. Copy it into a producer-mapped Platform source checkout beside `apphost.cs`. Supply a protected flat JSON dictionary through `CONVERSATIONS_OPERATOR_BINDINGS` using the owner/server/configuration-key names in Platform's local profile. The ordinary source profile shares its human JWT settings across the gateway and API. An operator issuing the human tokens supplies the corresponding human signing and verification settings. For fresh Tenants startup, include `tenants/domain/Tenants:BootstrapGlobalAdminEnabled` and `tenants/domain/Tenants:BootstrapGlobalAdminUserId`. Set the domain history and Party settings described above. Set `CONVERSATIONS_WORKLOAD_ISSUER` to the HTTPS Keycloak realm, `CONVERSATIONS_OIDC_CA_BUNDLE` to its trusted CA bundle, and `CONVERSATIONS_GATEWAY_OIDC_SECRET_FILE` and `CONVERSATIONS_TENANTS_OIDC_SECRET_FILE` to the protected credentials for the `eventstore` and `tenants` clients. Named accounts and issuer grants belong to the local operator.
+
+```bash
+export PLATFORM_APPHOST="$PLATFORM_ROOT/conversations-journey.cs"
+cp tests/packaged-client-journey/platform-apphost.cs.template "$PLATFORM_APPHOST"
+export Platform__DeclarationPath="$PLATFORM_ROOT/references/Hexalith.Conversations/module/hexalith.module-manifest.v2.json"
+aspire run --apphost "$PLATFORM_APPHOST"
+```
+
+For the fresh local verification lane, set `CONVERSATIONS_GATEWAY_ORIGIN` to the gateway's loopback origin, `CONVERSATIONS_CATALOG_RECEIPT` to its run-owned `eventstore.committed.json`, and `CONVERSATIONS_ADMIN_TOKEN` to an operator bearer authorized to create tenants, add members and read their command status. Export the two human identities and the domain sidecar inputs from the integration guide. Use disposable tenant names. Run these commands after the source AppHost reports Healthy and the gateway commits its routing catalog.
+
+```bash
+python3 tests/packaged-client-journey/provision.py
+python3 tests/packaged-client-journey/run.py --feed "$PACKAGE_FEED" --version "$PACKAGE_VERSION" \
+    --apphost "$PLATFORM_APPHOST" --fault-api-dll "$CONVERSATIONS_API_DLL"
+```
+
+The optional status-interruption check launches a second copy of the API on loopback. Only that copy loses its status response. It forwards the append to the running deployment and requires a real gateway receipt. The consumer verifies the stored append before retrying it at the regular API and checks that the retry leaves one message. The CLI uses the local Aspire resource to discover the API's sidecar and human bearer configuration. `PLATFORM_APPHOST` names that running AppHost file and `CONVERSATIONS_API_DLL` is the built `Hexalith.Conversations.Api.dll`.
+
+For a fresh source deployment, use the Conversations story commit and the Platform and EventStore commits recorded in its root gitlinks. The following command prints both required owner revisions from the Conversations checkout.
+
+```bash
+git ls-tree HEAD references/Hexalith.Platform references/Hexalith.EventStore
+```
+
+The local source bundle provides an alternative for an operator who has the three base revisions. Extract it, check out each base identified in `candidate.json` in its own disposable checkout, then run `git apply --check` and `git apply` with that repository's patch. Prepare the producer-mapped Platform checkout with all three resulting source trees before building the packages and starting the AppHost.
+
+When verification ends, stop the local AppHost with `aspire stop --apphost "$PLATFORM_APPHOST"` (or Ctrl+C in its foreground session). Shut down the separately managed disposable issuer and discard its local credentials.

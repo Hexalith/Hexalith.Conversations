@@ -1971,6 +1971,33 @@ public sealed class ConversationQueryHandlerTest
             privilegedJustificationReviewService: privilegedReview);
     }
 
+    [Theory]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public async Task OwnerEnvelopeHonorsBoundedModesWithoutReturningRichDetail(bool nativeMembershipOnly, bool advisoryMetadataOnly)
+    {
+        var store = new FakeProjectionReadStore { Models = ProjectedModels(Tenant, Conversation) };
+        var reader = new GetConversationDomainQueryHandler(CreateHandler(AllowedAccess(), store));
+        var query = new Hexalith.EventStore.Contracts.Queries.QueryEnvelope(Tenant.Value, reader.Domain, Conversation.Value,
+            reader.QueryType, JsonSerializer.SerializeToUtf8Bytes(new { nativeMembershipOnly, advisoryMetadataOnly }),
+            "correlation-001", "caller-001");
+        var result = await reader.ExecuteAsync(query, TestContext.Current.CancellationToken);
+        result.Success.ShouldBeTrue();
+        var bounded = result.GetPayload().Deserialize<ConversationDetailResult>(JsonSerializerOptions.Web).ShouldNotBeNull();
+        if (nativeMembershipOnly)
+        {
+            bounded.ReadPurpose.ShouldBe(GetConversationQuery.NativeMembershipPurpose);
+            bounded.Details.ShouldNotBeNull().Messages.ShouldBeEmpty();
+            bounded.Details.Label.ShouldBeNull();
+        }
+        else
+        {
+            // Without a classified advisory source, rich detail must never be substituted.
+            bounded.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
+            bounded.Details.ShouldBeNull();
+        }
+    }
+
     private static IQueryCursorCodec CreateCodec(string purpose = ConversationQueryServiceCollectionExtensions.CursorCodecPurpose)
         => new QueryCursorCodec(s_dataProtection, purpose);
 

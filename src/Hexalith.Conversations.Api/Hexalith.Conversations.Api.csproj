@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsPublishable>true</IsPublishable>
+    <StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
+    <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
+    <ContainerRepository>conversations-api</ContainerRepository>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Hexalith.Conversations.Server.Tests" />
+    <ProjectReference Include="../Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj" />
+  </ItemGroup>
+</Project>

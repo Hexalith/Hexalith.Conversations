@@ -7,6 +7,8 @@ using Hexalith.Conversations.Commands;
 using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Events;
+using Hexalith.Conversations.Contracts.Participants;
+using Hexalith.Conversations.Idempotency;
 using Hexalith.Conversations.State;
 using Hexalith.Conversations.Validation;
 using Hexalith.EventStore.Client.Aggregates;
@@ -71,6 +73,55 @@ public sealed partial class ConversationAggregate : EventStoreAggregate<Conversa
         };
 
         return DomainResult.Success(new IEventPayload[] { created });
+    }
+
+    /// <summary>Creates a conversation after the human pilot authority admits the caller.</summary>
+    public static DomainResult Handle(CreateHumanConversation command, ConversationState? state)
+        => Handle(new CreateConversation(command.PublicCommand, command.ConversationId, command.CreatedAt, command.EventId), state);
+
+    /// <summary>Appends a message attributed to an admitted human participant.</summary>
+    /// <param name="command">The original request and assigned occurrence.</param>
+    /// <param name="state">The current conversation.</param>
+    /// <returns>One message event, an identical retry, or a typed refusal.</returns>
+    public static DomainResult Handle(AppendMessage command, ConversationState? state)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        var request = command.PublicCommand;
+        var invalid = ConversationCommandSchemaValidation.ValidateEnvelope(request);
+        if (invalid is not null)
+            return DomainResult.Rejection([invalid]);
+        if (request.ConversationId is null || request.MessageId is null || string.IsNullOrWhiteSpace(request.Text)
+            || request.AgentProvenance is not null || string.IsNullOrWhiteSpace(command.EventId))
+            return DomainResult.Rejection([new ConversationRejectedDomainEvent(
+                Contracts.Errors.ConversationErrorCode.CommandValidationFailed, "invalid_message")]);
+
+        var metadata = request.Metadata;
+        if (state is null || !state.IsCreated || state.TenantId != metadata.TenantId
+            || state.ConversationId != request.ConversationId || state.IsDeleted
+            || request.AuthorPartyId != metadata.ActorPartyId
+            || (state.CreatorPartyId != request.AuthorPartyId && !state.Participants.Any(participant =>
+                participant.PartyId == request.AuthorPartyId && participant.ParticipantType == ParticipantType.Human
+                && participant.ParticipantRole != ParticipantRole.Observer)))
+            return DomainResult.Rejection([new ConversationWriteDenied()]);
+
+        // Generated envelope times differ on resubmission. Only a caller-supplied time is intent.
+        string fingerprint = (request.OperationTimestamp.HasValue ? "supplied:" : "unspecified:")
+            + ConversationAgentPostFingerprint.Create(request, request.OperationTimestamp ?? DateTimeOffset.UnixEpoch);
+        var previous = state.Messages.FirstOrDefault(message => message.MessageId == request.MessageId
+            || message.IdempotencyKey == metadata.IdempotencyKey);
+        if (previous is not null)
+            return previous.MessageId == request.MessageId && previous.OriginalProvenance is null
+                && previous.AuthorPartyId == request.AuthorPartyId && previous.IdempotencyKey == metadata.IdempotencyKey
+                && previous.OriginalIntentFingerprint == fingerprint
+                ? DomainResult.NoOp() : DomainResult.Rejection([new ConversationMessageConflict()]);
+
+        if (state.Lifecycle != ConversationLifecycleState.Open || !IsValidOccurrence(command.PostedAt, state))
+            return DomainResult.Rejection([new ConversationRejectedDomainEvent(
+                Contracts.Errors.ConversationErrorCode.CommandValidationFailed, "message_lifecycle_or_occurrence_invalid")]);
+
+        return DomainResult.Success([new MessageAppendedDomainEvent(AgentMetadata(metadata, request.ConversationId,
+            command.EventId, ConversationEventType.MessageAppended, command.PostedAt),
+            request.MessageId, request.AuthorPartyId, request.Text, null, metadata.IdempotencyKey!, fingerprint, request.ProviderCorrelation)]);
     }
 
     /// <summary>

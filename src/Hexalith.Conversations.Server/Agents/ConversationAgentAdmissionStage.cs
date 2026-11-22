@@ -21,10 +21,11 @@ namespace Hexalith.Conversations.Server.Agents;
 /// <param name="authority">Current exact scope and immutable Party resolver.</param>
 /// <param name="approvals">Independent deletion approval verifier, never membership authority.</param>
 /// <param name="receipts">Authenticated exact source worker and receiver verifier.</param>
+/// <param name="pilot">Independent write authority installed by the pilot command owner.</param>
 /// <param name="commandSources">Authenticated SDK complete-prefix verifier; never re-enters the source actor.</param>
 public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority authority,
     IConversationDeletionApprovalVerifier approvals, IConversationDeletionReceiptVerifier receipts,
-    IConversationCommandSourceVerifier commandSources) : IDomainServiceAdmissionStage
+    IConversationCommandSourceVerifier commandSources, ConversationPilotWriteAdmission? pilot = null) : IDomainServiceAdmissionStage
 {
     private static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web);
 
@@ -53,6 +54,8 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
                 nameof(RecordConversationDeletionDelivery) => JsonSerializer.Deserialize<RecordConversationDeletionDelivery>(envelope.Payload, Options),
                 nameof(EditConversationMessageCommand) => JsonSerializer.Deserialize<EditConversationMessageCommand>(envelope.Payload, Options),
                 nameof(DeleteConversationMessageCommand) => JsonSerializer.Deserialize<DeleteConversationMessageCommand>(envelope.Payload, Options),
+                nameof(AppendMessage) => JsonSerializer.Deserialize<AppendMessage>(envelope.Payload, Options),
+                nameof(CreateHumanConversation) => JsonSerializer.Deserialize<CreateHumanConversation>(envelope.Payload, Options),
                 nameof(CreateConversation) => JsonSerializer.Deserialize<CreateConversation>(envelope.Payload, Options),
                 nameof(AddParticipant) => JsonSerializer.Deserialize<AddParticipant>(envelope.Payload, Options),
                 nameof(ReassignConversationProject) => JsonSerializer.Deserialize<ReassignConversationProject>(envelope.Payload, Options),
@@ -74,6 +77,8 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
                 RecordConversationDeletionDelivery c => (c.PublicCommand.Metadata, c.PublicCommand.ConversationId),
                 EditConversationMessageCommand c => (c.Metadata, c.ConversationId),
                 DeleteConversationMessageCommand c => (c.Metadata, c.ConversationId),
+                AppendMessage c => (c.PublicCommand.Metadata, c.PublicCommand.ConversationId),
+                CreateHumanConversation c => (c.PublicCommand.Metadata, c.ConversationId),
                 CreateConversation c => (c.PublicCommand.Metadata, c.ConversationId),
                 AddParticipant c => (c.PublicCommand.Metadata, c.PublicCommand.ConversationId),
                 ReassignConversationProject c => (c.PublicCommand.Metadata, c.PublicCommand.ConversationId),
@@ -85,6 +90,20 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
             if (metadata.TenantId.Value != envelope.TenantId || conversation is null || conversation.Value != envelope.AggregateId)
             {
                 return Reject(ConversationAgentsOutcome.Denied);
+            }
+            if (command is AppendMessage or CreateHumanConversation)
+            {
+                if (pilot is null || command is AppendMessage append && append.PublicCommand.AuthorPartyId != metadata.ActorPartyId)
+                    return DomainServiceAdmissionResult.Rejected([new ConversationWriteDenied()]);
+                DateTimeOffset now = DateTimeOffset.UtcNow;
+                if (command is AppendMessage posted && (posted.PostedAt > now || posted.EventId !=
+                        PilotCommandIdentity.Allocate(metadata, envelope.UserId, "message-event", conversation.Value))
+                    || command is CreateHumanConversation created && (created.CreatedAt > now
+                        || created.EventId != PilotCommandIdentity.Allocate(metadata, envelope.UserId, "created-event")
+                        || conversation.Value != PilotCommandIdentity.Allocate(metadata, envelope.UserId, "conversation")))
+                    return DomainServiceAdmissionResult.Rejected([new ConversationRejectedDomainEvent(
+                        ConversationErrorCode.CommandValidationFailed, "invalid_owner_allocation")]);
+                return await pilot.AuthorizeAsync(envelope.UserId, metadata, cancellationToken).ConfigureAwait(false);
             }
             // A general-operation grant authorizes only the authenticated human Party and exact payload scope.
             if (command is CreateConversation or AddParticipant or ReassignConversationProject
@@ -192,7 +211,7 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
             cancellationToken.ThrowIfCancellationRequested();
             return DomainServiceAdmissionResult.Accepted();
         }
-        catch (Exception) when (!cancellationToken.IsCancellationRequested)
+        catch (Exception ex) when (ex is not ConversationWriteAuthorityUnavailableException && !cancellationToken.IsCancellationRequested)
         {
             return Reject(ConversationAgentsOutcome.Unavailable);
         }
@@ -202,7 +221,7 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
         typeof(RemoveAgentParticipant), typeof(ApproveConversationDeletion), typeof(RecordConversationDeletionDelivery),
         typeof(EditConversationMessageCommand), typeof(DeleteConversationMessageCommand)];
 
-    private static readonly Type[] KnownTypes = [.. RestrictedTypes, typeof(CreateConversation), typeof(AddParticipant),
+    private static readonly Type[] KnownTypes = [.. RestrictedTypes, typeof(CreateConversation), typeof(CreateHumanConversation), typeof(AppendMessage), typeof(AddParticipant),
         typeof(ReassignConversationProject), typeof(SetConversationRetentionPolicy), typeof(MarkConversationContentSensitive),
         typeof(RedactMessageContent)];
 

@@ -44,13 +44,14 @@ This source/replay capability does not add a deployed metadata-mutation route. P
 
 ## .NET Client Workflow
 
-The snippets below are embedded instead of placed in a standalone sample project because the v1 deliverable is documentation plus deterministic docs validation. They are validated by contract tests against the shipped type and member names, while avoiding a globally runnable host or extra build dependencies.
+The examples use the v1 client package. The [package consumer](../tests/packaged-client-journey/Program.cs) exercises the same HTTP routes against a running installation.
 
 Application code should request `IConversationClient` from dependency injection and call the typed methods shown below. Registration is provided by `ConversationClientServiceCollectionExtensions`, with endpoint configuration carried by `ConversationClientOptions`.
 
 ### Register the Client
 
 ```csharp
+using System.Net.Http.Headers;
 using Hexalith.Conversations.Client;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -58,9 +59,12 @@ IServiceCollection services = new ServiceCollection();
 
 services.AddHexalithConversationsClient(options =>
 {
-    options.Endpoint = new Uri("https://docs.hexalith.local/conversations/api/");
-});
+    options.Endpoint = new Uri(conversationsApiOrigin);
+}).ConfigureHttpClient(http =>
+    http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken));
 ```
+
+Use the HTTP(S) origin assigned to the Platform resource `conversations-api` as `conversationsApiOrigin`, including the trailing slash. The client adds `api/v1/conversations`. Obtain a current human bearer for that installation from its identity provider. Use HTTPS for deployed endpoints. The package journey also accepts loopback HTTP for local development.
 
 ### Create a Conversation
 
@@ -75,7 +79,7 @@ ConversationClientContext context = new(
     new PartyId("<actor-party-id>"),
     "<caller-principal-id>",
     "<correlation-id>",
-    IdempotencyKey: "<idempotency-key>");
+    IdempotencyKey: "<create-idempotency-key>");
 
 CreateConversationCommand create = new(
     context.ToCommandMetadata(),
@@ -94,7 +98,7 @@ using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Results;
 
 AppendMessageCommand append = new(
-    context.ToCommandMetadata(),
+    (context with { IdempotencyKey = "<append-idempotency-key>" }).ToCommandMetadata(),
     created.Value!.ConversationId,
     new MessageId("<message-id>"),
     context.ActorPartyId,
@@ -148,6 +152,28 @@ if (!created.IsSuccess)
     }
 }
 ```
+
+### Qualify a running pilot host
+
+Platform exposes the four v1 operations on the `conversations-api` resource. The domain applies tenant and Party authorization and maintains the timeline. Platform operators can find the issuer, tenant history and Party binding settings in the [pilot host configuration](../module/platform-handoff.md#pilot-api-source-composition). The local source deployment passed the installed-client journey with candidate Client and Contracts packages `2.1.1-story93.2`. Published service images require separate qualification.
+
+Provision two distinct tenant members through Tenants. The [local provisioning runner](../tests/packaged-client-journey/provision.py) creates both on a fresh disposable deployment and waits for their durable memberships. The first needs current write and read access and the matching Party binding. The second needs a Party binding and read-only membership in its own tenant. Give both bearers permission to submit to the gateway so the denial test reaches domain authorization. Allow their tenant membership events and index initialization to reach the domain. Each bearer must identify its principal in `sub` and its selected tenant in `tid` or `tenant_id`. The gateway also checks the signed UI surface, allowed tenant, domain and operation permissions. A request header alone cannot grant tenant access.
+
+Run the journey with .NET 11, Python 3, an isolated local deployment and a feed containing matching Client and Contracts packages. Set the following environment variables in the invoking process.
+
+| Input | Value |
+| --- | --- |
+| `CONVERSATIONS_ORIGIN` | Public origin of `conversations-api` |
+| `CONVERSATIONS_TOKEN`, `CONVERSATIONS_TENANT`, `CONVERSATIONS_SUBJECT`, `CONVERSATIONS_PARTY` | First member's short-lived bearer and bound identities |
+| `CONVERSATIONS_OTHER_TOKEN`, `CONVERSATIONS_OTHER_TENANT`, `CONVERSATIONS_OTHER_SUBJECT`, `CONVERSATIONS_OTHER_PARTY` | Independently authenticated second member and tenant |
+| `CONVERSATIONS_DOMAIN_DAPR_ORIGIN`, `CONVERSATIONS_READ_MODEL_STORE` | Private loopback URL for the domain sidecar and its configured read-model state component |
+| `CONVERSATIONS_DOMAIN_DAPR_TOKEN` | Sidecar API token when enabled |
+
+```bash
+python3 tests/packaged-client-journey/run.py --feed "$PACKAGE_FEED" --version "$PACKAGE_VERSION"
+```
+
+The runner installs exact packages into an empty cache, sends each mutation twice, checks changed intent and denied requests, and allows 60 seconds for Current list and detail. It also checks the hidden response bodies and reads the durable timeline through the domain sidecar. A successful run prints one terminal pass line. Projection timeouts and missing deployment inputs fail the run. The `--build-only` option verifies package installation and compilation.
 
 ### Discover Compatibility
 

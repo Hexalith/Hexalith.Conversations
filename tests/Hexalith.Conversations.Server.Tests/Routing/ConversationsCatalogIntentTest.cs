@@ -32,7 +32,7 @@ public sealed class ConversationsCatalogIntentTest
     public void EverySerializedReceiverExcludesGeneratedMetadataButBindsSemanticChangesAndRealAliases()
     {
         var cases = Cases();
-        cases.Count.ShouldBe(13);
+        cases.Count.ShouldBe(15);
         var adapters = ConversationsCatalogAdapters.Create();
         foreach (var (payload, fields) in cases)
         {
@@ -51,7 +51,7 @@ public sealed class ConversationsCatalogIntentTest
             Set(retry, prefix + "metadata.correlationId", JsonValue.Create("correlation-retry"));
             Set(retry, prefix + "metadata.causationId", JsonValue.Create("causation-retry"));
             if (retry["eventId"] is not null) retry["eventId"] = "generated-event-retry";
-            if (payload is CreateConversation) { retry["conversationId"] = "conv:generated-allocation-retry"; retry["createdAt"] = Occurrence.AddMinutes(1); }
+            if (payload is CreateConversation or CreateHumanConversation) { retry["conversationId"] = "conv:generated-allocation-retry"; retry["createdAt"] = Occurrence.AddMinutes(1); }
             if (payload is AddParticipant) retry["addedAt"] = Occurrence.AddMinutes(1);
             if (payload is ReassignConversationProject) retry["changedAt"] = Occurrence.AddMinutes(1);
             Intent(adapter, JsonSerializer.SerializeToUtf8Bytes(retry)).SemanticPayload.ShouldBe(original.SemanticPayload);
@@ -122,8 +122,32 @@ public sealed class ConversationsCatalogIntentTest
         }
     }
 
+    [Fact]
+    public void LegacyCreateRetainsOriginalDescriptorAndPublicCreateRequiresSeparateSubject()
+    {
+        var adapters = ConversationsCatalogAdapters.Create();
+        var legacy = adapters.Single(a => a.CommandType == nameof(CreateConversation));
+        var human = adapters.Single(a => a.CommandType == nameof(CreateHumanConversation));
+        var create = new CreateConversation(new(Metadata, Label: "label"), Conversation, Occurrence, "event-one");
+        var bytes = JsonSerializer.SerializeToUtf8Bytes(create, EventStorePayloadSerialization.Options);
+        var input = new IdempotencyIntentCommand(legacy.CommandType, "tenant-one", "conversation", Conversation.Value, bytes, null);
+        var receipt = legacy.CreateIntent(input);
+        // This vector was produced from the original CreateConversation adapter and declaration.
+        System.Text.Encoding.UTF8.GetString(receipt.SemanticPayload).ShouldBe(
+            """{"intent-sha256":"5a4ac7059217d138dd442a99cca621856c22c502ac6dc853510723a19dd9b221"}""");
+        legacy.Declaration.DescriptorSchema.Fields.Select(field => field.Name).ShouldBe(["target", "intent-sha256"]);
+        legacy.Declaration.RequiresAuthenticatedSubject.ShouldBeFalse();
+        legacy.Declaration.PolicyVersion.ShouldBe("conversation:create-conversation:local-policy-v1");
+        legacy.CreateIntent(input with { AuthenticatedSubject = "new-subject" }).SemanticPayload.ShouldBe(receipt.SemanticPayload);
+        human.Declaration.PolicyVersion.ShouldNotBe(legacy.Declaration.PolicyVersion);
+        var newInput = input with { CommandType = human.CommandType };
+        Should.Throw<InvalidOperationException>(() => human.CreateIntent(newInput));
+        human.CreateIntent(newInput with { AuthenticatedSubject = "a" }).SemanticPayload
+            .ShouldNotBe(human.CreateIntent(newInput with { AuthenticatedSubject = "b" }).SemanticPayload);
+    }
+
     private static IdempotencyCanonicalIntent Intent(IDeclaredIdempotencyIntentAdapter adapter, byte[] bytes, string? wire = null, string aggregate = "conversation-one")
-        => adapter.CreateIntent(new(wire ?? adapter.CommandType, "tenant-one", "conversation", aggregate, bytes, null));
+        => adapter.CreateIntent(new(wire ?? adapter.CommandType, "tenant-one", "conversation", aggregate, bytes, null) { AuthenticatedSubject = "subject-one" });
 
     private static void Set(JsonNode node, string path, JsonNode? value)
     {
@@ -144,6 +168,11 @@ public sealed class ConversationsCatalogIntentTest
         List<(object, IReadOnlyList<(string, JsonNode?)>)> cases = [
             (new CreateConversation(new(Metadata, Label: "label-one", CallerMetadata: new(SchemaVersion.Current, ClientName: "client-one")), new("allocated-one"), Occurrence, "event-one"),
                 [("publicCommand.label", JsonValue.Create("label-two")), ("publicCommand.callerMetadata.clientName", JsonValue.Create("client-two"))]),
+            (new CreateHumanConversation(new(Metadata, Label: "label-one"), new("allocated-one"), Occurrence, "event-one"),
+                [("publicCommand.label", JsonValue.Create("label-two"))]),
+            (new AppendMessage(post with { AgentProvenance = null }, Occurrence, "event-one"),
+                [("publicCommand.text", JsonValue.Create("changed")), ("publicCommand.messageId", JsonValue.Create("message:changed")),
+                    ("publicCommand.callerMetadata.clientName", JsonValue.Create("client-two"))]),
             (new AddParticipant(add, Occurrence, "event-one"), [("publicCommand.participantPartyId", JsonValue.Create("party:party-two")), ("publicCommand.providerCorrelation.providerName", JsonValue.Create("provider-two"))]),
             (new ReassignConversationProject(new(Metadata, Conversation, new(ConversationProjectAssignmentOperation.Assign, new("project-one"))), Occurrence, "event-one"), [("publicCommand.target.projectId", JsonValue.Create("project:project-two"))]),
             (new SetConversationRetentionPolicy(new(Metadata, Conversation, "policy-one", "rationale-one", Occurrence), Audit, "event-one"), [("publicCommand.operationTimestamp", JsonValue.Create(Occurrence.AddSeconds(1))), ("auditEvidence.handle.value", JsonValue.Create("audit-two"))]),

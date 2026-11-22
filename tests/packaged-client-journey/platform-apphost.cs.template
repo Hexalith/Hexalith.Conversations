@@ -1,0 +1,69 @@
+#!/usr/bin/env dotnet
+#:sdk Aspire.AppHost.Sdk@17.0.0
+#:property ManagePackageVersionsCentrally=false
+#:property RuntimeFrameworkVersion=11.0.0
+#:property SuppressAspireAppHostSdkObsoleteWarning=true
+#:package Aspire.Hosting.Docker@17.0.0
+#:package Aspire.Hosting.Kubernetes@17.0.0
+#:package Aspire.Hosting.Redis@17.0.0
+#:package Aspire.Hosting.Keycloak@17.0.0-preview.1.26567.5
+#:package CommunityToolkit.Aspire.Hosting.Dapr@17.0.0-preview.1.261120-0454
+#:package Microsoft.Extensions.Hosting@11.0.0
+#:package Microsoft.Extensions.Http@11.0.0
+#:package System.Text.Json@11.0.0
+#:project src/Hexalith.Platform.Composition/Hexalith.Platform.Composition.csproj
+using Aspire.Hosting;
+using Microsoft.Extensions.Configuration;
+using Aspire.Hosting.ApplicationModel;
+using Hexalith.Builds.Tooling.Workspace;
+using System.Text.Json;
+using Hexalith.Platform.Composition;
+
+var builder = DistributedApplication.CreateBuilder(args);
+using var acceptedLaunch = AgentsHostComposition.OwnLaunch(builder);
+string root = builder.AppHostDirectory;
+static string Required(string key) => Environment.GetEnvironmentVariable(key) is { Length: > 0 } value
+    ? value : throw new InvalidOperationException($"Set {key} for this disposable source deployment.");
+var bindings = JsonSerializer.Deserialize<Dictionary<string, string>>(
+    File.ReadAllText(Required("CONVERSATIONS_OPERATOR_BINDINGS"))) ?? throw new InvalidDataException("Missing operator bindings.");
+var mapping = SourceMapping.LoadVerified(
+    builder.Configuration["Platform:SourceMapping:Path"] ?? Required("HEXALITH_SOURCE_MAPPING_PATH"),
+    builder.Configuration["Platform:SourceMapping:Hash"] ?? Required("HEXALITH_SOURCE_MAPPING_HASH"));
+PlatformAppModel.Compose(builder, new PlatformCompositionOptions {
+    ActiveModule = "conversations", PlatformRoot = root, Mapping = mapping, UsePrebuiltProjects = builder.Configuration.GetValue<bool>("Platform:UsePrebuiltProjects"),
+    DeclarationPaths = [Required("Platform__DeclarationPath")], Configuration = bindings,
+});
+var issuer = new Uri(Required("CONVERSATIONS_WORKLOAD_ISSUER"), UriKind.Absolute);
+if (issuer.Scheme != "https" || issuer.UserInfo.Length != 0 || issuer.Query.Length != 0 || issuer.Fragment.Length != 0)
+    throw new InvalidDataException("The Keycloak workload issuer must use HTTPS.");
+string authority = issuer.AbsoluteUri.TrimEnd('/');
+string caBundle = Required("CONVERSATIONS_OIDC_CA_BUNDLE");
+foreach (ProjectResource service in builder.Resources.OfType<ProjectResource>().ToArray()) {
+    var resource = builder.CreateResourceBuilder(service);
+    // Supply the operator-selected, independently running Keycloak workload authority.
+    if (service.Name is "eventstore" or "tenants" or "conversations") {
+        string appId = service.Name == "conversations" ? "conversation" : service.Name;
+        resource.WithEnvironment("Authentication__WorkloadJwtBearer__Authority", authority)
+            .WithEnvironment("Authentication__WorkloadJwtBearer__Issuer", authority)
+            .WithEnvironment("Authentication__WorkloadJwtBearer__Audience", appId)
+            .WithEnvironment("Authentication__WorkloadJwtBearer__AllowedAlgorithms__0", "RS256")
+            .WithEnvironment("Authentication__WorkloadJwtBearer__AllowInsecureSymmetricKey","false")
+            .WithEnvironment("Authentication__WorkloadJwtBearer__SigningKey", "")
+            .WithEnvironment("SSL_CERT_FILE", caBundle);
+    }
+    if (service.Name is "eventstore" or "tenants") {
+        var secretFile = Required(service.Name == "eventstore" ? "CONVERSATIONS_GATEWAY_OIDC_SECRET_FILE" : "CONVERSATIONS_TENANTS_OIDC_SECRET_FILE");
+        var credential = builder.AddParameter(service.Name + "-oidc-secret", () => File.ReadAllText(secretFile).TrimEnd(), secret: true);
+        resource.WithEnvironment("Authentication__WorkloadIssuer__TokenEndpoint", authority + "/protocol/openid-connect/token")
+            .WithEnvironment("Authentication__WorkloadIssuer__Workload", service.Name)
+            .WithEnvironment("Authentication__WorkloadIssuer__ClientId", service.Name)
+            .WithEnvironment("Authentication__WorkloadIssuer__ClientSecret", credential)
+            .WithEnvironment("Authentication__WorkloadIssuer__EnableResourceBindingRequests","true");
+    }
+    if (service.Name == "eventstore")
+        resource.WithEnvironment("Authentication__BoundCommand__AllowedDomains__tenants","global-administrators");
+    if (service.Name == "tenants")
+        resource.WithEnvironment("Tenants__BootstrapBoundWorkloadEnabled","true");
+}
+using var application = acceptedLaunch.Build();
+application.Run();

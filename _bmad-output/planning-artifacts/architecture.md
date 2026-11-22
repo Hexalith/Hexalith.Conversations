@@ -3365,7 +3365,16 @@ Platform and Release qualify the exact root and gitlink they intend to deploy. I
 
 For Story 9.4 the client consumes the forward-only response body once. A valid operation-specific v1 list or detail result returns a value with its wire status, freshness and reason, including `503 Unavailable`. A valid service error with a nonempty `errors` collection returns a failure with its wire status, code, category and correlation. Decode against the requested operation’s required fields. A body matching both shapes, neither shape, or an empty body on a non-success response uses the existing safe status fallback and request correlation. On 503 that fallback is `idempotency_outcome_unknown`. Test both legitimate 503 shapes, the fallback cases, and a typed command error on a forward-only transport. Assert the value or error and HTTP status for each. [SDK decoding and fallback](../../src/Hexalith.Conversations.Client/ConversationClient.cs) · [Client contract cases](../../tests/Hexalith.Conversations.Client.Tests/ConversationClientTest.cs)
 
-The client calls `/api/v1/conversations`. The root service composes the EventStore SDK and explicitly maps the optional deletion runtime. The deployed owner of ordinary create, append, detail and list remains open. For Story 9.3, API and Platform owners identify the deployable artifact, address and authentication, then exercise the installed client, real command bus and projection store. Retrying create and append must yield one conversation ID and one stored message, followed by Current detail and list within the bounded wait. Cross-tenant and mismatched identities receive a hidden result. Story 9.4 must close two gaps. The list route lacks the detail route’s optional-header check, and the client attempts successive decodes of the response stream. Update the deployment diagram when that route is verified. [Sprint proposal](sprint-change-proposal-2026-11-20.md#implementation-handoff-and-open-decisions)
+The Conversations-owned `Hexalith.Conversations.Api` serves the four pilot operations under `/api/v1/conversations`. Platform source composition names it `conversations-api`. The HTTP origin comes from its assigned public endpoint. The diagram shows the local source deployment qualified with candidate Client and Contracts packages `2.1.1-story93.2`, two authenticated tenants and an independent read of the stored timeline. Published images require separate qualification. Story 9.4 owns the client's forward-only response decoding. [Integration guide](../../docs/integration-guide.md#qualify-a-running-pilot-host)
+
+```mermaid
+flowchart LR
+    Client[Installed Conversations.Client] -->|Human bearer| API[conversations-api]
+    API -->|Dapr invocation with bearer| Gateway[EventStore gateway]
+    Gateway -->|Process, query and project| Domain[Internal conversation domain]
+    Tenants[Tenants events] -->|Subscription| Domain
+    Domain -->|Checkpoint and timeline| State[(Read-model store)]
+```
 
 ### Tenant recovery and observable freshness
 

@@ -35,9 +35,11 @@ public sealed class IntegrationGuideWorkflowExampleTest
         IServiceCollection services = new ServiceCollection();
         IHttpClientBuilder builder = services.AddHexalithConversationsClient(options =>
         {
-            options.Endpoint = new Uri("https://docs.hexalith.local/conversations/api/");
+            options.Endpoint = new Uri("https://conversations-api.example/");
         });
 
+        builder.ConfigureHttpClient(http => http.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "sample-access-token"));
         builder.ShouldNotBeNull();
 
         RecordingConversationClient client = new();
@@ -62,7 +64,7 @@ public sealed class IntegrationGuideWorkflowExampleTest
         client.LastCreate.ShouldBe(create);
 
         AppendMessageCommand append = new(
-            context.ToCommandMetadata(),
+            (context with { IdempotencyKey = "append-workflow" }).ToCommandMetadata(),
             created.Value.ConversationId,
             new MessageId("message-workflow"),
             context.ActorPartyId,

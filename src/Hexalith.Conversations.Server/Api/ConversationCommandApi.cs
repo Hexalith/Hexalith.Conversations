@@ -161,7 +161,7 @@ public static class ConversationCommandApi
         return ToHttpResult(outcome);
     }
 
-    private static async Task<T?> ReadBodyAsync<T>(HttpContext context, CancellationToken cancellationToken)
+    internal static async Task<T?> ReadBodyAsync<T>(HttpContext context, CancellationToken cancellationToken)
         where T : class
     {
         try
@@ -251,11 +251,11 @@ public static class ConversationCommandApi
         return true;
     }
 
-    private static IResult ErrorResult(
+    internal static IResult ErrorResult(
         ConversationErrorCode code,
         string correlationId,
         int statusCode,
-        string developerGuidance)
+        string? developerGuidance = null)
         => Results.Json(
             new ConversationErrorResult(
                 [

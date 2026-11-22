@@ -36,6 +36,7 @@
     <PackageReference Include="Hexalith.Tenants.Contracts" />
   </ItemGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Hexalith.Conversations.Api" />
     <InternalsVisibleTo Include="Hexalith.Conversations.Server.Tests" />
     <InternalsVisibleTo Include="Hexalith.Conversations.DeletionConformance.Tests" />
   </ItemGroup>

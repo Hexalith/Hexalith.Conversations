@@ -11,6 +11,13 @@
             "resourceId": "conversations",
             "enabled": true,
             "required": true
+          },
+          {
+            "id": "api",
+            "appId": "conversations-api",
+            "resourceId": "conversations-api",
+            "enabled": true,
+            "required": true
           }
         ],
         "dependencies": [
@@ -219,6 +226,61 @@
                 "key": "EventStore:Authentication:ClientSecret",
                 "source": "secret",
                 "reference": "tenant-access-worker-client-secret"
+              },
+              {
+                "key": "Conversations:Pilot:HumanPartyBindings",
+                "source": "configuration",
+                "reference": "pilot-human-party-bindings"
+              }
+            ]
+          },
+          {
+            "packageId": "Hexalith.Conversations.Api",
+            "configurationInputs": [
+              {
+                "key": "Authentication:JwtBearer:Authority",
+                "source": "configuration",
+                "reference": "authentication-jwtbearer-authority"
+              },
+              {
+                "key": "Authentication:JwtBearer:Issuer",
+                "source": "configuration",
+                "reference": "authentication-jwtbearer-issuer"
+              },
+              {
+                "key": "Authentication:JwtBearer:Audience",
+                "source": "configuration",
+                "reference": "authentication-jwtbearer-audience"
+              },
+              {
+                "key": "Authentication:JwtBearer:ValidAudiences",
+                "source": "configuration",
+                "reference": "authentication-jwtbearer-validaudiences"
+              },
+              {
+                "key": "Authentication:JwtBearer:AllowedAlgorithms",
+                "source": "configuration",
+                "reference": "authentication-jwtbearer-allowedalgorithms"
+              },
+              {
+                "key": "Authentication:JwtBearer:RequireHttpsMetadata",
+                "source": "configuration",
+                "reference": "authentication-jwtbearer-requirehttpsmetadata"
+              },
+              {
+                "key": "Authentication:JwtBearer:AllowInsecureSymmetricKey",
+                "source": "configuration",
+                "reference": "authentication-jwtbearer-allowinsecuresymmetrickey"
+              },
+              {
+                "key": "Authentication:JwtBearer:SigningKey",
+                "source": "secret",
+                "reference": "domain-jwt-signing-key"
+              },
+              {
+                "key": "DAPR_API_TOKEN",
+                "source": "secret",
+                "reference": "api-sidecar-token"
               }
             ]
           }
@@ -226,6 +288,12 @@
         "resources": [
           {
             "server": "domain",
+            "requests": {},
+            "limits": {},
+            "volumes": []
+          },
+          {
+            "server": "api",
             "requests": {},
             "limits": {},
             "volumes": []
@@ -410,6 +478,42 @@
                 ]
               }
             ]
+          },
+          {
+            "name": "conversations-api",
+            "server": "api",
+            "protocol": "http",
+            "routePrefix": "/api/v1/conversations",
+            "exposure": "public",
+            "surfaceClass": "service",
+            "authorization": {
+              "policy": "EventStoreHuman",
+              "permissions": []
+            },
+            "callers": [],
+            "operations": [
+              {
+                "name": "create-conversation",
+                "kind": "command",
+                "authorizationPolicy": "EventStoreHuman"
+              },
+              {
+                "name": "append-message",
+                "kind": "command",
+                "authorizationPolicy": "EventStoreHuman"
+              },
+              {
+                "name": "get-conversation",
+                "kind": "query",
+                "authorizationPolicy": "EventStoreHuman"
+              },
+              {
+                "name": "list-conversations",
+                "kind": "query",
+                "authorizationPolicy": "EventStoreHuman"
+              }
+            ],
+            "invocationRules": []
           }
         ]
       },
@@ -425,7 +529,7 @@
             "subscription": {
               "server": "domain",
               "route": "/tenants/events",
-              "topic": "system.tenants.events"
+              "topic": "tenants.events"
             }
           },
           {
@@ -448,6 +552,10 @@
           {
             "name": "tenant-access-worker-client-secret",
             "configurationKey": "EventStore:Authentication:ClientSecret"
+          },
+          {
+            "name": "api-sidecar-token",
+            "configurationKey": "DAPR_API_TOKEN"
           }
         ],
         "dynamicSecretNamespaces": [],
@@ -503,6 +611,11 @@
             "server": "domain",
             "kind": "http",
             "endpoint": "/ready"
+          },
+          {
+            "server": "api",
+            "kind": "http",
+            "endpoint": "/ready"
           }
         ],
         "tasks": [],
@@ -520,12 +633,22 @@
               "process",
               "query"
             ]
+          },
+          {
+            "name": "conversation-client",
+            "surface": "conversations-api",
+            "operations": [
+              "create-conversation",
+              "append-message",
+              "get-conversation",
+              "list-conversations"
+            ]
           }
         ],
         "smokeSurfaces": [],
         "classification": {
           "changeClass": "additive",
-          "reason": "Prepare declaration for the existing Conversations domain server; qualification and runtime adoption remain pending and both test AppHosts stay frozen."
+          "reason": "Add the bearer-authenticated Conversations pilot API alongside the internal domain service."
         },
         "recoveryInventory": [
           {

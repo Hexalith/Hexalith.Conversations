@@ -31,6 +31,7 @@ builder.AddEventStoreDomainService(
 // (IQueryCursorCodec, Data Protection backed) the /query dispatch path constructs. The SDK assembly scan
 // discovers the adapter type itself; this registers its dependency graph.
 builder.Services.AddConversationTenantAccess(builder.Configuration);
+builder.Services.AddScoped<ConversationPilotWriteAdmission>();
 builder.Services.AddConversationQueries(builder.Configuration);
 
 // EXT-CONV-AI-1 deletion runtime: explicit opt-in only. Absent or false keeps this host's fail-closed Unavailable
@@ -63,6 +64,17 @@ WebApplication app = builder.Build();
 // `system`/`tenants` history through the EventStore gateway under the platform scope `platform:tenants`.
 // Platform must grant that read (`tenants:read`) and retry the tenants subscription without dead-lettering
 // (module/platform-handoff.md).
+app.Use(async (context, next) =>
+{
+    try { await next(context); }
+    catch (ConversationWriteAuthorityUnavailableException) when (!context.Response.HasStarted && !context.RequestAborted.IsCancellationRequested)
+    {
+        context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+        context.Response.ContentLength = 0;
+        context.Response.Headers["X-Hexalith-Command-Admission"] = "before-processing-v1";
+        context.Response.Headers.RetryAfter = "1";
+    }
+});
 app.UseEventStoreDomainService();
 if (deletionRuntimeEnabled)
 {

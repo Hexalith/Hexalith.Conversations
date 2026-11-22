@@ -7,6 +7,7 @@ using Hexalith.Conversations;
 using Hexalith.Conversations.Contracts.Routing;
 using Hexalith.Conversations.EventStoreExtensions;
 using Hexalith.Conversations.Server;
+using Hexalith.Conversations.Server.Agents;
 using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.TenantAccess;
@@ -56,6 +57,7 @@ public sealed class ConversationsDomainServiceHostCompositionTest
             typeof(ServerAssemblyMarker).Assembly);
         ConfigureEnrollment(builder);
         builder.Services.AddConversationTenantAccess(builder.Configuration);
+        builder.Services.AddScoped<ConversationPilotWriteAdmission>();
         builder.Services.AddConversationQueries(builder.Configuration);
 
         builder.Services.AddSingleton(new LegacyProjectionCatalogRegistration(
@@ -178,10 +180,12 @@ public sealed class ConversationsDomainServiceHostCompositionTest
         [
             "builder.AddEventStoreDomainService(",
             "builder.Services.AddConversationTenantAccess(builder.Configuration);",
+            "builder.Services.AddScoped<ConversationPilotWriteAdmission>();",
             "builder.Services.AddConversationQueries(builder.Configuration);",
             "builder.Services.AddConversationDeletionRuntimeHost(builder.Configuration);",
             "builder.Services.AddSingleton(new LegacyProjectionCatalogRegistration(",
             "builder.Services.AddEventStoreDevelopmentDomainCatalog(builder.Configuration,",
+            "app.Use(async (context, next) =>",
             "app.UseEventStoreDomainService();",
             "app.MapConversationDeletionRuntimeHost();",
             "app.Run();",
@@ -376,6 +380,7 @@ public sealed class ConversationsDomainServiceHostCompositionTest
 
         ConfigureEnrollment(builder);
         builder.Services.AddConversationTenantAccess(builder.Configuration);
+        builder.Services.AddScoped<ConversationPilotWriteAdmission>();
         builder.Services.AddConversationQueries(builder.Configuration);
 
         builder.Services

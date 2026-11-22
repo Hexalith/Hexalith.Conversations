@@ -6,4 +6,7 @@ internal sealed record GetConversationPayload(string? ConversationId = null)
 {
     /// <summary>Gets whether the existing detail read is restricted to native membership evidence.</summary>
     public bool NativeMembershipOnly { get; init; }
+
+    /// <summary>Gets whether only owner-classified advisory metadata may be returned.</summary>
+    public bool AdvisoryMetadataOnly { get; init; }
 }

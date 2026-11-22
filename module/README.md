@@ -167,7 +167,7 @@ remain SDK-owned.
 
 The Tenants feed is declarative at `/tenants/events`, with logical
 `tenants-events` and `tenants-dead-letter` topics. Its physical feed topic is
-`system.tenants.events`, following Platform's enrolled Parties pattern;
+`tenants.events`, the topic used by the Tenants publisher.
 Platform must inject the matching `Tenants:PubSubName` and `Tenants:TopicName`.
 The enrolled `AddConversationTenantAccess(builder.Configuration)` path passes the
 SDK's `configureOptions` delegate and binds both options from those required

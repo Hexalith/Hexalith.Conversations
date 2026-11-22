@@ -29,22 +29,25 @@ namespace Hexalith.Conversations.Server.Tests.Routing;
 /// <summary>Verifies the internal catalog against actual owner receivers and serialized semantics.</summary>
 public sealed class ConversationsCatalogTest
 {
-    /// <summary>Verifies complete compiled schemas use actual wrappers and only internal workload operations.</summary>
+    /// <summary>Verifies complete compiled schemas use actual wrappers and the four human pilot operations.</summary>
     [Fact]
-    public void CompleteCompiledSchemasUseActualWrappersAndOnlyInternalWorkloadOperations()
+    public void CompleteCompiledSchemasUseActualWrappersAndExposeOnlyFourHumanOperations()
     {
-        ConversationsCatalogAdapters.Create().Count.ShouldBe(13);
+        ConversationsCatalogAdapters.Create().Count.ShouldBe(15);
         var owners = new[] { typeof(ConversationsCatalogDeclarations).Assembly };
         var routes = CompiledRouteCatalogDeclarations.Read(owners);
         var operations = CompiledRouteCatalogDeclarations.ReadOperations(owners);
-        routes.Count.ShouldBe(22);
-        routes.Count(route => route.Kind == "command").ShouldBe(13);
+        routes.Count.ShouldBe(24);
+        routes.Count(route => route.Kind == "command").ShouldBe(15);
         routes.Count(route => route.Kind == "query").ShouldBe(7);
         routes.Count(route => route.Kind == "projection").ShouldBe(2);
         routes.All(route => route.CredentialKind == "workload" && route.PlatformAdmission is null).ShouldBeTrue();
         routes.Where(route => route.Kind == "command").All(route => route.Domain == "conversation"
             && route.Operation == EventStoreOperationIdentifiers.DomainServiceProcess).ShouldBeTrue();
-        operations.All(operation => operation.Ingress == "internal"
+        operations.Where(operation => operation.Ingress == "public").Select(operation => operation.RouteId).Order()
+            .ShouldBe(["conversation-append-message", "conversation-create-human-conversation",
+                "conversation-query-conversation-detail", "conversation-query-conversation-list"]);
+        operations.All(operation => operation.Eligibility == "UI-only"
             && operation.Digest == RouteCatalogCodec.ComputeOperationContractDigest(operation)).ShouldBeTrue();
         foreach (var route in routes.Where(route => route.Execution!.HandlerType.StartsWith("Hexalith.Conversations.Commands.", StringComparison.Ordinal)))
         {
@@ -61,7 +64,7 @@ public sealed class ConversationsCatalogTest
         listProperties.EnumerateObject().Select(property => property.Name).Order().ShouldBe(["filter", "page"]);
         JsonElement detailSchema = operations.Single(operation => operation.MessageType == "conversation-detail").RequestSchema;
         detailSchema.GetProperty("properties").EnumerateObject().Select(property => property.Name)
-            .ShouldBe(["conversationId", "nativeMembershipOnly"]);
+            .ShouldBe(["conversationId", "nativeMembershipOnly", "advisoryMetadataOnly"]);
         detailSchema.GetProperty("properties").GetProperty("nativeMembershipOnly").GetProperty("type").GetString().ShouldBe("boolean");
         if (detailSchema.TryGetProperty("required", out var required))
             required.EnumerateArray().Select(property => property.GetString()).ShouldNotContain("nativeMembershipOnly");
@@ -119,7 +122,7 @@ public sealed class ConversationsCatalogTest
         services.GetServices<IAsyncDomainProjectionHandler>().Select(handler => (handler.Domain, handler.ProjectionType)).ShouldBe([("conversation", "conversation-read-model")]);
         Endpoint[] endpoints = ((IEndpointRouteBuilder)app).DataSources.SelectMany(source => source.Endpoints).ToArray();
         var targets = DevelopmentDomainRouteCatalog.Targets(services, endpoints, routes);
-        targets.Count.ShouldBe(22);
+        targets.Count.ShouldBe(24);
         foreach (var target in targets)
         {
             target.AppId.ShouldBe("conversation");

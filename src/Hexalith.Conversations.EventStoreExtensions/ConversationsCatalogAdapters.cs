@@ -13,12 +13,17 @@ namespace Hexalith.Conversations.EventStoreExtensions;
 /// <summary>Exact internal command adapters; owner admission and current business checks remain authoritative.</summary>
 public static class ConversationsCatalogAdapters
 {
-    /// <summary>Creates all thirteen typed semantic adapters without enabling runtime admission.</summary>
+    /// <summary>Creates the typed semantic adapters without enabling runtime admission.</summary>
     /// <returns>The exact aggregate receiver adapter inventory.</returns>
     public static IReadOnlyList<IDeclaredIdempotencyIntentAdapter> Create() => [
         Adapter<CreateConversation>(command => Ordinary(command.PublicCommand,
             // Creation allocation, boundary timestamps and event identities are generated fields.
             new ConversationId("catalog-create-allocation"))),
+        Adapter<CreateHumanConversation>(command => Ordinary(command.PublicCommand, new ConversationId("catalog-create-allocation"))),
+        Adapter<AppendMessage>(command => new { Metadata = SemanticMetadata(command.PublicCommand.Metadata),
+            command.PublicCommand.ConversationId, command.PublicCommand.OperationTimestamp,
+            Fingerprint = ConversationAgentPostFingerprint.Create(command.PublicCommand,
+                command.PublicCommand.OperationTimestamp ?? DateTimeOffset.UnixEpoch) }),
         Adapter<AddParticipant>(command => Ordinary(command.PublicCommand, command.PublicCommand.ConversationId)),
         Adapter<ReassignConversationProject>(command => Ordinary(command.PublicCommand, command.PublicCommand.ConversationId)),
         Adapter<SetConversationRetentionPolicy>(command => new { Fingerprint = Ordinary(command.PublicCommand, command.PublicCommand.ConversationId), command.AuditEvidence }),
@@ -52,7 +57,8 @@ public static class ConversationsCatalogAdapters
         ArgumentNullException.ThrowIfNull(payload);
         object request = payload switch
         {
-            CreateConversation command => Require(command.PublicCommand), AddParticipant command => Require(command.PublicCommand),
+            CreateHumanConversation command => Require(command.PublicCommand),
+            CreateConversation command => Require(command.PublicCommand), AppendMessage command => Require(command.PublicCommand), AddParticipant command => Require(command.PublicCommand),
             ReassignConversationProject command => Require(command.PublicCommand), SetConversationRetentionPolicy command => Require(command.PublicCommand),
             MarkConversationContentSensitive command => Require(command.PublicCommand), RedactMessageContent command => Require(command.PublicCommand),
             AddAgentParticipant command => Require(command.PublicCommand), RemoveAgentParticipant command => Require(command.PublicCommand),

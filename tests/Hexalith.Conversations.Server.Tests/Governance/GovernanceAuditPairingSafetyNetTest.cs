@@ -155,7 +155,8 @@ public sealed class GovernanceAuditPairingSafetyNetTest
 
         nonGovernanceAggregateCommands.ShouldBe(new[]
         {
-            typeof(CreateConversation),
+            typeof(CreateConversation), typeof(CreateHumanConversation),
+            typeof(AppendMessage),
             typeof(AddParticipant),
             typeof(ReassignConversationProject),
             typeof(AddAgentParticipant), typeof(RemoveAgentParticipant), typeof(AppendAgentMessage),

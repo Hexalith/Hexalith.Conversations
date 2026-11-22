@@ -75,6 +75,7 @@ public sealed class GetConversationDomainQueryHandler(ConversationQueryHandler q
             query.CorrelationId,
             new ConversationId(conversationId))
         {
+            AdvisoryMetadataOnly = payload?.AdvisoryMetadataOnly == true,
             NativeMembershipOnly = query.CallerAuthority?.Origin == "delegated-owner-query" || payload?.NativeMembershipOnly == true,
         };
 
