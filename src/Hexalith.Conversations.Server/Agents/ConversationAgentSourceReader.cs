@@ -67,17 +67,24 @@ public sealed class ConversationAgentSourceReader(IAuthoritativeEventStreamReade
     /// <returns>The valid complete state or null.</returns>
     public static (AuthoritativeEventStream Source, ConversationState State)? ReplaySource(AuthoritativeEventStream? sourceInput,
         AggregateIdentity identity, CancellationToken cancellationToken)
+        => ReplaySource(sourceInput, identity, cancellationToken, out _);
+
+    /// <summary>Verifies a complete source and returns the event identities from its replay.</summary>
+    internal static (AuthoritativeEventStream Source, ConversationState State)? ReplaySource(
+        AuthoritativeEventStream? sourceInput, AggregateIdentity identity,
+        CancellationToken cancellationToken, out IReadOnlySet<string> eventIdentities)
     {
         ArgumentNullException.ThrowIfNull(identity);
         cancellationToken.ThrowIfCancellationRequested();
-        var result = ReplaySourceCore(sourceInput, identity, cancellationToken);
+        var result = ReplaySourceCore(sourceInput, identity, cancellationToken, out eventIdentities);
         cancellationToken.ThrowIfCancellationRequested();
         return result;
     }
 
     private static (AuthoritativeEventStream Source, ConversationState State)? ReplaySourceCore(AuthoritativeEventStream? sourceInput,
-        AggregateIdentity identity, CancellationToken cancellationToken)
+        AggregateIdentity identity, CancellationToken cancellationToken, out IReadOnlySet<string> eventIdentities)
     {
+        eventIdentities = System.Collections.Immutable.ImmutableHashSet<string>.Empty;
         var tenant = new TenantId(identity.TenantId);
         var conversation = new ConversationId(identity.AggregateId);
         if (sourceInput is not { } source || source.Identity != identity || identity.Domain != "conversation"
@@ -113,7 +120,7 @@ public sealed class ConversationAgentSourceReader(IAuthoritativeEventStreamReade
                 records.Add(new(item.SequenceNumber, value));
             }
             cancellationToken.ThrowIfCancellationRequested();
-            ConversationReplayResult replay = ConversationReplayVerifier.Replay(tenant, conversation, CancellationChecked(records, cancellationToken));
+            ConversationReplayResult replay = ConversationReplayVerifier.Replay(tenant, conversation, CancellationChecked(records, cancellationToken), out eventIdentities);
             cancellationToken.ThrowIfCancellationRequested();
             return replay.State is { HasCompleteEventPrefix: true } state && state.SourceRevision == source.Head
                 ? (source, state) : null;

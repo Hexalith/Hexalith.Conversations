@@ -7,9 +7,11 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 
+using Hexalith.Conversations.Contracts.Agents;
 using Hexalith.Conversations.Contracts.Commands;
 using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Results;
 using Hexalith.Conversations.Contracts.TrustStates;
 using Hexalith.Conversations.Contracts.Versioning;
@@ -51,6 +53,40 @@ public sealed class ConversationCommandApiTest
         create.Metadata.GetMetadata<HttpMethodMetadata>()!.HttpMethods.ShouldBe([HttpMethods.Post], ignoreOrder: false);
         append.Metadata.GetMetadata<HttpMethodMetadata>()!.HttpMethods.ShouldBe([HttpMethods.Post], ignoreOrder: false);
         project.Metadata.GetMetadata<HttpMethodMetadata>()!.HttpMethods.ShouldBe([HttpMethods.Post], ignoreOrder: false);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task ParticipantPostRequiresMatchingRouteAndCommandScope(bool matchingScope)
+    {
+        const string route = "/api/v1/conversations/{conversationId}/participants";
+        var handler = new FakeCommandHandler();
+        await using WebApplication app = BuildApp(handler);
+        var endpoint = FindEndpoint(app, route);
+        endpoint.Metadata.GetMetadata<HttpMethodMetadata>()!.HttpMethods.ShouldBe([HttpMethods.Post]);
+        endpoint.Metadata.GetMetadata<IAuthorizeData>().ShouldNotBeNull();
+        var command = new AddParticipantCommand(Metadata("participant-intent", Tenant), Conversation,
+            new PartyId("agent-party"), ParticipantType.AiAgent, ParticipantRole.Member);
+
+        ApiResponse response = await InvokeAsync(app, route, command,
+            routeValues: new Dictionary<string, object?>
+            {
+                ["conversationId"] = matchingScope ? Conversation.Value : "conversation-other",
+            },
+            user: AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(matchingScope ? StatusCodes.Status202Accepted : StatusCodes.Status400BadRequest);
+        handler.LastAddParticipantCommand.ShouldBe(matchingScope ? command : null);
+        if (matchingScope)
+        {
+            JsonSerializer.Deserialize<ConversationAgentCommandResult>(response.Body, JsonOptions)!.Outcome
+                .ShouldBe(ConversationAgentsOutcome.Available);
+        }
+        else
+        {
+            response.Body.ShouldContain("command_validation_failed");
+        }
     }
 
     [Fact]
@@ -487,6 +523,16 @@ public sealed class ConversationCommandApiTest
         public CreateConversationCommand? LastCreateCommand { get; private set; }
 
         public ReassignConversationProjectCommand? LastProjectCommand { get; private set; }
+
+        public AddParticipantCommand? LastAddParticipantCommand { get; private set; }
+
+        public ValueTask<ConversationCommandApiOutcome<ConversationAgentCommandResult>> AddParticipantAsync(
+            AddParticipantCommand command, CancellationToken cancellationToken = default)
+        {
+            LastAddParticipantCommand = command;
+            return ValueTask.FromResult(ConversationCommandApiOutcome<ConversationAgentCommandResult>.Success(
+                new(ConversationAgentsOutcome.Available), StatusCodes.Status202Accepted));
+        }
 
         public ConversationCommandApiOutcome<ConversationCreatedResult>? CreateOutcome { get; init; }
 

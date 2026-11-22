@@ -112,6 +112,44 @@ public sealed class ConversationReplaySafeguardTests
         read.Messages.ShouldBeNull();
     }
 
+    [Fact]
+    public async Task RetainedPostingClaimDoesNotReplaceAnAuthenticatedEdit()
+    {
+        var fixture = new F();
+        fixture.Persist(ConversationAggregate.Handle(fixture.Membership, await fixture.ReplayAsync()));
+        var original = fixture.Posting;
+        var request = original.PublicCommand;
+        var legacy = original with
+        {
+            PublicCommand = request with
+            {
+                AgentProvenance = request.AgentProvenance! with { HumanEdited = true, EditedByPartyId = F.Human },
+            },
+        };
+        fixture.Persist(ConversationAggregate.Handle(legacy, await fixture.ReplayAsync()));
+        var readQuery = new ConversationAgentReadQuery(F.Tenant, F.Conversation, request.MessageId);
+        var token = TestContext.Current.CancellationToken;
+
+        var before = (await fixture.Queries.ReadAsync("agents-service", readQuery, token)).Messages!.Single();
+        before.Provenance!.HumanEdited.ShouldBeFalse();
+        before.Provenance.EditedByPartyId.ShouldBeNull();
+        before.EditedAt.ShouldBeNull();
+
+        var edit = new EditConversationMessageCommand(fixture.CommandMetadata(F.Human, "confirmed-edit"), F.Conversation,
+            request.MessageId, request.Text, F.At.AddMinutes(3));
+        var admission = await fixture.Admission.EvaluateAsync(new(new(fixture.Envelope(edit, "human"), await fixture.CurrentStateAsync())), token);
+        admission.IsRejected.ShouldBeFalse();
+        var editResult = ConversationAggregate.Handle(edit, await fixture.ReplayAsync());
+        editResult.Events.Single().ShouldBeOfType<MessageEditedDomainEvent>();
+        fixture.Persist(editResult);
+
+        var after = (await fixture.Queries.ReadAsync("agents-service", readQuery, token)).Messages!.Single();
+        after.Provenance!.HumanEdited.ShouldBeTrue();
+        after.Provenance.EditedByPartyId.ShouldBe(F.Human);
+        after.EditedAt.ShouldBe(edit.OperationTimestamp);
+        ConversationAggregate.Handle(legacy, await fixture.ReplayAsync()).IsNoOp.ShouldBeTrue();
+    }
+
     /// <summary>Retains valid human edits and their provenance without changing the original posting intent.</summary>
     [Fact]
     public async Task ValidRetainedEditPreservesOriginalIntentAndCurrentProvenance()

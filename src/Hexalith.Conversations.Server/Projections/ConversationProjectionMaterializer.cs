@@ -686,7 +686,7 @@ public sealed class ConversationProjectionMaterializer
     {
         private readonly Dictionary<string, string> _attributes = new(StringComparer.Ordinal);
         private readonly Dictionary<FileId, ConversationFileReferenceProjectionV1> _fileReferences = [];
-        private readonly Dictionary<MessageId, (long Position, ConversationTimelineMessageProjectionV1 Message)> _messages = [];
+        private readonly Dictionary<MessageId, (long AppendPosition, long ContentPosition, ConversationTimelineMessageProjectionV1 Message)> _messages = [];
         private readonly Dictionary<PartyId, ConversationParticipantProjectionV1> _participants = [];
         private readonly Dictionary<FileId, long> _filePositions = [];
         private readonly Dictionary<PartyId, long> _participantPositions = [];
@@ -788,7 +788,7 @@ public sealed class ConversationProjectionMaterializer
             => _messages
                 .Values
                 .OrderBy(entry => entry.Message.CreatedAt)
-                .ThenBy(entry => entry.Position)
+                .ThenBy(entry => entry.AppendPosition)
                 .Select(entry => entry.Message)
                 .ToArray();
 
@@ -985,7 +985,8 @@ public sealed class ConversationProjectionMaterializer
                     }
                     var existingRedaction = _redactions.Values.FirstOrDefault(r => r.Target.Kind == GovernedTargetKind.Conversation
                         || r.Target.Kind == GovernedTargetKind.ContentSegment || r.Target.MessageId == edited.MessageId);
-                    _messages[edited.MessageId] = (original.Position, new ConversationTimelineMessageProjectionV1(
+                    long contentPosition = existingRedaction is null ? record.Position : original.ContentPosition;
+                    _messages[edited.MessageId] = (original.AppendPosition, contentPosition, new ConversationTimelineMessageProjectionV1(
                         original.Message.MessageId, original.Message.AuthorPartyId, existingRedaction?.Placeholder ?? edited.Text,
                         original.Message.CreatedAt, original.Message.ProviderCorrelation));
                     break;
@@ -1124,8 +1125,8 @@ public sealed class ConversationProjectionMaterializer
             => _filePositions.TryGetValue(fileId, out long position) ? position : null;
 
         public long? SourcePositionForMessage(MessageId messageId)
-            => _messages.TryGetValue(messageId, out (long Position, ConversationTimelineMessageProjectionV1 Message) entry)
-                ? entry.Position
+            => _messages.TryGetValue(messageId, out var entry)
+                ? entry.ContentPosition
                 : null;
 
         public long? SourcePositionForParticipant(PartyId partyId)
@@ -1166,7 +1167,7 @@ public sealed class ConversationProjectionMaterializer
                 ? redaction.Placeholder
                 : e.Text;
 
-            _messages[e.MessageId] = (position, new ConversationTimelineMessageProjectionV1(
+            _messages[e.MessageId] = (position, position, new ConversationTimelineMessageProjectionV1(
                 e.MessageId,
                 e.AuthorPartyId,
                 text,
@@ -1284,10 +1285,11 @@ public sealed class ConversationProjectionMaterializer
 
             if (e.Target.Kind == GovernedTargetKind.Message
                 && e.Target.MessageId is not null
-                && _messages.TryGetValue(e.Target.MessageId, out (long Position, ConversationTimelineMessageProjectionV1 Message) existing))
+                && _messages.TryGetValue(e.Target.MessageId, out var existing))
             {
                 _messages[e.Target.MessageId] = (
-                    existing.Position,
+                    existing.AppendPosition,
+                    existing.ContentPosition,
                     new ConversationTimelineMessageProjectionV1(
                         existing.Message.MessageId,
                         existing.Message.AuthorPartyId,

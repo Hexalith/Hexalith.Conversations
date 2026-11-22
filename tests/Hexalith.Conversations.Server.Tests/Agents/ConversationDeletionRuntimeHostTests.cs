@@ -444,9 +444,10 @@ public sealed class ConversationDeletionRuntimeHostTests
         AddParticipantCommand command = new F().Membership.PublicCommand;
         string body = JsonSerializer.Serialize(command, new JsonSerializerOptions(JsonSerializerDefaults.Web));
 
-        async Task<HttpResponseMessage> PostAsync(string token)
+        async Task<HttpResponseMessage> PostAsync(string token, string? routeConversation = null)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Post, $"/api/v1/conversations/{command.ConversationId.Value}/participants")
+            string path = $"/api/v1/conversations/{routeConversation ?? command.ConversationId.Value}/participants";
+            using var request = new HttpRequestMessage(HttpMethod.Post, path)
             {
                 Content = new StringContent(body, Encoding.UTF8, "application/json"),
             };
@@ -454,8 +455,12 @@ public sealed class ConversationDeletionRuntimeHostTests
             return await client.SendAsync(request, TestContext.Current.CancellationToken);
         }
 
-        using HttpResponseMessage denied = await PostAsync(S.CallerToken("agents-service",
-            claims: new Dictionary<string, object> { ["tid"] = F.Tenant.Value }));
+        string token = S.CallerToken("agents-service", claims: new Dictionary<string, object> { ["tid"] = F.Tenant.Value });
+        using HttpResponseMessage mismatch = await PostAsync(token, "other-conversation");
+        mismatch.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        authority.Calls.ShouldBeEmpty();
+
+        using HttpResponseMessage denied = await PostAsync(token);
         denied.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         authority.Calls.ShouldHaveSingleItem().Principal.ShouldBe("agents-service");
 

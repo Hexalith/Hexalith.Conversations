@@ -307,6 +307,62 @@ public sealed class ConversationAdmissionSafeguardTests
         fixture.PersistedEvents.Count.ShouldBe(2);
     }
 
+    [Theory]
+    [InlineData("bound", null)]
+    [InlineData("unbound", "agents-Conflict")]
+    [InlineData("used", "agents-Conflict")]
+    [InlineData("claimed-editor", "agents-Denied")]
+    [InlineData("legacy-retry", null)]
+    public async Task PostingAdmissionBindsNewEventIdentityAndHumanAttribution(string scenario, string? rejection)
+    {
+        var fixture = new F();
+        fixture.Persist(ConversationAggregate.Handle(fixture.Membership, await fixture.ReplayAsync()));
+        var legacy = fixture.Posting;
+        var request = legacy.PublicCommand;
+        string eventId = AgentCommandIntentId.Create(request.Metadata, request.ConversationId, "posting");
+        var command = legacy with { EventId = eventId };
+        switch (scenario)
+        {
+            case "unbound":
+                command = legacy;
+                break;
+            case "used":
+                var created = (ConversationCreatedDomainEvent)fixture.PersistedEvents[0];
+                fixture.PersistedEvents[0] = new ConversationCreatedDomainEvent(created.Metadata with { EventId = eventId },
+                    null, null, null, null);
+                break;
+            case "claimed-editor":
+                command = command with { PublicCommand = request with
+                {
+                    AgentProvenance = request.AgentProvenance! with { HumanEdited = true, EditedByPartyId = F.Human }
+                } };
+                break;
+            case "legacy-retry":
+                fixture.Persist(ConversationAggregate.Handle(legacy, await fixture.ReplayAsync()));
+                command = legacy;
+                break;
+        }
+
+        var state = await fixture.CurrentStateAsync();
+        var result = await fixture.Admission.EvaluateAsync(new(new(fixture.Envelope(command), state)),
+            TestContext.Current.CancellationToken);
+
+        result.IsRejected.ShouldBe(rejection is not null);
+        if (rejection is not null)
+        {
+            result.RejectionEvents.Single().ShouldBeOfType<ConversationRejectedDomainEvent>().ReasonCode.ShouldBe(rejection);
+        }
+        else
+        {
+            var processed = ConversationAggregate.Handle(command, await fixture.ReplayAsync());
+            processed.IsNoOp.ShouldBe(scenario == "legacy-retry");
+            if (scenario == "bound")
+            {
+                processed.Events.Single().ShouldBeOfType<MessageAppendedDomainEvent>().Metadata.EventId.ShouldBe(eventId);
+            }
+        }
+    }
+
     /// <summary>Posting timestamps remain required and bound when a message is already persisted.</summary>
     /// <param name="mutation">The missing or contradictory occurrence evidence.</param>
     [Theory]

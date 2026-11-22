@@ -43,13 +43,44 @@ public sealed class ConversationAgentClientTests
         first.MessageId.ShouldBe(Message);
         first.Persisted.ShouldBeFalse();
         retry.ShouldBe(first);
-        fixture.Requests[0].GetProperty("messageId").GetString().ShouldBe(fixture.Requests[1].GetProperty("messageId").GetString());
+        const string commandId = "4886F886E8B4A9019E3D94D9E0FAD7C475904CA34B9C80FD973EAC1424CEAC11";
+        const string eventId = "07136220BB0D08B9C6341FD30B8D89585217234C9486C9C918E38BFB13DCC83F";
+        foreach (JsonElement submitted in fixture.Requests)
+        {
+            submitted.GetProperty("messageId").GetString().ShouldBe(commandId);
+            submitted.GetProperty("payload").GetProperty("eventId").GetString().ShouldBe(eventId);
+        }
         var payload = fixture.Requests[0].GetProperty("payload").GetProperty("publicCommand");
         payload.Deserialize<AppendMessageCommand>(Options)!.MessageId.ShouldBe(Message);
         payload.GetProperty("operationTimestamp").GetDateTimeOffset().ShouldBe(At);
         fixture.Enqueue(new SubmitCommandResponse("correlation", JsonSerializer.SerializeToElement(
             new ConversationAgentCommandResult(ConversationAgentsOutcome.Available, MessageId: new MessageId("changed")), Options), "gateway-command-id"));
         (await client.PostAgentMessageAsync(command, TestContext.Current.CancellationToken)).Outcome.ShouldBe(ConversationAgentsOutcome.Conflict);
+    }
+
+    [Theory]
+    [InlineData(ConversationAgentsOutcome.Available, "receiver-v1", 1, null, true)]
+    [InlineData(ConversationAgentsOutcome.Available, "receiver-v2", 1, null, false)]
+    [InlineData(ConversationAgentsOutcome.Available, null, 1, null, false)]
+    [InlineData(ConversationAgentsOutcome.Quarantined, "receiver-v2", 2, "changed-acknowledgement", true)]
+    [InlineData(ConversationAgentsOutcome.Quarantined, "receiver-v2", 1, "changed-acknowledgement", false)]
+    [InlineData(ConversationAgentsOutcome.Quarantined, "receiver-v2", 2, null, false)]
+    public async Task DeletionAcknowledgementMustMatchConfirmedDeliveryTarget(
+        ConversationAgentsOutcome outcome, string? targetVersion, long deliveryRevision, string? poisonCode, bool allowed)
+    {
+        using var fixture = new ConversationAgentHttpFixture();
+        using var http = new HttpClient(fixture) { BaseAddress = new("https://local.invalid/") };
+        var client = new ConversationClient(http);
+        var signal = new ConversationDeletionSignal("signal-one", Tenant, Conversation,
+            $"{Tenant.Value}:conversation:{Conversation.Value}", 4, "approval");
+        var acknowledgement = new ConversationDeletionAcknowledgement("signal-one", 4, 2, "receiver-v1", "receipt");
+        var source = new ConversationDeletionSourceResult(outcome, signal, DeliveryRevision: deliveryRevision,
+            AcknowledgedSourceRevision: 4, Acknowledgement: acknowledgement, TargetVersion: targetVersion, PoisonCode: poisonCode);
+        fixture.Enqueue(new SubmitQueryResponse("correlation", JsonSerializer.SerializeToElement(source, Options)));
+
+        var read = await client.GetConversationDeletionSourceAsync(new(Tenant, Conversation), TestContext.Current.CancellationToken);
+
+        read.ShouldBe(allowed ? source : new ConversationDeletionSourceResult(ConversationAgentsOutcome.Unavailable));
     }
 
     /// <summary>Verifies current read rejects foreign scope unknown outcome missing checkpoint and wrong message.</summary>

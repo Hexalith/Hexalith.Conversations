@@ -608,12 +608,19 @@ public sealed partial class ConversationState
             throw new InvalidOperationException("Duplicate message identity in replayed event history.");
         }
 
+        // A posting can carry the Agent trace. Only a subsequent edit records a human editor.
+        var provenance = e.AgentProvenance;
+        if (provenance is { HumanEdited: true } or { EditedByPartyId: not null })
+        {
+            provenance = provenance with { HumanEdited = false, EditedByPartyId = null };
+        }
+
         _messages = _messages.Add(new ConversationMessage(
             e.MessageId,
             e.AuthorPartyId,
             e.Text,
             e.Metadata.CommittedAt,
-            e.ProviderCorrelation, e.AgentProvenance, e.IdempotencyKey,
+            e.ProviderCorrelation, provenance, e.IdempotencyKey,
             OriginalText: e.Text, OriginalProvenance: e.AgentProvenance));
         LastEventAt = e.Metadata.CommittedAt;
     }

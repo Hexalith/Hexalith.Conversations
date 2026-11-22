@@ -83,6 +83,52 @@ public sealed class ConversationProjectionMaterializerTest
     }
 
     [Fact]
+    public void EditedEvidenceCitesLatestEditWithoutReorderingTimelineMessages()
+    {
+        MessageId second = new("message-002");
+        var original = MessageAppended("event-first", 2);
+        var tied = original with { MessageId = second, Metadata = original.Metadata with { EventId = "event-second" } };
+        ConversationProjectedReadModels result = Materializer().Project(Tenant, Conversation,
+            [
+                Event(1, Created("event-create", 1)),
+                Event(2, original),
+                Event(3, tied),
+                Event(4, new MessageEdited(Metadata("event-edit", ConversationEventType.MessageEdited, 4), Message, "Edited", Actor)),
+                Event(5, new MessageEdited(Metadata("event-latest", ConversationEventType.MessageEdited, 5), Message, "Latest", Actor)),
+            ],
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        result.Detail.Messages.Select(message => message.MessageId).ShouldBe([Message, second]);
+        var evidence = result.Detail.EvidenceEntries.Single(entry => entry.MessageId == Message);
+        evidence.VisibleText.ShouldBe("Latest");
+        evidence.SafeSourcePosition.ShouldBe(5);
+        evidence.OccurredAt.ShouldBe(original.Metadata.OccurredAt);
+        result.Detail.EvidenceEntries.Single(entry => entry.MessageId == second).SafeSourcePosition.ShouldBe(3);
+    }
+
+    [Fact]
+    public void RedactedMessageEvidenceDoesNotCiteAnEditWhoseContentIsWithheld()
+    {
+        var target = new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message);
+        var result = Materializer().Project(Tenant, Conversation,
+            [
+                Event(1, Created("event-create", 1)),
+                Event(2, MessageAppended("event-message", 2)),
+                Event(3, Redacted("event-redaction", 3, target)),
+                Event(4, new MessageEdited(Metadata("event-edit", ConversationEventType.MessageEdited, 4), Message, "Withheld edit", Actor)),
+            ],
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        var evidence = result.Detail.EvidenceEntries.Single(entry => entry.Kind == "Message");
+        evidence.VisibleText.ShouldBe(result.Detail.Messages.Single().Text);
+        evidence.VisibleText.ShouldNotBe("Withheld edit");
+        evidence.SafeSourcePosition.ShouldBe(2);
+        result.Detail.EvidenceEntries.Single(entry => entry.Kind == "Redaction").SafeSourcePosition.ShouldBe(3);
+    }
+
+    [Fact]
     public void ProjectChangedEventsShouldReplaceAndClearProjectedProjectId()
     {
         ProjectId reassigned = new("project-002");

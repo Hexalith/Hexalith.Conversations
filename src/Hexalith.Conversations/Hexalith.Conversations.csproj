@@ -14,6 +14,7 @@
     <PackageReference Include="Hexalith.EventStore.Contracts" />
   </ItemGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Hexalith.Conversations.Server" />
     <InternalsVisibleTo Include="Hexalith.Conversations.Tests" />
   </ItemGroup>
 </Project>

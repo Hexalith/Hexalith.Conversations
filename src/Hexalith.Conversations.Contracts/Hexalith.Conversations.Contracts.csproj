@@ -21,6 +21,7 @@
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Hexalith.Conversations.Contracts.Tests" />
+    <InternalsVisibleTo Include="Hexalith.Conversations.Client" />
     <InternalsVisibleTo Include="Hexalith.Conversations.Server" />
     <InternalsVisibleTo Include="Hexalith.Conversations.EventStoreExtensions" />
     <InternalsVisibleTo Include="Hexalith.Conversations.Server.Tests" />

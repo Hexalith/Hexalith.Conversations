@@ -28,6 +28,14 @@ public static class ConversationReplayVerifier
         TenantId tenantId,
         ConversationId conversationId,
         IEnumerable<ConversationReplayEventRecord> events)
+        => Replay(tenantId, conversationId, events, out _);
+
+    /// <summary>Replays the source and reports the event identities checked for uniqueness.</summary>
+    internal static ConversationReplayResult Replay(
+        TenantId tenantId,
+        ConversationId conversationId,
+        IEnumerable<ConversationReplayEventRecord> events,
+        out IReadOnlySet<string> eventIdentities)
     {
         ArgumentNullException.ThrowIfNull(tenantId);
         ArgumentNullException.ThrowIfNull(conversationId);
@@ -35,6 +43,7 @@ public static class ConversationReplayVerifier
 
         ConversationState state = new();
         HashSet<string> eventIds = new(StringComparer.Ordinal);
+        eventIdentities = eventIds;
         long expectedPosition = 1;
 
         foreach (ConversationReplayEventRecord record in events)

@@ -1353,3 +1353,31 @@ These resolutions cover five findings from the Story 12.2 build verification rev
 - source_spec: `spec-five-deferred-bounded-detail-fixes.md`
   summary: BH-07/VG-01–04. Runtime tests cover bounded response fields and caller admission.
   evidence: Native and advisory assertions cover purpose, project, label, and omitted rich fields. The authenticated SDK receiver verifies Projects scope, and the HTTP tests verify matching and conflicting claim aliases and repeated or conflicting scope headers.
+
+## Resolved by conversation mutation safeguards (2026-11-22)
+
+- source_spec: `spec-five-deferred-conversation-mutation-safeguards.md`
+  summary: BH-R2-04. Bind a new restricted Agent post to its canonical scoped event identity and check that identity against the verified source prefix.
+  evidence: Admission tests cover the canonical event, unused unrelated identities, an identity already recorded on the source, and exact historical retries. The client fixture pins the existing command and event wire identities.
+
+- source_spec: `spec-five-deferred-conversation-mutation-safeguards.md`
+  summary: BH-R2-05. Attribute a human editor through an authenticated edit.
+  evidence: Admission refuses claimed human attribution on a new Agent post. Replay preserves historical posting intent for retries and verifies that a human edit establishes current attribution even when the text matches.
+
+- source_spec: `spec-five-deferred-conversation-mutation-safeguards.md`
+  summary: BH-R2-08. Cite the latest visible message edit at its source sequence while retaining append order.
+  evidence: The materializer tests cover repeated edits, equal append timestamps, and withholding an edit under redaction.
+
+- source_spec: `spec-five-deferred-conversation-mutation-safeguards.md`
+  summary: BH-R2-09. Validate acknowledged deletion checkpoint targets in the client.
+  evidence: Client tests cover matching, missing, and differing targets and a later conflicting attempt recorded as a durable quarantine.
+
+- source_spec: `spec-five-deferred-conversation-mutation-safeguards.md`
+  summary: VG-R2-02. Exercise participant POST registration and route scope validation.
+  evidence: The grouped route forwards matching scope and refuses mismatched scope. The authenticated runtime route verifies that a mismatched request stops before membership authority.
+
+## Deferred from conversation mutation safeguards review (2026-11-22)
+
+- source_spec: `spec-five-deferred-conversation-mutation-safeguards.md`
+  summary: Review source event identity allocation and uniqueness for the remaining restricted mutations.
+  evidence: Agent removal has a separate wrapper and event allocation path. Its admission and retry semantics need dedicated coverage.

@@ -170,8 +170,13 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
             }
             var sourceProof = await commandSources.VerifyAsync(context.Request, cancellationToken).WaitAsync(cancellationToken).ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
-            var source = sourceProof.IsAuthoritative
-                ? ConversationAgentSourceReader.ReplaySource(sourceProof.Stream, envelope.AggregateIdentity, cancellationToken) : null;
+            if (!sourceProof.IsAuthoritative)
+            {
+                return Reject(ConversationAgentsOutcome.Unavailable);
+            }
+
+            var source = ConversationAgentSourceReader.ReplaySource(sourceProof.Stream, envelope.AggregateIdentity,
+                cancellationToken, out var eventIdentities);
             if (source is null || !MatchesCompleteState(context.CurrentState, source.Value.Source))
             {
                 return Reject(ConversationAgentsOutcome.Unavailable);
@@ -209,6 +214,22 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
                 }
             }
             cancellationToken.ThrowIfCancellationRequested();
+            if (command is AppendAgentMessage posting && !source.Value.State.Messages.Any(message =>
+                message.MessageId == posting.PublicCommand.MessageId || message.IdempotencyKey == metadata.IdempotencyKey))
+            {
+                if (posting.PublicCommand.AgentProvenance is { } provenance
+                    && (provenance.HumanEdited || provenance.EditedByPartyId is not null))
+                {
+                    return Reject(ConversationAgentsOutcome.Denied);
+                }
+
+                if (posting.EventId != AgentCommandIntentId.Create(metadata, conversation, "posting")
+                    || eventIdentities.Contains(posting.EventId))
+                {
+                    return Reject(ConversationAgentsOutcome.Conflict);
+                }
+            }
+
             return DomainServiceAdmissionResult.Accepted();
         }
         catch (Exception ex) when (ex is not ConversationWriteAuthorityUnavailableException && !cancellationToken.IsCancellationRequested)

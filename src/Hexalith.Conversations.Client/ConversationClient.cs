@@ -3,7 +3,6 @@
 // Licensed under the MIT License.
 // </copyright>
 
-using System.Security.Cryptography;
 using Hexalith.Conversations.Contracts.Agents;
 using Hexalith.EventStore.Contracts.Commands;
 using Hexalith.EventStore.Contracts.Queries;
@@ -358,7 +357,7 @@ public sealed class ConversationClient : IConversationClient
             {
                 PublicCommand = request,
                 AddedAt = occurrence,
-                EventId = IntentId(request.Metadata, request.ConversationId, "membership")
+                EventId = AgentCommandIntentId.Create(request.Metadata, request.ConversationId, "membership")
             },
             null, cancellationToken) : Task.FromResult(new ConversationAgentCommandResult(ConversationAgentsOutcome.Invalid));
     }
@@ -371,7 +370,7 @@ public sealed class ConversationClient : IConversationClient
             new
             {
                 PublicCommand = request,
-                EventId = IntentId(request.Metadata, request.ConversationId, "removal")
+                EventId = AgentCommandIntentId.Create(request.Metadata, request.ConversationId, "removal")
             }, null, cancellationToken);
     }
 
@@ -384,7 +383,7 @@ public sealed class ConversationClient : IConversationClient
             {
                 PublicCommand = request,
                 PostedAt = occurrence,
-                EventId = IntentId(request.Metadata, request.ConversationId, "posting")
+                EventId = AgentCommandIntentId.Create(request.Metadata, request.ConversationId, "posting")
             },
             request.MessageId, cancellationToken) : Task.FromResult(new ConversationAgentCommandResult(ConversationAgentsOutcome.Invalid));
     }
@@ -413,7 +412,7 @@ public sealed class ConversationClient : IConversationClient
             new
             {
                 PublicCommand = request,
-                EventId = IntentId(request.Metadata, request.ConversationId, "approval")
+                EventId = AgentCommandIntentId.Create(request.Metadata, request.ConversationId, "approval")
             }, null, cancellationToken);
     }
 
@@ -425,7 +424,7 @@ public sealed class ConversationClient : IConversationClient
             new
             {
                 PublicCommand = request,
-                EventId = IntentId(request.Metadata, request.ConversationId, "delivery")
+                EventId = AgentCommandIntentId.Create(request.Metadata, request.ConversationId, "delivery")
             }, null, cancellationToken);
     }
 
@@ -445,7 +444,7 @@ public sealed class ConversationClient : IConversationClient
         {
             return new(ConversationAgentsOutcome.Invalid);
         }
-        var command = new SubmitCommandRequest(IntentId(metadata, conversation, commandType), metadata.TenantId.Value,
+        var command = new SubmitCommandRequest(AgentCommandIntentId.Create(metadata, conversation, commandType), metadata.TenantId.Value,
             "conversation", conversation.Value, commandType, JsonSerializer.SerializeToElement(intent, JsonOptions),
             metadata.CorrelationId, IdempotencyKey: metadata.IdempotencyKey);
         try
@@ -648,15 +647,16 @@ public sealed class ConversationClient : IConversationClient
                     : result.AcknowledgedSourceRevision == signal.SourceRevision && result.Acknowledgement is { } acknowledgement
                         && acknowledgement.SignalId == signal.ConversationDeletionSignalId && acknowledgement.SourceRevision == signal.SourceRevision
                         && acknowledgement.ProtectedDeletionRevision > 0 && !string.IsNullOrWhiteSpace(acknowledgement.TargetVersion)
+                        && !string.IsNullOrWhiteSpace(result.TargetVersion)
+                        // A quarantine can record a conflicting attempt after the receipt was confirmed.
+                        && (string.Equals(acknowledgement.TargetVersion, result.TargetVersion, StringComparison.Ordinal)
+                            || result.Outcome == ConversationAgentsOutcome.Quarantined && result.DeliveryRevision >= 2
+                                && !string.IsNullOrWhiteSpace(result.PoisonCode))
                         && !string.IsNullOrWhiteSpace(acknowledgement.Evidence);
             default:
                 return false;
         }
     }
-
-    private static string IntentId(ConversationCommandMetadata metadata, ConversationId conversation, string purpose)
-        => Convert.ToHexString(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(
-            new[] { metadata.TenantId.Value, conversation.Value, metadata.ActorPartyId.Value, purpose, metadata.IdempotencyKey })));
 
     private static ConversationAgentsOutcome AgentHttpOutcome(HttpStatusCode status)
         => status is HttpStatusCode.Forbidden or HttpStatusCode.Unauthorized ? ConversationAgentsOutcome.Denied
