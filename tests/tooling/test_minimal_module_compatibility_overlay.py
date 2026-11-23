@@ -49,10 +49,12 @@ class MinimalModuleCompatibilityOverlayTests(unittest.TestCase):
                        "-p:Configuration=Release", f"-p:TargetFramework={FRAMEWORK}", "-p:MinimalModuleCompatibilityMode=package",
                        f"-p:CustomAfterMicrosoftCommonProps={OVERLAY.parent / 'Framework.props'}",
                        "-p:MinimalModuleCompatibilityUseSuccessorLocks=true", f"-p:CustomAfterMicrosoftCommonTargets={OVERLAY}", f"-p:HexalithBuildsRoot={self.builds_root}",
-                       "-getProperty:NuGetLockFilePath,Configuration,TargetFramework,TargetFrameworkIdentifier,TargetFrameworkVersion", "-getItem:ProjectReference,PackageReference,PackageVersion"]
+                       "-getProperty:DirectoryPackagesPropsPath,NuGetLockFilePath,Configuration,TargetFramework,TargetFrameworkIdentifier,TargetFrameworkVersion", "-getItem:ProjectReference,PackageReference,PackageVersion"]
             result = subprocess.run(command, cwd=ROOT, env=environment, text=True, capture_output=True, check=True)
             output = json.loads(result.stdout)
             lock = OVERLAY.parent / "locks/package" / (project.stem + ".packages.lock.json")
+            package_props = Path(output["Properties"]["DirectoryPackagesPropsPath"]).resolve()
+            self.assertEqual(self.builds_root / "Props/Directory.Packages.props", package_props)
             self.assertEqual(str(lock), output["Properties"]["NuGetLockFilePath"])
             self.assertEqual("Release", output["Properties"]["Configuration"])
             self.assertEqual(FRAMEWORK, output["Properties"]["TargetFramework"])
@@ -76,10 +78,10 @@ class MinimalModuleCompatibilityOverlayTests(unittest.TestCase):
                     self.assertNotEqual("Project", package["type"])
                     self.assertEqual(catalog[identity.lower()], package["resolved"])
             if project.stem.endswith(".Tests"):
-                selected = {reference["Identity"]: reference.get("VersionOverride") or reference.get("Version") or versions[reference["Identity"]]
-                            for reference in output["Items"]["PackageReference"] if reference["Identity"] in versions}
+                selected = {reference["Identity"]: reference for reference in output["Items"]["PackageReference"]}
                 for identity, version in {"Microsoft.NET.Test.Sdk": "18.12.0", "xunit.v3": "4.0.3"}.items():
-                    self.assertEqual(version, selected[identity])
+                    self.assertFalse(selected[identity].get("Version") or selected[identity].get("VersionOverride"))
+                    self.assertEqual(version, versions[identity])
                     self.assertEqual(version, graph[identity]["resolved"])
 
 

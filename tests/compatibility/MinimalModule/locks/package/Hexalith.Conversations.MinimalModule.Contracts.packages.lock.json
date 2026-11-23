@@ -21,8 +21,8 @@
       "Hexalith.Commons.UniqueIds": {
         "type": "CentralTransitive",
         "requested": "[3.0.2, )",
-        "resolved": "3.0.1",
-        "contentHash": "qdhesiIy4tgXRHuL2d33rV8o/gkR1JWvTjpa4kVqLqskDeAHzrn625JTjHwE9SMyc0ZtESFUw3GLjeUz3teVKg==",
+        "resolved": "3.0.2",
+        "contentHash": "3Wt1rOZUne6hO2mWMaJdURXwod/ZgcJVzKhtv5alOeH4JmQT/3irlYEogeJ3+X5QN327pjUASYT+2sZlw68ybQ==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2"
         }
