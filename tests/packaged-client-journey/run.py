@@ -31,8 +31,8 @@ def main():
 
     with tempfile.TemporaryDirectory(prefix="conversations-adopter-") as tmp:
         work = Path(tmp)
-        for name in ("Program.cs", "Journey.csproj"):
-            shutil.copyfile(Path(__file__).with_name(name), work / name)
+        shutil.copyfile(Path(__file__).with_name("Program.cs"), work / "Program.cs")
+        shutil.copyfile(Path(__file__).with_name("Journey.csproj.template"), work / "Journey.csproj")
         config = ET.Element("configuration")
         sources = ET.SubElement(config, "packageSources")
         ET.SubElement(sources, "clear")
