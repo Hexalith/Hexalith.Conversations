@@ -153,6 +153,16 @@ Check(conflict.StatusCode == HttpStatusCode.Conflict && conflict.Error?.Errors.A
 wire.Verify(HttpStatusCode.Conflict, ConversationErrorCode.IdempotencyConflict, run);
 var readerContext = new ConversationClientContext(otherTenant, new PartyId(Required("CONVERSATIONS_OTHER_PARTY")), otherSubject, run,
     IdempotencyKey: $"reader-create-{run}");
+string checkpointKey = Uri.EscapeDataString($"tenants-projection:v1:{otherTenant.Value}");
+using (var checkpoint = await state.GetAsync($"v1.0/state/{store}/{checkpointKey}?consistency=strong", token))
+{
+    Check(checkpoint.StatusCode == HttpStatusCode.OK, "reader checkpoint exists");
+    using var doc = await JsonDocument.ParseAsync(await checkpoint.Content.ReadAsStreamAsync(token), cancellationToken: token);
+    Check(doc.RootElement.TryGetProperty("isHealthy", out var healthy) && healthy.ValueKind == JsonValueKind.True
+        && doc.RootElement.TryGetProperty("state", out var snapshot)
+        && snapshot.TryGetProperty("members", out var members) && members.TryGetProperty(otherSubject, out var role)
+        && role.ValueEquals("TenantReader"), "reader has healthy read-only membership at the domain");
+}
 var readerCreate = new CreateConversationCommand(readerContext.ToCommandMetadata(), business, Label: $"Reader {run}");
 var readerDenied = await new ConversationClient(foreignHttp).CreateConversationAsync(readerCreate, token);
 Check(readerDenied.StatusCode == HttpStatusCode.Forbidden && !readerDenied.IsSuccess, "tenant reader mutation");

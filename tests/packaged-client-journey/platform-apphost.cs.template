@@ -29,10 +29,26 @@ var bindings = JsonSerializer.Deserialize<Dictionary<string, string>>(
 var mapping = SourceMapping.LoadVerified(
     builder.Configuration["Platform:SourceMapping:Path"] ?? Required("HEXALITH_SOURCE_MAPPING_PATH"),
     builder.Configuration["Platform:SourceMapping:Hash"] ?? Required("HEXALITH_SOURCE_MAPPING_HASH"));
+string RequireMappedSource(string identity, string input)
+{
+    string expected = Path.GetFullPath(Required(input));
+    var source = mapping.Entries.SingleOrDefault(entry => entry.Identity.Equals(identity, StringComparison.OrdinalIgnoreCase));
+    if (mapping.Mode != WorkspaceMode.Source || source is not { Origin: "source", Path: { } selected }
+        || Path.GetRelativePath(expected, selected) != ".")
+        throw new InvalidDataException($"The Platform source mapping must select the checkout supplied in {input} for {identity}.");
+    return expected;
+}
+
+string conversationsRoot = RequireMappedSource("Hexalith.Conversations", "CONVERSATIONS_SOURCE_ROOT");
+_ = RequireMappedSource("Hexalith.EventStore", "EVENTSTORE_SOURCE_ROOT");
+string declaration = Path.Combine(conversationsRoot, "module", "hexalith.module-manifest.v2.json");
+
 PlatformAppModel.Compose(builder, new PlatformCompositionOptions {
     ActiveModule = "conversations", PlatformRoot = root, Mapping = mapping, UsePrebuiltProjects = builder.Configuration.GetValue<bool>("Platform:UsePrebuiltProjects"),
-    DeclarationPaths = [Required("Platform__DeclarationPath")], Configuration = bindings,
+    DeclarationPaths = [declaration], Configuration = bindings,
 });
+if (!builder.Resources.OfType<ProjectResource>().Any(resource => resource.Name == "conversations-api"))
+    throw new InvalidDataException("The mapped Conversations declaration did not compose the pilot API.");
 var issuer = new Uri(Required("CONVERSATIONS_WORKLOAD_ISSUER"), UriKind.Absolute);
 if (issuer.Scheme != "https" || issuer.UserInfo.Length != 0 || issuer.Query.Length != 0 || issuer.Fragment.Length != 0)
     throw new InvalidDataException("The Keycloak workload issuer must use HTTPS.");
@@ -61,7 +77,9 @@ foreach (ProjectResource service in builder.Resources.OfType<ProjectResource>().
             .WithEnvironment("Authentication__WorkloadIssuer__EnableResourceBindingRequests","true");
     }
     if (service.Name == "eventstore")
-        resource.WithEnvironment("Authentication__BoundCommand__AllowedDomains__tenants","global-administrators");
+        resource.WithEnvironment("Authentication__BoundCommand__AllowedDomains__tenants","global-administrators")
+            // Status is written separately from finalizing the 24-hour mutation receipt.
+            .WithEnvironment("EventStore__CommandStatus__TtlSeconds", "90000");
     if (service.Name == "tenants")
         resource.WithEnvironment("Tenants__BootstrapBoundWorkloadEnabled","true");
 }

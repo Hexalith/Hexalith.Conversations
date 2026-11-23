@@ -7,10 +7,55 @@ from pathlib import Path
 import shutil
 import subprocess
 import tempfile
+from urllib.parse import urlsplit
 import xml.etree.ElementTree as ET
 
 
-from status_outage import interrupted_status
+from status_outage import describe_resource, interrupted_status
+
+
+def public_origin(value):
+    parts = urlsplit(value)
+    if (parts.scheme in {"http", "https"} and parts.hostname and not parts.username and not parts.password
+            and parts.path in {"", "/"} and not parts.query and not parts.fragment):
+        return parts.scheme, parts.hostname, parts.port or (443 if parts.scheme == "https" else 80)
+    return None
+
+
+def verify_host_configuration(apphost, inputs):
+    gateway = describe_resource(apphost, "eventstore")["environment"]
+    ttl = str(gateway.get("EventStore__CommandStatus__TtlSeconds", ""))
+    if len(ttl) > 10 or not ttl.isascii() or not ttl.isdecimal() or not 90_000 <= int(ttl) <= 2_147_483_647:
+        raise RuntimeError("The qualification gateway must retain command status for at least 90000 seconds")
+
+    domain = describe_resource(apphost, "conversations")["environment"]
+    sidecar = public_origin(inputs["CONVERSATIONS_DOMAIN_DAPR_ORIGIN"])
+    if (sidecar is None or sidecar[0] != "http" or sidecar[1] not in {"localhost", "127.0.0.1", "::1"}
+            or str(sidecar[2]) != str(domain.get("DAPR_HTTP_PORT"))):
+        raise RuntimeError("CONVERSATIONS_DOMAIN_DAPR_ORIGIN must identify the selected domain sidecar")
+
+    prefix = "conversations:pilot:humanpartybindings:"
+    bindings = {}
+    for key, value in domain.items():
+        key = key.replace("__", ":").lower()
+        if key.startswith(prefix):
+            child, _, field = key[len(prefix):].partition(":")
+            if field in {"tenantid", "principalid", "partyid"}:
+                binding = bindings.setdefault(child, {})
+                if field in binding:
+                    raise RuntimeError("The Conversations host reports ambiguous Party binding settings")
+                binding[field] = value
+    matches = [entry for entry in bindings.values()
+               if entry.get("tenantid") == inputs["CONVERSATIONS_OTHER_TENANT"]
+               and entry.get("principalid") == inputs["CONVERSATIONS_OTHER_SUBJECT"]]
+    if len(matches) != 1 or matches[0].get("partyid") != inputs["CONVERSATIONS_OTHER_PARTY"]:
+        raise RuntimeError("The qualification reader must have one exact Party binding in the running Conversations domain")
+
+    api = describe_resource(apphost, "conversations-api")
+    origin = public_origin(inputs["CONVERSATIONS_ORIGIN"])
+    if origin is None or not any(origin == public_origin(url["url"]) for url in api.get("urls", []) if not url["isInternal"]):
+        raise RuntimeError("CONVERSATIONS_ORIGIN must match a published endpoint of the selected pilot API")
+    return api["environment"]
 
 
 def main():
@@ -70,8 +115,11 @@ def main():
             print("Passed package installation and compilation.")
             return
 
-        fixture = (interrupted_status(args.apphost.resolve(strict=True), args.fault_api_dll.resolve(strict=True))
-                   if full else nullcontext())
+        fixture = nullcontext()
+        if full:
+            apphost = args.apphost.resolve(strict=True)
+            api_settings = verify_host_configuration(apphost, env)
+            fixture = interrupted_status(api_settings, args.fault_api_dll.resolve(strict=True))
         env.pop("CONVERSATIONS_STATUS_FAILURE_ORIGIN", None)
         with fixture as origin:
             if origin is not None:

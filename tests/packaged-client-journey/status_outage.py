@@ -102,13 +102,18 @@ def _command_status_relay(port, binding):
             server_thread.join()
 
 
-@contextmanager
-def interrupted_status(apphost, api_dll):
+def describe_resource(apphost, name):
     description = subprocess.run(
-        ["aspire", "describe", "conversations-api", "--apphost", str(apphost), "--format", "Json", "--non-interactive"],
+        ["aspire", "describe", name, "--apphost", str(apphost), "--format", "Json", "--non-interactive"],
         check=True, capture_output=True, text=True, timeout=20)
-    service = json.loads(description.stdout)["resources"][0]
-    settings = service["environment"]
+    resources = json.loads(description.stdout)["resources"]
+    if len(resources) != 1 or resources[0].get("name") != name or resources[0].get("state") != "Running":
+        raise RuntimeError(f"Expected exactly one running {name} resource")
+    return resources[0]
+
+
+@contextmanager
+def interrupted_status(settings, api_dll):
     port = int(settings["DAPR_HTTP_PORT"])
     receipt = json.loads(Path(os.environ["CONVERSATIONS_CATALOG_RECEIPT"]).read_text())
     binding = {key.lower(): value for key, value in receipt.items()}

@@ -1411,3 +1411,13 @@ These five dispositions address the Story 9.3 qualification review. The [follow-
 - The installed consumer checks exact HTTP 201 and 202, command type, key, and identity for fresh create and append and their replays. A separate conversation carries the interrupted append and its retry.
 - Each denied append uses a fresh message ID. The installed consumer checks durable absence, and server tests verify that missing-key and foreign-tenant requests never reach the gateway.
 - Four server cases confirm that a completed status with a different message ID, tenant, domain, or aggregate leaves the command outcome unknown and recoverable with the same key.
+
+## Addressed by pilot admission and replay qualification (2026-11-23)
+
+These five dispositions follow the Story 9.3 review. Local verification and the live qualification limit are recorded in the [follow-up spec](spec-five-deferred-pilot-admission-qualification.md).
+
+- The pilot returns the same HTTP 403 tenant denial for the gateway's verified pre-processing authority deferral and ordinary tenant denial. Unclassified failures and post-receipt failures preserve the unknown-outcome response.
+- The authenticated domain `/process` test observes HTTP 503, an empty body and exactly `before-processing-v1` on the private admission header after evaluating the tenant gate.
+- The source qualification host sets the EventStore command-status TTL to 25 hours for the 24-hour mutation receipt window. The full runner checks the running gateway's setting, and the handoff specifies the status-store requirement.
+- The qualification AppHost selects the declaration from the verified Conversations source mapping, checks the reviewed EventStore source and requires the composed pilot API.
+- The full runner checks the exact reader Party binding in the running domain and ties reads to its sidecar. The installed client verifies the healthy durable tenant-reader membership immediately before submitting the denied create.

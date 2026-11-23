@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using Hexalith.Conversations.Commands;
 using Hexalith.Conversations.Contracts.Queries;
 using Hexalith.Conversations.Contracts.Routing;
 using Hexalith.Conversations.Server.Projections;
@@ -21,8 +22,10 @@ namespace Hexalith.Conversations.Server.Tests.ResolutionMetadata;
 /// <param name="tenant">The exact committed tenant scope.</param>
 /// <param name="endpoints">The actual mapped SDK receiver endpoints.</param>
 /// <param name="includeDetailQuery">Whether to enroll the conversation detail receiver.</param>
+/// <param name="includePilotCreate">Whether to enroll the pilot create receiver and its admission policy.</param>
 internal sealed class ResolutionRouteCatalog(
-    IServiceProvider services, string tenant, Func<IEnumerable<Endpoint>> endpoints, bool includeDetailQuery = false) : IRouteCatalogAuthority
+    IServiceProvider services, string tenant, Func<IEnumerable<Endpoint>> endpoints, bool includeDetailQuery = false,
+    bool includePilotCreate = false) : IRouteCatalogAuthority
 {
     /// <summary>Gets the exact application identity of the isolated owner.</summary>
     public const string AppId = "conversations-enrollment-fixture";
@@ -74,6 +77,7 @@ internal sealed class ResolutionRouteCatalog(
         List<RouteContractDeclaration> declarations = [];
         List<RouteCatalogEntry> targets = [];
         List<RouteOperationContract> operations = [];
+        List<IdempotencyCatalogEntry> admissions = [];
         foreach (IAsyncDomainProjectionHandler handler in local.GetServices<IAsyncDomainProjectionHandler>())
         {
             Add(handler.Domain + "-" + handler.ProjectionType, handler.Domain, handler.ProjectionType,
@@ -96,8 +100,25 @@ internal sealed class ResolutionRouteCatalog(
                 declaration.ContractVersion, declaration.CredentialKind, declaration.Operation, false, tenant, operation.Digest));
         }
 
+        if (includePilotCreate)
+        {
+            var policy = ConversationsCatalogDeclarations.Commands.Single(command => command.Route.MessageType == nameof(CreateHumanConversation));
+            var declaration = policy.Route;
+            var operation = ConversationsCatalogDeclarations.CreateOperations(typeof(ConversationsAssemblyMarker).Assembly)
+                .Single(item => item.RouteId == declaration.RouteId);
+            declarations.Add(declaration);
+            operations.Add(operation);
+            targets.Add(new(declaration.RouteId, 1, RouteCatalogCodec.ComputeDeclarationDigest(declaration), AppId, "process",
+                declaration.ContractVersion, declaration.CredentialKind, declaration.Operation, false, tenant, operation.Digest));
+            var admission = new IdempotencyCatalogEntry(declaration.RouteId, 1, declaration.Domain, declaration.MessageType!,
+                policy.AdapterId, policy.OperationId, policy.PolicyVersion, policy.DescriptorSchema,
+                RouteCatalogCodec.ComputeDescriptorDigest(policy.DescriptorSchema), "mutation", "v1", ["v1"],
+                "fixture-secretstore", "fixture-keys", "v1", [new("v1", "v1")], AppId, string.Empty);
+            admissions.Add(admission with { ContentDigest = RouteCatalogCodec.ComputeIdempotencyEntryDigest(admission) });
+        }
+
         RouteCatalogEnvelope envelope = RouteCatalogCodec.Seal(new(3, 1, "Production", false,
-            declarations, targets, [], string.Empty, string.Empty, operations, []));
+            declarations, targets, admissions, string.Empty, string.Empty, operations, []));
         return new(RouteCatalogCodec.Encode(envelope), RouteCatalogCodec.ComputeRootDigest(envelope), 1,
             RouteCatalogDomainObservation.Auxiliary(local, endpoints()),
             RouteCatalogDomainObservation.Capabilities(local), AppId);

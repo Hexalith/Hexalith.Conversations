@@ -80,6 +80,53 @@ public sealed class PilotApiTests
     }
 
     [Theory]
+    [InlineData(503, "owner_admission_deferred", null, false, 403)]
+    [InlineData(503, null, "owner_admission_deferred", false, 403)]
+    [InlineData(503, "service_unavailable", null, false, 503)]
+    [InlineData(503, "owner_admission_deferred", null, true, 503)]
+    public async Task OnlyVerifiedPreProcessingDeferralUsesTheOrdinaryTenantDenial(
+        int upstreamStatus, string? code, string? reason, bool afterReceipt, int expectedStatus)
+    {
+        var token = TestContext.Current.CancellationToken;
+        var gateway = Substitute.For<IEventStoreGatewayClient>();
+        var failure = new EventStoreGatewayException(upstreamStatus, "Upstream failure", code: code, reasonCode: reason);
+        var command = new CreateConversationCommand(new F().CommandMetadata(F.Human));
+        if (afterReceipt)
+        {
+            gateway.SubmitCommandAsync(Arg.Any<SubmitCommandRequest>(), Arg.Any<CancellationToken>())
+                .Returns(new SubmitCommandResponse(command.Metadata.CorrelationId, MessageId: "original-receipt"));
+            gateway.GetCommandStatusAsync("original-receipt", Arg.Any<CancellationToken>())
+                .Returns(Task.FromException<CommandStatusQueryResponse?>(failure));
+        }
+        else
+        {
+            gateway.SubmitCommandAsync(Arg.Any<SubmitCommandRequest>(), Arg.Any<CancellationToken>())
+                .Returns(Task.FromException<SubmitCommandResponse>(failure));
+        }
+
+        var result = await PilotCommands.CreateAsync(Caller(command), gateway, token);
+
+        Status(result).ShouldBe(expectedStatus);
+        var error = Body<ConversationErrorResult>(result).Errors.Single();
+        error.CorrelationId.ShouldBe(command.Metadata.CorrelationId);
+        if (expectedStatus == 403)
+        {
+            gateway.SubmitCommandAsync(Arg.Any<SubmitCommandRequest>(), Arg.Any<CancellationToken>())
+                .Returns(Task.FromException<SubmitCommandResponse>(new EventStoreGatewayException(403, "Forbidden")));
+            var ordinary = await PilotCommands.CreateAsync(Caller(command), gateway, token);
+            Status(ordinary).ShouldBe(403);
+            JsonSerializer.Serialize(Body<ConversationErrorResult>(result))
+                .ShouldBe(JsonSerializer.Serialize(Body<ConversationErrorResult>(ordinary)));
+            error.IsRetryable.ShouldBeFalse();
+        }
+        else
+        {
+            error.Code.ShouldBe(ConversationErrorCode.IdempotencyOutcomeUnknown);
+            error.ClientAction.ShouldBe(ConversationErrorClientAction.RetrySameRequest);
+        }
+    }
+
+    [Theory]
     [InlineData(400)]
     [InlineData(401)]
     [InlineData(403)]

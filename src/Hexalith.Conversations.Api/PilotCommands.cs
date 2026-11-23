@@ -105,6 +105,11 @@ internal static class PilotCommands
         }
         catch (EventStoreGatewayException ex) when (!received)
         {
+            // The gateway has preserved the original key for recovery before the owner processed the command.
+            // Use the same public denial as the other tenant-access failures.
+            if (ex.StatusCode == StatusCodes.Status503ServiceUnavailable
+                && (ex.Code == "owner_admission_deferred" || ex.ReasonCode == "owner_admission_deferred"))
+                return Failure(correlation, 403, ConversationErrorCode.TenantIsolationViolation);
             if (ex.StatusCode == StatusCodes.Status413PayloadTooLarge)
                 return ConversationCommandApi.ErrorResult(ConversationErrorCode.CommandValidationFailed, correlation,
                     StatusCodes.Status413PayloadTooLarge, "Reduce the command payload size before sending it again.");
