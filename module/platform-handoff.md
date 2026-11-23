@@ -567,10 +567,11 @@ read. Detail reads are unchanged.
 Replay takes identity and time only from validated event inputs. A missing
 identity or time, an identity reused with a different binding, or a generation
 instant earlier than the replay anchor maps to `Unavailable` /
-`metadata_contradictory`. Non-current freshness of that kind, and freshness with
-no replay anchor at all, publishes `LastAppliedEventTimestamp` =
-`1970-01-01T00:00:00Z` with a null lag. The named projection route never
-persists it.
+`metadata_contradictory`. For a generation earlier than its anchor, or a replay without an anchor,
+the response preserves the observation time and reports null lag. Its public
+last-applied marker is the Unix epoch for observations on or after the epoch,
+or `0001-01-01T00:00:00.0000001Z` for earlier valid observations. The named
+projection route never persists that failure as a completed projection.
 
 Tenants created before Story 16.2 have a version 1 index or none. Their next
 conversation delivery rewrites a version 1 index, or creates a missing one, as

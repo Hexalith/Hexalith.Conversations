@@ -32,8 +32,7 @@ public sealed class ConversationProjectionMaterializer
     private const string OpenState = "Open";
 
     /// <summary>
-    /// Gets the fixed last-applied timestamp published when no validated replay anchor applies to the public
-    /// freshness: no event contributed a valid time, or the generation instant contradicts the anchor.
+    /// Gets the conventional missing-anchor timestamp for replay and for observations on or after the Unix epoch.
     /// </summary>
     internal static DateTimeOffset NoReplayAnchor { get; } = DateTimeOffset.UnixEpoch;
 
@@ -250,9 +249,8 @@ public sealed class ConversationProjectionMaterializer
     /// <c>LastAppliedEventTimestamp</c> is the replay anchor and <c>ProjectionGeneratedAt</c> is the unclamped
     /// observation instant. A generation instant earlier than the anchor is contradictory metadata
     /// (<c>Unavailable</c>/<c>metadata_contradictory</c>, null lag). Because the public contract still requires
-    /// <c>ProjectionGeneratedAt &gt;= LastAppliedEventTimestamp</c>, such a generation, and one with no validated
-    /// anchor at all, publishes the fixed <see cref="NoReplayAnchor"/> sentinel as its last-applied timestamp: it
-    /// is neither the clock nor a clamp, and no consumer may treat a non-current freshness timestamp as truth.
+    /// <c>ProjectionGeneratedAt &gt;= LastAppliedEventTimestamp</c>, a missing or contradictory anchor uses the Unix epoch
+    /// marker. For observations before the epoch the marker is the earliest timestamp the contract accepts.
     /// </para>
     /// <para>
     /// <c>ProjectionFreshnessV1</c> requires position &gt;= 1, so the no-events case reports position 1; that path
@@ -271,7 +269,8 @@ public sealed class ConversationProjectionMaterializer
         DateTimeOffset generatedAt = observedAt ?? anchor ?? NoReplayAnchor;
         bool contradictoryTimestamp = anchor is { } validAnchor && generatedAt < validAnchor;
         bool contradictory = builder.MetadataContradictory || contradictoryTimestamp;
-        DateTimeOffset lastApplied = anchor is { } applied && !contradictoryTimestamp ? applied : NoReplayAnchor;
+        DateTimeOffset missingAnchor = generatedAt < NoReplayAnchor ? DateTimeOffset.MinValue.AddTicks(1) : NoReplayAnchor;
+        DateTimeOffset lastApplied = anchor is { } applied && !contradictoryTimestamp ? applied : missingAnchor;
         TimeSpan? lag = anchor is { } lagAnchor && !contradictory ? generatedAt - lagAnchor : null;
 
         ProjectionTrustState state = ProjectionTrustState.Current;

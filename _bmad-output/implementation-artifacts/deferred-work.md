@@ -1381,3 +1381,13 @@ These resolutions cover five findings from the Story 12.2 build verification rev
 - source_spec: `spec-five-deferred-conversation-mutation-safeguards.md`
   summary: Review source event identity allocation and uniqueness for the remaining restricted mutations.
   evidence: Agent removal has a separate wrapper and event allocation path. Its admission and retry semantics need dedicated coverage.
+
+## Resolved by projection freshness and recovery follow-up (2026-11-23)
+
+These five dispositions concern the Epic 16 entries from `spec-sync-upgrade-and-release.md`. Implementation and verification are recorded in [the follow-up spec](spec-five-deferred-projection-freshness.md).
+
+- Mixed generations. The context distinguishes an unproven conversation on a partially readable page from contradictory tenant index metadata. The query handler tests cover the list and detail responses.
+- Stale and redacted responses. The context now describes freshness across accessible matches and redaction on individual previews and citations. The public states can vary independently.
+- Healthy nonempty lists. The context describes current summaries, pagination and the meaning of an empty filtered result. The tenant index read matrix exercises ready-empty and ready-nonempty indexes.
+- Entry qualifications. The context links the nine formal requirements and the owner decisions used for each of the three native verification runs.
+- Pre-anchor failure response. The November 4 closure missed observations before 1970. A regression reproduced the exception at the earliest valid v1 instant and one tick before the Unix epoch. The materializer now returns the actual observation time, a representable missing-anchor marker and null lag. The prior Unix epoch encoding still applies from the epoch onward.

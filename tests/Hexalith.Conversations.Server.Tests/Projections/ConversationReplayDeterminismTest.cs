@@ -238,6 +238,35 @@ public sealed class ConversationReplayDeterminismTest
         models.Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
     }
 
+    /// <summary>Non-current projections keep the actual observation time at the limits of the v1 timestamp contract.</summary>
+    [Theory]
+    [InlineData(1L)]
+    [InlineData(621355967999999999L)] // One tick before the Unix epoch.
+    [InlineData(621355968000000000L)] // The established sentinel remains valid at the epoch.
+    public void EarlyObservationShouldPreserveFreshnessForAnchoredAndEmptyReplay(long utcTicks)
+    {
+        DateTimeOffset observedAt = new(utcTicks, TimeSpan.Zero);
+        DateTimeOffset expectedMarker = observedAt < DateTimeOffset.UnixEpoch
+            ? DateTimeOffset.MinValue.AddTicks(1)
+            : DateTimeOffset.UnixEpoch;
+        ConversationProjectedReadModels anchored = Project([CreatedDto(1)], observedAt);
+        ConversationProjectedReadModels empty = Project([], observedAt);
+
+        AssertContradictory(anchored.Summary.Freshness);
+        anchored.ReplayAnchorAt.ShouldBe(OccurredAt);
+        anchored.ReplayStateHash.ShouldBe(Project([CreatedDto(1)], OccurredAt).ReplayStateHash);
+        empty.ReplayAnchorAt.ShouldBeNull();
+        empty.Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        empty.Summary.Freshness.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.Rebuilding);
+
+        foreach (ProjectionFreshnessV1 freshness in new[] { anchored.Summary.Freshness, anchored.Detail.Freshness, empty.Summary.Freshness, empty.Detail.Freshness })
+        {
+            freshness.ProjectionGeneratedAt.ShouldBe(observedAt);
+            freshness.LastAppliedEventTimestamp.ShouldBe(expectedMarker);
+            freshness.LagDuration.ShouldBeNull();
+        }
+    }
+
     /// <summary>The replay state excludes observation freshness but keeps position and anchor.</summary>
     [Fact]
     public void ReplayStateShouldExcludeObservationFreshnessAndKeepPositionAndAnchor()
