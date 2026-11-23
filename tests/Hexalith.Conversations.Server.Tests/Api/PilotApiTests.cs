@@ -109,6 +109,40 @@ public sealed class PilotApiTests
     }
 
     [Theory]
+    [InlineData("messageId")]
+    [InlineData("tenant")]
+    [InlineData("domain")]
+    [InlineData("aggregate")]
+    public async Task CompletedStatusForDifferentCommandKeepsOutcomeUnknown(string mismatchedField)
+    {
+        const string receipt = "original-receipt";
+        var token = TestContext.Current.CancellationToken;
+        var gateway = Substitute.For<IEventStoreGatewayClient>();
+        var command = new CreateConversationCommand(new F().CommandMetadata(F.Human));
+        SubmitCommandRequest request = null!;
+        gateway.SubmitCommandAsync(Arg.Do<SubmitCommandRequest>(value => request = value), Arg.Any<CancellationToken>())
+            .Returns(new SubmitCommandResponse("original-correlation", MessageId: receipt));
+        gateway.GetCommandStatusAsync(receipt, Arg.Any<CancellationToken>()).Returns(_ =>
+            new CommandStatusQueryResponse("original-correlation", nameof(CommandStatus.Completed), (int)CommandStatus.Completed,
+                MessageId: mismatchedField == "messageId" ? "another-receipt" : receipt)
+            {
+                TenantId = mismatchedField == "tenant" ? "another-tenant" : request.Tenant,
+                Domain = mismatchedField == "domain" ? "another-domain" : request.Domain,
+                AggregateId = mismatchedField == "aggregate" ? "another-aggregate" : request.AggregateId,
+            });
+
+        var unknown = await PilotCommands.CreateAsync(Caller(command), gateway, token);
+
+        Status(unknown).ShouldBe(503);
+        var error = Body<ConversationErrorResult>(unknown).Errors.Single();
+        error.Code.ShouldBe(ConversationErrorCode.IdempotencyOutcomeUnknown);
+        error.CorrelationId.ShouldBe(command.Metadata.CorrelationId);
+        error.IsRetryable.ShouldBeTrue();
+        error.ClientAction.ShouldBe(ConversationErrorClientAction.RetrySameRequest);
+        await gateway.Received(1).GetCommandStatusAsync(receipt, Arg.Any<CancellationToken>());
+    }
+
+    [Theory]
     [InlineData("idempotency_conflict", 409, true)]
     [InlineData("idempotency_key_expired", 409, false)]
     [InlineData("idempotency_in_progress", 503, false)]
@@ -260,6 +294,29 @@ public sealed class PilotApiTests
         var occurred = sent.ShouldNotBeNull().Payload.Deserialize<AppendMessage>(JsonSerializerOptions.Web).ShouldNotBeNull();
         occurred.PostedAt.ShouldBeInRange(before, DateTimeOffset.UtcNow);
         occurred.PublicCommand.OperationTimestamp.ShouldBe(request.OperationTimestamp);
+    }
+
+    [Theory]
+    [InlineData(false, 400)]
+    [InlineData(true, 403)]
+    public async Task DeniedFreshAppendNeverReachesTheGateway(bool foreignCaller, int expectedStatus)
+    {
+        var gateway = Substitute.For<IEventStoreGatewayClient>();
+        var metadata = new F().CommandMetadata(F.Human) with { IdempotencyKey = foreignCaller ? "foreign-key" : null };
+        var command = new AppendMessageCommand(metadata, F.Conversation, new("fresh-denied-message"), F.Human, "message");
+        var context = Caller(command);
+        if (foreignCaller)
+        {
+            context.User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim("sub", "another-subject"), new Claim("tid", "another-tenant")], "authenticated"));
+        }
+
+        var denied = await PilotCommands.AppendAsync(F.Conversation.Value, context, gateway, TestContext.Current.CancellationToken);
+
+        Status(denied).ShouldBe(expectedStatus);
+        Body<ConversationErrorResult>(denied).Errors.Single().Code.ShouldBe(foreignCaller
+            ? ConversationErrorCode.TenantContextMismatch : ConversationErrorCode.IdempotencyKeyMissing);
+        gateway.ReceivedCalls().ShouldBeEmpty();
     }
 
     [Fact]

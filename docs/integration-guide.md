@@ -175,12 +175,18 @@ Run the journey with .NET 11, Python 3, an isolated local deployment and a feed 
 | `CONVERSATIONS_OTHER_TOKEN`, `CONVERSATIONS_OTHER_TENANT`, `CONVERSATIONS_OTHER_SUBJECT`, `CONVERSATIONS_OTHER_PARTY` | Independently authenticated second member and tenant |
 | `CONVERSATIONS_DOMAIN_DAPR_ORIGIN`, `CONVERSATIONS_READ_MODEL_STORE` | Private loopback URL for the domain sidecar and its configured read-model state component |
 | `CONVERSATIONS_DOMAIN_DAPR_TOKEN` | Sidecar API token when enabled |
+| `CONVERSATIONS_CATALOG_RECEIPT` | Run-owned `eventstore.committed.json` from the gateway |
 
 ```bash
-python3 tests/packaged-client-journey/run.py --feed "$PACKAGE_FEED" --version "$PACKAGE_VERSION"
+python3 tests/packaged-client-journey/run.py --feed "$PACKAGE_FEED" --version "$PACKAGE_VERSION" \
+    --apphost "$PLATFORM_APPHOST" --fault-api-dll "$CONVERSATIONS_API_DLL"
 ```
 
-The runner installs exact packages into an empty cache, sends each mutation twice, checks changed intent and denied requests, and allows 60 seconds for Current list and detail. It also checks the hidden response bodies and reads the durable timeline through the domain sidecar. A successful run prints one terminal pass line. Projection timeouts and missing deployment inputs fail the run. The `--build-only` option verifies package installation and compilation.
+Set `PLATFORM_APPHOST` to the running local AppHost file and `CONVERSATIONS_API_DLL` to the built pilot API assembly. The full run installs exact packages into an empty cache, verifies each mutation and its replay, and checks changed intent and denied requests. It interrupts status confirmation for the accepted append, observes the durable message through the domain sidecar, then retries through the regular API. It allows 60 seconds for current list and detail and checks the hidden response bodies and durable timeline.
+
+Use `--without-status-outage` in place of both AppHost arguments for an explicitly partial live run. Use `--build-only` to verify package installation and compilation. Each mode prints its own result after its checks finish.
+
+Run `python3 -m unittest discover -s tests/packaged-client-journey -v` to check the runner’s argument validation and receipt matching without a pilot deployment.
 
 ### Discover Compatibility
 

@@ -617,7 +617,7 @@ To prepare a local feed in a producer-mapped Release shell, set `PACKAGE_FEED` t
 ```bash
 dotnet pack src/Hexalith.Conversations.Contracts -c Release -p:Version="$PACKAGE_VERSION" -p:PackageVersion="$PACKAGE_VERSION" -o "$PACKAGE_FEED"
 dotnet pack src/Hexalith.Conversations.Client -c Release -p:Version="$PACKAGE_VERSION" -p:PackageVersion="$PACKAGE_VERSION" -o "$PACKAGE_FEED"
-python3 tests/packaged-client-journey/run.py --feed "$PACKAGE_FEED" --version "$PACKAGE_VERSION"
+python3 tests/packaged-client-journey/run.py --feed "$PACKAGE_FEED" --version "$PACKAGE_VERSION" --build-only
 ```
 
 The versioned `tests/packaged-client-journey/platform-apphost.cs.template` hosts the local qualification graph using the ordinary Platform composition API. Copy it into a producer-mapped Platform source checkout beside `apphost.cs`. Supply a protected flat JSON dictionary through `CONVERSATIONS_OPERATOR_BINDINGS` using the owner/server/configuration-key names in Platform's local profile. The ordinary source profile shares its human JWT settings across the gateway and API. An operator issuing the human tokens supplies the corresponding human signing and verification settings. For fresh Tenants startup, include `tenants/domain/Tenants:BootstrapGlobalAdminEnabled` and `tenants/domain/Tenants:BootstrapGlobalAdminUserId`. Set the domain history and Party settings described above. Set `CONVERSATIONS_WORKLOAD_ISSUER` to the HTTPS Keycloak realm, `CONVERSATIONS_OIDC_CA_BUNDLE` to its trusted CA bundle, and `CONVERSATIONS_GATEWAY_OIDC_SECRET_FILE` and `CONVERSATIONS_TENANTS_OIDC_SECRET_FILE` to the protected credentials for the `eventstore` and `tenants` clients. Named accounts and issuer grants belong to the local operator.
@@ -637,7 +637,7 @@ python3 tests/packaged-client-journey/run.py --feed "$PACKAGE_FEED" --version "$
     --apphost "$PLATFORM_APPHOST" --fault-api-dll "$CONVERSATIONS_API_DLL"
 ```
 
-The optional status-interruption check launches a second copy of the API on loopback. Only that copy loses its status response. It forwards the append to the running deployment and requires a real gateway receipt. The consumer verifies the stored append before retrying it at the regular API and checks that the retry leaves one message. The CLI uses the local Aspire resource to discover the API's sidecar and human bearer configuration. `PLATFORM_APPHOST` names that running AppHost file and `CONVERSATIONS_API_DLL` is the built `Hexalith.Conversations.Api.dll`.
+Full qualification launches a second copy of the API on loopback. It forwards the append to the running deployment and interrupts the status read for the message ID in the gateway receipt. The consumer verifies the stored append before retrying it at the regular API and checks that the retry leaves one message. The CLI uses the local Aspire resource to discover the API's sidecar and human bearer configuration. `PLATFORM_APPHOST` names that running AppHost file and `CONVERSATIONS_API_DLL` is the built `Hexalith.Conversations.Api.dll`. To run partial live checks, use `--without-status-outage` in place of both arguments.
 
 For a fresh source deployment, use the Conversations story commit and the Platform and EventStore commits recorded in its root gitlinks. The following command prints both required owner revisions from the Conversations checkout.
 

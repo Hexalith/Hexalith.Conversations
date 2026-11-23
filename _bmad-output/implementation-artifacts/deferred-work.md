@@ -1401,3 +1401,13 @@ These five dispositions address the packaged-client review and its typed-error f
 - An expired receipt returns HTTP 409 with `idempotency_outcome_unknown`, false retryability, and guidance to reconcile the original mutation. The wire test covers the absence of a retry action, and the integration guide describes the two uncertainty outcomes.
 - A pre-admission size refusal returns HTTP 413 with a nonretryable validation error. Tests cover the server response, a plain or unreadable response body in the client, and a separate failure after submission that still reports uncertainty.
 - The pilot returns HTTP 503 for malformed owner list data. Tests cover missing or null rows, missing pagination, null entries, and inconsistent counts, with a valid empty page and an invalid caller page as controls.
+
+## Addressed by packaged-client qualification follow-up (2026-11-23)
+
+These five dispositions address the Story 9.3 qualification review. The [follow-up spec](spec-five-deferred-packaged-client-qualification.md) records the local checks and the live host limitation.
+
+- The full runner requires an AppHost and fault API and reports success after the outage fixture verifies its observation. The guides distinguish full, partial, and build-only modes.
+- The outage relay ties the interrupted EventStore status GET to the message ID from the accepted gateway receipt. A loopback HTTP test exercises the matching and nonmatching requests.
+- The installed consumer checks exact HTTP 201 and 202, command type, key, and identity for fresh create and append and their replays. A separate conversation carries the interrupted append and its retry.
+- Each denied append uses a fresh message ID. The installed consumer checks durable absence, and server tests verify that missing-key and foreign-tenant requests never reach the gateway.
+- Four server cases confirm that a completed status with a different message ID, tenant, domain, or aggregate leaves the command outcome unknown and recoverable with the same key.

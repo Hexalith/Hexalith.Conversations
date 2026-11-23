@@ -17,12 +17,17 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--feed", type=Path, required=True)
     parser.add_argument("--version", required=True)
-    parser.add_argument("--build-only", action="store_true")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--build-only", action="store_true", help="Verify package installation and compilation")
+    mode.add_argument("--without-status-outage", action="store_true", help="Run partial live checks without the status interruption")
     parser.add_argument("--fault-api-dll", type=Path, help="Run a second copy of the real API with interrupted command status confirmation")
     parser.add_argument("--apphost", type=Path, help="Running local Platform AppHost for the status-interruption fixture")
     args = parser.parse_args()
-    if bool(args.apphost) != bool(args.fault_api_dll) or args.build_only and args.apphost:
-        parser.error("Supply --apphost and --fault-api-dll together for a live journey")
+    full = not (args.build_only or args.without_status_outage)
+    if full and (args.apphost is None or args.fault_api_dll is None):
+        parser.error("Full qualification requires --apphost and --fault-api-dll")
+    if not full and (args.apphost is not None or args.fault_api_dll is not None):
+        parser.error("--apphost and --fault-api-dll are only used for full qualification")
     owners = ["Hexalith.Conversations.Client", "Hexalith.Conversations.Contracts"]
     feed = args.feed.resolve(strict=True)
     for owner in owners:
@@ -61,14 +66,21 @@ def main():
             if libraries.get(f"{owner}/{args.version}", {}).get("type") != "package":
                 raise SystemExit(f"Unexpected resolved {owner} identity")
         run("build", "-c", "Release", "--no-restore", version)
-        if not args.build_only:
-            fixture = (interrupted_status(args.apphost.resolve(strict=True), args.fault_api_dll.resolve(strict=True))
-                       if args.apphost else nullcontext())
-            with fixture as origin:
-                env.pop("CONVERSATIONS_STATUS_FAILURE_ORIGIN", None)
-                if origin:
-                    env["CONVERSATIONS_STATUS_FAILURE_ORIGIN"] = origin
-                run("bin/Release/net11.0/Journey.dll")
+        if args.build_only:
+            print("Passed package installation and compilation.")
+            return
+
+        fixture = (interrupted_status(args.apphost.resolve(strict=True), args.fault_api_dll.resolve(strict=True))
+                   if full else nullcontext())
+        env.pop("CONVERSATIONS_STATUS_FAILURE_ORIGIN", None)
+        with fixture as origin:
+            if origin is not None:
+                env["CONVERSATIONS_STATUS_FAILURE_ORIGIN"] = origin
+            run("bin/Release/net11.0/Journey.dll")
+        if full:
+            print("Passed full packaged-client qualification, including interrupted status confirmation.")
+        else:
+            print("Passed partial packaged-client journey without status interruption.")
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Contracts.Queries;
+using Hexalith.Conversations.Contracts.Results;
 using Hexalith.Conversations.Contracts.TrustStates;
 using Hexalith.Conversations.Contracts.Versioning;
 
@@ -63,56 +64,93 @@ var client = new ConversationClient(http);
 var context = new ConversationClientContext(tenant, party, subject, run, IdempotencyKey: $"create-{run}");
 var business = new BusinessReference("client-journey", run);
 var create = new CreateConversationCommand(context.ToCommandMetadata(), business, Label: $"Private {run}");
-var created = Success(await client.CreateConversationAsync(create, token), "create");
-var replay = Success(await client.CreateConversationAsync(create, token), "create retry");
-var id = created.ConversationId;
-Check(created.TenantId == tenant && replay.ConversationId == id && replay.TenantId == tenant, "create retry identity");
+async Task<ConversationId> VerifyCreate(CreateConversationCommand command, string step)
+{
+    var result = await client.CreateConversationAsync(command, token);
+    var accepted = Success(result, step);
+    Check(result.StatusCode == HttpStatusCode.Created && accepted.TenantId == tenant
+        && accepted.CommandType == ConversationCommandType.CreateConversationCommand
+        && accepted.SchemaVersion == SchemaVersion.Current && accepted.Visibility.State == ProjectionTrustState.Rebuilding
+        && accepted.IdempotencyKey == command.Metadata.IdempotencyKey && accepted.CorrelationId == run, step);
+    return accepted.ConversationId;
+}
+var id = await VerifyCreate(create, "create receipt");
+Check(await VerifyCreate(create, "create retry receipt") == id, "create retry identity");
 var createConflict = await client.CreateConversationAsync(create with { Label = $"Changed {run}" }, token);
 Check(createConflict.StatusCode == HttpStatusCode.Conflict && !createConflict.IsSuccess, "create changed intent");
 wire.Verify(HttpStatusCode.Conflict, ConversationErrorCode.IdempotencyConflict, run);
 var append = new AppendMessageCommand((context with { IdempotencyKey = $"append-{run}" }).ToCommandMetadata(),
     id, new MessageId(run), party, $"Ordinary message {run}", OperationTimestamp: DateTimeOffset.UtcNow.AddDays(7));
 var store = Uri.EscapeDataString(Required("CONVERSATIONS_READ_MODEL_STORE"));
-var stateKey = Uri.EscapeDataString($"projection:conversations:{Segment(tenant.Value)}:{Segment(id.Value)}");
-async Task<ConversationDetailProjectionV1?> Durable(CancellationToken readToken)
+async Task<ConversationDetailProjectionV1?> Durable(TenantId scope, ConversationId conversation, CancellationToken readToken)
 {
+    var stateKey = Uri.EscapeDataString($"projection:conversations:{Segment(scope.Value)}:{Segment(conversation.Value)}");
     using var response = await state.GetAsync($"v1.0/state/{store}/{stateKey}?consistency=strong", readToken);
     if (response.StatusCode is HttpStatusCode.NoContent or HttpStatusCode.NotFound) return null;
     response.EnsureSuccessStatusCode();
     using var doc = JsonDocument.Parse(await response.Content.ReadAsStreamAsync(readToken));
     return doc.RootElement.GetProperty("detail").Deserialize<ConversationDetailProjectionV1>(JsonSerializerOptions.Web);
 }
-if (Environment.GetEnvironmentVariable("CONVERSATIONS_STATUS_FAILURE_ORIGIN") is not null)
+async Task VerifyAppend(AppendMessageCommand command, string step)
 {
-    var interruption = Origin("CONVERSATIONS_STATUS_FAILURE_ORIGIN");
-    Check(interruption.IsLoopback && interruption != origin, "local status interruption");
-    var interruptedWire = new WireErrors();
-    using var interrupted = Transport(interruption, bearer, interruptedWire);
-    var outcome = await new ConversationClient(interrupted).AppendMessageAsync(append, token);
-    Check(outcome.StatusCode == HttpStatusCode.ServiceUnavailable && !outcome.IsSuccess, $"unconfirmed append (HTTP {(int?)outcome.StatusCode}, {outcome.Error?.Errors.FirstOrDefault()?.Code})");
-    interruptedWire.Verify(HttpStatusCode.ServiceUnavailable, ConversationErrorCode.IdempotencyOutcomeUnknown, run);
-    using var commitDeadline = CancellationTokenSource.CreateLinkedTokenSource(token);
-    commitDeadline.CancelAfter(TimeSpan.FromSeconds(60));
-    while ((await Durable(commitDeadline.Token))?.Messages.Any(m => m.MessageId == append.MessageId) != true)
-        await Task.Delay(250, commitDeadline.Token);
+    var result = await client.AppendMessageAsync(command, token);
+    var accepted = Success(result, step);
+    Check(result.StatusCode == HttpStatusCode.Accepted && accepted.ConversationId == command.ConversationId && accepted.TenantId == tenant
+        && accepted.CommandType == ConversationCommandType.AppendMessageCommand
+        && accepted.SchemaVersion == SchemaVersion.Current && accepted.Visibility.State == ProjectionTrustState.Rebuilding
+        && accepted.IdempotencyKey == command.Metadata.IdempotencyKey && accepted.CorrelationId == run, step);
 }
-foreach (string operation in new[] { "append", "append retry" })
+var missingKeyAppend = append with
 {
-    var accepted = Success(await client.AppendMessageAsync(append, token), operation);
-    Check(accepted.ConversationId == id && accepted.TenantId == tenant, operation);
-}
-var conflict = await client.AppendMessageAsync(append with { Text = $"Changed {run}" }, token);
-Check(conflict.StatusCode == HttpStatusCode.Conflict && conflict.Error?.Errors.Any(e => e.Code == ConversationErrorCode.IdempotencyConflict) == true, "changed intent");
-wire.Verify(HttpStatusCode.Conflict, ConversationErrorCode.IdempotencyConflict, run);
-var missing = await client.AppendMessageAsync(append with { Metadata = (context with { IdempotencyKey = null }).ToCommandMetadata() }, token);
+    MessageId = new MessageId($"missing-key-{run}"),
+    Metadata = (context with { IdempotencyKey = null }).ToCommandMetadata(),
+};
+var missing = await client.AppendMessageAsync(missingKeyAppend, token);
 Check(missing.StatusCode == HttpStatusCode.BadRequest && !missing.IsSuccess
     && missing.Error?.Errors.Any(error => error.Code == ConversationErrorCode.IdempotencyKeyMissing && error.CorrelationId == run
         && !error.IsRetryable && error.ClientAction == ConversationErrorClientAction.ProvideIdempotencyKey) == true, "typed missing key");
 wire.Verify(HttpStatusCode.BadRequest, ConversationErrorCode.IdempotencyKeyMissing, run);
-var denied = await new ConversationClient(foreignHttp).AppendMessageAsync(append, token);
+var foreignAppend = append with
+{
+    MessageId = new MessageId($"foreign-{run}"),
+    Metadata = (context with { IdempotencyKey = $"foreign-{run}" }).ToCommandMetadata(),
+};
+var denied = await new ConversationClient(foreignHttp).AppendMessageAsync(foreignAppend, token);
 Check(denied.StatusCode == HttpStatusCode.Forbidden && !denied.IsSuccess, "foreign write");
-
 otherWire.Verify(HttpStatusCode.Forbidden, ConversationErrorCode.TenantContextMismatch, run);
+
+if (Environment.GetEnvironmentVariable("CONVERSATIONS_STATUS_FAILURE_ORIGIN") is not null)
+{
+    var interruption = Origin("CONVERSATIONS_STATUS_FAILURE_ORIGIN");
+    Check(interruption.IsLoopback && interruption != origin, "local status interruption");
+    var outageCreate = new CreateConversationCommand((context with { IdempotencyKey = $"outage-create-{run}" }).ToCommandMetadata(),
+        new BusinessReference("client-journey-outage", run), Label: $"Outage {run}");
+    var outageId = await VerifyCreate(outageCreate, "create outage conversation");
+    var outageAppend = append with
+    {
+        ConversationId = outageId,
+        MessageId = new MessageId($"outage-{run}"),
+        Metadata = (context with { IdempotencyKey = $"outage-append-{run}" }).ToCommandMetadata(),
+    };
+    var interruptedWire = new WireErrors();
+    using var interrupted = Transport(interruption, bearer, interruptedWire);
+    var outcome = await new ConversationClient(interrupted).AppendMessageAsync(outageAppend, token);
+    Check(outcome.StatusCode == HttpStatusCode.ServiceUnavailable && !outcome.IsSuccess, $"unconfirmed append (HTTP {(int?)outcome.StatusCode}, {outcome.Error?.Errors.FirstOrDefault()?.Code})");
+    interruptedWire.Verify(HttpStatusCode.ServiceUnavailable, ConversationErrorCode.IdempotencyOutcomeUnknown, run);
+    using var commitDeadline = CancellationTokenSource.CreateLinkedTokenSource(token);
+    commitDeadline.CancelAfter(TimeSpan.FromSeconds(60));
+    while ((await Durable(tenant, outageId, commitDeadline.Token))?.Messages.Any(m => m.MessageId == outageAppend.MessageId) != true)
+        await Task.Delay(250, commitDeadline.Token);
+    await VerifyAppend(outageAppend, "outage append retry receipt");
+    var afterRetry = await Durable(tenant, outageId, token);
+    Check(afterRetry?.Messages is [{ MessageId: var persistedId }] && persistedId == outageAppend.MessageId,
+        "one durable outage message after replay");
+}
+await VerifyAppend(append, "append receipt");
+await VerifyAppend(append, "append retry receipt");
+var conflict = await client.AppendMessageAsync(append with { Text = $"Changed {run}" }, token);
+Check(conflict.StatusCode == HttpStatusCode.Conflict && conflict.Error?.Errors.Any(e => e.Code == ConversationErrorCode.IdempotencyConflict) == true, "changed intent");
+wire.Verify(HttpStatusCode.Conflict, ConversationErrorCode.IdempotencyConflict, run);
 var readerContext = new ConversationClientContext(otherTenant, new PartyId(Required("CONVERSATIONS_OTHER_PARTY")), otherSubject, run,
     IdempotencyKey: $"reader-create-{run}");
 var readerCreate = new CreateConversationCommand(readerContext.ToCommandMetadata(), business, Label: $"Reader {run}");
@@ -195,9 +233,13 @@ await Hidden(foreignHttp, otherTenant.Value, otherSubject, detailPath, HttpStatu
 var foreignList = Success(await new ConversationClient(foreignHttp).ListConversationsAsync(List(otherTenant, otherSubject), token), "other tenant list");
 Check(foreignList.Conversations.Count == 0 && foreignList.FreshnessState == ProjectionTrustState.Current, "other tenant scoped list");
 
-var durable = await Durable(token) ?? throw new InvalidOperationException("Missing persisted detail.");
+var durable = await Durable(tenant, id, token) ?? throw new InvalidOperationException("Missing persisted detail.");
+Check(durable.Messages.All(message => message.MessageId != missingKeyAppend.MessageId && message.MessageId != foreignAppend.MessageId),
+    "denied message IDs absent from owner's durable detail");
+var otherDurable = await Durable(otherTenant, id, token);
+Check(otherDurable?.Messages.Any(message => message.MessageId == foreignAppend.MessageId) != true,
+    "foreign write absent from other tenant's durable detail");
 VerifyDetail(durable.TenantId, durable.ConversationId, durable.BusinessReference, durable.Label, durable.Messages);
-Console.WriteLine("Passed create and append retries, negative cases, Current reads, tenant isolation, and independent durable message count.");
 
 
 sealed class WireErrors : DelegatingHandler

@@ -9,30 +9,24 @@ import socket
 import subprocess
 import threading
 import time
+import urllib.parse
 import urllib.request
 
 from provision import NoRedirect
 
 
 @contextmanager
-def interrupted_status(apphost, api_dll):
-    description = subprocess.run(
-        ["aspire", "describe", "conversations-api", "--apphost", str(apphost), "--format", "Json", "--non-interactive"],
-        check=True, capture_output=True, text=True, timeout=20)
-    service = json.loads(description.stdout)["resources"][0]
-    settings = service["environment"]
-    port = int(settings["DAPR_HTTP_PORT"])
-    receipt = json.loads(Path(os.environ["CONVERSATIONS_CATALOG_RECEIPT"]).read_text())
-    binding = {key.lower(): value for key, value in receipt.items()}
+def _command_status_relay(port, binding):
+    expected_status_path = None
+    receipt_lock = threading.Lock()
+    interrupted = threading.Event()
 
     class Relay(http.server.BaseHTTPRequestHandler):
-        accepted = threading.Event()
-        interrupted = threading.Event()
-
         def log_message(self, *args):
             pass
 
         def do_POST(self):
+            nonlocal expected_status_path
             if self.path != "/api/v1/commands/submit" or self.headers.get("dapr-app-id") != "eventstore":
                 self.send_error(404)
                 return
@@ -72,26 +66,54 @@ def interrupted_status(apphost, api_dll):
                 body = result.read()
                 if result.status != 202:
                     raise RuntimeError(f"The real gateway refused the interruption fixture submission with HTTP {result.status}")
+                receipt = json.loads(body)
+                message_id = receipt.get("messageId") if isinstance(receipt, dict) else None
+                if not isinstance(message_id, str) or not message_id.strip():
+                    raise RuntimeError("The gateway receipt did not identify the accepted command")
+                status_path = "/api/v1/commands/status/" + urllib.parse.quote(message_id, safe="")
+                with receipt_lock:
+                    if expected_status_path is not None and expected_status_path != status_path:
+                        raise RuntimeError("The outage fixture received a receipt for another command")
+                    expected_status_path = status_path
                 self.send_response(result.status)
                 self.send_header("Content-Type", result.getheader("Content-Type", "application/json"))
                 self.send_header("Content-Length", str(len(body)))
-                if result.status == 202:
-                    self.accepted.set()
                 self.end_headers()
                 self.wfile.write(body)
             finally:
                 upstream.close()
 
         def do_GET(self):
-            if self.accepted.is_set() and self.path.startswith("/api/v1/commands/status/"):
-                self.interrupted.set()
+            with receipt_lock:
+                matches_receipt = self.path == expected_status_path and self.headers.get("dapr-app-id") == "eventstore"
+            if matches_receipt:
                 self.send_error(503)
+                interrupted.set()
             else:
                 self.send_error(404)
 
     with http.server.ThreadingHTTPServer(("127.0.0.1", 0), Relay) as proxy:
         server_thread = threading.Thread(target=proxy.serve_forever, daemon=True)
         server_thread.start()
+        try:
+            yield proxy.server_port, interrupted
+        finally:
+            proxy.shutdown()
+            server_thread.join()
+
+
+@contextmanager
+def interrupted_status(apphost, api_dll):
+    description = subprocess.run(
+        ["aspire", "describe", "conversations-api", "--apphost", str(apphost), "--format", "Json", "--non-interactive"],
+        check=True, capture_output=True, text=True, timeout=20)
+    service = json.loads(description.stdout)["resources"][0]
+    settings = service["environment"]
+    port = int(settings["DAPR_HTTP_PORT"])
+    receipt = json.loads(Path(os.environ["CONVERSATIONS_CATALOG_RECEIPT"]).read_text())
+    binding = {key.lower(): value for key, value in receipt.items()}
+
+    with _command_status_relay(port, binding) as (proxy_port, interrupted):
         with socket.socket() as available:
             available.bind(("127.0.0.1", 0))
             origin = "http://127.0.0.1:" + str(available.getsockname()[1])
@@ -100,7 +122,7 @@ def interrupted_status(apphost, api_dll):
         env.update({key: value for key, value in settings.items()
                     if key.startswith("Authentication__JwtBearer__") or key == "DAPR_API_TOKEN"})
         env.update(ASPNETCORE_URLS=origin, ASPNETCORE_ENVIRONMENT="Development",
-                   DOTNET_ENVIRONMENT="Development", DAPR_HTTP_ENDPOINT=f"http://127.0.0.1:{proxy.server_port}")
+                   DOTNET_ENVIRONMENT="Development", DAPR_HTTP_ENDPOINT=f"http://127.0.0.1:{proxy_port}")
         child = subprocess.Popen(["dotnet", str(api_dll)], env=env, cwd=api_dll.parent, stdout=subprocess.DEVNULL)
         try:
             client = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
@@ -115,8 +137,8 @@ def interrupted_status(apphost, api_dll):
             else:
                 raise RuntimeError("The local status-interruption API did not become ready")
             yield origin
-            if not (Relay.accepted.is_set() and Relay.interrupted.is_set()):
-                raise RuntimeError("The real command admission and interrupted status read were not both observed")
+            if not interrupted.is_set():
+                raise RuntimeError("No status read for the accepted gateway receipt was interrupted")
         finally:
             child.terminate()
             try:
@@ -124,5 +146,3 @@ def interrupted_status(apphost, api_dll):
             except subprocess.TimeoutExpired:
                 child.kill()
                 child.wait()
-            proxy.shutdown()
-            server_thread.join()
