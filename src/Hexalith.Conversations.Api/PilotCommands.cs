@@ -21,11 +21,12 @@ internal static class PilotCommands
     internal static async Task<IResult> CreateAsync(HttpContext context, IEventStoreGatewayClient gateway, CancellationToken token)
     {
         var command = await ConversationCommandApi.ReadBodyAsync<CreateConversationCommand>(context, token);
-        if (Validate(context, command?.Metadata, out string subject) is { } invalid) return invalid;
+        string correlation = ConversationCommandApi.SafeErrorCorrelationId(context, command?.Metadata?.CorrelationId);
+        if (Validate(context, command?.Metadata, correlation, out string subject) is { } invalid) return invalid;
         var metadata = command!.Metadata;
         var id = new ConversationId(PilotCommandIdentity.Allocate(metadata, subject, "conversation"));
         var create = new CreateHumanConversation(command, id, DateTimeOffset.UtcNow, PilotCommandIdentity.Allocate(metadata, subject, "created-event"));
-        var failure = await SubmitAsync(gateway, metadata, id, create, token);
+        var failure = await SubmitAsync(gateway, metadata, id, create, correlation, token);
         return failure ?? Results.Json(new ConversationCreatedResult(SchemaVersion.Current, metadata.TenantId, id,
             metadata.CorrelationId, metadata.IdempotencyKey, new(ProjectionTrustState.Rebuilding), ConversationCommandType.CreateConversationCommand),
             statusCode: StatusCodes.Status201Created);
@@ -34,44 +35,44 @@ internal static class PilotCommands
     internal static async Task<IResult> AppendAsync(string conversationId, HttpContext context, IEventStoreGatewayClient gateway, CancellationToken token)
     {
         var command = await ConversationCommandApi.ReadBodyAsync<AppendMessageCommand>(context, token);
-        if (Validate(context, command?.Metadata, out string subject) is { } invalid) return invalid;
+        string correlation = ConversationCommandApi.SafeErrorCorrelationId(context, command?.Metadata?.CorrelationId);
+        if (Validate(context, command?.Metadata, correlation, out string subject) is { } invalid) return invalid;
         var metadata = command!.Metadata;
         if (command.ConversationId?.Value != conversationId || command.MessageId is null
             || string.IsNullOrWhiteSpace(command.Text) || command.AgentProvenance is not null)
-            return Failure(metadata.CorrelationId, 400, ConversationErrorCode.CommandValidationFailed);
+            return Failure(correlation, 400, ConversationErrorCode.CommandValidationFailed);
         if (command.AuthorPartyId != metadata.ActorPartyId)
-            return Failure(metadata.CorrelationId, 403, ConversationErrorCode.TenantIsolationViolation);
+            return Failure(correlation, 403, ConversationErrorCode.TenantIsolationViolation);
         var append = new AppendMessage(command, DateTimeOffset.UtcNow,
             PilotCommandIdentity.Allocate(metadata, subject, "message-event", conversationId));
-        var failure = await SubmitAsync(gateway, metadata, command.ConversationId, append, token);
+        var failure = await SubmitAsync(gateway, metadata, command.ConversationId, append, correlation, token);
         return failure ?? Results.Json(new ConversationCommandAcceptedResult(SchemaVersion.Current, metadata.TenantId,
             command.ConversationId, ConversationCommandType.AppendMessageCommand, metadata.CorrelationId,
             metadata.IdempotencyKey, new(ProjectionTrustState.Rebuilding)), statusCode: StatusCodes.Status202Accepted);
     }
 
-    private static IResult? Validate(HttpContext context, ConversationCommandMetadata? metadata, out string subject)
+    private static IResult? Validate(HttpContext context, ConversationCommandMetadata? metadata, string correlation, out string subject)
     {
         subject = string.Empty;
-        if (metadata is null) return Failure(context.TraceIdentifier, 400, ConversationErrorCode.CommandValidationFailed);
+        if (metadata is null) return Failure(correlation, 400, ConversationErrorCode.CommandValidationFailed);
         if (!ConversationReadApi.TryGetTenantCaller(context, out var tenant, out var principal, out _)
             || tenant != metadata.TenantId || !ConversationReadApi.ScopeHeadersMatch(context, tenant!, principal!)
             || !ConversationReadApi.HeaderMatches(context, "X-Actor-Party-Id", metadata.ActorPartyId.Value))
-            return Failure(metadata.CorrelationId, 403, ConversationErrorCode.TenantContextMismatch);
+            return Failure(correlation, 403, ConversationErrorCode.TenantContextMismatch);
         subject = principal!;
         if (metadata.SchemaVersion != SchemaVersion.Current)
-            return Failure(metadata.CorrelationId, 400, ConversationErrorCode.SchemaVersionUnsupported);
+            return Failure(correlation, 400, ConversationErrorCode.SchemaVersionUnsupported);
         if (string.IsNullOrWhiteSpace(metadata.IdempotencyKey))
-            return Failure(metadata.CorrelationId, 400, ConversationErrorCode.IdempotencyKeyMissing);
+            return Failure(correlation, 400, ConversationErrorCode.IdempotencyKeyMissing);
         if (metadata.IdempotencyKey.Length > 200 || metadata.IdempotencyKey.Any(char.IsControl)
             || !ConversationReadApi.HeaderMatches(context, "Idempotency-Key", metadata.IdempotencyKey))
-            return Failure(metadata.CorrelationId, 400, ConversationErrorCode.CommandValidationFailed);
+            return Failure(correlation, 400, ConversationErrorCode.CommandValidationFailed);
         return null;
     }
 
     private static async Task<IResult?> SubmitAsync<T>(IEventStoreGatewayClient gateway, ConversationCommandMetadata metadata,
-        ConversationId conversation, T payload, CancellationToken token)
+        ConversationId conversation, T payload, string correlation, CancellationToken token)
     {
-        string correlation = metadata.CorrelationId;
         using var deadline = CancellationTokenSource.CreateLinkedTokenSource(token);
         deadline.CancelAfter(TimeSpan.FromSeconds(45));
         bool received = false;
@@ -79,7 +80,7 @@ internal static class PilotCommands
         {
             // The gateway selects the original execution on replay using the semantic adapter and key.
             var request = new SubmitCommandRequest(Ulid.New().ToString(), metadata.TenantId.Value, "conversation", conversation.Value,
-                typeof(T).Name, JsonSerializer.SerializeToElement(payload, JsonSerializerOptions.Web), correlation,
+                typeof(T).Name, JsonSerializer.SerializeToElement(payload, JsonSerializerOptions.Web), metadata.CorrelationId,
                 IdempotencyKey: metadata.IdempotencyKey);
             var receipt = await gateway.SubmitCommandAsync(request, deadline.Token);
             received = true;
@@ -104,6 +105,9 @@ internal static class PilotCommands
         }
         catch (EventStoreGatewayException ex) when (!received)
         {
+            if (ex.StatusCode == StatusCodes.Status413PayloadTooLarge)
+                return ConversationCommandApi.ErrorResult(ConversationErrorCode.CommandValidationFailed, correlation,
+                    StatusCodes.Status413PayloadTooLarge, "Reduce the command payload size before sending it again.");
             if (ex.Extensions.TryGetValue("rejectionType", out var kind) && kind.ValueKind == JsonValueKind.String)
                 return Rejection(correlation, kind.GetString());
             return ex.StatusCode switch
@@ -113,8 +117,7 @@ internal static class PilotCommands
                 409 when ex.Code == "idempotency_conflict" || ex.ReasonCode == "idempotency_conflict"
                     => Failure(correlation, 409, ConversationErrorCode.IdempotencyConflict),
                 409 when ex.Code == "idempotency_key_expired" || ex.ReasonCode == "idempotency_key_expired"
-                    => ConversationCommandApi.ErrorResult(ConversationErrorCode.IdempotencyOutcomeUnknown, correlation, 409,
-                        "The original receipt expired. Reconcile the original conversation and message before issuing another mutation."),
+                    => ExpiredReceipt(correlation),
                 _ => Failure(correlation, 503, ConversationErrorCode.IdempotencyOutcomeUnknown),
             };
         }
@@ -123,6 +126,15 @@ internal static class PilotCommands
             return Failure(correlation, 503, ConversationErrorCode.IdempotencyOutcomeUnknown);
         }
         return Failure(correlation, 503, ConversationErrorCode.IdempotencyOutcomeUnknown);
+    }
+
+    private static IResult ExpiredReceipt(string correlation)
+    {
+        const string guidance = "The original receipt expired. Reconcile the original conversation and message before issuing another mutation.";
+        var descriptor = ConversationErrorCatalog.Get(ConversationErrorCode.IdempotencyOutcomeUnknown);
+        var error = new ConversationError(SchemaVersion.Current, descriptor.Code, descriptor.Category, IsRetryable: false,
+            correlation, Documentation: descriptor.Documentation, DeveloperGuidance: guidance, SafeMessage: guidance);
+        return Results.Json(new ConversationErrorResult([error]), statusCode: StatusCodes.Status409Conflict);
     }
 
     private static IResult Rejection(string correlation, string? kind)

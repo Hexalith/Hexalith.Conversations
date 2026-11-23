@@ -105,7 +105,9 @@ var conflict = await client.AppendMessageAsync(append with { Text = $"Changed {r
 Check(conflict.StatusCode == HttpStatusCode.Conflict && conflict.Error?.Errors.Any(e => e.Code == ConversationErrorCode.IdempotencyConflict) == true, "changed intent");
 wire.Verify(HttpStatusCode.Conflict, ConversationErrorCode.IdempotencyConflict, run);
 var missing = await client.AppendMessageAsync(append with { Metadata = (context with { IdempotencyKey = null }).ToCommandMetadata() }, token);
-Check(missing.StatusCode == HttpStatusCode.BadRequest && !missing.IsSuccess, "missing key");
+Check(missing.StatusCode == HttpStatusCode.BadRequest && !missing.IsSuccess
+    && missing.Error?.Errors.Any(error => error.Code == ConversationErrorCode.IdempotencyKeyMissing && error.CorrelationId == run
+        && !error.IsRetryable && error.ClientAction == ConversationErrorClientAction.ProvideIdempotencyKey) == true, "typed missing key");
 wire.Verify(HttpStatusCode.BadRequest, ConversationErrorCode.IdempotencyKeyMissing, run);
 var denied = await new ConversationClient(foreignHttp).AppendMessageAsync(append, token);
 Check(denied.StatusCode == HttpStatusCode.Forbidden && !denied.IsSuccess, "foreign write");

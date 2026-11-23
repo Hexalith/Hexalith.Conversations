@@ -1391,3 +1391,13 @@ These five dispositions concern the Epic 16 entries from `spec-sync-upgrade-and-
 - Healthy nonempty lists. The context describes current summaries, pagination and the meaning of an empty filtered result. The tenant index read matrix exercises ready-empty and ready-nonempty indexes.
 - Entry qualifications. The context links the nine formal requirements and the owner decisions used for each of the three native verification runs.
 - Pre-anchor failure response. The November 4 closure missed observations before 1970. A regression reproduced the exception at the earliest valid v1 instant and one tick before the Unix epoch. The materializer now returns the actual observation time, a representable missing-anchor marker and null lag. The prior Unix epoch encoding still applies from the epoch onward.
+
+## Resolved by pilot API and client error fixes (2026-11-23)
+
+These five dispositions address the packaged-client review and its typed-error follow-up for Story 9.4. Verification is recorded in [the follow-up spec](spec-five-deferred-pilot-error-outcomes.md).
+
+- The client preserves the HTTP 400 `idempotency_key_missing` and HTTP 409 `idempotency_outcome_unknown` envelopes. Non-seekable response tests and an isolated package consumer verify the wire status, correlation, code, retryability, and action.
+- Pilot validation returns a safe correlation from command metadata, a single request header, or the request trace. Server tests exercise malformed JSON and unsafe values and verify the original gateway submission correlation.
+- An expired receipt returns HTTP 409 with `idempotency_outcome_unknown`, false retryability, and guidance to reconcile the original mutation. The wire test covers the absence of a retry action, and the integration guide describes the two uncertainty outcomes.
+- A pre-admission size refusal returns HTTP 413 with a nonretryable validation error. Tests cover the server response, a plain or unreadable response body in the client, and a separate failure after submission that still reports uncertainty.
+- The pilot returns HTTP 503 for malformed owner list data. Tests cover missing or null rows, missing pagination, null entries, and inconsistent counts, with a valid empty page and an invalid caller page as controls.

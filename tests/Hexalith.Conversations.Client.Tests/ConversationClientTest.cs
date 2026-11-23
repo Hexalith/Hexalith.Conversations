@@ -397,6 +397,49 @@ public sealed class ConversationClientTest
         handler.Requests.Select(r => r.Header("Idempotency-Key")).ShouldBe(["idem-append-001", "idem-append-001"]);
     }
 
+    [Theory]
+    [InlineData(HttpStatusCode.BadRequest, "idempotency_key_missing", "provide-idempotency-key")]
+    [InlineData(HttpStatusCode.Conflict, "idempotency_outcome_unknown", null)]
+    public async Task MutationErrorsShouldPreserveTheTypedBodyFromANonSeekableResponse(
+        HttpStatusCode status, string code, string? action)
+    {
+        using FakeHttpMessageHandler handler = new();
+        const string correlation = "wire-correlation";
+        const string reconciliation = "Reconcile the original conversation and message before issuing another mutation.";
+        ConversationError error = action is null
+            ? new(SchemaVersion.Current, ConversationErrorCode.Parse(code), ConversationErrorCategory.Uncertainty,
+                IsRetryable: false, correlation, SafeMessage: reconciliation)
+            : ConversationErrorCatalog.CreateError(ConversationErrorCode.Parse(code), correlation);
+        handler.EnqueueNonSeekableJson(status, new ConversationErrorResult([error]));
+        ConversationClient client = CreateClient(handler);
+
+        var result = await client.AppendMessageAsync(AppendCommand(), TestContext.Current.CancellationToken);
+
+        result.StatusCode.ShouldBe(status);
+        result.Value.ShouldBeNull();
+        var actual = result.Error.ShouldNotBeNull().Errors.ShouldHaveSingleItem();
+        actual.Code.ShouldBe(error.Code);
+        actual.CorrelationId.ShouldBe(correlation);
+        actual.IsRetryable.ShouldBeFalse();
+        actual.ClientAction?.Value.ShouldBe(action);
+        actual.SafeMessage.ShouldBe(error.SafeMessage);
+    }
+
+    [Fact]
+    public async Task ReadErrorsShouldPreserveTypedErrorsFromANonSeekableResponse()
+    {
+        using FakeHttpMessageHandler handler = new();
+        var error = ConversationErrorCatalog.CreateError(ConversationErrorCode.TenantProjectionStale, "wire-correlation");
+        handler.EnqueueNonSeekableJson(HttpStatusCode.ServiceUnavailable, new ConversationErrorResult([error]));
+        ConversationClient client = CreateClient(handler);
+
+        var result = await client.GetConversationAsync(Query(), TestContext.Current.CancellationToken);
+
+        result.StatusCode.ShouldBe(HttpStatusCode.ServiceUnavailable);
+        result.Value.ShouldBeNull();
+        result.Error.ShouldNotBeNull().Errors.ShouldHaveSingleItem().ShouldBe(error);
+    }
+
     [Fact]
     public async Task TimeoutRetryShouldPreserveCallerIdempotencyMetadata()
     {
@@ -464,6 +507,7 @@ public sealed class ConversationClientTest
 
     [Theory]
     [InlineData(HttpStatusCode.BadRequest, "command_validation_failed", "correct-request")]
+    [InlineData(HttpStatusCode.RequestEntityTooLarge, "command_validation_failed", "correct-request")]
     [InlineData(HttpStatusCode.Unauthorized, "tenant_isolation_violation", "check-access")]
     [InlineData(HttpStatusCode.Forbidden, "tenant_isolation_violation", "check-access")]
     [InlineData(HttpStatusCode.NotFound, "aggregate_not_found", "hide-or-refresh")]
@@ -489,6 +533,35 @@ public sealed class ConversationClientTest
         serialized.ShouldNotContain("EventStore", Case.Insensitive);
         serialized.ShouldNotContain("handler", Case.Insensitive);
         serialized.ShouldNotContain("C:\\", Case.Insensitive);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task OversizeFallbackPreservesKnownStatusAndUsesASafeCorrelation(bool unreadableBody)
+    {
+        using FakeHttpMessageHandler handler = new();
+        if (unreadableBody)
+        {
+            handler.EnqueueUnreadableBody(HttpStatusCode.RequestEntityTooLarge);
+        }
+        else
+        {
+            handler.EnqueueString(HttpStatusCode.RequestEntityTooLarge, "Payload too large.");
+        }
+
+        var command = CreateCommand() with
+        {
+            Metadata = new(SchemaVersion.Current, Tenant, Actor, "store-private", IdempotencyKey: "create-key"),
+        };
+        var result = await CreateClient(handler).CreateConversationAsync(command, TestContext.Current.CancellationToken);
+
+        result.StatusCode.ShouldBe(HttpStatusCode.RequestEntityTooLarge);
+        var error = result.Error.ShouldNotBeNull().Errors.ShouldHaveSingleItem();
+        error.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
+        error.IsRetryable.ShouldBeFalse();
+        error.ClientAction.ShouldBe(ConversationErrorClientAction.CorrectRequest);
+        error.CorrelationId.ShouldNotBe("store-private");
     }
 
     [Fact]
@@ -759,6 +832,12 @@ public sealed class ConversationClientTest
             });
         }
 
+        public void EnqueueUnreadableBody(HttpStatusCode statusCode)
+            => _responses.Enqueue(new HttpResponseMessage(statusCode)
+            {
+                Content = new StreamContent(new UnreadableBodyStream()),
+            });
+
         public void EnqueueException(Exception exception)
             => _responses.Enqueue(exception);
 
@@ -810,6 +889,12 @@ public sealed class ConversationClientTest
             request.Headers.Add(HeaderName, "observed");
             return base.SendAsync(request, cancellationToken);
         }
+    }
+
+    private sealed class UnreadableBodyStream : MemoryStream
+    {
+        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+            => ValueTask.FromException<int>(new IOException("Truncated HTTP response body."));
     }
 
     private sealed class NonSeekableMemoryStream(byte[] buffer) : MemoryStream(buffer)

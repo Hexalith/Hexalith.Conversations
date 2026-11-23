@@ -73,8 +73,8 @@ public sealed class PilotApiTests
         var unauthorized = new EventStoreGatewayException(401, "Unauthorized");
         gateway.SubmitQueryAsync<ConversationDetailResult>(Arg.Any<SubmitQueryRequest>(), null, TestContext.Current.CancellationToken)
             .Returns(Task.FromException<EventStoreQueryResult<ConversationDetailResult>>(unauthorized));
-        gateway.SubmitQueryAsync<ConversationListResult>(Arg.Any<SubmitQueryRequest>(), null, TestContext.Current.CancellationToken)
-            .Returns(Task.FromException<EventStoreQueryResult<ConversationListResult>>(unauthorized));
+        gateway.SubmitQueryAsync<JsonElement>(Arg.Any<SubmitQueryRequest>(), null, TestContext.Current.CancellationToken)
+            .Returns(Task.FromException<EventStoreQueryResult<JsonElement>>(unauthorized));
         Status(await PilotQueries.DetailAsync(F.Conversation.Value, Caller(), gateway, TestContext.Current.CancellationToken)).ShouldBe(401);
         Status(await PilotQueries.ListAsync(Caller(), gateway, TestContext.Current.CancellationToken)).ShouldBe(401);
     }
@@ -84,6 +84,7 @@ public sealed class PilotApiTests
     [InlineData(401)]
     [InlineData(403)]
     [InlineData(409)]
+    [InlineData(413)]
     public async Task FailedConfirmationKeepsOriginalKeyRecoverable(int status)
     {
         var gateway = Substitute.For<IEventStoreGatewayClient>();
@@ -122,6 +123,127 @@ public sealed class PilotApiTests
         Status(error).ShouldBe(status);
         Body<ConversationErrorResult>(error).Errors.Single().Code.ShouldBe(conflict
             ? ConversationErrorCode.IdempotencyConflict : ConversationErrorCode.IdempotencyOutcomeUnknown);
+    }
+
+    [Theory]
+    [InlineData("correlation-body", "correlation-header", "correlation-body")]
+    [InlineData("store-private", "correlation-header", "correlation-header")]
+    [InlineData("store-private", "tenant-private", "correlation-trace")]
+    [InlineData(null, "correlation-header", "correlation-header")]
+    [InlineData(null, null, "correlation-trace")]
+    public async Task ValidationErrorsSelectASafeCorrelation(string? bodyCorrelation, string? header, string expected)
+    {
+        var gateway = Substitute.For<IEventStoreGatewayClient>();
+        var context = bodyCorrelation is null ? Caller() : Caller(new CreateConversationCommand(
+            new ConversationCommandMetadata(SchemaVersion.Current, F.Tenant, F.Human, bodyCorrelation)));
+        context.TraceIdentifier = "correlation-trace";
+        if (header is not null) context.Request.Headers["X-Correlation-Id"] = header;
+        if (bodyCorrelation is null) context.Request.Body = new MemoryStream("{broken"u8.ToArray());
+
+        var response = await PilotCommands.CreateAsync(context, gateway, TestContext.Current.CancellationToken);
+
+        Status(response).ShouldBe(400);
+        var error = Body<ConversationErrorResult>(response).Errors.ShouldHaveSingleItem();
+        error.Code.ShouldBe(bodyCorrelation is null ? ConversationErrorCode.CommandValidationFailed : ConversationErrorCode.IdempotencyKeyMissing);
+        error.CorrelationId.ShouldBe(expected);
+        gateway.ReceivedCalls().ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task GatewaySubmissionKeepsOriginalCorrelationWhenPublicErrorUsesAFallback()
+    {
+        var gateway = Substitute.For<IEventStoreGatewayClient>();
+        SubmitCommandRequest? submission = null;
+        gateway.SubmitCommandAsync(Arg.Do<SubmitCommandRequest>(request => submission = request), Arg.Any<CancellationToken>())
+            .Returns(Task.FromException<SubmitCommandResponse>(new EventStoreGatewayException(413, "Payload too large")));
+        var command = new CreateConversationCommand(new ConversationCommandMetadata(
+            SchemaVersion.Current, F.Tenant, F.Human, "store-private", IdempotencyKey: "create-key"));
+        var context = Caller(command);
+        context.TraceIdentifier = "correlation-trace";
+
+        var response = await PilotCommands.CreateAsync(context, gateway, TestContext.Current.CancellationToken);
+
+        Status(response).ShouldBe(413);
+        submission.ShouldNotBeNull().CorrelationId.ShouldBe(command.Metadata.CorrelationId);
+        Body<ConversationErrorResult>(response).Errors.ShouldHaveSingleItem().CorrelationId.ShouldBe(context.TraceIdentifier);
+    }
+
+    [Fact]
+    public async Task ExpiredReceiptDirectsReconciliationWithoutRetrying()
+    {
+        var gateway = Substitute.For<IEventStoreGatewayClient>();
+        gateway.SubmitCommandAsync(Arg.Any<SubmitCommandRequest>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromException<SubmitCommandResponse>(new EventStoreGatewayException(409, "Conflict", code: "idempotency_key_expired")));
+        var command = new CreateConversationCommand(new F().CommandMetadata(F.Human));
+
+        var response = await PilotCommands.CreateAsync(Caller(command), gateway, TestContext.Current.CancellationToken);
+
+        Status(response).ShouldBe(409);
+        var wire = JsonSerializer.Serialize(Body<ConversationErrorResult>(response), JsonSerializerOptions.Web);
+        var error = JsonSerializer.Deserialize<ConversationErrorResult>(wire, JsonSerializerOptions.Web)
+            .ShouldNotBeNull().Errors.ShouldHaveSingleItem();
+        error.Code.ShouldBe(ConversationErrorCode.IdempotencyOutcomeUnknown);
+        error.CorrelationId.ShouldBe(command.Metadata.CorrelationId);
+        error.IsRetryable.ShouldBeFalse();
+        error.ClientAction.ShouldBeNull();
+        error.SafeMessage.ShouldNotBeNull().ShouldContain("Reconcile the original conversation and message");
+        error.DeveloperGuidance.ShouldBe(error.SafeMessage);
+    }
+
+    [Fact]
+    public async Task OversizedSubmissionPreservesTheNonRetryableRefusal()
+    {
+        var gateway = Substitute.For<IEventStoreGatewayClient>();
+        gateway.SubmitCommandAsync(Arg.Any<SubmitCommandRequest>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromException<SubmitCommandResponse>(new EventStoreGatewayException(413, "Payload too large")));
+        var command = new CreateConversationCommand(new F().CommandMetadata(F.Human));
+
+        var response = await PilotCommands.CreateAsync(Caller(command), gateway, TestContext.Current.CancellationToken);
+
+        Status(response).ShouldBe(413);
+        var error = Body<ConversationErrorResult>(response).Errors.ShouldHaveSingleItem();
+        error.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
+        error.CorrelationId.ShouldBe(command.Metadata.CorrelationId);
+        error.IsRetryable.ShouldBeFalse();
+        error.ClientAction.ShouldBe(ConversationErrorClientAction.CorrectRequest);
+        error.DeveloperGuidance.ShouldNotBeNull().ShouldContain("Reduce the command payload size");
+        await gateway.DidNotReceiveWithAnyArgs().GetCommandStatusAsync(default!, TestContext.Current.CancellationToken);
+    }
+
+    [Theory]
+    [InlineData("\"conversations\": []", 503)]
+    [InlineData("\"conversations\": [null], \"page\": {\"returnedCount\": 1}", 503)]
+    [InlineData("\"page\": {\"returnedCount\": 0}", 503)]
+    [InlineData("\"conversations\": null, \"page\": {\"returnedCount\": 0}", 503)]
+    [InlineData("\"conversations\": [], \"page\": {\"returnedCount\": 1}", 503)]
+    [InlineData("\"conversations\": [], \"page\": {\"returnedCount\": 0}", 200)]
+    public async Task OnlyAWellFormedOwnerListIsAvailable(string listFields, int expectedStatus)
+    {
+        var gateway = Substitute.For<IEventStoreGatewayClient>();
+        var data = $$"""
+            {"schemaVersion": 1, "freshnessState": "Current", "reasonCode": "current", "safeNextAction": "Ready", {{listFields}}}
+            """;
+        gateway.SubmitQueryAsync<JsonElement>(Arg.Any<SubmitQueryRequest>(), null, Arg.Any<CancellationToken>())
+            .Returns(new EventStoreQueryResult<JsonElement>("correlation", JsonSerializer.Deserialize<JsonElement>(data), false, null));
+
+        var response = await PilotQueries.ListAsync(Caller(), gateway, TestContext.Current.CancellationToken);
+
+        Status(response).ShouldBe(expectedStatus);
+        Body<ConversationListResult>(response).FreshnessState.ShouldBe(expectedStatus == 200 ? ProjectionTrustState.Current : ProjectionTrustState.Unavailable);
+    }
+
+    [Fact]
+    public async Task InvalidListPageIsHiddenBeforeDispatch()
+    {
+        var gateway = Substitute.For<IEventStoreGatewayClient>();
+        var context = Caller();
+        context.Request.QueryString = new("?pageSize=invalid");
+
+        var response = await PilotQueries.ListAsync(context, gateway, TestContext.Current.CancellationToken);
+
+        Status(response).ShouldBe(200);
+        Body<ConversationListResult>(response).FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+        gateway.ReceivedCalls().ShouldBeEmpty();
     }
 
     [Fact]

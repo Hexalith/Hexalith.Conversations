@@ -51,17 +51,33 @@ internal static class PilotQueries
         if (!ConversationReadApi.TryGetTenantCaller(context, out var tenant, out var subject, out _)
             || !ConversationReadApi.ScopeHeadersMatch(context, tenant!, subject!))
             return ConversationReadApi.HiddenList();
+        ConversationListFilterV1 filter;
+        ConversationPageRequest page;
         try
         {
-            var payload = new { filter = ConversationReadApi.BuildFilter(context.Request.Query), page = ConversationReadApi.BuildPage(context.Request.Query) };
+            filter = ConversationReadApi.BuildFilter(context.Request.Query);
+            page = ConversationReadApi.BuildPage(context.Request.Query);
+        }
+        catch (ArgumentException) { return ConversationReadApi.HiddenList(); }
+
+        try
+        {
             var request = new SubmitQueryRequest(tenant!.Value, "conversations", tenant.Value, "conversation-list",
-                Payload: JsonSerializer.SerializeToElement(payload, JsonSerializerOptions.Web));
-            var result = (await gateway.SubmitQueryAsync<ConversationListResult>(request, cancellationToken: token)).Payload;
-            if (result is null) return ConversationReadApi.UnavailableList();
+                Payload: JsonSerializer.SerializeToElement(new { filter, page }, JsonSerializerOptions.Web));
+            var body = (await gateway.SubmitQueryAsync<JsonElement>(request, cancellationToken: token)).Payload;
+            if (body.ValueKind != JsonValueKind.Object) return ConversationReadApi.UnavailableList();
+
+            // The public DTO normalizes absent rows to empty. Require the owner to supply an array.
+            var rows = body.EnumerateObject().SingleOrDefault(property =>
+                string.Equals(property.Name, "conversations", StringComparison.OrdinalIgnoreCase)).Value;
+            if (rows.ValueKind != JsonValueKind.Array) return ConversationReadApi.UnavailableList();
+
+            var result = body.Deserialize<ConversationListResult>(JsonSerializerOptions.Web);
+            if (result is null || result.Page.ReturnedCount != result.Conversations.Count)
+                return ConversationReadApi.UnavailableList();
             if (result.Conversations.Any(row => row.TenantId != tenant)) return ConversationReadApi.HiddenList();
             return ConversationReadApi.ListToHttpResult(result);
         }
-        catch (ArgumentException) { return ConversationReadApi.HiddenList(); }
         catch (EventStoreGatewayException ex) when (ex.StatusCode == 401) { return Results.Unauthorized(); }
         catch (EventStoreGatewayException ex) when (ex.StatusCode is 400 or 403 or 404) { return ConversationReadApi.HiddenList(); }
         catch (Exception) when (!token.IsCancellationRequested) { return ConversationReadApi.UnavailableList(); }

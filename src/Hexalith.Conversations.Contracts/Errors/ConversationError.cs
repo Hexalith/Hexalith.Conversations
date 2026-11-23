@@ -145,14 +145,30 @@ public sealed record ConversationError(
         return validated;
     }
 
+    /// <summary>Returns the supplied correlation when it can be included in a public error.</summary>
+    internal static string? SafeCorrelationId(string? value)
+        => string.IsNullOrWhiteSpace(value) || value.Any(char.IsControl) || FindUnsafeTerm(value) is not null
+            ? null
+            : value;
+
     internal static void EnsureContentSafe(string value, string parameterName)
+    {
+        if (FindUnsafeTerm(value) is { } term)
+        {
+            throw new ArgumentException($"Error details must remain content-safe; the value contained the forbidden term fragment '{term}'.", parameterName);
+        }
+    }
+
+    private static string? FindUnsafeTerm(string value)
     {
         foreach (string term in UnsafeTerms)
         {
             if (value.Contains(term, StringComparison.OrdinalIgnoreCase))
             {
-                throw new ArgumentException($"Error details must remain content-safe; the value contained the forbidden term fragment '{term}'.", parameterName);
+                return term;
             }
         }
+
+        return null;
     }
 }

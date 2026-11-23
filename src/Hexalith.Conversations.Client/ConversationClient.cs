@@ -237,9 +237,15 @@ public sealed class ConversationClient : IConversationClient
                 .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
                 .ConfigureAwait(false);
 
-            T? value = await TryReadAsync<T>(response.Content, cancellationToken).ConfigureAwait(false);
+            bool inspectReadFailure = !response.IsSuccessStatusCode && IsReadResult<T>();
+            JsonElement body = inspectReadFailure
+                ? await TryReadBodyAsync<JsonElement>(response, cancellationToken).ConfigureAwait(false)
+                : default;
+            T? value = response.IsSuccessStatusCode
+                ? await TryReadBodyAsync<T>(response, cancellationToken).ConfigureAwait(false)
+                : TryDeserialize<T>(body);
             bool rejected = false;
-            if (value is not null && (response.IsSuccessStatusCode || IsReadResult<T>()))
+            if (value is not null)
             {
                 value = validateResponse is null ? value : validateResponse(value, response.StatusCode);
                 if (value is not null)
@@ -260,9 +266,10 @@ public sealed class ConversationClient : IConversationClient
                     response.StatusCode);
             }
 
-            ConversationErrorResult error = await TryReadErrorAsync(response.Content, cancellationToken).ConfigureAwait(false)
-                ?? FallbackForStatus(response.StatusCode, correlationId);
-            return ConversationClientResult<T>.Failure(error, response.StatusCode);
+            ConversationErrorResult? error = inspectReadFailure
+                ? TryDeserialize<ConversationErrorResult>(body)
+                : await TryReadBodyAsync<ConversationErrorResult>(response, cancellationToken).ConfigureAwait(false);
+            return ConversationClientResult<T>.Failure(error ?? FallbackForStatus(response.StatusCode, correlationId), response.StatusCode);
         }
         catch (Exception ex) when (IsUnknownOutcomeException(ex, cancellationToken))
         {
@@ -270,29 +277,31 @@ public sealed class ConversationClient : IConversationClient
         }
     }
 
-    private static async Task<T?> TryReadAsync<T>(HttpContent content, CancellationToken cancellationToken)
-        where T : class
+    private static async Task<T?> TryReadBodyAsync<T>(HttpResponseMessage response, CancellationToken cancellationToken)
     {
         try
         {
-            using Stream stream = await content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+            using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
             return await JsonSerializer.DeserializeAsync<T>(stream, JsonOptions, cancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex) when (ex is JsonException or NotSupportedException or InvalidOperationException or ArgumentException)
+        catch (Exception ex) when (ex is JsonException or NotSupportedException or InvalidOperationException or ArgumentException
+            || (response.StatusCode == HttpStatusCode.RequestEntityTooLarge && IsUnknownOutcomeException(ex, cancellationToken)))
         {
-            return null;
+            return default;
         }
     }
 
-    private static async Task<ConversationErrorResult?> TryReadErrorAsync(
-        HttpContent content,
-        CancellationToken cancellationToken)
+    private static T? TryDeserialize<T>(JsonElement body)
+        where T : class
     {
+        if (body.ValueKind is JsonValueKind.Undefined or JsonValueKind.Null)
+        {
+            return null;
+        }
+
         try
         {
-            using Stream stream = await content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-            return await JsonSerializer.DeserializeAsync<ConversationErrorResult>(stream, JsonOptions, cancellationToken)
-                .ConfigureAwait(false);
+            return body.Deserialize<T>(JsonOptions);
         }
         catch (Exception ex) when (ex is JsonException or NotSupportedException or InvalidOperationException or ArgumentException)
         {
@@ -307,6 +316,10 @@ public sealed class ConversationClient : IConversationClient
                 ConversationErrorCode.CommandValidationFailed,
                 correlationId,
                 "Correct the request and retry."),
+            HttpStatusCode.RequestEntityTooLarge => FallbackError(
+                ConversationErrorCode.CommandValidationFailed,
+                correlationId,
+                "Reduce the command payload size before sending it again."),
             HttpStatusCode.Conflict => FallbackError(
                 ConversationErrorCode.IdempotencyConflict,
                 correlationId,
@@ -336,7 +349,7 @@ public sealed class ConversationClient : IConversationClient
             [
                 ConversationErrorCatalog.CreateError(
                     code,
-                    correlationId,
+                    ConversationError.SafeCorrelationId(correlationId) ?? Guid.NewGuid().ToString("N"),
                     developerGuidance: developerGuidance),
             ]);
 

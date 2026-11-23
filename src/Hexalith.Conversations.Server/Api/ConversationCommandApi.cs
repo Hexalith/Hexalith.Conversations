@@ -266,6 +266,15 @@ public static class ConversationCommandApi
                 ]),
             statusCode: statusCode);
 
+    /// <summary>Selects a content-safe correlation for public command errors.</summary>
+    internal static string SafeErrorCorrelationId(HttpContext context, string? commandCorrelation)
+    {
+        var supplied = context.Request.Headers[ConversationReadApi.CorrelationIdHeaderName];
+        string? header = supplied.Count == 1 ? supplied[0] : null;
+        return ConversationError.SafeCorrelationId(commandCorrelation) ?? ConversationError.SafeCorrelationId(header)
+            ?? ConversationError.SafeCorrelationId(context.TraceIdentifier) ?? Guid.NewGuid().ToString("N");
+    }
+
     private static string CorrelationIdFrom(HttpContext context)
         => context.Request.Headers.TryGetValue(ConversationReadApi.CorrelationIdHeaderName, out Microsoft.Extensions.Primitives.StringValues values)
             ? values.FirstOrDefault() ?? Guid.NewGuid().ToString("N")

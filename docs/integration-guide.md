@@ -18,7 +18,7 @@ Use `ConversationClientContext` to bind each call to a trusted tenant context, s
 
 Party identity is durable only as `PartyId` plus closed participant vocabulary. Display names, contact values, personal details, and organization details are hydrated at read time where policy allows and are not stored as durable conversation content.
 
-Mutating commands require idempotency metadata. Reuse the same idempotency key only for retrying the same logical request. A changed request must use a new key when the client receives `idempotency_conflict`; an uncertain transport outcome maps to `idempotency_outcome_unknown` and should be retried with the same metadata.
+Mutating commands require idempotency metadata. Reuse the same idempotency key only for retrying the same logical request. A changed request must use a new key when the client receives `idempotency_conflict`; an uncertain transport outcome maps to `idempotency_outcome_unknown`. Retry with the same metadata when the error is retryable and specifies `retry-same-request`. If the original receipt expired, reconcile the original conversation and message before issuing another mutation.
 
 Typed failures use `ConversationError` with closed `ConversationErrorCode`, `ConversationErrorCategory`, and `ConversationErrorClientAction` values. The canonical table is [Typed Errors](../src/Hexalith.Conversations.Contracts/README.md#typed-errors); branch on the closed fields, not on transport status text.
 
@@ -142,7 +142,14 @@ if (!created.IsSuccess)
         }
         else if (error.Code == ConversationErrorCode.IdempotencyOutcomeUnknown)
         {
-            // Unknown outcome: retry the same command metadata and idempotency key.
+            if (error.IsRetryable && error.ClientAction == ConversationErrorClientAction.RetrySameRequest)
+            {
+                // Retry with the same metadata and idempotency key.
+            }
+            else
+            {
+                // Reconcile the original conversation and message before issuing another mutation.
+            }
         }
         else if (error.Category == ConversationErrorCategory.Freshness
             && error.ClientAction == ConversationErrorClientAction.RetryLater)
@@ -227,7 +234,7 @@ Use these public responses:
 - `audit_sink_unavailable`: retry after audit recording is available.
 - `audit_pairing_required`: provide required audit evidence before retrying.
 - `idempotency_conflict`: send a changed request with a new idempotency key.
-- `idempotency_outcome_unknown`: retry the same request with the same idempotency metadata.
+- `idempotency_outcome_unknown` with `isRetryable: true` and `retry-same-request` calls for the same request and idempotency metadata. An expired receipt returns HTTP 409 with `isRetryable: false` and asks you to reconcile the original outcome.
 - `aggregate_not_found`: hide or refresh the unavailable target view without revealing existence.
 - `participant_validation_unavailable`: retry when participant identity validation is available.
 
