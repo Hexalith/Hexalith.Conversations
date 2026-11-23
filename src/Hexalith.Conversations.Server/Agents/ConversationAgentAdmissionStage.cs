@@ -230,6 +230,14 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
                 }
             }
 
+            if (command is RemoveAgentParticipant removal
+                && !source.Value.State.WasAgentRemoved(removal.PublicCommand.ParticipantPartyId)
+                && (removal.EventId != AgentCommandIntentId.Create(metadata, conversation, "removal")
+                    || eventIdentities.Contains(removal.EventId)))
+            {
+                return Reject(ConversationAgentsOutcome.Conflict);
+            }
+
             return DomainServiceAdmissionResult.Accepted();
         }
         catch (Exception ex) when (ex is not ConversationWriteAuthorityUnavailableException && !cancellationToken.IsCancellationRequested)

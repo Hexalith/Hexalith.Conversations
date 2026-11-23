@@ -1421,3 +1421,13 @@ These five dispositions follow the Story 9.3 review. Local verification and the 
 - The source qualification host sets the EventStore command-status TTL to 25 hours for the 24-hour mutation receipt window. The full runner checks the running gateway's setting, and the handoff specifies the status-store requirement.
 - The qualification AppHost selects the declaration from the verified Conversations source mapping, checks the reviewed EventStore source and requires the composed pilot API.
 - The full runner checks the exact reader Party binding in the running domain and ties reads to its sidecar. The installed client verifies the healthy durable tenant-reader membership immediately before submitting the denied create.
+
+## Resolved by admission and read consistency follow-up (2026-11-23)
+
+The [follow-up spec](spec-five-deferred-admission-and-read-consistency.md) records the implementation and checks for these five dispositions.
+
+- Story 12.2 BH-05. The supported pilot submits detail through the Platform-configured EventStore gateway, which binds the authenticated caller. The SDK HTTP test confirms that a workload-authenticated request without that binding is denied before tenant access or projection reads.
+- Story 12.2 BH-06. Ordinary detail uses the current tenant Read decision for a bound global administrator. The SDK HTTP tests cover authorized and denied tenant reads and verify that bounded and delegated requests still enforce their caller restrictions.
+- Story 6.2 summary equality. Detail and page validation compare summary values directly. Tests exercise distinct equivalent Party lists and provider extension objects, reordered Parties, and altered extension keys and values.
+- Restricted mutation review. New Agent removals require the scoped event ID emitted by the client and an unused identity in the verified source prefix. Tests pin the client wire IDs and cover a fresh removal, unused unrelated and already retained IDs, and a historically accepted no-op retry.
+- Story 11.3 VG-F01. A successful resolution metadata query uses the production native adapter for authorization and for the final read checks. The test advances the tenant proof between reads and verifies the full current permission proof, exact resource proof, and absence of writes.

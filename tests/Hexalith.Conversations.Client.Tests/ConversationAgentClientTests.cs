@@ -58,6 +58,34 @@ public sealed class ConversationAgentClientTests
         (await client.PostAgentMessageAsync(command, TestContext.Current.CancellationToken)).Outcome.ShouldBe(ConversationAgentsOutcome.Conflict);
     }
 
+    /// <summary>Removal retries use the same gateway command and scoped event identity.</summary>
+    [Fact]
+    public async Task RemovalRetryPreservesScopedWireIdentity()
+    {
+        using var fixture = new ConversationAgentHttpFixture();
+        using var http = new HttpClient(fixture) { BaseAddress = new("https://local.invalid/") };
+        var client = new ConversationClient(http);
+        var command = new RemoveAgentParticipantCommand(
+            new(SchemaVersion.Current, Tenant, Agent, "correlation", IdempotencyKey: "removal-key"),
+            Conversation, Agent, At);
+        fixture.Enqueue(new SubmitCommandResponse("correlation", MessageId: "gateway-command-id"));
+        fixture.Enqueue(new SubmitCommandResponse("correlation", MessageId: "gateway-command-id"));
+
+        var first = await client.RemoveAgentParticipantAsync(command, TestContext.Current.CancellationToken);
+        var retry = await client.RemoveAgentParticipantAsync(command, TestContext.Current.CancellationToken);
+
+        first.Outcome.ShouldBe(ConversationAgentsOutcome.Available);
+        retry.ShouldBe(first);
+        fixture.Requests.Count.ShouldBe(2);
+        foreach (JsonElement submitted in fixture.Requests)
+        {
+            submitted.GetProperty("messageId").GetString().ShouldBe("029D5057E955F22A55AE9510E0534C11E7CB17D8C3ED2F1B2707AB67D738A7B1");
+            var payload = submitted.GetProperty("payload");
+            payload.GetProperty("eventId").GetString().ShouldBe("130AAB9FEC45C7B11831EAECCBE3A2ED3BC781BBCA088A2F2BEE4A59357CC68B");
+            payload.GetProperty("publicCommand").Deserialize<RemoveAgentParticipantCommand>(Options).ShouldBe(command);
+        }
+    }
+
     [Theory]
     [InlineData(ConversationAgentsOutcome.Available, "receiver-v1", 1, null, true)]
     [InlineData(ConversationAgentsOutcome.Available, "receiver-v2", 1, null, false)]

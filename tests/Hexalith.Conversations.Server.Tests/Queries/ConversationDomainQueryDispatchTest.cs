@@ -35,6 +35,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
+using NSubstitute;
+
 namespace Hexalith.Conversations.Server.Tests.Queries;
 
 /// <summary>
@@ -79,14 +81,16 @@ public sealed class ConversationDomainQueryDispatchTest
         conversations.ValueKind.ShouldBe(JsonValueKind.Array);
     }
 
-    [Fact]
-    public async Task DetailQueryShouldDispatchThroughSdkSeamToAdapter()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task DetailQueryShouldDispatchThroughSdkSeamToAdapter(bool isGlobalAdmin)
     {
         await using ServiceProvider provider = BuildProvider();
         using IServiceScope scope = provider.CreateScope();
 
         byte[] payload = Encoding.UTF8.GetBytes(
-            JsonSerializer.Serialize(new { conversationId = "conversation-001" }));
+            JsonSerializer.Serialize(new { conversationId = "conversation-001", nativeMembershipOnly = isGlobalAdmin }));
         QueryEnvelope envelope = new(
             tenantId: Tenant.Value,
             domain: ConversationDomainQueryHandlerBase.ConversationsDomain,
@@ -94,7 +98,8 @@ public sealed class ConversationDomainQueryDispatchTest
             queryType: GetConversationDomainQueryHandler.ConversationDetailQueryType,
             payload: payload,
             correlationId: "correlation-001",
-            userId: "caller-001");
+            userId: "caller-001",
+            isGlobalAdmin: isGlobalAdmin);
 
         QueryResult result = await DomainQueryDispatcher.ExecuteAsync(
             scope.ServiceProvider, envelope, TestContext.Current.CancellationToken);
@@ -110,31 +115,48 @@ public sealed class ConversationDomainQueryDispatchTest
     [InlineData("projects-missing-scope")]
     [InlineData("caller-advisory")]
     [InlineData("caller-duplicate-selector")]
-    public async Task BoundedDetailShouldEnforceAdmissionThroughSdkHttp(string scenario)
+    [InlineData("legacy-unbound")]
+    [InlineData("caller-admin")]
+    [InlineData("caller-admin-denied")]
+    [InlineData("caller-admin-unverified")]
+    [InlineData("caller-admin-bounded")]
+    [InlineData("caller-admin-advisory")]
+    [InlineData("projects-admin")]
+    public async Task DetailShouldEnforceAdmissionThroughSdkHttp(string scenario)
     {
         const string appId = ResolutionRouteCatalog.AppId;
         const string issuer = "conversations-query-test";
         const string channelToken = "conversations-query-test-channel";
         string signingKey = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
         bool isAdvisory = scenario == "caller-advisory";
-        bool isDelegated = scenario is "projects" or "projects-missing-scope";
+        bool isLegacy = scenario == "legacy-unbound";
+        bool isAdministrator = scenario is "caller-admin" or "caller-admin-denied" or "caller-admin-unverified"
+            or "caller-admin-bounded" or "caller-admin-advisory" or "projects-admin";
+        bool isDelegated = scenario is "projects" or "projects-missing-scope" or "projects-admin";
         var reference = ResolutionMetadataFixture.Query() with { QueryType = GetConversationQuery.QueryType };
         var envelope = isDelegated
             ? reference with
             {
+                IsGlobalAdmin = isAdministrator,
                 CallerAuthority = reference.CallerAuthority! with
                 {
                     OriginatingContext = reference.CallerAuthority!.OriginatingContext! with
-                    { Scopes = scenario == "projects" ? ["projects.read"] : ["projects.list"] },
+                    { Scopes = scenario == "projects-missing-scope" ? ["projects.list"] : ["projects.read"] },
                 },
             }
             : reference with
             {
                 IsDelegated = false,
                 AuthenticatedWorkloadId = null,
-                CallerAuthority = new("authenticated-caller", [], []),
-                Payload = isAdvisory ? """{"advisoryMetadataOnly":true}"""u8.ToArray()
-                    : """{"nativeMembershipOnly":true,"nativeMembershipOnly":false}"""u8.ToArray(),
+                IsGlobalAdmin = isAdministrator,
+                CallerAuthority = isLegacy ? null : new("authenticated-caller", [], []),
+                Payload = scenario switch
+                {
+                    "caller-advisory" or "caller-admin-advisory" => """{"advisoryMetadataOnly":true}"""u8.ToArray(),
+                    "caller-admin-bounded" => """{"nativeMembershipOnly":true}"""u8.ToArray(),
+                    "caller-duplicate-selector" => """{"nativeMembershipOnly":true,"nativeMembershipOnly":false}"""u8.ToArray(),
+                    _ => [],
+                },
             };
         var tenant = new TenantId(envelope.TenantId);
         var conversation = new ConversationId(envelope.AggregateId);
@@ -173,7 +195,13 @@ public sealed class ConversationDomainQueryDispatchTest
         });
         builder.AddEventStoreDomainService(typeof(ConversationAggregate).Assembly, typeof(ServerAssemblyMarker).Assembly);
         builder.Services.AddConversationQueries(_ => { });
-        builder.Services.AddSingleton<IConversationTenantAccessService>(new AllowAllTenantAccessService());
+        var tenantAccess = new AllowAllTenantAccessService(scenario is not ("caller-admin-denied" or "caller-admin-unverified"));
+        builder.Services.AddSingleton<IConversationTenantAccessService>(tenantAccess);
+        var administrator = Substitute.For<IDomainServiceAdministratorVerifier>();
+        administrator.IsCurrentGlobalAdministratorAsync(
+            Arg.Is<DomainServiceAdministratorClaim>(claim => claim.TenantId == envelope.TenantId && claim.UserId == envelope.UserId),
+            Arg.Any<CancellationToken>()).Returns(Task.FromResult(scenario != "caller-admin-unverified"));
+        builder.Services.AddSingleton(administrator);
         builder.Services.AddSingleton<IConversationProjectionReadStore>(store);
         builder.Services.AddSingleton<IReadModelStore>(fixture.Store);
         string fingerprint = Convert.ToHexStringLower(SHA256.HashData("conversation-detail-http-test"u8));
@@ -189,7 +217,9 @@ public sealed class ConversationDomainQueryDispatchTest
         app.MapEventStoreDomainService();
         await app.StartAsync(token);
 
-        var claims = QueryCallerAuthorityBinding.Bind(envelope).ToDictionary(pair => pair.Key, pair => (object)pair.Value, StringComparer.Ordinal);
+        var claims = isLegacy
+            ? new Dictionary<string, object>(StringComparer.Ordinal)
+            : QueryCallerAuthorityBinding.Bind(envelope).ToDictionary(pair => pair.Key, pair => (object)pair.Value, StringComparer.Ordinal);
         claims[EventStoreWorkloadAuthenticationDefaults.CallerClaimType] = "eventstore";
         claims[EventStoreWorkloadAuthenticationDefaults.OperationClaimType] = new[] { EventStoreWorkloadOperations.DomainServiceQuery };
         claims[RouteCatalogSurfacePolicy.ClaimType] = "service";
@@ -214,8 +244,31 @@ public sealed class ConversationDomainQueryDispatchTest
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var result = (await response.Content.ReadFromJsonAsync<QueryResult>(token)).ShouldNotBeNull();
-        result.Success.ShouldBe(scenario is "projects" or "caller-advisory");
-        if (result.Success)
+        if (isAdministrator)
+        {
+            await administrator.Received(1).IsCurrentGlobalAdministratorAsync(
+                Arg.Any<DomainServiceAdministratorClaim>(), Arg.Any<CancellationToken>());
+        }
+
+        bool ordinaryAdminRead = scenario is "caller-admin" or "caller-admin-denied" or "caller-admin-unverified";
+        result.Success.ShouldBe(ordinaryAdminRead || scenario is "projects" or "caller-advisory");
+        if (ordinaryAdminRead)
+        {
+            var detail = result.GetPayload().Deserialize<ConversationDetailResult>(JsonSerializerOptions.Web).ShouldNotBeNull();
+            tenantAccess.LastRead.ShouldNotBeNull().Tenant.ShouldBe(tenant);
+            tenantAccess.LastRead.ShouldNotBeNull().Principal.ShouldBe(envelope.UserId);
+            if (scenario == "caller-admin")
+            {
+                detail.Details.ShouldNotBeNull().Messages.Single().Text.ShouldBe("Timeline text");
+                store.DetailReads.ShouldBe(1);
+            }
+            else
+            {
+                detail.Details.ShouldBeNull();
+                store.DetailReads.ShouldBe(0);
+            }
+        }
+        else if (result.Success)
         {
             var bounded = result.GetPayload().Deserialize<ConversationDetailResult>(JsonSerializerOptions.Web).ShouldNotBeNull();
             bounded.ReadPurpose.ShouldBe(isAdvisory ? ConversationResolutionScoringLabel.SupportedPurpose : GetConversationQuery.NativeMembershipPurpose);
@@ -229,8 +282,10 @@ public sealed class ConversationDomainQueryDispatchTest
         }
         else
         {
-            result.ErrorMessage.ShouldBe(isDelegated ? "safe-denial" : "The conversation query could not be served.");
+            result.ErrorMessage.ShouldBe(scenario == "caller-duplicate-selector"
+                ? "The conversation query could not be served." : "safe-denial");
             result.PayloadBytes.ShouldBeNull();
+            tenantAccess.LastRead.ShouldBeNull();
             store.DetailReads.ShouldBe(0);
         }
     }
@@ -451,8 +506,10 @@ public sealed class ConversationDomainQueryDispatchTest
         return services.BuildServiceProvider();
     }
 
-    private sealed class AllowAllTenantAccessService : IConversationTenantAccessService
+    private sealed class AllowAllTenantAccessService(bool allowed = true) : IConversationTenantAccessService
     {
+        public (TenantId? Tenant, string? Principal)? LastRead { get; private set; }
+
         public ValueTask<ConversationTenantAccessDecision> CheckAccessAsync(
             ConversationTenantAccessRequirement requirement,
             TenantId? trustedTenantId,
@@ -463,10 +520,14 @@ public sealed class ConversationDomainQueryDispatchTest
             TenantId? projectionTenantId = null,
             TenantId? idempotencyTenantId = null,
             CancellationToken cancellationToken = default)
-            => ValueTask.FromResult(ConversationTenantAccessDecision.Allowed(
-                requirement,
-                trustedTenantId ?? Tenant,
-                callerPrincipalId ?? "caller-001"));
+        {
+            requirement.ShouldBe(ConversationTenantAccessRequirement.Read);
+            LastRead = (trustedTenantId, callerPrincipalId);
+            return ValueTask.FromResult(allowed
+                ? ConversationTenantAccessDecision.Allowed(requirement, trustedTenantId ?? Tenant, callerPrincipalId ?? "caller-001")
+                : ConversationTenantAccessDecision.Denied(requirement, trustedTenantId, callerPrincipalId,
+                    ConversationTenantAccessDenialReason.InsufficientRole));
+        }
     }
 
     private sealed class RecordingProjectionReadStore : IConversationProjectionReadStore

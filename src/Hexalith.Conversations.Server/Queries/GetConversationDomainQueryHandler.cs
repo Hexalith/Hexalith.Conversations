@@ -43,13 +43,13 @@ public sealed class GetConversationDomainQueryHandler(ConversationQueryHandler q
         bool trustedDirectCall = accessor?.HttpContext is null && !query.IsDelegated && query.CallerAuthority is null;
         if (!trustedDirectCall && (caller is null || !ReferenceEquals(caller.Query, query)
             || query.OriginalActorId != query.UserId || string.IsNullOrWhiteSpace(query.TenantId)
-            || query.Domain != Domain || query.QueryType != QueryType || query.IsGlobalAdmin
+            || query.Domain != Domain || query.QueryType != QueryType
             || query.EntityId is not null && query.EntityId != query.AggregateId))
             return QueryResult.Failure("safe-denial");
         if (query.CallerAuthority?.Origin == "delegated-owner-query")
         {
             OriginatingQueryContext? origin = caller?.OriginatingContext;
-            if (query.AuthenticatedWorkloadId != "projects" || !query.IsDelegated || origin is null
+            if (query.AuthenticatedWorkloadId != "projects" || !query.IsDelegated || query.IsGlobalAdmin || origin is null
                 || origin.OriginalActorId != query.UserId || string.IsNullOrWhiteSpace(origin.AuthenticatedWorkloadId)
                 || origin.IsDelegated && string.IsNullOrWhiteSpace(origin.DelegationId)
                 || !origin.IsDelegated && origin.DelegationId is not null
@@ -61,6 +61,11 @@ public sealed class GetConversationDomainQueryHandler(ConversationQueryHandler q
         GetConversationPayload? payload = query.Payload is { Length: > 0 } payloadBytes
             ? JsonSerializer.Deserialize<GetConversationPayload>(payloadBytes, s_detailJsonOptions)
             : null;
+
+        // Administrator status never substitutes for tenant Read, and remains excluded from purpose-limited reads.
+        if (!trustedDirectCall && query.IsGlobalAdmin
+            && (payload?.AdvisoryMetadataOnly == true || payload?.NativeMembershipOnly == true))
+            return QueryResult.Failure("safe-denial");
 
         // Fall back to the envelope aggregate id when the payload omits the conversation id, so a
         // gateway that routes by aggregate identity does not need to duplicate it in the body.

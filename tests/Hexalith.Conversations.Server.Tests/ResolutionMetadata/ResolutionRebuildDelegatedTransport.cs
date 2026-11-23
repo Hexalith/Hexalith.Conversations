@@ -22,6 +22,8 @@ internal sealed class ResolutionRebuildDelegatedTransport(ResolutionEnrollmentFi
     public bool CanBindResources => true;
     public int Calls { get; private set; }
     public int TenantCalls { get; private set; }
+    public NativeSourceProof? LastTenantProof { get; private set; }
+    public bool TenantHasNewEvent { get; set; }
     public bool TenantAllowed { get; set; } = true;
     public Action<int>? OnProjection { get; set; }
     public string Catalog { get; set; } = catalog;
@@ -48,6 +50,13 @@ internal sealed class ResolutionRebuildDelegatedTransport(ResolutionEnrollmentFi
             var source = NativeSourceProofCodec.CreateSeed(identity, "01ARZ3NDEKTSV4RRFFQ69G5FAV");
             source = NativeSourceProofCodec.ExtendDigest(source, identity, 1, "fixture-tenant-read-1",
                 Convert.ToHexStringLower(SHA256.HashData("fixture-native-tenant-read"u8)));
+            if (TenantHasNewEvent)
+            {
+                source = NativeSourceProofCodec.ExtendDigest(source, identity, 2, "fixture-tenant-read-2",
+                    Convert.ToHexStringLower(SHA256.HashData("fixture-native-tenant-read-advanced"u8)));
+            }
+
+            LastTenantProof = source;
             var authority = new TenantReadAuthorityResult(fixture.Input.TenantId, body.PrincipalId,
                 TenantAllowed, source, fixture.Time.Now);
             return new(HttpStatusCode.OK) { Content = JsonContent.Create(new SubmitQueryResponse("correlation",

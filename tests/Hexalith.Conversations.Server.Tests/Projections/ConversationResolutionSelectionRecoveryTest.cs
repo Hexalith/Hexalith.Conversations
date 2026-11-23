@@ -314,16 +314,41 @@ public sealed class ConversationResolutionSelectionRecoveryTest
             .ShouldBe(metadata);
     }
 
+    /// <summary>Each successful read returns the current native tenant proof from the production adapter.</summary>
+    [Fact]
+    public async Task SuccessfulMetadataReadUsesCurrentNativeTenantProof()
+    {
+        await using var fixture = new ResolutionEnrollmentFixture();
+        string catalog = (await fixture.CatalogAsync()).CatalogFingerprint!;
+        (await fixture.PostAsync<ProjectionDispatchResponse>("/project/v2", fixture.Dispatch(catalog)))
+            .Outcomes[0].Status.ShouldBe(ProjectionDispatchStatus.Completed);
+        var metadata = await fixture.MetadataAsync();
+        using var session = new ResolutionRebuildQuerySession(fixture, catalog);
+        int previousWrites = fixture.Backend.WrittenKeys.Count;
+        fixture.Backend.BeforeWrite = _ => throw new Xunit.Sdk.XunitException("Metadata query attempted a write.");
+
+        await AssertMetadataAvailableAsync(session, metadata, fixture.Time.Now);
+        session.Transport.LastTenantProof.ShouldNotBeNull().HeadSequence.ShouldBe(1);
+
+        session.Transport.TenantHasNewEvent = true;
+        await AssertMetadataAvailableAsync(session, metadata, fixture.Time.Now);
+        session.Transport.LastTenantProof.ShouldNotBeNull().HeadSequence.ShouldBe(2);
+        fixture.Backend.WrittenKeys.Count.ShouldBe(previousWrites);
+    }
+
     private static async Task AssertMetadataAvailableAsync(ResolutionRebuildQuerySession session,
         ConversationResolutionMetadataReadModel metadata, DateTimeOffset authorizedAt)
     {
+        int tenantCalls = session.Transport.TenantCalls;
         var query = await session.ReadMetadataAsync();
         query.Success.ShouldBeTrue();
         var result = query.GetPayload().Deserialize<ConversationResolutionMetadataResultV1>(JsonSerializerOptions.Web)!;
         result.Metadata.ShouldBe(metadata.Metadata);
         result.Freshness.ShouldBe(metadata.Freshness);
         result.ResourceVersion.ShouldBe(JsonSerializer.Serialize(metadata.NativeSourceProof, JsonSerializerOptions.Web));
-        result.PermissionVersion.ShouldNotBeNullOrWhiteSpace();
+        session.Transport.TenantCalls.ShouldBeGreaterThan(tenantCalls + 1);
+        var tenantProof = session.Transport.LastTenantProof.ShouldNotBeNull();
+        result.PermissionVersion.ShouldBe(JsonSerializer.Serialize(tenantProof, JsonSerializerOptions.Web));
         result.AuthorizedAt.ShouldBe(authorizedAt);
     }
 

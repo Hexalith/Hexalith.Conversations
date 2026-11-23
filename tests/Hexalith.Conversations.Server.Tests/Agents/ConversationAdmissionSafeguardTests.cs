@@ -307,6 +307,58 @@ public sealed class ConversationAdmissionSafeguardTests
         fixture.PersistedEvents.Count.ShouldBe(2);
     }
 
+    /// <summary>Only a fresh, canonically identified removal can append a new tombstone.</summary>
+    /// <param name="scenario">The event identity or already retained removal case.</param>
+    [Theory]
+    [InlineData("bound")]
+    [InlineData("unbound")]
+    [InlineData("used")]
+    [InlineData("legacy-retry")]
+    public async Task RemovalAdmissionBindsNewEventsAndPreservesHistoricalNoOps(string scenario)
+    {
+        var fixture = new F();
+        fixture.Persist(ConversationAggregate.Handle(fixture.Membership, await fixture.ReplayAsync()));
+        var request = new RemoveAgentParticipantCommand(fixture.CommandMetadata(F.Agent), F.Conversation, F.Agent, F.At.AddMinutes(2));
+        string eventId = AgentCommandIntentId.Create(request.Metadata, request.ConversationId, "removal");
+        var command = new RemoveAgentParticipant(request, scenario is "unbound" or "legacy-retry" ? "legacy-removal" : eventId);
+        if (scenario == "used")
+        {
+            var created = (ConversationCreatedDomainEvent)fixture.PersistedEvents[0];
+            fixture.PersistedEvents[0] = new ConversationCreatedDomainEvent(created.Metadata with { EventId = eventId },
+                null, null, null, null);
+        }
+        else if (scenario == "legacy-retry")
+        {
+            fixture.Persist(ConversationAggregate.Handle(command, await fixture.ReplayAsync()));
+        }
+
+        var result = await fixture.Admission.EvaluateAsync(new(new(fixture.Envelope(command), await fixture.CurrentStateAsync())),
+            TestContext.Current.CancellationToken);
+        if (scenario is "unbound" or "used")
+        {
+            result.IsRejected.ShouldBeTrue();
+            result.RejectionEvents.Single().ShouldBeOfType<ConversationRejectedDomainEvent>().ReasonCode.ShouldBe("agents-Conflict");
+            (await fixture.ReplayAsync()).WasAgentRemoved(F.Agent).ShouldBeFalse();
+            return;
+        }
+
+        result.IsRejected.ShouldBeFalse();
+        var processed = ConversationAggregate.Handle(command, await fixture.ReplayAsync());
+        if (scenario == "legacy-retry")
+        {
+            processed.IsNoOp.ShouldBeTrue();
+            processed.Events.ShouldBeEmpty();
+        }
+        else
+        {
+            processed.Events.Single().ShouldBeOfType<AgentParticipantRemovedDomainEvent>().Metadata.EventId.ShouldBe(eventId);
+            fixture.Persist(processed);
+        }
+
+        (await fixture.ReplayAsync()).WasAgentRemoved(F.Agent).ShouldBeTrue();
+        fixture.PersistedEvents.Count.ShouldBe(3);
+    }
+
     [Theory]
     [InlineData("bound", null)]
     [InlineData("unbound", "agents-Conflict")]

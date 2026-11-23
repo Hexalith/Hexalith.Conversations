@@ -3,8 +3,6 @@
 // Licensed under the MIT License.
 // </copyright>
 
-using System.Text.Json;
-
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.EventStore.Client.Projections;
@@ -39,7 +37,6 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
 {
     private const int BulkReadChunkSize = 100;
     private const int BulkReadParallelism = 8;
-    private static readonly JsonSerializerOptions ComparisonJsonOptions = new(JsonSerializerDefaults.Web);
     private readonly IReadModelStore _store;
     private readonly ConversationProjectionStoreOptions _storeOptions;
 
@@ -504,7 +501,40 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
         => first == second;
 
     private static bool SameSummary(ConversationSummaryProjectionV1 first, ConversationSummaryProjectionV1 second)
-        => JsonElement.DeepEquals(
-            JsonSerializer.SerializeToElement(first, ComparisonJsonOptions),
-            JsonSerializer.SerializeToElement(second, ComparisonJsonOptions));
+        => first.SchemaVersion == second.SchemaVersion
+            && first.TenantId == second.TenantId
+            && first.ConversationId == second.ConversationId
+            && first.Freshness == second.Freshness
+            && first.Freshness.LastAppliedEventTimestamp.EqualsExact(second.Freshness.LastAppliedEventTimestamp)
+            && first.Freshness.ProjectionGeneratedAt.EqualsExact(second.Freshness.ProjectionGeneratedAt)
+            && first.LifecycleState == second.LifecycleState
+            && first.Label == second.Label
+            && first.BusinessReference == second.BusinessReference
+            && first.ProjectId == second.ProjectId
+            && first.FolderId == second.FolderId
+            && first.ParticipantPartyIds.SequenceEqual(second.ParticipantPartyIds)
+            && first.MessageCount == second.MessageCount
+            && first.FileReferenceCount == second.FileReferenceCount
+            && SameProviderCorrelation(first.ProviderCorrelation, second.ProviderCorrelation)
+            && first.SearchTrustPreview == second.SearchTrustPreview;
+
+    private static bool SameProviderCorrelation(ProviderCorrelationMetadata? first, ProviderCorrelationMetadata? second)
+    {
+        if (ReferenceEquals(first, second)) return true;
+        if (first is null || second is null || first.ProviderName != second.ProviderName
+            || first.ProviderType != second.ProviderType || first.MetadataSchemaVersion != second.MetadataSchemaVersion
+            || first.ProviderSessionReference != second.ProviderSessionReference
+            || first.ProviderResponseReference != second.ProviderResponseReference)
+        {
+            return false;
+        }
+
+        var firstData = first.ExtensionData;
+        var secondData = second.ExtensionData;
+        if (ReferenceEquals(firstData, secondData)) return true;
+        if (firstData is null || secondData is null || firstData.Count != secondData.Count) return false;
+
+        // Stored JSON object keys are ordinal and independent of insertion order.
+        return firstData.ToHashSet().SetEquals(secondData);
+    }
 }

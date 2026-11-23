@@ -163,6 +163,45 @@ public sealed class ConversationProjectionReadStoreFailClosedTest
         result.Projection.ShouldBeNull();
     }
 
+    /// <summary>Independently stored summary collections compare by content on both read paths.</summary>
+    /// <param name="difference">The independently varied content or equivalent collection control.</param>
+    [Theory]
+    [InlineData("none")]
+    [InlineData("party-order")]
+    [InlineData("metadata-value")]
+    [InlineData("metadata-key")]
+    public async Task SummaryCollectionsMustAgreeAcrossDetailAndPage(string difference)
+    {
+        var store = new InMemoryReadModelStore();
+        var original = Models(ConversationA, Now.AddSeconds(1));
+        var secondParty = new PartyId("party-second");
+        var summary = CopySummary(original.Summary, participants: [Actor, secondParty],
+            provider: new("provider", "assistant", SchemaVersion.Current,
+                ExtensionData: new Dictionary<string, string> { ["first"] = "one", ["second"] = "two" }));
+        var indexSummary = CopySummary(summary,
+            participants: difference == "party-order" ? [secondParty, Actor] : [Actor, secondParty],
+            provider: new("provider", "assistant", SchemaVersion.Current,
+                ExtensionData: new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["second"] = difference == "metadata-value" ? "changed" : "two",
+                    [difference == "metadata-key" ? "FIRST" : "first"] = "one",
+                }));
+        var models = new ConversationProjectedReadModels(summary, original.Detail) { DispatchId = original.DispatchId };
+        SeedCompletedGeneration(store, models, indexSummary);
+
+        var reader = new ConversationProjectionReadStore(store);
+        var token = TestContext.Current.CancellationToken;
+        var detail = await new ConversationProjectionReadService(AllowAll(), reader)
+            .ReadDetailAsync(Tenant, "user-001", Tenant, ConversationA, token);
+        var snapshot = await reader.ListAsync(Tenant, token);
+        var inconsistent = await reader.ValidatePageAsync(Tenant, snapshot, [indexSummary], token);
+
+        bool matches = difference == "none";
+        detail.FreshnessState.ShouldBe(matches ? ProjectionTrustState.Current : ProjectionTrustState.Rebuilding);
+        if (!matches) detail.Projection.ShouldBeNull();
+        inconsistent.Contains(ConversationA.Value).ShouldBe(!matches);
+    }
+
     /// <summary>
     /// Generation comparison includes the cursor and every other freshness field, not only position and time.
     /// </summary>
@@ -397,7 +436,9 @@ public sealed class ConversationProjectionReadStoreFailClosedTest
     private static ConversationSummaryProjectionV1 CopySummary(
         ConversationSummaryProjectionV1 source,
         string? label = null,
-        ProjectionFreshnessV1? freshness = null)
+        ProjectionFreshnessV1? freshness = null,
+        IReadOnlyList<PartyId>? participants = null,
+        ProviderCorrelationMetadata? provider = null)
         => new(
             source.SchemaVersion,
             source.TenantId,
@@ -408,10 +449,10 @@ public sealed class ConversationProjectionReadStoreFailClosedTest
             source.BusinessReference,
             source.ProjectId,
             source.FolderId,
-            source.ParticipantPartyIds,
+            participants ?? source.ParticipantPartyIds,
             source.MessageCount,
             source.FileReferenceCount,
-            source.ProviderCorrelation,
+            provider ?? source.ProviderCorrelation,
             source.SearchTrustPreview);
 
     private sealed class FakeTenantAccessService(ConversationTenantAccessDecision decision) : IConversationTenantAccessService
