@@ -199,6 +199,8 @@ public sealed class GovernanceAuditPairingSafetyNetConformanceTest
         nonAuditCommands.ShouldBe(
             [
                 typeof(CreateConversation),
+                typeof(CreateHumanConversation),
+                typeof(AppendMessage),
                 typeof(AddParticipant),
                 typeof(ReassignConversationProject),
                 typeof(AddAgentParticipant),
