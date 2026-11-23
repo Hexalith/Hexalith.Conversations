@@ -175,7 +175,7 @@ Run the journey with .NET 11, Python 3, an isolated local deployment and a feed 
 | `CONVERSATIONS_OTHER_TOKEN`, `CONVERSATIONS_OTHER_TENANT`, `CONVERSATIONS_OTHER_SUBJECT`, `CONVERSATIONS_OTHER_PARTY` | Independently authenticated second member and tenant |
 | `CONVERSATIONS_DOMAIN_DAPR_ORIGIN`, `CONVERSATIONS_READ_MODEL_STORE` | Private loopback URL for the domain sidecar and its configured read-model state component |
 | `CONVERSATIONS_DOMAIN_DAPR_TOKEN` | Sidecar API token when enabled |
-| `CONVERSATIONS_CATALOG_RECEIPT` | Run-owned `eventstore.committed.json` from the gateway |
+| `CONVERSATIONS_CATALOG_RECEIPT` | Run-owned routing catalog receipt from the gateway |
 
 ```bash
 python3 tests/packaged-client-journey/run.py --feed "$PACKAGE_FEED" --version "$PACKAGE_VERSION" \

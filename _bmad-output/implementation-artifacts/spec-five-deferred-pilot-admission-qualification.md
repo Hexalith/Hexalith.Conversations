@@ -36,5 +36,6 @@ Resolve five open Story 9.3 findings about pilot admission and replay. Return th
 
 - The Release Server build reported zero warnings and errors. All 1,765 Server tests passed with zero skips, including the authenticated `/process` test and the public denial and uncertainty cases.
 - The qualification AppHost compiled against the pinned Platform and Builds sources. Four runner tests passed, and the standalone consumer installed the candidate packages into an empty cache and built without warnings.
+- The full Release solution built with zero warnings and errors. The Contracts suite passed all 638 tests after the adopter guide used the routing catalog receipt's plain-language description. The operator handoff still identifies the exact file.
 - The indexed root-submodule check, both Story 7.3 workflow scenarios and the whitespace check passed. This freeform follow-up uses routine current-change validation.
 - The Aspire baseline built the AppHost and then stopped on its read-only `/home/agent/.aspire/cli/bch` cache. The full live journey remains unverified. The shared checker on entry `main` failed while cloning the anonymous CiCd policy branch in its isolated Git environment.
