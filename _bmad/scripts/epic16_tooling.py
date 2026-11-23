@@ -385,7 +385,11 @@ def parse_native(raw, scenario, candidate, sources, contract_sha):
     need(not root.findall('.//{*}ErrorInfo') and all(node.get('outcome') in ('Passed', 'Completed', 'Warning')
          for node in root.findall('.//{*}RunInfo')), 'NATIVE_RUN_FAILED', scenario)
     counters = summaries[0].findall('./{*}Counters')
-    need(len(counters) == 1 and all(re.fullmatch(r'[0-9]+', v) and int(v) == (1 if k in ('total', 'executed', 'passed') else 0) for k, v in counters[0].attrib.items()), 'NATIVE_COUNTS_INVALID', scenario)
+    passing_counters = {'total', 'executed', 'passed'}
+    required_counters = passing_counters | {'failed', 'notExecuted'}
+    need(len(counters) == 1 and required_counters <= counters[0].attrib.keys()
+         and all(re.fullmatch(r'[0-9]+', value) and int(value) == int(name in passing_counters)
+                 for name, value in counters[0].attrib.items()), 'NATIVE_COUNTS_INVALID', scenario)
     containers = root.findall('./{*}Results')
     need(len(containers) == 1 and all(child.tag.rsplit('}', 1)[-1] == 'UnitTestResult' for child in containers[0]), 'NATIVE_COUNTS_INVALID', scenario)
     results = root.findall('./{*}Results/{*}UnitTestResult')
@@ -500,6 +504,9 @@ def report(story, scenario, scope):
 def failed(result, error):
     result['result'] = 'BLOCKED' if error.blocked else 'FAIL'
     result['exitCode'] = 2 if error.blocked else 1
+    result['runtimeQualified'] = False
+    result['counts'] = dict(total=0, passed=0, failed=0, skipped=0)
+    result['bindings'] = {}
     result['blockers'] = [error.code]
     result['assertionLedger'].append(dict(id=error.code, subject=str(error.subject) or '(empty)', state=result['result']))
     return result

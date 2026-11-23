@@ -203,20 +203,21 @@ public sealed class PlatformEnrollmentMappingTest
     }
 
     /// <summary>Packs the actual Contracts inventory in mapped Debug source mode.</summary>
-    internal static string PackSourceInventory(string repositoryRoot, string packageOutput)
+    internal static async Task<string> PackSourceInventoryAsync(string repositoryRoot, string packageOutput)
     {
         string workspace = Path.Combine(packageOutput, "mapping");
         string commons = MappedRoot("Commons");
         SourceMapping mapping = new(WorkspaceMode.Source, repositoryRoot, "Hexalith.Conversations",
             [new("Hexalith.Conversations", "source", repositoryRoot), new("Hexalith.Commons", "source", commons),
              new("Hexalith.Builds", "source", MappedRoot("Builds")), new("Hexalith.EventStore", "source", MappedRoot("EventStore"))], true);
-        SourceMappingMaterializer.WriteAsync(mapping, workspace, TestContext.Current.CancellationToken).GetAwaiter().GetResult();
-        CompositionProcessResult Run(params string[] arguments) => CompositionProcess.RunAsync(CompositionProcess.CreateStartInfo("dotnet", arguments,
-            repositoryRoot, SourceMappingMaterializer.Environment(mapping, workspace)), TimeSpan.FromMinutes(3), TestContext.Current.CancellationToken).GetAwaiter().GetResult();
+        CancellationToken cancellationToken = TestContext.Current.CancellationToken;
+        await SourceMappingMaterializer.WriteAsync(mapping, workspace, cancellationToken);
+        Task<CompositionProcessResult> RunAsync(params string[] arguments) => CompositionProcess.RunAsync(CompositionProcess.CreateStartInfo("dotnet", arguments,
+            repositoryRoot, SourceMappingMaterializer.Environment(mapping, workspace)), TimeSpan.FromMinutes(3), cancellationToken);
         string commonsProject = Path.Combine(commons, "src", "libraries", "Hexalith.Commons.Serialization", "Hexalith.Commons.Serialization.csproj");
-        CompositionProcessResult version = Run("msbuild", commonsProject, "-getProperty:PackageVersion");
+        CompositionProcessResult version = await RunAsync("msbuild", commonsProject, "-getProperty:PackageVersion");
         version.ExitCode.ShouldBe(0, version.Output + version.ErrorOutput);
-        CompositionProcessResult pack = Run("pack", Project(repositoryRoot, "src/Hexalith.Conversations.Contracts"), "-c", "Debug", "-o", packageOutput,
+        CompositionProcessResult pack = await RunAsync("pack", Project(repositoryRoot, "src/Hexalith.Conversations.Contracts"), "-c", "Debug", "-o", packageOutput,
             "-p:GeneratePackageOnBuild=false");
         pack.ExitCode.ShouldBe(0, pack.Output + pack.ErrorOutput);
         return version.Output.Trim();

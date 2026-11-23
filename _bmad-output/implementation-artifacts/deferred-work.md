@@ -1431,3 +1431,13 @@ The [follow-up spec](spec-five-deferred-admission-and-read-consistency.md) recor
 - Story 6.2 summary equality. Detail and page validation compare summary values directly. Tests exercise distinct equivalent Party lists and provider extension objects, reordered Parties, and altered extension keys and values.
 - Restricted mutation review. New Agent removals require the scoped event ID emitted by the client and an unused identity in the verified source prefix. Tests pin the client wire IDs and cover a fresh removal, unused unrelated and already retained IDs, and a historically accepted no-op retry.
 - Story 11.3 VG-F01. A successful resolution metadata query uses the production native adapter for authorization and for the final read checks. The test advances the tenant proof between reads and verifies the full current permission proof, exact resource proof, and absence of writes.
+
+## Resolved by validation reliability follow-up (2026-11-23)
+
+The [follow-up spec](spec-five-deferred-validation-reliability.md) records these five dispositions.
+
+- Epic 16 receipt failures. A failed or blocked publication clears measured counts, bindings and runtime qualification. Candidate identity and the assertion ledger remain available for diagnosis.
+- Epic 16 native counters. A passing TRX explicitly reports total, executed, passed, failed and not-executed counts. Informational warnings remain valid when the run completed and the counters agree.
+- Epic 16 reconciliation. The schedule verifies its checkpoint has both a preceding position and a recovery position before indexing. The checks cover the existing rejection of zero and the first out-of-range recovery index.
+- Epic 16 tooling-v3. The current-change runbook retires the published source binding from routine validation. The disposable held-runtime fixture verifies that the CLI writes neither a receipt nor a final pair. Historical reproduction continues to enforce the original pins.
+- Contracts package inventory. Both Release subprocesses use a three-minute deadline, propagate caller cancellation and stop the active process tree. A local cancellation probe observed the spawned shell and its child stop.

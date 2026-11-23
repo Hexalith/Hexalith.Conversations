@@ -29,7 +29,15 @@ def git(repo, *args):
         assert flag is not None, 'Disposable commit must have exact validated message'
         message=args[flag+1]
         if message not in _COMMIT_MESSAGES:
-            result=subprocess.run([str(ROOT/'node_modules/.bin/commitlint'),'--config',str(ROOT/'commitlint.config.mjs')],input=(message+'\n').encode(),cwd=ROOT,capture_output=True)
+            config = ROOT / 'references/Hexalith.Builds/Github/guard/commitlint.config.mjs'
+            tools = Path(os.environ.get('HEXALITH_GUARD_TOOLS', config.parent)).resolve()
+            cli = tools / 'node_modules/@commitlint/cli/cli.js'
+            assert cli.is_file(), 'Install the pinned Builds guard tools and set HEXALITH_GUARD_TOOLS.'
+            result = subprocess.run(
+                ['node', str(cli), '--config', str(config)],
+                input=(message + '\n').encode(), cwd=ROOT, capture_output=True, timeout=30,
+                env={**os.environ, 'HEXALITH_GUARD_TOOLS': str(tools)},
+            )
             assert result.returncode==0,(result.stdout,result.stderr)
             _COMMIT_MESSAGES[message]=dict(exitCode=result.returncode,stdout=result.stdout.decode(),stderr=result.stderr.decode())
             if os.environ.get('EPIC16_COMMITLINT_EVIDENCE'):
@@ -213,6 +221,56 @@ def test_native_bindings_cannot_be_relabelled(repository, field):
 def test_native_counts_and_executed_test_identity_are_recomputed(repository, mutation, code):
     path = native(repository, 'AC-16.1-01'); root = ET.fromstring(path.read_bytes()); mutation(root); path.write_bytes(ET.tostring(root))
     rejected(evaluate(repository), code)
+
+
+@pytest.mark.parametrize('attribute', ['failed', 'notExecuted'])
+def test_native_requires_explicit_failure_and_skip_counters(repository, attribute):
+    scenario = 'AC-16.1-01'
+    path = native(repository, scenario)
+    root = ET.fromstring(path.read_bytes())
+    del root.find('ResultSummary/Counters').attrib[attribute]
+    path.write_bytes(ET.tostring(root))
+
+    rejected(evaluate(repository, scenario), 'NATIVE_COUNTS_INVALID')
+
+
+@pytest.mark.parametrize('blocked', [False, True])
+def test_receipt_write_failure_clears_measurements(repository, monkeypatch, capsys, blocked):
+    scenario = 'AC-16.1-01'
+    output = tooling.receipt_path(SCOPE, scenario)
+
+    def refuse_write(_repository, outputs, _readonly, **_options):
+        path, raw = outputs[0]
+        assert path == output
+        receipt = json.loads(raw)
+        assert receipt['result'] == 'PASS' and receipt['counts']['passed'] == 1
+        assert receipt['bindings'] and receipt['assertionLedger']
+        raise tooling.Stop('OUTPUT_FORBIDDEN', path, blocked=blocked)
+
+    monkeypatch.setattr(tooling, 'safe_write', refuse_write)
+    exit_code = tooling.main([
+        '--repository', str(repository), '--scope', SCOPE, '--contract', tooling.contract_path('16.1'),
+        '--scenario', scenario, '--output', output,
+    ])
+    result = json.loads(capsys.readouterr().out)
+    assert exit_code == (2 if blocked else 1)
+    rejected(result, 'OUTPUT_FORBIDDEN', 'BLOCKED' if blocked else 'FAIL')
+    assert result['counts'] == dict(total=0, passed=0, failed=0, skipped=0)
+    assert result['bindings'] == {}
+    assert result['runtimeQualified'] is False
+    assert result['candidate']['commit'] == git(repository, 'rev-parse', 'HEAD')
+    assert result['assertionLedger'][-1]['id'] == 'OUTPUT_FORBIDDEN'
+    assert not (repository / output).exists()
+
+
+def test_failed_qualified_result_loses_qualification():
+    result = tooling.report('16.1', 'AC-16.1-01', 'runtime')
+    result.update(result='PASS', exitCode=0, runtimeQualified=True)
+
+    failure = tooling.failed(result, tooling.Stop('OUTPUT_FORBIDDEN', 'receipt'))
+
+    assert failure['result'] == 'FAIL'
+    assert failure['runtimeQualified'] is False
 
 
 @pytest.mark.parametrize('mutation', [
@@ -1404,6 +1462,25 @@ def test_reconciliation_requires_pending_event_derived_domain_values(repository,
         data['afterCheckpoint']+=1
         for key in ('persistedProjection','queryProjection'):data[key]['sequence']=data['afterCheckpoint']
     native(repository,'AC-16.3-04',data);rejected(evaluate(repository,'AC-16.3-04'),'RECONCILIATION_IDENTITY_DRIFT' if fault=='pending-values' else 'MEASUREMENT_INVALID')
+
+
+@pytest.mark.parametrize(('boundary', 'diagnostic'), [
+    ('zero', 'representable native Int64 sequence'),
+    ('last-position', 'old worker checkpoint has preceding and recovery positions'),
+])
+def test_reconciliation_requires_checkpoint_between_preceding_and_recovery_positions(boundary, diagnostic):
+    data = deepcopy(OBSERVATIONS['AC-16.3-04'])
+    schedules = tooling.measurements.schedules
+    schedules.reconciliation(data)
+    proof = data['concurrentRecovery']
+    positions = proof['authoritativePositions']
+    checkpoint = 0 if boundary == 'zero' else len(positions)
+    data['beforeCheckpoint'] = checkpoint
+    data['beforeWatermark'] = positions[-1]['position']
+    proof['oldWorker']['snapshot'].update(checkpoint=checkpoint, watermark=data['beforeWatermark'])
+
+    with pytest.raises(tooling.measurements.domain.PredicateError, match=diagnostic):
+        schedules.reconciliation(data)
 
 
 @pytest.mark.parametrize('story',['16.1','16.2'])

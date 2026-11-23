@@ -278,12 +278,18 @@ def test_actual_v1_cli_retains_current_pin_drift_before_new_imports():
     assert result['assertionLedger'][-1]['subject']=='.config/dotnet-tools.json'
 
 
-def test_held_selected_v3_emits_no_runtime_outputs():
-    result=tooling.evaluate(ROOT,'16.1','AC-16.1-01',package=POLICY)
-    legacy.rejected(result,'ENTRY_QUALIFICATION_PENDING','BLOCKED')
-    assert result['counts']==dict(total=0,passed=0,failed=0,skipped=0)
-    for path in [tooling.receipt_path('runtime',f'AC-16.1-0{n}') for n in range(1,6)]+tooling.final_paths('runtime','16.1'):
-        assert not (ROOT/path).exists()
+def test_held_selected_v3_emits_no_runtime_outputs(selected_repository):
+    repo = selected_repository
+    scenario = 'AC-16.1-01'
+    output = tooling.receipt_path('runtime', scenario)
+    for options in ({'extra': ['--output', output]}, {'generator': True}):
+        process, result = cli(repo, scope='runtime', **options)
+        assert process.returncode == 2, result
+        legacy.rejected(result, 'ENTRY_QUALIFICATION_PENDING', 'BLOCKED')
+        assert result['counts'] == dict(total=0, passed=0, failed=0, skipped=0)
+        assert result['runtimeQualified'] is False
+    paths = [tooling.receipt_path('runtime', f'AC-16.1-0{n}') for n in range(1, 6)]
+    assert all(not (repo / path).exists() for path in paths + tooling.final_paths('runtime', '16.1'))
 
 
 @pytest.fixture(scope='module')

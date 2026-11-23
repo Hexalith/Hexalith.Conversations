@@ -157,7 +157,9 @@ def reconciliation(data):
         require(snapshot['captureVersion'] == 1 and snapshot['scope'] == scope, 'complete persisted recovery scope')
         for key in ('lease','version','generation','checkpoint','watermark'): domain.sequence(snapshot[key])
         domain.ticks(snapshot['leaseUntilUtcTicks']);text(snapshot['etag'])
-    before_checkpoint = data['beforeCheckpoint']
+    before_checkpoint = domain.sequence(data['beforeCheckpoint'])
+    require(before_checkpoint == len(data['precedingEvents']) and before_checkpoint < len(positions),
+            'old worker checkpoint has preceding and recovery positions')
     require(initial['checkpoint'] == before_checkpoint and initial['generation'] == data['beforeGeneration'] and initial['watermark'] == positions[before_checkpoint-1]['position'] == data['beforeWatermark'] and same(initial['projection'],data['beforeProjection']) and initial['pending'] == [scope['pendingId']], 'old worker captures actual preceding checkpoint watermark and pending state')
     require(proof['oldWorker']['expected'] == {key:initial[key] for key in FENCE_FIELDS}, 'old worker complete measured expectation')
     require(newer['checkpoint'] == data['afterCheckpoint'] and newer['generation'] == data['afterGeneration'] and newer['watermark'] == positions[-1]['position'] == data['afterWatermark'] and same(newer['projection'],data['persistedProjection']['state']) and newer['pending'] == initial['pending'], 'intervening newer progress from authoritative events and global positions')

@@ -70,6 +70,11 @@ for reproducing historical results. It is no longer the operational route for
 new work. Release decisions and product safety checks continue to use their own
 specific requirements.
 
+The Epic 16 tooling-v3 source binding is historical. Its held-runtime regression
+uses a disposable repository with its own matching source inputs. Reproduce the
+published binding using the source versions it records. The verifier reports
+`SOURCE_DRIFT` when current source differs from those pins.
+
 ## GitHub branch setting
 
 Keep the existing linear-history requirement, force-push ban, and deletion ban

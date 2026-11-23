@@ -3,6 +3,7 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Xml.Linq;
@@ -111,7 +112,7 @@ public sealed class ContractPackageInventoryTest
     }
 
     [Fact]
-    public void PackedContractsPackageShouldContainOnlyPublicContractsAndSafeMetadata()
+    public async Task PackedContractsPackageShouldContainOnlyPublicContractsAndSafeMetadata()
     {
         string repositoryRoot = FindRepositoryRoot();
         string packageOutput = Path.Combine(Path.GetTempPath(), "hexalith-conversations-contracts-package-test", Guid.NewGuid().ToString("N"));
@@ -119,7 +120,7 @@ public sealed class ContractPackageInventoryTest
 
         try
         {
-            string sourceDependencyVersion = RunDotNetPack(repositoryRoot, packageOutput);
+            string sourceDependencyVersion = await RunDotNetPackAsync(repositoryRoot, packageOutput);
 
             string packagePath = Directory.GetFiles(packageOutput, "Hexalith.Conversations.Contracts.*.nupkg").Single();
             using ZipArchive package = ZipFile.OpenRead(packagePath);
@@ -170,47 +171,81 @@ public sealed class ContractPackageInventoryTest
         }
     }
 
-    private static string RunDotNetPack(string repositoryRoot, string packageOutput)
+    private static async Task<string> RunDotNetPackAsync(string repositoryRoot, string packageOutput)
     {
 #if CONVERSATIONS_SOURCE_MAPPING_TESTS
-        return PlatformEnrollmentMappingTest.PackSourceInventory(repositoryRoot, packageOutput);
+        return await PlatformEnrollmentMappingTest.PackSourceInventoryAsync(repositoryRoot, packageOutput);
 #else
         // The package/Release runner must already supply the tool-selected imports and published packages.
         string projectPath = Path.Combine(repositoryRoot, "src", "Hexalith.Conversations.Contracts", "Hexalith.Conversations.Contracts.csproj");
-        using Process process = Process.Start(new ProcessStartInfo("dotnet")
-        {
-            ArgumentList = { "pack", projectPath, "-c", "Release", "-o", packageOutput, "-p:GeneratePackageOnBuild=false" },
-            WorkingDirectory = repositoryRoot,
-            RedirectStandardError = true,
-            RedirectStandardOutput = true,
-            UseShellExecute = false,
-        }) ?? throw new InvalidOperationException("Unable to start dotnet pack.");
-        Task<string> output = process.StandardOutput.ReadToEndAsync(TestContext.Current.CancellationToken);
-        Task<string> error = process.StandardError.ReadToEndAsync(TestContext.Current.CancellationToken);
-        process.WaitForExit();
-        process.ExitCode.ShouldBe(0, output.GetAwaiter().GetResult() + error.GetAwaiter().GetResult());
-        return ReadSelectedCommonsVersion(repositoryRoot, projectPath);
+        CancellationToken cancellationToken = TestContext.Current.CancellationToken;
+        await RunDotNetAsync(repositoryRoot,
+            ["pack", projectPath, "-c", "Release", "-o", packageOutput, "--disable-build-servers", "-p:GeneratePackageOnBuild=false"],
+            cancellationToken);
+        string selectedVersion = (await RunDotNetAsync(repositoryRoot,
+            ["msbuild", projectPath, "-nologo", "-nr:false", "-getProperty:HexalithCommonsVersion"],
+            cancellationToken)).Trim();
+        selectedVersion.ShouldNotBeNullOrWhiteSpace("the package/Release project must resolve its version from the selected catalog");
+        return selectedVersion;
 #endif
     }
 
-    private static string ReadSelectedCommonsVersion(string repositoryRoot, string projectPath)
+#if !CONVERSATIONS_SOURCE_MAPPING_TESTS
+    private static async Task<string> RunDotNetAsync(string repositoryRoot, string[] arguments, CancellationToken cancellationToken)
     {
-        using Process versionProcess = Process.Start(new ProcessStartInfo("dotnet")
+        cancellationToken.ThrowIfCancellationRequested();
+        using CancellationTokenSource timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeout.CancelAfter(TimeSpan.FromMinutes(3));
+        ProcessStartInfo startInfo = new("dotnet")
         {
-            ArgumentList = { "msbuild", projectPath, "-nologo", "-getProperty:HexalithCommonsVersion" },
             WorkingDirectory = repositoryRoot,
             RedirectStandardError = true,
             RedirectStandardOutput = true,
             UseShellExecute = false,
-        }) ?? throw new InvalidOperationException("Unable to inspect the selected Commons package version.");
-        Task<string> versionOutput = versionProcess.StandardOutput.ReadToEndAsync(TestContext.Current.CancellationToken);
-        Task<string> versionError = versionProcess.StandardError.ReadToEndAsync(TestContext.Current.CancellationToken);
-        versionProcess.WaitForExit();
-        versionProcess.ExitCode.ShouldBe(0, versionOutput.GetAwaiter().GetResult() + versionError.GetAwaiter().GetResult());
-        string selectedVersion = versionOutput.GetAwaiter().GetResult().Trim();
-        selectedVersion.ShouldNotBeNullOrWhiteSpace("the package/Release project must resolve its version from the selected catalog");
-        return selectedVersion;
+        };
+        foreach (string argument in arguments)
+        {
+            startInfo.ArgumentList.Add(argument);
+        }
+
+        startInfo.Environment["DOTNET_CLI_USE_MSBUILD_SERVER"] = "0";
+        using Process process = Process.Start(startInfo)
+            ?? throw new InvalidOperationException($"Unable to start dotnet {arguments[0]}.");
+        Task<string> output = process.StandardOutput.ReadToEndAsync(timeout.Token);
+        Task<string> error = process.StandardError.ReadToEndAsync(timeout.Token);
+        try
+        {
+            await Task.WhenAll(process.WaitForExitAsync(timeout.Token), output, error).WaitAsync(timeout.Token);
+        }
+        catch (OperationCanceledException) when (timeout.IsCancellationRequested)
+        {
+            Exception? stopFailure = null;
+            try
+            {
+                if (!process.HasExited)
+                {
+                    process.Kill(entireProcessTree: true);
+                    await process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(5));
+                }
+            }
+            catch (Exception exception) when (exception is InvalidOperationException or Win32Exception or TimeoutException or AggregateException)
+            {
+                stopFailure = exception;
+            }
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                throw new OperationCanceledException($"dotnet {arguments[0]} was cancelled.", stopFailure, cancellationToken);
+            }
+
+            throw new TimeoutException($"dotnet {arguments[0]} exceeded its three-minute budget.", stopFailure);
+        }
+
+        string standardOutput = await output;
+        process.ExitCode.ShouldBe(0, standardOutput + await error);
+        return standardOutput;
     }
+#endif
 
     private static string FindRepositoryRoot()
     {
