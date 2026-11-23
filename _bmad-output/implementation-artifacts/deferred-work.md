@@ -1461,3 +1461,13 @@ The [follow-up spec](spec-five-deferred-verification-followups.md) records the d
 - Epic 16 native helper diagnostics. Build failures identify the selected SDK and retain separate bounded stdout and stderr tails on both nonzero exit and timeout. The regression checks the exact repository SDK policy carried to the helper workspace.
 - Epic 16 generator dispatch. A missing successor module produces a structured blocker even for a scope-only invocation. Dispatch preserves interactive help and distinguishes missing declared dependencies from undeclared internal import errors.
 - Python validation selection. The current-change runbook describes the default pytest path, npm test selection, the product checks in shared CI, and the explicit local BMad tests.
+
+## Addressed by validation entry-point follow-up (2026-11-23)
+
+The [follow-up spec](spec-five-deferred-validation-entry-points.md) records verification for these five findings.
+
+- Story 5.4 packet test portability. The external-packet test was retired in `ebf0f5f0ac9e1a61b7fed199ab66065c3596c17a`. The local `npm test` command now selects the two maintained package-mode unittest suites. The runbook documents where the delivery evidence was held.
+- Epic 16 candidate history. A disposable repository accepts a single-parent candidate and rejects a two-parent merge with identical source bytes as `CANDIDATE_MERGE`. This confirms the linear-history requirement.
+- Epic 16 source stamp. Both native inspectors accept the SDK informational source stamp when optional `SourceRevisionId` metadata is absent or agrees. A conflicting metadata value is rejected. The regression compiles each case.
+- Epic 16 transcripts. All 42 distinct repository-relative transcript links in the prerequisite spec resolve. The runbook documents how to use the source inventories, command log and tool-package digests. The original review did not name its two suspected missing inputs, so their availability remains unverified.
+- AppHost gateway provenance. The prebuild and provenance probe share a check for the producer-selected configuration and mapping. The test matrix covers both producer modes, reversed configurations, and missing configuration or mapping.

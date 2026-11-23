@@ -560,12 +560,50 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
         return projectPath;
     }
 
+    /// <summary>
+    /// Checks that gateway provenance uses the producer configuration and mapping for the selected mode.
+    /// </summary>
+    /// <param name="referenceMode">The enrolled reference mode.</param>
+    /// <param name="configuration">The producer's configuration value.</param>
+    /// <param name="mappingHash">The producer's mapping hash.</param>
+    /// <param name="accepted">Whether the supplied environment admits the prebuild.</param>
+    [Theory]
+    [InlineData("source", "Debug", "mapped", true)]
+    [InlineData("package", "Release", "mapped", true)]
+    [InlineData("source", "Release", "mapped", false)]
+    [InlineData("package", "Debug", "mapped", false)]
+    [InlineData("package", "Release", null, false)]
+    [InlineData("source", "Debug", " ", false)]
+    [InlineData("package", null, "mapped", false)]
+    public void GatewayProvenanceShouldRequireMatchingProducerConfiguration(
+        string referenceMode,
+        string? configuration,
+        string? mappingHash,
+        bool accepted)
+    {
+        if (accepted)
+        {
+            RequireProducerConfiguration(referenceMode, configuration, mappingHash).ShouldBe(configuration);
+        }
+        else
+        {
+            Should.Throw<InvalidOperationException>(
+                () => RequireProducerConfiguration(referenceMode, configuration, mappingHash))
+                .Message.ShouldBe("Gateway preparation requires the complete producer-selected build environment.");
+        }
+    }
+
     private static string ReadProducerConfiguration(string referenceMode)
+        => RequireProducerConfiguration(
+            referenceMode,
+            Environment.GetEnvironmentVariable("Configuration"),
+            Environment.GetEnvironmentVariable("HEXALITH_SOURCE_MAPPING_HASH"));
+
+    private static string RequireProducerConfiguration(string referenceMode, string? configuration, string? mappingHash)
     {
         // The producer selects the only configuration that this test and its
         // launched children may use; an ambient fallback must not build another mode.
-        string? configuration = Environment.GetEnvironmentVariable("Configuration");
-        if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("HEXALITH_SOURCE_MAPPING_HASH"))
+        if (string.IsNullOrWhiteSpace(mappingHash)
             || configuration != (referenceMode == "source" ? "Debug" : "Release"))
         {
             throw new InvalidOperationException("Gateway preparation requires the complete producer-selected build environment.");

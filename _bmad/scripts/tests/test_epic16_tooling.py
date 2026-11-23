@@ -293,6 +293,23 @@ def test_stale_dirty_and_missing_history_cannot_pass(repository):
     rejected(evaluate(repository), 'HISTORY_UNAVAILABLE', 'BLOCKED')
 
 
+def test_candidate_requires_exactly_one_git_parent(repository):
+    candidate = git(repository, 'rev-parse', 'HEAD')
+    assert evaluate(repository)['result'] == 'PASS'
+
+    git(repository, 'switch', '-c', 'fixture-side', 'HEAD^')
+    git(repository, 'commit', '--allow-empty', '-m', 'test: create an independent parent')
+    side_parent = git(repository, 'rev-parse', 'HEAD')
+    git(repository, 'switch', '--detach', candidate)
+    git(repository, 'merge', '--no-ff', '--no-commit', 'fixture-side')
+    git(repository, 'commit', '-m', 'test: merge the two fixture histories')
+    assert git(repository, 'rev-list', '--parents', '-n', '1', 'HEAD').split()[1:] == [candidate, side_parent]
+    assert not git(repository, 'diff', '--name-only', candidate, 'HEAD')
+    native(repository, 'AC-16.1-01')
+
+    rejected(evaluate(repository), 'CANDIDATE_MERGE')
+
+
 def test_runtime_and_generator_remain_blocked_even_with_all_fixture_proofs(repository):
     for scenario in tooling.measurements.SCENARIOS:
         rejected(tooling.evaluate(repository, scenario[3:7], scenario), 'ENTRY_QUALIFICATION_PENDING', 'BLOCKED')
@@ -1038,12 +1055,19 @@ def test_endpoint_inventory_rejects_out_of_domain_ports(repository, value):
     rejected(evaluate(repository, 'AC-16.3-02'), 'MEASUREMENT_INVALID')
 
 
-def compile_evidence(directory, revision, source, *, fake=False, wrong_framework=False):
+def compile_evidence(directory, revision, source, *, fake=False, wrong_framework=False, sdk_stamp=False):
     directory.mkdir(parents=True, exist_ok=True)
     reference = '<PackageReference Include="xunit.v3.extensibility.core" Version="4.0.2" />' if not fake else ''
     assembly = '<AssemblyName>xunit.v3.core</AssemblyName><AssemblyVersion>4.0.2.0</AssemblyVersion>' if wrong_framework else ''
-    (directory/'Evidence.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><GenerateAssemblyInfo>false</GenerateAssemblyInfo>'+assembly+'</PropertyGroup><ItemGroup>'+reference+'</ItemGroup></Project>')
-    (directory/'Stamp.cs').write_text('[assembly: System.Reflection.AssemblyInformationalVersion("1.0.0+'+revision+'")]')
+    if sdk_stamp:
+        stamp = f'<InformationalVersion>1.0.0</InformationalVersion><SourceRevisionId>{revision}</SourceRevisionId>'
+    else:
+        stamp = '<GenerateAssemblyInfo>false</GenerateAssemblyInfo>'
+        (directory / 'Stamp.cs').write_text(f'[assembly: System.Reflection.AssemblyInformationalVersion("1.0.0+{revision}")]')
+    (directory / 'Evidence.csproj').write_text(
+        '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework>'
+        f'{stamp}{assembly}</PropertyGroup><ItemGroup>{reference}</ItemGroup></Project>'
+    )
     (directory/'Tests.cs').write_text(source)
     if fake: (directory/'FactAttribute.cs').write_text('namespace Xunit; public sealed class FactAttribute : System.Attribute {}')
     result = subprocess.run(['dotnet', 'build', 'Evidence.csproj', '-c', 'Debug', '--nologo', '-m:1', '-p:NuGetAudit=false'], cwd=directory, capture_output=True, timeout=120)
@@ -3744,6 +3768,30 @@ def test_round10_sdk_informational_version_forms_match_both_inspectors(tmp_path,
     assert tooling.native_helper.inspect_product(binary,'a'*40)['sourceRevision']=='a'*40
     assert tooling.native_helper.inspect_assembly(binary,'a'*40,'Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests','Scenario01')['sourceRevision']=='a'*40
     with pytest.raises(ValueError):tooling.native_helper.inspect_assembly(binary,'b'*40,'Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests','Scenario01')
+
+
+@pytest.mark.parametrize('metadata', ['absent', 'matching', 'conflicting'])
+def test_optional_source_revision_metadata_must_agree_with_sdk_stamp(tmp_path, metadata):
+    revision = 'a' * 40
+    test_type = 'Hexalith.Conversations.IntegrationTests.Epic16.Story16_1EvidenceTests'
+    source = (
+        'namespace Hexalith.Conversations.IntegrationTests.Epic16; '
+        'public class Story16_1EvidenceTests { [Xunit.Fact] public void Scenario01() {} }'
+    )
+    if metadata != 'absent':
+        metadata_revision = revision if metadata == 'matching' else 'b' * 40
+        attribute = f'[assembly: System.Reflection.AssemblyMetadata("SourceRevisionId", "{metadata_revision}")]'
+        source = attribute + '\n' + source
+    binary = compile_evidence(tmp_path, revision, source, sdk_stamp=True)
+
+    if metadata == 'conflicting':
+        with pytest.raises(ValueError):
+            tooling.native_helper.inspect_product(binary, revision)
+        with pytest.raises(ValueError):
+            tooling.native_helper.inspect_assembly(binary, revision, test_type, 'Scenario01')
+    else:
+        assert tooling.native_helper.inspect_product(binary, revision)['sourceRevision'] == revision
+        assert tooling.native_helper.inspect_assembly(binary, revision, test_type, 'Scenario01')['sourceRevision'] == revision
 
 
 @pytest.mark.parametrize('case', ['unauthorized','nonexistent'])

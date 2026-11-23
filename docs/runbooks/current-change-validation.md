@@ -39,10 +39,14 @@ inspection. They are not required for future pushes, CI, or routine lifecycle
 transitions. Do not create another authority successor solely because a new
 commit touches a path they governed.
 The default `pytest` collection is `tests/tooling`, as configured in
-`pyproject.toml`. The root `npm test` command runs its own unittest list there
-for local use. Shared CI runs the Conversations after-unit-tests action and
-has no npm workspaces configured. Run the relevant BMad tests locally for a
-tooling or workflow change, for example
+`pyproject.toml`. The local `npm test` command runs the package contract and
+minimal-module compatibility overlay unittests. These require Python, the .NET
+SDK from `global.json` and the pinned direct Hexalith.Builds checkout. Shared CI
+runs these suites through the Conversations after-unit-tests action alongside
+the built compatibility and installed package checks. The retired Story 5.4 installed-delivery packet test used evidence held
+on the capture machine. The [delivery spec](../../_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md)
+records the delivery attempt and its evidence status. Run the relevant BMad tests locally for
+a tooling or workflow change, for example
 `uv run --frozen pytest _bmad/scripts/tests/test_epic16_tooling.py -k scope_only_dispatch`.
 `_bmad/scripts/tests/conftest.py` excludes retired authority and evidence suites
 from directory collection. Name a historical test file explicitly when
@@ -72,6 +76,18 @@ The Epic 16 tooling-v3 source binding is historical. Its held-runtime regression
 uses a disposable repository with its own matching source inputs. Reproduce the
 published binding using the source versions it records. The verifier reports
 `SOURCE_DRIFT` when current source differs from those pins.
+
+The [Epic 16 prerequisite spec](../../_bmad-output/implementation-artifacts/spec-epic-16-prerequisite-implementation.md)
+links the retained transcripts under
+[`module/validation/epic-16-prerequisite-implementation/`](../../module/validation/epic-16-prerequisite-implementation/).
+Absolute paths inside a transcript identify locations on the capture machine.
+For historical reproduction, use the source revision or source inventory linked
+from the prerequisite spec for the run in question. Read the invocation in
+[`commands.json`](../../module/validation/epic-16-prerequisite-implementation/commands.json)
+and use [`artifact-identities.json`](../../module/validation/epic-16-prerequisite-implementation/artifact-identities.json)
+to identify the recorded tool package by digest. A blocked receipt with a null
+candidate supplies no source revision. If the run's source or another required
+input cannot be recovered, record it as unavailable.
 
 ## GitHub branch setting
 
