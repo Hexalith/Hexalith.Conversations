@@ -266,7 +266,9 @@ public sealed class MinimalModuleAuthoringCostBaselineValidationTest(ITestOutput
         string candidate = document.RootElement.GetProperty("candidate").GetProperty("commit").GetString()!;
         int physical = 0;
         int nonblank = 0;
-        EvidenceManifest manifest = new();
+        // The standalone sample adopted the shared catalog after the v2 measurement.
+        const string maintainedSample = "b998a24c36ee409f717a41033e98c47fcbc8d6ce";
+        EvidenceManifest maintainedManifest = new();
         foreach (JsonElement row in rows)
         {
             string path = row.GetProperty("path").GetString()!;
@@ -274,22 +276,32 @@ public sealed class MinimalModuleAuthoringCostBaselineValidationTest(ITestOutput
                 path.Contains(".AppHost/", StringComparison.Ordinal) ? "SM2_APPHOST_COST_OMITTED" : "SM2_INCLUSION_RULE_VIOLATION");
             row.GetProperty("category").GetString().ShouldNotBeNullOrWhiteSpace("SM2_INCLUSION_RULE_VIOLATION");
             row.GetProperty("reason").GetString().ShouldNotBeNullOrWhiteSpace("SM2_INCLUSION_RULE_VIOLATION");
-            byte[] bytes = RepositoryLocator.ReadAllBytes(Path.Combine(root, path));
-            string[] lines = RepositoryLocator.ReadAllLines(Path.Combine(root, path));
-            int countedNonblank = lines.Count(line => !string.IsNullOrWhiteSpace(line));
-            row.GetProperty("bytes").GetInt32().ShouldBe(bytes.Length, "SM2_MEASUREMENT_INVALID");
-            row.GetProperty("physicalLoc").GetInt32().ShouldBe(lines.Length, "SM2_MEASUREMENT_INVALID");
+            GitFact<GitBlob> measured = await git.ReadBlobAsync(root, candidate, path, TestContext.Current.CancellationToken);
+            measured.IsSuccess.ShouldBeTrue("CHECKPOINT_CANDIDATE_MISMATCH");
+            GitBlob blob = measured.Value!;
+            row.GetProperty("sha256").GetString().ShouldBe(blob.Sha256, "SM2_MEASUREMENT_INVALID");
+            row.GetProperty("bytes").GetInt32().ShouldBe(blob.Content.Length, "SM2_MEASUREMENT_INVALID");
+            using MemoryStream content = new(blob.Content);
+            using StreamReader reader = new(content);
+            int countedPhysical = 0;
+            int countedNonblank = 0;
+            while (reader.ReadLine() is string line)
+            {
+                countedPhysical++;
+                if (!string.IsNullOrWhiteSpace(line))
+                    countedNonblank++;
+            }
+            row.GetProperty("physicalLoc").GetInt32().ShouldBe(countedPhysical, "SM2_MEASUREMENT_INVALID");
             row.GetProperty("nonblankLoc").GetInt32().ShouldBe(countedNonblank, "SM2_MEASUREMENT_INVALID");
-            GitFact<GitBlob> blob = await git.ReadBlobAsync(root, candidate, path, TestContext.Current.CancellationToken);
-            blob.IsSuccess.ShouldBeTrue("CHECKPOINT_CANDIDATE_MISMATCH");
-            blob.Value!.Content.ShouldBe(bytes, "SM2_MEASUREMENT_INVALID");
-            manifest.Add(path, row.GetProperty("sha256").GetString()!, "authored-source");
-            physical += lines.Length;
+            GitFact<GitBlob> maintained = await git.ReadBlobAsync(root, maintainedSample, path, TestContext.Current.CancellationToken);
+            maintained.IsSuccess.ShouldBeTrue("SM2_SOURCE_INVENTORY_DRIFT");
+            maintainedManifest.Add(path, maintained.Value!.Sha256, "authored-source");
+            physical += countedPhysical;
             nonblank += countedNonblank;
         }
         AssertionLedger ledger = new();
-        manifest.Verify(root, manifest.ComputeSignablePayloadHash(), ledger);
-        ledger.Evaluate().Result.ShouldBe("PASS", "SM2_MEASUREMENT_INVALID");
+        maintainedManifest.Verify(root, maintainedManifest.ComputeSignablePayloadHash(), ledger);
+        ledger.Evaluate().Result.ShouldBe("PASS", "SM2_SOURCE_INVENTORY_DRIFT");
         measurement.GetProperty("fileCount").GetInt32().ShouldBe(expected.Length, "SM2_MEASUREMENT_INVALID");
         measurement.GetProperty("physicalLoc").GetInt32().ShouldBe(physical, "SM2_MEASUREMENT_INVALID");
         measurement.GetProperty("nonblankLoc").GetInt32().ShouldBe(nonblank, "SM2_MEASUREMENT_INVALID");

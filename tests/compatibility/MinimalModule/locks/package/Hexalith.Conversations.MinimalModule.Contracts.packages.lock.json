@@ -1,24 +1,26 @@
 {
-  "version": 1,
+  "version": 2,
   "dependencies": {
     "net11.0": {
       "Hexalith.EventStore.Contracts": {
         "type": "Direct",
-        "requested": "[5.3.1, )",
-        "resolved": "5.3.1",
-        "contentHash": "xlTsHN2ibMCXG05cTQidxoZCN0NhccdrDX5K50Fom9dF1LOzvw4jYxAX56jijLkmQLArrc5L4Sg6287K14lWXw==",
+        "requested": "[5.4.0, )",
+        "resolved": "5.4.0",
+        "contentHash": "X2mPB9XdDkVx96n51fOMF6QZVUj5YlKwIBSo+UOvKeI4wpAmkpZkY6iavoKte0EdFX9DJ5KIqrl7iUcxmqr51A==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2",
           "Hexalith.Commons.UniqueIds": "3.0.1"
         }
       },
       "ByteAether.Ulid": {
-        "type": "Transitive",
+        "type": "CentralTransitive",
+        "requested": "[1.4.2, )",
         "resolved": "1.4.2",
         "contentHash": "LCOjm7QFSdM2X779Db2K+i3pPei4f8PJEcY1wGehkdgYNmpQaP5uF7U8aZMMBWeYe+zV2Ues9j/nFpW4Pw10wQ=="
       },
       "Hexalith.Commons.UniqueIds": {
-        "type": "Transitive",
+        "type": "CentralTransitive",
+        "requested": "[3.0.2, )",
         "resolved": "3.0.1",
         "contentHash": "qdhesiIy4tgXRHuL2d33rV8o/gkR1JWvTjpa4kVqLqskDeAHzrn625JTjHwE9SMyc0ZtESFUw3GLjeUz3teVKg==",
         "dependencies": {

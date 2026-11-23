@@ -1,41 +1,22 @@
 <Project InitialTargets="MinimalModuleCompatibilitySelectPackages">
-  <!-- Explicit compatibility overlay only. The measured fixture and its original locks stay frozen. -->
+  <!-- Explicit compatibility overlay only. The fixture keeps its standalone lock files. -->
   <PropertyGroup Condition="'$(MinimalModuleCompatibilityUseSuccessorLocks)' == 'true' and $([System.String]::Copy('$(MSBuildProjectName)').StartsWith('Hexalith.Conversations.MinimalModule.'))">
     <NuGetLockFilePath>$(MSBuildThisFileDirectory)locks/$(MinimalModuleCompatibilityMode)/$(MSBuildProjectName).packages.lock.json</NuGetLockFilePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(MinimalModuleCompatibilityMode)' == 'package'">
     <!-- Qualified dependency selection for this external compatibility graph, independent of product imports. -->
-    <MinimalModuleCompatibilityEventStoreVersion>5.3.1</MinimalModuleCompatibilityEventStoreVersion>
-    <!-- Match the published EventStore.Aspire dependency without changing the frozen AppHost. -->
-    <AspireDaprVersion>17.0.0-beta.1052</AspireDaprVersion>
-    <MinimalModuleCompatibilityAspireVersion>17.0.0</MinimalModuleCompatibilityAspireVersion>
-    <MinimalModuleCompatibilityTestSdkVersion>18.12.0</MinimalModuleCompatibilityTestSdkVersion>
-    <MinimalModuleCompatibilityXunitVersion>4.0.3</MinimalModuleCompatibilityXunitVersion>
+    <MinimalModuleCompatibilityEventStoreVersion>5.4.0</MinimalModuleCompatibilityEventStoreVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(MinimalModuleCompatibilityMode)' == 'package' and '$(MSBuildProjectName)' == 'Hexalith.Conversations.MinimalModule.AppHost'">
-    <!-- The frozen AppHost calls the legacy AddProject API required by EventStore's ProjectResource extension. -->
+    <!-- EventStore's Dapr extension currently requires the Aspire ProjectResource produced by AddProject. -->
     <NoWarn>$(NoWarn);CS0618</NoWarn>
   </PropertyGroup>
-  <ItemGroup Condition="'$(MinimalModuleCompatibilityMode)' == 'package'">
-    <PackageReference Update="Microsoft.NET.Test.Sdk" Version="$(MinimalModuleCompatibilityTestSdkVersion)" />
-    <PackageReference Update="xunit.v3" Version="$(MinimalModuleCompatibilityXunitVersion)" />
-  </ItemGroup>
   <Target Name="MinimalModuleCompatibilitySelectPackages" BeforeTargets="CollectPackageReferences;_GenerateRestoreGraphProjectEntry;_GetProjectReferenceTargetFrameworkProperties;AssignProjectConfiguration" Condition="'$(MinimalModuleCompatibilityMode)' == 'package'">
     <MSBuild Projects="$(MSBuildThisFileDirectory)CatalogVersion.proj" Targets="ReadMinimalModuleCompatibilityCatalog" RemoveProperties="HexalithEventStoreVersion;UseHexalithProjectReferences">
       <Output TaskParameter="TargetOutputs" ItemName="_CompatibilityCatalogPackage" />
     </MSBuild>
     <Error Condition="'@(_CompatibilityCatalogPackage)' == ''" Text="The direct pinned Builds catalog contains no EventStore package selection." />
     <Error Condition="'%(_CompatibilityCatalogPackage.Version)' != '$(MinimalModuleCompatibilityEventStoreVersion)'" Text="MinimalModule compatibility selection $(MinimalModuleCompatibilityEventStoreVersion) differs from the direct pinned Builds catalog: %(_CompatibilityCatalogPackage.Identity) %(_CompatibilityCatalogPackage.Version). Qualify the compatibility overlay and successor locks deliberately." />
-    <ItemGroup>
-      <_CompatibilityEventStoreProject Include="@(ProjectReference)" Condition="$([System.String]::Copy('%(ProjectReference.Filename)').StartsWith('Hexalith.EventStore.'))" />
-      <ProjectReference Remove="@(_CompatibilityEventStoreProject)" />
-      <PackageReference Include="@(_CompatibilityEventStoreProject->'%(Filename)')" Version="$(MinimalModuleCompatibilityEventStoreVersion)" />
-      <!-- Keep the frozen SDK source while selecting patched current hosting packages. -->
-      <PackageReference Include="Aspire.Hosting.AppHost" Version="$(MinimalModuleCompatibilityAspireVersion)"
-                        Condition="'$(MSBuildProjectName)' == 'Hexalith.Conversations.MinimalModule.AppHost' and '@(PackageReference->WithMetadataValue('Identity', 'Aspire.Hosting.AppHost'))' == ''" />
-      <PackageReference Include="Aspire.Hosting" Version="$(MinimalModuleCompatibilityAspireVersion)"
-                        Condition="'$(MSBuildProjectName)' == 'Hexalith.Conversations.MinimalModule.AppHost'" />
-    </ItemGroup>
   </Target>
   <ItemGroup Condition="'$(MSBuildProjectName)' == 'Hexalith.Conversations.MinimalModule.Tests'">
     <Compile Include="$(MSBuildThisFileDirectory)RegisteredCommandTests.cs" Link="Compatibility/RegisteredCommandTests.cs" />

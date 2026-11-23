@@ -98,6 +98,7 @@ public sealed class ContractPackageInventoryTest
             .Select(Path.GetFileName)
             .ShouldBe(
                 [
+                    "BoundedConversationDetailResponse.cs",
                     "ClientAssemblyMarker.cs",
                     "ConversationClient.cs",
                     "ConversationClientContext.cs",

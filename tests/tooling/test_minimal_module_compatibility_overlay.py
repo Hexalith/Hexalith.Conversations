@@ -49,7 +49,7 @@ class MinimalModuleCompatibilityOverlayTests(unittest.TestCase):
                        "-p:Configuration=Release", f"-p:TargetFramework={FRAMEWORK}", "-p:MinimalModuleCompatibilityMode=package",
                        f"-p:CustomAfterMicrosoftCommonProps={OVERLAY.parent / 'Framework.props'}",
                        "-p:MinimalModuleCompatibilityUseSuccessorLocks=true", f"-p:CustomAfterMicrosoftCommonTargets={OVERLAY}", f"-p:HexalithBuildsRoot={self.builds_root}",
-                       "-getProperty:NuGetLockFilePath,Configuration,TargetFramework,TargetFrameworkIdentifier,TargetFrameworkVersion", "-getItem:ProjectReference,PackageReference"]
+                       "-getProperty:NuGetLockFilePath,Configuration,TargetFramework,TargetFrameworkIdentifier,TargetFrameworkVersion", "-getItem:ProjectReference,PackageReference,PackageVersion"]
             result = subprocess.run(command, cwd=ROOT, env=environment, text=True, capture_output=True, check=True)
             output = json.loads(result.stdout)
             lock = OVERLAY.parent / "locks/package" / (project.stem + ".packages.lock.json")
@@ -61,11 +61,13 @@ class MinimalModuleCompatibilityOverlayTests(unittest.TestCase):
             self.assertTrue(lock.is_file())
             for reference in output["Items"]["ProjectReference"]:
                 self.assertNotIn("Hexalith.EventStore.", reference["Identity"])
+            versions = {item["Identity"]: item["Version"] for item in output["Items"]["PackageVersion"]}
             selected = [reference for reference in output["Items"]["PackageReference"] if reference["Identity"].startswith("Hexalith.EventStore.")]
             if not project.stem.endswith(".Tests"):
                 self.assertTrue(selected)
             for reference in selected:
-                self.assertEqual(catalog[reference["Identity"].lower()], reference["Version"])
+                self.assertFalse(reference.get("Version") or reference.get("VersionOverride"))
+                self.assertEqual(catalog[reference["Identity"].lower()], versions[reference["Identity"]])
             dependencies = json.loads(lock.read_text())["dependencies"]
             self.assertEqual([FRAMEWORK], list(dependencies))
             graph = dependencies[FRAMEWORK]
@@ -74,7 +76,8 @@ class MinimalModuleCompatibilityOverlayTests(unittest.TestCase):
                     self.assertNotEqual("Project", package["type"])
                     self.assertEqual(catalog[identity.lower()], package["resolved"])
             if project.stem.endswith(".Tests"):
-                selected = {reference["Identity"]: reference["Version"] for reference in output["Items"]["PackageReference"]}
+                selected = {reference["Identity"]: reference.get("VersionOverride") or reference.get("Version") or versions[reference["Identity"]]
+                            for reference in output["Items"]["PackageReference"] if reference["Identity"] in versions}
                 for identity, version in {"Microsoft.NET.Test.Sdk": "18.12.0", "xunit.v3": "4.0.3"}.items():
                     self.assertEqual(version, selected[identity])
                     self.assertEqual(version, graph[identity]["resolved"])
