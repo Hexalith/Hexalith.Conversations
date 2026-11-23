@@ -167,9 +167,9 @@ def parse(content):
         raise Stop('JSON_INVALID', 'strict UTF-8 JSON') from None
 
 
-def read(reader, path):
+def read(reader, path, *, retained=False):
     try:
-        return reader.read(path)
+        return capture.read_artifact(reader, path, need) if retained else reader.read(path)
     except ReadError as error:
         raise Stop(error.code, path, blocked=error.unavailable) from None
 
@@ -432,7 +432,7 @@ def native_binary(reader, raw, candidate, scenario, *, retained=False, facts=Non
     path = parsed['code_bases'][0]
     capture_binding = None
     if retained:
-        path, content, capture_binding, document = capture.resolve(reader, raw, path, candidate, scenario, read, load, need, load(reader, package.schema)['$defs']['nativeCapture'])
+        path, content, capture_binding, document = capture.resolve(reader, raw, path, candidate, scenario, need, load(reader, package.schema)['$defs']['nativeCapture'])
     elif path.startswith('/'):
         # Lexical conversion only. Never resolve symlinks or normalize dot segments.
         prefix = reader.repository.as_posix().rstrip('/') + '/'
@@ -529,7 +529,7 @@ def evaluate(repository: Path, story: str, scenario: str, candidate='HEAD', scop
             if scope == 'runtime': entry = entry_evidence(reader, binding, story, facts['commit'], scope, package)
             sources = source_manifest(repository, reader, facts['commit'], scope, story)
             path = native_path(scope, scenario)
-            raw = read(reader, path)
+            raw = read(reader, path, retained=scope == 'runtime')
             observations, counts = parse_native(raw, scenario, facts['commit'], sources, package.contract_pins[contract_path(story, package)])
             if scope == 'runtime':
                 # A runtime TRX must bind an actual source-stamped test binary;
@@ -552,8 +552,11 @@ def evaluate(repository: Path, story: str, scenario: str, candidate='HEAD', scop
                 need(other['result'] == 'PASS', 'SCENARIO_DEPENDENCY_FAILED', dependency,
                      blocked=other['result'] == 'BLOCKED')
                 if scenario == 'AC-16.3-04':
+                    dependency_path = native_path(scope, dependency)
                     with ContainedReader(repository) as dependency_reader:
-                        dependency_raw = read(dependency_reader, native_path(scope, dependency))
+                        dependency_raw = read(dependency_reader, dependency_path, retained=scope == 'runtime')
+                    need(other['bindings']['native'] == dict(path=dependency_path, sha256=digest(dependency_raw)),
+                         'SCENARIO_DEPENDENCY_DRIFT', dependency)
                     previous, _ = parse_native(dependency_raw, dependency, facts['commit'], sources, package.contract_pins[contract_path(story, package)])
                     need(all(observations[key] == previous[key] for key in ('persistedPendingId', 'pendingSequence', 'tenant', 'runtimeId', 'catalogSha256', 'catalogBytes', 'catalogFingerprint', 'pendingLocation', 'wireRoutes', 'pendingEvent', 'pendingBinding', 'precedingEvents')), 'RECONCILIATION_IDENTITY_DRIFT', scenario)
             checks = measurements.evaluate(scenario, observations)
@@ -634,6 +637,10 @@ def generate(repository, story, candidate='HEAD', scope='runtime', *, write=Fals
                 if row['result'] != 'PASS':
                     return row, None, None
             need(all(row['candidate']['commit'] == candidate for row in rows), 'CANDIDATE_DRIFT', candidate)
+            expected_qualification = scope == 'runtime'
+            for row in rows:
+                need(row.get('validationScope') == scope and row.get('runtimeQualified') is expected_qualification,
+                     'RUNTIME_QUALIFICATION_DRIFT', row['scenarioId'])
             if scope == 'runtime': products.consistent(rows, need)
             receipts = []
             for row in rows:
@@ -649,7 +656,7 @@ def generate(repository, story, candidate='HEAD', scope='runtime', *, write=Fals
             self_row = dict(scenarioId=f'AC-{story}-06', result='PASS', counts=dict(total=0, passed=0, failed=0, skipped=0),
                 assertionLedger=[dict(id='derive-sixth', subject='five measured passing scenarios and exact receipts', state='PASS')])
             document = dict(schemaVersion=RECORD_SCHEMA, storyId=story, result='PASS', validationScope=scope,
-                runtimeQualified=scope == 'runtime', authority=deepcopy(AUTHORITY), candidate=rows[0]['candidate'],
+                runtimeQualified=rows[0]['runtimeQualified'], authority=deepcopy(AUTHORITY), candidate=rows[0]['candidate'],
                 contract=rows[0]['bindings']['contract'], schema=rows[0]['bindings']['schema'],
                 predecessors=contract['preservedContract']['predecessors'], scenarios=rows + [self_row],
                 receipts=receipts, retainedNativeArtifacts=retained, rollback=contract['preservedContract']['rollback'], outputs=allowed,
@@ -690,9 +697,11 @@ def verify_inserted(repository, story, path, scope, package=None):
             # Complete history is inspected commit-by-commit: source changes that
             # are later reverted cannot disappear from the publication boundary.
             commits = records.run_git(repository, 'rev-list', '--reverse', candidate + '..' + head).stdout.decode().split()
-            publication_paths = set(final_paths(scope, story)) | {
-                fn(scope, f'AC-{story}-0{n}') for fn in (receipt_path, native_path) for n in range(1, 6)}
-            publication_paths |= {row['path'] for row in result['retainedNativeArtifacts']}
+            scenario_ids = [f'AC-{story}-0{n}' for n in range(1, 6)]
+            captured_paths = {native_path(scope, scenario) for scenario in scenario_ids}
+            captured_paths.update(row['path'] for row in result['retainedNativeArtifacts'])
+            publication_paths = set(final_paths(scope, story)) | captured_paths | {
+                receipt_path(scope, scenario) for scenario in scenario_ids}
             previous = candidate
             published = False
             for commit in commits:
@@ -705,7 +714,8 @@ def verify_inserted(repository, story, path, scope, package=None):
                          and all(r[0] == '000000' and r[1] == '100644' and r[4] == 'A' for r in changes),
                          'PUBLICATION_SCOPE_DRIFT', commit)
                     for evidence_path in publication_paths:
-                        need(records.v2_committed_blob(repository, commit, evidence_path) == read(reader, evidence_path), 'PUBLICATION_BYTES_DRIFT', evidence_path)
+                        retained = scope == 'runtime' and evidence_path in captured_paths
+                        need(records.v2_committed_blob(repository, commit, evidence_path) == read(reader, evidence_path, retained=retained), 'PUBLICATION_BYTES_DRIFT', evidence_path)
                     published = True
                 else:
                     need(bool(changed) and changed <= {path, SPRINT} and len(changed) == len(changes) and all(r[0:2] == ('100644', '100644') for r in changes), 'LIFECYCLE_DRIFT', commit)
@@ -733,8 +743,21 @@ def is_invocation(arguments):
     return False
 
 
+class StoreOnce(argparse.Action):
+    """Require a singleton option to appear at most once."""
+
+    seen = False
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        if self.seen:
+            parser.error('repeated option')
+        self.seen = True
+        setattr(namespace, self.dest, values)
+
+
 def main(arguments=None, *, story=None, generator=False):
-    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
+    parser = records.GateArgumentParser(description=__doc__, allow_abbrev=False)
+    parser.register('action', None, StoreOnce)
     parser.add_argument('--repository', default='.')
     parser.add_argument('--contract', required=True)
     parser.add_argument('--candidate', default='HEAD')
@@ -745,7 +768,14 @@ def main(arguments=None, *, story=None, generator=False):
         parser.add_argument('--verify-inserted-record')
     else:
         parser.add_argument('--scenario', required=True); parser.add_argument('--output')
-    args = parser.parse_args(arguments)
+    try:
+        args = parser.parse_args(arguments)
+    except records.GateError:
+        finding = records.v2_finding('ARGUMENT_INVALID', 'command line',
+                                     'Invalid or missing Epic 16 arguments. Run --help for usage.')
+        result = records.v2_failure_document([finding], story)
+        records.v2_write_stdout(records.v2_render_json(result))
+        return result['exitCode']
     selected = Path(args.contract).stem
     try:
         package = select_package(args.contract)

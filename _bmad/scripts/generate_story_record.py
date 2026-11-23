@@ -11090,22 +11090,24 @@ def pre_parse_output_format(raw_arguments: Sequence[str]) -> str:
 
 def main(arguments: Sequence[str] | None = None) -> int:
     raw_arguments = list(arguments) if arguments is not None else sys.argv[1:]
-    if is_v2_invocation(raw_arguments):
+    end_of_options = raw_arguments.index('--') if '--' in raw_arguments else len(raw_arguments)
+    options = raw_arguments[:end_of_options]
+    # An explicit tooling scope selects the Epic 16 parser even if another
+    # argument is missing. The parser reports invalid combinations itself.
+    tooling_dialect = any(token == '--scope' or token.startswith('--scope=') for token in options)
+    if is_v2_invocation(raw_arguments) or tooling_dialect:
         # Legacy standalone consumers must not import optional successor tooling.
         contracts = [
             token.split("=", 1)[1] if token.startswith("--contract=") else
-            (raw_arguments[index + 1] if index + 1 < len(raw_arguments) else None)
-            for index, token in enumerate(raw_arguments)
+            (options[index + 1] if index + 1 < len(options) else None)
+            for index, token in enumerate(options)
             if token == "--contract" or token.startswith("--contract=")
         ]
         successors = {
             f"_bmad-output/planning-artifacts/epic-16-tooling-{version}/story-contracts/{story}.json"
             for version in ("v1", "v2", "v3") for story in ("16.1", "16.2", "16.3")
         }
-        # --scope is an explicit tooling-dialect option, never a package selector.
-        # Unknown contracts in that dialect receive its nonempty rejection ledger.
-        tooling_dialect = any(token == '--scope' or token.startswith('--scope=') for token in raw_arguments)
-        if len(contracts) == 1 and (contracts[0] in successors or tooling_dialect):
+        if tooling_dialect or any(contract in successors for contract in contracts):
             try:
                 sys.dont_write_bytecode = True
                 import epic16_tooling

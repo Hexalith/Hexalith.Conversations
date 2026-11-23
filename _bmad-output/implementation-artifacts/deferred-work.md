@@ -1441,3 +1441,13 @@ The [follow-up spec](spec-five-deferred-validation-reliability.md) records these
 - Epic 16 reconciliation. The schedule verifies its checkpoint has both a preceding position and a recovery position before indexing. The checks cover the existing rejection of zero and the first out-of-range recovery index.
 - Epic 16 tooling-v3. The current-change runbook retires the published source binding from routine validation. The disposable held-runtime fixture verifies that the CLI writes neither a receipt nor a final pair. Historical reproduction continues to enforce the original pins.
 - Contracts package inventory. Both Release subprocesses use a three-minute deadline, propagate caller cancellation and stop the active process tree. A local cancellation probe observed the spawned shell and its child stop.
+
+## Addressed by Epic 16 verifier follow-up (2026-11-23)
+
+The [follow-up spec](spec-five-deferred-epic16-verifier-fixes.md) records the disposition of these five findings from the Story 5.4 installed-delivery review.
+
+- The final pair derives runtime qualification from the five matching scenario results. The implementation hold and authority flags retain their independent meaning.
+- The retained TRX, capture manifests and binaries use the same contained descriptor for byte reads and link-count checks. Rechecks at publication also use that reader.
+- Placement and scheduler collisions both require matching fault targets, restoration bytes, diagnostics and effective port numbers. The two-replica case still requires the newer denial to win over stale access.
+- The replay checks confirm that null or empty attribute maps preserve existing attributes and that removing an absent member leaves membership intact. Nonempty replacement and actual member removal are covered as controls.
+- Malformed and repeated Epic 16 CLI arguments return `ARGUMENT_INVALID` with a structured diagnostic. Interactive help and the separate missing-dependency result keep their existing behavior.

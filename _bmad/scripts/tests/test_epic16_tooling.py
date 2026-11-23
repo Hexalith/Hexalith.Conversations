@@ -2553,6 +2553,23 @@ public sealed class Story16_2EvidenceTests(Xunit.ITestOutputHelper output)
     assert records.main(verify)==1;assert json.loads(capsys.readouterr().out)['result']=='FAIL'
     artifact.write_bytes(saved)
 
+    alias = tmp_path / 'retained-evidence-alias'
+    generate = tooling.generate
+
+    def alias_after_inventory(*args, **kwargs):
+        result = generate(*args, **kwargs)
+        assert result[0]['result'] == 'PASS', result[0]
+        os.link(artifact, alias)
+        return result
+
+    with monkeypatch.context() as patch:
+        patch.setattr(tooling, 'generate', alias_after_inventory)
+        assert records.main(verify) == 1
+        result = json.loads(capsys.readouterr().out)
+        rejected(result, 'NATIVE_CAPTURE_ALIAS')
+        assert result['assertionLedger'][-1]['subject'] == artifact.relative_to(relocated).as_posix()
+    alias.unlink()
+
 
 # Iteration 7: all protocol fixtures below remain synthetic; runtime entry stays held.
 def round7_submit(repository, scenario, data, *, passes=False, schema=False):
@@ -5133,3 +5150,181 @@ def test_round14_real_generator_cli_default_and_explicit_output_pair(repository,
         out=Path(os.environ['EPIC16_R12_NATIVE_EVIDENCE'])/('round14-generator-'+flags);out.mkdir(parents=True,exist_ok=True)
         (out/'stdout').write_bytes(run.stdout);(out/'stderr').write_bytes(run.stderr)
         (out/'command.json').write_text(json.dumps(dict(argv=argv,cwd=str(ROOT),exitCode=run.returncode),indent=2)+'\n')
+
+
+@pytest.mark.parametrize(('scope', 'row_scope', 'qualified'), [
+    ('runtime', 'runtime', False),
+    ('runtime', SCOPE, True),
+    (SCOPE, SCOPE, True),
+    (SCOPE, SCOPE, 0),
+])
+def test_final_record_refuses_a_disagreeing_scenario_qualification(repository, monkeypatch, scope, row_scope, qualified):
+    def evaluate_row(_repository, story, scenario, candidate, validation_scope, **_kwargs):
+        row = tooling.report(story, scenario, validation_scope)
+        row.update(result='PASS', candidate={'commit': candidate}, runtimeQualified=validation_scope == 'runtime')
+        if scenario == 'AC-16.3-04':
+            row.update(validationScope=row_scope, runtimeQualified=qualified)
+        return row
+
+    monkeypatch.setattr(tooling, 'evaluate', evaluate_row)
+    result, json_bytes, markdown = tooling.generate(repository, '16.3', scope=scope, write=True)
+    rejected(result, 'RUNTIME_QUALIFICATION_DRIFT')
+    assert result['assertionLedger'][-1]['subject'] == 'AC-16.3-04'
+    assert result['runtimeQualified'] is False and json_bytes is None and markdown is None
+    assert all(not (repository / path).exists() for path in tooling.final_paths(scope, '16.3'))
+
+
+@pytest.mark.parametrize('when', ['before-open', 'during-read'])
+def test_retained_capture_checks_links_on_the_opened_file(tmp_path, monkeypatch, when):
+    path = tmp_path / 'capture.json'
+    path.write_bytes(b'captured evidence')
+    alias = tmp_path / 'alias.json'
+    with tooling.ContainedReader(tmp_path) as reader:
+        assert tooling.capture.read_artifact(reader, path.name, tooling.need) == b'captured evidence'
+        if when == 'before-open':
+            os.link(path, alias)
+        else:
+            original_read = os.read
+
+            def add_link_during_read(descriptor, size):
+                if not alias.exists():
+                    os.link(path, alias)
+                return original_read(descriptor, size)
+
+            monkeypatch.setattr(os, 'read', add_link_during_read)
+        with pytest.raises(tooling.Stop) as error:
+            tooling.capture.read_artifact(reader, path.name, tooling.need)
+        assert error.value.code == 'NATIVE_CAPTURE_ALIAS'
+        assert error.value.subject == path.name
+        assert reader.read(path.name) == b'captured evidence'
+
+
+@pytest.mark.parametrize('fault', [None, 'state', 'diagnostic', 'cleanup'])
+def test_scheduler_collision_must_match_fault_target_and_inventory(repository, fault):
+    scenario = 'AC-16.3-05'
+    data = deepcopy(OBSERVATIONS[scenario])
+    row = next(row for row in data['faults'] if row['id'] == 'port-collision')
+    scheduler = next(endpoint for endpoint in data['endpointInventory'] if endpoint['id'] == 'dapr-scheduler')
+    placement = next(endpoint for endpoint in data['endpointInventory'] if endpoint['id'] == 'dapr-placement')
+    state_endpoint = placement if fault == 'state' else scheduler
+    row['target']['id'] = scheduler['id']
+    for entry in row['assertionEntries']:
+        entry['target'] = deepcopy(row['target'])
+    for key in ('beforeBytes', 'injectedBytes', 'afterBytes'):
+        snapshot = json.loads(row[key])
+        snapshot['target'] = row['target']
+        snapshot['state'].update(endpointId=state_endpoint['id'], port=state_endpoint['port'])
+        row[key] = json.dumps(snapshot)
+    row['beforeSha256'] = row['afterSha256'] = digest(row['beforeBytes'].encode())
+    row['observed']['collisionPort'] = state_endpoint['port']
+    diagnostic = placement if fault == 'diagnostic' else scheduler
+    data['diagnostics'][1].update(endpointId=diagnostic['id'], port=diagnostic['port'])
+    cleanup = placement if fault == 'cleanup' else scheduler
+    cancellation = data['cancellation']
+    preexisting = cancellation['preexisting'][0]
+    preexisting.update(endpointId=cleanup['id'], port=cleanup['port'])
+    for operation in cancellation['operations']:
+        for resource in operation['resources']:
+            if resource['id'] == preexisting['id']:
+                resource.update(preexisting)
+    data['portsBefore'] = data['portsAfter'] = [cleanup['port']]
+    native(repository, scenario, data)
+    result = evaluate(repository, scenario)
+    if fault is None:
+        assert result['result'] == 'PASS', result
+    else:
+        rejected(result, 'MEASUREMENT_INVALID')
+
+
+def test_two_replica_control_observes_newer_denial_after_an_older_allow():
+    data = deepcopy(OBSERVATIONS['AC-16.1-04'])
+    row = next(row for row in data['faults'] if row['id'] == 'two-replicas')
+    before = json.loads(row['beforeBytes'])['state']
+    assert before['replicaA']['allowed'] is True and before['replicaB']['allowed'] is False
+    faults = tooling.measurements.faults
+    faults.fault_matrix([row], {'two-replicas': 'Healthy'})
+    row['observed'] = dict(replicaA=before['replicaA'], replicaB=before['replicaA'])
+    with pytest.raises(ValueError, match='typed injected condition and measured outcome'):
+        faults.fault_matrix([row], {'two-replicas': 'Healthy'})
+
+
+@pytest.mark.parametrize('attributes', [None, {}, {'updated': 'value'}])
+def test_metadata_replay_preserves_attributes_without_nonempty_updates(attributes):
+    domain = tooling.measurements.domain
+    events = OBSERVATIONS['AC-16.2-02']['authoritativeEvents']
+    update = deepcopy(next(event for event in events if event['eventType'] == 'ConversationMetadataUpdated'))
+    payload = json.loads(update['payload'])
+    assert update['sequence'] > 1
+    start, _ = domain.conversation_replay(events[:update['sequence'] - 1])
+    start['attributes'] = {'existing': 'kept'}
+    payload['attributes'] = attributes
+    update['payload'] = json.dumps(payload)
+    restored, _ = domain.conversation_replay([update], before=start, checkpoint=update['sequence'] - 1)
+    assert restored['attributes'] == (attributes or start['attributes'])
+
+
+@pytest.mark.parametrize('member', ['missing-member', 'actor-a'])
+def test_tenant_replay_removes_only_the_named_member(member):
+    domain = tooling.measurements.domain
+    start = OBSERVATIONS['AC-16.1-03']['startingState']
+    payload = json.dumps(dict(tenantId=start['tenantId'], userId=member))
+    row = dict(sequence=1, messageId='removal', eventType='UserRemovedFromTenant',
+               persistedPayload=payload, payloadSha256=digest(payload.encode()))
+    final, history = domain.tenant_replay(start, [row], 0, 1)
+    assert final['members'] == {key: role for key, role in start['members'].items() if key != member}
+    assert history[1] == final
+
+
+def test_reconciliation_compares_the_same_dependency_bytes_that_passed(repository, monkeypatch):
+    dependency = 'AC-16.3-03'
+    path = tooling.native_path(SCOPE, dependency)
+    read = tooling.read
+    dependency_reads = 0
+
+    def reread(reader, requested, **kwargs):
+        nonlocal dependency_reads
+        content = read(reader, requested, **kwargs)
+        if requested == path:
+            dependency_reads += 1
+            if dependency_reads == 2:
+                return content + b'\n'
+        return content
+
+    monkeypatch.setattr(tooling, 'read', reread)
+    result = evaluate(repository, 'AC-16.3-04')
+    rejected(result, 'SCENARIO_DEPENDENCY_DRIFT')
+    assert dependency_reads == 2
+
+
+@pytest.mark.parametrize('script', ['generate_story_record.py', 'verify_story_16_3.py'])
+@pytest.mark.parametrize('flags', [
+    ['--scope=discard-this-caller-payload'], ['--candidate'], ['--discard-this-caller-payload'],
+    ['--scope', 'runtime', '--scope=tooling-fixture'], ['--contract', tooling.contract_path('16.3')],
+])
+def test_epic16_cli_returns_a_structured_argument_failure(script, flags):
+    argv = [sys.executable, str(ROOT / '_bmad/scripts' / script), '--contract', tooling.contract_path('16.3')]
+    if script == 'verify_story_16_3.py':
+        argv += ['--scenario', 'AC-16.3-05']
+    run = subprocess.run(argv + flags, cwd=ROOT, capture_output=True, timeout=30)
+    result = json.loads(run.stdout)
+    assert result['result'] == 'FAIL' and result['blockers'] == ['ARGUMENT_INVALID']
+    assert result['diagnostics'] and b'discard-this-caller-payload' not in run.stdout
+    schema = json.loads((ROOT / '_bmad/schemas/story-record-generator-failure-v1.schema.json').read_bytes())
+    jsonschema.validate(result, schema)
+    assert run.returncode == result['exitCode'] == 1 and not run.stderr
+
+
+def test_generator_routes_explicit_epic16_scope_with_no_contract_to_argument_failure():
+    run = subprocess.run([sys.executable, str(ROOT / '_bmad/scripts/generate_story_record.py'),
+                          '--scope', 'runtime'], cwd=ROOT, capture_output=True, timeout=30)
+    result = json.loads(run.stdout)
+    assert result['blockers'] == ['ARGUMENT_INVALID']
+    assert run.returncode == result['exitCode'] == 1 and not run.stderr
+
+
+@pytest.mark.parametrize('script', ['generate_story_record.py', 'verify_story_16_3.py'])
+def test_epic16_cli_help_preserves_argparse_output(script):
+    run = subprocess.run([sys.executable, str(ROOT / '_bmad/scripts' / script),
+                          '--contract', tooling.contract_path('16.3'), '--help'],
+                         cwd=ROOT, capture_output=True, timeout=30)
+    assert run.returncode == 0 and b'usage:' in run.stdout and not run.stderr

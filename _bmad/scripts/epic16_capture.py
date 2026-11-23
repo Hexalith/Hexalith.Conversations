@@ -1,7 +1,6 @@
 """Portable native capture bindings. Original paths are metadata, never read targets."""
 import os
 import re
-import stat
 import jsonschema
 from epic16_native import strict_json
 
@@ -63,20 +62,19 @@ def original_relative(root, code_base, style):
     return result
 
 
-def no_alias(reader, path, need):
-    # The caller has already read through the neutral no-follow reader. Refuse
-    # even contained hardlinks so two logical artifacts cannot alias one inode.
+def read_artifact(reader, path, need):
+    """Read a retained artifact whose inode belongs to exactly one path."""
     try:
-        observed = os.lstat(reader.repository / path)
-    except OSError as error:
-        raise ReadError('INPUT_UNAVAILABLE', 'capture alias inspection unavailable', unavailable=True) from error
-    need(stat.S_ISREG(observed.st_mode) and observed.st_nlink == 1, 'NATIVE_CAPTURE_ALIAS', path)
+        return reader.read(path, single_link=True)
+    except ReadError as error:
+        code = 'NATIVE_CAPTURE_ALIAS' if error.code == 'INPUT_HARDLINK' else error.code
+        need(False, code, path, blocked=error.unavailable)
 
 
-def resolve(reader, raw, code_base, candidate, scenario, read, load, need, schema):
+def resolve(reader, raw, code_base, candidate, scenario, need, schema):
     story = scenario[3:7]
     path = capture_path(story, scenario)
-    raw_capture = read(reader, path)
+    raw_capture = read_artifact(reader, path, need)
     try:
         document = strict_json(raw_capture)
         jsonschema.validate(document, schema)
@@ -94,9 +92,8 @@ def resolve(reader, raw, code_base, candidate, scenario, read, load, need, schem
     binary = document['binary']
     need(isinstance(binary,dict) and set(binary) == {'path','sha256'} and isinstance(binary['sha256'],str) and re.fullmatch('[0-9a-f]{64}', binary['sha256']), 'NATIVE_CAPTURE_INVALID', path)
     need(binary['path'] == binary_path(story,binary['sha256']), 'NATIVE_CAPTURE_PATH_INVALID', binary['path'])
-    content = read(reader,binary['path'])
+    content = read_artifact(reader, binary['path'], need)
     need(digest(content) == binary['sha256'], 'NATIVE_CAPTURE_DRIFT', binary['path'])
-    for target in (path,native_path,binary['path']): no_alias(reader,target,need)
     return binary['path'], content, dict(path=path,sha256=digest(raw_capture)), document
 
 
@@ -123,8 +120,7 @@ def inventory(reader, story, rows, need):
         # entries. Recheck them here without duplicating that exact inventory.
         native = row['bindings']['native']
         need(native['path'] == f'artifacts/epic16-runtime/{story}/{row["scenarioId"]}.trx', 'NATIVE_CAPTURE_DRIFT', row['scenarioId'])
-        need(digest(reader.read(native['path'])) == native['sha256'], 'NATIVE_CAPTURE_DRIFT', native['path'])
-        no_alias(reader, native['path'], need)
+        need(digest(read_artifact(reader, native['path'], need)) == native['sha256'], 'NATIVE_CAPTURE_DRIFT', native['path'])
         binary = row['bindings']['testBinary']
         need(isinstance(binary,dict) and binary.get('capture'), 'NATIVE_CAPTURE_INVALID', row['scenarioId'])
         entries=[{key:binary[key] for key in ('path','sha256')},binary['capture'],*binary['products']]
@@ -137,8 +133,7 @@ def inventory(reader, story, rows, need):
             need(path not in artifacts or artifacts[path] == sha, 'NATIVE_CAPTURE_CONFLICT', path)
             # Admission and publication are separate reads. Never publish cached
             # identities after retained bytes or their inode relationships drift.
-            need(digest(reader.read(path)) == sha, 'NATIVE_CAPTURE_DRIFT', path)
-            no_alias(reader, path, need)
+            need(digest(read_artifact(reader, path, need)) == sha, 'NATIVE_CAPTURE_DRIFT', path)
             artifacts[path] = sha
     need(len([path for path in artifacts if path.endswith('.capture.json')]) == 5, 'NATIVE_CAPTURE_INVENTORY', story)
     root = f'artifacts/epic16-runtime/{story}'

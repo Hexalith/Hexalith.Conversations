@@ -56,7 +56,7 @@ def loaded(reader, raw, candidate, scenario, document, facts, need):
         relative=capture.original_relative(document['originalRepositoryRoot'],observation['codeBase'],document['pathStyle'])
         need(artifact['originalCodeBase']==observation['codeBase'] and artifact['originalRelativePath']==relative, 'PRODUCT_CAPTURE_DRIFT', name)
         need(artifact['path']==capture.binary_path(scenario[3:7],artifact['sha256']), 'PRODUCT_CAPTURE_DRIFT', name)
-        content=reader.read(artifact['path']);capture.no_alias(reader,artifact['path'],need)
+        content = capture.read_artifact(reader, artifact['path'], need)
         need(digest(content)==artifact['sha256']==observation['sha256'], 'PRODUCT_CAPTURE_DRIFT', name)
         metadata=native.inspect_product(content,owners[owner])
         need(metadata['assemblyName']==name and metadata['mvid']==observation['mvid']==artifact['mvid'] and set(expected['surfaces'])<=set(metadata['declaredTypes']), 'PRODUCT_METADATA_DRIFT', name)
@@ -104,7 +104,7 @@ def upstream(repository, reader, facts, baseline, data, need, loaded_products=No
             need(artifact['revision']==revision, 'UPSTREAM_API_SOURCE_DRIFT', name)
             expected_scope = 'runtime' if loaded_products is not None else 'tooling-fixture'
             need(re.fullmatch(r'artifacts/epic16-' + expected_scope + r'/16\.1/binaries/[0-9a-f]{64}\.dll',artifact['path']) is not None and artifact['path'].endswith('/'+artifact['sha256']+'.dll'), 'UPSTREAM_API_PATH', name)
-            content=reader.read(artifact['path']);capture.no_alias(reader,artifact['path'],need)
+            content = capture.read_artifact(reader, artifact['path'], need)
             need(digest(content)==artifact['sha256'], 'UPSTREAM_API_SOURCE_DRIFT', name)
             current=native.inspect_product(content,revision)
             need(current['assemblyName']==name and set(p['surfaces'])<=set(current['declaredTypes']), 'UPSTREAM_API_SOURCE_DRIFT', name)
@@ -147,7 +147,7 @@ def root_surface(repository, reader, facts, baseline, data, story, need, loaded_
         expected_scope = 'runtime' if loaded_products is not None else 'tooling-fixture'
         need(re.fullmatch(r'artifacts/epic16-' + expected_scope + '/' + re.escape(story) + r'/binaries/[0-9a-f]{64}\.dll', artifact['path']) is not None
              and artifact['path'].endswith('/' + artifact['sha256'] + '.dll'), 'ROOT_API_PATH', phase)
-        content = reader.read(artifact['path']); capture.no_alias(reader, artifact['path'], need)
+        content = capture.read_artifact(reader, artifact['path'], need)
         need(digest(content) == artifact['sha256'], 'ROOT_API_SOURCE_DRIFT', phase)
         metadata = native.inspect_product(content, revision)
         need(metadata['assemblyName'] == product['assemblyName'] and set(product['surfaces']) <= set(metadata['declaredTypes']), 'ROOT_API_SOURCE_DRIFT', phase)

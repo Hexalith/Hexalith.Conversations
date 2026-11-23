@@ -51,10 +51,13 @@ def readiness(data):
     diagnostics(data['diagnostics'],data['endpointInventory'],[('APPHOST_ENDPOINT_NOT_READY',data['endpoint'],data['attempts'])],elapsed=data['elapsedMs'])
 
 
+COLLISION_ENDPOINTS = ('dapr-placement', 'dapr-scheduler')
+
+
 def port_collision(data):
     by=endpoint_inventory(data['endpointInventory'])
-    require(data['endpoint'] in ('dapr-placement','dapr-scheduler') and by[data['endpoint']]['port']==data['occupiedPort'],'collision names affected owned binding')
-    require(data['effectivePorts']==[by[k]['port'] for k in ('dapr-placement','dapr-scheduler')],'complete effective control-plane bindings')
+    require(data['endpoint'] in COLLISION_ENDPOINTS and by[data['endpoint']]['port']==data['occupiedPort'],'collision names affected owned binding')
+    require(data['effectivePorts']==[by[k]['port'] for k in COLLISION_ENDPOINTS],'complete effective control-plane bindings')
     require(data['unrelatedPort'] not in [row['port'] for row in by.values()],'unrelated port is outside endpoint inventory')
     snapshots=data['occupancy']; shape(snapshots,('before','during','after'))
     expected_before=[dict(endpointId=row['id'],port=row['port'],owner=None) for row in by.values()]+[dict(endpointId=None,port=data['unrelatedPort'],owner='unrelated-process')]
@@ -152,7 +155,11 @@ def _relations(name, before, injected, observed):
         return dict(injection=before==dict(endpointId='conversations-http',healthy=True,connected=True) and injected==dict(endpointId='conversations-http',healthy=True,connected=False),outcome=observed['laneStarted'] is False and 0<observed['attempts']<=CONTROL_POLICY['attemptLimit'] and 0<observed['elapsedMs']<=CONTROL_POLICY['timeoutMs'] and readiness_terminal(observed['attempts'], observed['elapsedMs']))
     if name=='port-collision':
         shape(before,('endpointId','port','owner'));shape(injected,('endpointId','port','owner'));shape(observed,('laneStarted','collisionPort'))
-        return dict(injection=before['endpointId']==injected['endpointId']=='dapr-placement' and before['port']==injected['port'] and 1<=before['port']<=65535 and before['owner'] is None and injected['owner']=='collision-fixture',outcome=observed==dict(laneStarted=False,collisionPort=before['port']))
+        injection = (before['endpointId'] in COLLISION_ENDPOINTS
+                     and before['endpointId'] == injected['endpointId']
+                     and before['port'] == injected['port'] and 1 <= before['port'] <= 65535
+                     and before['owner'] is None and injected['owner'] == 'collision-fixture')
+        return dict(injection=injection, outcome=observed == dict(laneStarted=False, collisionPort=before['port']))
     if name=='empty-selection':
         shape(before,('selected',));shape(injected,('selected',));shape(observed,('executed','accepted'))
         return dict(injection=before['selected']==['Scenario01'] and injected['selected']==[],outcome=observed==dict(executed=0,accepted=False))
@@ -166,8 +173,11 @@ def fault_matrix(rows, expected):
     require([r['id'] for r in rows]==list(expected),'exact typed fault inventory')
     for row in rows:
         name=row['id'];target=row['target'];shape(target,('kind','id'))
-        expected_target=dict(kind='tenant-projection',id='tenant-a') if name in ('reverse-save','equal-sequence-conflict','three-future-deliveries','horizon-extension','retry-exhaustion','lease-expiry','restart','missing-history','conflicting-history','provider-unavailable','recovery-success','two-replicas') else dict(kind='live-control',id={'endpoint-race':'conversations-http','port-collision':'dapr-placement','unavailable-dapr':'dapr','empty-selection':'Scenario01'}.get(name,'project/v2/reconcile'))
-        require(target==expected_target,'fault target identity')
+        if name == 'port-collision':
+            require(target['kind'] == 'live-control' and target['id'] in COLLISION_ENDPOINTS, 'fault target identity')
+        else:
+            expected_target=dict(kind='tenant-projection',id='tenant-a') if name in ('reverse-save','equal-sequence-conflict','three-future-deliveries','horizon-extension','retry-exhaustion','lease-expiry','restart','missing-history','conflicting-history','provider-unavailable','recovery-success','two-replicas') else dict(kind='live-control',id={'endpoint-race':'conversations-http','unavailable-dapr':'dapr','empty-selection':'Scenario01'}.get(name,'project/v2/reconcile'))
+            require(target==expected_target,'fault target identity')
         before=strict_json(row['beforeBytes'].encode()); injected=strict_json(row['injectedBytes'].encode()); after=strict_json(row['afterBytes'].encode())
         for value in (before,injected,after):
             shape(value,('target','state'));require(value['target']==target,'restoration bytes identify actual fault target')
@@ -175,6 +185,8 @@ def fault_matrix(rows, expected):
         _typed_fault_state(before['state']); _typed_fault_state(injected['state']); _typed_fault_state(row['observed'])
         if name=='recovery-success': require(before['state']['domain']['tenantId']==target['id'],'recovery restoration target tenant')
         if name=='two-replicas': require(all(replica['domain']['tenantId']==target['id'] for replica in before['state'].values()),'replica restoration target tenant')
+        if name == 'port-collision':
+            require(before['state']['endpointId'] == target['id'], 'collision state identifies fault target')
         checks=_relations(name,before['state'],injected['state'],row['observed'])
         require(all(checks.values()),'typed injected condition and measured outcome')
         checks['restoration']=True

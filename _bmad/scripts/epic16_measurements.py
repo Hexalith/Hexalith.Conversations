@@ -515,10 +515,14 @@ def evaluate(scenario: str, data: dict) -> list[str]:
             require(data['cancelBoundMs'] == faults.CONTROL_POLICY['cancelBoundMs'] and 0 <= data['cancelElapsedMs'] <= faults.CONTROL_POLICY['cancelBoundMs'], 'pinned cancellation control')
             readiness_attempts = next(row for row in data['faults'] if row['id'] == 'endpoint-race')['observed']['attempts']
             readiness_elapsed = next(row for row in data['faults'] if row['id'] == 'endpoint-race')['observed']['elapsedMs']
-            faults.diagnostics(data['diagnostics'], data['endpointInventory'], [('APPHOST_ENDPOINT_NOT_READY', 'conversations-http', readiness_attempts), ('DAPR_CONTROL_PLANE_PORT_COLLISION', 'dapr-placement', 1)], elapsed=readiness_elapsed)
             collision = next(row for row in data['faults'] if row['id'] == 'port-collision')
+            endpoint = collision['target']['id']
+            faults.diagnostics(data['diagnostics'], data['endpointInventory'], [
+                ('APPHOST_ENDPOINT_NOT_READY', 'conversations-http', readiness_attempts),
+                ('DAPR_CONTROL_PLANE_PORT_COLLISION', endpoint, 1),
+            ], elapsed=readiness_elapsed)
             collision_port = strict_json(collision['beforeBytes'].encode())['state']['port']
-            require(collision_port == faults.endpoint_inventory(data['endpointInventory'])['dapr-placement']['port'], 'fault collision uses effective endpoint port')
+            require(collision_port == faults.endpoint_inventory(data['endpointInventory'])[endpoint]['port'], 'fault collision uses effective endpoint port')
             require(data['portsBefore'] == data['portsAfter'] == [collision_port], 'cleanup inventory names measured affected port')
             require(data['environmentOutcome'] == 'BLOCKED' and data['productOutcome'] == 'FAIL', 'environment/product distinction')
             require(all(port(value) for value in [*data['portsBefore'], *data['portsAfter']]), 'valid restored port domain')

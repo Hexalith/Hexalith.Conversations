@@ -112,8 +112,8 @@ class ContainedReader:
             if _identity(current) != _identity(expected) or stat.S_ISLNK(current.st_mode):
                 raise ReadError("INPUT_CHANGED", f"input entry replaced during read: {name}", unavailable=True)
 
-    def read(self, relative: str) -> bytes:
-        """Read at most limit bytes and reject replacements or unstable versions."""
+    def read(self, relative: str, *, single_link: bool = False) -> bytes:
+        """Read stable bytes, optionally requiring a single link to the opened file."""
         parts = relative_path(relative)
         descriptors: list[int] = []
         entries = list(self._root_entries)
@@ -127,6 +127,8 @@ class ContainedReader:
             leaf, before = self._open(parts[-1], parent, directory=False)
             descriptors.append(leaf)
             entries.append((parent, parts[-1], before))
+            if single_link and before.st_nlink != 1:
+                raise ReadError("INPUT_HARDLINK", f"hard-linked input forbidden: {relative}")
             if before.st_size > self.limit:
                 raise ReadError("INPUT_TOO_LARGE", f"input exceeds {self.limit} bytes: {relative}")
             chunks, size = [], 0
@@ -138,7 +140,10 @@ class ContainedReader:
                 size += len(block)
                 if size > self.limit:
                     raise ReadError("INPUT_TOO_LARGE", f"input exceeds {self.limit} bytes: {relative}")
-            if _version(before) != _version(os.fstat(leaf)):
+            after = os.fstat(leaf)
+            if single_link and after.st_nlink != 1:
+                raise ReadError("INPUT_HARDLINK", f"hard-linked input forbidden: {relative}")
+            if _version(before) != _version(after):
                 raise ReadError("INPUT_CHANGED", f"input changed during read: {relative}", unavailable=True)
             self._unchanged(entries)
             return b"".join(chunks)
