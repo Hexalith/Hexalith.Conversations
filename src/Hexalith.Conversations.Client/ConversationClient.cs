@@ -124,8 +124,11 @@ public sealed class ConversationClient : IConversationClient
         AddHeader(request, CorrelationIdHeaderName, query.CorrelationId);
         AddHeader(request, TenantIdHeaderName, query.TenantId.Value);
         AddHeader(request, CallerPrincipalIdHeaderName, query.CallerPrincipalId);
-        return SendAsync<ConversationDetailResult>(request, query.CorrelationId, cancellationToken,
-            query.NativeMembershipOnly || query.AdvisoryMetadataOnly ? (result, status) => BoundedConversationDetailResponse.Accept(query, result, status) : null);
+        return query.NativeMembershipOnly || query.AdvisoryMetadataOnly
+            ? SendAsync<ConversationDetailResult>(request, query.CorrelationId, cancellationToken,
+                validateResponse: (result, status) => BoundedConversationDetailResponse.Accept(query, result, status))
+            : SendAsync<ConversationDetailResult>(request, query.CorrelationId, cancellationToken,
+                readWireResult: ReadFullConversationDetail);
     }
 
     /// <inheritdoc />
@@ -228,7 +231,8 @@ public sealed class ConversationClient : IConversationClient
         HttpRequestMessage request,
         string correlationId,
         CancellationToken cancellationToken,
-        Func<T, HttpStatusCode, T?>? validateResponse = null)
+        Func<T, HttpStatusCode, T?>? validateResponse = null,
+        Func<JsonElement, T?>? readWireResult = null)
         where T : class
     {
         try
@@ -238,12 +242,14 @@ public sealed class ConversationClient : IConversationClient
                 .ConfigureAwait(false);
 
             bool inspectReadFailure = !response.IsSuccessStatusCode && IsReadResult<T>();
-            JsonElement body = inspectReadFailure
+            JsonElement body = inspectReadFailure || readWireResult is not null
                 ? await TryReadBodyAsync<JsonElement>(response, cancellationToken).ConfigureAwait(false)
                 : default;
-            T? value = response.IsSuccessStatusCode
-                ? await TryReadBodyAsync<T>(response, cancellationToken).ConfigureAwait(false)
-                : TryDeserialize<T>(body);
+            T? value = readWireResult is not null
+                ? readWireResult(body)
+                : response.IsSuccessStatusCode
+                    ? await TryReadBodyAsync<T>(response, cancellationToken).ConfigureAwait(false)
+                    : TryDeserialize<T>(body);
             bool rejected = false;
             if (value is not null)
             {
@@ -275,6 +281,48 @@ public sealed class ConversationClient : IConversationClient
         {
             return ConversationClientResult<T>.Failure(UnknownOutcome(correlationId));
         }
+    }
+
+    private static ConversationDetailResult? ReadFullConversationDetail(JsonElement body)
+    {
+        ConversationDetailResult? result = TryDeserialize<ConversationDetailResult>(body);
+        if (result?.Details is null)
+        {
+            return result;
+        }
+
+        // The typed details normalize missing and null collections to empty lists.
+        JsonElement details = ReadUniqueProperty(body, nameof(ConversationDetailResult.Details));
+        return result.ReadPurpose is null
+            && ReadUniqueProperty(details, nameof(ConversationDetailsV1.Messages)).ValueKind == JsonValueKind.Array
+            ? result
+            : null;
+    }
+
+    private static JsonElement ReadUniqueProperty(JsonElement value, string name)
+    {
+        if (value.ValueKind != JsonValueKind.Object)
+        {
+            return default;
+        }
+
+        JsonElement match = default;
+        foreach (JsonProperty property in value.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, name, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (match.ValueKind != JsonValueKind.Undefined)
+            {
+                return default;
+            }
+
+            match = property.Value;
+        }
+
+        return match;
     }
 
     private static async Task<T?> TryReadBodyAsync<T>(HttpResponseMessage response, CancellationToken cancellationToken)

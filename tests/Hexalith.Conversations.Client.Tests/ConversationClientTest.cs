@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 using Hexalith.Conversations.Client;
 using Hexalith.Conversations.Contracts.Commands;
@@ -140,6 +141,7 @@ public sealed class ConversationClientTest
         result.Value.Details.Freshness.AllowsTrustBearingDecision().ShouldBeTrue();
         result.Value.FreshnessState.ShouldBe(ProjectionTrustState.Current);
         result.Value.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.Current);
+        result.Value.Details.Messages.ShouldBe(response.Details.ShouldNotBeNull().Messages);
         RecordedRequest request = handler.Requests.Single();
         request.Method.ShouldBe(HttpMethod.Get);
         request.PathAndQuery.ShouldBe("/api/v1/conversations/conversation-001");
@@ -168,14 +170,86 @@ public sealed class ConversationClientTest
     }
 
     [Theory]
+    [InlineData("omitted", false)]
+    [InlineData("null", false)]
+    [InlineData("empty", true)]
+    [InlineData("case-varied", true)]
+    [InlineData("duplicated", false)]
+    public async Task GetConversationShouldRequireAnExplicitFullTimeline(string timeline, bool accepted)
+    {
+        using FakeHttpMessageHandler handler = new();
+        var response = ConversationDetailResult.Visible(SchemaVersion.Current,
+            Details(ProjectionTrustState.Current, ProjectionFreshnessReasonCode.Current, isStale: false),
+            "Timeline is current.");
+        JsonNode body = JsonSerializer.SerializeToNode(response, JsonOptions).ShouldNotBeNull();
+        JsonObject details = body["details"].ShouldNotBeNull().AsObject();
+        if (timeline == "omitted")
+        {
+            details.Remove("messages").ShouldBeTrue();
+        }
+        else
+        {
+            details["messages"] = timeline == "null" ? null : new JsonArray();
+        }
+
+        if (timeline == "case-varied")
+        {
+            details.Remove("messages").ShouldBeTrue();
+            details["Messages"] = new JsonArray();
+        }
+        else if (timeline == "duplicated")
+        {
+            details["Messages"] = null;
+        }
+
+        handler.EnqueueString(HttpStatusCode.OK, body.ToJsonString());
+
+        var result = await CreateClient(handler).GetConversationAsync(Query(), TestContext.Current.CancellationToken);
+
+        result.StatusCode.ShouldBe(HttpStatusCode.OK);
+        result.IsSuccess.ShouldBe(accepted);
+        if (accepted)
+        {
+            result.Value.ShouldNotBeNull().Details.ShouldNotBeNull().Messages.ShouldBeEmpty();
+            result.Error.ShouldBeNull();
+        }
+        else
+        {
+            result.Value.ShouldBeNull();
+            result.Error.ShouldNotBeNull().Errors.ShouldHaveSingleItem().Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
+        }
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task GetConversationShouldRejectBoundedEvidenceForFullDetail(bool advisory)
+    {
+        using FakeHttpMessageHandler handler = new();
+        string purpose = advisory ? ConversationResolutionScoringLabel.SupportedPurpose : GetConversationQuery.NativeMembershipPurpose;
+        var response = ConversationDetailResult.Visible(SchemaVersion.Current, BoundedDetails(advisory), "Bounded detail is available.")
+            with { ReadPurpose = purpose };
+        handler.EnqueueJson(HttpStatusCode.OK, response);
+
+        var result = await CreateClient(handler).GetConversationAsync(Query(), TestContext.Current.CancellationToken);
+
+        result.IsSuccess.ShouldBeFalse();
+        result.Value.ShouldBeNull();
+        result.Error.ShouldNotBeNull().Errors.ShouldHaveSingleItem().Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
+    }
+
+    [Theory]
     [InlineData(false)]
     [InlineData(true)]
     public async Task GetConversationShouldAcceptMatchingBoundedDetail(bool advisory)
     {
         using FakeHttpMessageHandler handler = new();
         string purpose = advisory ? ConversationResolutionScoringLabel.SupportedPurpose : GetConversationQuery.NativeMembershipPurpose;
-        handler.EnqueueJson(HttpStatusCode.OK, ConversationDetailResult.Visible(SchemaVersion.Current, BoundedDetails(advisory),
-            "Bounded detail is available.") with { ReadPurpose = purpose });
+        var response = ConversationDetailResult.Visible(SchemaVersion.Current, BoundedDetails(advisory),
+            "Bounded detail is available.") with { ReadPurpose = purpose };
+        JsonNode body = JsonSerializer.SerializeToNode(response, JsonOptions).ShouldNotBeNull();
+        body["details"].ShouldNotBeNull().AsObject().Remove("messages").ShouldBeTrue();
+        handler.EnqueueString(HttpStatusCode.OK, body.ToJsonString());
 
         var result = await CreateClient(handler).GetConversationAsync(
             Query() with { NativeMembershipOnly = !advisory, AdvisoryMetadataOnly = advisory }, TestContext.Current.CancellationToken);
@@ -773,6 +847,7 @@ public sealed class ConversationClientTest
             Messages:
             [
                 new ConversationTimelineMessageProjectionV1(Message, Actor, "Hello from the adopter.", Now),
+                new ConversationTimelineMessageProjectionV1(new MessageId("message-002"), new PartyId("party-reply"), "Second message.", Now.AddSeconds(1)),
             ]);
 
     private static ProjectionFreshnessV1 Freshness(
