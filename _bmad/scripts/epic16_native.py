@@ -26,11 +26,28 @@ class HelperUnavailable(Exception):
 
 
 def _process_failure(stage, result):
-    """Retain separate bounded diagnostic tails and the actual prerequisite exit."""
+    """Retain separate bounded diagnostic tails for exit and timeout failures."""
     def bounded(value):
-        if isinstance(value, bytes): value = value.decode('utf-8', errors='replace')
-        return (value or '')[-2000:]
-    return f"{stage}: exit={result.returncode}; stdout={bounded(result.stdout)!r}; stderr={bounded(result.stderr)!r}"
+        if isinstance(value, bytes):
+            value = value[-8000:].decode('utf-8', errors='replace')
+        escaped = repr((value or '')[-2000:])
+        return escaped if len(escaped) <= 2000 else '...' + escaped[-1997:]
+
+    status = (f'timeout={result.timeout}s' if isinstance(result, subprocess.TimeoutExpired)
+              else f'exit={result.returncode}')
+    return f"{stage}: {status}; stdout={bounded(result.stdout)}; stderr={bounded(result.stderr)}"
+
+
+def _run_prerequisite(stage, arguments, *, cwd, timeout):
+    try:
+        result = subprocess.run(arguments, cwd=cwd, capture_output=True, timeout=timeout)
+    except subprocess.TimeoutExpired as error:
+        raise HelperUnavailable(_process_failure(stage, error)) from error
+    except OSError as error:
+        raise HelperUnavailable(stage) from error
+    if result.returncode:
+        raise HelperUnavailable(_process_failure(stage, result))
+    return result
 
 
 def validate_sdk(policy_bytes, selected=None):
@@ -89,18 +106,16 @@ def _helper():
         directory = Path(workspace.name)
         for name, data in sources.items():
             (directory / name).write_bytes(data)
-        sdk = subprocess.run(['dotnet', '--version'], cwd=directory, capture_output=True, timeout=30)
-        if sdk.returncode:
-            raise HelperUnavailable(_process_failure('repository-approved SDK unavailable', sdk))
+        sdk = _run_prerequisite('repository-approved SDK unavailable', ['dotnet', '--version'],
+                                cwd=directory, timeout=30)
         selected = sdk.stdout.decode('utf-8').strip()
         validate_sdk(sources[POLICY_PATH], selected)
         (directory / 'execution-toolchain.json').write_text(json.dumps(dict(sdk=selected,
             policySha256=hashlib.sha256(sources[POLICY_PATH]).hexdigest())))
-        build = subprocess.run(['dotnet', 'build', 'Epic16.NativeHelper.csproj', '-c', 'Debug',
-            '--nologo', '-m:1', '-p:NuGetAudit=false'], cwd=directory, capture_output=True, timeout=120)
-        if build.returncode:
-            raise HelperUnavailable(_process_failure('fixed helper build failed', build))
-    except (OSError, subprocess.TimeoutExpired, HelperUnavailable) as error:
+        _run_prerequisite(f'fixed helper build failed (SDK {selected})',
+                          ['dotnet', 'build', 'Epic16.NativeHelper.csproj', '-c', 'Debug',
+                           '--nologo', '-m:1', '-p:NuGetAudit=false'], cwd=directory, timeout=120)
+    except (OSError, HelperUnavailable) as error:
         if workspace is not None:
             try:
                 workspace.cleanup()
@@ -120,13 +135,8 @@ def provenance():
         runtime_config = strict_json(reader.read('bin/Debug/net10.0/Epic16.NativeHelper.runtimeconfig.json'))
         binary = reader.read('bin/Debug/net10.0/Epic16.NativeHelper.dll')
         built = strict_json(reader.read('execution-toolchain.json'))
-    try:
-        selected = subprocess.run(['dotnet', '--version'], cwd=workspace.name,
-            capture_output=True, timeout=30)
-    except (OSError, subprocess.TimeoutExpired) as error:
-        raise HelperUnavailable('helper SDK provenance unavailable') from error
-    if selected.returncode:
-        raise HelperUnavailable(_process_failure('helper SDK provenance unavailable', selected))
+    selected = _run_prerequisite('helper SDK provenance unavailable', ['dotnet', '--version'],
+                                 cwd=workspace.name, timeout=30)
     sdk = selected.stdout.decode('utf-8').strip()
     validate_sdk(policy, sdk)
     if built != dict(sdk=sdk, policySha256=hashlib.sha256(policy).hexdigest()):

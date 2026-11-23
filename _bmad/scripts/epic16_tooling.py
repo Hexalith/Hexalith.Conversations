@@ -547,16 +547,18 @@ def evaluate(repository: Path, story: str, scenario: str, candidate='HEAD', scop
             # rather than trusted from another JSON receipt.
             dependencies = {'AC-16.1-05': ('AC-16.1-02', 'AC-16.1-03'),
                 'AC-16.2-05': ('AC-16.2-02', 'AC-16.2-03'), 'AC-16.3-04': ('AC-16.3-03',)}.get(scenario, ())
+            dependency_bindings = {}
             for dependency in dependencies:
                 other = evaluate(repository, story, dependency, facts['commit'], scope, publication=publication, verify_spec=verify_spec, package=package)
                 need(other['result'] == 'PASS', 'SCENARIO_DEPENDENCY_FAILED', dependency,
                      blocked=other['result'] == 'BLOCKED')
+                dependency_bindings[dependency] = other['bindings']['native']
+            for dependency, native_binding in dependency_bindings.items():
+                dependency_path = native_path(scope, dependency)
+                dependency_raw = read(reader, dependency_path, retained=scope == 'runtime')
+                need(native_binding == dict(path=dependency_path, sha256=digest(dependency_raw)),
+                     'SCENARIO_DEPENDENCY_DRIFT', dependency)
                 if scenario == 'AC-16.3-04':
-                    dependency_path = native_path(scope, dependency)
-                    with ContainedReader(repository) as dependency_reader:
-                        dependency_raw = read(dependency_reader, dependency_path, retained=scope == 'runtime')
-                    need(other['bindings']['native'] == dict(path=dependency_path, sha256=digest(dependency_raw)),
-                         'SCENARIO_DEPENDENCY_DRIFT', dependency)
                     previous, _ = parse_native(dependency_raw, dependency, facts['commit'], sources, package.contract_pins[contract_path(story, package)])
                     need(all(observations[key] == previous[key] for key in ('persistedPendingId', 'pendingSequence', 'tenant', 'runtimeId', 'catalogSha256', 'catalogBytes', 'catalogFingerprint', 'pendingLocation', 'wireRoutes', 'pendingEvent', 'pendingBinding', 'precedingEvents')), 'RECONCILIATION_IDENTITY_DRIFT', scenario)
             checks = measurements.evaluate(scenario, observations)

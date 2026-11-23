@@ -11,16 +11,11 @@ updates. It does not change the meaning or bytes of earlier V23–V29 records.
    submodule changes. That checker reads both `.gitmodules` and gitlinks from the
    index. Stage the intended declarations and exact root gitlink paths before
    running it; unstaged declaration edits do not affect its result.
-2. Push to `main` after those checks pass. CI then builds and tests the product.
-   The `ci / repository` job checks that
-   each root `.gitmodules` declaration has exactly one mode-`160000` gitlink in
-   the checked-out index and that no undeclared path appears under `references/`.
-   It also runs the Story 7.3 workflow verifier (`AC-7.3-01` and `AC-7.3-02`),
-   which fails when a governed route loses or misplaces its
-   `STORY-COMPLETION-GATE` block, or when a block drifts from the other surfaces
-   or drops a required clause. It then runs the `_bmad/scripts/tests` directory
-   lane, except the Epic 6 supersession suite, which needs initialized
-   submodules. It never initializes or reads a submodule.
+2. Run `python3 references/Hexalith.Builds/check.py` from the module root
+   on the committed change before pushing to `main`. GitHub Actions delegates
+   the module workflow to the released Hexalith.Builds CI. The Conversations
+   after-unit-tests action checks the package contract and minimal-module
+   compatibility, then validates the built and installed packages.
 3. For a gitlink update, review the before and after commit IDs in the staged
    Git diff and explain the affected paths and reason in the commit message.
 4. Check CI after the push. Fix a failed product or repository check before the
@@ -32,9 +27,9 @@ workflow.
 
 Repository-local BMad build and review workflows use this current-tree check
 and focused tests for new routine work. Generated final records and historical
-evidence checks run only when a spec explicitly requires them. The pre-commit
-hook checks staged whitespace; the commit-message hook still enforces the
-repository's Conventional Commit policy.
+evidence checks run only when a spec explicitly requires them. The tracked pre-commit
+hook checks staged whitespace. The Builds guard validates commit messages
+against the shared Conventional Commit policy.
 
 ## Historical boundary
 
@@ -43,12 +38,15 @@ evidence verifier, schemas, records, and their tests remain in Git for historica
 inspection. They are not required for future pushes, CI, or routine lifecycle
 transitions. Do not create another authority successor solely because a new
 commit touches a path they governed.
-The default Python test selection is current repository tooling; invoke a
-historical authority test file explicitly when reproducing its result.
-`_bmad/scripts/tests/conftest.py` lists the authority and evidence suites whose
-subjects this policy retired, including the authority classes that `ci.yml`
-excludes from conformance, so a directory run leaves them out and naming a file
-still runs it.
+The default `pytest` collection is `tests/tooling`, as configured in
+`pyproject.toml`. The root `npm test` command runs its own unittest list there
+for local use. Shared CI runs the Conversations after-unit-tests action and
+has no npm workspaces configured. Run the relevant BMad tests locally for a
+tooling or workflow change, for example
+`uv run --frozen pytest _bmad/scripts/tests/test_epic16_tooling.py -k scope_only_dispatch`.
+`_bmad/scripts/tests/conftest.py` excludes retired authority and evidence suites
+from directory collection. Name a historical test file explicitly when
+reproducing its result with the toolchain and dependencies that it requires.
 The V29 result for `0bb017e641eb7bd03864466526c4918f9c55ef70` remains a
 historical `FAIL`; this policy makes no retroactive `PASS` or authorization claim.
 The recorded V29 hold remains `ACTIVE`, with all four authority flags false.

@@ -259,8 +259,12 @@ def test_selected_lazy_imports_distinguish_unavailable_from_internal_defect(sele
         command+=['--format','bundle'] if generator else ['--scenario','AC-16.1-01']
         process=subprocess.run(command,cwd=repo,capture_output=True,timeout=60)
         if fault=='unavailable':
-            result=json.loads(process.stdout);assert process.returncode==2 and result['assertionLedger']
-            assert result['result']=='BLOCKED'
+            result = json.loads(process.stdout)
+            assert process.returncode == 2 and result['result'] == 'BLOCKED'
+            if generator:
+                assert result['blockers'] == ['SCHEMA_UNAVAILABLE'] and result['diagnostics']
+            else:
+                assert result['blockers'] == ['TOOLING_DEPENDENCY_UNAVAILABLE'] and result['assertionLedger']
         else:
             assert process.returncode==1 and b'missing_internal_dependency' in process.stderr
             assert b'Traceback' in process.stderr

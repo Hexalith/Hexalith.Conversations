@@ -4026,20 +4026,37 @@ def test_round10_equal_authorization_responses_still_must_be_native_hidden_resul
     native(repository,'AC-16.2-03',data);rejected(evaluate(repository,'AC-16.2-03'),'MEASUREMENT_INVALID')
 
 
-@pytest.mark.parametrize('fault',['bytes','hardlink','symlink'])
-def test_round10_final_inventory_rechecks_compiled_baseline_bytes_and_aliases(round10_runtime,fault):
-    repo=round10_runtime;rows=[tooling.evaluate(repo,'16.1',f'AC-16.1-0{n}') for n in range(1,6)]
-    assert all(r['result']=='PASS' for r in rows),rows
-    for row in rows:dump(repo,tooling.receipt_path('runtime',row['scenarioId']),row)
-    with tooling.ContainedReader(repo) as reader:assert tooling.capture.inventory(reader,'16.1',rows,tooling.need)
-    artifact=rows[4]['bindings']['compiledPublicPreservation']['baseline'];path=repo/artifact['path'];original=path.read_bytes()
-    if fault=='bytes':path.write_bytes(b'not the admitted binary')
+@pytest.mark.parametrize('artifact_kind', ['compiled_baseline', 'test_binary'])
+@pytest.mark.parametrize('fault', ['bytes', 'hardlink', 'symlink'])
+def test_final_inventory_rechecks_binary_bytes_and_aliases(round10_runtime, artifact_kind, fault):
+    repo = round10_runtime
+    rows = [tooling.evaluate(repo, '16.1', f'AC-16.1-0{n}') for n in range(1, 6)]
+    failures = [(row['scenarioId'], row['blockers']) for row in rows if row['result'] != 'PASS']
+    assert not failures
+    for row in rows:
+        dump(repo, tooling.receipt_path('runtime', row['scenarioId']), row)
+    with tooling.ContainedReader(repo) as reader:
+        assert tooling.capture.inventory(reader, '16.1', rows, tooling.need)
+    artifact = (rows[4]['bindings']['compiledPublicPreservation']['baseline']
+                if artifact_kind == 'compiled_baseline' else rows[0]['bindings']['testBinary'])
+    path = repo / artifact['path']
+    original = path.read_bytes()
+    if fault == 'bytes':
+        path.write_bytes(b'not the admitted binary')
     else:
-        other=repo/'artifacts/compiled-alias.dll';other.write_bytes(original);path.unlink()
-        if fault=='hardlink':os.link(other,path)
-        else:path.symlink_to(other)
-    with tooling.ContainedReader(repo) as reader,pytest.raises((tooling.Stop,tooling.ReadError)):
-        tooling.capture.inventory(reader,'16.1',rows,tooling.need)
+        other = repo / 'artifacts/binary-alias.dll'
+        other.write_bytes(original)
+        path.unlink()
+        if fault == 'hardlink':
+            os.link(other, path)
+        else:
+            path.symlink_to(other)
+    with tooling.ContainedReader(repo) as reader, pytest.raises(tooling.Stop) as failure:
+        tooling.capture.inventory(reader, '16.1', rows, tooling.need)
+    assert failure.value.code == {
+        'bytes': 'NATIVE_CAPTURE_DRIFT', 'hardlink': 'NATIVE_CAPTURE_ALIAS', 'symlink': 'PATH_ESCAPE',
+    }[fault]
+    assert failure.value.subject == artifact['path']
 
 
 @pytest.mark.parametrize('shape', ['inherited-name','inherited-generic','override-name','override-type','override-generic','mixed-name-generic','mixed-generic-name','mixed-generic-types','mixed-declared','mixed-shared-name-generic','mixed-shared-generic-name','mixed-shared-generic-types'])
@@ -5275,8 +5292,8 @@ def test_tenant_replay_removes_only_the_named_member(member):
     assert history[1] == final
 
 
-def test_reconciliation_compares_the_same_dependency_bytes_that_passed(repository, monkeypatch):
-    dependency = 'AC-16.3-03'
+@pytest.mark.parametrize('scenario,dependency', DEPENDENCIES)
+def test_scenarios_recheck_the_exact_dependency_bytes_that_passed(repository, monkeypatch, scenario, dependency):
     path = tooling.native_path(SCOPE, dependency)
     read = tooling.read
     dependency_reads = 0
@@ -5291,7 +5308,7 @@ def test_reconciliation_compares_the_same_dependency_bytes_that_passed(repositor
         return content
 
     monkeypatch.setattr(tooling, 'read', reread)
-    result = evaluate(repository, 'AC-16.3-04')
+    result = evaluate(repository, scenario)
     rejected(result, 'SCENARIO_DEPENDENCY_DRIFT')
     assert dependency_reads == 2
 
@@ -5328,3 +5345,49 @@ def test_epic16_cli_help_preserves_argparse_output(script):
                           '--contract', tooling.contract_path('16.3'), '--help'],
                          cwd=ROOT, capture_output=True, timeout=30)
     assert run.returncode == 0 and b'usage:' in run.stdout and not run.stderr
+
+
+@pytest.mark.parametrize('failure', ['exit', 'timeout'])
+def test_native_helper_build_diagnostics_include_sdk_and_bounded_streams(monkeypatch, failure):
+    helper = tooling.native_helper
+    raw_policy = (ROOT / 'global.json').read_bytes()
+    sdk = json.loads(raw_policy)['sdk']['version']
+    stdout = b'stale output ' * 300 + b'build output tail'
+    stderr = b'\x00' * 3000 + b'build error tail'
+    directories = []
+
+    def run(args, *, cwd, capture_output, timeout):
+        assert capture_output
+        assert (cwd / 'global.json').read_bytes() == raw_policy
+        if args == ['dotnet', '--version']:
+            return subprocess.CompletedProcess(args, 0, sdk.encode(), b'')
+        assert args[:3] == ['dotnet', 'build', 'Epic16.NativeHelper.csproj']
+        directories.append(cwd)
+        assert timeout == 120
+        if failure == 'timeout':
+            raise subprocess.TimeoutExpired(args, timeout, output=stdout, stderr=stderr)
+        return subprocess.CompletedProcess(args, 17, stdout, stderr)
+
+    monkeypatch.setattr(helper.subprocess, 'run', run)
+    with pytest.raises(helper.HelperUnavailable) as error:
+        helper._helper.__wrapped__()
+    diagnostic = str(error.value)
+    assert f'SDK {sdk}' in diagnostic
+    assert ('timeout=120s' if failure == 'timeout' else 'exit=17') in diagnostic
+    assert 'build output tail' in diagnostic and 'build error tail' in diagnostic
+    assert len(diagnostic) < 4200
+    assert len(directories) == 1 and not directories[0].exists()
+
+
+def test_scope_only_dispatch_reports_unavailable_successor_without_contract(tmp_path):
+    script = tmp_path / 'generate_story_record.py'
+    shutil.copyfile(ROOT / '_bmad/scripts' / script.name, script)
+    run = subprocess.run([sys.executable, str(script), '--scope', 'tooling-fixture'],
+                         cwd=tmp_path, capture_output=True, timeout=30)
+    result = json.loads(run.stdout)
+    assert run.returncode == 2 and not run.stderr
+    assert result['result'] == 'BLOCKED' and result['blockers'] == ['SCHEMA_UNAVAILABLE']
+    schema = json.loads((ROOT / '_bmad/schemas/story-record-generator-failure-v1.schema.json').read_bytes())
+    jsonschema.validate(result, schema)
+    assert result['diagnostics'][0]['subject'] == 'Epic 16 generator'
+    assert 'epic16_tooling' in result['diagnostics'][0]['message']

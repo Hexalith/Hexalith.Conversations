@@ -1451,3 +1451,13 @@ The [follow-up spec](spec-five-deferred-epic16-verifier-fixes.md) records the di
 - Placement and scheduler collisions both require matching fault targets, restoration bytes, diagnostics and effective port numbers. The two-replica case still requires the newer denial to win over stale access.
 - The replay checks confirm that null or empty attribute maps preserve existing attributes and that removing an absent member leaves membership intact. Nonempty replacement and actual member removal are covered as controls.
 - Malformed and repeated Epic 16 CLI arguments return `ARGUMENT_INVALID` with a structured diagnostic. Interactive help and the separate missing-dependency result keep their existing behavior.
+
+## Addressed by deferred verification follow-ups (2026-11-23)
+
+The [follow-up spec](spec-five-deferred-verification-followups.md) records the disposition of these five validation findings.
+
+- Epic 16 prerequisite results. The dependent scenario recomputes every prerequisite and rejects native bytes that differ from the successful prerequisite result. The tooling-fixture regression exercises all five dependency edges.
+- Epic 16 capture inventory. A test now replaces the retained test DLL after scenario admission. The existing inventory guard detects the change and also rejects hardlink and symlink substitutions.
+- Epic 16 native helper diagnostics. Build failures identify the selected SDK and retain separate bounded stdout and stderr tails on both nonzero exit and timeout. The regression checks the exact repository SDK policy carried to the helper workspace.
+- Epic 16 generator dispatch. A missing successor module produces a structured blocker even for a scope-only invocation. Dispatch preserves interactive help and distinguishes missing declared dependencies from undeclared internal import errors.
+- Python validation selection. The current-change runbook describes the default pytest path, npm test selection, the product checks in shared CI, and the explicit local BMad tests.

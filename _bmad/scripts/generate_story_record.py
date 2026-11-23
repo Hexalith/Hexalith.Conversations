@@ -11111,6 +11111,7 @@ def main(arguments: Sequence[str] | None = None) -> int:
             try:
                 sys.dont_write_bytecode = True
                 import epic16_tooling
+                # Version-specific consumers are imported lazily after parsing.
                 return epic16_tooling.main(raw_arguments, generator=True)
             except ModuleNotFoundError as error:
                 declared = {
@@ -11126,11 +11127,10 @@ def main(arguments: Sequence[str] | None = None) -> int:
                 import importlib.util
                 if importlib.util.find_spec(error.name) is not None:
                     raise
+                subject = next((contract for contract in contracts if contract in successors), "Epic 16 generator")
                 document = v2_failure_document([v2_finding(
-                    "SCHEMA_UNAVAILABLE", str(contracts[0]),
-                    "the Epic 16 successor consumer is unavailable")], None)
-                document['assertionLedger'] = [dict(id='SCHEMA_UNAVAILABLE',
-                    subject=error.name, state='BLOCKED')]
+                    "SCHEMA_UNAVAILABLE", subject,
+                    f"the Epic 16 successor dependency {error.name} is unavailable")], None)
                 v2_write_stdout(v2_render_json(document))
                 return document["exitCode"]
         return v2_main(raw_arguments)
