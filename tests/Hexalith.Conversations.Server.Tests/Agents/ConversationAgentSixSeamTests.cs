@@ -617,8 +617,10 @@ public sealed class ConversationAgentSixSeamTests
         f.Persist(ConversationAggregate.Handle(attempt, await f.ReplayAsync()));
         var receipt = new ConversationDeletionAcknowledgement(signal.ConversationDeletionSignalId, signal.SourceRevision, 7,
             "target", "authenticated-local-receipt");
-        var acknowledgement = new RecordConversationDeletionDelivery(new(f.CommandMetadata(F.Human, "ack"), F.Conversation, signal,
-            ConversationDeletionDeliveryAction.Acknowledge, "attempt", "target", 1, receipt), "ack-event");
+        var acknowledgementMetadata = f.CommandMetadata(F.Human, "ack");
+        var acknowledgement = new RecordConversationDeletionDelivery(new(acknowledgementMetadata, F.Conversation, signal,
+            ConversationDeletionDeliveryAction.Acknowledge, "attempt", "target", 1, receipt),
+            AgentCommandIntentId.Create(acknowledgementMetadata, F.Conversation, "delivery"));
         var current = await f.CurrentStateAsync();
         f.ReceiptOutcome = ConversationAgentsOutcome.Conflict;
         var refused = await f.Admission.EvaluateAsync(new(new(f.Envelope(acknowledgement, "source-worker"), current)),

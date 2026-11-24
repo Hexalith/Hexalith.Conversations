@@ -4,6 +4,7 @@
 // </copyright>
 
 using System.Text.Json;
+using Hexalith.Conversations.Aggregates;
 using Hexalith.Conversations.Commands;
 using Hexalith.Conversations.Contracts.Agents;
 using Hexalith.Conversations.Contracts.Commands;
@@ -11,6 +12,7 @@ using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Events;
+using Hexalith.Conversations.State;
 using Hexalith.EventStore.Contracts.Commands;
 using Hexalith.EventStore.Contracts.Streams;
 using Hexalith.EventStore.DomainService;
@@ -238,12 +240,44 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
                 return Reject(ConversationAgentsOutcome.Conflict);
             }
 
+            var (proposedIdentity, purpose) = GetProposedEventIdentity(command, source.Value.State);
+            if (proposedIdentity is not null && (eventIdentities.Contains(proposedIdentity)
+                || (purpose is not null && proposedIdentity != AgentCommandIntentId.Create(metadata, conversation, purpose))))
+            {
+                return Reject(ConversationAgentsOutcome.Conflict);
+            }
+
             return DomainServiceAdmissionResult.Accepted();
         }
         catch (Exception ex) when (ex is not ConversationWriteAuthorityUnavailableException && !cancellationToken.IsCancellationRequested)
         {
             return Reject(ConversationAgentsOutcome.Unavailable);
         }
+    }
+
+    private static (string? Identity, string? Purpose) GetProposedEventIdentity(object command, ConversationState state)
+    {
+        // Evaluate the same pure handler so a no-op or refusal never consumes an event identity.
+        // Delivery may derive a quarantine identity instead of emitting the supplied identity.
+        var result = command switch
+        {
+            AddAgentParticipant membership => ConversationAggregate.Handle(membership, state),
+            ApproveConversationDeletion approval => ConversationAggregate.Handle(approval, state),
+            RecordConversationDeletionDelivery delivery => ConversationAggregate.Handle(delivery, state),
+            EditConversationMessageCommand edit => ConversationAggregate.Handle(edit, state),
+            DeleteConversationMessageCommand delete => ConversationAggregate.Handle(delete, state),
+            _ => null,
+        };
+        return result?.Events.SingleOrDefault() switch
+        {
+            ParticipantAddedDomainEvent membership => (membership.Metadata.EventId, "membership"),
+            ConversationDeletionApprovedDomainEvent approval => (approval.Metadata.EventId, "approval"),
+            ConversationDeletionDeliveryRecordedDomainEvent delivery => (delivery.Metadata.EventId,
+                delivery.Action == ConversationDeletionDeliveryAction.Quarantine ? null : "delivery"),
+            MessageEditedDomainEvent edit => (edit.Metadata.EventId, null),
+            MessageDeletedDomainEvent delete => (delete.Metadata.EventId, null),
+            _ => (null, null),
+        };
     }
 
     private static readonly Type[] RestrictedTypes = [typeof(AddAgentParticipant), typeof(AppendAgentMessage),

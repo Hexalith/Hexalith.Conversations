@@ -179,8 +179,16 @@ public sealed class ConversationAgentLocalFixture : IConversationAgentAuthority,
     public ConversationCommandMetadata CommandMetadata(PartyId? actor = null, string key = "intent-1")
         => new(SchemaVersion.Current, Tenant, actor ?? Agent, "correlation-1", IdempotencyKey: key);
     /// <summary>Exact restricted AiAgent Member intent.</summary>
-    public AddAgentParticipant Membership => new(new(CommandMetadata(), CurrentConversation, Agent,
-        ParticipantType.AiAgent, ParticipantRole.Member, OperationTimestamp: At.AddMinutes(1)), At.AddMinutes(1), "membership-event");
+    public AddAgentParticipant Membership
+    {
+        get
+        {
+            var metadata = CommandMetadata();
+            return new(new(metadata, CurrentConversation, Agent, ParticipantType.AiAgent, ParticipantRole.Member,
+                OperationTimestamp: At.AddMinutes(1)), At.AddMinutes(1),
+                AgentCommandIntentId.Create(metadata, CurrentConversation, "membership"));
+        }
+    }
     /// <summary>Exact deterministic posting intent.</summary>
     public AppendAgentMessage Posting => new(new(CommandMetadata(key: "post-key"), CurrentConversation, new MessageId("message-original"), Agent,
         "Original content", AgentProvenance: new("agent-call-trace", true, false), OperationTimestamp: At.AddMinutes(2)), At.AddMinutes(2), "post-event");

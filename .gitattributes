@@ -186,3 +186,7 @@ tests/Hexalith.Conversations.Conformance.Portable.Tests/ClientPublicApiConforman
 tests/Hexalith.Conversations.TestSupport.Tests/AdoptionSeamTests.cs whitespace=cr-at-eol
 tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs whitespace=cr-at-eol
 tests/Hexalith.Conversations.Server.Tests/Agents/ConversationDeletionRuntimeHostTests.cs whitespace=cr-at-eol
+src/Hexalith.Conversations.Server/Agents/ConversationAgentAdmissionStage.cs whitespace=cr-at-eol
+tests/Hexalith.Conversations.Server.Tests/Agents/ConversationAdmissionSafeguardTests.cs whitespace=cr-at-eol
+tests/Hexalith.Conversations.Server.Tests/Agents/ConversationAgentLocalFixture.cs whitespace=cr-at-eol
+tests/Hexalith.Conversations.Server.Tests/Agents/ConversationAgentSixSeamTests.cs whitespace=cr-at-eol

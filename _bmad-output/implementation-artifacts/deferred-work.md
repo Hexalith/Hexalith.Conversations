@@ -1528,3 +1528,15 @@ The [follow-up spec](spec-five-deferred-validation-entry-points.md) records veri
 - **Done. October 8 Story 9.2 Blind 6, deletion receipt verifier composition.** The host tests resolve the configured verifier as a scoped service when enabled and the unavailable verifier when disabled. The dedicated admission tests exercise independent receipt lookup and rejection.
 
 - **Done. November 2 Story 16.1, tenant-access denial release notes.** The notes document the change in v1.5.0, verified by comparing the two conformance fixture expectations in the v1.4.0 and v1.5.0 Git tags.
+
+- **Done. November 22 restricted mutation review, remaining source event identities.** Membership, approvals and delivery use submitted identities. Human edits, deletions and delivery quarantine derive their identities in the aggregate. Admission checks the prospective emitted identity against the verified source prefix and verifies canonical allocation for events that consume a submitted identity. Tests cover fresh events, conflicts and an unchanged membership retry.
+
+### Skipped in this continuation
+
+- Story 6.8 mtime sensitivity and the live dependency-revision binding need a candidate-bound execution receipt. The current v1 contract intentionally compares timestamps at nanosecond precision.
+- Story 7.2, Story 7.3, and V13–V29 authority and CI findings retain their recorded historical dispositions. Changes to current shared CI policy belong to Hexalith.CiCd.
+- The Story 9.1 protected-snapshot write is already isolated to a temporary file. The Story 9.2 pre-split TRX is tracked and matches the retained capture by SHA-256. The full Story 9.1 archive still requires the acceptance-time Release output directory and its exact assembly.
+- The Story 9.2 deletion pump and publication worker already have opt-in host composition coverage. Independent deployed receiver, workload identity, and tenant delivery qualification still require the enrolled runtime.
+- Story 11.2 path-dependent build hashes and project-build duplication concern the frozen source fixture. Closing them requires a separately versioned fixture and measurement.
+- The Epic 16 prerequisite test fixture already substitutes its own source pins. A terminal tenant projection repair, durable backfill, and tenant index recovery still require the corresponding EventStore and Platform operations.
+- Story 12.4 measurements and bootstrap qualification depend on the earlier benchmark story and the full observation inputs. The older Story 12.2 reconstruction test was retired.

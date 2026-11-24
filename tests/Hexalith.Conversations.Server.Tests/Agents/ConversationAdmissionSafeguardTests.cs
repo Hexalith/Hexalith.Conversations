@@ -545,6 +545,114 @@ public sealed class ConversationAdmissionSafeguardTests
         fixture.PersistedEvents.Count.ShouldBe(4);
     }
 
+    /// <summary>A new membership binds the client allocation while an existing membership still returns a no-op.</summary>
+    [Fact]
+    public async Task MembershipRequiresBoundIdentityOnlyWhenItWouldEmitAnEvent()
+    {
+        var fixture = new F();
+        AddAgentParticipant unbound = fixture.Membership with { EventId = "unbound-membership" };
+        var envelope = fixture.Envelope(unbound);
+        var refused = await fixture.Admission.EvaluateAsync(new(new(envelope, await fixture.CurrentStateAsync())),
+            TestContext.Current.CancellationToken);
+        refused.RejectionEvents.Single().ShouldBeOfType<ConversationRejectedDomainEvent>().ReasonCode.ShouldBe("agents-Conflict");
+
+        fixture.Persist(ConversationAggregate.Handle(fixture.Membership, await fixture.ReplayAsync()));
+        var admitted = await fixture.Admission.EvaluateAsync(new(new(envelope, await fixture.CurrentStateAsync())),
+            TestContext.Current.CancellationToken);
+        admitted.IsRejected.ShouldBeFalse();
+        ConversationAggregate.Handle(unbound, await fixture.ReplayAsync()).IsNoOp.ShouldBeTrue();
+        fixture.PersistedEvents.Count.ShouldBe(2);
+    }
+
+    /// <summary>Restricted mutations refuse a repeated emitted identity, including derived quarantine and human-message identities.</summary>
+    /// <param name="mutation">The restricted mutation under test.</param>
+    [Theory]
+    [InlineData("membership")]
+    [InlineData("approval")]
+    [InlineData("delivery")]
+    [InlineData("quarantine")]
+    [InlineData("edit")]
+    [InlineData("delete")]
+    public async Task RestrictedMutationsCheckTheIdentityTheyWouldEmit(string mutation)
+    {
+        var fixture = new F();
+        if (mutation is "edit" or "delete")
+        {
+            fixture.Persist(ConversationAggregate.Handle(fixture.Membership, await fixture.ReplayAsync()));
+            fixture.Persist(ConversationAggregate.Handle(fixture.Posting, await fixture.ReplayAsync()));
+        }
+
+        DateTimeOffset operationTime = F.At.AddMinutes(3);
+        var state = await fixture.ReplayAsync();
+        var approvalMetadata = fixture.CommandMetadata(F.Human, "approval");
+        var approval = new ApproveConversationDeletion(new(approvalMetadata, F.Conversation,
+            "independent-approval", state.SourceRevision, operationTime, F.DeletionAudit(state.SourceRevision, operationTime)),
+            AgentCommandIntentId.Create(approvalMetadata, F.Conversation, "approval"));
+        if (mutation is "delivery" or "quarantine")
+        {
+            fixture.Persist(ConversationAggregate.Handle(approval, state));
+            state = await fixture.ReplayAsync();
+        }
+
+        var (envelope, expected) = mutation switch
+        {
+            "membership" => (fixture.Envelope(fixture.Membership), ConversationAggregate.Handle(fixture.Membership, state)),
+            "approval" => (fixture.Envelope(approval, "human"), ConversationAggregate.Handle(approval, state)),
+            "delivery" or "quarantine" => Delivery(mutation == "quarantine"),
+            "edit" => Edit(),
+            "delete" => Delete(),
+            _ => throw new ArgumentOutOfRangeException(nameof(mutation)),
+        };
+
+        string proposedIdentity = expected.Events.Single() switch
+        {
+            ParticipantAddedDomainEvent membership => membership.Metadata.EventId,
+            ConversationDeletionApprovedDomainEvent accepted => accepted.Metadata.EventId,
+            ConversationDeletionDeliveryRecordedDomainEvent delivery => delivery.Metadata.EventId,
+            MessageEditedDomainEvent edit => edit.Metadata.EventId,
+            MessageDeletedDomainEvent delete => delete.Metadata.EventId,
+            _ => throw new InvalidOperationException("Expected one restricted mutation event."),
+        };
+
+        var allowed = await fixture.Admission.EvaluateAsync(new(new(envelope, await fixture.CurrentStateAsync())),
+            TestContext.Current.CancellationToken);
+        allowed.IsRejected.ShouldBeFalse();
+
+        var created = (ConversationCreatedDomainEvent)fixture.PersistedEvents[0];
+        fixture.PersistedEvents[0] = new ConversationCreatedDomainEvent(created.Metadata with { EventId = proposedIdentity },
+            null, null, null, null);
+        var refused = await fixture.Admission.EvaluateAsync(new(new(envelope, await fixture.CurrentStateAsync())),
+            TestContext.Current.CancellationToken);
+        refused.IsRejected.ShouldBeTrue();
+        refused.RejectionEvents.Single().ShouldBeOfType<ConversationRejectedDomainEvent>().ReasonCode.ShouldBe("agents-Conflict");
+        (await fixture.ReplayAsync()).SourceRevision.ShouldBe(state.SourceRevision);
+
+        (CommandEnvelope, DomainResult) Delivery(bool quarantine)
+        {
+            var request = new RecordConversationDeletionDeliveryCommand(fixture.CommandMetadata(F.Human, "delivery"),
+                F.Conversation, state.DeletionSource.Signal!,
+                quarantine ? ConversationDeletionDeliveryAction.Quarantine : ConversationDeletionDeliveryAction.Attempt,
+                "attempt-1", "target-version", state.DeletionSource.DeliveryRevision);
+            string eventId = AgentCommandIntentId.Create(request.Metadata, F.Conversation, "delivery");
+            var delivery = new RecordConversationDeletionDelivery(request, eventId);
+            return (fixture.Envelope(delivery, "source-worker"), ConversationAggregate.Handle(delivery, state));
+        }
+
+        (CommandEnvelope, DomainResult) Edit()
+        {
+            var edit = new EditConversationMessageCommand(fixture.CommandMetadata(F.Human, "edit"), F.Conversation,
+                fixture.Posting.PublicCommand.MessageId, "Updated content", operationTime);
+            return (fixture.Envelope(edit, "human"), ConversationAggregate.Handle(edit, state));
+        }
+
+        (CommandEnvelope, DomainResult) Delete()
+        {
+            var delete = new DeleteConversationMessageCommand(fixture.CommandMetadata(F.Human, "delete"), F.Conversation,
+                fixture.Posting.PublicCommand.MessageId, operationTime);
+            return (fixture.Envelope(delete, "human"), ConversationAggregate.Handle(delete, state));
+        }
+    }
+
     private static object LegacyCommand(string name, ConversationCommandMetadata metadata, ConversationId conversation)
     {
         var audit = new GovernanceAuditEvidenceReference(new AuditEvidenceHandle("legacy-audit"), "legacy-policy", F.At.AddMinutes(1));
