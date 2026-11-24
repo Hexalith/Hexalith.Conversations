@@ -1479,3 +1479,5 @@ The [follow-up spec](spec-five-deferred-validation-entry-points.md) records veri
 - source_spec: `spec-deferred-live-record-submodule-drift.md`
   summary: Bind live v1 measurements to dependency revisions at execution time.
   evidence: A checkout can move after promotion inspection, and aligning a checkout can leave older build outputs in place. The current v1 receipts bind only the parent source stamp. This follow-up requires a compatible measurement protocol and a regression that changes a dependency during inspection.
+
+- **Done. September 25 Story 7.2, duplicate root-submodule declarations.** Restored the regression removed in `ebf0f5f0`. The default tooling suite exercises the checker CLI with duplicate sections and repeated path settings in the Git index.
