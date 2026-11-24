@@ -1518,3 +1518,5 @@ The [follow-up spec](spec-five-deferred-validation-entry-points.md) records veri
 - **Done. October 19 Story 11.2, fixture inventory ordering.** The file-layout disclosure identifies the exact listed-order digest procedure. Both orderings were recomputed against the 13 tracked source paths.
 
 - **Done. October 20 Story 11.2, historical package refresh profile.** The current-change runbook names the October 8 publication, source, and Builds commits and explains the read-only replay. The checker returned `PASS` with five assertions in a disposable checkout of those pins.
+
+- **Done. October 10 Story 9.2, v7 Quality approval diagnostic.** The v4 verifier reports `TIER_APPROVAL_MISSING` when the exact v7 approval is absent. Regression cases distinguish this from a missing proposal and approval digest drift.

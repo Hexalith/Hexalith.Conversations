@@ -178,11 +178,20 @@ def approved_quality(root: Path, candidate: str, *, committed: bool = True) -> d
     root = root.resolve()
     for path, digest in ((API_DIFF, API_DIFF_SHA), (API_COMPAT, API_COMPAT_SHA),
                          (QUALITY_PROPOSAL, QUALITY_PROPOSAL_SHA),
-                         (QUALITY_REVIEW, QUALITY_REVIEW_SHA),
-                         (QUALITY_APPROVAL, QUALITY_APPROVAL_SHA)):
+                         (QUALITY_REVIEW, QUALITY_REVIEW_SHA)):
         V2.pinned(root, path, digest, candidate=candidate if committed else None)
+    try:
+        approval_raw = V2.pinned(root, QUALITY_APPROVAL, QUALITY_APPROVAL_SHA,
+                                 candidate=candidate if committed else None)
+    except AcceptanceError as error:
+        absent_from_candidate = committed and error.code == "SUCCESSOR_INPUT_NOT_COMMITTED" and (
+            V2.candidate_blob(root, candidate, QUALITY_APPROVAL) is None
+        )
+        if error.code != "SUCCESSOR_INPUT_MISSING" and not absent_from_candidate:
+            raise
+        raise AcceptanceError("TIER_APPROVAL_MISSING", QUALITY_APPROVAL) from error
     proposal = json.loads((root / QUALITY_PROPOSAL).read_bytes())
-    approval = json.loads((root / QUALITY_APPROVAL).read_bytes())
+    approval = json.loads(approval_raw)
     material = proposal["successorMaterial"]
     require(proposal["schemaVersion"] == "hexalith.conversations.conformance-oracle-tiering-migration.v7"
             and proposal["status"] == "scope-and-quality-review-pending"

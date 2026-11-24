@@ -52,6 +52,44 @@ def test_v7_quality_binding_includes_new_api_receipts() -> None:
     assert proposal["requiredQualityBinding"]["releasedEventStoreApiCompatSha256"] == V4.API_COMPAT_SHA
 
 
+@pytest.mark.parametrize(("input_path", "changed", "expected"), (
+    (V4.QUALITY_APPROVAL, None, "TIER_APPROVAL_MISSING"),
+    (V4.QUALITY_PROPOSAL, None, "SUCCESSOR_INPUT_MISSING"),
+    (V4.QUALITY_APPROVAL, b"{}\n", "SUCCESSOR_INPUT_DRIFT"),
+))
+def test_v4_quality_input_fault_has_specific_code(tmp_path: Path, input_path, changed, expected) -> None:
+    for relative in (V4.API_DIFF, V4.API_COMPAT, V4.QUALITY_PROPOSAL,
+                     V4.QUALITY_REVIEW, V4.QUALITY_APPROVAL):
+        target = tmp_path / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if relative == input_path:
+            if changed is not None:
+                target.write_bytes(changed)
+        else:
+            target.write_bytes((ROOT / relative).read_bytes())
+
+    with pytest.raises(V4.AcceptanceError) as failure:
+        V4.approved_quality(tmp_path, V4.BASE, committed=False)
+    assert failure.value.code == expected
+
+
+def test_v4_untracked_approval_cannot_replace_missing_candidate_approval(tmp_path: Path) -> None:
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    for relative in (V4.API_DIFF, V4.API_COMPAT, V4.QUALITY_PROPOSAL,
+                     V4.QUALITY_REVIEW, V4.QUALITY_APPROVAL):
+        target = tmp_path / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((ROOT / relative).read_bytes())
+        if relative != V4.QUALITY_APPROVAL:
+            subprocess.run(["git", "-C", str(tmp_path), "add", relative], check=True)
+    subprocess.run(["git", "-C", str(tmp_path), "-c", "user.name=Fixture",
+                    "-c", "user.email=fixture@example.invalid", "commit", "-qm", "fixture"], check=True)
+
+    with pytest.raises(V4.AcceptanceError) as failure:
+        V4.approved_quality(tmp_path, "HEAD")
+    assert failure.value.code == "TIER_APPROVAL_MISSING"
+
+
 def test_v4_environment_is_separate_closed_record_shape() -> None:
     schema = json.loads((ROOT / "_bmad/schemas/story-final-record-v2.schema.json").read_bytes())
     validator = jsonschema.Draft202012Validator(schema).evolve(
