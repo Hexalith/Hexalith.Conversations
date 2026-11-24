@@ -84,7 +84,9 @@ snapshot of working files.
 
 Commit the `allowed_skipped_tests` frontmatter before measuring a candidate.
 Historical verification reads that versioned policy and compares the recorded
-identities and reasons with it.
+identities and reasons with it. For a published v1 record, it checks finality
+through the first commit carrying that candidate's generated record. Later
+repository history falls outside this publication check.
 
 ## 3. Emit machine-readable test results
 

@@ -755,6 +755,12 @@ def frontmatter_allowed_skips(frontmatter: str) -> dict[str, str]:
     return entries
 
 
+def candidate_allowed_skips(repository: Path, candidate: str, story: str) -> dict[str, str]:
+    """Read skip approvals from the versioned story file."""
+    source = v2_committed_blob(repository, candidate, story)
+    return frontmatter_allowed_skips(parse_frontmatter(decode(source))) if source else {}
+
+
 def root_test_projects(
     repository: Path, submodule_paths: Sequence[str]
 ) -> dict[str, str]:
@@ -1974,7 +1980,11 @@ def verify_live(repository: Path, args: argparse.Namespace) -> dict[str, Any]:
     declarations = [parse_test_declaration(value) for value in args.test_results]
     evidence_paths = {artifact for _, artifact in declarations}
     expected_projects = root_test_projects(repository, root_paths)
-    allowed_skips = frontmatter_allowed_skips(frontmatter)
+    allowed_skips = candidate_allowed_skips(repository, candidate, story)
+    if frontmatter_allowed_skips(frontmatter) != allowed_skips:
+        blockers.append(blocker(
+            "TEST_SKIP_NOT_ALLOWED", "working skip policy differs from the candidate policy", story
+        ))
 
     output_targets = {story}
     sprint_status = (PurePosixPath(story).parent / "sprint-status.yaml").as_posix()
@@ -2126,7 +2136,29 @@ def verify_live(repository: Path, args: argparse.Namespace) -> dict[str, Any]:
     return document
 
 
-def verify_historical(repository: Path, args: argparse.Namespace) -> dict[str, Any]:
+def historical_record_publication(
+    repository: Path, story: str, candidate: str, head: str, record: str
+) -> str | None:
+    """Locate the first committed publication of these generated record bytes."""
+    if not is_ancestor(repository, candidate, head):
+        return None
+    history = run_git(repository, "--literal-pathspecs", "log", "--first-parent", "--reverse",
+                      "--format=%H", f"{candidate}..{head}", "--", story)
+    for revision in decode(history.stdout).splitlines():
+        source = v2_committed_blob(repository, revision, story)
+        if source is None:
+            continue
+        content = decode(source)
+        recorded = frontmatter_scalar(parse_frontmatter(content), "file_list_commit")
+        if (generated_block(content) == record and recorded is not None
+                and try_resolve_commit(repository, recorded) == candidate):
+            return revision
+    return None
+
+
+def verify_historical(
+    repository: Path, args: argparse.Namespace, *, check_publication_finality: bool = True
+) -> dict[str, Any]:
     """Verify an already-closed record read-only. This function performs no writes."""
     document = empty_document(repository)
     document["mode"] = "historical"
@@ -2314,6 +2346,12 @@ def verify_historical(repository: Path, args: argparse.Namespace) -> dict[str, A
             elif sprint_status in declared_list or sprint_mode in ("100644", "100755"):
                 outputs.add(sprint_status)
             derived_paths = sorted((set(derived_paths) | outputs) - root_set)
+            if check_publication_finality and block is not None:
+                head = resolve_commit(repository, "HEAD", "CANDIDATE_NOT_FINAL")
+                publication = historical_record_publication(repository, story, candidate, head, block)
+                document["candidate_binding"] = evaluate_candidate_binding(
+                    repository, candidate, outputs, blockers, head=publication or head
+                )
         # Gitlinks the record declares are promotion state, not file-list drift:
         # comparing them as paths would report every correct promotion as an error.
         missing = sorted(set(derived_paths) - set(declared_list))
@@ -2357,8 +2395,7 @@ def verify_historical(repository: Path, args: argparse.Namespace) -> dict[str, A
             test_results = parse_recorded_test_results(block)
             skip_policy, observed_skips = parse_recorded_skip_policy(block)
             if candidate is not None:
-                source = v2_committed_blob(repository, candidate, story)
-                source_policy = frontmatter_allowed_skips(parse_frontmatter(decode(source))) if source else {}
+                source_policy = candidate_allowed_skips(repository, candidate, story)
                 expected_policy = {
                     test.strip(): reason.strip().replace("\n", "<br>")
                     for test, reason in source_policy.items()
@@ -6743,7 +6780,11 @@ def v2_history_facts(repository: Path, candidate: str, validators: dict[str, Any
         failures: list[GateError] = []
         GIT_FAILURE_OBSERVERS.append(failures)
         try:
-            document = verify_historical(repository, argparse.Namespace(story=path))
+            # The frozen v2 closure verifies its exact committed inputs above.
+            # The standalone v1 publication diagnostic is a later contract.
+            document = verify_historical(
+                repository, argparse.Namespace(story=path), check_publication_finality=False
+            )
         finally:
             GIT_FAILURE_OBSERVERS.remove(failures)
         if failures:

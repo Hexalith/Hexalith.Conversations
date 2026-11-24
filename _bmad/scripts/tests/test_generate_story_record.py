@@ -652,6 +652,12 @@ def test_zero_failed_and_unapproved_skipped_results_block(
         encoding="utf-8",
     )
     code, document = measured(umbrella)
+    assert code == 1 and "TEST_SKIP_NOT_ALLOWED" in codes(document)
+    repository = umbrella["repository"]
+    run_git(repository, "add", umbrella["story"])
+    run_git(repository, "commit", "-m", "version the skip approval")
+    write_trx(repository / umbrella["artifact"], passed=2, skipped=1)
+    code, document = measured(umbrella)
     assert code == 0, document["blockers"]
 
 
@@ -1788,6 +1794,32 @@ def prepare_generated_record(fixture: dict[str, object]) -> dict:
     assert code == 0, bundle["document"]["blockers"]
     insert_generated_block(fixture, bundle["markdown"])
     return bundle
+
+
+@pytest.mark.parametrize("drift_before_publication", [False, True])
+def test_historical_finality_stops_at_the_record_publication(umbrella, drift_before_publication) -> None:
+    repository = umbrella["repository"]
+    prepare_generated_record(umbrella)
+    if drift_before_publication:
+        (repository / "changed.txt").write_text("modified before publication\n", encoding="utf-8")
+        run_git(repository, "add", "changed.txt")
+        run_git(repository, "commit", "-m", "change a measured source path")
+    code, draft = historical_fixture(umbrella)
+    assert code == int(drift_before_publication), draft["blockers"]
+    assert ("CANDIDATE_NOT_FINAL" in codes(draft)) == drift_before_publication
+
+    run_git(repository, "add", str(umbrella["story"]))
+    run_git(repository, "commit", "-m", "publish a final record")
+    publication = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+
+    (repository / "changed.txt").write_text("modified after publication\n", encoding="utf-8")
+    run_git(repository, "add", "changed.txt")
+    run_git(repository, "commit", "-m", "subsequent unrelated work")
+    code, document = historical_fixture(umbrella)
+
+    assert document["candidate_binding"]["head"] == publication
+    assert code == int(drift_before_publication), document["blockers"]
+    assert ("CANDIDATE_NOT_FINAL" in codes(document)) == drift_before_publication
 
 
 def readonly_repository_snapshot(repository: Path) -> dict:

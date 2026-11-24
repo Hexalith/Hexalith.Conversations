@@ -1522,3 +1522,5 @@ The [follow-up spec](spec-five-deferred-validation-entry-points.md) records veri
 - **Done. October 10 Story 9.2, v7 Quality approval diagnostic.** The v4 verifier reports `TIER_APPROVAL_MISSING` when the exact v7 approval is absent. Regression cases distinguish this from a missing proposal and approval digest drift.
 
 - **Done. October 23 record measurement review R4, historical skip policy.** Historical v1 verification binds recorded skip names and reasons to the frontmatter in the candidate Git tree. Tests change each field in both the working frontmatter and record and confirm rejection.
+
+- **Done. August 1 Story 6.2 pass 12, historical candidate finality.** Historical verification checks the source range through the committed publication. Regressions distinguish a source change before publication from later history.
