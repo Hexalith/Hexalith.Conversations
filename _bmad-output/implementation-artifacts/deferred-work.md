@@ -1491,3 +1491,5 @@ The [follow-up spec](spec-five-deferred-validation-entry-points.md) records veri
 - **Done. July 31 Story 6.2 pass 9, dispatcher empty-rebuild coverage.** Both mapped rebuild receivers reject an empty non-erased history with HTTP 400. The erased-source control reaches the Conversations handler, and the test reads persisted metadata back after the refusals. See [the implementation spec](spec-deferred-rebuild-empty-history.md).
 
 - **Done. October 8 Story 9.2, reused TRX definition IDs.** An executed case must match both the method and display name on its referenced definition. The regression reassigns the ID between two theory cases of one method and verifies that the verifier refuses the result.
+
+- **Done. September 25 Story 7.2, automated BMad validation guard.** The local tooling suite renders both installed Build workflows and checks that their activation includes the current-change runbook, full product completion requirement, and scoped historical evidence instruction.
