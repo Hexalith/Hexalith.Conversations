@@ -11,6 +11,12 @@ updates. It does not change the meaning or bytes of earlier V23–V29 records.
    submodule changes. That checker reads both `.gitmodules` and gitlinks from the
    index. Stage the intended declarations and exact root gitlink paths before
    running it; unstaged declaration edits do not affect its result.
+   The checker verifies the staged index structure, so it can run without
+   initializing or fetching submodules. Before recording a changed gitlink,
+   push the dependency commit from its owning repository and verify the exact
+   target is reachable from a branch or tag advertised by its declared remote.
+   A matching local checkout or cached remote-tracking ref alone does not
+   establish publication.
 2. Run `python3 references/Hexalith.Builds/check.py` from the module root
    on the committed change before pushing to `main`. GitHub Actions delegates
    the module workflow to the released Hexalith.Builds CI. The Conversations
