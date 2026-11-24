@@ -1,5 +1,5 @@
 # generated: 2026-06-02
-# last_updated: 11-22-2026 16:20
+# last_updated: 11-24-2026 21:18
 # project: Conversations
 # project_key: NOKEY
 # tracking_system: file-system
@@ -51,7 +51,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-06-02
-last_updated: 11-22-2026 16:20
+last_updated: 11-24-2026 21:18
 # HISTORICAL V14 PUBLICATION: v9-authority-bundle-v1.json retains the candidate-bound August 18 planning state. That publication's hold, unrun IR-0 and backlog statements describe its historical boundary.
 # CURRENT TRACKING: development_status below records lifecycle progress. docs/runbooks/current-change-validation.md governs routine work and links the later IR-0 disposition; historical records retain their original results and authority limits.
 # PROVENANCE LEDGER: the 90 lifecycle-transition comments previously recorded here are preserved byte-exact in _bmad-output/implementation-artifacts/sprint-status-provenance-v1.md (sha256 pinned by v14-current-candidate-authority-v1.json). That relocation changed no lifecycle or action-item status value.
@@ -136,6 +136,7 @@ development_status:
   12-2-freeze-the-benchmark-method-and-signal-quality-algorithm: done
   #  AC-12.2-05 waived (owner, 2026-11-16); method payload approved.
   # Audit evidence and additional 12.3/12.4 acceptance: _bmad-output/planning-artifacts/sprint-change-proposal-2026-11-20.md
+  # Execution rules for 12.3-15.2 (no archived hold; HEAD candidate; root-declared gitlinks): _bmad-output/planning-artifacts/sprint-change-proposal-2026-11-24.md
   12-3-implement-correctness-preserving-list-open-optimization-and-migration-behavior: backlog
   12-4-produce-candidate-bound-evidence-and-enforce-universal-sm-c2: backlog
   epic-12-retrospective: optional
@@ -332,7 +333,8 @@ action_items:
     epic: 7
     action: "Reconcile Epic 7 planning authority and epic-7-context.md with the owner waivers (7.1 entry gates 2026-09-22, 7.1 ACCEPTED lock 2026-09-29, epic exit clause 2026-10-02) so Epic 8+ specs stop re-importing waived ceremony."
     owner: "Product / Release owner"
-    status: open
+    status: done
+    note: "Superseded 2026-11-24: the Epic 12-15 execution rules in epics.md (sprint-change-proposal-2026-11-24.md) stop later specs re-importing waived ceremony. Epic 7 is done and epic-7-context.md has no further consumer; that file was not edited."
     ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-10-01.md"
   - id: "epic-7-retro-item-36-reduce-the-completion-protocol-s-commit"
     epic: 7
@@ -464,7 +466,8 @@ action_items:
     epic: 16
     action: "Reconcile epic-16-context.md, epic-16-prerequisites-v1/epic.md, AR-2, the stale sprint-status 12.1 question comment and the 16.1 release-train ledger entry with the as-built and waived state so Epic 12-15 specs stop re-importing the hold."
     owner: "Product / Release owner"
-    status: open
+    status: in-progress
+    note: "Epic 12-15 execution rules recorded 2026-11-24 in epics.md (sprint-change-proposal-2026-11-24.md); epic-16-context.md recompiles from current planning at Story 16.4. Remaining: epic-16-prerequisites-v1/epic.md, AR-2 and the 16.1 release-train ledger entry."
     ref: "_bmad-output/implementation-artifacts/epic-16-retro-2026-11-16.md"
   - id: "epic-16-retro-item-58-retire-epic-16-successor-tooling"
     epic: 16
