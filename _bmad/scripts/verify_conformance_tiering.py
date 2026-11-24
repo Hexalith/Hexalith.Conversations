@@ -958,11 +958,12 @@ def _joined_execution_definitions(content: bytes, root: Path, assembly_path: str
         require(identity in methods and bool(method.get("codeBase"))
                 and Path(method.get("codeBase")).resolve() == (root / assembly_path).resolve(),
                 "TIER_EXECUTION_INCOMPLETE", "TRX definition does not identify a valid method in its tier assembly.")
-        definitions[identifier] = identity
+        definitions[identifier] = (definition.get("name"), identity)
     for result in tree.findall("./{*}Results/{*}UnitTestResult"):
-        identity = definitions.get(result.get("testId"))
-        require(identity is not None and expected_names.get(result.get("testName")) == identity,
-                "TIER_EXECUTION_INCOMPLETE", "TRX result is orphaned or claims a different tier method.")
+        case_name = result.get("testName")
+        identity = expected_names.get(case_name)
+        require(identity is not None and definitions.get(result.get("testId")) == (case_name, identity),
+                "TIER_EXECUTION_INCOMPLETE", "TRX result is orphaned or claims a different tier test case.")
 
 
 def execution(root: Path, frozen: dict[str, Any], portable_result: str, internal_result: str, configuration: str = "Release",

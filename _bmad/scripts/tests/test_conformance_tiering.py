@@ -418,6 +418,34 @@ def test_generation_and_recording_require_the_genuine_digest(tiering_repository:
     assert _verify(tiering_repository) == (0, [])
 
 
+def test_execution_definition_join_binds_each_theory_case(tmp_path: Path) -> None:
+    method = "Tests.Sample.WithArguments"
+    names = [f"{method}(value: {value})" for value in (1, 2)]
+    assembly = tmp_path / "Sample.dll"
+    xml = module.RECORD.ElementTree
+    tree = xml.Element("TestRun")
+    definitions = xml.SubElement(tree, "TestDefinitions")
+    results = xml.SubElement(tree, "Results")
+    for index, name in enumerate(names):
+        identifier = f"case-{index}"
+        definition = xml.SubElement(definitions, "UnitTest", id=identifier, name=name)
+        xml.SubElement(definition, "TestMethod", codeBase=str(assembly),
+                       className="Tests.Sample", name="WithArguments")
+        xml.SubElement(results, "UnitTestResult", testId=identifier, testName=name)
+
+    def join() -> None:
+        story92._joined_execution_definitions(
+            xml.tostring(tree), tmp_path, assembly.name, {method}, dict.fromkeys(names, method)
+        )
+
+    join()
+    results[1].set("testId", results[0].attrib["testId"])
+    with pytest.raises(story92.VerificationError) as caught:
+        join()
+    assert caught.value.code == "TIER_EXECUTION_INCOMPLETE"
+    assert "different tier test case" in str(caught.value)
+
+
 def test_current_ci_lane_is_the_bound_lane(tiering_repository: Path) -> None:
     document = json.loads((tiering_repository / module.OUTPUT_PATHS[1]).read_bytes())
     workflow = _git(tiering_repository, "show", f"{document['preSplitResult']['sourceCommit']}:{module.CI_WORKFLOW_PATH}")
