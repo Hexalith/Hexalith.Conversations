@@ -1471,3 +1471,11 @@ The [follow-up spec](spec-five-deferred-validation-entry-points.md) records veri
 - Epic 16 source stamp. Both native inspectors accept the SDK informational source stamp when optional `SourceRevisionId` metadata is absent or agrees. A conflicting metadata value is rejected. The regression compiles each case.
 - Epic 16 transcripts. All 42 distinct repository-relative transcript links in the prerequisite spec resolve. The runbook documents how to use the source inventories, command log and tool-package digests. The original review did not name its two suspected missing inputs, so their availability remains unverified.
 - AppHost gateway provenance. The prebuild and provenance probe share a check for the producer-selected configuration and mapping. The test matrix covers both producer modes, reversed configurations, and missing configuration or mapping.
+
+## Deferred-work completion batch (2026-11-24)
+
+- **Done. July 30 Story 6.2 pass 8, uncommitted gitlink drift.** Live story record generation blocks an unrelated inspected dependency checkout whose revision differs from its candidate pin, and blocks a failed dependency inspection. The CLI regression exercises a matching pin, a behind checkout, and a corrupted submodule index. See [the implementation spec](spec-deferred-live-record-submodule-drift.md).
+
+- source_spec: `spec-deferred-live-record-submodule-drift.md`
+  summary: Bind live v1 measurements to dependency revisions at execution time.
+  evidence: A checkout can move after promotion inspection, and aligning a checkout can leave older build outputs in place. The current v1 receipts bind only the parent source stamp. This follow-up requires a compatible measurement protocol and a regression that changes a dependency during inspection.

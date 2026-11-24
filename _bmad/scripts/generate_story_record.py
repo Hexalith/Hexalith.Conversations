@@ -107,8 +107,8 @@ BLOCKER_REMEDIATION = {
         "candidate, so the record binds to the revision that is actually final."
     ),
     "PROMOTION_GATE_NOT_PASS": (
-        "Remediate the embedded promotion checker's own blockers without initializing, "
-        "updating, fetching, or silently expanding submodule scope."
+        "Resolve the reported promotion diagnostics. If a dependency checkout drifted, align it with "
+        "the candidate and run a clean build and test before generating the record again."
     ),
     "BASELINE_NOT_TRUSTWORTHY": (
         "Record a resolvable `baseline_commit` that is an ancestor of the candidate; "
@@ -2082,17 +2082,24 @@ def verify_live(repository: Path, args: argparse.Namespace) -> dict[str, Any]:
     document["promotion_gate"] = gate
     # Branch on the document's own result: exit 1 and exit 2 both emit valid
     # JSON, and error codes land inside blockers[] outside the frozen table.
-    unevaluated = [item for item in gate.get("warnings", []) if item.get("code") == "SCOPE_NOT_EVALUATED"]
-    if gate.get("result") != "pass" or unevaluated:
+    measurement_warnings = [
+        item for item in gate.get("warnings", [])
+        if item.get("code") in {
+            "SCOPE_NOT_EVALUATED",
+            "UNRELATED_GITLINK_DRIFT",
+            "UNRELATED_SUBMODULE_INSPECTION_FAILED",
+        }
+    ]
+    if gate.get("result") != "pass" or measurement_warnings:
         gate_codes = (
-            ", ".join(item.get("code", "?") for item in [*gate.get("blockers", []), *unevaluated])
+            ", ".join(item.get("code", "?") for item in [*gate.get("blockers", []), *measurement_warnings])
             or "none"
         )
         blockers.append(
             blocker(
                 "PROMOTION_GATE_NOT_PASS",
                 f"the embedded promotion completion gate reported {gate.get('result')!r} "
-                f"with blockers or unevaluated scope: {gate_codes}",
+                f"with problems binding the measured inputs: {gate_codes}",
             )
         )
 

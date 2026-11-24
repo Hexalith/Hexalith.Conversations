@@ -671,6 +671,42 @@ def test_deferred_measurements_unevaluated_promotion_cannot_pass(umbrella) -> No
     assert document["promotion_gate"]["evaluated"]
 
 
+@pytest.mark.parametrize(
+    ("corrupt_index", "warning"),
+    [(False, "UNRELATED_GITLINK_DRIFT"), (True, "UNRELATED_SUBMODULE_INSPECTION_FAILED")],
+)
+def test_live_record_rejects_undeclared_submodule_checkout_drift(
+    umbrella, corrupt_index, warning
+) -> None:
+    repository = umbrella["repository"]
+    submodule = repository / "references/Example"
+    older = run_git(submodule, "rev-parse", "HEAD").stdout.strip()
+    run_git(submodule, "commit", "--allow-empty", "-m", "advance fixture dependency")
+    run_git(repository, "add", "references/Example")
+    run_git(repository, "commit", "-m", "record fixture dependency")
+    umbrella["baseline"] = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    (repository / "followup.txt").write_text("follow-up source\n", encoding="utf-8")
+    run_git(repository, "add", "followup.txt")
+    run_git(repository, "commit", "-m", "record follow-up change")
+    write_trx(repository / umbrella["artifact"])
+    args = ("--baseline", umbrella["baseline"])
+
+    code, document = measured(umbrella, *args)
+    assert code == 0, document["blockers"]
+
+    run_git(submodule, "checkout", "--detach", older)
+    if corrupt_index:
+        git_dir = Path(run_git(submodule, "rev-parse", "--absolute-git-dir").stdout.strip())
+        (git_dir / "index").write_bytes(b"corrupt fixture index")
+    code, document = measured(umbrella, *args)
+    assert code == 1
+    assert document["promotion_gate"]["result"] == "pass"
+    assert {entry["code"] for entry in document["promotion_gate"]["warnings"]} == {
+        warning,
+    }
+    assert codes(document) == {"PROMOTION_GATE_NOT_PASS"}
+
+
 @pytest.mark.parametrize("sprint", ["absent", "committed", "uncommitted"])
 @pytest.mark.parametrize("equal_baseline", [False, True])
 def test_deferred_portability_output_accounting(umbrella, sprint, equal_baseline) -> None:
