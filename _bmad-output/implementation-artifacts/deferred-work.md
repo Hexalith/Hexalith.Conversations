@@ -1493,3 +1493,5 @@ The [follow-up spec](spec-five-deferred-validation-entry-points.md) records veri
 - **Done. October 8 Story 9.2, reused TRX definition IDs.** An executed case must match both the method and display name on its referenced definition. The regression reassigns the ID between two theory cases of one method and verifies that the verifier refuses the result.
 
 - **Done. September 25 Story 7.2, automated BMad validation guard.** The local tooling suite renders both installed Build workflows and checks that their activation includes the current-change runbook, full product completion requirement, and scoped historical evidence instruction.
+
+- **Done. October 23 validation review, external minimal-module compatibility locks.** Qualified the external lock graph for the Builds v6.7.0 catalog's EventStore 5.5.1 packages. Independent empty-cache locked restore preserved all four hashes, the isolated Release projects built, and all seven compatibility assertions passed.

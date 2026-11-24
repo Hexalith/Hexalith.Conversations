@@ -2,7 +2,7 @@
 
 The isolated Release build qualifies the maintained minimal-module fixture on net11.0
 using the package versions in the pinned Builds catalog. The overlay expects
-EventStore 5.4.0 and rejects catalog drift before restore. NuGet uses the four
+EventStore 5.5.1 and rejects catalog drift before restore. NuGet uses the four
 compatibility locks in `locks/package/`. Standalone fixture builds use their own
 four locks. Both graphs use the fixture's internal project references and published
 EventStore packages.
@@ -112,3 +112,12 @@ passed with zero warnings or errors, and native xUnit execution with
 seven assertions with zero failures, skips or errors. SHA-256 checks confirmed
 all 17 frozen fixture files remained unchanged. This package build acceptance
 starts no resources and makes no runtime deployment acceptance claim.
+
+## EventStore 5.5.1 qualification (2026-11-24)
+
+The external compatibility graph tracks EventStore 5.5.1 from Builds v6.7.0.
+NuGet regenerated the four external locks in a disposable fixture copy with
+only nuget.org configured. Locked restore passed from a second empty package
+and HTTP cache and preserved all four lock hashes. The isolated Release test
+project and AppHost compiled with zero warnings, and the seven compatibility
+assertions passed. The measured fixture files matched the committed copies.

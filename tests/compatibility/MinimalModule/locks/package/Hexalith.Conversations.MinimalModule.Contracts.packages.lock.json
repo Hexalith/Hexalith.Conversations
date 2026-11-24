@@ -4,12 +4,12 @@
     "net11.0": {
       "Hexalith.EventStore.Contracts": {
         "type": "Direct",
-        "requested": "[5.4.0, )",
-        "resolved": "5.4.0",
-        "contentHash": "X2mPB9XdDkVx96n51fOMF6QZVUj5YlKwIBSo+UOvKeI4wpAmkpZkY6iavoKte0EdFX9DJ5KIqrl7iUcxmqr51A==",
+        "requested": "[5.5.1, )",
+        "resolved": "5.5.1",
+        "contentHash": "xlZO9vgnn3GdrqsoSrOKbU5VbkKc3c3EsSiX3y1cMoUMhMzMWcz3SiMIlu5ps1yvV1x7C4UvYiJhyxlWfetsjw==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2",
-          "Hexalith.Commons.UniqueIds": "3.0.1"
+          "Hexalith.Commons.UniqueIds": "3.0.2"
         }
       },
       "ByteAether.Ulid": {

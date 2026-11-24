@@ -5,7 +5,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(MinimalModuleCompatibilityMode)' == 'package'">
     <!-- Qualified dependency selection for this external compatibility graph, independent of product imports. -->
-    <MinimalModuleCompatibilityEventStoreVersion>5.4.0</MinimalModuleCompatibilityEventStoreVersion>
+    <MinimalModuleCompatibilityEventStoreVersion>5.5.1</MinimalModuleCompatibilityEventStoreVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(MinimalModuleCompatibilityMode)' == 'package' and '$(MSBuildProjectName)' == 'Hexalith.Conversations.MinimalModule.AppHost'">
     <!-- EventStore's Dapr extension currently requires the Aspire ProjectResource produced by AddProject. -->
