@@ -110,6 +110,25 @@ to identify the recorded tool package by digest. A blocked receipt with a null
 candidate supplies no source revision. If the run's source or another required
 input cannot be recovered, record it as unavailable.
 
+### October 8 package-environment record
+
+Replay the recorded profile in a disposable checkout at publication commit
+`f6f8c4fea84c728568bfae4c4a5a58262a01c49d`. It contains the checker and record
+for source candidate `680d31f6f577e77d0e2eb55af5eb7c9fb8e3d871`, with SDK
+10.0.401 and Microsoft servicing version 10.0.12. Populate only the direct
+Builds checkout at `a283481c69393dcba911db6a0edcb152167238cc`. Use a clean
+Builds checkout with a fetched remote-tracking ref containing that commit. With
+the historical checkout's locked Python dependencies installed, run from its root:
+
+```bash
+uv run --frozen python _bmad/scripts/check_package_refresh_environment.py --repository . --check
+```
+
+A `PASS` recomputes the static package and toolchain bindings from committed
+Git objects. It does not execute the historical .NET SDK. Running the current
+checker against October 8's record can report `REFRESH_SDK_DRIFT` because that
+checker expects a later profile.
+
 ## GitHub branch setting
 
 Keep the existing linear-history requirement, force-push ban, and deletion ban
