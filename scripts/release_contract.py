@@ -5,8 +5,11 @@ from __future__ import annotations
 
 import json
 import re
+import zipfile
+import zlib
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+from xml.etree import ElementTree
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -134,3 +137,35 @@ def expected_asset_names(version: str) -> frozenset[str]:
         for package_id in EXACT_PACKAGE_IDS
         for extension in ("nupkg", "snupkg")
     )
+
+
+def read_portable_pdb(
+    symbol_path: Path,
+    package_id: str,
+    *,
+    framework: str | None = "net11.0",
+    version: str | None = None,
+) -> bytes:
+    """Read a package's single canonical Portable PDB, optionally requiring its framework."""
+    try:
+        with zipfile.ZipFile(symbol_path) as archive:
+            pdb_names = sorted(name for name in archive.namelist() if name.casefold().endswith(".pdb"))
+            parts = PurePosixPath(pdb_names[0]).parts if len(pdb_names) == 1 else ()
+            if (len(parts) != 3 or parts[0] != "lib" or parts[1] == ".." or pdb_names[0] != "/".join(parts)
+                    or parts[2] != f"{package_id}.pdb" or (framework is not None and parts[1] != framework)):
+                raise ValueError(f"{symbol_path.name}: expected one canonical Portable PDB; found {pdb_names}")
+            if version is not None:
+                specs = [name for name in archive.namelist() if name.endswith(".nuspec")]
+                if len(specs) != 1:
+                    raise ValueError(f"{symbol_path.name}: expected one .nuspec")
+                spec = ElementTree.fromstring(archive.read(specs[0]))
+                ids = [node.text for node in spec.findall("./{*}metadata/{*}id")]
+                versions = [node.text for node in spec.findall("./{*}metadata/{*}version")]
+                if ids != [package_id] or versions != [version]:
+                    raise ValueError(f"{symbol_path.name}: .nuspec identity must be {package_id} {version}")
+            pdb = archive.read(pdb_names[0])
+            if not pdb.startswith(b"BSJB"):
+                raise ValueError(f"{symbol_path.name}: canonical PDB is not a Portable PDB")
+            return pdb
+    except (zipfile.BadZipFile, ElementTree.ParseError, RuntimeError, zlib.error) as exc:
+        raise ValueError(f"{symbol_path.name}: invalid symbol archive") from exc

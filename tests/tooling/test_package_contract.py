@@ -1,9 +1,12 @@
 """Product package inventory, payload, symbol, consumer and mapping contracts."""
 from __future__ import annotations
 
+from hashlib import sha256
 import importlib.util
+import io
 import json
 import os
+import struct
 import subprocess
 import sys
 import tempfile
@@ -11,6 +14,7 @@ import unittest
 import zipfile
 from pathlib import Path
 from unittest import mock
+from uuid import UUID
 from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -33,6 +37,8 @@ def load_script_module(name: str, filename: str):
 
 validate_nuget_packages = load_script_module("validate_nuget_packages", "validate-nuget-packages.py")
 validate_consumer_packages = load_script_module("validate_consumer_packages", "validate-consumer-package-references.py")
+
+verify_published_symbols = load_script_module("verify_published_symbols", "verify-published-symbols.py")
 
 
 class PackageContractTests(unittest.TestCase):
@@ -103,6 +109,71 @@ class PackageContractTests(unittest.TestCase):
                 archive.writestr("lib/net11.0/Hexalith.Conversations.pdb", b"not-portable")
             with self.assertRaisesRegex(ValueError, "not a Portable PDB"):
                 validate_nuget_packages._validate_symbol_archive(symbol, "Hexalith.Conversations")
+
+
+    def test_symbol_server_uses_portable_identity_and_requires_exact_bytes(self) -> None:
+        guid = UUID("12345678-90ab-cdef-1234-567890abcdef")
+        pdb_id = guid.bytes_le + b"\x12\x34\x56\x78"
+        header = struct.pack("<4sHHII4sHHII8s", b"BSJB", 1, 1, 0, 4,
+                             b"v1\0\0", 0, 1, 40, 32, b"#Pdb\0\0\0\0")
+        trailing = bytes(12)
+        portable_pdb = header + pdb_id + trailing
+        checksum = sha256(header + bytes(20) + trailing).hexdigest()
+        name = "Hexalith.Conversations.pdb"
+        expected_url = ("https://symbols.nuget.org/download/symbols/hexalith.conversations.pdb/"
+                        "1234567890abcdef1234567890abcdefFFFFFFFF/hexalith.conversations.pdb")
+        def response(data: bytes, *, status: int = 200, length: int | None = None) -> io.BytesIO:
+            body = io.BytesIO(data)
+            body.status = status
+            body.headers = {} if length is None else {"Content-Length": str(length)}
+            return body
+
+        with mock.patch.object(verify_published_symbols, "urlopen", return_value=response(portable_pdb)) as download:
+            verify_published_symbols.verify_symbol(name, portable_pdb)
+            request = download.call_args.args[0]
+            self.assertEqual(expected_url, request.full_url)
+            self.assertEqual(f"SHA256:{checksum}", request.get_header("Symbolchecksum"))
+        with mock.patch.object(verify_published_symbols, "urlopen", return_value=response(portable_pdb + b"x")):
+            with self.assertRaisesRegex(ValueError, "different bytes"):
+                verify_published_symbols.verify_symbol(name, portable_pdb)
+        for reply, expected_error in (
+            (response(portable_pdb, status=206), "HTTP 206"),
+            (response(portable_pdb, length=len(portable_pdb) + 1), "different content length"),
+        ):
+            with mock.patch.object(verify_published_symbols, "urlopen", return_value=reply):
+                with self.assertRaisesRegex(ValueError, expected_error):
+                    verify_published_symbols.verify_symbol(name, portable_pdb)
+        with mock.patch.object(verify_published_symbols, "urlopen") as download:
+            with self.assertRaisesRegex(ValueError, "portable PDB"):
+                verify_published_symbols.verify_symbol(name, portable_pdb[:-1])
+            download.assert_not_called()
+
+
+    def test_published_symbol_probe_rejects_relabelled_archive_and_checks_other_assets(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            legacy_ids = release_contract.EXACT_PACKAGE_IDS[:4]
+            for index, package_id in enumerate(legacy_ids):
+                with zipfile.ZipFile(directory / f"{package_id}.1.0.0.snupkg", "w") as archive:
+                    version = "1.0.1" if index == 0 else "1.0.0"
+                    archive.writestr(f"{package_id}.nuspec", (
+                        f"<package><metadata><id>{package_id}</id>"
+                        f"<version>{version}</version></metadata></package>"
+                    ))
+                    archive.writestr(f"lib/net10.0/{package_id}.pdb", b"BSJB-fixture")
+            with (
+                mock.patch.object(sys, "argv", ["verify-published-symbols.py", str(directory), "1.0.0"]),
+                mock.patch.object(verify_published_symbols, "verify_symbol") as query,
+                mock.patch("sys.stdout"),
+                mock.patch("sys.stderr", new_callable=io.StringIO) as errors,
+            ):
+                self.assertEqual(1, verify_published_symbols.main())
+                self.assertIn(".nuspec identity", errors.getvalue())
+                self.assertEqual(
+                    [f"{package_id}.pdb" for package_id in legacy_ids[1:]],
+                    [call.args[0] for call in query.call_args_list],
+                )
+            self.assertEqual(release_contract.EXACT_PACKAGE_IDS, verify_published_symbols.published_package_ids("2.0.0"))
 
 
     def test_public_consumer_execution_failure_is_blocking(self) -> None:

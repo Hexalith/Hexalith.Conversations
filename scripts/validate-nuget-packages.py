@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from xml.etree import ElementTree
 
-from release_contract import EXACT_PACKAGE_IDS, ROOT, load_manifest, validate_semver
+from release_contract import EXACT_PACKAGE_IDS, ROOT, load_manifest, read_portable_pdb, validate_semver
 
 
 @dataclass(frozen=True)
@@ -133,19 +133,7 @@ def _candidate_dependencies(boundary: dict[str, str], version: str) -> dict[str,
 
 
 def _validate_symbol_archive(symbol_path: Path, package_id: str) -> None:
-    """Require one canonical Portable PDB and no unrelated symbol payload."""
-    try:
-        with zipfile.ZipFile(symbol_path) as archive:
-            canonical_pdb = f"lib/net11.0/{package_id}.pdb"
-            pdb_names = sorted(name for name in archive.namelist() if name.casefold().endswith(".pdb"))
-            if pdb_names != [canonical_pdb]:
-                raise ValueError(
-                    f"{symbol_path.name}: expected exactly canonical PDB {canonical_pdb}; found {pdb_names}"
-                )
-            if not archive.read(canonical_pdb).startswith(b"BSJB"):
-                raise ValueError(f"{symbol_path.name}: canonical PDB is not a Portable PDB")
-    except zipfile.BadZipFile as exc:
-        raise ValueError(f"{symbol_path.name}: invalid symbol archive") from exc
+    read_portable_pdb(symbol_path, package_id)
 
 
 def validate_packages(package_directory: Path, expected_version: str) -> str:

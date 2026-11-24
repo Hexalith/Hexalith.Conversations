@@ -41,6 +41,17 @@ them. The tracked pre-commit
 hook checks staged whitespace. The Builds guard validates commit messages
 against the shared Conventional Commit policy.
 
+## Published symbol check
+
+After NuGet.org indexes a release, pass the directory containing that release's
+published symbol archives and its package version to
+`python3 scripts/verify-published-symbols.py <package-directory> <version>`.
+The command checks every portable PDB through NuGet.org's symbol endpoint and
+compares the returned bytes with the release archive. Releases before 1.5.0
+contain four packages. Later releases also include EventStoreExtensions.
+A missing or mismatched symbol produces a nonzero exit. If indexing is still in progress, repeat the
+check after NuGet.org reports the symbols available.
+
 ## Historical boundary
 
 The V19–V21 successor-authority tooling and the V23–V29 publishers, resolver,
