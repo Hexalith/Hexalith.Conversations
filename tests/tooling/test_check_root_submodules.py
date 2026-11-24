@@ -53,3 +53,21 @@ def test_checker_rejects_duplicate_staged_paths(repository: Path, declaration: s
 
     assert result.returncode == 1
     assert result.stderr.splitlines() == [f"root submodules: {diagnostic}"]
+
+
+def test_checker_reads_only_staged_declarations_and_gitlinks(repository: Path) -> None:
+    gitmodules = repository / ".gitmodules"
+    changed_declaration = DECLARATION.replace("references/Example", "references/Moved")
+    gitmodules.write_text(changed_declaration, encoding="utf-8")
+    assert check(repository).returncode == 0
+
+    git(repository, "add", "--", ".gitmodules")
+    gitmodules.write_text(DECLARATION, encoding="utf-8")
+
+    result = check(repository)
+
+    assert result.returncode == 1
+    assert result.stderr.splitlines() == [
+        "root submodules: references/Moved: declared but no gitlink is indexed",
+        "root submodules: references/Example: indexed under references/ but not declared",
+    ]

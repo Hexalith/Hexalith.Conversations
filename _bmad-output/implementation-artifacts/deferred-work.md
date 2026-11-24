@@ -1481,3 +1481,5 @@ The [follow-up spec](spec-five-deferred-validation-entry-points.md) records veri
   evidence: A checkout can move after promotion inspection, and aligning a checkout can leave older build outputs in place. The current v1 receipts bind only the parent source stamp. This follow-up requires a compatible measurement protocol and a regression that changes a dependency during inspection.
 
 - **Done. September 25 Story 7.2, duplicate root-submodule declarations.** Restored the regression removed in `ebf0f5f0`. The default tooling suite exercises the checker CLI with duplicate sections and repeated path settings in the Git index.
+
+- **Done. September 25 Story 7.2, staged declaration and gitlink consistency.** Restored the index-only regression removed in `ebf0f5f0`. The CLI test verifies that unstaged mismatches leave a valid index passing and unstaged corrections cannot conceal an invalid index.
