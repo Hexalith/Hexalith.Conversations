@@ -1514,3 +1514,5 @@ The [follow-up spec](spec-five-deferred-validation-entry-points.md) records veri
 - **Done. July 31 Story 6.2 pass 11, live-lane port contention.** The test guide gives the local AppHost sequencing precondition and distinguishes the fixture's isolated listener ports from the shared Dapr and Redis infrastructure.
 
 - **Done. October 19 Story 11.2, fixture restore isolation.** The compatibility suite checks the root solution and the evaluated local project-reference graph for accidental inclusion of either the measured fixture or its separate compatibility overlay.
+
+- **Done. October 19 Story 11.2, fixture inventory ordering.** The file-layout disclosure identifies the exact listed-order digest procedure. Both orderings were recomputed against the 13 tracked source paths.

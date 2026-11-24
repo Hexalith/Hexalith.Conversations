@@ -68,6 +68,13 @@ hand-authored file count and LOC totals.
 The historical count describes the accepted frozen sample; later maintenance
 documentation and external compatibility tests do not enlarge that sample.
 
+Recompute `V9-MINIMAL-MODULE-FIXTURE-v1` in the sequence printed in the
+[Story 11.2 inventory](../_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md#story-112-build-the-reproducible-minimal-module-fixture-against-live-platform-apis).
+The planning text's phrase "ordinal order" refers here to those printed positions.
+Encode the paths as NFC UTF-8, with a line feed after every path, including the
+last. SHA-256 gives `4fa26d6fa11a365339d9ea39c79e38751340847cf963fe71a82c37062f7df15c`.
+Lexicographically sorting the paths first produces a different digest.
+
 For a new comparable authoring-cost claim, use one type per file and count the
 complete hand-authored inventory within the declared sample boundary at that claim's
 candidate, including its repository configuration, documentation, tests and all
