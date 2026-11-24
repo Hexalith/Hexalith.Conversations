@@ -1508,3 +1508,7 @@ The [follow-up spec](spec-five-deferred-validation-entry-points.md) records veri
 - The SDK reconcile route, AppHost endpoint readiness, durable tenant access, stable replay times and exact summary equality already have current coverage. The retired AppHost seed path no longer exists. Accepted authority and publication evidence retain their existing source-specific checks.
 - Story 7.2's receipt completeness and assembly-specific skip identities need a successor receipt contract. Story 7.3 and the former authority CI and pre-commit checks have accepted resolutions or were retired. The existing product API surface guard compiles and checks the exported assembly.
 - Story 9.2's assembly-source signature and authenticated execution provenance need candidate-bound execution evidence. Its alternate Debug reference topology requires a separately approved structural baseline. The releases and runtime tests that require Keycloak credentials, enrolled tenants or an independently run provider topology remain externally dependent.
+
+## Deferred-work batch continuation (2026-11-24)
+
+- **Done. July 31 Story 6.2 pass 11, live-lane port contention.** The test guide gives the local AppHost sequencing precondition and distinguishes the fixture's isolated listener ports from the shared Dapr and Redis infrastructure.

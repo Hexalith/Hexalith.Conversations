@@ -12,6 +12,8 @@ dotnet restore Hexalith.Conversations.slnx
 
 The test scaffold does not require tenant seed data, production secrets, provider credentials, external cloud resources, or nested submodule initialization. Two mandatory live lanes DO require a local DAPR runtime and fail (never skip) without it, so the ADR 0003 projection-boundary proof can never silently stop running: the `Hexalith.Conversations.IntegrationTests` gateway dispatch lane needs `daprd`, Redis on `6379`, placement on `50005`, and scheduler on `50006` (`dapr init` provides all four), and the `Hexalith.Conversations.AppHost.Tests` runtime boundary lane additionally launches the Aspire AppHost.
 
+Run the live lanes sequentially with other local AppHosts stopped. The gateway fixture allocates its own sidecar listener ports and retries when one is taken. It still uses the fixed Redis, placement, and scheduler endpoints above. If `daprd` exits during startup or its health check, use the captured stderr to check for a port conflict or an unavailable control-plane service before investigating projection behavior.
+
 Install the browser binary before running the Admin Web responsive lane on a new machine:
 
 ```powershell
