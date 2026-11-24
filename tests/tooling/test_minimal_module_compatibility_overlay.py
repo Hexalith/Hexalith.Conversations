@@ -41,6 +41,26 @@ class MinimalModuleCompatibilityOverlayTests(unittest.TestCase):
         self.assertTrue(packages)
         return {package["Identity"].lower(): package["Version"] for package in packages}
 
+    def test_root_solution_keeps_fixture_and_compatibility_project_isolated(self):
+        solution = ElementTree.parse(ROOT / "Hexalith.Conversations.slnx")
+        pending = [(ROOT / node.attrib["Path"].replace("\\", "/")).resolve()
+                   for node in solution.findall(".//Project")]
+        self.assertTrue(pending)
+        checked = set()
+        while pending:
+            project = pending.pop()
+            for isolated in (FIXTURE, OVERLAY.parent):
+                self.assertFalse(project.is_relative_to(isolated), str(project))
+            if project in checked or not project.is_relative_to(ROOT) or project.is_relative_to(ROOT / "references"):
+                continue
+            checked.add(project)
+            result = subprocess.run([
+                "dotnet", "msbuild", str(project), "-nologo", "-noAutoResponse",
+                "-p:Configuration=Release", "-getItem:ProjectReference",
+            ], cwd=ROOT, text=True, capture_output=True, check=True, timeout=60)
+            references = json.loads(result.stdout)["Items"]["ProjectReference"]
+            pending.extend(Path(reference["FullPath"]).resolve() for reference in references)
+
     def test_actual_overlay_selects_packages_and_external_successor_locks(self):
         environment = self.isolated_environment()
         catalog = self.catalog_versions()
