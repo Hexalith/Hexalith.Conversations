@@ -1526,3 +1526,5 @@ The [follow-up spec](spec-five-deferred-validation-entry-points.md) records veri
 - **Done. August 1 Story 6.2 pass 12, historical candidate finality.** Historical verification checks the source range through the committed publication. Regressions distinguish a source change before publication from later history.
 
 - **Done. October 8 Story 9.2 Blind 6, deletion receipt verifier composition.** The host tests resolve the configured verifier as a scoped service when enabled and the unavailable verifier when disabled. The dedicated admission tests exercise independent receipt lookup and rejection.
+
+- **Done. November 2 Story 16.1, tenant-access denial release notes.** The notes document the change in v1.5.0, verified by comparing the two conformance fixture expectations in the v1.4.0 and v1.5.0 Git tags.
