@@ -190,3 +190,4 @@ src/Hexalith.Conversations.Server/Agents/ConversationAgentAdmissionStage.cs whit
 tests/Hexalith.Conversations.Server.Tests/Agents/ConversationAdmissionSafeguardTests.cs whitespace=cr-at-eol
 tests/Hexalith.Conversations.Server.Tests/Agents/ConversationAgentLocalFixture.cs whitespace=cr-at-eol
 tests/Hexalith.Conversations.Server.Tests/Agents/ConversationAgentSixSeamTests.cs whitespace=cr-at-eol
+tests/Hexalith.Conversations.Server.Tests/Agents/ConversationDeletionBackfillTests.cs whitespace=cr-at-eol

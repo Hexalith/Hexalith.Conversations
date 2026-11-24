@@ -29,18 +29,21 @@ public sealed class ConversationDeletionBackfillTests : TimeProvider, ISourcePub
     private readonly Dictionary<string, string> _progressProofs = [];
     private long _anchor;
     private string _anchorDigest = Hash((SourcePublicationIndexState?)null);
-    private long _ticks;
+    private readonly PumpClock _clock = new();
     private readonly DateTimeOffset _now = DateTimeOffset.UtcNow;
     private TimeSpan _acknowledgementLatency;
     private string _deliveryTarget = "receiver-v1";
     private string _deliveryAuthority = "current-private-worker-authority";
     private bool _resumeAuthorized = true;
     /// <inheritdoc/>
-    public override long TimestampFrequency => TimeSpan.TicksPerSecond;
+    public override long TimestampFrequency => _clock.TimestampFrequency;
     /// <inheritdoc/>
-    public override long GetTimestamp() => Interlocked.Read(ref _ticks);
+    public override long GetTimestamp() => _clock.GetTimestamp();
     /// <inheritdoc/>
     public override DateTimeOffset GetUtcNow() => _now.AddTicks(GetTimestamp());
+    /// <inheritdoc/>
+    public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
+        => _clock.CreateTimer(callback, state, dueTime, period);
     Task<bool> ISourcePublicationOperationAuthority.ReadIndexAsync(SourcePublicationScope scope) => Task.FromResult(scope == _scope);
     Task<bool> ISourcePublicationOperationAuthority.WriteIndexAsync(SourcePublicationIndexWrite write) => Task.FromResult(write.State.Scope == _scope);
     Task<bool> ISourcePublicationOperationAuthority.ReadNamespaceAsync(SourcePublicationScope scope) => Task.FromResult(false);
@@ -107,7 +110,12 @@ public sealed class ConversationDeletionBackfillTests : TimeProvider, ISourcePub
     {
         ArgumentNullException.ThrowIfNull(entry);
         var status = await new ConversationDeletionPublicationDelivery(_workers[entry.Publication.Identity].Pump()).LookupAcknowledgementAsync(entry, cancellationToken);
-        Interlocked.Add(ref _ticks, _acknowledgementLatency.Ticks); return status;
+        if (_acknowledgementLatency != TimeSpan.Zero)
+        {
+            _clock.Advance(_acknowledgementLatency);
+        }
+
+        return status;
     }
     /// <inheritdoc/>
     public Task<SourcePublicationDispatchProgress?> ReadDispatchProgressAsync(SourcePublicationCheckpoint cut, CancellationToken cancellationToken = default)
