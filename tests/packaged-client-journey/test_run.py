@@ -22,20 +22,32 @@ class HostConfigurationTest(unittest.TestCase):
         reader = {prefix + "0__TenantId": "second-tenant", prefix + "0__PrincipalId": "reader",
                   prefix + "0__PartyId": "reader-party"}
         duplicate = {key.replace("__0__", "__named__"): value for key, value in reader.items()}
+        ttl, retention = "EventStore__CommandStatus__TtlSeconds", "EventStore__Idempotency__TerminalRetentionSeconds"
+        gateway = {ttl: "90000", retention: "90000"}
         cases = (
-            ("90000", reader, {}, None),
-            ("90001", reader | {prefix + "1__TenantId": "first-tenant"}, {}, None),
-            ("86400", reader, {}, "retain command status"),
-            ("invalid", reader, {}, "retain command status"),
-            ("90000", {}, {}, "one exact Party binding"),
-            ("90000", reader | {prefix + "0__PartyId": "wrong-party"}, {}, "one exact Party binding"),
-            ("90000", reader | duplicate, {}, "one exact Party binding"),
-            ("90000", reader, {"CONVERSATIONS_DOMAIN_DAPR_ORIGIN": "http://localhost:3506"}, "selected domain sidecar"),
-            ("90000", reader, {"CONVERSATIONS_ORIGIN": "https://localhost:7481"}, "selected pilot API"),
+            (gateway, reader, {}, None),
+            ({ttl: "90001", retention: "90001"}, reader | {prefix + "1__TenantId": "first-tenant"}, {}, None),
+            (gateway | {retention: "2147483647"}, reader, {}, None),
+            (gateway | {ttl: "86400"}, reader, {}, "retain command status"),
+            (gateway | {ttl: "invalid"}, reader, {}, "retain command status"),
+            ({retention: "90000"}, reader, {}, "retain command status"),
+            ({ttl: "90000"}, reader, {}, "terminal idempotency"),
+            (gateway | {retention: "86400"}, reader, {}, "terminal idempotency"),
+            (gateway | {ttl: "90001"}, reader, {}, "terminal idempotency"),
+            (gateway | {retention: "090000"}, reader, {}, "terminal idempotency"),
+            (gateway | {retention: "00000090000"}, reader, {}, "terminal idempotency"),
+            (gateway | {retention: "21474836470"}, reader, {}, "terminal idempotency"),
+            (gateway | {retention: "2147483648"}, reader, {}, "terminal idempotency"),
+            (gateway | {retention: "-90000"}, reader, {}, "terminal idempotency"),
+            (gateway, {}, {}, "one exact Party binding"),
+            (gateway, reader | {prefix + "0__PartyId": "wrong-party"}, {}, "one exact Party binding"),
+            (gateway, reader | duplicate, {}, "one exact Party binding"),
+            (gateway, reader, {"CONVERSATIONS_DOMAIN_DAPR_ORIGIN": "http://localhost:3506"}, "selected domain sidecar"),
+            (gateway, reader, {"CONVERSATIONS_ORIGIN": "https://localhost:7481"}, "selected pilot API"),
         )
-        for ttl, domain, overrides, error in cases:
-            with self.subTest(ttl=ttl, error=error), patch("run.describe_resource", side_effect=[
-                {"environment": {"EventStore__CommandStatus__TtlSeconds": ttl}},
+        for settings, domain, overrides, error in cases:
+            with self.subTest(gateway=settings, error=error), patch("run.describe_resource", side_effect=[
+                {"environment": settings},
                 {"environment": {"DAPR_HTTP_PORT": "3505"} | domain},
                 {"environment": {"DAPR_HTTP_PORT": "3510"},
                  "urls": [{"url": "https://localhost:7480/", "isInternal": False}]},

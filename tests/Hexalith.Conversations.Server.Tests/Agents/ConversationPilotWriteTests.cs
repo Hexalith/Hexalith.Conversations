@@ -43,6 +43,82 @@ public sealed class ConversationPilotWriteTests
         ConversationAggregate.Handle(second, state).Events.ShouldHaveSingleItem().ShouldBeOfType<ConversationRejectedDomainEvent>();
     }
 
+    [Fact]
+    public async Task ReorderedHumanAppendsBothCommitWithoutMovingBackward()
+    {
+        var fixture = new F();
+        var later = new AppendMessage(new(fixture.CommandMetadata(F.Human, "append-later"), F.Conversation,
+            new("message-later"), F.Human, "Stamped later"), F.At.AddSeconds(2), "event-later");
+        var earlier = new AppendMessage(new(fixture.CommandMetadata(F.Human, "append-earlier"), F.Conversation,
+            new("message-earlier"), F.Human, "Stamped earlier"), F.At.AddSeconds(1), "event-earlier");
+
+        var firstResult = ConversationAggregate.Handle(later, await fixture.ReplayAsync());
+        var first = firstResult.Events.ShouldHaveSingleItem().ShouldBeOfType<MessageAppendedDomainEvent>();
+        first.Metadata.CommittedAt.ShouldBe(later.PostedAt);
+        fixture.Persist(firstResult);
+        var secondResult = ConversationAggregate.Handle(earlier, await fixture.ReplayAsync());
+        var second = secondResult.Events.ShouldHaveSingleItem().ShouldBeOfType<MessageAppendedDomainEvent>();
+        second.Metadata.CommittedAt.ShouldBe(later.PostedAt);
+        fixture.Persist(secondResult);
+
+        var state = await fixture.ReplayAsync();
+        state.Messages.Select(message => message.MessageId).ShouldBe([later.PublicCommand.MessageId, earlier.PublicCommand.MessageId]);
+        state.Messages.Select(message => message.CreatedAt).ShouldBe([first.Metadata.CommittedAt, second.Metadata.CommittedAt]);
+        state.LastEventAt.ShouldBe(first.Metadata.CommittedAt);
+        ConversationAggregate.Handle(earlier with { PostedAt = F.At.AddSeconds(3) }, state).Events.ShouldBeEmpty();
+        var beforeFloor = new AppendMessage(new(fixture.CommandMetadata(F.Human, "append-floor"), F.Conversation,
+            new("message-floor"), F.Human, "Before the floor"), new DateTimeOffset(1999, 12, 31, 23, 59, 59, TimeSpan.Zero), "event-floor");
+        ConversationAggregate.Handle(beforeFloor, state).Events.ShouldHaveSingleItem().ShouldBeOfType<ConversationRejectedDomainEvent>()
+            .ReasonCode.ShouldBe("message_lifecycle_or_occurrence_invalid");
+    }
+
+    [Theory]
+    [InlineData(false, -600, true)]
+    [InlineData(false, 60, true)]
+    [InlineData(false, 61, false)]
+    [InlineData(true, -600, true)]
+    [InlineData(true, 60, true)]
+    [InlineData(true, 61, false)]
+    public async Task PilotOccurrenceMayLeadTheDomainClockByAtMostOneMinute(bool create, int apiClockOffsetSeconds, bool accepted)
+    {
+        var fixture = new F();
+        var metadata = fixture.CommandMetadata(F.Human);
+        var clock = new PumpClock();
+        clock.Advance(TimeSpan.FromDays(1));
+        var domainNow = clock.GetUtcNow();
+        var stamped = domainNow.AddSeconds(apiClockOffsetSeconds);
+        var allocatedId = new ConversationId(PilotCommandIdentity.Allocate(metadata, "subject-one", "conversation"));
+        var envelope = create
+            ? fixture.Envelope(new CreateHumanConversation(new(metadata), allocatedId, stamped,
+                PilotCommandIdentity.Allocate(metadata, "subject-one", "created-event")), "subject-one") with { AggregateId = allocatedId.Value }
+            : fixture.Envelope(new AppendMessage(new(metadata, F.Conversation, new("msg"), F.Human, "text"), stamped,
+                PilotCommandIdentity.Allocate(metadata, "subject-one", "message-event", F.Conversation.Value)), "subject-one");
+        const string binding = "Conversations:Pilot:HumanPartyBindings:0:";
+        var settings = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            [binding + "TenantId"] = F.Tenant.Value,
+            [binding + "PartyId"] = F.Human.Value,
+            [binding + "PrincipalId"] = "subject-one",
+        }).Build();
+        var access = Substitute.For<IConversationTenantAccessService>();
+        var token = TestContext.Current.CancellationToken;
+        access.CheckAccessAsync(ConversationTenantAccessRequirement.Write, F.Tenant, "subject-one", commandTenantId: F.Tenant,
+            cancellationToken: token).Returns(ConversationTenantAccessDecision.Allowed(ConversationTenantAccessRequirement.Write, F.Tenant, "subject-one"));
+        var stage = new ConversationAgentAdmissionStage(fixture, fixture, fixture, fixture, new(settings, access), clock);
+
+        var result = await stage.EvaluateAsync(new(new(envelope, null)), token);
+
+        if (accepted)
+        {
+            result.IsAccepted.ShouldBeTrue();
+            access.ReceivedCalls().ShouldHaveSingleItem();
+            return;
+        }
+        result.RejectionEvents.ShouldHaveSingleItem().ShouldBeOfType<ConversationRejectedDomainEvent>()
+            .ReasonCode.ShouldBe("invalid_owner_allocation");
+        access.ReceivedCalls().ShouldBeEmpty();
+    }
+
     [Theory]
     [InlineData("Member", true)]
     [InlineData("Observer", false)]

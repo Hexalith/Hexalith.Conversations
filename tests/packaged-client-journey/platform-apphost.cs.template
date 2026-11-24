@@ -79,7 +79,9 @@ foreach (ProjectResource service in builder.Resources.OfType<ProjectResource>().
     if (service.Name == "eventstore")
         resource.WithEnvironment("Authentication__BoundCommand__AllowedDomains__tenants","global-administrators")
             // Status is written separately from finalizing the 24-hour mutation receipt.
-            .WithEnvironment("EventStore__CommandStatus__TtlSeconds", "90000");
+            .WithEnvironment("EventStore__CommandStatus__TtlSeconds", "90000")
+            // EventStore validates on startup that terminal idempotency retention is at least the status TTL.
+            .WithEnvironment("EventStore__Idempotency__TerminalRetentionSeconds", "90000");
     if (service.Name == "tenants")
         resource.WithEnvironment("Tenants__BootstrapBoundWorkloadEnabled","true");
 }

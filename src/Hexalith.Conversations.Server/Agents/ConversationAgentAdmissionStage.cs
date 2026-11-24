@@ -25,11 +25,20 @@ namespace Hexalith.Conversations.Server.Agents;
 /// <param name="receipts">Authenticated exact source worker and receiver verifier.</param>
 /// <param name="pilot">Independent write authority installed by the pilot command owner.</param>
 /// <param name="commandSources">Authenticated SDK complete-prefix verifier; never re-enters the source actor.</param>
+/// <param name="clock">Domain clock that bounds pilot occurrences; defaults to <see cref="TimeProvider.System"/>.</param>
 public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority authority,
     IConversationDeletionApprovalVerifier approvals, IConversationDeletionReceiptVerifier receipts,
-    IConversationCommandSourceVerifier commandSources, ConversationPilotWriteAdmission? pilot = null) : IDomainServiceAdmissionStage
+    IConversationCommandSourceVerifier commandSources, ConversationPilotWriteAdmission? pilot = null,
+    TimeProvider? clock = null) : IDomainServiceAdmissionStage
 {
     private static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web);
+
+    // The pilot API and the domain read independent clocks. Admit API-assigned occurrences up to the one-minute
+    // ClockSkew that JwtBearerAuthenticationContract configures for platform bearer validation, not the library's
+    // five-minute default. A larger forward skew remains an invalid owner allocation.
+    private static readonly TimeSpan PilotClockSkew = TimeSpan.FromMinutes(1);
+
+    private readonly TimeProvider _clock = clock ?? TimeProvider.System;
 
     /// <inheritdoc />
     public string Name => "conversations-current-agents-admission";
@@ -97,10 +106,10 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
             {
                 if (pilot is null || command is AppendMessage append && append.PublicCommand.AuthorPartyId != metadata.ActorPartyId)
                     return DomainServiceAdmissionResult.Rejected([new ConversationWriteDenied()]);
-                DateTimeOffset now = DateTimeOffset.UtcNow;
-                if (command is AppendMessage posted && (posted.PostedAt > now || posted.EventId !=
+                DateTimeOffset latest = _clock.GetUtcNow() + PilotClockSkew;
+                if (command is AppendMessage posted && (posted.PostedAt > latest || posted.EventId !=
                         PilotCommandIdentity.Allocate(metadata, envelope.UserId, "message-event", conversation.Value))
-                    || command is CreateHumanConversation created && (created.CreatedAt > now
+                    || command is CreateHumanConversation created && (created.CreatedAt > latest
                         || created.EventId != PilotCommandIdentity.Allocate(metadata, envelope.UserId, "created-event")
                         || conversation.Value != PilotCommandIdentity.Allocate(metadata, envelope.UserId, "conversation")))
                     return DomainServiceAdmissionResult.Rejected([new ConversationRejectedDomainEvent(

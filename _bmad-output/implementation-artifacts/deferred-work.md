@@ -1579,3 +1579,27 @@ The 20 groups below combine duplicate reports and related validation steps. They
 | Implement tenant erase | An owner-authorized trigger and the AD-7 lifecycle |
 | Correct the two ADR 0005 prose details | A new digest-bound decision revision and approval |
 | Qualify the Story 12.4 benchmark | The Story 12.3 implementation and paired observation inputs |
+
+## Deferred from Story 9.3 remaining-patch review (2026-11-25)
+
+- source_spec: `spec-9-3-prove-the-packaged-conversation-client-against-its-supported-host.md`
+  summary: Caller-stamped Agent posts and governance commands still reject a time earlier than the conversation's latest event, and the adopter guide gives no recovery path.
+  evidence: `IsValidOccurrence` and the ordinary validations reject such stamps, including under ordinary concurrency. Agent posts bind their portable timestamp, so they cannot commit at a later time without a provenance decision. Review: Blind 2, Edge 3 and Blind 6.
+- source_spec: `spec-9-3-prove-the-packaged-conversation-client-against-its-supported-host.md`
+  summary: Agent and governance occurrences have no forward bound against the domain clock.
+  evidence: A far-future caller stamp becomes `LastEventAt`. Later human appends used to fail on it and now commit at that time. Review: Edge 2.
+- source_spec: `spec-9-3-prove-the-packaged-conversation-client-against-its-supported-host.md`
+  summary: Detail evidence entries break equal-time ties by entry ID, while the timeline keeps append order.
+  evidence: `ConversationProjectionMaterializer` orders evidence by `OccurredAt` and then `EntryId`. Appends moved forward to `LastEventAt` now produce equal times routinely. Review: Blind 6.
+- source_spec: `spec-9-3-prove-the-packaged-conversation-client-against-its-supported-host.md`
+  summary: The packaged-client runner unittests are not part of CI.
+  evidence: `tests/packaged-client-journey/test_run.py` and `test_status_outage.py` run only locally. The after-unit-tests action runs two `tests/tooling` suites. Review: Verification 2.
+- source_spec: `spec-9-3-prove-the-packaged-conversation-client-against-its-supported-host.md`
+  summary: The root tool manifest pins Builds module CLI 6.6.2, but Builds is `v6.8.1`, so `dotnet tool run hexalith-module -- prepare-build` fails with HXW009.
+  evidence: Story 9.3 validation on 2026-11-24 prepared the source mapping with a separately installed 6.8.1 CLI.
+- source_spec: `spec-9-3-prove-the-packaged-conversation-client-against-its-supported-host.md`
+  summary: `PlatformEnrollmentMappingTest.EvaluatedReferencesUseOnlyMappedIdentities(mode: Source)` fails locally with HXW006.
+  evidence: The test's temporary workspace leaves the Contracts test project's `Hexalith.Builds.Tooling` reference unmapped. It failed with and without the source-mapping environment, with no project or mapping change in the tree. CI passed it on `f9f8074f`.
+- source_spec: `spec-9-3-prove-the-packaged-conversation-client-against-its-supported-host.md`
+  summary: Two tests are flaky.
+  evidence: CI run 45473981314 timed out in `ConversationDeletionWorkerAdmissionTests.WorkerInvocationCannotOutliveCanceledCaller(delivery: True)`, and the next `main` run passed. A full local IntegrationTests run failed `Story16_3LiveFixture.DisposeAsync` because a listener port stayed reachable. Run alone, the collection passed 5 of 5.

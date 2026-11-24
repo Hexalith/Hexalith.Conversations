@@ -22,11 +22,24 @@ def public_origin(value):
     return None
 
 
+def configured_seconds(value):
+    """Return a canonical positive 32-bit decimal value, or None for any other form."""
+    value = str(value)
+    if (len(value) > 10 or not value.isascii() or not value.isdecimal() or value != str(int(value))
+            or not 0 < int(value) <= 2_147_483_647):
+        return None
+    return int(value)
+
+
 def verify_host_configuration(apphost, inputs):
     gateway = describe_resource(apphost, "eventstore")["environment"]
-    ttl = str(gateway.get("EventStore__CommandStatus__TtlSeconds", ""))
-    if len(ttl) > 10 or not ttl.isascii() or not ttl.isdecimal() or not 90_000 <= int(ttl) <= 2_147_483_647:
+    ttl = configured_seconds(gateway.get("EventStore__CommandStatus__TtlSeconds", ""))
+    if ttl is None or ttl < 90_000:
         raise RuntimeError("The qualification gateway must retain command status for at least 90000 seconds")
+    # EventStore refuses to start when terminal idempotency retention, 86400 seconds by default, is below the status TTL.
+    retention = configured_seconds(gateway.get("EventStore__Idempotency__TerminalRetentionSeconds", ""))
+    if retention is None or retention < ttl:
+        raise RuntimeError("The qualification gateway must retain terminal idempotency records at least as long as command status")
 
     domain = describe_resource(apphost, "conversations")["environment"]
     sidecar = public_origin(inputs["CONVERSATIONS_DOMAIN_DAPR_ORIGIN"])

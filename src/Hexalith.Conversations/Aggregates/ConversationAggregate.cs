@@ -80,7 +80,8 @@ public sealed partial class ConversationAggregate : EventStoreAggregate<Conversa
         => Handle(new CreateConversation(command.PublicCommand, command.ConversationId, command.CreatedAt, command.EventId), state);
 
     /// <summary>Appends a message attributed to an admitted human participant.</summary>
-    /// <param name="command">The original request and assigned occurrence.</param>
+    /// <param name="command">The original request and its API-assigned PostedAt, a lower bound: the event commits at the
+    /// later of PostedAt and the conversation's LastEventAt.</param>
     /// <param name="state">The current conversation.</param>
     /// <returns>One message event, an identical retry, or a typed refusal.</returns>
     public static DomainResult Handle(AppendMessage command, ConversationState? state)
@@ -115,12 +116,17 @@ public sealed partial class ConversationAggregate : EventStoreAggregate<Conversa
                 && previous.OriginalIntentFingerprint == fingerprint
                 ? DomainResult.NoOp() : DomainResult.Rejection([new ConversationMessageConflict()]);
 
-        if (state.Lifecycle != ConversationLifecycleState.Open || !IsValidOccurrence(command.PostedAt, state))
+        // The aggregate is the serialized write boundary. An append stamped before the latest event commits at that
+        // event's time, so a valid append handled after a later-stamped one commits after it. The year floor applies
+        // to the API-assigned PostedAt. Agent occurrences bind their portable timestamp and keep IsValidOccurrence.
+        if (state.Lifecycle != ConversationLifecycleState.Open || command.PostedAt.Year < 2000
+            || state.LastEventAt is not { } lastEventAt)
             return DomainResult.Rejection([new ConversationRejectedDomainEvent(
                 Contracts.Errors.ConversationErrorCode.CommandValidationFailed, "message_lifecycle_or_occurrence_invalid")]);
+        DateTimeOffset occurrence = command.PostedAt > lastEventAt ? command.PostedAt : lastEventAt;
 
         return DomainResult.Success([new MessageAppendedDomainEvent(AgentMetadata(metadata, request.ConversationId,
-            command.EventId, ConversationEventType.MessageAppended, command.PostedAt),
+            command.EventId, ConversationEventType.MessageAppended, occurrence),
             request.MessageId, request.AuthorPartyId, request.Text, null, metadata.IdempotencyKey!, fingerprint, request.ProviderCorrelation)]);
     }
 

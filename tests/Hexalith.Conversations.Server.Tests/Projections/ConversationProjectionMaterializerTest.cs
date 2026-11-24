@@ -108,6 +108,26 @@ public sealed class ConversationProjectionMaterializerTest
     }
 
     [Fact]
+    public void TiedAppendTimesKeepCommitOrderWhenMessageIdsSortTheOtherWay()
+    {
+        MessageId later = new("message-later");
+        MessageId earlier = new("message-earlier");
+        var first = MessageAppended("event-later", 2) with { MessageId = later };
+        var second = first with { MessageId = earlier, Metadata = first.Metadata with { EventId = "event-earlier" } };
+        ConversationProjectedReadModels result = Materializer().Project(Tenant, Conversation,
+            [
+                Event(1, Created("event-create", 1)),
+                Event(2, first),
+                Event(3, second),
+            ],
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        second.Metadata.CommittedAt.ShouldBe(first.Metadata.CommittedAt);
+        result.Detail.Messages.Select(message => message.MessageId).ShouldBe([later, earlier]);
+    }
+
+    [Fact]
     public void RedactedMessageEvidenceDoesNotCiteAnEditWhoseContentIsWithheld()
     {
         var target = new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message);
