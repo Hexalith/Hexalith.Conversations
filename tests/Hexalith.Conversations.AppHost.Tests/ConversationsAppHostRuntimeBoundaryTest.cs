@@ -496,9 +496,8 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
             ? Path.Combine(Path.GetDirectoryName(projectPath)!, "bin", configuration, gateway.TargetFramework, assemblyName + ".dll")
             : Path.Combine(artifactsPath, "bin", assemblyName, configuration.ToLowerInvariant(), assemblyName + ".dll");
         gateway.TargetPath.ShouldBe(expectedPath);
-        gateway.SdkVersion.ShouldBe(
-            referenceMode == "package" ? "5.4.0" : ReadEnrollmentMetadata("EnrolledEventStoreVersion"),
-            "the packaged host uses the EventStore version qualified with Builds v6.6.2");
+        gateway.SdkVersion.ShouldBe(ReadEnrollmentMetadata("EnrolledEventStoreVersion"),
+            "the selected gateway must use the same EventStore SDK version as the enrolled test assembly");
     }
 
     private static async Task<string> BuildEventStoreGatewayWithProvenanceAsync(CancellationToken cancellationToken)
