@@ -1485,3 +1485,5 @@ The [follow-up spec](spec-five-deferred-validation-entry-points.md) records veri
 - **Done. September 25 Story 7.2, staged declaration and gitlink consistency.** Restored the index-only regression removed in `ebf0f5f0`. The CLI test verifies that unstaged mismatches leave a valid index passing and unstaged corrections cannot conceal an invalid index.
 
 - **Done. September 25 Story 7.2, gitlink target availability.** The current-change runbook assigns remote reachability verification to dependency publication and leaves the root checker usable with only the staged index. It identifies the exact target commit and the declared remote as the proof boundary.
+
+- **Done. September 25 Story 7.2, BMad completion checks.** The local Build customization and its runbook require a complete product build and test run before marking a product story done. Focused checks still support implementation and review.

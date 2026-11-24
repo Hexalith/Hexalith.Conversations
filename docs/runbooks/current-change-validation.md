@@ -31,9 +31,13 @@ CI reports the state of a direct push after it lands. GitHub branch protection
 does not require a pull request or a status check for this single-contributor
 workflow.
 
-Repository-local BMad build and review workflows use this current-tree check
-and focused tests for new routine work. Generated final records and historical
-evidence checks run only when a spec explicitly requires them. The tracked pre-commit
+Repository-local BMad build and review workflows use focused checks during
+implementation and review. Before marking a product story done, build the root
+solution and run the maintained test projects individually in the producer-selected
+configuration, including the integration projects. Record the build and test
+results. A failing or blocked full run leaves the product story open. Generated
+final records and historical evidence checks run when a spec explicitly requires
+them. The tracked pre-commit
 hook checks staged whitespace. The Builds guard validates commit messages
 against the shared Conventional Commit policy.
 
