@@ -1544,3 +1544,38 @@ The [follow-up spec](spec-five-deferred-validation-entry-points.md) records veri
 ## Deferred-work validation follow-up (2026-11-24)
 
 - **Done. October 7 Story 9.1 B7, retained Story 8.2 tests.** The Python tests take frozen inputs from the accepted Story 8.2 candidate, including the C# guard retired from current `main`. They exercise the current verifier and preserve the real candidate scope and gitlink checks. The CLI regression replaces only the existing record region and proves that changed receipts and bindings still fail verification. All 93 Story 8.2 cases passed.
+
+- **Done. October 19 Story 11.2 proof tooling, measured SDK version.** The Release build receipt records the SDK evaluated by MSBuild and proof verification derives the SDK from the receipt. The accepted v1 receipt retains its native SDK diagnostic. The earlier assembly-copy, output containment and blank project-reference fixes cover the other parts of that review entry. The tooling tests use the measured fixture from the accepted commit.
+
+### Skipped in this follow-up
+
+- The original planning, promotion and completion workflow findings concern retired routes and frozen authority. Current product coverage runs through the shared Builds pipeline. The committed gitlink drift, AppHost startup readiness, reconcile HTTP boundary and record-generator parsing findings already have fixes or tests.
+- The Story 9.1 frozen conformance baseline was superseded, and Story 9.2 command suppression and CI environment declarations already have regressions. Package release version selection belongs to the shared release owner. The current compatibility suite covers the registered command, replay and rehydration. The pinned module tool accepts `APP_API_TOKEN`.
+- EventStore and Builds own their routed runtime and tooling findings. Their current pins already cover EventStore workload history transport and the audit catalog route, and Builds covers Windows/macOS observation uncertainty and claim receipt size. Separate Tenants and Agents release entries remain with those repository owners.
+
+### Remaining Conversations follow-ups confirmed in this pass
+
+The 20 groups below combine duplicate reports and related validation steps. They remain open for the prerequisite stated in each row. Historical superseded entries and findings routed to dependency repositories are outside this count.
+
+| Follow-up | Prerequisite |
+| --- | --- |
+| Partition the tenant index | Storage layout and migration decision under ADR 0005 |
+| Bind execution to the candidate, binaries and dependency revisions | A versioned execution receipt compatible with the retained evidence |
+| Prove full-suite receipt completeness | An authoritative per-project inventory and skip contract |
+| Qualify the alternate Debug reference topology | An approved structural baseline for that topology |
+| Reproduce the complete Story 9.1 archive | The acceptance-time Release outputs and matching binary |
+| Qualify AppHost command admission and workload tokens | A running authority and the enrolled AppHost boundary |
+| Qualify deployed deletion delivery and complete-source coverage | The installed receiver and admitted EventStore source authority |
+| Bind the Story 11.1 guidance and receipts | A successor receipt contract for candidate and predecessor digests |
+| Bind the Story 11.2 inventory receipt and reproducible assemblies | A versioned fixture and measurement contract for the new inputs |
+| Rediscover native rebuild plans after restart | The EventStore restart recovery seam |
+| Repair unreadable selected-owner rows | An EventStore recovery seam that preserves interrupted-batch evidence |
+| Prove installed declarative tenant delivery | Platform sidecar subscription and enrolled tenant delivery |
+| Compare live tenant delivery with gateway history | The installed event and history routes with both protection modes |
+| Repair terminal tenant-access records | An operator repair protocol consistent with the terminal-state contract |
+| Backfill and restore quiet tenants | A recovery driver and authoritative tenant inventory |
+| Qualify the Keycloak tenant-history grant | A Keycloak-enabled AppHost with the enrolled history identity |
+| Recover missing and rebuilding conversation indexes | Tenant shared rebuild, including gap recovery and redelivered creation |
+| Implement tenant erase | An owner-authorized trigger and the AD-7 lifecycle |
+| Correct the two ADR 0005 prose details | A new digest-bound decision revision and approval |
+| Qualify the Story 12.4 benchmark | The Story 12.3 implementation and paired observation inputs |

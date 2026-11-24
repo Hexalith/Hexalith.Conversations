@@ -21,6 +21,12 @@ The historical SM-2 authoring-cost measurement refers to its recorded checkpoint
 The standalone fixture adopted the shared catalog in `b998a24c`. The entries below
 describe earlier qualifications.
 
+The Story 11.2 proof derives its .NET SDK version from the Release build receipt.
+New receipts capture the SDK version evaluated by MSBuild for each fixture project.
+The accepted v1 receipt has the SDK version in its MSBuild diagnostics. Earlier
+receipts without an unambiguous SDK observation cannot reproduce their original
+proof. A fresh build from that checkout produces a new receipt and proof.
+
 ## Published-package hash refresh (2026-10-28)
 
 The broad SDK update changed the frozen fixture AppHost by accident. Its exact

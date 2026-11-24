@@ -37,6 +37,8 @@ PROOF_MARKDOWN_PATH = "docs/release-evidence/thin-module-fixture-proof-v1.md"
 TEST_RESULT_PATH = "artifacts/v9/11.2/minimal-module.trx"
 LOCK_FILE = "packages.lock.json"
 COMMAND_RECEIPT_SCHEMA = "hexalith.conversations.minimal-module-command-receipt.v1"
+BUILD_RECEIPT_SCHEMA = "hexalith.conversations.minimal-module-build-receipt.v2"
+DOTNET_SDK_VERSION = re.compile(r"[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?")
 COMMAND_RECEIPTS = {"AC-11.2-02": "artifacts/v9/11.2/AC-11.2-02.log",
                     "AC-11.2-03": "artifacts/v9/11.2/AC-11.2-03.log"}
 
@@ -228,21 +230,51 @@ def check_platform_checkout(repository: Path, candidate: str | None = None) -> l
     return []
 
 
+def build_receipt_sdk(receipt: dict) -> str:
+    """Derive the SDK from the build receipt and check its native diagnostics."""
+    versions = set(re.findall(
+        r"(?m)^\s*[^\r\n]*?[\\/]sdk[\\/](" + DOTNET_SDK_VERSION.pattern +
+        r")[\\/]Microsoft\.Common\.CurrentVersion\.targets\([0-9,]+\): (?:warning|error) MSB",
+        receipt["consoleLog"],
+    ))
+    if receipt["schemaVersion"] == BUILD_RECEIPT_SCHEMA:
+        version = receipt.get("dotnetSdk")
+        if not isinstance(version, str) or not DOTNET_SDK_VERSION.fullmatch(version):
+            raise ValueError("build receipt lacks a valid .NET SDK version")
+        versions.add(version)
+    if len(versions) != 1:
+        raise ValueError("build SDK version is missing or ambiguous in AC-11.2-03")
+    return versions.pop()
+
+
 def command_receipt(repository: Path, scenario: str, content: bytes | None = None) -> dict:
     """Validate the measured exit and policy for an exact frozen restore/build command."""
+    def unique_fields(pairs: list[tuple[str, object]]) -> dict:
+        fields = dict(pairs)
+        if len(fields) != len(pairs):
+            raise ValueError("receipt contains duplicate fields")
+        return fields
+
     path = COMMAND_RECEIPTS[scenario]
     raw = read_file(repository, path) if content is None else content
     contract = json.loads(read_file(repository, CONTRACT_PATH))
     command = next(row["command"] for row in contract["scenarios"] if row["id"] == scenario)
     try:
-        receipt = json.loads(raw)
+        receipt = json.loads(raw, object_pairs_hook=unique_fields)
         policy = "lockedMode" if scenario == "AC-11.2-02" else "warningsAsErrors"
-        if (set(receipt) != {"schemaVersion", "scenarioId", "command", "exitCode", "consoleLog", policy}
-                or receipt["schemaVersion"] != COMMAND_RECEIPT_SCHEMA or receipt["scenarioId"] != scenario
+        fields = {"schemaVersion", "scenarioId", "command", "exitCode", "consoleLog", policy}
+        schema = receipt["schemaVersion"]
+        if scenario == "AC-11.2-03" and schema == BUILD_RECEIPT_SCHEMA:
+            fields.add("dotnetSdk")
+        elif schema != COMMAND_RECEIPT_SCHEMA:
+            raise ValueError("unknown command receipt schema")
+        if (set(receipt) != fields or receipt["scenarioId"] != scenario
                 or receipt["command"] != command or type(receipt["exitCode"]) is not int
                 or receipt["exitCode"] != 0 or receipt[policy] is not True
                 or not isinstance(receipt["consoleLog"], str) or not receipt["consoleLog"].strip()):
             raise ValueError("receipt is not a successful execution of the frozen command and policy")
+        if scenario == "AC-11.2-03":
+            receipt["dotnetSdk"] = build_receipt_sdk(receipt)
     except (KeyError, TypeError, ValueError) as error:
         raise ValueError(f"{scenario} measured receipt is invalid: {error}") from None
     return {**receipt, "path": path, "sha256": sha256_bytes(raw)}
@@ -658,9 +690,15 @@ def verify_proof(repository: Path, fixture: str, proof_json: str, proof_markdown
             if test_blockers or committed["tests"] != expected_tests:
                 problems.append("the proof test facts differ from the retained TRX or lock files")
             for section, scenario in (("restore", "AC-11.2-02"), ("build", "AC-11.2-03")):
-                measured = command_receipt(repository, scenario)
+                try:
+                    measured = command_receipt(repository, scenario)
+                except ValueError as error:
+                    problems.append(str(error))
+                    continue
                 if committed[section]["receipt"] != {key: measured[key] for key in ("path", "sha256", "exitCode")}:
                     problems.append(f"the proof differs from the measured {section} receipt")
+                if section == "build" and committed[section]["toolVersions"]["dotnetSdk"] != measured["dotnetSdk"]:
+                    problems.append("the proof .NET SDK version differs from the measured build receipt")
             if (inventory_blockers or committed["fixtureInventory"]["paths"] != inventory["paths"]
                     or committed["restore"]["lockFiles"] != sorted(locks, key=lambda row: row["path"])
                     or committed["restore"]["resolvedPackagesSha256"] != sha256_bytes(canonical(sorted(packages)))

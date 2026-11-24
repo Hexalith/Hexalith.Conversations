@@ -28,6 +28,7 @@ JSON_OUT = verifier.PROOF_JSON_PATH
 MD_OUT = verifier.PROOF_MARKDOWN_PATH
 SCHEMA = verifier.PROOF_SCHEMA_PATH
 OUT = "out/result.json"
+CHECKPOINT_PROOF = ROOT / verifier.PROOF_JSON_PATH
 TRX_NAMESPACE = "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"
 
 INPUTS = [
@@ -36,11 +37,6 @@ INPUTS = [
     verifier.STORY_11_1_RECORD_MARKDOWN, "docs/release-evidence/thin-authoring-guidance-v2.schema.json",
     "global.json",
 ] + [path for _, path, _ in guidance.PREDECESSORS]
-
-
-def fixture_input_paths() -> list[str]:
-    root = ROOT / FIXTURE
-    return [f"{FIXTURE}/{item}" for item in verifier.fixture_files(root)]
 
 
 def trx_text(names: list[str], outcome: dict[str, str] | None = None) -> str:
@@ -173,20 +169,35 @@ def write_measured_command_inputs(repo: Path) -> dict[str, bytes]:
     for scenario, path in verifier.COMMAND_RECEIPTS.items():
         command = next(row["command"] for row in contract["scenarios"] if row["id"] == scenario)
         policy = "lockedMode" if scenario == "AC-11.2-02" else "warningsAsErrors"
-        receipts[path] = (json.dumps({"schemaVersion": verifier.COMMAND_RECEIPT_SCHEMA, "scenarioId": scenario,
-                                     "command": command, "exitCode": 0, "consoleLog": "Measured test execution\n",
-                                     policy: True}, indent=2) + "\n").encode()
+        receipt = {"schemaVersion": verifier.COMMAND_RECEIPT_SCHEMA, "scenarioId": scenario,
+                   "command": command, "exitCode": 0, "consoleLog": "Measured test execution\n", policy: True}
+        if scenario == "AC-11.2-03":
+            receipt.update(schemaVersion=verifier.BUILD_RECEIPT_SCHEMA, dotnetSdk="10.0.402")
+        receipts[path] = (json.dumps(receipt, indent=2) + "\n").encode()
         (repo / path).parent.mkdir(parents=True, exist_ok=True)
         (repo / path).write_bytes(receipts[path])
     return receipts
 
 
+def write_checkpoint_fixture(repository: Path) -> None:
+    """Restore the measured fixture sources and locks for historical proof tests."""
+    checkpoint = json.loads(CHECKPOINT_PROOF.read_bytes())["candidate"]["commit"]
+    locks = [f"{FIXTURE}/{Path(project).parent.as_posix()}/packages.lock.json"
+             for project in verifier.EXPECTED_PROJECTS]
+    for relative in (*verifier.FROZEN_PATHS, *locks):
+        target = repository / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(subprocess.run(["git", "show", f"{checkpoint}:{relative}"], cwd=ROOT,
+                                          capture_output=True, check=True).stdout)
+
+
 @pytest.fixture()
 def repo(tmp_path: Path) -> Path:
-    for relative in [*INPUTS, *fixture_input_paths()]:
+    for relative in INPUTS:
         target = tmp_path / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, target)
+    write_checkpoint_fixture(tmp_path)
     write_platform_stubs(tmp_path)
     git(tmp_path, "init", "--quiet")
     git(tmp_path, "config", "user.email", "fixture@example.invalid")
@@ -390,6 +401,13 @@ def test_proof_without_assembly_rederivation_checks_every_source_binding(repo: P
     assert "current fixture, result, or guidance" in errors[0]["message"]
 
 
+def evaluated_build_properties(arguments: list[str], warnings_as_errors: str = "true",
+                               sdk_version: str = "10.0.402") -> subprocess.CompletedProcess:
+    return subprocess.CompletedProcess(arguments, 0, json.dumps({"Properties": {
+        "TreatWarningsAsErrors": warnings_as_errors, "NETCoreSdkVersion": sdk_version,
+    }}), "")
+
+
 @pytest.mark.parametrize("scenario", tuple(verifier.COMMAND_RECEIPTS))
 def test_command_wrapper_executes_the_frozen_command_and_retains_failure(repo: Path, monkeypatch, scenario: str) -> None:
     calls = []
@@ -400,7 +418,7 @@ def test_command_wrapper_executes_the_frozen_command_and_retains_failure(repo: P
             return real_run(arguments, **kwargs)
         calls.append(arguments)
         if "msbuild" in arguments:
-            return subprocess.CompletedProcess(arguments, 0, "true\n", "")
+            return evaluated_build_properties(arguments)
         return subprocess.CompletedProcess(arguments, 17, "NuGet/build failed\n")
 
     monkeypatch.setattr(command_runner.subprocess, "run", execute)
@@ -425,7 +443,9 @@ def test_command_wrapper_success_receipt_is_accepted_by_its_consumer(repo: Path,
         if arguments[0] == "git":
             return real_run(arguments, **kwargs)
         if "msbuild" in arguments:
-            return subprocess.CompletedProcess(arguments, 0, "true\n", "")
+            assert kwargs["cwd"] == repo
+            assert arguments[-1] == "-getProperty:TreatWarningsAsErrors,NETCoreSdkVersion"
+            return evaluated_build_properties(arguments, sdk_version="10.0.403")
         # The locked restore must re-validate every lock file instead of taking NuGet's no-op path.
         assert scenario != "AC-11.2-02" or not any(cache.exists() for cache in caches)
         return subprocess.CompletedProcess(arguments, 0, "Measured success\n")
@@ -434,6 +454,9 @@ def test_command_wrapper_success_receipt_is_accepted_by_its_consumer(repo: Path,
     assert command_runner.main(["--repository", str(repo), "--scenario", scenario]) == 0
     measured = verifier.command_receipt(repo, scenario)
     assert measured["exitCode"] == 0 and measured["consoleLog"] == "Measured success\n"
+    if scenario == "AC-11.2-03":
+        assert measured["dotnetSdk"] == "10.0.403"
+        assert proof.build_signable(repo, FIXTURE, TRX)["build"]["toolVersions"]["dotnetSdk"] == "10.0.403"
     assert [cache.exists() for cache in caches] == [scenario == "AC-11.2-03"] * len(caches)
 
 
@@ -446,16 +469,95 @@ def test_command_wrapper_measures_warnings_as_errors_in_every_project(repo: Path
             return real_run(arguments, **kwargs)
         if "msbuild" in arguments:
             if arguments[2].endswith(SERVER):
-                return subprocess.CompletedProcess(arguments, 0 if evaluation == "false" else 1,
-                                                   "false\n" if evaluation == "false" else "", "")
-            return subprocess.CompletedProcess(arguments, 0, "true\n", "")
+                if evaluation == "failure":
+                    return subprocess.CompletedProcess(arguments, 1, "", "Cannot evaluate project")
+                return evaluated_build_properties(arguments, warnings_as_errors="false")
+            return evaluated_build_properties(arguments)
         return subprocess.CompletedProcess(arguments, 0, "Build succeeded.\n")
 
     monkeypatch.setattr(command_runner.subprocess, "run", execute)
-    assert command_runner.main(["--repository", str(repo), "--scenario", "AC-11.2-03"]) == 0
+    assert command_runner.main(["--repository", str(repo), "--scenario", "AC-11.2-03"]) == (1 if evaluation == "failure" else 0)
     assert json.loads((repo / verifier.COMMAND_RECEIPTS["AC-11.2-03"]).read_bytes())["warningsAsErrors"] is False
     with pytest.raises(ValueError, match="measured receipt is invalid"):
         verifier.command_receipt(repo, "AC-11.2-03")
+
+
+@pytest.mark.parametrize("path", ["/opt/dotnet/sdk/10.0.402", r"C:\Program Files\dotnet\sdk\10.0.402"])
+def test_legacy_build_receipt_reads_the_sdk_from_native_diagnostics(path: str) -> None:
+    separator = "\\" if "\\" in path else "/"
+    diagnostic = f"{path}{separator}Microsoft.Common.CurrentVersion.targets(5096,5): warning MSB3026: retry\n"
+    receipt = {"schemaVersion": verifier.COMMAND_RECEIPT_SCHEMA,
+               "consoleLog": f"Build succeeded.\n{diagnostic}{diagnostic}"}
+    assert verifier.build_receipt_sdk(receipt) == "10.0.402"
+    for console in ("Build succeeded.\n", diagnostic + diagnostic.replace("10.0.402", "10.0.403")):
+        receipt["consoleLog"] = console
+        with pytest.raises(ValueError, match="missing or ambiguous"):
+            verifier.build_receipt_sdk(receipt)
+
+
+def test_accepted_build_receipt_matches_the_published_sdk() -> None:
+    published = json.loads(CHECKPOINT_PROOF.read_bytes())["build"]
+    measured = verifier.command_receipt(ROOT, "AC-11.2-03")
+    assert measured["sha256"] == published["receipt"]["sha256"]
+    assert measured["dotnetSdk"] == published["toolVersions"]["dotnetSdk"]
+
+
+@pytest.mark.parametrize("fault", ["different-project-sdk", "timeout", "different-build-sdk"])
+def test_failed_sdk_measurement_replaces_the_previous_passing_receipt(repo: Path, monkeypatch, fault: str) -> None:
+    real_run = subprocess.run
+    scenario = "AC-11.2-03"
+    assert verifier.command_receipt(repo, scenario)["dotnetSdk"] == "10.0.402"
+
+    def execute(arguments, **kwargs):
+        if arguments[0] == "git":
+            return real_run(arguments, **kwargs)
+        if "msbuild" in arguments:
+            if fault == "timeout" and arguments[2].endswith(SERVER):
+                raise subprocess.TimeoutExpired(arguments, kwargs["timeout"])
+            version = "10.0.403" if fault == "different-project-sdk" and arguments[2].endswith(SERVER) else "10.0.402"
+            return evaluated_build_properties(arguments, sdk_version=version)
+        log = "Build succeeded.\n"
+        if fault == "different-build-sdk":
+            log += "/opt/dotnet/sdk/10.0.403/Microsoft.Common.CurrentVersion.targets(1,1): warning MSB3026: retry\n"
+        return subprocess.CompletedProcess(arguments, 0, log)
+
+    monkeypatch.setattr(command_runner.subprocess, "run", execute)
+    assert command_runner.main(["--repository", str(repo), "--scenario", scenario]) == 1
+    assert json.loads((repo / verifier.COMMAND_RECEIPTS[scenario]).read_bytes())["exitCode"] == 0
+    diagnostic = "missing or ambiguous" if fault == "different-build-sdk" else "receipt is not a successful execution"
+    if fault == "different-project-sdk":
+        diagnostic = "lacks a valid .NET SDK version"
+    with pytest.raises(ValueError, match=diagnostic):
+        verifier.command_receipt(repo, scenario)
+
+
+def test_command_receipt_rejects_duplicate_sdk_fields(repo: Path) -> None:
+    scenario = "AC-11.2-03"
+    raw = (repo / verifier.COMMAND_RECEIPTS[scenario]).read_bytes()
+    raw = raw.replace(b'"dotnetSdk": "10.0.402"', b'"dotnetSdk": "10.0.403", "dotnetSdk": "10.0.402"')
+    with pytest.raises(ValueError, match="duplicate fields"):
+        verifier.command_receipt(repo, scenario, raw)
+
+
+def test_proof_rejects_sdk_version_drift_even_without_rederiving_outputs(repo: Path) -> None:
+    signable = proof.build_signable(repo, FIXTURE, TRX)
+    signable["build"]["toolVersions"]["dotnetSdk"] = "11.0.100"
+    json_text, markdown = proof.finalize(signable)
+    (repo / JSON_OUT).write_text(json_text, encoding="utf-8")
+    (repo / MD_OUT).write_text(markdown, encoding="utf-8")
+    blockers = verifier.verify_proof(repo, FIXTURE, JSON_OUT, MD_OUT, TRX, rederive=False)
+    assert [item["code"] for item in blockers] == [verifier.BLOCK_PROOF]
+    assert ".NET SDK version differs from the measured build receipt" in blockers[0]["message"]
+
+
+def test_proof_verification_reports_the_invalid_sdk_receipt(repo: Path) -> None:
+    path = repo / verifier.COMMAND_RECEIPTS["AC-11.2-03"]
+    receipt = json.loads(path.read_bytes())
+    receipt["dotnetSdk"] = "10.0.402-.."
+    path.write_text(json.dumps(receipt), encoding="utf-8")
+    blockers = verifier.verify_proof(repo, FIXTURE, JSON_OUT, MD_OUT, TRX, rederive=False)
+    assert [item["code"] for item in blockers] == [verifier.BLOCK_PROOF]
+    assert "AC-11.2-03 measured receipt is invalid" in blockers[0]["message"]
 
 
 @pytest.mark.parametrize("scenario", tuple(verifier.COMMAND_RECEIPTS))

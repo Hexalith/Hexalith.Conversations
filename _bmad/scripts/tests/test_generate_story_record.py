@@ -13874,22 +13874,29 @@ def story112_apphost_trx() -> bytes:
         "Ns.DomainModuleAuthoringTemplateValidationTest")
 
 
+def clone_story112_fixture(source: Path, destination: Path) -> None:
+    run_git(destination.parent, "clone", "--quiet", "--shared", "--no-checkout", str(source), str(destination))
+    # Keep the commit and full index while leaving unrelated archived build outputs out of the fixture.
+    run_git(destination, "sparse-checkout", "set", "--no-cone", "/*", "!/module/validation/")
+    run_git(destination, "checkout", "--quiet", "--detach", "HEAD")
+
+
 @pytest.fixture(scope="module")
 def story112_fixture(tmp_path_factory):
     generator = load_generator()
     verifier, proof = generator.v2_11_2_module()
     root = tmp_path_factory.mktemp("story112")
     repository = root / "repository"
-    run_git(root, "clone", "--quiet", "--shared", "--no-checkout", str(WORKSPACE), str(repository))
-    run_git(repository, "checkout", "--detach", "HEAD")
-    fixture_paths = [f"{STORY_112_FIXTURE_ROOT}/{item}" for item in verifier.fixture_files(WORKSPACE / STORY_112_FIXTURE_ROOT)]
-    for relative in (*STORY_112_OVERLAY, *fixture_paths):
+    clone_story112_fixture(WORKSPACE, repository)
+    for relative in STORY_112_OVERLAY:
         target = repository / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes((WORKSPACE / relative).read_bytes())
     from test_minimal_module_fixture import (  # noqa: PLC0415
-        write_measured_command_inputs, write_platform_assemblies, write_platform_stubs)
+        write_checkpoint_fixture, write_measured_command_inputs, write_platform_assemblies, write_platform_stubs)
 
+    shutil.rmtree(repository / STORY_112_FIXTURE_ROOT)
+    write_checkpoint_fixture(repository)
     write_platform_stubs(repository)
     # Withdraw only the copied proof before measuring this disposable source candidate.
     run_git(repository, "rm", "--force", "--", verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH)
@@ -14036,7 +14043,7 @@ def test_story_112_route_rejects_platform_checkout_drift(story112_fixture, tmp_p
     from test_minimal_module_fixture import write_platform_stubs  # noqa: PLC0415
 
     clone = tmp_path / "platform-drift"
-    run_git(tmp_path, "clone", "--quiet", "--shared", str(repository), str(clone))
+    clone_story112_fixture(repository, clone)
     write_platform_stubs(clone)
     story112_write_receipts(clone, receipts)
     for relative in (verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH):
@@ -14057,7 +14064,7 @@ def test_story_112_committed_fixture_change_after_proof_is_rejected(story112_fix
     from test_minimal_module_fixture import write_platform_stubs  # noqa: PLC0415
 
     clone = tmp_path / "changed-fixture"
-    run_git(tmp_path, "clone", "--quiet", "--shared", str(repository), str(clone))
+    clone_story112_fixture(repository, clone)
     write_platform_stubs(clone)
     story112_write_receipts(clone, receipts)
     target = clone / verifier.FIXTURE_ROOT / relative
@@ -14195,7 +14202,7 @@ def test_story_112_v2_generate_dispatches_and_derives(story112_fixture):
 def test_story_112_predecessor_alteration_is_rejected(story112_fixture, tmp_path, path):
     generator, verifier, repository, options, receipts = story112_fixture
     clone = tmp_path / "altered"
-    run_git(tmp_path, "clone", "--quiet", "--shared", str(repository), str(clone))
+    clone_story112_fixture(repository, clone)
     for relative in (verifier.TEST_RESULT_PATH, verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH):
         (clone / relative).parent.mkdir(parents=True, exist_ok=True)
         (clone / relative).write_bytes((repository / relative).read_bytes())
@@ -14211,7 +14218,7 @@ def story112_published(story112_fixture, tmp_path):
     """Clone the candidate, publish proof pair, receipts and record pair as one commit, return the clone."""
     generator, verifier, repository, options, receipts = story112_fixture
     clone = tmp_path / "published"
-    run_git(tmp_path, "clone", "--quiet", "--shared", str(repository), str(clone))
+    clone_story112_fixture(repository, clone)
     published = (*receipts, options["--output-json"], options["--output-markdown"], verifier.PROOF_JSON_PATH, verifier.PROOF_MARKDOWN_PATH)
     # A previously published set would hide the publication diff: start from a withdrawn tree.
     run_git(clone, "rm", "--quiet", "--ignore-unmatch", "--", *published)

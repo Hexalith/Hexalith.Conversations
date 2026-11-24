@@ -26,6 +26,7 @@ def measure(repository: Path, scenario: str) -> dict:
     arguments = shlex.split(command)
     policy = "lockedMode" if scenario == "AC-11.2-02" else "warningsAsErrors"
     enabled = "--locked-mode" in arguments
+    receipt = {"schemaVersion": verifier.COMMAND_RECEIPT_SCHEMA, "scenarioId": scenario, "command": command}
     if scenario == "AC-11.2-02":
         # A no-op restore skips lock-file validation, so drop each fixture project's no-op cache first.
         for project in verifier.EXPECTED_PROJECTS:
@@ -33,16 +34,30 @@ def measure(repository: Path, scenario: str) -> dict:
             cache.unlink(missing_ok=True)
     if scenario == "AC-11.2-03":
         enabled = True
+        versions: set[str | None] = set()
         # Query each fixture project with the same configuration that the frozen build uses.
         for project in verifier.EXPECTED_PROJECTS:
-            evaluated = subprocess.run(
-                ["dotnet", "msbuild", f"{verifier.FIXTURE_ROOT}/{project}", "-property:Configuration=Release",
-                 "-getProperty:TreatWarningsAsErrors"], cwd=repository, capture_output=True, text=True, check=False)
-            enabled = enabled and evaluated.returncode == 0 and evaluated.stdout.strip().lower() == "true"
+            try:
+                evaluated = subprocess.run(
+                    ["dotnet", "msbuild", f"{verifier.FIXTURE_ROOT}/{project}", "-property:Configuration=Release",
+                     "-getProperty:TreatWarningsAsErrors,NETCoreSdkVersion"], cwd=repository, capture_output=True,
+                    text=True, check=False, timeout=60)
+                properties = json.loads(evaluated.stdout)["Properties"] if evaluated.returncode == 0 else {}
+                sdk_version = properties["NETCoreSdkVersion"]
+                if not isinstance(sdk_version, str) or not verifier.DOTNET_SDK_VERSION.fullmatch(sdk_version):
+                    raise ValueError("invalid .NET SDK version")
+            except (KeyError, OSError, subprocess.TimeoutExpired, TypeError, ValueError):
+                enabled = False
+                versions.add(None)
+                continue
+            versions.add(sdk_version)
+            warnings_as_errors = properties.get("TreatWarningsAsErrors")
+            enabled = enabled and isinstance(warnings_as_errors, str) and warnings_as_errors.lower() == "true"
+        receipt.update(schemaVersion=verifier.BUILD_RECEIPT_SCHEMA,
+                       dotnetSdk=versions.pop() if len(versions) == 1 else None)
     result = subprocess.run(arguments, cwd=repository, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                             text=True, check=False)
-    return {"schemaVersion": verifier.COMMAND_RECEIPT_SCHEMA, "scenarioId": scenario, "command": command,
-            "exitCode": result.returncode, "consoleLog": result.stdout, policy: enabled}
+    return {**receipt, "exitCode": result.returncode, "consoleLog": result.stdout, policy: enabled}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -53,13 +68,19 @@ def main(argv: list[str] | None = None) -> int:
     repository = Path(args.repository)
     try:
         receipt = measure(repository, args.scenario)
-    except ValueError as error:
+    except (OSError, subprocess.TimeoutExpired, ValueError) as error:
         print(f"{verifier.BLOCK_PROOF}: {error}", file=sys.stderr)
         return 1
     target = repository / verifier.COMMAND_RECEIPTS[args.scenario]
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8", newline="\n")
     print(receipt["consoleLog"], end="")
+    if args.scenario == "AC-11.2-03" and receipt["exitCode"] == 0:
+        try:
+            verifier.build_receipt_sdk(receipt)
+        except ValueError as error:
+            print(f"{verifier.BLOCK_BUILD}: {error}", file=sys.stderr)
+            return 1
     return receipt["exitCode"]
 
 

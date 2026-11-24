@@ -13,7 +13,6 @@ import argparse
 import json
 import posixpath
 import re
-import subprocess
 import sys
 import xml.etree.ElementTree as ElementTree
 from pathlib import Path, PurePosixPath
@@ -39,20 +38,6 @@ class ProofError(Exception):
 sha256_bytes = verifier.sha256_bytes
 canonical = verifier.canonical
 Blocked = verifier.Blocked
-
-
-def dotnet_sdk_version(repository: Path) -> str:
-    try:
-        result = subprocess.run(["dotnet", "--version"], cwd=repository, capture_output=True, text=True,
-                                timeout=60, check=False)
-    except (OSError, subprocess.TimeoutExpired):
-        result = None
-    if result is not None and result.returncode == 0 and result.stdout.strip():
-        return result.stdout.strip()
-    try:
-        return json.loads(verifier.read_file(repository, "global.json"))["sdk"]["version"]
-    except (ValueError, KeyError, TypeError):
-        raise Blocked("the .NET SDK version is unavailable") from None
 
 
 def lock_packages(content: bytes) -> list[tuple[str, str, str]]:
@@ -260,7 +245,7 @@ def build_signable(repository: Path, fixture: str, test_result: str, candidate_c
             "configuration": "Release",
             "warningsAsErrors": receipts["AC-11.2-03"]["warningsAsErrors"],
             "receipt": {key: receipts["AC-11.2-03"][key] for key in ("path", "sha256", "exitCode")},
-            "toolVersions": {"dotnetSdk": dotnet_sdk_version(repository), "aspireAppHostSdk": apphost_sdk},
+            "toolVersions": {"dotnetSdk": receipts["AC-11.2-03"]["dotnetSdk"], "aspireAppHostSdk": apphost_sdk},
             "assemblies": assemblies,
         },
         "tests": {
