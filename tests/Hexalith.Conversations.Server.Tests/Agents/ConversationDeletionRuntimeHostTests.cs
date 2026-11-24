@@ -72,6 +72,8 @@ public sealed class ConversationDeletionRuntimeHostTests
         host.Services.GetService<IConversationClient>().ShouldBeNull();
         host.Services.GetRequiredService<IConversationCommandSourceVerifier>().ShouldBeOfType<UnavailableConversationCommandSourceVerifier>();
         host.Services.GetRequiredService<IConversationAgentAuthority>().ShouldBeOfType<UnavailableConversationAgentAuthority>();
+        host.Services.GetRequiredService<IConversationDeletionReceiptVerifier>()
+            .ShouldBeOfType<UnavailableConversationDeletionReceiptVerifier>();
         Routes(host).Keys.ShouldNotContain(IdentityRoute);
         Routes(host).Keys.ShouldNotContain(ParticipantRoute);
     }
@@ -182,6 +184,11 @@ public sealed class ConversationDeletionRuntimeHostTests
 
         services.GetRequiredService<IConversationCommandSourceVerifier>().ShouldBeOfType<CompleteSourceConversationCommandSourceVerifier>();
         services.GetRequiredService<IConversationDeletionReceiver>().ShouldBeOfType<ConformanceConversationDeletionReceiver>();
+        IConversationDeletionReceiptVerifier receiptVerifier = services.GetRequiredService<IConversationDeletionReceiptVerifier>();
+        receiptVerifier.ShouldBeOfType<ConfiguredConversationDeletionReceiptVerifier>();
+        services.GetRequiredService<IConversationDeletionReceiptVerifier>().ShouldBeSameAs(receiptVerifier);
+        using IServiceScope secondScope = host.Services.CreateScope();
+        secondScope.ServiceProvider.GetRequiredService<IConversationDeletionReceiptVerifier>().ShouldNotBeSameAs(receiptVerifier);
         services.GetRequiredService<IAuthoritativeEventStreamReader>().ShouldBeOfType<AuthoritativeEventStreamReader>();
         services.GetRequiredService<IConversationClient>().ShouldBeOfType<ConversationClient>();
         services.GetRequiredService<CompleteCommandSourceVerificationOptions>()
