@@ -867,13 +867,17 @@ def test_deferred_measurements_remote_requirement_reaches_the_checker(umbrella) 
 def test_deferred_measurements_skip_occurrences_roundtrip(umbrella, occurrences) -> None:
     repository = umbrella["repository"]
     add_test_project(umbrella, "SecondFixture")
-    umbrella["candidate"] = run_git(repository, "rev-parse", "HEAD").stdout.strip()
     story = repository / umbrella["story"]
     story.write_text(story.read_text(encoding="utf-8").replace(
         "baseline_commit:",
-        f"file_list_commit: '{umbrella['candidate']}'\n"
         "allowed_skipped_tests:\n  - test: 'Shared.Tests.OptionalLane'\n"
         "    reason: 'requires an opt-in service'\nbaseline_commit:",
+    ), encoding="utf-8")
+    run_git(repository, "add", str(umbrella["story"]))
+    run_git(repository, "commit", "-m", "version the skip policy")
+    umbrella["candidate"] = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    story.write_text(story.read_text(encoding="utf-8").replace(
+        "baseline_commit:", f"file_list_commit: '{umbrella['candidate']}'\nbaseline_commit:",
     ), encoding="utf-8")
     for project, artifact, skipped in (
         ("Fixture", umbrella["artifact"], 1),
@@ -897,6 +901,15 @@ def test_deferred_measurements_skip_occurrences_roundtrip(umbrella, occurrences)
     code, verified = historical_fixture(umbrella)
     assert code == 0, verified["blockers"]
     assert verified["test_results"]["observed_skips"] == document["test_results"]["observed_skips"]
+
+    for old, new in (("Shared.Tests.OptionalLane", "Unapproved.Test"),
+                     ("requires an opt-in service", "fabricated reason")):
+        insert_generated_block(umbrella, bundle["markdown"].replace(old, new))
+        original = story.read_text(encoding="utf-8")
+        story.write_text(original.replace(old, new), encoding="utf-8")
+        code, document = historical_fixture(umbrella)
+        assert code == 1 and "TEST_SKIP_NOT_ALLOWED" in codes(document)
+        story.write_text(original, encoding="utf-8")
 
     # The count must account for every skipped occurrence, not just its identity.
     observed = "yes" if occurrences == 1 else str(occurrences)

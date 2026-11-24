@@ -1520,3 +1520,5 @@ The [follow-up spec](spec-five-deferred-validation-entry-points.md) records veri
 - **Done. October 20 Story 11.2, historical package refresh profile.** The current-change runbook names the October 8 publication, source, and Builds commits and explains the read-only replay. The checker returned `PASS` with five assertions in a disposable checkout of those pins.
 
 - **Done. October 10 Story 9.2, v7 Quality approval diagnostic.** The v4 verifier reports `TIER_APPROVAL_MISSING` when the exact v7 approval is absent. Regression cases distinguish this from a missing proposal and approval digest drift.
+
+- **Done. October 23 record measurement review R4, historical skip policy.** Historical v1 verification binds recorded skip names and reasons to the frontmatter in the candidate Git tree. Tests change each field in both the working frontmatter and record and confirm rejection.

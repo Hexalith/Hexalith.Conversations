@@ -82,6 +82,10 @@ If the root head differs at the final read, generation blocks with
 observed head movement without locking the repository or claiming an atomic
 snapshot of working files.
 
+Commit the `allowed_skipped_tests` frontmatter before measuring a candidate.
+Historical verification reads that versioned policy and compares the recorded
+identities and reasons with it.
+
 ## 3. Emit machine-readable test results
 
 Run each declared test project and capture TRX. On this repository's xUnit v3 /

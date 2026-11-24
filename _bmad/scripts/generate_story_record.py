@@ -1870,7 +1870,7 @@ def parse_recorded_skip_policy(block: str) -> tuple[dict[str, str], dict[str, in
             raise ValueError(
                 f"Allowed Skipped Tests row has {len(row)} columns, expected 3"
             )
-        test, reason, state = [markdown_value(cell) for cell in row]
+        test, reason, state = row
         if not test or not reason or not (state in ("yes", "no") or re.fullmatch(r"[0-9]+", state)):
             raise ValueError("Allowed Skipped Tests carries an invalid row")
         if test in policy:
@@ -2356,6 +2356,19 @@ def verify_historical(repository: Path, args: argparse.Namespace) -> dict[str, A
         try:
             test_results = parse_recorded_test_results(block)
             skip_policy, observed_skips = parse_recorded_skip_policy(block)
+            if candidate is not None:
+                source = v2_committed_blob(repository, candidate, story)
+                source_policy = frontmatter_allowed_skips(parse_frontmatter(decode(source))) if source else {}
+                expected_policy = {
+                    test.strip(): reason.strip().replace("\n", "<br>")
+                    for test, reason in source_policy.items()
+                }
+                if skip_policy != expected_policy:
+                    finding(
+                        "TEST_SKIP_NOT_ALLOWED",
+                        f"{story} records skip identities or reasons that differ from the candidate policy",
+                        story,
+                    )
             test_results["allowed_skipped_tests"] = skip_policy
             test_results["observed_skips"] = observed_skips
             document["test_results"] = test_results
