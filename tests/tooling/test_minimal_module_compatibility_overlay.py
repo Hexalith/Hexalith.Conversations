@@ -42,21 +42,48 @@ class MinimalModuleCompatibilityOverlayTests(unittest.TestCase):
         return {package["Identity"].lower(): package["Version"] for package in packages}
 
     def test_root_solution_keeps_fixture_and_compatibility_project_isolated(self):
-        solution = ElementTree.parse(ROOT / "Hexalith.Conversations.slnx")
+        solution_path = ROOT / "Hexalith.Conversations.slnx"
+        solution = ElementTree.parse(solution_path)
+        solution_properties = [
+            f"-p:SolutionDir={ROOT}{os.sep}", f"-p:SolutionPath={solution_path}",
+            f"-p:SolutionName={solution_path.stem}", f"-p:SolutionFileName={solution_path.name}",
+            f"-p:SolutionExt={solution_path.suffix}",
+        ]
         pending = [(ROOT / node.attrib["Path"].replace("\\", "/")).resolve()
                    for node in solution.findall(".//Project")]
         self.assertTrue(pending)
+        isolated_roots = (FIXTURE, OVERLAY.parent)
+        for project in pending:
+            for isolated in isolated_roots:
+                self.assertFalse(project.is_relative_to(isolated), str(project))
+
+        if os.environ.get("HEXALITH_SOURCE_MAPPING_HASH"):
+            with tempfile.TemporaryDirectory() as temporary:
+                graph_file = Path(temporary) / "restore-graph.json"
+                subprocess.run([
+                    "dotnet", "msbuild", str(solution_path), "-nologo", "-noAutoResponse",
+                    "-p:Configuration=Release", "-t:GenerateRestoreGraphFile",
+                    f"-p:RestoreGraphOutputPath={graph_file}",
+                ], cwd=ROOT, text=True, capture_output=True, check=True, timeout=120)
+                graph = json.loads(graph_file.read_text())["projects"]
+            self.assertTrue(graph)
+            for project_path in graph:
+                project = Path(project_path).resolve()
+                for isolated in isolated_roots:
+                    self.assertFalse(project.is_relative_to(isolated), str(project))
+            return
+
         checked = set()
         while pending:
             project = pending.pop()
-            for isolated in (FIXTURE, OVERLAY.parent):
+            for isolated in isolated_roots:
                 self.assertFalse(project.is_relative_to(isolated), str(project))
             if project in checked or not project.is_relative_to(ROOT) or project.is_relative_to(ROOT / "references"):
                 continue
             checked.add(project)
             result = subprocess.run([
                 "dotnet", "msbuild", str(project), "-nologo", "-noAutoResponse",
-                "-p:Configuration=Release", "-getItem:ProjectReference",
+                "-p:Configuration=Release", *solution_properties, "-getItem:ProjectReference",
             ], cwd=ROOT, text=True, capture_output=True, check=True, timeout=60)
             references = json.loads(result.stdout)["Items"]["ProjectReference"]
             pending.extend(Path(reference["FullPath"]).resolve() for reference in references)
