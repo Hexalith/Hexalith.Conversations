@@ -1487,3 +1487,5 @@ The [follow-up spec](spec-five-deferred-validation-entry-points.md) records veri
 - **Done. September 25 Story 7.2, gitlink target availability.** The current-change runbook assigns remote reachability verification to dependency publication and leaves the root checker usable with only the staged index. It identifies the exact target commit and the declared remote as the proof boundary.
 
 - **Done. September 25 Story 7.2, BMad completion checks.** The local Build customization and its runbook require a complete product build and test run before marking a product story done. Focused checks still support implementation and review.
+
+- **Done. July 31 Story 6.2 pass 9, dispatcher empty-rebuild coverage.** Both mapped rebuild receivers reject an empty non-erased history with HTTP 400. The erased-source control reaches the Conversations handler, and the test reads persisted metadata back after the refusals. See [the implementation spec](spec-deferred-rebuild-empty-history.md).

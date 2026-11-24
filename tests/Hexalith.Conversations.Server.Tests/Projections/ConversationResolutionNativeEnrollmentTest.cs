@@ -7,6 +7,7 @@ using Hexalith.EventStore.Client.Projections;
 using Hexalith.EventStore.Contracts.Projections;
 using Hexalith.EventStore.DomainService;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Hexalith.Conversations.Server.Tests.Projections;
@@ -271,6 +272,41 @@ public sealed class ConversationResolutionNativeEnrollmentTest
         (await fixture.OwnerAsync(catalog.CatalogFingerprint!)).Proof.ShouldNotBeNull().Selection.OwnerGeneration.ShouldBe(metadata.Digest());
         (await new ConversationProjectionReadStore(fixture.Store).ReadResolutionMetadataAsync(
             ResolutionMetadataFixture.Tenant, ResolutionMetadataFixture.Conversation, Token)).ShouldBe(metadata);
+    }
+
+    [Theory]
+    [InlineData("/project/rebuild/v1")]
+    [InlineData("/project/rebuild/stage/v1")]
+    public async Task EmptyNonErasedHistoryIsRejectedBeforeRebuildWrites(string route)
+    {
+        await using var fixture = new ResolutionEnrollmentFixture();
+        var catalog = await fixture.CatalogAsync();
+        string fingerprint = catalog.CatalogFingerprint!;
+        (await fixture.PostAsync<ProjectionDispatchResponse>("/project/v2", fixture.Dispatch(fingerprint)))
+            .Outcomes.ShouldHaveSingleItem().Status.ShouldBe(ProjectionDispatchStatus.Completed);
+        var persisted = await fixture.MetadataAsync();
+        int writes = fixture.Backend.WrittenKeys.Count;
+        fixture.Backend.BeforeWrite = _ => throw new Xunit.Sdk.XunitException("Empty rebuild attempted a write.");
+
+        var empty = fixture.Input with
+        {
+            Events = [],
+            NativeSourceProof = null,
+            RebuildSourceErased = false,
+            RebuildSourceHeadSequence = 0,
+        };
+        var request = fixture.Dispatch(fingerprint, "empty-rebuild", empty);
+
+        string reason = await fixture.PostAsync<string>(route, request, StatusCodes.Status400BadRequest);
+        reason.ShouldBe(ProjectionDispatchReasonCodes.MalformedOutcome);
+
+        var erased = fixture.Dispatch(fingerprint, "erased-rebuild", empty with { RebuildSourceErased = true });
+        var erasedResponse = await fixture.PostAsync<ProjectionDispatchResponse>(route, erased);
+        var outcome = erasedResponse.Outcomes.ShouldHaveSingleItem();
+        outcome.Status.ShouldBe(ProjectionDispatchStatus.Failed);
+        outcome.ReasonCode.ShouldBe(ProjectionDispatchReasonCodes.HandlerFailure);
+        (await fixture.MetadataAsync()).ShouldBe(persisted);
+        fixture.Backend.WrittenKeys.Count.ShouldBe(writes);
     }
 
     [Fact]
