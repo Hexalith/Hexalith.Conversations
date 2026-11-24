@@ -180,6 +180,8 @@ public sealed class ConversationReadApiTest
 
     [Theory]
     [InlineData("matching")]
+    [InlineData("sub-only")]
+    [InlineData("caller-header-only")]
     [InlineData("different-tenant-header")]
     [InlineData("repeated-caller-header")]
     [InlineData("different-tenant-claim")]
@@ -190,27 +192,41 @@ public sealed class ConversationReadApiTest
         FakeProjectionReadStore store = new() { Models = ProjectedModels(Tenant, Conversation) };
         using WebApplication app = BuildApp(access, store);
         ClaimsPrincipal user = AuthenticatedUser();
-        (user.Identity as ClaimsIdentity)!.AddClaims([
-            new Claim("tenant_id", scenario == "different-tenant-claim" ? OtherTenant.Value : Tenant.Value),
-            new Claim("sub", scenario == "different-caller-claim" ? "caller-other" : "caller-001"),
-        ]);
+        ClaimsIdentity identity = (ClaimsIdentity)user.Identity!;
+        if (scenario is "sub-only" or "caller-header-only")
+        {
+            identity.RemoveClaim(identity.FindFirst(ClaimTypes.NameIdentifier)!);
+        }
+
+        identity.AddClaim(new Claim("tenant_id", scenario == "different-tenant-claim" ? OtherTenant.Value : Tenant.Value));
+        if (scenario != "caller-header-only")
+        {
+            identity.AddClaim(new Claim("sub", scenario == "different-caller-claim" ? "caller-other" : "caller-001"));
+        }
+
         var headers = new Dictionary<string, StringValues>
         {
             ["X-Tenant-Id"] = scenario == "different-tenant-header" ? OtherTenant.Value : Tenant.Value,
-            ["X-Caller-Principal-Id"] = scenario == "repeated-caller-header" ? new StringValues(["caller-001", "caller-001"]) : "caller-001",
         };
+        if (scenario != "sub-only")
+        {
+            headers["X-Caller-Principal-Id"] = scenario == "repeated-caller-header"
+                ? new StringValues(["caller-001", "caller-001"])
+                : "caller-001";
+        }
 
         ApiResponse response = await InvokeAsync(app, "/api/v1/conversations/{conversationId}",
             new Dictionary<string, object?> { ["conversationId"] = Conversation.Value }, "?nativeMembershipOnly=True&advisoryMetadataOnly=false", user, headers);
 
         var detail = JsonSerializer.Deserialize<ConversationDetailResult>(response.Body, JsonSerializerOptions.Web).ShouldNotBeNull();
-        if (scenario == "matching")
+        if (scenario is "matching" or "sub-only")
         {
             response.StatusCode.ShouldBe(StatusCodes.Status200OK);
             detail.ReadPurpose.ShouldBe(GetConversationQuery.NativeMembershipPurpose);
             detail.Details.ShouldNotBeNull().Messages.ShouldBeEmpty();
             store.DetailReads.ShouldBe(1);
             access.Calls.ShouldBe(2);
+            access.LastCallerPrincipalId.ShouldBe("caller-001");
         }
         else
         {
