@@ -9010,7 +9010,7 @@ def test_v2_story_8_2_rejects_unmeasured_or_unrestored_faults(tmp_path: Path, mo
     assert [finding["code"] for finding in failure.value.findings] == [blocker]
 
 
-def _story_8_2_binding_fixture(tmp_path: Path, monkeypatch):
+def _story_8_2_binding_fixture(tmp_path: Path):
     """Bind historical production scope to the accepted Story 8.2 candidate."""
     module = load_generator()
     repository = tmp_path / "story82"
@@ -9019,20 +9019,6 @@ def _story_8_2_binding_fixture(tmp_path: Path, monkeypatch):
     candidate = json.loads(_story_8_2_published_pair()[0])["candidate"]["commit"]
     subprocess.run(["git", "-C", str(repository), "checkout", "--quiet", "--detach", candidate],
                    check=True, env=fixture_git_environment(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    paths = [module.V2_8_2_SPEC_PATH, "_bmad/scripts/generate_ux_preservation_disposition.py",
-             "_bmad/scripts/tests/test_generate_ux_preservation_disposition.py",
-             "tests/Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs"]
-    snapshots = {}
-    for path in paths:
-        content = (WORKSPACE / path).read_bytes()
-        target = repository / path
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(content)
-        snapshots[path] = content
-    original = module.v2_committed_blob
-    monkeypatch.setattr(module, "v2_committed_blob", lambda repo, revision, path:
-                        snapshots[path] if revision == candidate and path in snapshots else original(repo, revision, path))
-    monkeypatch.setattr(module, "committed_path_status", lambda *_: {path: "M" for path in snapshots})
     assembly = repository / module.V2_8_1_TEST_ASSEMBLY
     assembly.parent.mkdir(parents=True)
     assembly.write_bytes(b"1.0.0+" + candidate.encode())
@@ -9041,8 +9027,8 @@ def _story_8_2_binding_fixture(tmp_path: Path, monkeypatch):
     return module, repository, candidate, contract, validators
 
 
-def test_v2_story_8_2_binds_the_accepted_predecessor_sources_outputs_and_inventory(tmp_path: Path, monkeypatch) -> None:
-    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
+def test_v2_story_8_2_binds_the_accepted_predecessor_sources_outputs_and_inventory(tmp_path: Path) -> None:
+    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path)
     facts = module.v2_8_2_facts(repository, candidate, contract, validators["record"])
     assert facts["sourceRevisionId"] == candidate
     assert facts["predecessorRecord"]["sha256"] == module.v2_sha256(_story_8_1_published_pair()[0])
@@ -9069,7 +9055,7 @@ def test_v2_story_8_2_binds_the_accepted_predecessor_sources_outputs_and_invento
     ("gitlink", "UX_PRODUCTION_CHANGE_FORBIDDEN"),
 ])
 def test_v2_story_8_2_rejects_incompatible_bindings(tmp_path: Path, monkeypatch, fault: str, blocker: str) -> None:
-    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
+    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path)
     if fault == "production": monkeypatch.setattr(module, "committed_path_status", lambda *_: {"src/Injected.cs": "M"})
     elif fault == "gitlink":
         original_gitlinks = module.v2_raw_gitlinks
@@ -9112,7 +9098,7 @@ def test_v2_story_8_2_rejects_incompatible_bindings(tmp_path: Path, monkeypatch,
     *STORY_8_1_PAIR_PATHS, "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV8ValidationTest.cs",
 ])
 def test_v2_story_8_2_scope_rejects_each_protected_story_8_1_path(tmp_path: Path, monkeypatch, path: str) -> None:
-    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
+    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path)
     monkeypatch.setattr(module, "committed_path_status", lambda *_: {path: "M"})
     with pytest.raises(module.V2Stop) as failure:
         module.v2_8_2_facts(repository, candidate, contract, validators["record"])
@@ -9127,7 +9113,7 @@ def test_v2_story_8_2_scope_rejects_each_protected_story_8_1_path(tmp_path: Path
 def test_v2_story_8_2_scope_allows_current_ci_without_allowing_other_workflows_or_product(
     tmp_path: Path, monkeypatch, path: str, allowed: bool,
 ) -> None:
-    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
+    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path)
     monkeypatch.setattr(module, "committed_path_status", lambda *_: {path: "M"})
     if allowed:
         assert module.v2_8_2_facts(repository, candidate, contract, validators["record"])["sourceRevisionId"] == candidate
@@ -9138,7 +9124,7 @@ def test_v2_story_8_2_scope_allows_current_ci_without_allowing_other_workflows_o
 
 
 def test_v2_story_8_2_executes_the_committed_candidate_verifier(tmp_path: Path, monkeypatch) -> None:
-    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
+    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path)
     path = "_bmad/scripts/generate_ux_preservation_disposition.py"
     target = repository / path
     content = target.read_bytes() + b'\ndef verify(_repository):\n    raise DispositionError("UX_SCHEMA_INVALID", "candidate verifier marker")\n'
@@ -9152,7 +9138,7 @@ def test_v2_story_8_2_executes_the_committed_candidate_verifier(tmp_path: Path, 
 
 
 def test_v2_story_8_2_cannot_move_the_scope_start_past_the_spec_add_commit(tmp_path: Path, monkeypatch) -> None:
-    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
+    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path)
     original = module.run_git
     def no_unique_spec_add(repo, *arguments, **kwargs):
         if arguments[:3] == ("log", "--no-renames", "--diff-filter=A"):
@@ -9254,7 +9240,7 @@ def test_v2_story_8_2_receipt_guards_are_stable(tmp_path: Path, monkeypatch, fau
 
 @pytest.mark.parametrize("field", ["baseline_commit", "implementation_start_commit"])
 def test_v2_story_8_2_rejects_candidate_owned_scope_metadata(tmp_path: Path, monkeypatch, field: str) -> None:
-    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
+    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path)
     original = module.v2_committed_blob
     def changed_spec(repo, revision, path):
         blob = original(repo, revision, path)
@@ -9279,14 +9265,11 @@ def test_v2_story_8_2_inserted_cli_rederives_receipts_and_all_record_bindings(tm
     """Exercise real Git and the executable CLI while preserving the shared checkout."""
     module = load_generator()
     repository = tmp_path / "cli-repository"
-    subprocess.run(["git", "clone", "--shared", "--quiet", str(WORKSPACE), str(repository)],
+    subprocess.run(["git", "clone", "--shared", "--quiet", "--no-checkout", str(WORKSPACE), str(repository)],
                    check=True, env=fixture_git_environment(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    frontmatter = module.parse_frontmatter((WORKSPACE / module.V2_8_2_SPEC_PATH).read_text(encoding="utf-8"))
-    v2_git(repository, "checkout", "--quiet", "--detach", module.frontmatter_scalar(frontmatter, "implementation_start_commit"))
-    paths = ["_bmad/scripts/generate_story_record.py", "_bmad/scripts/generate_ux_preservation_disposition.py",
-             "_bmad/scripts/tests/test_generate_ux_preservation_disposition.py",
-             "_bmad/schemas/story-final-record-v2.schema.json",
-             "tests/Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs"]
+    accepted_candidate = json.loads(_story_8_2_published_pair()[0])["candidate"]["commit"]
+    v2_git(repository, "checkout", "--quiet", "--detach", accepted_candidate)
+    paths = ["_bmad/scripts/generate_story_record.py", "_bmad/schemas/story-final-record-v2.schema.json"]
     for path in paths:
         target = repository / path
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -9320,7 +9303,10 @@ def test_v2_story_8_2_inserted_cli_rederives_receipts_and_all_record_bindings(tm
     _story_8_2_cli_commit(repository, outputs, "test: record Story 8.2 CLI evidence")
     spec_path = repository / module.V2_8_2_SPEC_PATH
     original_spec = spec_path.read_bytes()
-    spec_path.write_bytes(original_spec + b"\n" + module.RECORD_BEGIN_MARKER.encode() + b"\n" + (repository / outputs[1]).read_bytes() + module.RECORD_END_MARKER.encode() + b"\n")
+    region = module.v2_record_region(original_spec)
+    assert region is not None
+    record_start, record_end = region
+    spec_path.write_bytes(original_spec[:record_start] + (repository / outputs[1]).read_bytes() + original_spec[record_end:])
     verify = ["--repository", str(repository), "--contract", module.V2_8_2_CONTRACT_PATH,
               "--verify-inserted-record", module.V2_8_2_SPEC_PATH]
     before = {path: (repository / path).read_bytes() for path in [*outputs, module.V2_8_2_SPEC_PATH]}
@@ -9354,7 +9340,7 @@ def test_v2_story_8_2_inserted_cli_rederives_receipts_and_all_record_bindings(tm
         (repository / outputs[1]).write_bytes(markdown)
         spec_path.write_bytes(original_spec)
         _story_8_2_cli_commit(repository, outputs, "test: alter Story 8.2 CLI evidence")
-        spec_path.write_bytes(original_spec + b"\n" + module.RECORD_BEGIN_MARKER.encode() + b"\n" + markdown + module.RECORD_END_MARKER.encode() + b"\n")
+        spec_path.write_bytes(original_spec[:record_start] + markdown + original_spec[record_end:])
         result = v2_run(verify)
         assert result.returncode == 1 and json.loads(result.stdout)["blockers"] == ["RECORD_CONTENT_DRIFT"], result.stdout.decode()
 

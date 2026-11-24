@@ -1540,3 +1540,7 @@ The [follow-up spec](spec-five-deferred-validation-entry-points.md) records veri
 - Story 11.2 path-dependent build hashes and project-build duplication concern the frozen source fixture. Closing them requires a separately versioned fixture and measurement.
 - The Epic 16 prerequisite test fixture already substitutes its own source pins. A terminal tenant projection repair, durable backfill, and tenant index recovery still require the corresponding EventStore and Platform operations.
 - Story 12.4 measurements and bootstrap qualification depend on the earlier benchmark story and the full observation inputs. The older Story 12.2 reconstruction test was retired.
+
+## Deferred-work validation follow-up (2026-11-24)
+
+- **Done. October 7 Story 9.1 B7, retained Story 8.2 tests.** The Python tests take frozen inputs from the accepted Story 8.2 candidate, including the C# guard retired from current `main`. They exercise the current verifier and preserve the real candidate scope and gitlink checks. The CLI regression replaces only the existing record region and proves that changed receipts and bindings still fail verification. All 93 Story 8.2 cases passed.
