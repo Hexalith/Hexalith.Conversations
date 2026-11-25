@@ -31,6 +31,19 @@ namespace Hexalith.Conversations.Aggregates;
 /// </summary>
 public sealed partial class ConversationAggregate : EventStoreAggregate<ConversationState>
 {
+    private readonly TimeProvider _clock;
+
+    /// <summary>Initializes the aggregate with the system clock.</summary>
+    public ConversationAggregate()
+        : this(TimeProvider.System)
+    {
+    }
+
+    /// <summary>Initializes the aggregate with the domain host clock.</summary>
+    /// <param name="clock">The clock used when executing pilot commands.</param>
+    public ConversationAggregate(TimeProvider clock)
+        => _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+
     /// <summary>
     /// Creates a conversation when the command is valid and the state has not already been created.
     /// </summary>
@@ -75,12 +88,39 @@ public sealed partial class ConversationAggregate : EventStoreAggregate<Conversa
         return DomainResult.Success(new IEventPayload[] { created });
     }
 
-    /// <summary>Creates a conversation after the human pilot authority admits the caller.</summary>
+    /// <summary>Creates a human conversation with an explicitly assigned occurrence.</summary>
+    /// <param name="command">The pilot create command with its assigned timestamp.</param>
+    /// <param name="state">The current conversation state, when any.</param>
+    /// <returns>The creation event or a typed refusal.</returns>
     public static DomainResult Handle(CreateHumanConversation command, ConversationState? state)
         => Handle(new CreateConversation(command.PublicCommand, command.ConversationId, command.CreatedAt, command.EventId), state);
 
+    /// <summary>Executes an admitted pilot create with the domain host's current time.</summary>
+    /// <param name="command">The admitted pilot create command.</param>
+    /// <param name="state">The current conversation state, when any.</param>
+    /// <param name="cancellationToken">The command execution cancellation token.</param>
+    /// <returns>The creation event or a typed refusal.</returns>
+    public DomainResult Handle(CreateHumanConversation command, ConversationState? state, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(command);
+        return Handle(command.CreatedAt.Year < 2000 ? command : command with { CreatedAt = _clock.GetUtcNow() }, state);
+    }
+
+    /// <summary>Executes an admitted pilot append with the domain host's current time.</summary>
+    /// <param name="command">The admitted pilot append command.</param>
+    /// <param name="state">The current conversation.</param>
+    /// <param name="cancellationToken">The command execution cancellation token.</param>
+    /// <returns>One message event, an identical retry, or a typed refusal.</returns>
+    public DomainResult Handle(AppendMessage command, ConversationState? state, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(command);
+        return Handle(command.PostedAt.Year < 2000 ? command : command with { PostedAt = _clock.GetUtcNow() }, state);
+    }
+
     /// <summary>Appends a message attributed to an admitted human participant.</summary>
-    /// <param name="command">The original request and its API-assigned PostedAt, a lower bound: the event commits at the
+    /// <param name="command">The original request and its assigned PostedAt, a lower bound: the event commits at the
     /// later of PostedAt and the conversation's LastEventAt.</param>
     /// <param name="state">The current conversation.</param>
     /// <returns>One message event, an identical retry, or a typed refusal.</returns>
@@ -116,9 +156,8 @@ public sealed partial class ConversationAggregate : EventStoreAggregate<Conversa
                 && previous.OriginalIntentFingerprint == fingerprint
                 ? DomainResult.NoOp() : DomainResult.Rejection([new ConversationMessageConflict()]);
 
-        // The aggregate is the serialized write boundary. An append stamped before the latest event commits at that
-        // event's time, so a valid append handled after a later-stamped one commits after it. The year floor applies
-        // to the API-assigned PostedAt. Agent occurrences bind their portable timestamp and keep IsValidOccurrence.
+        // Preserve stream ordering if the domain clock moves backward or the stream already contains a later event.
+        // Agent occurrences bind their portable timestamp and keep IsValidOccurrence.
         if (state.Lifecycle != ConversationLifecycleState.Open || command.PostedAt.Year < 2000
             || state.LastEventAt is not { } lastEventAt)
             return DomainResult.Rejection([new ConversationRejectedDomainEvent(

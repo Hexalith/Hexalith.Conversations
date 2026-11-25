@@ -6,7 +6,9 @@ using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Events;
 using Hexalith.Conversations.Server.Agents;
 using Hexalith.Conversations.Server.TenantAccess;
+using Hexalith.Conversations.State;
 using Hexalith.EventStore.Contracts.Commands;
+using Hexalith.EventStore.Contracts.Results;
 using Microsoft.Extensions.Configuration;
 using NSubstitute;
 using Shouldly;
@@ -17,30 +19,33 @@ namespace Hexalith.Conversations.Server.Tests.Agents;
 
 public sealed class ConversationPilotWriteTests
 {
+    // Bind the pure handler for cases supplying an explicit occurrence; SDK dispatch is covered by the projection test.
+    private static readonly Func<AppendMessage, ConversationState?, DomainResult> HandleAssignedAppend = ConversationAggregate.Handle;
+
     [Fact]
     public async Task HumanAppendReplaysOneMessageAndRejectsChangedOrRestrictedIntent()
     {
         var fixture = new F();
         var original = new AppendMessage(new(fixture.CommandMetadata(F.Human), F.Conversation, new("message-one"),
             F.Human, "Private message"), F.At.AddSeconds(1), "append-one");
-        fixture.Persist(ConversationAggregate.Handle(original, await fixture.ReplayAsync()));
+        fixture.Persist(HandleAssignedAppend(original, await fixture.ReplayAsync()));
         var state = await fixture.ReplayAsync();
         var persisted = state.Messages.ShouldHaveSingleItem();
         persisted.AuthorPartyId.ShouldBe(F.Human);
         persisted.Text.ShouldBe(original.PublicCommand.Text);
         persisted.MessageId.ShouldBe(original.PublicCommand.MessageId);
         persisted.Provenance.ShouldBeNull();
-        ConversationAggregate.Handle(original with { PostedAt = original.PostedAt.AddSeconds(1) }, state).Events.ShouldBeEmpty();
-        ConversationAggregate.Handle(original with { PublicCommand = original.PublicCommand with { Text = "changed" } },
+        HandleAssignedAppend(original with { PostedAt = original.PostedAt.AddSeconds(1) }, state).Events.ShouldBeEmpty();
+        HandleAssignedAppend(original with { PublicCommand = original.PublicCommand with { Text = "changed" } },
             state).Events.ShouldHaveSingleItem().ShouldBeOfType<ConversationMessageConflict>();
-        ConversationAggregate.Handle(original with { PublicCommand = original.PublicCommand with { AuthorPartyId = F.Agent } },
+        HandleAssignedAppend(original with { PublicCommand = original.PublicCommand with { AuthorPartyId = F.Agent } },
             state).Events.ShouldHaveSingleItem().ShouldBeOfType<ConversationWriteDenied>();
-        ConversationAggregate.Handle(original with { PublicCommand = fixture.Posting.PublicCommand },
+        HandleAssignedAppend(original with { PublicCommand = fixture.Posting.PublicCommand },
             state).Events.ShouldHaveSingleItem().ShouldBeOfType<ConversationRejectedDomainEvent>();
         state.Apply(new ConversationClosed(fixture.Metadata(ConversationEventType.ConversationClosed, F.Human, F.At.AddMinutes(1))));
         var second = original with { PublicCommand = original.PublicCommand with { Metadata = fixture.CommandMetadata(F.Human, "second"),
             MessageId = new("message-two") }, PostedAt = F.At.AddMinutes(2) };
-        ConversationAggregate.Handle(second, state).Events.ShouldHaveSingleItem().ShouldBeOfType<ConversationRejectedDomainEvent>();
+        HandleAssignedAppend(second, state).Events.ShouldHaveSingleItem().ShouldBeOfType<ConversationRejectedDomainEvent>();
     }
 
     [Fact]
@@ -52,11 +57,11 @@ public sealed class ConversationPilotWriteTests
         var earlier = new AppendMessage(new(fixture.CommandMetadata(F.Human, "append-earlier"), F.Conversation,
             new("message-earlier"), F.Human, "Stamped earlier"), F.At.AddSeconds(1), "event-earlier");
 
-        var firstResult = ConversationAggregate.Handle(later, await fixture.ReplayAsync());
+        var firstResult = HandleAssignedAppend(later, await fixture.ReplayAsync());
         var first = firstResult.Events.ShouldHaveSingleItem().ShouldBeOfType<MessageAppendedDomainEvent>();
         first.Metadata.CommittedAt.ShouldBe(later.PostedAt);
         fixture.Persist(firstResult);
-        var secondResult = ConversationAggregate.Handle(earlier, await fixture.ReplayAsync());
+        var secondResult = HandleAssignedAppend(earlier, await fixture.ReplayAsync());
         var second = secondResult.Events.ShouldHaveSingleItem().ShouldBeOfType<MessageAppendedDomainEvent>();
         second.Metadata.CommittedAt.ShouldBe(later.PostedAt);
         fixture.Persist(secondResult);
@@ -65,10 +70,10 @@ public sealed class ConversationPilotWriteTests
         state.Messages.Select(message => message.MessageId).ShouldBe([later.PublicCommand.MessageId, earlier.PublicCommand.MessageId]);
         state.Messages.Select(message => message.CreatedAt).ShouldBe([first.Metadata.CommittedAt, second.Metadata.CommittedAt]);
         state.LastEventAt.ShouldBe(first.Metadata.CommittedAt);
-        ConversationAggregate.Handle(earlier with { PostedAt = F.At.AddSeconds(3) }, state).Events.ShouldBeEmpty();
+        HandleAssignedAppend(earlier with { PostedAt = F.At.AddSeconds(3) }, state).Events.ShouldBeEmpty();
         var beforeFloor = new AppendMessage(new(fixture.CommandMetadata(F.Human, "append-floor"), F.Conversation,
             new("message-floor"), F.Human, "Before the floor"), new DateTimeOffset(1999, 12, 31, 23, 59, 59, TimeSpan.Zero), "event-floor");
-        ConversationAggregate.Handle(beforeFloor, state).Events.ShouldHaveSingleItem().ShouldBeOfType<ConversationRejectedDomainEvent>()
+        HandleAssignedAppend(beforeFloor, state).Events.ShouldHaveSingleItem().ShouldBeOfType<ConversationRejectedDomainEvent>()
             .ReasonCode.ShouldBe("message_lifecycle_or_occurrence_invalid");
     }
 
@@ -133,12 +138,12 @@ public sealed class ConversationPilotWriteTests
                 member, ParticipantType.Human, ParticipantRole.Parse(role)));
         var request = new AppendMessage(new(fixture.CommandMetadata(member), F.Conversation, new("message-one"), member, "text",
             OperationTimestamp: F.At.AddYears(10)), F.At.AddSeconds(1), "event-one");
-        var result = ConversationAggregate.Handle(request, state).Events.ShouldHaveSingleItem();
+        var result = HandleAssignedAppend(request, state).Events.ShouldHaveSingleItem();
         if (!allowed) { result.ShouldBeOfType<ConversationWriteDenied>(); return; }
         var posted = result.ShouldBeOfType<MessageAppendedDomainEvent>();
         posted.Metadata.CommittedAt.ShouldBe(request.PostedAt);
         state.Apply(posted);
-        ConversationAggregate.Handle(request with { PublicCommand = request.PublicCommand with { OperationTimestamp = F.At } },
+        HandleAssignedAppend(request with { PublicCommand = request.PublicCommand with { OperationTimestamp = F.At } },
             state).Events.ShouldHaveSingleItem().ShouldBeOfType<ConversationMessageConflict>();
         state.LastEventAt.ShouldBe(request.PostedAt);
     }

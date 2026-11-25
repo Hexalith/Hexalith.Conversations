@@ -48,7 +48,7 @@ public sealed class PlatformEnrollmentMappingTest
                 string[] externalProjects = projects.Where(path => !Path.GetFileNameWithoutExtension(path).StartsWith("Hexalith.Conversations", StringComparison.Ordinal)).ToArray();
                 if (mode == WorkspaceMode.Source)
                 {
-                    externalProjects.ShouldBe(expected.Select(identity => DependencyProject(root, identity, "selected")), ignoreOrder: true);
+                    externalProjects.ShouldBe(expected.Select(identity => DependencyProject(root, identity, SourceLayout(identity))), ignoreOrder: true);
                     packages.ShouldNotContain(package => expected.Contains(package, StringComparer.Ordinal));
                 }
                 else
@@ -238,7 +238,11 @@ public sealed class PlatformEnrollmentMappingTest
     private static SourceMapping Mapping(string root, WorkspaceMode mode) => new(mode, root, "Hexalith.Conversations",
         [new("Hexalith.Conversations", "source", root), .. new[] { "Builds", "Commons", "EventStore", "Tenants" }.Select(identity =>
             new SourceMappingEntry("Hexalith." + identity, mode == WorkspaceMode.Source ? "source" : "package",
-                mode == WorkspaceMode.Source ? Path.Combine(root, "selected", "Hexalith." + identity) : null))], true);
+                mode == WorkspaceMode.Source ? Path.Combine(root, SourceLayout("Hexalith." + identity), "Hexalith." + identity) : null))], true);
+
+    // The producer selects the direct Builds catalog independently of other source roots.
+    private static string SourceLayout(string identity)
+        => identity is "Hexalith.Builds" or "Hexalith.Builds.Tooling" ? "references" : "selected";
 
     private static string CreateWorkspace()
     {

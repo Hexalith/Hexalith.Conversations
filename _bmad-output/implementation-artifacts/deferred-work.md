@@ -1600,6 +1600,13 @@ The 20 groups below combine duplicate reports and related validation steps. They
 - source_spec: `spec-9-3-prove-the-packaged-conversation-client-against-its-supported-host.md`
   summary: `PlatformEnrollmentMappingTest.EvaluatedReferencesUseOnlyMappedIdentities(mode: Source)` fails locally with HXW006.
   evidence: The test's temporary workspace leaves the Contracts test project's `Hexalith.Builds.Tooling` reference unmapped. It failed with and without the source-mapping environment, with no project or mapping change in the tree. CI passed it on `f9f8074f`.
+  resolution: The Story 9.3 follow-up maps the fixture's Builds dependency at the direct catalog root selected by the pinned producer. The baseline reproduced HXW006 and all 10 enrollment cases passed with the corrected fixture.
 - source_spec: `spec-9-3-prove-the-packaged-conversation-client-against-its-supported-host.md`
   summary: Two tests are flaky.
   evidence: CI run 45473981314 timed out in `ConversationDeletionWorkerAdmissionTests.WorkerInvocationCannotOutliveCanceledCaller(delivery: True)`, and the next `main` run passed. A full local IntegrationTests run failed `Story16_3LiveFixture.DisposeAsync` because a listener port stayed reachable. Run alone, the collection passed 5 of 5.
+
+## Deferred from: code review of spec-9-3-prove-the-packaged-conversation-client-against-its-supported-host.md (2026-11-25)
+
+- **Recover a pilot mutation after correcting the API clock.** An over-limit timestamp can produce a terminal validation rejection, which an identical key replays after clock correction. The semantic adapter excludes the API-assigned timestamp from the digest. This behavior predates the enlarged window in `7b832c67`.
+- **Qualify a status-retention change on an existing pilot deployment.** The Dapr store applies the TTL at each status write. An existing shorter-lived status remains on its old TTL after reconfiguration. The Story 9.3 qualification profile uses a fresh store.
+- **Verify effective gateway retention for custom qualification launches.** The runner reads the AppHost resource environment. Gateway command-line options can override it. The documented qualification template sets both retention values through the resource environment.

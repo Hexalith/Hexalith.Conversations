@@ -13,7 +13,7 @@ namespace Hexalith.Conversations.Commands;
 /// </summary>
 /// <param name="PublicCommand">The public create-conversation contract supplied by an adopter boundary.</param>
 /// <param name="ConversationId">The Conversations-owned internal conversation identity.</param>
-/// <param name="CreatedAt">The deterministic creation timestamp supplied by the boundary.</param>
+/// <param name="CreatedAt">The timestamp supplied by the API for admission. Domain execution assigns the event occurrence.</param>
 /// <param name="EventId">The deterministic public event identity supplied by the boundary.</param>
 public sealed record CreateHumanConversation(
     CreateConversationCommand PublicCommand,

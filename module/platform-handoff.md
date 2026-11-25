@@ -614,11 +614,11 @@ A detail request without the gateway caller binding is denied before any project
 
 Configure the EventStore gateway with `EventStore:CommandStatus:TtlSeconds` of at least `90000` and a status store that honors it. Mutation receipts remain replayable for 24 hours from finalization. The extra hour accounts for the interval between the status write and receipt finalization. Also set `EventStore:Idempotency:TerminalRetentionSeconds` to at least the status TTL. EventStore checks on startup that this terminal retention, 86,400 seconds by default, is not shorter than the status TTL, so a gateway configured with the status TTL alone does not start. The local qualification AppHost sets both values to `90000`. The full runner requires a status TTL of at least `90000` and a terminal retention of at least that TTL in the gateway resource environment that the AppHost reports.
 
-Keep the API and domain host clocks synchronized. The API assigns the time of each create and append. Domain admission accepts a create or append time up to one minute ahead of the domain clock, the bearer `ClockSkew` that EventStore's `JwtBearerAuthenticationContract` configures. A larger forward skew is rejected as an invalid owner allocation, and the API returns `command_validation_failed`. A create commits at its API time, so it can be ahead of the domain clock by the actual skew. A human append commits at its API time or, when later, at the conversation's latest event time. Concurrent appends therefore commit in the order the aggregate handles them, and an append also inherits a later time recorded by a caller-stamped Agent or governance command. Caller-stamped Agent and governance commands earlier than the latest event are rejected as invalid occurrences, as they already are under ordinary concurrency.
+Keep the API and domain host clocks synchronized. Domain admission accepts an API stamp up to one minute ahead of its clock, the bearer `ClockSkew` that EventStore's `JwtBearerAuthenticationContract` configures. A larger forward skew is rejected as an invalid owner allocation, and the API returns `command_validation_failed`. The aggregate uses the domain clock when it executes an admitted create or append. An append retains the conversation's latest event time if that is later, so committed occurrences stay in stream order. An existing caller-stamped Agent or governance event can still supply that later time.
 
 For an isolated Platform source deployment with a separately managed OIDC issuer, configure the gateway, Tenants and Conversations domain workload verifiers with the issuer, each receiver's own audience and the issuer's signing algorithm. Install the issuer trust chain. On the gateway and Tenants, set `Authentication:WorkloadIssuer:TokenEndpoint`, `Workload`, `ClientId`, the protected `ClientSecret`, and `EnableResourceBindingRequests=true`. The issuer must grant only the operations and resource bindings each client needs. A fresh installation uses the Tenants owner's authenticated administrator bootstrap and its gateway binding. Once the administrator is available, use the Tenants commands to create two tenants and assign a contributor in one and a reader in the other. Wait for both membership events on `tenants.events` to reach the Conversations domain before starting the package consumer.
 
-To prepare a local feed in a producer-mapped Release shell, set `PACKAGE_FEED` to an empty directory outside the source tree and `PACKAGE_VERSION` to a fresh prerelease version. Run from the Conversations root.
+To prepare a local feed, use the producer's package mapping and Release configuration. Set `PACKAGE_FEED` to an empty directory outside the source tree and `PACKAGE_VERSION` to a fresh prerelease version. Run from the Conversations root.
 
 ```bash
 dotnet pack src/Hexalith.Conversations.Contracts -c Release -p:Version="$PACKAGE_VERSION" -p:PackageVersion="$PACKAGE_VERSION" -o "$PACKAGE_FEED"
@@ -630,10 +630,12 @@ The versioned `tests/packaged-client-journey/platform-apphost.cs.template` hosts
 
 Supply a protected flat JSON dictionary through `CONVERSATIONS_OPERATOR_BINDINGS` using the owner/server/configuration-key names in Platform's local profile. The ordinary source profile shares its human JWT settings across the gateway and API. An operator issuing the human tokens supplies the corresponding human signing and verification settings. For fresh Tenants startup, include `tenants/domain/Tenants:BootstrapGlobalAdminEnabled` and `tenants/domain/Tenants:BootstrapGlobalAdminUserId`. Set the domain history and Party settings described above. Set `CONVERSATIONS_WORKLOAD_ISSUER` to the HTTPS Keycloak realm, `CONVERSATIONS_OIDC_CA_BUNDLE` to its trusted CA bundle, and `CONVERSATIONS_GATEWAY_OIDC_SECRET_FILE` and `CONVERSATIONS_TENANTS_OIDC_SECRET_FILE` to the protected credentials for the `eventstore` and `tenants` clients. Named accounts and issuer grants belong to the local operator.
 
+In the disposable Platform checkout, copy the qualification template to the file-based AppHost entry point.
+
 ```bash
-export PLATFORM_APPHOST="$PLATFORM_ROOT/conversations-journey.cs"
+export PLATFORM_APPHOST="$PLATFORM_ROOT/apphost.cs"
 cp "$CONVERSATIONS_SOURCE_ROOT/tests/packaged-client-journey/platform-apphost.cs.template" "$PLATFORM_APPHOST"
-aspire run --apphost "$PLATFORM_APPHOST"
+aspire start --isolated --apphost "$PLATFORM_APPHOST"
 ```
 
 For the fresh local verification lane, set `CONVERSATIONS_GATEWAY_ORIGIN` to the gateway's loopback origin, `CONVERSATIONS_CATALOG_RECEIPT` to its run-owned `eventstore.committed.json`, and `CONVERSATIONS_ADMIN_TOKEN` to an operator bearer authorized to create tenants, add members and read their command status. Export the two human identities and the domain sidecar inputs from the integration guide. Use disposable tenant names. Run these commands after the source AppHost reports Healthy and the gateway commits its routing catalog.
@@ -654,4 +656,4 @@ git ls-tree HEAD references/Hexalith.Platform references/Hexalith.EventStore
 
 The local source bundle provides an alternative for an operator who has the three base revisions. Extract it, check out each base identified in `candidate.json` in its own disposable checkout, then run `git apply --check` and `git apply` with that repository's patch. Prepare the producer-mapped Platform checkout with all three resulting source trees before building the packages and starting the AppHost.
 
-When verification ends, stop the local AppHost with `aspire stop --apphost "$PLATFORM_APPHOST"` (or Ctrl+C in its foreground session). Shut down the separately managed disposable issuer and discard its local credentials.
+When verification ends, stop the local AppHost with `aspire stop --apphost "$PLATFORM_APPHOST"`. Shut down the separately managed disposable issuer and discard its local credentials.

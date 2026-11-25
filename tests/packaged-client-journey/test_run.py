@@ -2,10 +2,11 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
-from run import verify_host_configuration
+from run import main, verify_host_configuration
 from status_outage import describe_resource
 
 
@@ -34,8 +35,7 @@ class HostConfigurationTest(unittest.TestCase):
             ({ttl: "90000"}, reader, {}, "terminal idempotency"),
             (gateway | {retention: "86400"}, reader, {}, "terminal idempotency"),
             (gateway | {ttl: "90001"}, reader, {}, "terminal idempotency"),
-            (gateway | {retention: "090000"}, reader, {}, "terminal idempotency"),
-            (gateway | {retention: "00000090000"}, reader, {}, "terminal idempotency"),
+            ({ttl: "090000", retention: "00000090000"}, reader, {}, None),
             (gateway | {retention: "21474836470"}, reader, {}, "terminal idempotency"),
             (gateway | {retention: "2147483648"}, reader, {}, "terminal idempotency"),
             (gateway | {retention: "-90000"}, reader, {}, "terminal idempotency"),
@@ -75,6 +75,39 @@ class HostConfigurationTest(unittest.TestCase):
 
 
 class JourneyRunnerTest(unittest.TestCase):
+    def test_full_run_rejects_short_status_ttl_before_starting_outage_fixture(self):
+        version = "1.0.0"
+        packages = ("Hexalith.Conversations.Client", "Hexalith.Conversations.Contracts")
+        with tempfile.TemporaryDirectory() as temp:
+            feed = Path(temp)
+            for package in packages:
+                (feed / f"{package}.{version}.nupkg").touch()
+            apphost = feed / "apphost.cs"
+            apphost.touch()
+            api = feed / "Hexalith.Conversations.Api.dll"
+            api.touch()
+
+            def dotnet(command, *, cwd, **_):
+                if command[1] == "restore":
+                    assets = cwd / "obj" / "project.assets.json"
+                    assets.parent.mkdir()
+                    assets.write_text(json.dumps({"libraries": {
+                        f"{package}/{version}": {"type": "package"} for package in packages
+                    }}))
+
+            args = ["run.py", "--feed", str(feed), "--version", version,
+                    "--apphost", str(apphost), "--fault-api-dll", str(api)]
+            gateway = {"environment": {"EventStore__CommandStatus__TtlSeconds": "89999",
+                                       "EventStore__Idempotency__TerminalRetentionSeconds": "90000"}}
+            with (patch.object(sys, "argv", args), patch("run.subprocess.run", side_effect=dotnet) as build,
+                  patch("run.describe_resource", return_value=gateway) as describe,
+                  patch("run.interrupted_status") as outage):
+                with self.assertRaisesRegex(RuntimeError, "retain command status"):
+                    main()
+                describe.assert_called_once_with(apphost.resolve(), "eventstore")
+                outage.assert_not_called()
+                self.assertEqual([call.args[0][1] for call in build.call_args_list], ["restore", "build"])
+
     def test_live_modes_require_their_matching_arguments(self):
         runner = str(Path(__file__).with_name("run.py"))
         base = [sys.executable, runner, "--feed", "unused", "--version", "1.0.0"]

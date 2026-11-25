@@ -25,7 +25,7 @@ namespace Hexalith.Conversations.Server.Agents;
 /// <param name="receipts">Authenticated exact source worker and receiver verifier.</param>
 /// <param name="pilot">Independent write authority installed by the pilot command owner.</param>
 /// <param name="commandSources">Authenticated SDK complete-prefix verifier; never re-enters the source actor.</param>
-/// <param name="clock">Domain clock that bounds pilot occurrences; defaults to <see cref="TimeProvider.System"/>.</param>
+/// <param name="clock">Domain clock that bounds pilot request timestamps; defaults to <see cref="TimeProvider.System"/>.</param>
 public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority authority,
     IConversationDeletionApprovalVerifier approvals, IConversationDeletionReceiptVerifier receipts,
     IConversationCommandSourceVerifier commandSources, ConversationPilotWriteAdmission? pilot = null,
@@ -33,7 +33,7 @@ public sealed class ConversationAgentAdmissionStage(IConversationAgentAuthority 
 {
     private static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web);
 
-    // The pilot API and the domain read independent clocks. Admit API-assigned occurrences up to the one-minute
+    // The pilot API and the domain read independent clocks. Admit API timestamps up to the one-minute
     // ClockSkew that JwtBearerAuthenticationContract configures for platform bearer validation, not the library's
     // five-minute default. A larger forward skew remains an invalid owner allocation.
     private static readonly TimeSpan PilotClockSkew = TimeSpan.FromMinutes(1);

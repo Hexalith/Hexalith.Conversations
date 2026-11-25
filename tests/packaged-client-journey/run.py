@@ -23,12 +23,15 @@ def public_origin(value):
 
 
 def configured_seconds(value):
-    """Return a canonical positive 32-bit decimal value, or None for any other form."""
+    """Return a positive 32-bit decimal value, allowing leading zeroes."""
     value = str(value)
-    if (len(value) > 10 or not value.isascii() or not value.isdecimal() or value != str(int(value))
-            or not 0 < int(value) <= 2_147_483_647):
+    if not value.isascii() or not value.isdecimal():
         return None
-    return int(value)
+    digits = value.lstrip("0")
+    if not digits or len(digits) > 10:
+        return None
+    seconds = int(digits)
+    return seconds if seconds <= 2_147_483_647 else None
 
 
 def verify_host_configuration(apphost, inputs):
