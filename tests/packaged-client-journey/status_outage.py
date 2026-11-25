@@ -107,7 +107,9 @@ def describe_resource(apphost, name):
         ["aspire", "describe", name, "--apphost", str(apphost), "--format", "Json", "--non-interactive"],
         check=True, capture_output=True, text=True, timeout=20)
     resources = json.loads(description.stdout)["resources"]
-    if len(resources) != 1 or resources[0].get("name") != name or resources[0].get("state") != "Running":
+    # Aspire isolated launches suffix name while displayName retains the AppHost resource name.
+    if (len(resources) != 1 or (resources[0].get("displayName") or resources[0].get("name")) != name
+            or resources[0].get("state") != "Running"):
         raise RuntimeError(f"Expected exactly one running {name} resource")
     return resources[0]
 

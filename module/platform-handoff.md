@@ -618,6 +618,24 @@ Keep the API and domain host clocks synchronized. Domain admission accepts an AP
 
 For an isolated Platform source deployment with a separately managed OIDC issuer, configure the gateway, Tenants and Conversations domain workload verifiers with the issuer, each receiver's own audience and the issuer's signing algorithm. Install the issuer trust chain. On the gateway and Tenants, set `Authentication:WorkloadIssuer:TokenEndpoint`, `Workload`, `ClientId`, the protected `ClientSecret`, and `EnableResourceBindingRequests=true`. The issuer must grant only the operations and resource bindings each client needs. A fresh installation uses the Tenants owner's authenticated administrator bootstrap and its gateway binding. Once the administrator is available, use the Tenants commands to create two tenants and assign a contributor in one and a reader in the other. Wait for both membership events on `tenants.events` to reach the Conversations domain before starting the package consumer.
 
+Use the .NET SDK selected by `global.json`, a running Docker engine, and the Aspire CLI, Dapr CLI and Dapr runtime versions selected by the Builds catalog. Set `HEXALITH_DAPR_HOME` if the catalog-pinned Dapr installation is outside the default location.
+
+Prepare the source and package mappings with the Builds producer selected by the module's CI configuration. From the Conversations root, build the CLI from the clean, pinned Builds checkout. Set `MAPPING_WORKSPACE` to a new path in an existing writable directory and `MAPPING_RESULT` to a JSON file outside that workspace.
+
+```bash
+BUILDS_ROOT="$PWD/references/Hexalith.Builds"
+BUILDS_TAG=$(python3 -c 'import json; print(json.load(open(".github/hexalith-ci.json"))["buildsTag"])')
+BUILDS_REVISION=$(git -C "$BUILDS_ROOT" rev-parse HEAD)
+BUILDS_CLI="$BUILDS_ROOT/src/libraries/Hexalith.Builds.Module.Cli"
+dotnet build "$BUILDS_CLI/Hexalith.Builds.Module.Cli.csproj" -c Debug -m:1 \
+    -p:Version="${BUILDS_TAG#v}" -p:SourceRevisionId="$BUILDS_REVISION"
+dotnet "$BUILDS_CLI/bin/Debug/net11.0/Hexalith.Builds.Module.Cli.dll" prepare-build \
+    --manifest module/hexalith.module-manifest.v2.json --workspace "$MAPPING_WORKSPACE" \
+    --mode source --output json > "$MAPPING_RESULT"
+```
+
+Use a separate workspace and `--mode package` for the package build. Export the entries under `buildPreparation.environment` from the matching JSON result into the build or launch shell.
+
 To prepare a local feed, use the producer's package mapping and Release configuration. Set `PACKAGE_FEED` to an empty directory outside the source tree and `PACKAGE_VERSION` to a fresh prerelease version. Run from the Conversations root.
 
 ```bash
@@ -626,9 +644,9 @@ dotnet pack src/Hexalith.Conversations.Client -c Release -p:Version="$PACKAGE_VE
 python3 tests/packaged-client-journey/run.py --feed "$PACKAGE_FEED" --version "$PACKAGE_VERSION" --build-only
 ```
 
-The versioned `tests/packaged-client-journey/platform-apphost.cs.template` hosts the local qualification graph using the ordinary Platform composition API. Export `HEXALITH_SOURCE_MAPPING_PATH` and `HEXALITH_SOURCE_MAPPING_HASH` for the prepared Platform source mapping. Export `CONVERSATIONS_SOURCE_ROOT` and `EVENTSTORE_SOURCE_ROOT` as the two reviewed checkout paths selected by that mapping. The AppHost verifies both roots, reads the Conversations manifest from its mapped checkout, and checks that it composes `conversations-api` before starting. [Platform AppHost source mapping](https://github.com/Hexalith/Hexalith.Platform/blob/66b64388c78ceba7b744a1092abc221b75d2bb8d/docs/platform-apphost-form.md)
+The versioned `tests/packaged-client-journey/platform-apphost.cs.template` hosts the local qualification graph using the ordinary Platform composition API. For the source launch, set `HEXALITH_SOURCE_MAPPING_PATH` to `source-mapping/mapping.json` under the prepared source workspace. The source environment already includes `HEXALITH_SOURCE_MAPPING_HASH`. Export `CONVERSATIONS_SOURCE_ROOT` and `EVENTSTORE_SOURCE_ROOT` as the two reviewed checkout paths selected by that mapping. The AppHost verifies both roots, reads the Conversations manifest from its mapped checkout, and checks that it composes `conversations-api` before starting. [Platform AppHost source mapping](https://github.com/Hexalith/Hexalith.Platform/blob/66b64388c78ceba7b744a1092abc221b75d2bb8d/docs/platform-apphost-form.md)
 
-Supply a protected flat JSON dictionary through `CONVERSATIONS_OPERATOR_BINDINGS` using the owner/server/configuration-key names in Platform's local profile. The ordinary source profile shares its human JWT settings across the gateway and API. An operator issuing the human tokens supplies the corresponding human signing and verification settings. For fresh Tenants startup, include `tenants/domain/Tenants:BootstrapGlobalAdminEnabled` and `tenants/domain/Tenants:BootstrapGlobalAdminUserId`. Set the domain history and Party settings described above. Set `CONVERSATIONS_WORKLOAD_ISSUER` to the HTTPS Keycloak realm, `CONVERSATIONS_OIDC_CA_BUNDLE` to its trusted CA bundle, and `CONVERSATIONS_GATEWAY_OIDC_SECRET_FILE` and `CONVERSATIONS_TENANTS_OIDC_SECRET_FILE` to the protected credentials for the `eventstore` and `tenants` clients. Named accounts and issuer grants belong to the local operator.
+Supply a protected flat JSON dictionary through `CONVERSATIONS_OPERATOR_BINDINGS` using the owner/server/configuration-key names in Platform's local profile. The ordinary source profile shares its human JWT settings across the gateway and API. An operator issuing the human tokens supplies the corresponding human signing and verification settings. For fresh Tenants startup, include `tenants/domain/Tenants:BootstrapGlobalAdminEnabled` and `tenants/domain/Tenants:BootstrapGlobalAdminUserId`. Set the domain history and Party settings described above. Set `CONVERSATIONS_WORKLOAD_ISSUER` to the HTTPS Keycloak realm. The template uses it as the domain's workload bearer authority and issuer when Platform resolves the declared service inputs. Set `CONVERSATIONS_OIDC_CA_BUNDLE` to the issuer's trusted CA bundle and `CONVERSATIONS_GATEWAY_OIDC_SECRET_FILE` and `CONVERSATIONS_TENANTS_OIDC_SECRET_FILE` to the protected credentials for the `eventstore` and `tenants` clients. Named accounts and issuer grants belong to the local operator.
 
 In the disposable Platform checkout, copy the qualification template to the file-based AppHost entry point.
 
@@ -638,7 +656,9 @@ cp "$CONVERSATIONS_SOURCE_ROOT/tests/packaged-client-journey/platform-apphost.cs
 aspire start --isolated --apphost "$PLATFORM_APPHOST"
 ```
 
-For the fresh local verification lane, set `CONVERSATIONS_GATEWAY_ORIGIN` to the gateway's loopback origin, `CONVERSATIONS_CATALOG_RECEIPT` to its run-owned `eventstore.committed.json`, and `CONVERSATIONS_ADMIN_TOKEN` to an operator bearer authorized to create tenants, add members and read their command status. Export the two human identities and the domain sidecar inputs from the integration guide. Use disposable tenant names. Run these commands after the source AppHost reports Healthy and the gateway commits its routing catalog.
+If Aspire's 120-second startup deadline expires while Platform builds the routing catalog, rerun the launch with `ASPIRE_CLI_START_TIMEOUT=360`. Platform's own catalog build deadline still applies. [Aspire startup timeout](https://aspire.dev/reference/cli/commands/aspire-start/#configuring-the-startup-timeout)
+
+For the fresh local verification lane, set `CONVERSATIONS_GATEWAY_ORIGIN` to the gateway's loopback origin, `CONVERSATIONS_CATALOG_RECEIPT` to its run-owned `eventstore.committed.json`, and `CONVERSATIONS_ADMIN_TOKEN` to an operator bearer authorized to create tenants, add members and read their command status. Export the two human identities and the domain sidecar inputs from the integration guide. Use disposable tenant names. Run these commands after the source AppHost reports Healthy, the gateway commits its routing catalog and Tenants has persisted the administrator bootstrap.
 
 ```bash
 python3 tests/packaged-client-journey/provision.py

@@ -69,7 +69,7 @@ def verify_host_configuration(apphost, inputs):
 
     api = describe_resource(apphost, "conversations-api")
     origin = public_origin(inputs["CONVERSATIONS_ORIGIN"])
-    if origin is None or not any(origin == public_origin(url["url"]) for url in api.get("urls", []) if not url["isInternal"]):
+    if origin is None or not any(origin == public_origin(url["url"]) for url in api.get("urls", []) if not url.get("isInternal", False)):
         raise RuntimeError("CONVERSATIONS_ORIGIN must match a published endpoint of the selected pilot API")
     return api["environment"]
 

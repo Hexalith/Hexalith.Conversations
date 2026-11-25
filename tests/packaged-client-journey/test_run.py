@@ -50,7 +50,7 @@ class HostConfigurationTest(unittest.TestCase):
                 {"environment": settings},
                 {"environment": {"DAPR_HTTP_PORT": "3505"} | domain},
                 {"environment": {"DAPR_HTTP_PORT": "3510"},
-                 "urls": [{"url": "https://localhost:7480/", "isInternal": False}]},
+                 "urls": [{"url": "https://localhost:7480/"}, {"url": "https://localhost:7481/", "isInternal": True}]},
             ]):
                 if error is None:
                     self.assertEqual(verify_host_configuration(Path("apphost.cs"), inputs | overrides),
@@ -61,14 +61,16 @@ class HostConfigurationTest(unittest.TestCase):
 
     def test_describe_requires_the_named_running_resource(self):
         running = {"name": "conversations", "state": "Running", "environment": {}}
-        cases = ([running], [], [running, running], [running | {"state": "Exited"}],
-                 [running | {"name": "eventstore"}])
+        isolated = running | {"name": "conversations-dfxmmxfb", "displayName": "conversations"}
+        unnamed = running | {"displayName": None}
+        cases = ([running], [isolated], [unnamed], [], [running, running], [running | {"state": "Exited"}],
+                 [running | {"name": "eventstore"}], [running | {"displayName": "eventstore"}])
         for resources in cases:
             with self.subTest(resources=resources), patch("status_outage.subprocess.run", return_value=Mock(
                 stdout=json.dumps({"resources": resources}),
             )):
-                if resources == [running]:
-                    self.assertEqual(describe_resource(Path("apphost.cs"), "conversations"), running)
+                if resources in ([running], [isolated], [unnamed]):
+                    self.assertEqual(describe_resource(Path("apphost.cs"), "conversations"), resources[0])
                 else:
                     with self.assertRaisesRegex(RuntimeError, "one running conversations"):
                         describe_resource(Path("apphost.cs"), "conversations")

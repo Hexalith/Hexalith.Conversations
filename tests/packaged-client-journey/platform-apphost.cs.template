@@ -42,6 +42,15 @@ string RequireMappedSource(string identity, string input)
 string conversationsRoot = RequireMappedSource("Hexalith.Conversations", "CONVERSATIONS_SOURCE_ROOT");
 _ = RequireMappedSource("Hexalith.EventStore", "EVENTSTORE_SOURCE_ROOT");
 string declaration = Path.Combine(conversationsRoot, "module", "hexalith.module-manifest.v2.json");
+var issuer = new Uri(Required("CONVERSATIONS_WORKLOAD_ISSUER"), UriKind.Absolute);
+if (issuer.Scheme != "https" || issuer.UserInfo.Length != 0 || issuer.Query.Length != 0 || issuer.Fragment.Length != 0)
+    throw new InvalidDataException("The Keycloak workload issuer must use HTTPS.");
+string authority = issuer.AbsoluteUri.TrimEnd('/');
+string caBundle = Required("CONVERSATIONS_OIDC_CA_BUNDLE");
+
+// Platform resolves the domain's declared configuration inputs during composition.
+bindings["conversations/domain/Authentication:WorkloadJwtBearer:Authority"] = authority;
+bindings["conversations/domain/Authentication:WorkloadJwtBearer:Issuer"] = authority;
 
 PlatformAppModel.Compose(builder, new PlatformCompositionOptions {
     ActiveModule = "conversations", PlatformRoot = root, Mapping = mapping, UsePrebuiltProjects = builder.Configuration.GetValue<bool>("Platform:UsePrebuiltProjects"),
@@ -49,11 +58,6 @@ PlatformAppModel.Compose(builder, new PlatformCompositionOptions {
 });
 if (!builder.Resources.OfType<ProjectResource>().Any(resource => resource.Name == "conversations-api"))
     throw new InvalidDataException("The mapped Conversations declaration did not compose the pilot API.");
-var issuer = new Uri(Required("CONVERSATIONS_WORKLOAD_ISSUER"), UriKind.Absolute);
-if (issuer.Scheme != "https" || issuer.UserInfo.Length != 0 || issuer.Query.Length != 0 || issuer.Fragment.Length != 0)
-    throw new InvalidDataException("The Keycloak workload issuer must use HTTPS.");
-string authority = issuer.AbsoluteUri.TrimEnd('/');
-string caBundle = Required("CONVERSATIONS_OIDC_CA_BUNDLE");
 foreach (ProjectResource service in builder.Resources.OfType<ProjectResource>().ToArray()) {
     var resource = builder.CreateResourceBuilder(service);
     // Supply the operator-selected, independently running Keycloak workload authority.
