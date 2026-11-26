@@ -2,7 +2,7 @@
 
 The isolated Release build qualifies the maintained minimal-module fixture on net11.0
 using the package versions in the pinned Builds catalog. The overlay expects
-EventStore 5.5.1 and rejects catalog drift before restore. NuGet uses the four
+EventStore 5.6.0 and rejects catalog drift before restore. NuGet uses the four
 compatibility locks in `locks/package/`. Standalone fixture builds use their own
 four locks. Both graphs use the fixture's internal project references and published
 EventStore packages.
@@ -127,3 +127,17 @@ only nuget.org configured. Locked restore passed from a second empty package
 and HTTP cache and preserved all four lock hashes. The isolated Release test
 project and AppHost compiled with zero warnings, and the seven compatibility
 assertions passed. The measured fixture files matched the committed copies.
+
+## EventStore 5.6.0 qualification (2026-11-26)
+
+The overlay is an explicit successor of the pinned Builds catalog: it selects
+EventStore 5.6.0, the same identity Directory.Packages.props publishes as
+`HexalithEventStoreVersion`. This is not a silent lock workaround; the
+catalog-drift gate still refuses any later mismatch before restore.
+
+NuGet regenerated the four external successor locks in a disposable fixture
+copy with only nuget.org configured. Locked restore from a second empty
+package and HTTP cache preserved all four lock hashes. The isolated Release
+test project and AppHost compiled with zero C# warnings or errors, and the
+seven compatibility assertions passed. The original fixture sources and
+original locks remain unchanged.

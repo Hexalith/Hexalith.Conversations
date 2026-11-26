@@ -4,12 +4,12 @@
     "net11.0": {
       "Hexalith.EventStore.Contracts": {
         "type": "Direct",
-        "requested": "[5.5.1, )",
-        "resolved": "5.5.1",
-        "contentHash": "xlZO9vgnn3GdrqsoSrOKbU5VbkKc3c3EsSiX3y1cMoUMhMzMWcz3SiMIlu5ps1yvV1x7C4UvYiJhyxlWfetsjw==",
+        "requested": "[5.6.0, )",
+        "resolved": "5.6.0",
+        "contentHash": "sykQ4llw2vcaQ9Sa00Hemlm3NPLFVd57jOtAs3ZCRZQ3LsPNnc0mQgk7+a2FXJsCZ1E7s3Y0+8yLQa8aT8j7iA==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2",
-          "Hexalith.Commons.UniqueIds": "3.0.2"
+          "Hexalith.Commons.UniqueIds": "3.0.3"
         }
       },
       "ByteAether.Ulid": {
@@ -20,9 +20,9 @@
       },
       "Hexalith.Commons.UniqueIds": {
         "type": "CentralTransitive",
-        "requested": "[3.0.2, )",
-        "resolved": "3.0.2",
-        "contentHash": "3Wt1rOZUne6hO2mWMaJdURXwod/ZgcJVzKhtv5alOeH4JmQT/3irlYEogeJ3+X5QN327pjUASYT+2sZlw68ybQ==",
+        "requested": "[3.0.4, )",
+        "resolved": "3.0.3",
+        "contentHash": "YulijzqfenWTASGJKCDZfr4S3We6zszwKBb6PTRqa5cSLmfxI3iuHlZ8T1XPNu527y0Bvo4wO4JnREXD4EA05Q==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2"
         }
