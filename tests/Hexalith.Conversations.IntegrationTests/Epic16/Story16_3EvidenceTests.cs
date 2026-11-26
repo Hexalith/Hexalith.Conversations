@@ -118,9 +118,11 @@ public sealed class Story16_3EvidenceTests(Story16_3LiveFixture fixture)
         JsonSerializer.Serialize(reconcile.Request.Request.NativeSourceProof, Json).ShouldBe(
             JsonSerializer.Serialize(original.Request.NativeSourceProof, Json),
             "coordinator redispatch must retain the original actor native hint, not mint or drop one");
-        (await QueryDetailAsync(identity)).FreshnessState.ShouldBe(ProjectionTrustState.Current);
+        (await WaitForCurrentDetailAsync(identity)).FreshnessState.ShouldBe(ProjectionTrustState.Current);
         await TriggerAsync(identity);
-        (await Scheduler.ReadAsync(work.WorkId, Token)).ShouldBeNull();
+        await WaitUntilAsync(
+            async () => (await Scheduler.ReadAsync(work.WorkId, Token)) is null,
+            "the production coordinator must leave the original durable work cleared after a later trigger; " + fixture.Stages);
         (await QueryDetailAsync(identity)).Details.ShouldNotBeNull();
         fixture.Complete(nameof(Scenario03));
     }
@@ -163,6 +165,12 @@ public sealed class Story16_3EvidenceTests(Story16_3LiveFixture fixture)
             DateTimeOffset.UtcNow, "event-newer-" + identity.AggregateId);
         await AppendAsync(identity, update);
         await TriggerAsync(identity);
+        await WaitUntilAsync(
+            async () => (await fixture.Store.GetAsync<ConversationProjectedReadModels>(
+                ConversationGatewayLiveFixture.StateStoreName,
+                Story16_3LiveFixture.DetailKey(Tenant, identity.AggregateId),
+                Token)).Value is { Detail.Freshness.LastAppliedEventPosition: 2 },
+            "the later production append must catch up before the duplicate reconcile");
         var newer = await PersistedAsync(identity);
         newer.Detail.Freshness.LastAppliedEventPosition.ShouldBe(2);
         using (var duplicate = await fixture.SendAsync("/project/v2/reconcile", EventStoreWorkloadOperations.DomainServiceProject, original, Token))
@@ -170,11 +178,13 @@ public sealed class Story16_3EvidenceTests(Story16_3LiveFixture fixture)
         // Assert before the next trigger: redelivering head 2 would otherwise repair, and mask, a duplicate overwrite.
         JsonSerializer.Serialize(await PersistedAsync(identity), Json).ShouldBe(JsonSerializer.Serialize(newer, Json),
             "the duplicate original reconcile must not replace the newer persisted generation");
-        (await QueryDetailAsync(identity)).Details!.ProjectId.ShouldBe(new ProjectId("project-newer"));
+        (await WaitForCurrentDetailAsync(identity)).Details!.ProjectId.ShouldBe(new ProjectId("project-newer"));
         await TriggerAsync(identity);
         JsonSerializer.Serialize(await PersistedAsync(identity), Json).ShouldBe(JsonSerializer.Serialize(newer, Json));
-        (await QueryDetailAsync(identity)).Details!.ProjectId.ShouldBe(new ProjectId("project-newer"));
-        (await Scheduler.ReadAsync(work.WorkId, Token)).ShouldBeNull();
+        (await WaitForCurrentDetailAsync(identity)).Details!.ProjectId.ShouldBe(new ProjectId("project-newer"));
+        await WaitUntilAsync(
+            async () => (await Scheduler.ReadAsync(work.WorkId, Token)) is null,
+            "the production coordinator must leave the original durable work cleared after a later trigger; " + fixture.Stages);
         fixture.Complete(nameof(Scenario05));
     }
 
@@ -199,14 +209,27 @@ public sealed class Story16_3EvidenceTests(Story16_3LiveFixture fixture)
     {
         var record = await fixture.Store.GetAsync<CheckpointedProjectionRecord<TenantLocalState>>(ConversationGatewayLiveFixture.StateStoreName, DurableTenantProjectionStore.KeyFor(Tenant), Token);
         if (record.Value is null) await fixture.AdmitTenantAsync(Tenant, Token);
-        record = await fixture.Store.GetAsync<CheckpointedProjectionRecord<TenantLocalState>>(ConversationGatewayLiveFixture.StateStoreName,
-            DurableTenantProjectionStore.KeyFor(Tenant), Token);
+        await WaitUntilAsync(
+            async () =>
+            {
+                record = await fixture.Store.GetAsync<CheckpointedProjectionRecord<TenantLocalState>>(
+                    ConversationGatewayLiveFixture.StateStoreName, DurableTenantProjectionStore.KeyFor(Tenant), Token);
+                return record.Value is { IsHealthy: true, LastContiguousSequence: 2, State: not null };
+            },
+            "tenant projection catch-up must finish after admission");
         record.Value.ShouldNotBeNull();
         record.Value!.IsHealthy.ShouldBeTrue();
         record.Value.LastContiguousSequence.ShouldBe(2);
         record.Value.State.ShouldNotBeNull();
-        var list = await QueryListAsync();
-        list.FreshnessState.ShouldBe(ProjectionTrustState.Current);
+        ConversationListResult? list = null;
+        await WaitUntilAsync(
+            async () =>
+            {
+                list = await QueryListAsync();
+                return list.FreshnessState == ProjectionTrustState.Current;
+            },
+            "conversation list catch-up must reach Current; Rebuilding is not success");
+        list!.FreshnessState.ShouldBe(ProjectionTrustState.Current);
     }
 
     private static ConversationCommandMetadata Metadata(AggregateIdentity identity, string operation) => new(
@@ -229,8 +252,29 @@ public sealed class Story16_3EvidenceTests(Story16_3LiveFixture fixture)
 
     private async Task<ProjectionDeliveryRetryWorkItem> ReadTerminalAsync(AggregateIdentity identity)
     {
-        string id = ProjectionDeliveryRetryWorkItem.CreateWorkId(identity.TenantId, identity.Domain, identity.AggregateId, 1);
-        var work = await Scheduler.ReadAsync(id, Token);
+        NamedProjectionRouteCatalogEntry catalog = fixture.Gateway.Services.GetRequiredService<INamedProjectionRouteCatalog>()
+            .Current.Entries.Single(entry => entry.Domain == identity.Domain && entry.AppId == fixture.Gateway.AppId);
+        string[] ids =
+        [
+            ProjectionDeliveryRetryWorkItem.CreateWorkId(
+                identity.TenantId, identity.Domain, identity.AggregateId, 1,
+                fixture.Gateway.AppId, ConversationGatewayLiveFixture.ServiceVersion, catalog.CatalogFingerprint),
+            ProjectionDeliveryRetryWorkItem.CreateWorkId(identity.TenantId, identity.Domain, identity.AggregateId, 1),
+        ];
+        ProjectionDeliveryRetryWorkItem? work = null;
+        await WaitUntilAsync(
+            async () =>
+            {
+                foreach (string id in ids)
+                {
+                    work = await Scheduler.ReadAsync(id, Token);
+                    if (work is { TerminalRoutes.Count: > 0 })
+                        return true;
+                }
+
+                return false;
+            },
+            "durable terminal work must exist before recovery");
         work.ShouldNotBeNull("durable terminal work must exist before recovery");
         work!.TerminalRoutes.ShouldNotBeEmpty(JsonSerializer.Serialize(work, Json));
         return work;
@@ -240,10 +284,25 @@ public sealed class Story16_3EvidenceTests(Story16_3LiveFixture fixture)
     {
         fixture.FailureStore.Release();
         await TriggerAsync(identity);
-        (await Scheduler.ReadAsync(work.WorkId, Token)).ShouldBeNull("the production coordinator must durably clear the original item; " + fixture.Stages);
+        await WaitUntilAsync(
+            async () => (await Scheduler.ReadAsync(work.WorkId, Token)) is null,
+            "the production coordinator must durably clear the original item; " + fixture.Stages);
+        await WaitUntilAsync(
+            async () =>
+            {
+                var persisted = await fixture.Store.GetAsync<ConversationProjectedReadModels>(
+                    ConversationGatewayLiveFixture.StateStoreName,
+                    Story16_3LiveFixture.DetailKey(Tenant, identity.AggregateId),
+                    Token);
+                var index = await fixture.Store.GetAsync<ConversationProjectionIndexReadModel>(
+                    ConversationGatewayLiveFixture.StateStoreName, Story16_3LiveFixture.IndexKey(Tenant), Token);
+                return persisted.Value is { Detail.Freshness.LastAppliedEventPosition: > 0 }
+                    && index.Value?.Dispatches.GetValueOrDefault(identity.AggregateId)?.IsPending == false;
+            },
+            "recovered projection catch-up must persist a completed generation; " + fixture.Stages);
         (await PersistedAsync(identity)).Detail.Freshness.LastAppliedEventPosition.ShouldBeGreaterThan(0);
-        var index = await fixture.Store.GetAsync<ConversationProjectionIndexReadModel>(ConversationGatewayLiveFixture.StateStoreName, Story16_3LiveFixture.IndexKey(Tenant), Token);
-        index.Value!.Dispatches[identity.AggregateId].IsPending.ShouldBeFalse();
+        var recoveredIndex = await fixture.Store.GetAsync<ConversationProjectionIndexReadModel>(ConversationGatewayLiveFixture.StateStoreName, Story16_3LiveFixture.IndexKey(Tenant), Token);
+        recoveredIndex.Value!.Dispatches[identity.AggregateId].IsPending.ShouldBeFalse();
     }
 
     private async Task<ConversationProjectedReadModels> PersistedAsync(AggregateIdentity identity)
@@ -257,6 +316,35 @@ public sealed class Story16_3EvidenceTests(Story16_3LiveFixture fixture)
     private async Task<ConversationDetailResult> QueryDetailAsync(AggregateIdentity identity, string caller = Story16_3LiveFixture.Caller)
         => await QueryAsync<ConversationDetailResult>(new(Tenant, "conversations", identity.AggregateId,
             "conversation-detail", [], "query-" + identity.AggregateId, caller));
+
+    private async Task<ConversationDetailResult> WaitForCurrentDetailAsync(AggregateIdentity identity)
+    {
+        ConversationDetailResult? detail = null;
+        await WaitUntilAsync(
+            async () =>
+            {
+                detail = await QueryDetailAsync(identity);
+                return detail.FreshnessState == ProjectionTrustState.Current && detail.Details is not null;
+            },
+            "conversation detail catch-up must reach Current; Rebuilding is not success");
+        detail!.FreshnessState.ShouldBe(ProjectionTrustState.Current);
+        return detail;
+    }
+
+    private async Task WaitUntilAsync(Func<Task<bool>> ready, string because)
+    {
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(Token);
+        timeout.CancelAfter(TimeSpan.FromSeconds(15));
+        try
+        {
+            while (!await ready())
+                await Task.Delay(50, timeout.Token);
+        }
+        catch (OperationCanceledException) when (timeout.IsCancellationRequested && !Token.IsCancellationRequested)
+        {
+            throw new TimeoutException(because);
+        }
+    }
 
     private Task<ConversationListResult> QueryListAsync() => QueryAsync<ConversationListResult>(new(Tenant, "conversations", "tenant-list",
         "conversation-list", [], "query-list", Story16_3LiveFixture.Caller));
