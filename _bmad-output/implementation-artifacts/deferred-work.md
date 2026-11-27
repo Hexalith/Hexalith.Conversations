@@ -1620,7 +1620,7 @@ The 20 groups below combine duplicate reports and related validation steps. They
 
 ## Deferred from: code review of spec-12-3-implement-correctness-preserving-list-open-optimization-and-migration-behavior.md (2026-11-27)
 
-- The existing tenant initializer redelivery test failure was reproduced in isolation during review. It returned `RetryableInProgress` instead of `Processed`. See the existing Story 12.3 deferral above for the conditional deletion test-double defect.
+- The existing tenant initializer redelivery test failure was reproduced in isolation again during review pass 3. The Debug/net11.0 test exited `1` with `RetryableInProgress` instead of `Processed`. See the existing Story 12.3 deferral above for the conditional deletion test-double defect.
 
 - source_spec: _bmad-output/implementation-artifacts/spec-11-4-restore-package-qualification-and-maintainer-commands.md
   summary: Isolate a retained package consumer workspace from build imports inherited from its ancestors.

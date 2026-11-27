@@ -2,7 +2,7 @@
 title: 'Story 12.3: Implement correctness-preserving list/open optimization and migration behavior'
 type: 'feature'
 created: '2026-11-27'
-status: 'done'
+status: 'in-progress'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: 'f8d81ca843c855cd5b87677617600e97bdcdee2f'
@@ -125,6 +125,56 @@ Reviewed `a1cb5c41` against `f8d81ca8` on 2026-11-27. Four review layers complet
 
 - Cancellation callback throws before the ledger task is awaited. The path needs an `IReadModelStore` callback that throws during cancellation. The reviewed stores provide no demonstrated trigger. The sibling-read verification gap is tracked above.
 - Change the historical completion statement as a review fix. The failed test is tracked above, and the workflow owns the live story status transition.
+
+#### Review pass 3 — 2026-11-27
+
+Reviewed the Story 12.3 changes through `fe303008` against `f8d81ca8`. The four paths delivered by the intervening CI/CD commit were outside the story review. All four review layers completed.
+
+- [ ] [Review][Patch] High — Preserve detail validation on List [src/Hexalith.Conversations.Server/Projections/ConversationDetailValidationHeaderConverter.cs:279]
+  A persisted message object missing required fields made List return the row as `Current` while Open returned `Unavailable`. The lightweight parser also accepts undecodable strings in fields it only type-checks and validates repeated lifecycle values before the final value is known. Match the typed reader's validation and exercise these cases in AC-12.3-02.
+- [ ] [Review][Patch] High — Validate sibling summaries during targeted Open [src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupConverter.cs:205]
+  Removing `freshness` from a sibling while retaining its ID made Open return `Current` and List return `Unavailable`. The scan also accepts invalid sibling ID strings and skips recognized fields with malformed values. Preserve typed validation while scanning the targeted index.
+- [ ] [Review][Patch] Medium — Honor the store serializer's numeric handling during Open [src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupConverter.cs:268]
+  With a quoted `schemaVersion`, List remained `Current` and Open returned `Unavailable`. The same mismatch applies to quoted watermarks and sibling dispatch sequences. Dapr and the in-memory store use Web JSON number handling, which accepts these persisted values.
+- [ ] [Review][Patch] High — Resolve TRX results through their test definitions [\_bmad/scripts/generate_derived_key_correctness_proof.py:418]
+  A copy of the real unit TRX still reported `PASS` after its linked definition changed to a different method and the result retained the expected display name. Resolve each result to a unique definition and use that identity for required-method checks.
+- [ ] [Review][Patch] High — Verify the source and configuration of tested binaries [\_bmad/scripts/generate_derived_key_correctness_proof.py:449]
+  A commit suffix in assembly metadata can identify the same commit after a build from modified sources. The generator checks the checkout later and skips assembly verification when the TRX assembly path is missing. A receipt with a nonexistent assembly passed the parser. Build and test from a verified committed snapshot and bind the assembly digests, framework and configuration to that run before certifying it.
+- [ ] [Review][Patch] High — Rebuild the complete tenant during rollback rehearsal [tests/Hexalith.Conversations.IntegrationTests/Projections/DerivedKeyLifecycleTests.cs:514]
+  The rehearsal erases two conversations, rebuilds one with a synthetic request, and accepts a `Rebuilding` List. Use persisted EventStore replay for both conversations and assert that the prior binary restores the complete tenant index and both Open results.
+- [ ] [Review][Patch] High — Exercise an interruption after rebuild starts writing [tests/Hexalith.Conversations.IntegrationTests/Projections/DerivedKeyLifecycleTests.cs:420]
+  The first fault hook runs at `BeforeDispatch`. The target row starts absent, which accounts for the observed withholding. Inject after intermediate state is durable and verify the partial state, withheld target, visible sibling, and successful retry.
+- [ ] [Review][Patch] Medium — Verify outage and recovery through the real state-store adapter [tests/Hexalith.Conversations.AppHost.Tests/DerivedKeyDaprFaultStore.cs:105]
+  The decorator throws before the production adapter runs for both full and bulk outage cases. Exercise a Dapr or Redis interruption and verify the public results during the outage and after service resumes.
+- [ ] [Review][Patch] Medium — Reject allow-all schemas in proof value positions [\_bmad/scripts/generate_derived_key_correctness_proof.py:574]
+  A boolean `true` subschema bypasses the closure check. The modified schema accepts the published proof and arbitrary nested fields at the opened location.
+- [ ] [Review][Patch] Medium — Compare proof source with Git-normalized bytes [\_bmad/scripts/generate_derived_key_correctness_proof.py:250]
+  A clean checkout with `core.autocrlf=true` can receive translated source bytes for paths such as `ConversationQueryHandler.cs`. Proof generation treats the resulting difference as source drift. Normalize according to the tracked Git rules or pin the byte format for hashed sources.
+- [ ] [Review][Patch] Medium — Verify property accessors against the public snapshot [tests/Hexalith.Conversations.Contracts.Tests/PublicQueryCompatibilityTests.cs:114]
+  The comparison reads property names and types and omits the snapshot's `canRead` and `canWrite` attributes. An accessor change can pass the compatibility test.
+- [ ] [Review][Patch] Medium — Exercise public query behavior in the compatibility lane [tests/Hexalith.Conversations.Contracts.Tests/PublicQueryCompatibilityTests.cs:149]
+  The lane constructs filter, cursor and result objects directly. Add runtime assertions for filter and ordering behavior and for the equivalence between unauthorized and nonexistent Open results.
+- [ ] [Review][Patch] Medium — Require the exact compiled fault blocker set [\_bmad/scripts/tests/test_derived_key_correctness.py:851]
+  The compiled mutations check membership of two blockers and accept unexpected additional blockers. Assert the complete expected blocker set for each mutation.
+- [ ] [Review][Patch] Medium — Exercise actual Dapr and public-contract faults in the matrix [\_bmad/scripts/tests/test_derived_key_correctness.py:560]
+  The synthetic Dapr receipts verify reporting behavior, and the public snapshot mutation verifies the file digest. Add runtime mutations that exercise the live Dapr failure and public query contract assertions and verify the reported blockers.
+- [ ] [Review][Patch] Medium — Include SDK recovery writes in the read-side guard [\_bmad/scripts/generate_derived_key_correctness_proof.py:164]
+  The static guard omits mutating recovery methods including `RecoverPendingAsync` and `PrepareRecoveryManifestAsync`. A call through those interfaces would bypass this guard. Include the recovery operations and exercise the guard with a recovery-call mutation.
+- [ ] [Review][Patch] Low — Avoid allocating strings for ordinary property-name mismatches [src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupConverter.cs:444]
+  An unescaped ASCII property name of a different length falls through to `GetString()`. This allocates for most fields in every sibling summary scanned by Open. Return early for ordinary ASCII length mismatches.
+- [ ] [Review][Patch] Medium — Make the concurrent-read test spy safe for parallel calls [tests/Hexalith.Conversations.Server.Tests/Projections/DerivedKeyReadStoreSpy.cs:66]
+  The delayed Open test can resume on several threads and update mutable counters and lists concurrently. Synchronize recording and reset so the spy cannot lose observations or introduce failures of its own.
+- [ ] [Review][Patch] Medium — Apply a single deadline to Dapr health polling [tests/Hexalith.Conversations.AppHost.Tests/DerivedKeyDaprLiveFixture.cs:210]
+  An unresponsive sidecar can consume up to 240 three-second HTTP timeouts plus delays. The documented 60-second budget then lasts about 13 minutes. Use one deadline for requests and retry delays.
+- [ ] [Review][Patch] Medium — Pin exact cross-binary cursor pages for tied timestamps [tests/Hexalith.Conversations.IntegrationTests/Projections/DerivedKeyLifecycleTests.cs:494]
+  The rehearsal uses distinct timestamps and counts one result per page. It misses dropped or repeated rows if the ordinal tie-break changes while a cursor remains valid. Seed tied timestamps in nonordinal storage order and assert exact identities in both directions.
+- [x] [Review][Defer] Tenant initializer redelivery still blocks the maintained suite [tests/Hexalith.Conversations.Server.Tests/TenantAccess/ConversationTenantIndexInitializerTest.cs:119] — deferred: the existing Story 16.2 test-double issue is already in the deferred-work ledger. The isolated rerun exited `1` with `RetryableInProgress` instead of `Processed`.
+
+The five focused acceptance lanes passed 13 tests with zero skips using the existing Debug/net11.0 outputs. The Python fault matrix passed 50 tests and the shared output writer passed 77 tests. Two renders from the retained TRXs matched both committed proof files. Root-submodule validation and the scoped diff whitespace check passed.
+
+##### Rejected
+
+- Replace the prior-binary harness solely because it links candidate dependency assemblies. The reviewed range introduces no dependency revision change between the prior harness baseline and the tested story, so that concern does not establish a rollback failure in this range. The incomplete replay is recorded separately.
 
 ## Implementation Notes
 

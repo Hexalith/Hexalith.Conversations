@@ -1,5 +1,5 @@
 # generated: 2026-06-02
-# last_updated: 11-27-2026 23:41
+# last_updated: 11-28-2026 00:44
 # project: Conversations
 # project_key: NOKEY
 # tracking_system: file-system
@@ -51,7 +51,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-06-02
-last_updated: 11-27-2026 23:41
+last_updated: 11-28-2026 00:44
 # HISTORICAL V14 PUBLICATION: v9-authority-bundle-v1.json retains the candidate-bound August 18 planning state. That publication's hold, unrun IR-0 and backlog statements describe its historical boundary.
 # CURRENT TRACKING: development_status below records lifecycle progress. docs/runbooks/current-change-validation.md governs routine work and links the later IR-0 disposition; historical records retain their original results and authority limits.
 # PROVENANCE LEDGER: the 90 lifecycle-transition comments previously recorded here are preserved byte-exact in _bmad-output/implementation-artifacts/sprint-status-provenance-v1.md (sha256 pinned by v14-current-candidate-authority-v1.json). That relocation changed no lifecycle or action-item status value.
@@ -137,7 +137,7 @@ development_status:
   #  AC-12.2-05 waived (owner, 2026-11-16); method payload approved.
   # Audit evidence and additional 12.3/12.4 acceptance: _bmad-output/planning-artifacts/sprint-change-proposal-2026-11-20.md
   # Execution rules for 12.3-15.2 (no archived hold; HEAD candidate; root-declared gitlinks): _bmad-output/planning-artifacts/sprint-change-proposal-2026-11-24.md
-  12-3-implement-correctness-preserving-list-open-optimization-and-migration-behavior: review
+  12-3-implement-correctness-preserving-list-open-optimization-and-migration-behavior: in-progress
   12-4-produce-candidate-bound-evidence-and-enforce-universal-sm-c2: backlog
   epic-12-retrospective: optional
   epic-13: backlog
