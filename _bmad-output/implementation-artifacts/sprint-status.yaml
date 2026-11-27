@@ -1,5 +1,5 @@
 # generated: 2026-06-02
-# last_updated: 11-27-2026 22:51
+# last_updated: 11-27-2026 23:41
 # project: Conversations
 # project_key: NOKEY
 # tracking_system: file-system
@@ -51,7 +51,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-06-02
-last_updated: 11-27-2026 18:57
+last_updated: 11-27-2026 23:41
 # HISTORICAL V14 PUBLICATION: v9-authority-bundle-v1.json retains the candidate-bound August 18 planning state. That publication's hold, unrun IR-0 and backlog statements describe its historical boundary.
 # CURRENT TRACKING: development_status below records lifecycle progress. docs/runbooks/current-change-validation.md governs routine work and links the later IR-0 disposition; historical records retain their original results and authority limits.
 # PROVENANCE LEDGER: the 90 lifecycle-transition comments previously recorded here are preserved byte-exact in _bmad-output/implementation-artifacts/sprint-status-provenance-v1.md (sha256 pinned by v14-current-candidate-authority-v1.json). That relocation changed no lifecycle or action-item status value.
@@ -128,7 +128,7 @@ development_status:
   11-1-correct-and-validate-platform-hosted-thin-module-authoring-guidance: done
   11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis: done
   11-3-generate-authoritative-sm-2-v2-evidence-and-decide-oq-2: done
-  11-4-restore-package-qualification-and-maintainer-commands: review
+  11-4-restore-package-qualification-and-maintainer-commands: in-progress
   epic-11-retrospective: done
   epic-12: in-progress
   12-1-approve-derived-key-ownership-lifecycle-and-rollback: done

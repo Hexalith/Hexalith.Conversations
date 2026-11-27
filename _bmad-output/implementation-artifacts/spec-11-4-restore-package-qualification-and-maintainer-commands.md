@@ -2,7 +2,7 @@
 title: 'Story 11.4: Restore package qualification and maintainer commands'
 type: 'chore'
 created: '2026-11-27'
-status: 'done'
+status: 'in-progress'
 baseline_commit: 'fe303008ca2d548a05f665b3840b5c1724442db7'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -56,6 +56,35 @@ Give release maintainers a clean-checkout path to qualify the fixture and instal
 - Given a fresh checkout with the direct Builds catalog, when NuGet restores the external fixture graph from nuget.org into one empty package and HTTP cache and then restores in locked mode into a second empty cache, then all four successor locks match byte-for-byte, the Release fixture and AppHost build, the runner passes all seven named assertions, and the 17 fixture files match checkpoint B.
 - Given a producer-mapped Release build, when `python3 scripts/validate-built-packages.py` runs, then five candidate packages and their symbol archives validate and the independent, empty-cache consumers restore, compile, and exercise all five candidate packages.
 - Given a fresh checkout with only direct submodules, when a maintainer follows the documented mapped restore, build, and focused native test, then the producer selects Debug and `PublicQueryCompatibilityTests` passes on `net11.0`. Given the documented Release prerequisites, when `npm test` runs, then it executes the full maintained tooling suite.
+
+### Review Findings
+
+- [ ] [Review][Patch] Strip missing ambient MSBuild/NuGet environment variables (`CustomAfterMicrosoftCommonTargets`, `RestoreSources`, `RestoreAdditionalProjectSources`, `RestoreConfigFile`, `RestoreLockedMode`, `RestorePackagesWithLockFile`, `ManagePackageVersionsCentrally`, `DirectoryPackagesPropsPath`, `NUGET_SCRATCH`, `NUGET_PLUGINS_CACHE_PATH`) in `isolated_consumer_environment()` [scripts/validate-consumer-package-references.py:209]
+- [ ] [Review][Patch] Add negative unit tests for all four `verify_candidate_packages()` refusal branches (extra `packageFolders`, non-candidate `source`, wrong version/type/path, missing candidate package) [tests/tooling/test_package_contract.py:226]
+- [ ] [Review][Patch] Align runbook Python prerequisite to 3.12+ (matching mandatory `references/Hexalith.Builds/check.py`) and switch `mapped()` from heredoc `python3 -` to `python3 -c` so child commands preserve caller stdin [docs/runbooks/current-change-validation.md:47]
+- [ ] [Review][Patch] Resolve `candidate_feed` with `.resolve()` before comparing against `.nupkg.metadata` `source` in `verify_candidate_packages()` [scripts/validate-consumer-package-references.py:249]
+- [ ] [Review][Patch] Add negative unit test verifying `package_version()` rejects invalid SemVer strings via `validate_semver()` [tests/tooling/test_package_contract.py:184]
+- [ ] [Review][Patch] Detect symlinked `bin`/`obj` directories before pruning them in `verify_frozen_fixture()` and cover symlink injection in `test_frozen_fixture_rejects_byte_and_inventory_drift()` [tests/tooling/test_minimal_module_frozen_fixture.py:33]
+- [ ] [Review][Patch] Add `if __name__ == "__main__": unittest.main()` to `test_minimal_module_frozen_fixture.py` so direct `python3` execution runs the suite [tests/tooling/test_minimal_module_frozen_fixture.py:74]
+- [ ] [Review][Patch] Resolve `root = Path(temporary).resolve()` in `test_consumer_entry_point_restores_from_candidate_feed_into_two_empty_caches` to prevent symlinked `TMPDIR` mismatches [tests/tooling/test_package_contract.py:228]
+- [ ] [Review][Patch] Resolve `BUILDS_ROOT / "Props/Directory.Packages.props"` when asserting equality against resolved `DirectoryPackagesPropsPath` [tests/tooling/test_minimal_module_compatibility_overlay.py:114]
+- [ ] [Review][Patch] Remove broken `commitlint` script and dead `semantic-release` override from `package.json` [package.json:9]
+- [ ] [Review][Patch] Add a Story 11.4 section heading above its deferral entry in `deferred-work.md` so it is not attributed to Story 12.3 [_bmad-output/implementation-artifacts/deferred-work.md:1625]
+
+#### Rejected
+
+- **Spec frontmatter `status: 'done'` vs `sprint-status.yaml` `review` and `review_loop_iteration: 0` (`acceptance-auditor`, `blind-hunter`):** rejected — fix edits the spec under review (`sprint-status.yaml` accurately remains `review` until review completes).
+- **Spec Code Map / Execution checklist omits `test_minimal_module_frozen_fixture.py`, `MinimalModuleAuthoringCostBaselineValidationTest.cs`, and `epic-11-context.md` (`acceptance-auditor`, `blind-hunter`):** rejected — fix edits the spec under review.
+- **No CI check guards the four frozen checkpoint-B `packages.lock.json` files (`blind-hunter`):** `false` — `AGENTS.md` (Hexalith.CiCd policy) forbids story-evidence checks in module CI; BH11 intentionally split frozen-proof verification into local `npm test` / focused tooling discovery while keeping `after-unit-tests` on product/compatibility checks.
+- **Byte-rehash cached `.nupkg` and assert `.nuget/packages` absent in `validate_consumer()` (`blind-hunter`):** `false` / `low` — `main()` guarantees a brand-new `TemporaryDirectory` or non-existent `--work-directory`, so a pre-populated cache is unreachable via `main()`, and adding byte-rehash checks adds complexity for an undemonstrated defect.
+- **`dotnet restore` lacks `-warnaserror` and `NU1901;NU1902` alignment (`blind-hunter`):** `false` — `dotnet build --no-restore -warnaserror` replays NuGet restore warnings from `obj/project.assets.json` as build errors, and standalone consumers intentionally run stricter without `Directory.Packages.props`.
+- **`TestingConsumer` lacks `-failSkips` and functional API assertion (`blind-hunter`):** `false` — `PackageSmokeTests` has one unconditional `[Fact]` that cannot skip, and `TestingConsumer` smoke behavior is unchanged from baseline.
+- **`RegisteredCommand.targets` global-property overrides, project-name guard, target execution coverage, flat dict overwrite, and minor untested refusal branches (`blind-hunter`):** `false` / `low` — empirically verified `test_static_restore_graph_contains_only_fixture_projects_and_eventstore_packages` runs `MinimalModuleCompatibilitySelectPackages` across the fixture solution; package-mode graph contains only the 4 fixture projects; each EventStore package is directly referenced by only one fixture project; global `-p:` override is standard MSBuild behavior.
+- **Unexpected empty directories not tracked in `verify_frozen_fixture()` (`blind-hunter`):** `low` — unlikely in everyday use (Git does not track empty directories) and adding directory-set tracking adds complexity.
+- **`tests/compatibility/MinimalModule/README.md` uncleaned env vars and `HEAD` lock comparison (`blind-hunter`):** `false` — lines 21–22 explicitly specify a disposable checkout in a fresh Bash session, and lines 63/67/69 pass `--packages` and `-p:RestorePackagesPath` explicitly.
+- **`.nupkg.metadata` missing/null `source` raises `KeyError`/`TypeError` instead of `ValueError` (`edge-case-hunter`):** `false` — NuGet always emits a string `source` for restored packages, and `main()` already catches `Exception` and exits 1 with a concise error.
+- **Solution restore with `RestoreUseStaticGraphEvaluation=true` skips `MinimalModuleCompatibilitySelectPackages` (`edge-case-hunter`):** `false` — empirically disproved: running `dotnet msbuild Hexalith.Conversations.MinimalModule.slnx -t:GenerateRestoreGraphFile -p:RestoreUseStaticGraphEvaluation=true` against a drifted catalog still triggers `RegisteredCommand.targets(35,5)` error and exits 1 with no drifted entries written.
+- **`assert_catalog_refused` bare `else:` without explicit `elif` or removal assertion (`edge-case-hunter`):** `low` — unlikely in everyday use (only 3 literal callers directly above it, and an unremoved XML entry already fails the expected-diagnostic assertion) and fixing adds extra branches/guards.
 
 ## Implementation Notes
 
