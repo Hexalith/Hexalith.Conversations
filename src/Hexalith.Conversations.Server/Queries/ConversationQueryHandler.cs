@@ -3,9 +3,6 @@
 // Licensed under the MIT License.
 // </copyright>
 
-using System.Security.Cryptography;
-using System.Text.Json;
-
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Contracts.Queries;
@@ -253,15 +250,16 @@ public sealed class ConversationQueryHandler
         ArgumentNullException.ThrowIfNull(query);
 
         ConversationListCursorPosition? cursor = null;
+        string? cursorScope = null;
         if (query.Page.ContinuationCursor is not null)
         {
             // Rebuild the pre-read scope identically to encode. A tamper/key-rotation integrity failure or a
             // tenant/caller/filter/sort mismatch makes TryDecode fail closed here, before any projection read.
-            string scope = ConversationListCursor.BuildScope(query.TenantId, query.CallerPrincipalId, query.Filter);
+            cursorScope = ConversationListCursor.BuildScope(query.TenantId, query.CallerPrincipalId, query.Filter);
             if (!_cursorCodec.TryDecode(
                     query.Page.ContinuationCursor,
                     ConversationListCursor.QueryType,
-                    scope,
+                    cursorScope,
                     out string? position,
                     out _)
                 || !ConversationListCursor.TryParsePosition(position, out ConversationListCursorPosition decoded))
@@ -321,37 +319,47 @@ public sealed class ConversationQueryHandler
         }
 
         // Tenant-scoped poison guard: reject any row whose stored TenantId disagrees with the request scope
-        // before any filter, count, ordering, or freshness evaluation runs.
-        List<ConversationSummaryProjectionV1> tenantScoped = snapshot.Summaries
-            .Where(summary => summary.TenantId == query.TenantId)
-            .ToList();
+        // before any filter, count, ordering, or freshness evaluation runs. Avoid copying when poison-free.
+        IReadOnlyList<ConversationSummaryProjectionV1> tenantScoped = FilterTenantScope(snapshot.Summaries, query.TenantId);
+        bool poisonFree = ReferenceEquals(tenantScoped, snapshot.Summaries);
 
-        string projectionGenerationToken = ComputeGenerationToken(tenantScoped);
-
-        // Projection-generation binding is re-checked here rather than in the codec scope: the token is only
-        // knowable after the projection read. A cursor issued against a superseded generation fails closed,
-        // exactly as the prior DecodedCursor.Matches generation comparison did.
-        if (cursor.HasValue
-            && !string.Equals(cursor.Value.ProjectionGenerationToken, projectionGenerationToken, StringComparison.Ordinal))
+        string? projectionGenerationToken = null;
+        if (cursor.HasValue)
         {
-            return ConversationListResult.Hidden(query.SchemaVersion);
+            projectionGenerationToken = ResolveGenerationToken(snapshot, tenantScoped, poisonFree);
+
+            // Projection-generation binding is re-checked here rather than in the codec scope: the token is only
+            // knowable after the projection read. A cursor issued against a superseded generation fails closed,
+            // exactly as the prior DecodedCursor.Matches generation comparison did.
+            if (!string.Equals(cursor.Value.ProjectionGenerationToken, projectionGenerationToken, StringComparison.Ordinal))
+            {
+                return ConversationListResult.Hidden(query.SchemaVersion);
+            }
         }
 
         int offset = cursor?.Offset ?? 0;
-        List<ConversationSummaryProjectionV1> accessibleMatches = tenantScoped
-            .Where(summary => MatchesFilter(summary, query.Filter))
-            .OrderByDescending(summary => summary.Freshness.LastAppliedEventTimestamp)
-            .ThenBy(summary => summary.ConversationId.Value, StringComparer.Ordinal)
-            .ToList();
-        List<ConversationSummaryProjectionV1> accessible = accessibleMatches
-            .Skip(offset)
-            .Take(query.Page.PageSize + 1)
-            .ToList();
+        List<ConversationSummaryProjectionV1> accessibleMatches = new(tenantScoped.Count);
+        for (int index = 0; index < tenantScoped.Count; index++)
+        {
+            ConversationSummaryProjectionV1 summary = tenantScoped[index];
+            if (MatchesFilter(summary, query.Filter))
+            {
+                accessibleMatches.Add(summary);
+            }
+        }
 
-        bool issueContinuation = accessible.Count > query.Page.PageSize;
-        List<ConversationSummaryProjectionV1> selected = accessible
-            .Take(query.Page.PageSize)
-            .ToList();
+        accessibleMatches.Sort(CompareSummaries);
+
+        int remaining = Math.Max(0, accessibleMatches.Count - offset);
+        bool issueContinuation = remaining > query.Page.PageSize;
+        int takeCount = Math.Min(query.Page.PageSize, remaining);
+        ConversationSummaryProjectionV1[] selected = takeCount == 0
+            ? []
+            : new ConversationSummaryProjectionV1[takeCount];
+        for (int index = 0; index < takeCount; index++)
+        {
+            selected[index] = accessibleMatches[offset + index];
+        }
 
         // Cross-key verification is scoped to the rows actually being returned, so the cost is proportional to
         // the page (NFR2, no per-conversation fan-out over the tenant) and a conversation mid-dispatch cannot
@@ -374,19 +382,39 @@ public sealed class ConversationQueryHandler
         // elsewhere in the tenant means an accepted conversation may be missing from every page. Either way the
         // page must not claim to be current, but the rows that are proven are still returned.
         bool partialGeneration = inconsistent.Count > 0 || snapshot.HasIncompleteDispatch;
-        IReadOnlyList<ConversationSummaryProjectionV1> pageCandidates = inconsistent.Count == 0
-            ? selected
-            : [.. selected.Where(summary => !inconsistent.Contains(summary.ConversationId.Value))];
         (ConversationSearchMatchSource matchSource, string whyVisible) = DetermineMatchSource(query.Filter);
-        IReadOnlyList<ConversationSummaryV1> page = pageCandidates
-            .Select(summary => ConversationSummaryV1
-                .FromProjection(summary)
-                .WithSearchTrustPreview(summary.SearchTrustPreview.WithMatchSource(matchSource, whyVisible)))
-            .ToList();
+        ConversationSummaryV1[] pageBuffer;
+        if (inconsistent.Count == 0)
+        {
+            pageBuffer = selected.Length == 0 ? [] : new ConversationSummaryV1[selected.Length];
+            for (int index = 0; index < selected.Length; index++)
+            {
+                ConversationSummaryProjectionV1 summary = selected[index];
+                pageBuffer[index] = ConversationSummaryV1
+                    .FromProjection(summary)
+                    .WithSearchTrustPreview(summary.SearchTrustPreview.WithMatchSource(matchSource, whyVisible));
+            }
+        }
+        else
+        {
+            List<ConversationSummaryV1> filtered = new(selected.Length);
+            for (int index = 0; index < selected.Length; index++)
+            {
+                ConversationSummaryProjectionV1 summary = selected[index];
+                if (!inconsistent.Contains(summary.ConversationId.Value))
+                {
+                    filtered.Add(ConversationSummaryV1
+                        .FromProjection(summary)
+                        .WithSearchTrustPreview(summary.SearchTrustPreview.WithMatchSource(matchSource, whyVisible)));
+                }
+            }
 
-        page = await _hydrationService
+            pageBuffer = [.. filtered];
+        }
+
+        IReadOnlyList<ConversationSummaryV1> page = await _hydrationService
             .HydrateSummariesAsync(
-                page,
+                pageBuffer,
                 new ConversationHydrationContext(query.TenantId, query.CallerPrincipalId, query.CorrelationId),
                 cancellationToken)
             .ConfigureAwait(false);
@@ -400,12 +428,16 @@ public sealed class ConversationQueryHandler
         // unreachable behind a pending marker that outlived its ledger (pass-10 review).
         bool withheldFromThisPage = inconsistent.Count > 0;
 
-        string? nextCursor = issueContinuation && !withheldFromThisPage
-            ? _cursorCodec.Encode(
+        string? nextCursor = null;
+        if (issueContinuation && !withheldFromThisPage)
+        {
+            projectionGenerationToken ??= ResolveGenerationToken(snapshot, tenantScoped, poisonFree);
+            cursorScope ??= ConversationListCursor.BuildScope(query.TenantId, query.CallerPrincipalId, query.Filter);
+            nextCursor = _cursorCodec.Encode(
                 ConversationListCursor.QueryType,
-                ConversationListCursor.BuildScope(query.TenantId, query.CallerPrincipalId, query.Filter),
-                ConversationListCursor.EncodePosition(offset + selected.Count, _timeProvider.GetUtcNow(), projectionGenerationToken))
-            : null;
+                cursorScope,
+                ConversationListCursor.EncodePosition(offset + selected.Length, _timeProvider.GetUtcNow(), projectionGenerationToken));
+        }
 
         // The lifecycle record decides whether this page may be current at all: only a Ready index covers the
         // whole tenant. Proven rows are still returned while it is rebuilding or gapped.
@@ -543,19 +575,65 @@ public sealed class ConversationQueryHandler
         return (ConversationSearchMatchSource.TenantScope, "Visible through authorized tenant scope.");
     }
 
-    private static string ComputeGenerationToken(IReadOnlyList<ConversationSummaryProjectionV1> summaries)
+    private static IReadOnlyList<ConversationSummaryProjectionV1> FilterTenantScope(
+        IReadOnlyList<ConversationSummaryProjectionV1> summaries,
+        TenantId tenantId)
     {
-        if (summaries.Count == 0)
+        for (int index = 0; index < summaries.Count; index++)
         {
-            return "empty";
+            if (summaries[index].TenantId != tenantId)
+            {
+                List<ConversationSummaryProjectionV1> filtered = new(summaries.Count - 1);
+                for (int copyIndex = 0; copyIndex < index; copyIndex++)
+                {
+                    filtered.Add(summaries[copyIndex]);
+                }
+
+                for (int remainingIndex = index + 1; remainingIndex < summaries.Count; remainingIndex++)
+                {
+                    if (summaries[remainingIndex].TenantId == tenantId)
+                    {
+                        filtered.Add(summaries[remainingIndex]);
+                    }
+                }
+
+                return filtered;
+            }
+        }
+
+        return summaries;
+    }
+
+    private static int CompareSummaries(
+        ConversationSummaryProjectionV1 left,
+        ConversationSummaryProjectionV1 right)
+    {
+        int timestampComparison = right.Freshness.LastAppliedEventTimestamp
+            .CompareTo(left.Freshness.LastAppliedEventTimestamp);
+        return timestampComparison != 0
+            ? timestampComparison
+            : StringComparer.Ordinal.Compare(left.ConversationId.Value, right.ConversationId.Value);
+    }
+
+    private static string ResolveGenerationToken(
+        ConversationProjectionIndexSnapshot snapshot,
+        IReadOnlyList<ConversationSummaryProjectionV1> tenantScoped,
+        bool poisonFree)
+    {
+        if (tenantScoped.Count == 0)
+        {
+            return ConversationIndexGenerationToken.EmptyToken;
+        }
+
+        if (poisonFree && ConversationIndexGenerationToken.IsValidPersistedToken(snapshot.GenerationToken))
+        {
+            return snapshot.GenerationToken!;
         }
 
         // Bind continuation to the complete logical tenant index rather than one row plus the maximum
         // position. Different conversations legitimately carry different cursors, and a mutation below the
         // prior maximum must still invalidate a continuation that could otherwise skip or duplicate rows.
-        byte[] canonicalIndex = JsonSerializer.SerializeToUtf8Bytes(
-            summaries.OrderBy(summary => summary.ConversationId.Value, StringComparer.Ordinal));
-        return Convert.ToHexStringLower(SHA256.HashData(canonicalIndex));
+        return ConversationIndexGenerationToken.Compute(tenantScoped);
     }
 
     private static (ProjectionTrustState State, ProjectionFreshnessReasonCode Reason) AggregateFreshness(

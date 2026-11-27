@@ -32,17 +32,10 @@ public sealed class ConversationReadHydrationService
         ArgumentNullException.ThrowIfNull(details);
         ArgumentNullException.ThrowIfNull(context);
 
-        IReadOnlyList<PartyId> partyIds = details.Participants
-            .Select(participant => participant.ParticipantPartyId)
-            .Concat(details.Messages.Select(message => message.AuthorPartyId))
-            .Distinct()
-            .ToList();
+        List<PartyId> partyIds = CollectDetailPartyIds(details);
         IReadOnlyList<ProjectId> projectIds = details.ProjectId is null ? [] : [details.ProjectId];
         IReadOnlyList<FolderId> folderIds = details.FolderId is null ? [] : [details.FolderId];
-        IReadOnlyList<FileId> fileIds = details.FileReferences
-            .Select(file => file.FileId)
-            .Distinct()
-            .ToList();
+        List<FileId> fileIds = CollectDetailFileIds(details);
 
         IReadOnlyDictionary<PartyId, ReferenceHydrationResult<PartyId>> partyResults =
             await HydrateOrUnavailableAsync(partyIds, ids => _directory.HydratePartiesAsync(context, ids, cancellationToken)).ConfigureAwait(false);
@@ -53,9 +46,23 @@ public sealed class ConversationReadHydrationService
         IReadOnlyDictionary<FileId, ReferenceHydrationResult<FileId>> fileResults =
             await HydrateOrUnavailableAsync(fileIds, ids => _directory.HydrateFilesAsync(context, ids, cancellationToken)).ConfigureAwait(false);
 
-        IReadOnlyList<PartyReferenceHydrationV1> partyHydration = partyIds
-            .Select(id => ToPartyHydration(id, Resolve(id, partyResults)))
-            .ToList();
+        PartyReferenceHydrationV1[] partyHydration = partyIds.Count == 0
+            ? []
+            : new PartyReferenceHydrationV1[partyIds.Count];
+        for (int index = 0; index < partyIds.Count; index++)
+        {
+            PartyId id = partyIds[index];
+            partyHydration[index] = ToPartyHydration(id, Resolve(id, partyResults));
+        }
+
+        FileReferenceHydrationV1[] fileHydration = fileIds.Count == 0
+            ? []
+            : new FileReferenceHydrationV1[fileIds.Count];
+        for (int index = 0; index < fileIds.Count; index++)
+        {
+            FileId id = fileIds[index];
+            fileHydration[index] = ToFileHydration(id, Resolve(id, fileResults));
+        }
 
         return new ConversationDetailsV1(
             details.SchemaVersion,
@@ -76,7 +83,7 @@ public sealed class ConversationReadHydrationService
             partyHydration,
             details.ProjectId is null ? null : ToProjectHydration(details.ProjectId, Resolve(details.ProjectId, projectResults)),
             details.FolderId is null ? null : ToFolderHydration(details.FolderId, Resolve(details.FolderId, folderResults)),
-            fileIds.Select(id => ToFileHydration(id, Resolve(id, fileResults))).ToList(),
+            fileHydration,
             details.SensitivityMarks,
             details.Redactions,
             details.TrustPosture.WithParticipantResolution(WorstHydrationState(partyHydration)),
@@ -99,22 +106,35 @@ public sealed class ConversationReadHydrationService
             return summaries;
         }
 
-        IReadOnlyList<PartyId> partyIds = summaries
-            .SelectMany(summary => summary.ParticipantPartyIds)
-            .Distinct()
-            .ToList();
-        IReadOnlyList<ProjectId> projectIds = summaries
-            .Select(summary => summary.ProjectId)
-            .Where(project => project is not null)
-            .Cast<ProjectId>()
-            .Distinct()
-            .ToList();
-        IReadOnlyList<FolderId> folderIds = summaries
-            .Select(summary => summary.FolderId)
-            .Where(folder => folder is not null)
-            .Cast<FolderId>()
-            .Distinct()
-            .ToList();
+        List<PartyId> partyIds = [];
+        HashSet<PartyId> seenParties = [];
+        List<ProjectId> projectIds = [];
+        HashSet<ProjectId> seenProjects = [];
+        List<FolderId> folderIds = [];
+        HashSet<FolderId> seenFolders = [];
+        for (int index = 0; index < summaries.Count; index++)
+        {
+            ConversationSummaryV1 summary = summaries[index];
+            IReadOnlyList<PartyId> participants = summary.ParticipantPartyIds;
+            for (int partyIndex = 0; partyIndex < participants.Count; partyIndex++)
+            {
+                PartyId partyId = participants[partyIndex];
+                if (seenParties.Add(partyId))
+                {
+                    partyIds.Add(partyId);
+                }
+            }
+
+            if (summary.ProjectId is { } projectId && seenProjects.Add(projectId))
+            {
+                projectIds.Add(projectId);
+            }
+
+            if (summary.FolderId is { } folderId && seenFolders.Add(folderId))
+            {
+                folderIds.Add(folderId);
+            }
+        }
 
         IReadOnlyDictionary<PartyId, ReferenceHydrationResult<PartyId>> partyResults =
             await HydrateOrUnavailableAsync(partyIds, ids => _directory.HydratePartiesAsync(context, ids, cancellationToken)).ConfigureAwait(false);
@@ -123,32 +143,87 @@ public sealed class ConversationReadHydrationService
         IReadOnlyDictionary<FolderId, ReferenceHydrationResult<FolderId>> folderResults =
             await HydrateOrUnavailableAsync(folderIds, ids => _directory.HydrateFoldersAsync(context, ids, cancellationToken)).ConfigureAwait(false);
 
-        return summaries
-            .Select(summary =>
+        ConversationSummaryV1[] hydrated = new ConversationSummaryV1[summaries.Count];
+        for (int index = 0; index < summaries.Count; index++)
+        {
+            ConversationSummaryV1 summary = summaries[index];
+            IReadOnlyList<PartyId> participants = summary.ParticipantPartyIds;
+            PartyReferenceHydrationV1[] partyHydration = participants.Count == 0
+                ? []
+                : new PartyReferenceHydrationV1[participants.Count];
+            for (int partyIndex = 0; partyIndex < participants.Count; partyIndex++)
             {
-                IReadOnlyList<PartyReferenceHydrationV1> partyHydration = summary.ParticipantPartyIds
-                    .Select(id => ToPartyHydration(id, Resolve(id, partyResults)))
-                    .ToList();
-                return new ConversationSummaryV1(
-                    summary.SchemaVersion,
-                    summary.TenantId,
-                    summary.ConversationId,
-                    summary.Freshness,
-                    summary.LifecycleState,
-                    summary.Label,
-                    summary.BusinessReference,
-                    summary.ProjectId,
-                    summary.FolderId,
-                    summary.ParticipantPartyIds,
-                    summary.MessageCount,
-                    summary.FileReferenceCount,
-                    summary.ProviderCorrelation,
-                    partyHydration,
-                    summary.ProjectId is null ? null : ToProjectHydration(summary.ProjectId, Resolve(summary.ProjectId, projectResults)),
-                    summary.FolderId is null ? null : ToFolderHydration(summary.FolderId, Resolve(summary.FolderId, folderResults)),
-                    summary.SearchTrustPreview.WithParticipantResolution(WorstHydrationState(partyHydration)));
-            })
-            .ToList();
+                PartyId id = participants[partyIndex];
+                partyHydration[partyIndex] = ToPartyHydration(id, Resolve(id, partyResults));
+            }
+
+            hydrated[index] = new ConversationSummaryV1(
+                summary.SchemaVersion,
+                summary.TenantId,
+                summary.ConversationId,
+                summary.Freshness,
+                summary.LifecycleState,
+                summary.Label,
+                summary.BusinessReference,
+                summary.ProjectId,
+                summary.FolderId,
+                summary.ParticipantPartyIds,
+                summary.MessageCount,
+                summary.FileReferenceCount,
+                summary.ProviderCorrelation,
+                partyHydration,
+                summary.ProjectId is null ? null : ToProjectHydration(summary.ProjectId, Resolve(summary.ProjectId, projectResults)),
+                summary.FolderId is null ? null : ToFolderHydration(summary.FolderId, Resolve(summary.FolderId, folderResults)),
+                summary.SearchTrustPreview.WithParticipantResolution(WorstHydrationState(partyHydration)));
+        }
+
+        return hydrated;
+    }
+
+    private static List<PartyId> CollectDetailPartyIds(ConversationDetailsV1 details)
+    {
+        List<PartyId> partyIds = [];
+        HashSet<PartyId> seen = [];
+        for (int index = 0; index < details.Participants.Count; index++)
+        {
+            PartyId id = details.Participants[index].ParticipantPartyId;
+            if (seen.Add(id))
+            {
+                partyIds.Add(id);
+            }
+        }
+
+        for (int index = 0; index < details.Messages.Count; index++)
+        {
+            PartyId id = details.Messages[index].AuthorPartyId;
+            if (seen.Add(id))
+            {
+                partyIds.Add(id);
+            }
+        }
+
+        return partyIds;
+    }
+
+    private static List<FileId> CollectDetailFileIds(ConversationDetailsV1 details)
+    {
+        List<FileId> fileIds = [];
+        if (details.FileReferences.Count == 0)
+        {
+            return fileIds;
+        }
+
+        HashSet<FileId> seen = [];
+        for (int index = 0; index < details.FileReferences.Count; index++)
+        {
+            FileId id = details.FileReferences[index].FileId;
+            if (seen.Add(id))
+            {
+                fileIds.Add(id);
+            }
+        }
+
+        return fileIds;
     }
 
     private static async ValueTask<IReadOnlyDictionary<TReference, ReferenceHydrationResult<TReference>>> HydrateOrUnavailableAsync<TReference>(
@@ -158,7 +233,7 @@ public sealed class ConversationReadHydrationService
     {
         if (references.Count == 0)
         {
-            return new Dictionary<TReference, ReferenceHydrationResult<TReference>>();
+            return EmptyHydrationResults<TReference>.Instance;
         }
 
         try

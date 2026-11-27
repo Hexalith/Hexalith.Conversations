@@ -167,37 +167,43 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
             return models;
         }
 
-        ReadModelEntry<ConversationProjectionIndexReadModel> indexEntry = await _store
-            .GetAsync<ConversationProjectionIndexReadModel>(
-                _storeOptions.StateStoreName,
-                ConversationProjectionReadModelKeys.TenantIndexKey(tenantId),
-                cancellationToken)
-            .ConfigureAwait(false);
+        ConversationProjectionIndexLookupResult? indexLookup;
+        ConversationProjectionIndexLookupTarget? previousTarget = ConversationProjectionIndexLookupScope.Begin(conversationId.Value);
+        try
+        {
+            ReadModelEntry<ConversationProjectionIndexLookupResult> indexEntry = await _store
+                .GetAsync<ConversationProjectionIndexLookupResult>(
+                    _storeOptions.StateStoreName,
+                    ConversationProjectionReadModelKeys.TenantIndexKey(tenantId),
+                    cancellationToken)
+                .ConfigureAwait(false);
+            indexLookup = indexEntry.Value;
+        }
+        finally
+        {
+            ConversationProjectionIndexLookupScope.End(previousTarget);
+        }
 
-        ConversationSummaryProjectionV1[] indexed = [.. (indexEntry.Value?.Summaries ?? [])
-            .Where(summary => summary.ConversationId == conversationId)];
-        ConversationProjectionDispatchReference? dispatchReference = null;
-        bool hasDispatch = indexEntry.Value?.Dispatches.TryGetValue(
-            conversationId.Value,
-            out dispatchReference) == true;
+        int matchCount = indexLookup?.MatchCount ?? 0;
+        ConversationSummaryProjectionV1? indexedSummary = indexLookup?.MatchedSummary;
+        ConversationProjectionDispatchReference? dispatchReference = indexLookup?.DispatchReference;
 
         // Nothing persisted for this conversation. A pending dispatch marker alone must not make an
         // unbuilt conversation distinguishable from one that never existed: the caller maps null to the same
         // non-disclosing shape it uses for an unknown identifier.
-        if (models is null && indexed.Length == 0)
+        if (models is null && matchCount == 0)
         {
             return null;
         }
 
         if (models is null
-            || indexed.Length != 1
-            || !hasDispatch
+            || matchCount != 1
+            || indexedSummary is null
             || dispatchReference is null)
         {
             throw new ConversationProjectionConsistencyException();
         }
 
-        ConversationSummaryProjectionV1 indexedSummary = indexed[0];
         ConversationProjectionDispatchLedger? ledger = await ReadLedgerAsync(
             dispatchReference,
             tenantId,
@@ -242,28 +248,38 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
         ConversationProjectionIndexReadModel index = entry.Value;
         IReadOnlyList<ConversationSummaryProjectionV1> summaries = index.Summaries;
 
+        // Single-pass duplicate detection + position map shared across lifecycle classification and incomplete-dispatch checks.
         // The index naming one conversation twice is structural corruption of the index itself: no page taken
         // from it can be trusted, so this is the one tenant-scoped failure that remains.
-        if (summaries.Select(summary => summary.ConversationId.Value).Distinct(StringComparer.Ordinal).Count() != summaries.Count)
+        Dictionary<string, long> positions = new(summaries.Count, StringComparer.Ordinal);
+        for (int i = 0; i < summaries.Count; i++)
         {
-            throw new ConversationProjectionConsistencyException();
+            ConversationSummaryProjectionV1 summary = summaries[i];
+            if (!positions.TryAdd(summary.ConversationId.Value, summary.Freshness.LastAppliedEventPosition))
+            {
+                throw new ConversationProjectionConsistencyException();
+            }
         }
 
-        ConversationProjectionIndexReadState readState = ClassifyLifecycle(index);
+        ConversationProjectionIndexReadState readState = ClassifyLifecycle(index, positions);
         IReadOnlyDictionary<string, ConversationProjectionDispatchReference> dispatches = index.Dispatches;
-        Dictionary<string, long> positions = summaries.ToDictionary(
-            summary => summary.ConversationId.Value,
-            summary => summary.Freshness.LastAppliedEventPosition,
-            StringComparer.Ordinal);
 
         // A dispatch reference the summaries do not reflect means an accepted conversation may be missing from
         // every page. Callers must not report such a page as current, but they may still return the rows they
         // hold: an omission degrades freshness, it does not invalidate unrelated conversations.
-        bool hasIncompleteDispatch = dispatches.Any(pair =>
-            !positions.TryGetValue(pair.Key, out long position)
-            || position != pair.Value.LastAppliedEventPosition
-            || pair.Value.IsPending
-            || string.IsNullOrWhiteSpace(pair.Value.DispatchId));
+        bool hasIncompleteDispatch = false;
+        foreach (KeyValuePair<string, ConversationProjectionDispatchReference> pair in dispatches)
+        {
+            ConversationProjectionDispatchReference reference = pair.Value;
+            if (!positions.TryGetValue(pair.Key, out long position)
+                || position != reference.LastAppliedEventPosition
+                || reference.IsPending
+                || string.IsNullOrWhiteSpace(reference.DispatchId))
+            {
+                hasIncompleteDispatch = true;
+                break;
+            }
+        }
 
         return new ConversationProjectionIndexSnapshot
         {
@@ -271,6 +287,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
             Dispatches = dispatches,
             HasIncompleteDispatch = hasIncompleteDispatch,
             ReadState = readState,
+            GenerationToken = index.GenerationToken,
         };
     }
 
@@ -288,8 +305,8 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
         ArgumentNullException.ThrowIfNull(index);
         if (index.SchemaVersion is 0 or 1)
         {
-            // A version 1 record has no lifecycle; one that carries lifecycle fields contradicts itself.
-            if (index.Lifecycle is not null || index.Watermarks is not null)
+            // A version 1 record has no lifecycle or v2 generation token; one that carries them contradicts itself.
+            if (index.Lifecycle is not null || index.Watermarks is not null || index.GenerationToken is not null)
             {
                 throw new ConversationProjectionConsistencyException();
             }
@@ -300,35 +317,119 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
         if (!index.IsLifecycleRecord
             || index.Lifecycle is not { } lifecycle
             || !Enum.IsDefined(lifecycle)
-            || index.Watermarks is not { } watermarks
-            || watermarks.Any(static pair => string.IsNullOrWhiteSpace(pair.Key) || pair.Value < 1))
+            || index.Watermarks is not { } watermarks)
         {
             throw new ConversationProjectionConsistencyException();
         }
 
-        bool gap = false;
-        foreach (ConversationSummaryProjectionV1 summary in index.Summaries)
+        foreach (KeyValuePair<string, long> pair in watermarks)
         {
-            long position = summary.Freshness.LastAppliedEventPosition;
-            if (!watermarks.TryGetValue(summary.ConversationId.Value, out long watermark))
+            if (string.IsNullOrWhiteSpace(pair.Key) || pair.Value < 1)
             {
-                // Lifecycle gap: the record does not cover a conversation it lists.
+                throw new ConversationProjectionConsistencyException();
+            }
+        }
+
+        bool gap = false;
+        HashSet<string> listed = new(index.Summaries.Count, StringComparer.Ordinal);
+        for (int i = 0; i < index.Summaries.Count; i++)
+        {
+            ConversationSummaryProjectionV1 summary = index.Summaries[i];
+            string conversationId = summary.ConversationId.Value;
+            _ = listed.Add(conversationId);
+            long position = summary.Freshness.LastAppliedEventPosition;
+            if (!watermarks.TryGetValue(conversationId, out long watermark))
+            {
                 gap = true;
                 continue;
             }
 
             if (position > watermark)
             {
+                throw new ConversationProjectionConsistencyException();
+            }
+
+            if (position < watermark)
+            {
+                gap = true;
+            }
+        }
+
+        foreach (string watermarkId in watermarks.Keys)
+        {
+            if (!listed.Contains(watermarkId))
+            {
+                gap = true;
+                break;
+            }
+        }
+
+        if (lifecycle == ConversationProjectionIndexLifecycle.Rebuilding)
+        {
+            return ConversationProjectionIndexReadState.Rebuilding;
+        }
+
+        return gap ? ConversationProjectionIndexReadState.GapDetected : ConversationProjectionIndexReadState.Ready;
+    }
+
+    private static ConversationProjectionIndexReadState ClassifyLifecycle(
+        ConversationProjectionIndexReadModel index,
+        Dictionary<string, long> positions)
+    {
+        if (index.SchemaVersion is 0 or 1)
+        {
+            // A version 1 record has no lifecycle or v2 generation token; one that carries them contradicts itself.
+            if (index.Lifecycle is not null || index.Watermarks is not null || index.GenerationToken is not null)
+            {
+                throw new ConversationProjectionConsistencyException();
+            }
+
+            return ConversationProjectionIndexReadState.Rebuilding;
+        }
+
+        if (!index.IsLifecycleRecord
+            || index.Lifecycle is not { } lifecycle
+            || !Enum.IsDefined(lifecycle)
+            || index.Watermarks is not { } watermarks)
+        {
+            throw new ConversationProjectionConsistencyException();
+        }
+
+        bool gap = false;
+        int coveredSummaryCount = 0;
+        foreach (KeyValuePair<string, long> pair in watermarks)
+        {
+            if (string.IsNullOrWhiteSpace(pair.Key) || pair.Value < 1)
+            {
+                throw new ConversationProjectionConsistencyException();
+            }
+
+            if (!positions.TryGetValue(pair.Key, out long position))
+            {
+                // Watermark covers a conversation not currently listed in the index.
+                gap = true;
+                continue;
+            }
+
+            coveredSummaryCount++;
+            if (position > pair.Value)
+            {
                 // Watermarks never regress and move in the same compare-and-swap as their summary.
                 throw new ConversationProjectionConsistencyException();
             }
 
             // Source-position gap: the index once published a newer position than it now holds.
-            gap |= position < watermark;
+            if (position < pair.Value)
+            {
+                gap = true;
+            }
         }
 
-        HashSet<string> listed = index.Summaries.Select(static summary => summary.ConversationId.Value).ToHashSet(StringComparer.Ordinal);
-        gap |= watermarks.Keys.Any(conversationId => !listed.Contains(conversationId));
+        // Lifecycle gap: at least one listed summary is not covered by any watermark.
+        if (coveredSummaryCount != positions.Count)
+        {
+            gap = true;
+        }
 
         if (lifecycle == ConversationProjectionIndexLifecycle.Rebuilding)
         {
@@ -355,10 +456,11 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
             return inconsistent;
         }
 
-        List<ConversationSummaryProjectionV1> verifiable = [];
-        Dictionary<string, ConversationProjectionDispatchReference> references = new(StringComparer.Ordinal);
-        foreach (ConversationSummaryProjectionV1 summary in page)
+        List<ConversationSummaryProjectionV1> verifiable = new(page.Count);
+        List<ConversationProjectionDispatchReference> verifiableReferences = new(page.Count);
+        for (int index = 0; index < page.Count; index++)
         {
+            ConversationSummaryProjectionV1 summary = page[index];
             string conversationId = summary.ConversationId.Value;
             if (summary.TenantId != tenantId
                 || !snapshot.Dispatches.TryGetValue(conversationId, out ConversationProjectionDispatchReference? reference)
@@ -372,7 +474,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
             }
 
             verifiable.Add(summary);
-            references[conversationId] = reference;
+            verifiableReferences.Add(reference);
         }
 
         if (verifiable.Count == 0)
@@ -380,27 +482,60 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
             return inconsistent;
         }
 
-        string[] detailKeys = [.. verifiable.Select(summary =>
-            ConversationProjectionReadModelKeys.ConversationKey(tenantId, summary.ConversationId))];
-        IReadOnlyDictionary<string, ConversationProjectedReadModels?> details = await BulkReadAsync<ConversationProjectedReadModels>(
-            detailKeys,
-            cancellationToken).ConfigureAwait(false);
+        int verifiableCount = verifiable.Count;
+        string[] detailKeys = new string[verifiableCount];
+        string[] rowLedgerKeys = new string[verifiableCount];
+        HashSet<string> seenLedgerKeys = new(verifiableCount, StringComparer.Ordinal);
+        List<string> uniqueLedgerKeys = new(verifiableCount);
+        for (int index = 0; index < verifiableCount; index++)
+        {
+            detailKeys[index] = ConversationProjectionReadModelKeys.ConversationKey(tenantId, verifiable[index].ConversationId);
+            string ledgerKey = ConversationProjectionReadModelKeys.DispatchLedgerKey(verifiableReferences[index].DispatchId);
+            rowLedgerKeys[index] = ledgerKey;
+            if (seenLedgerKeys.Add(ledgerKey))
+            {
+                uniqueLedgerKeys.Add(ledgerKey);
+            }
+        }
 
-        string[] ledgerKeys = [.. references.Values
-            .Select(reference => ConversationProjectionReadModelKeys.DispatchLedgerKey(reference.DispatchId))
-            .Distinct(StringComparer.Ordinal)];
-        IReadOnlyDictionary<string, ConversationProjectionDispatchLedger?> ledgers = await BulkReadAsync<ConversationProjectionDispatchLedger>(
-            ledgerKeys,
-            cancellationToken).ConfigureAwait(false);
+        // Start both bounded bulk reads before awaiting either so network-backed stores (Dapr+Redis) overlap them.
+        // Link cancellation so a fault on detailsTask cancels and cleanly awaits ledgersTask before rethrowing.
+        using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        Task<IReadOnlyDictionary<string, ConversationPageValidationRecord?>> detailsTask =
+            BulkReadAsync<ConversationPageValidationRecord>(detailKeys, linkedCts.Token);
+        Task<IReadOnlyDictionary<string, ConversationProjectionDispatchLedger?>> ledgersTask =
+            BulkReadAsync<ConversationProjectionDispatchLedger>(uniqueLedgerKeys, linkedCts.Token);
 
-        for (int index = 0; index < verifiable.Count; index++)
+        IReadOnlyDictionary<string, ConversationPageValidationRecord?> details;
+        IReadOnlyDictionary<string, ConversationProjectionDispatchLedger?> ledgers;
+        try
+        {
+            details = await detailsTask.ConfigureAwait(false);
+        }
+        catch
+        {
+            await linkedCts.CancelAsync().ConfigureAwait(false);
+            try
+            {
+                _ = await ledgersTask.ConfigureAwait(false);
+            }
+            catch
+            {
+                // Primary detailsTask exception takes precedence after cancelling and awaiting ledgersTask.
+            }
+
+            throw;
+        }
+
+        ledgers = await ledgersTask.ConfigureAwait(false);
+
+        for (int index = 0; index < verifiableCount; index++)
         {
             ConversationSummaryProjectionV1 summary = verifiable[index];
             string conversationId = summary.ConversationId.Value;
-            ConversationProjectionDispatchReference reference = references[conversationId];
-            ConversationProjectedReadModels? models = details[detailKeys[index]];
-            ConversationProjectionDispatchLedger? ledger = ledgers[
-                ConversationProjectionReadModelKeys.DispatchLedgerKey(reference.DispatchId)];
+            ConversationProjectionDispatchReference reference = verifiableReferences[index];
+            ConversationPageValidationRecord? models = details[detailKeys[index]];
+            ConversationProjectionDispatchLedger? ledger = ledgers[rowLedgerKeys[index]];
             if (models is null
                 || (ledger is not null
                     && (ledger.Status != ConversationProjectionDispatchStatus.Completed
@@ -436,30 +571,15 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
         }
 
         var values = new Dictionary<string, TValue?>(keys.Count, StringComparer.Ordinal);
-        foreach (string[] chunk in keys.Chunk(BulkReadChunkSize))
+        if (keys.Count <= BulkReadChunkSize)
         {
-            HashSet<string> requested = new(chunk, StringComparer.Ordinal);
-            IReadOnlyList<ReadModelBulkEntry<TValue>> entries = await bulkStore
-                .GetManyAsync<TValue>(
-                    _storeOptions.StateStoreName,
-                    chunk,
-                    BulkReadParallelism,
-                    cancellationToken)
-                .ConfigureAwait(false);
-            if (entries.Count != chunk.Length
-                || entries.Select(static item => item.Key).Distinct(StringComparer.Ordinal).Count() != entries.Count)
+            await BulkReadChunkAsync(bulkStore, keys, values, cancellationToken).ConfigureAwait(false);
+        }
+        else
+        {
+            foreach (string[] chunk in keys.Chunk(BulkReadChunkSize))
             {
-                throw new ConversationProjectionConsistencyException();
-            }
-
-            foreach (ReadModelBulkEntry<TValue> item in entries)
-            {
-                if (!requested.Contains(item.Key))
-                {
-                    throw new ConversationProjectionConsistencyException();
-                }
-
-                values[item.Key] = item.Value;
+                await BulkReadChunkAsync(bulkStore, chunk, values, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -469,6 +589,41 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
         }
 
         return values;
+    }
+
+    private async Task BulkReadChunkAsync<TValue>(
+        IReadModelBulkStore bulkStore,
+        IReadOnlyList<string> chunk,
+        Dictionary<string, TValue?> values,
+        CancellationToken cancellationToken)
+        where TValue : class
+    {
+        HashSet<string> requested = new(chunk.Count, StringComparer.Ordinal);
+        for (int index = 0; index < chunk.Count; index++)
+        {
+            _ = requested.Add(chunk[index]);
+        }
+
+        IReadOnlyList<ReadModelBulkEntry<TValue>> entries = await bulkStore
+            .GetManyAsync<TValue>(
+                _storeOptions.StateStoreName,
+                chunk,
+                BulkReadParallelism,
+                cancellationToken)
+            .ConfigureAwait(false);
+        if (entries.Count != chunk.Count)
+        {
+            throw new ConversationProjectionConsistencyException();
+        }
+
+        for (int index = 0; index < entries.Count; index++)
+        {
+            ReadModelBulkEntry<TValue> item = entries[index];
+            if (!requested.Contains(item.Key) || !values.TryAdd(item.Key, item.Value))
+            {
+                throw new ConversationProjectionConsistencyException();
+            }
+        }
     }
 
     private async Task<ConversationProjectionDispatchLedger?> ReadLedgerAsync(
@@ -535,6 +690,29 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
         if (firstData is null || secondData is null || firstData.Count != secondData.Count) return false;
 
         // Stored JSON object keys are ordinal and independent of insertion order.
-        return firstData.ToHashSet().SetEquals(secondData);
+        if (firstData.Count == 0)
+        {
+            return true;
+        }
+
+        foreach (KeyValuePair<string, string> entry in firstData)
+        {
+            bool matched = false;
+            foreach (KeyValuePair<string, string> other in secondData)
+            {
+                if (string.Equals(entry.Key, other.Key, StringComparison.Ordinal))
+                {
+                    matched = string.Equals(entry.Value, other.Value, StringComparison.Ordinal);
+                    break;
+                }
+            }
+
+            if (!matched)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

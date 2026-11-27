@@ -200,6 +200,94 @@ public sealed class ConversationReadHydrationServiceTest
         party.SafeStatus.ShouldBe("Unavailable");
     }
 
+    /// <summary>
+    /// Summary list hydration deduplicates shared party, project, and folder references into one batch call per kind
+    /// and populates each summary's hydration fields accurately.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Fact]
+    public async Task HydrateSummariesShouldDeduplicateProjectsFoldersAndPartiesAndPopulateHydration()
+    {
+        ProjectId project2 = new("project-002");
+        FolderId folder2 = new("folder-002");
+        FakeReferenceHydrationDirectory directory = new()
+        {
+            PartyResults =
+            {
+                [Actor] = new ReferenceHydrationResult<PartyId>(Actor, ReferenceHydrationStatus.Current, "Actor Name", "actor", "Current"),
+                [Participant] = new ReferenceHydrationResult<PartyId>(Participant, ReferenceHydrationStatus.Stale, "Member Name", "member", "Stale"),
+            },
+            ProjectResults =
+            {
+                [Project] = new ReferenceHydrationResult<ProjectId>(Project, ReferenceHydrationStatus.Current, "Project Alpha", "project", "Current"),
+                [project2] = new ReferenceHydrationResult<ProjectId>(project2, ReferenceHydrationStatus.Stale, "Project Beta", "project", "Stale"),
+            },
+            FolderResults =
+            {
+                [Folder] = new ReferenceHydrationResult<FolderId>(Folder, ReferenceHydrationStatus.Current, "Folder One", "folder", "Current"),
+                [folder2] = new ReferenceHydrationResult<FolderId>(folder2, ReferenceHydrationStatus.Unavailable, "POISON folder"),
+            },
+        };
+        ConversationReadHydrationService service = new(directory);
+
+        ConversationSummaryV1 first = new(
+            SchemaVersion.Current,
+            Tenant,
+            new ConversationId("conv-s1"),
+            Freshness(),
+            "Open",
+            "First",
+            ProjectId: Project,
+            FolderId: Folder,
+            ParticipantPartyIds: [Actor, Participant]);
+        ConversationSummaryV1 second = new(
+            SchemaVersion.Current,
+            Tenant,
+            new ConversationId("conv-s2"),
+            Freshness(),
+            "Open",
+            "Second",
+            ProjectId: Project,
+            FolderId: folder2,
+            ParticipantPartyIds: [Actor]);
+        ConversationSummaryV1 third = new(
+            SchemaVersion.Current,
+            Tenant,
+            new ConversationId("conv-s3"),
+            Freshness(),
+            "Open",
+            "Third",
+            ProjectId: project2,
+            FolderId: Folder,
+            ParticipantPartyIds: [Participant]);
+
+        IReadOnlyList<ConversationSummaryV1> hydrated = await service.HydrateSummariesAsync(
+            [first, second, third],
+            new ConversationHydrationContext(Tenant, "caller-001", "correlation-001"),
+            TestContext.Current.CancellationToken);
+
+        directory.PartyBatchCalls.ShouldBe(1);
+        directory.ProjectBatchCalls.ShouldBe(1);
+        directory.FolderBatchCalls.ShouldBe(1);
+        directory.LastPartyIds.ShouldBe([Actor, Participant], ignoreOrder: true);
+        directory.LastProjectIds.ShouldBe([Project, project2], ignoreOrder: true);
+        directory.LastFolderIds.ShouldBe([Folder, folder2], ignoreOrder: true);
+
+        hydrated.Count.ShouldBe(3);
+        hydrated[0].ProjectHydration.ShouldNotBeNull().SafeLabel.ShouldBe("Project Alpha");
+        hydrated[0].FolderHydration.ShouldNotBeNull().SafeLabel.ShouldBe("Folder One");
+        hydrated[0].PartyHydration.Count.ShouldBe(2);
+        hydrated[0].SearchTrustPreview.ParticipantResolutionState.ShouldBe(ProjectionTrustState.Stale);
+
+        hydrated[1].ProjectHydration.ShouldNotBeNull().SafeLabel.ShouldBe("Project Alpha");
+        hydrated[1].FolderHydration.ShouldNotBeNull().HydrationState.ShouldBe(ProjectionTrustState.Unavailable);
+        hydrated[1].FolderHydration!.SafeLabel.ShouldBe("Reference unavailable");
+        hydrated[1].SearchTrustPreview.ParticipantResolutionState.ShouldBe(ProjectionTrustState.Current);
+
+        hydrated[2].ProjectHydration.ShouldNotBeNull().SafeLabel.ShouldBe("Project Beta");
+        hydrated[2].FolderHydration.ShouldNotBeNull().SafeLabel.ShouldBe("Folder One");
+    }
+
     private static ConversationDetailProjectionV1 Detail()
         => new(
             SchemaVersion.Current,
@@ -268,6 +356,10 @@ public sealed class ConversationReadHydrationServiceTest
 
         public IReadOnlyList<PartyId> LastPartyIds { get; private set; } = [];
 
+        public IReadOnlyList<ProjectId> LastProjectIds { get; private set; } = [];
+
+        public IReadOnlyList<FolderId> LastFolderIds { get; private set; } = [];
+
         public bool ThrowOnParties { get; set; }
 
         public ValueTask<IReadOnlyDictionary<PartyId, ReferenceHydrationResult<PartyId>>> HydratePartiesAsync(
@@ -296,6 +388,7 @@ public sealed class ConversationReadHydrationServiceTest
         {
             cancellationToken.ThrowIfCancellationRequested();
             ProjectBatchCalls++;
+            LastProjectIds = projectIds.ToList();
             return ValueTask.FromResult((IReadOnlyDictionary<ProjectId, ReferenceHydrationResult<ProjectId>>)ProjectResults);
         }
 
@@ -306,6 +399,7 @@ public sealed class ConversationReadHydrationServiceTest
         {
             cancellationToken.ThrowIfCancellationRequested();
             FolderBatchCalls++;
+            LastFolderIds = folderIds.ToList();
             return ValueTask.FromResult((IReadOnlyDictionary<FolderId, ReferenceHydrationResult<FolderId>>)FolderResults);
         }
 

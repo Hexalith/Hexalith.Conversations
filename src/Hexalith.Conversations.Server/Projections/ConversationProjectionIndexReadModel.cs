@@ -62,6 +62,14 @@ public sealed class ConversationProjectionIndexReadModel
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     internal IReadOnlyDictionary<string, long>? Watermarks { get; init; }
 
+    /// <summary>
+    /// Gets the canonical SHA-256 generation token over the ordered tenant summaries, persisted on version 2 writes
+    /// so list queries can reuse it when no cross-tenant poison rows are present; absent on legacy records.
+    /// </summary>
+    [JsonInclude]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    internal string? GenerationToken { get; init; }
+
     /// <summary>Gets a value indicating whether the record is a version 2 lifecycle record.</summary>
     internal bool IsLifecycleRecord => SchemaVersion == LifecycleSchemaVersion;
 }

@@ -235,6 +235,7 @@ public sealed class ConversationProjectionReadModelWriter
             }
         }
 
+        bool summariesChanged = false;
         foreach (ConversationSummaryProjectionV1 summary in incoming.Summaries)
         {
             string conversationId = summary.ConversationId.Value;
@@ -252,6 +253,7 @@ public sealed class ConversationProjectionReadModelWriter
                 {
                     byConversation[conversationId] = summary;
                     RaiseWatermark(header.Watermarks, summary);
+                    summariesChanged = true;
                 }
 
                 continue;
@@ -263,7 +265,17 @@ public sealed class ConversationProjectionReadModelWriter
             {
                 byConversation[conversationId] = summary;
                 RaiseWatermark(header.Watermarks, summary);
+                summariesChanged = true;
             }
+        }
+
+        if (!summariesChanged && persisted.Summaries.Count == byConversation.Count)
+        {
+            return Compose(
+                header,
+                persisted.Summaries,
+                dispatches,
+                preservedGenerationToken: persisted.GenerationToken);
         }
 
         return Compose(header, byConversation.Values, dispatches);
@@ -373,19 +385,43 @@ public sealed class ConversationProjectionReadModelWriter
     private static ConversationProjectionIndexReadModel Compose(
         ConversationProjectionIndexHeader header,
         IEnumerable<ConversationSummaryProjectionV1> summaries,
-        IReadOnlyDictionary<string, ConversationProjectionDispatchReference> dispatches)
-        => new()
+        IReadOnlyDictionary<string, ConversationProjectionDispatchReference> dispatches,
+        string? preservedGenerationToken = null)
+    {
+        IReadOnlyList<ConversationSummaryProjectionV1> orderedSummaries;
+        string? generationToken;
+        if (summaries is IReadOnlyList<ConversationSummaryProjectionV1> existingList
+            && existingList.Count > 0
+            && ConversationIndexGenerationToken.IsValidPersistedToken(preservedGenerationToken)
+            && ConversationIndexGenerationToken.IsOrdered(existingList))
+        {
+            orderedSummaries = existingList;
+            generationToken = preservedGenerationToken;
+        }
+        else
+        {
+            ConversationSummaryProjectionV1[] sorted =
+                [.. summaries.OrderBy(static summary => summary.ConversationId.Value, StringComparer.Ordinal)];
+            orderedSummaries = sorted;
+            generationToken = sorted.Length == 0
+                ? null
+                : ConversationIndexGenerationToken.Compute(sorted);
+        }
+
+        return new()
         {
             SchemaVersion = ConversationProjectionIndexReadModel.LifecycleSchemaVersion,
             Lifecycle = header.Lifecycle,
             Watermarks = header.Watermarks
                 .OrderBy(static pair => pair.Key, StringComparer.Ordinal)
                 .ToDictionary(static pair => pair.Key, static pair => pair.Value, StringComparer.Ordinal),
-            Summaries = [.. summaries.OrderBy(summary => summary.ConversationId.Value, StringComparer.Ordinal)],
+            Summaries = orderedSummaries,
             Dispatches = dispatches
                 .OrderBy(static pair => pair.Key, StringComparer.Ordinal)
                 .ToDictionary(static pair => pair.Key, static pair => pair.Value, StringComparer.Ordinal),
+            GenerationToken = generationToken,
         };
+    }
 
     /// <summary>
     /// Removes one terminal pending marker only when it has not advanced the durable conversation generation.
@@ -470,7 +506,7 @@ public sealed class ConversationProjectionReadModelWriter
             || !string.Equals(marker.DispatchId, dispatchId, StringComparison.Ordinal)
             || !marker.IsPending)
         {
-            return Compose(AdvanceHeader(existing), current.Summaries, current.Dispatches);
+            return Compose(AdvanceHeader(existing), current.Summaries, current.Dispatches, preservedGenerationToken: existing?.GenerationToken);
         }
 
         var dispatches = new Dictionary<string, ConversationProjectionDispatchReference>(current.Dispatches, StringComparer.Ordinal);
@@ -486,7 +522,7 @@ public sealed class ConversationProjectionReadModelWriter
             _ = dispatches.Remove(conversationId);
         }
 
-        return Compose(AdvanceHeader(existing), current.Summaries, dispatches);
+        return Compose(AdvanceHeader(existing), current.Summaries, dispatches, preservedGenerationToken: existing?.GenerationToken);
     }
 
     private static ConversationProjectionDispatchReference PrepareWinningReference(

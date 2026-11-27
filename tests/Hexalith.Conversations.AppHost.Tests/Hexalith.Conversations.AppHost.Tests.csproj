@@ -12,6 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Hexalith.Conversations.AppHost\Hexalith.Conversations.AppHost.csproj" />
     <ProjectReference Include="..\..\src\Hexalith.Conversations\Hexalith.Conversations.csproj" />
+    <ProjectReference Include="..\..\src\Hexalith.Conversations.Server\Hexalith.Conversations.Server.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(UseHexalithProjectReferences)' == 'true'">
     <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Aspire\Hexalith.EventStore.Aspire.csproj" IsAspireProjectResource="false" Condition="'$(HexalithEventStoreRoot)' != ''" />

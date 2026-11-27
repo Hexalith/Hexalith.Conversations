@@ -1,0 +1,413 @@
+# Derived-Key Correctness Proof v1 (Story 12.3)
+
+Deterministic correctness proof within ADR 0005 (`conversations-derived-keys-v2`). No final SM-C2 performance verdict is issued.
+
+- Schema version: `hexalith.conversations.derived-key-correctness-proof.v1`
+- Candidate `HEAD`: `b7c12907b4833ab1ade68641346c583dfebf1b18`
+- Payload SHA-256: `c9840d858251dba4c7c41ebcf72ddc841e306152ef85c6ec1b05c070f93a3ef5`
+- Waived scenarios: `AC-12.3-08` (`waived`, never `PASS`)
+
+## Correctness Lanes
+
+| Lane | Result Path | Total | Passed | Failed | Skipped | Outcome |
+| --- | --- | ---: | ---: | ---: | ---: | --- |
+| `unit` | `artifacts/v9/12.3/AC-12.3-02.trx` | 1 | 1 | 0 | 0 | `PASS` |
+| `integration` | `artifacts/v9/12.3/integration.trx` | 5 | 5 | 0 | 0 | `PASS` |
+| `dapr` | `artifacts/v9/12.3/dapr.trx` | 5 | 5 | 0 | 0 | `PASS` |
+
+## Authoritative Payload
+
+```json
+{
+  "schemaVersion": "hexalith.conversations.derived-key-correctness-proof.v1",
+  "candidate": {
+    "storyId": "12.3",
+    "contract": {
+      "path": "_bmad-output/planning-artifacts/v9/story-contracts/12.3.json",
+      "sha256": "b4d30cd3433e7524196814d47dad233f6a88fad2f90e01e46e2b9a53aec0dcb7"
+    },
+    "headCommit": "b7c12907b4833ab1ade68641346c583dfebf1b18",
+    "rootSubmodules": [
+      {
+        "path": "references/Hexalith.AI.Tools",
+        "gitlink": "8c75bcccb4c592d749e2898ca1dbbedf61577474",
+        "url": "https://github.com/Hexalith/Hexalith.AI.Tools.git"
+      },
+      {
+        "path": "references/Hexalith.Builds",
+        "gitlink": "91cb7cba990ffdf82930f9bf8cb68aef41baba76",
+        "url": "https://github.com/Hexalith/Hexalith.Builds.git"
+      },
+      {
+        "path": "references/Hexalith.Commons",
+        "gitlink": "c4a74445c0d0aaf0d1f102a06af204d6e7834ee0",
+        "url": "https://github.com/Hexalith/Hexalith.Commons.git"
+      },
+      {
+        "path": "references/Hexalith.EventStore",
+        "gitlink": "5484fae6c284cd8fe70b51bf921c5b31509b6c27",
+        "url": "https://github.com/Hexalith/Hexalith.EventStore.git"
+      },
+      {
+        "path": "references/Hexalith.Folders",
+        "gitlink": "bf60ba51e7e665cb99db353652c5a5b6112b9b5c",
+        "url": "https://github.com/Hexalith/Hexalith.Folders.git"
+      },
+      {
+        "path": "references/Hexalith.FrontComposer",
+        "gitlink": "b3342381f59f3d1912f299b6dc597c3bff0e76a1",
+        "url": "https://github.com/Hexalith/Hexalith.FrontComposer.git"
+      },
+      {
+        "path": "references/Hexalith.McpCli",
+        "gitlink": "033121facc0d6d5eaa1c55a41cf2608688f75561",
+        "url": "https://github.com/Hexalith/Hexalith.McpCli.git"
+      },
+      {
+        "path": "references/Hexalith.Memories",
+        "gitlink": "8eeb3017c4813a42343807ca911812c32ef200f3",
+        "url": "https://github.com/Hexalith/Hexalith.Memories.git"
+      },
+      {
+        "path": "references/Hexalith.Parties",
+        "gitlink": "ca637a01829c57d9163fb686a56bc82b094a10d9",
+        "url": "https://github.com/Hexalith/Hexalith.Parties.git"
+      },
+      {
+        "path": "references/Hexalith.Platform",
+        "gitlink": "3bcac63c6fe20b46687b6e0bb7a333ea8c66fb4d",
+        "url": "https://github.com/Hexalith/Hexalith.Platform.git"
+      },
+      {
+        "path": "references/Hexalith.Projects",
+        "gitlink": "2067b57d8c72af9f83a404eefd80d33033d51268",
+        "url": "https://github.com/Hexalith/Hexalith.Projects.git"
+      },
+      {
+        "path": "references/Hexalith.Tenants",
+        "gitlink": "ce3aadd8f2f7c96c67544d4bdc422f6e923a69d0",
+        "url": "https://github.com/Hexalith/Hexalith.Tenants.git"
+      }
+    ],
+    "inventory": {
+      "id": "V9-12.3-ENTRY-v1",
+      "rows": [
+        "V8-6.11-AC2",
+        "V8-6.11-AC3",
+        "V8-6.11-AC4",
+        "V8-6.11-AC8",
+        "V8-6.11-PROHIBITION-READS-NEVER-REPAIR-DURABLE-STATE",
+        "V8-6.11-ROLLBACK-CORRECTNESS-PRESERVING"
+      ],
+      "sha256": "90b74a649cd827494f199bb722c3e1708306cc212f5a12df7325218dc4c31546"
+    },
+    "predecessors": [
+      {
+        "storyId": "12.1",
+        "commit": "455b8dea499fef5b0e5e6f8426badbb047ef3edf",
+        "freezeCommit": null,
+        "files": [
+          {
+            "path": "_bmad-output/implementation-artifacts/spec-12-1-approve-derived-key-ownership-lifecycle-and-rollback.md",
+            "sha256": "40509329bad98f5c1f8eeff6179ad5144809188d2ef7de1eac7ca781d6cd13e1"
+          },
+          {
+            "path": "docs/release-evidence/derived-key-lifecycle-decision-v1.json",
+            "sha256": "cddf2b9bd5ee5869278247800a1c657399d2b4c431029a9741afd59ea98d9721"
+          },
+          {
+            "path": "docs/release-evidence/derived-key-lifecycle-decision-v1.md",
+            "sha256": "c3d6ac601769cf040463f040dd9606b69512069f2e231bd0bac0ecfecf3ab181"
+          }
+        ],
+        "sprint": {
+          "path": "_bmad-output/implementation-artifacts/sprint-status.yaml",
+          "key": "12-1-approve-derived-key-ownership-lifecycle-and-rollback",
+          "state": "done",
+          "committedSha256": "9fafa79b340bf78ea4c83fa6ff83da00cef09ea1b38934b7aba3a0f1fc54ff0d"
+        }
+      },
+      {
+        "storyId": "12.2",
+        "commit": "dc661903b063cdf56cdca3299d881e437f095d8c",
+        "freezeCommit": "0cb5cf651e24ac69b9c60335cb0b058355b4c76f",
+        "files": [
+          {
+            "path": "_bmad-output/implementation-artifacts/spec-12-2-freeze-the-benchmark-method-and-signal-quality-algorithm.md",
+            "sha256": "9d9a63c4379305a71d1a832d2626ee19d63fc08019d5496f020e3bf36a20d28e"
+          },
+          {
+            "path": "docs/release-evidence/sm-c2-measurement-method-v2.json",
+            "sha256": "bdb9601a4797cbef81fea9907bbea787290e2f9920001f8d81f0b29f0edcdfef"
+          },
+          {
+            "path": "docs/release-evidence/sm-c2-measurement-method-v2.md",
+            "sha256": "e80361fc3ceb74d5e433377d89018ebd2d7260aecd7d51b0839397b4e920d86e"
+          }
+        ],
+        "sprint": {
+          "path": "_bmad-output/implementation-artifacts/sprint-status.yaml",
+          "key": "12-2-freeze-the-benchmark-method-and-signal-quality-algorithm",
+          "state": "done",
+          "committedSha256": "9ceffc8619321d59fa552b42fe22d81b7f51d7f7b8b8a08bdae50361aa108b6d"
+        }
+      }
+    ],
+    "commandSubstitutions": [
+      {
+        "scenarioId": "AC-12.3-01",
+        "contracted": "Release/net10.0",
+        "executed": "Debug/net11.0",
+        "reason": "24 November execution rules: producer-selected source-mapping Debug/net11.0 configuration."
+      },
+      {
+        "scenarioId": "AC-12.3-02",
+        "contracted": "Release/net10.0",
+        "executed": "Debug/net11.0",
+        "reason": "24 November execution rules: producer-selected source-mapping Debug/net11.0 configuration."
+      },
+      {
+        "scenarioId": "AC-12.3-03",
+        "contracted": "Release/net10.0",
+        "executed": "Debug/net11.0",
+        "reason": "24 November execution rules: producer-selected source-mapping Debug/net11.0 configuration."
+      },
+      {
+        "scenarioId": "AC-12.3-04",
+        "contracted": "Release/net10.0",
+        "executed": "Debug/net11.0",
+        "reason": "24 November execution rules: producer-selected source-mapping Debug/net11.0 configuration."
+      },
+      {
+        "scenarioId": "AC-12.3-05",
+        "contracted": "Release/net10.0",
+        "executed": "Debug/net11.0",
+        "reason": "24 November execution rules: producer-selected source-mapping Debug/net11.0 configuration."
+      }
+    ],
+    "waivedScenarios": [
+      {
+        "id": "AC-12.3-08",
+        "state": "waived",
+        "decision": "Owner decision 2026-11-27 under 24 November execution rules: per-story v2 final record is waived (never PASS). Story 12.4 consumes derived-key-correctness-proof-v1.json alongside Story 12.3's done spec, sprint row, and commit."
+      }
+    ]
+  },
+  "adrAndMethod": {
+    "adrPath": "docs/adrs/0005-conversation-derived-key-lifecycle.md",
+    "adrSha256": "2c946907e438850b643f17db704e702c71ece3b7a2826c113b1251df5a0cf068",
+    "decisionPath": "docs/release-evidence/derived-key-lifecycle-decision-v1.json",
+    "decisionSha256": "cddf2b9bd5ee5869278247800a1c657399d2b4c431029a9741afd59ea98d9721",
+    "decisionSignablePayloadSha256": "13943cc3b30e3183af09ba5549b0984a4d7170db2e2929c1b85658c22514bbbe",
+    "methodPath": "docs/release-evidence/sm-c2-measurement-method-v2.json",
+    "methodSha256": "bdb9601a4797cbef81fea9907bbea787290e2f9920001f8d81f0b29f0edcdfef",
+    "methodSignablePayloadSha256": "7d6b2d7a6049a80eda5a578ddf097fa5a0eb0a910327dc9227791f2080174bff",
+    "frozenBenchmarkPath": "tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs",
+    "frozenBenchmarkSha256": "f02c4b5d103c591656d4d78181269ef3981e9af6f757200632d13a4038697eff",
+    "noSmC2VerdictIssued": true
+  },
+  "productionPathInventory": [
+    {
+      "path": "src/Hexalith.Conversations.Server/Hydration/ConversationReadHydrationService.cs",
+      "sha256": "cc4586d9739339a519aada2b3df37b34d0f551d1d0388d6c7e4fa8aeef04b17f",
+      "role": "response-hydration"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Hydration/EmptyHydrationResults.cs",
+      "sha256": "c970e1cacd9a0ea58638a7d3347aa15c55d7f164e2b73a3617c8c488847262c2",
+      "role": "hydration-empty-singleton"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationDetailValidationHeader.cs",
+      "sha256": "e7702afc3bd894a145a432eebafa68d8c10a7bc7b394558122cccbe65af2bc70",
+      "role": "page-validation-detail-header-dto"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationIndexGenerationToken.cs",
+      "sha256": "7d536644f492ec214cede2a20e728bb5c69b325660b35e02bb5a94c0fa39a3b0",
+      "role": "streaming-canonical-generation-token"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationPageValidationRecord.cs",
+      "sha256": "33089b4510bd50ae138e5083783d5256904a700eb511d726f07fd6b4ddc5ccf5",
+      "role": "page-validation-record-dto"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupConverter.cs",
+      "sha256": "39b8475a1294a0237417fbcb0930057dfcd109e996febdba604c5adb96dbc477",
+      "role": "targeted-utf8-index-lookup-converter"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupResult.cs",
+      "sha256": "0095b33233726248e3f2c71d8f22c0d743ca6e236d9228dde8c6c2269a31e785",
+      "role": "targeted-utf8-index-lookup-dto"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupScope.cs",
+      "sha256": "fc0ff5f20ddd0118341ed30473824ded70bd8f0e3a99c32d230bb9bbbcd6a4e3",
+      "role": "targeted-utf8-index-lookup-scope"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupTarget.cs",
+      "sha256": "90a3aa8c1bde0b03db46eb0ea3db77d1b24bf0867e001bcec2a12f8ec4c39f19",
+      "role": "targeted-utf8-index-lookup-target"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexReadModel.cs",
+      "sha256": "f25c93a911ed0b8e79585668601736f89b588be66ccee606af9dba4391b5bb71",
+      "role": "v2-tenant-index-model"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexSnapshot.cs",
+      "sha256": "c465b8060845eeef9351f838776ec2967326aef4d4a2529e2bb625d3936db1bf",
+      "role": "tenant-index-snapshot"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelKeys.cs",
+      "sha256": "eeefb74362c920227bc8d3cb7c7319b8a5f2006863c8d371c87b6d7415272dd6",
+      "role": "immutable-derived-key-grammar"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelWriter.cs",
+      "sha256": "4d581e636a5367235fbc37d1c4f46bfa4e4edb5ee373d4e58bbe5fca931093c7",
+      "role": "v2-tenant-index-writer"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs",
+      "sha256": "2446b8174d112e106bd86e2c981fbb202bbd91b6d41f4ab7a2132b26af83ff84",
+      "role": "fail-closed-projection-read-store"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/IncrementalHashBufferWriter.cs",
+      "sha256": "2a7abdf3671733ac6b94328dddbc4f09e35dbe381da672bb42862763ebed90bb",
+      "role": "pooled-incremental-hash-buffer-writer"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs",
+      "sha256": "b822bf473b5ffcdf16987d327161bbac4caecd4ea1e9e685e994c0c9ad2844b1",
+      "role": "tenant-safe-list-and-open-query-handler"
+    }
+  ],
+  "publicContract": {
+    "snapshotPath": "docs/release-evidence/public-contract-shape-bounded-read-v4.json",
+    "snapshotSha256": "4de710b386ff63a2316c603e40556bc78b0f61bbf1635a419cf0d436a1353d74",
+    "frozenSnapshots": [
+      {
+        "path": "docs/release-evidence/public-contract-shape-baseline-v1.json",
+        "sha256": "ebfc2f67e90ecc8a7734719c6e2673b6e8392ab2cae9956a8e98b7bf769acfca"
+      },
+      {
+        "path": "docs/release-evidence/public-contract-shape-story-9.2-v2.json",
+        "sha256": "0160a2be428c681d22c014afa109fc80eb97706fe6f47367ac571b9a9a7595f8"
+      },
+      {
+        "path": "docs/release-evidence/public-contract-shape-story-6.4-v3.json",
+        "sha256": "ee61d0e210e5d43b9ae906e0ed422cd791d24722c5074c995bf14fea3c5041ec"
+      },
+      {
+        "path": "docs/release-evidence/public-contract-shape-story-6.4-v3-review.json",
+        "sha256": "721eed2082089f61a7b4105bfbca263ff9e3136180ca49c2703ce1f887127c62"
+      }
+    ],
+    "driftDetected": false
+  },
+  "lanes": {
+    "unit": {
+      "lane": "unit",
+      "path": "artifacts/v9/12.3/AC-12.3-02.trx",
+      "sha256": "fd4d9cac08ff8be98b62d8c80155e92d686cf2ace5538cdc1556ab038b6f28ac",
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "notRun": 0,
+      "outcome": "PASS"
+    },
+    "integration": {
+      "lane": "integration",
+      "path": "artifacts/v9/12.3/integration.trx",
+      "sha256": "97188dae4a439cc168fb980d1a6c7cfeb1367a1cc1ad6f384d86fa2c51aeb9f9",
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "notRun": 0,
+      "outcome": "PASS"
+    },
+    "dapr": {
+      "lane": "dapr",
+      "path": "artifacts/v9/12.3/dapr.trx",
+      "sha256": "b80d80b5b6e6fbb3cad6a5c2b387c38a7c5b5c1156003d797ea8d608f40bc710",
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "notRun": 0,
+      "outcome": "PASS"
+    }
+  },
+  "mutationLedger": [
+    {
+      "id": "M01-fanout-unbounded",
+      "blockerCode": "DERIVED_KEY_FANOUT_UNBOUNDED",
+      "category": "bounded-reads",
+      "enforcedBy": "AC-12.3-01 + AC-12.3-07"
+    },
+    {
+      "id": "M02-invalid-state-fail-closed",
+      "blockerCode": "DERIVED_STATE_FAIL_CLOSED_VIOLATION",
+      "category": "invalid-derived-state",
+      "enforcedBy": "AC-12.3-02 + AC-12.3-07"
+    },
+    {
+      "id": "M03-read-side-repair",
+      "blockerCode": "READ_SIDE_REPAIR_ATTEMPTED",
+      "category": "read-repair-prohibition",
+      "enforcedBy": "AC-12.3-02 + AC-12.3-06 + AC-12.3-07"
+    },
+    {
+      "id": "M04-tenant-disclosure",
+      "blockerCode": "TENANT_DISCLOSURE",
+      "category": "tenant-isolation",
+      "enforcedBy": "AC-12.3-03 + AC-12.3-04 + AC-12.3-07"
+    },
+    {
+      "id": "M05-replay-nondeterministic",
+      "blockerCode": "REPLAY_NONDETERMINISTIC",
+      "category": "replay-determinism",
+      "enforcedBy": "AC-12.3-03 + AC-12.3-07"
+    },
+    {
+      "id": "M06-derived-key-transition-unsafe",
+      "blockerCode": "DERIVED_KEY_TRANSITION_UNSAFE",
+      "category": "key-grammar-and-migration",
+      "enforcedBy": "AC-12.3-03 + AC-12.3-06 + AC-12.3-07"
+    },
+    {
+      "id": "M07-dapr-lane-red",
+      "blockerCode": "DAPR_CORRECTNESS_LANE_RED",
+      "category": "real-dapr-redis-lane",
+      "enforcedBy": "AC-12.3-04 + AC-12.3-06 + AC-12.3-07"
+    },
+    {
+      "id": "M08-public-query-contract-drift",
+      "blockerCode": "PUBLIC_QUERY_CONTRACT_DRIFT",
+      "category": "public-contract-compatibility",
+      "enforcedBy": "AC-12.3-05 + AC-12.3-06 + AC-12.3-07"
+    },
+    {
+      "id": "M09-correctness-gate-red",
+      "blockerCode": "CORRECTNESS_GATE_RED",
+      "category": "proof-and-predecessor-gate",
+      "enforcedBy": "AC-12.3-06 + AC-12.3-07"
+    }
+  ],
+  "replayAndRollback": {
+    "replayDeterminismVerified": true,
+    "rollbackStrategy": "redeploy-then-rebuild",
+    "reverseWriteAllowed": false,
+    "readRepairAllowed": false,
+    "storyRollbackBoundary": "revert the exact Story 12.3 production migration as one unit and remove its tests/proof/record; derived state is rebuilt from EventStore under ADR rollback, never reverse-written. Retain Stories 12.1-12.2."
+  }
+}
+```
