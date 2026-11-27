@@ -1,6 +1,9 @@
 <Project>
   <!-- SDK reference discovery clears global TargetFramework; select the active graph before inference again. -->
   <PropertyGroup Condition="'$(MinimalModuleCompatibilityMode)' == 'package' and $([System.String]::Copy('$(MSBuildProjectName)').StartsWith('Hexalith.Conversations.MinimalModule.'))">
+    <HexalithBuildsRoot Condition="'$(HexalithBuildsRoot)' == ''">$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '../../../references/Hexalith.Builds'))</HexalithBuildsRoot>
+    <ImportDirectoryPackagesProps>true</ImportDirectoryPackagesProps>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <DirectoryPackagesPropsPath>$(HexalithBuildsRoot)/Props/Directory.Packages.props</DirectoryPackagesPropsPath>
     <TargetFramework>net11.0</TargetFramework>
   </PropertyGroup>

@@ -1,30 +1,24 @@
 {
-  "version": 2,
+  "version": 1,
   "dependencies": {
-    "net11.0": {
-      "Hexalith.EventStore.Contracts": {
-        "type": "Direct",
-        "requested": "[5.4.0, )",
-        "resolved": "5.4.0",
-        "contentHash": "X2mPB9XdDkVx96n51fOMF6QZVUj5YlKwIBSo+UOvKeI4wpAmkpZkY6iavoKte0EdFX9DJ5KIqrl7iUcxmqr51A==",
-        "dependencies": {
-          "ByteAether.Ulid": "1.4.2",
-          "Hexalith.Commons.UniqueIds": "3.0.1"
-        }
-      },
+    "net10.0": {
       "ByteAether.Ulid": {
-        "type": "CentralTransitive",
-        "requested": "[1.4.2, )",
+        "type": "Transitive",
         "resolved": "1.4.2",
         "contentHash": "LCOjm7QFSdM2X779Db2K+i3pPei4f8PJEcY1wGehkdgYNmpQaP5uF7U8aZMMBWeYe+zV2Ues9j/nFpW4Pw10wQ=="
       },
       "Hexalith.Commons.UniqueIds": {
-        "type": "CentralTransitive",
-        "requested": "[3.0.1, )",
-        "resolved": "3.0.1",
-        "contentHash": "qdhesiIy4tgXRHuL2d33rV8o/gkR1JWvTjpa4kVqLqskDeAHzrn625JTjHwE9SMyc0ZtESFUw3GLjeUz3teVKg==",
+        "type": "Transitive",
+        "resolved": "2.30.3",
+        "contentHash": "e0tQgVfkT4CkozW/fO1Nl0i4m9dmfk4/Er6WJXjOduSftvHW2bo3ppIQQ/ncYwpC+2hUlqezwWMeFpjZzd+1Tw==",
         "dependencies": {
           "ByteAether.Ulid": "1.4.2"
+        }
+      },
+      "hexalith.eventstore.contracts": {
+        "type": "Project",
+        "dependencies": {
+          "Hexalith.Commons.UniqueIds": "[2.30.3, )"
         }
       }
     }

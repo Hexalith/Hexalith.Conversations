@@ -1621,3 +1621,7 @@ The 20 groups below combine duplicate reports and related validation steps. They
 ## Deferred from: code review of spec-12-3-implement-correctness-preserving-list-open-optimization-and-migration-behavior.md (2026-11-27)
 
 - The existing tenant initializer redelivery test failure was reproduced in isolation during review. It returned `RetryableInProgress` instead of `Processed`. See the existing Story 12.3 deferral above for the conditional deletion test-double defect.
+
+- source_spec: _bmad-output/implementation-artifacts/spec-11-4-restore-package-qualification-and-maintainer-commands.md
+  summary: Isolate a retained package consumer workspace from build imports inherited from its ancestors.
+  evidence: The existing explicit `--work-directory` accepts a descendant of the module root, where SDK evaluation inherits the root's mapped-build requirement. The default consumer workspace is outside the repository and passes independently.

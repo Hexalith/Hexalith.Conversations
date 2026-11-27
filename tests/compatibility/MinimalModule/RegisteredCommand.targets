@@ -11,12 +11,38 @@
     <!-- EventStore's Dapr extension currently requires the Aspire ProjectResource produced by AddProject. -->
     <NoWarn>$(NoWarn);CS0618</NoWarn>
   </PropertyGroup>
+  <ItemGroup Condition="'$(MinimalModuleCompatibilityMode)' == 'package'">
+    <!-- Remove source edges during evaluation, before MSBuild or NuGet can walk the graph. -->
+    <_CompatibilityEventStoreProject Include="
+      @(ProjectReference->WithMetadataValue('Filename', 'Hexalith.EventStore.Aspire'));
+      @(ProjectReference->WithMetadataValue('Filename', 'Hexalith.EventStore.Client'));
+      @(ProjectReference->WithMetadataValue('Filename', 'Hexalith.EventStore.Contracts'));
+      @(ProjectReference->WithMetadataValue('Filename', 'Hexalith.EventStore.DomainService'))" />
+    <ProjectReference Remove="@(_CompatibilityEventStoreProject)" />
+    <PackageReference Include="@(_CompatibilityEventStoreProject->'%(Filename)')" />
+    <!-- The frozen fixture sets local versions. The external graph uses the direct catalog. -->
+    <PackageReference Update="Microsoft.IdentityModel.Protocols.OpenIdConnect;System.IdentityModel.Tokens.Jwt;CommunityToolkit.Aspire.Hosting.Dapr;Microsoft.NET.Test.Sdk;Shouldly;xunit.v3;xunit.runner.visualstudio"
+                      Version="" />
+    <!-- Provide a catalog-versioned reference before the frozen SDK can add its implicit version. -->
+    <PackageReference Include="Aspire.Hosting.AppHost"
+                      Condition="'$(MSBuildProjectName)' == 'Hexalith.Conversations.MinimalModule.AppHost' and '@(PackageReference->WithMetadataValue('Identity', 'Aspire.Hosting.AppHost'))' == ''" />
+  </ItemGroup>
   <Target Name="MinimalModuleCompatibilitySelectPackages" BeforeTargets="CollectPackageReferences;_GenerateRestoreGraphProjectEntry;_GetProjectReferenceTargetFrameworkProperties;AssignProjectConfiguration" Condition="'$(MinimalModuleCompatibilityMode)' == 'package'">
     <MSBuild Projects="$(MSBuildThisFileDirectory)CatalogVersion.proj" Targets="ReadMinimalModuleCompatibilityCatalog" RemoveProperties="HexalithEventStoreVersion;UseHexalithProjectReferences">
       <Output TaskParameter="TargetOutputs" ItemName="_CompatibilityCatalogPackage" />
     </MSBuild>
     <Error Condition="'@(_CompatibilityCatalogPackage)' == ''" Text="The direct pinned Builds catalog contains no EventStore package selection." />
     <Error Condition="'%(_CompatibilityCatalogPackage.Version)' != '$(MinimalModuleCompatibilityEventStoreVersion)'" Text="MinimalModule compatibility selection $(MinimalModuleCompatibilityEventStoreVersion) differs from the direct pinned Builds catalog: %(_CompatibilityCatalogPackage.Identity) %(_CompatibilityCatalogPackage.Version). Qualify the compatibility overlay and successor locks deliberately." />
+    <ItemGroup>
+      <_CompatibilitySelectedPackage Include="@(PackageReference)" Condition="$([System.String]::Copy('%(PackageReference.Identity)').StartsWith('Hexalith.EventStore.'))" />
+      <_CompatibilityEffectivePackage Include="@(PackageVersion)" Condition="$([System.String]::Copy('%(PackageVersion.Identity)').StartsWith('Hexalith.EventStore.'))" />
+      <_CompatibilityMissingCatalogPackage Include="@(_CompatibilitySelectedPackage)" Exclude="@(_CompatibilityCatalogPackage)" />
+      <_CompatibilityMissingEffectivePackage Include="@(_CompatibilityCatalogPackage)" Exclude="@(_CompatibilityEffectivePackage)" />
+    </ItemGroup>
+    <Error Condition="'@(_CompatibilityMissingCatalogPackage)' != ''" Text="The direct pinned Builds catalog is missing EventStore package selection(s) @(_CompatibilityMissingCatalogPackage). MinimalModule compatibility expects $(MinimalModuleCompatibilityEventStoreVersion)." />
+    <Error Condition="'@(_CompatibilityMissingEffectivePackage)' != ''" Text="The effective Builds catalog is missing EventStore package selection(s) @(_CompatibilityMissingEffectivePackage). MinimalModule compatibility expects $(MinimalModuleCompatibilityEventStoreVersion)." />
+    <Error Condition="'%(_CompatibilityEffectivePackage.Version)' != '$(MinimalModuleCompatibilityEventStoreVersion)'" Text="MinimalModule compatibility selection $(MinimalModuleCompatibilityEventStoreVersion) differs from the effective Builds catalog: %(_CompatibilityEffectivePackage.Identity) %(_CompatibilityEffectivePackage.Version)." />
+    <Error Condition="'%(_CompatibilitySelectedPackage.Version)' != '' or '%(_CompatibilitySelectedPackage.VersionOverride)' != ''" Text="EventStore package reference %(_CompatibilitySelectedPackage.Identity) must use the qualified catalog version $(MinimalModuleCompatibilityEventStoreVersion). Found Version=%(_CompatibilitySelectedPackage.Version) VersionOverride=%(_CompatibilitySelectedPackage.VersionOverride)." />
   </Target>
   <ItemGroup Condition="'$(MSBuildProjectName)' == 'Hexalith.Conversations.MinimalModule.Tests'">
     <Compile Include="$(MSBuildThisFileDirectory)RegisteredCommandTests.cs" Link="Compatibility/RegisteredCommandTests.cs" />

@@ -7,8 +7,7 @@
   "scripts": {
     "prepare": "git config core.hooksPath .githooks",
     "commitlint": "commitlint --config commitlint.config.mjs",
-    "test": "python3 -m unittest discover -s tests/tooling -p test_package_contract.py && python3 -m unittest discover -s tests/tooling -p test_minimal_module_compatibility_overlay.py",
-    "verify:release-plan": "node scripts/verify-semantic-release-plan.mjs"
+    "test": "uv run --frozen pytest"
   },
   "devDependencies": {},
   "overrides": {

@@ -266,8 +266,8 @@ public sealed class MinimalModuleAuthoringCostBaselineValidationTest(ITestOutput
         string candidate = document.RootElement.GetProperty("candidate").GetProperty("commit").GetString()!;
         int physical = 0;
         int nonblank = 0;
-        // The standalone sample adopted the shared catalog after the v2 measurement.
-        const string maintainedSample = "b998a24c36ee409f717a41033e98c47fcbc8d6ce";
+        // The standalone source matches checkpoint B. The current package graph uses the external overlay.
+        const string frozenFixture = "aeca17f120aa731d0d47b79b7d1b54fb63144bb8";
         EvidenceManifest maintainedManifest = new();
         foreach (JsonElement row in rows)
         {
@@ -293,7 +293,7 @@ public sealed class MinimalModuleAuthoringCostBaselineValidationTest(ITestOutput
             }
             row.GetProperty("physicalLoc").GetInt32().ShouldBe(countedPhysical, "SM2_MEASUREMENT_INVALID");
             row.GetProperty("nonblankLoc").GetInt32().ShouldBe(countedNonblank, "SM2_MEASUREMENT_INVALID");
-            GitFact<GitBlob> maintained = await git.ReadBlobAsync(root, maintainedSample, path, TestContext.Current.CancellationToken);
+            GitFact<GitBlob> maintained = await git.ReadBlobAsync(root, frozenFixture, path, TestContext.Current.CancellationToken);
             maintained.IsSuccess.ShouldBeTrue("SM2_SOURCE_INVENTORY_DRIFT");
             maintainedManifest.Add(path, maintained.Value!.Sha256, "authored-source");
             physical += countedPhysical;

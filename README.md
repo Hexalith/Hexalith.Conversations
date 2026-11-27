@@ -134,27 +134,21 @@ against an estimated reference with low comparison confidence.
 
 ## Local Validation
 
-Use the repository-pinned .NET SDK from `global.json` with the
-[Platform-mapped validation workflow](module/README.md#mapped-validation-workflow).
-Builds' generated imports must supply the selected roots, source/package mode,
-configuration and mapping hash before restore/build. Ordinary unmapped commands
-now fail explicitly. The pinned CLI's runtime-free `prepare-build` command
-materializes this environment; `validate` does not resolve mappings. CI consumes
-the exact pinned tool and Platform/Builds tuple through `prepare-module-build`
-before its Release restore and build.
-
-Local compilation uses individual Debug test projects; run focused built xUnit
-v3 assemblies with `-class` or `-method`. The
-[prerequisite observations](module/validation/epic-16-enrollment-remediation-2026-10-27/)
-record the isolated public-materializer checks and their exact commands.
-Release/package runtime qualification and the held product runtime require
-separate owner acceptance; these source checks grant neither.
+Use the .NET SDK from `global.json`, the direct submodules, and the published
+Builds workspace CLI pinned in `.config/dotnet-tools.json`. Run
+`prepare-build` in source mode for Debug development or in package mode for
+Release qualification. Pass every entry in the generated
+`buildPreparation.environment` to each restore, build, and test command.
+The runbook includes the clean-checkout Debug commands and the Release
+prerequisites for `npm test`, which uses the locked Python tooling suite.
+[Mapped validation commands](docs/runbooks/current-change-validation.md#mapped-build-and-tests)
 
 The scaffold smoke checks must not require Aspire runtime launch, Dapr sidecars, tenant seed data, production secrets, provider credentials, external cloud resources, or nested submodule initialization.
 
-Release tooling uses the plugins listed in `.releaserc.json` and publishes NuGet
-packages through `@semantic-release/exec`. Its dependency override excludes the
-unused npm publisher, matching Builds' release tooling.
+Hexalith.CiCd owns the scheduled release process and uses the published
+Hexalith.Builds producer. Maintainers can locally validate the five candidate
+packages, their symbols, and package-only consumers from the mapped Release
+build. [Package qualification](docs/runbooks/current-change-validation.md#release-package-qualification)
 
 ## Submodules
 

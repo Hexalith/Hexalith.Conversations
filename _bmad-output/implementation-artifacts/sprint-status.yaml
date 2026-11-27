@@ -1,5 +1,5 @@
 # generated: 2026-06-02
-# last_updated: 11-27-2026 18:57
+# last_updated: 11-27-2026 22:51
 # project: Conversations
 # project_key: NOKEY
 # tracking_system: file-system
@@ -128,7 +128,7 @@ development_status:
   11-1-correct-and-validate-platform-hosted-thin-module-authoring-guidance: done
   11-2-build-the-reproducible-minimal-module-fixture-against-live-platform-apis: done
   11-3-generate-authoritative-sm-2-v2-evidence-and-decide-oq-2: done
-  11-4-restore-package-qualification-and-maintainer-commands: backlog
+  11-4-restore-package-qualification-and-maintainer-commands: review
   epic-11-retrospective: done
   epic-12: in-progress
   12-1-approve-derived-key-ownership-lifecycle-and-rollback: done

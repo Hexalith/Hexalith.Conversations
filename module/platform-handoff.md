@@ -620,21 +620,22 @@ For an isolated Platform source deployment with a separately managed OIDC issuer
 
 Use the .NET SDK selected by `global.json`, a running Docker engine, and the Aspire CLI, Dapr CLI and Dapr runtime versions selected by the Builds catalog. Set `HEXALITH_DAPR_HOME` if the catalog-pinned Dapr installation is outside the default location.
 
-Prepare the source and package mappings with the Builds producer selected by the module's CI configuration. From the Conversations root, build the CLI from the clean, pinned Builds checkout. Set `MAPPING_WORKSPACE` to a new path in an existing writable directory and `MAPPING_RESULT` to a JSON file outside that workspace.
+Prepare the source and package mappings with the published Builds producer
+pinned in `.config/dotnet-tools.json`. From the Conversations root, set
+`MAPPING_WORKSPACE` to a new path in an existing writable directory and
+`MAPPING_RESULT` to a JSON file outside that workspace.
 
 ```bash
-BUILDS_ROOT="$PWD/references/Hexalith.Builds"
-BUILDS_TAG=$(python3 -c 'import json; print(json.load(open(".github/hexalith-ci.json"))["buildsTag"])')
-BUILDS_REVISION=$(git -C "$BUILDS_ROOT" rev-parse HEAD)
-BUILDS_CLI="$BUILDS_ROOT/src/libraries/Hexalith.Builds.Module.Cli"
-dotnet build "$BUILDS_CLI/Hexalith.Builds.Module.Cli.csproj" -c Debug -m:1 \
-    -p:Version="${BUILDS_TAG#v}" -p:SourceRevisionId="$BUILDS_REVISION"
-dotnet "$BUILDS_CLI/bin/Debug/net11.0/Hexalith.Builds.Module.Cli.dll" prepare-build \
+dotnet tool restore
+dotnet tool run hexalith-module -- prepare-build \
     --manifest module/hexalith.module-manifest.v2.json --workspace "$MAPPING_WORKSPACE" \
     --mode source --output json > "$MAPPING_RESULT"
 ```
 
-Use a separate workspace and `--mode package` for the package build. Export the entries under `buildPreparation.environment` from the matching JSON result into the build or launch shell.
+Source mode selects Debug. Use a separate workspace and `--mode package` for
+the Release package build. Supply all entries in `buildPreparation.environment`
+from the matching JSON result to each child command.
+[Mapped command examples](../docs/runbooks/current-change-validation.md#mapped-build-and-tests)
 
 To prepare a local feed, use the producer's package mapping and Release configuration. Set `PACKAGE_FEED` to an empty directory outside the source tree and `PACKAGE_VERSION` to a fresh prerelease version. Run from the Conversations root.
 

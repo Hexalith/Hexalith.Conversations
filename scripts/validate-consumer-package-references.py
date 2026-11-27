@@ -14,7 +14,7 @@ from pathlib import Path
 from xml.sax.saxutils import quoteattr
 from xml.etree import ElementTree
 
-from release_contract import EXACT_PACKAGE_IDS, ROOT
+from release_contract import EXACT_PACKAGE_IDS, ROOT, validate_semver
 
 
 def package_version(package_directory: Path) -> str:
@@ -48,7 +48,7 @@ def package_version(package_directory: Path) -> str:
     distinct = set(versions.values())
     if len(distinct) != 1:
         raise ValueError(f"local packages do not share one version: {sorted(distinct)}")
-    return next(iter(distinct))
+    return validate_semver(next(iter(distinct)))
 
 
 def catalog_versions() -> dict[str, str]:
@@ -80,6 +80,7 @@ def write_text(path: Path, content: str) -> None:
 def write_nuget_config(root: Path, package_directory: Path) -> Path:
     config = root / "NuGet.Config"
     package_source = quoteattr(str(package_directory))
+    candidate_packages = "\n".join(f'      <package pattern="{package_id}" />' for package_id in EXACT_PACKAGE_IDS)
     write_text(
         config,
         f"""<?xml version="1.0" encoding="utf-8"?>
@@ -89,6 +90,18 @@ def write_nuget_config(root: Path, package_directory: Path) -> Path:
     <add key="local-conversations" value={package_source} />
     <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
   </packageSources>
+  <fallbackPackageFolders>
+    <clear />
+  </fallbackPackageFolders>
+  <packageSourceMapping>
+    <clear />
+    <packageSource key="local-conversations">
+{candidate_packages}
+    </packageSource>
+    <packageSource key="nuget.org">
+      <package pattern="*" />
+    </packageSource>
+  </packageSourceMapping>
 </configuration>
 """,
     )
@@ -107,9 +120,10 @@ def write_public_consumer(root: Path, version: str) -> Path:
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Hexalith.Conversations" Version="{version}" />
-    <PackageReference Include="Hexalith.Conversations.Client" Version="{version}" />
-    <PackageReference Include="Hexalith.Conversations.Contracts" Version="{version}" />
+    <PackageReference Include="Hexalith.Conversations" Version="[{version}]" />
+    <PackageReference Include="Hexalith.Conversations.Client" Version="[{version}]" />
+    <PackageReference Include="Hexalith.Conversations.Contracts" Version="[{version}]" />
+    <PackageReference Include="Hexalith.Conversations.EventStoreExtensions" Version="[{version}]" />
   </ItemGroup>
 </Project>
 """,
@@ -119,17 +133,27 @@ def write_public_consumer(root: Path, version: str) -> Path:
         """using Hexalith.Conversations;
 using Hexalith.Conversations.Client;
 using Hexalith.Conversations.Contracts;
+using Hexalith.Conversations.EventStoreExtensions;
 
-Type[] publicPackageMarkers =
+(Type Marker, string AssemblyName)[] publicPackageMarkers =
 [
-    typeof(ConversationsAssemblyMarker),
-    typeof(ClientAssemblyMarker),
-    typeof(ContractsAssemblyMarker),
+    (typeof(ConversationsAssemblyMarker), "Hexalith.Conversations"),
+    (typeof(ClientAssemblyMarker), "Hexalith.Conversations.Client"),
+    (typeof(ContractsAssemblyMarker), "Hexalith.Conversations.Contracts"),
+    (typeof(ConversationsCatalogAdapters), "Hexalith.Conversations.EventStoreExtensions"),
 ];
 
-if (publicPackageMarkers.Any(marker => !marker.Assembly.GetName().Name!.StartsWith("Hexalith.Conversations", StringComparison.Ordinal)))
+foreach ((Type marker, string assemblyName) in publicPackageMarkers)
 {
-    throw new InvalidOperationException("The package-only public surface could not be loaded.");
+    if (marker.Assembly.GetName().Name != assemblyName)
+    {
+        throw new InvalidOperationException($"Expected {marker} to load from {assemblyName}.");
+    }
+}
+
+if (ConversationsCatalogAdapters.Create().Count == 0)
+{
+    throw new InvalidOperationException("The EventStore adapter package returned no adapters.");
 }
 """,
     )
@@ -149,7 +173,7 @@ def write_testing_consumer(root: Path, version: str, versions: dict[str, str]) -
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Hexalith.Conversations.Testing" Version="{version}" />
+    <PackageReference Include="Hexalith.Conversations.Testing" Version="[{version}]" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="{versions['Microsoft.NET.Test.Sdk']}" />
     <PackageReference Include="xunit.v3" Version="{versions['xunit.v3']}" />
     <PackageReference Include="xunit.runner.visualstudio" Version="{versions['xunit.runner.visualstudio']}" PrivateAssets="all" />
@@ -187,19 +211,57 @@ MAPPING_ENVIRONMENT = {
     "custombeforedirectorybuildtargets", "customafterdirectorybuildtargets",
     "aftermicrosoftnetsdktargets", "hexalith_source_mapping_hash", "configuration",
 }
+PACKAGE_CACHE_ENVIRONMENT = {
+    "restorepackagespath", "restorefallbackfolders", "restoreadditionalprojectfallbackfolders",
+    "nuget_packages", "nuget_http_cache_path", "nuget_fallback_packages",
+}
 
 
 def isolated_consumer_environment(parent: dict[str, str]) -> dict[str, str]:
     """Keep standalone package consumers independent of the caller's generated imports."""
-    return {name: value for name, value in parent.items() if name.lower() not in MAPPING_ENVIRONMENT}
+    return {
+        name: value for name, value in parent.items()
+        if name.lower() not in MAPPING_ENVIRONMENT | PACKAGE_CACHE_ENVIRONMENT
+    }
 
 
 def run_dotnet(arguments: list[str], working_directory: Path, environment: dict[str, str]) -> None:
     subprocess.run(["dotnet", *arguments], cwd=working_directory, env=environment, check=True)
 
 
-def validate_consumer(project: Path, config: Path, environment: dict[str, str], is_test_project: bool) -> None:
+def verify_candidate_packages(project: Path, packages: Path, candidate_feed: Path, version: str) -> None:
+    assets = json.loads((project.parent / "obj/project.assets.json").read_bytes())
+    if {Path(folder).resolve() for folder in assets["packageFolders"]} != {packages.resolve()}:
+        raise ValueError(f"{project.name}: NuGet used package folders outside the isolated cache")
+
+    candidate_ids = {package_id.lower() for package_id in EXACT_PACKAGE_IDS}
+    references = ElementTree.parse(project).findall(".//PackageReference")
+    expected = {reference.attrib["Include"].lower() for reference in references} & candidate_ids
+    restored = set()
+    for identity, library in assets["libraries"].items():
+        package_id, resolved_version = identity.lower().rsplit("/", 1)
+        if package_id in candidate_ids:
+            relative_path = Path(package_id, version.lower())
+            if (resolved_version != version.lower() or library["type"] != "package"
+                    or Path(library["path"]) != relative_path):
+                raise ValueError(f"{project.name}: unexpected candidate package {identity}")
+            metadata = json.loads((packages / relative_path / ".nupkg.metadata").read_bytes())
+            if Path(metadata["source"]).resolve() != candidate_feed:
+                raise ValueError(f"{project.name}: {identity} did not come from the candidate feed")
+            restored.add(package_id)
+    if not expected or not expected <= restored:
+        raise ValueError(f"{project.name}: missing candidate package(s) {sorted(expected - restored)}")
+
+
+def validate_consumer(
+    project: Path, config: Path, environment: dict[str, str], is_test_project: bool, candidate_feed: Path, version: str,
+) -> None:
     assert_package_only(project)
+    packages = project.parent / ".nuget/packages"
+    environment = environment | {
+        "NUGET_PACKAGES": str(packages),
+        "NUGET_HTTP_CACHE_PATH": str(project.parent / ".nuget/http-cache"),
+    }
     run_dotnet(
         [
             "restore",
@@ -207,12 +269,18 @@ def validate_consumer(project: Path, config: Path, environment: dict[str, str], 
             "-p:Configuration=Release",
             "--configfile",
             str(config),
+            "--packages",
+            str(packages),
+            "-p:RestoreFallbackFolders=",
+            "-p:RestoreAdditionalProjectFallbackFolders=",
+            "-p:DisableImplicitNuGetFallbackFolder=true",
             "-p:NuGetAudit=true",
             "-p:NuGetAuditMode=all",
         ],
         project.parent,
         environment,
     )
+    verify_candidate_packages(project, packages, candidate_feed, version)
     run_dotnet(
         ["build", str(project), "--no-restore", "--configuration", "Release", "-warnaserror"],
         project.parent,
@@ -250,9 +318,12 @@ def main() -> int:
         environment = isolated_consumer_environment(os.environ.copy())
         environment["DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER"] = "1"
         environment["MSBUILDDISABLENODEREUSE"] = "1"
-        environment["NUGET_PACKAGES"] = str(work_directory / ".nuget" / "packages")
-        validate_consumer(write_public_consumer(work_directory, version), config, environment, False)
-        validate_consumer(write_testing_consumer(work_directory, version, versions), config, environment, True)
+        consumers = (
+            (write_public_consumer(work_directory, version), False),
+            (write_testing_consumer(work_directory, version, versions), True),
+        )
+        for project, is_test_project in consumers:
+            validate_consumer(project, config, environment, is_test_project, package_directory, version)
     finally:
         if temporary is not None:
             temporary.cleanup()

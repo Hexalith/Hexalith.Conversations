@@ -1,25 +1,95 @@
 # Minimal-module platform compatibility
 
-The isolated Release build qualifies the maintained minimal-module fixture on net11.0
-using the package versions in the pinned Builds catalog. The overlay expects
-EventStore 5.6.0 and rejects catalog drift before restore. NuGet uses the four
-compatibility locks in `locks/package/`. Standalone fixture builds use their own
-four locks. Both graphs use the fixture's internal project references and published
-EventStore packages.
+The fixture's 13 authored files and four original locks match checkpoint B
+(`aeca17f120aa731d0d47b79b7d1b54fb63144bb8`). Those bytes define the historical
+SM-2 authoring-cost measurement. The current Release graph uses the external
+overlay and its four successor locks under `locks/package/`.
+[Frozen proof](../../../docs/release-evidence/thin-module-fixture-proof-v1.json)
 
-`Framework.props` selects the direct catalog and restores the active target framework
-during SDK reference discovery. `RegisteredCommand.targets` selects the compatibility
-locks and adds one registered-command assertion to the original six fixture tests.
-The assertion exercises creation, replay in a fresh scope, and a no-op command using
-the replayed state. The AppHost compiles without starting external resources.
+`Framework.props` selects net11.0 and the direct Builds catalog, including
+during SDK reference discovery. `RegisteredCommand.targets` converts the
+fixture's EventStore project references into centrally versioned package
+references during evaluation, before NuGet walks the graph. It removes the
+frozen inline package versions and keeps internal fixture project references.
+The overlay expects EventStore 5.6.0 and verifies the direct and effective
+catalog selections before restore. The Release build
+compiles the AppHost, and the runner verifies the six original assertions and
+one registered-command assertion.
 
-Run the seven built assertions with `python3 tests/compatibility/MinimalModule/run_compatibility.py`.
-Run the graph, lock selection and drift checks with
-`python3 -m unittest discover -s tests/tooling -p test_minimal_module_compatibility_overlay.py`.
+## Regenerate and verify the successor locks
 
-The historical SM-2 authoring-cost measurement refers to its recorded checkpoint.
-The standalone fixture adopted the shared catalog in `b998a24c`. The entries below
-describe earlier qualifications.
+Use a disposable checkout with the direct Builds submodule and the SDK in
+`global.json` (11.0.100). Run these commands from its root in a fresh Bash
+session. The two NuGet restores use separate empty package and HTTP caches and
+nuget.org as their sole source.
+
+```bash
+set -euo pipefail
+scratch=$(mktemp -d)
+trap 'rm -rf -- "$scratch"' EXIT
+export TMPDIR="$scratch" TMP="$scratch" TEMP="$scratch"
+
+overlay="$PWD/tests/compatibility/MinimalModule"
+fixture="$PWD/tests/fixtures/Hexalith.Conversations.MinimalModule"
+solution="$fixture/Hexalith.Conversations.MinimalModule.slnx"
+config="$TMPDIR/NuGet.Config"
+cat > "$config" <<'XML'
+<configuration>
+  <packageSources>
+    <clear />
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+  </packageSources>
+  <fallbackPackageFolders>
+    <clear />
+  </fallbackPackageFolders>
+</configuration>
+XML
+
+props=(
+    -p:Configuration=Release
+    -p:MinimalModuleCompatibilityMode=package
+    -p:MinimalModuleCompatibilityUseSuccessorLocks=true
+    "-p:CustomAfterMicrosoftCommonProps=$overlay/Framework.props"
+    "-p:CustomAfterMicrosoftCommonTargets=$overlay/RegisteredCommand.targets"
+    -p:WarningsNotAsErrors=
+    -p:NuGetAudit=true
+    -p:NuGetAuditMode=all
+    -p:RestoreFallbackFolders=
+    -p:RestoreAdditionalProjectFallbackFolders=
+)
+
+unset NUGET_FALLBACK_PACKAGES
+export NUGET_PACKAGES="$TMPDIR/packages-first" NUGET_HTTP_CACHE_PATH="$TMPDIR/http-first"
+dotnet restore "$solution" --configfile "$config" --packages "$NUGET_PACKAGES" --force-evaluate "${props[@]}"
+sha256sum "$overlay"/locks/package/*.json > "$TMPDIR/successor-locks.sha256"
+
+export NUGET_PACKAGES="$TMPDIR/packages-locked" NUGET_HTTP_CACHE_PATH="$TMPDIR/http-locked"
+dotnet restore "$solution" --configfile "$config" --packages "$NUGET_PACKAGES" --locked-mode --force "${props[@]}"
+sha256sum -c "$TMPDIR/successor-locks.sha256"
+dotnet build "$solution" --no-restore --configuration Release "-p:RestorePackagesPath=$NUGET_PACKAGES" "${props[@]}"
+python3 tests/compatibility/MinimalModule/run_compatibility.py
+python3 -m unittest discover -s tests/tooling -p test_minimal_module_compatibility_overlay.py
+python3 -m unittest discover -s tests/tooling -p test_minimal_module_frozen_fixture.py
+```
+
+For routine qualification, compare the regenerated successor locks with the
+checked-in bytes after both restores.
+
+```bash
+for lock in tests/compatibility/MinimalModule/locks/package/*.json; do
+    git show "HEAD:$lock" | cmp - "$lock"
+done
+```
+
+The focused tooling checks compare all 17 fixture files with the frozen proof
+and check the external graph, lock selection, and catalog-drift refusal. When
+refreshing the locks deliberately, copy the four files under `locks/package/`
+back from the disposable checkout after both restores and the build pass. Builds CI
+provides the managed authority for the Release adapter. The
+[current validation runbook](../../../docs/runbooks/current-change-validation.md#mapped-build-and-tests)
+shows the local mapped Release workflow for the product solution.
+
+## Earlier qualifications
 
 The Story 11.2 proof derives its .NET SDK version from the Release build receipt.
 New receipts capture the SDK version evaluated by MSBuild for each fixture project.

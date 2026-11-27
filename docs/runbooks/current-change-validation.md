@@ -41,6 +41,105 @@ them. The tracked pre-commit
 hook checks staged whitespace. The Builds guard validates commit messages
 against the shared Conventional Commit policy.
 
+## Mapped build and tests
+
+From a fresh checkout, initialize the submodules declared at the repository
+root. Install the SDK selected by `global.json` and Python 3.11 or later. For
+the tooling suite, also install Node.js as required by `package.json` and `uv`.
+
+```bash
+git submodule update --init
+dotnet tool restore
+dotnet tool run hexalith-module -- --version
+```
+
+The published workspace tool is Hexalith.Builds Module CLI 6.9.1. Start a
+fresh Bash session from the repository root. Prepare a source mapping and pass
+its complete environment to each command. Source mode selects Debug.
+
+```bash
+scratch=$(mktemp -d)
+trap 'rm -rf -- "$scratch"' EXIT
+export TMPDIR="$scratch" TMP="$scratch" TEMP="$scratch"
+
+mapped() {
+    local result="$1"
+    shift
+    python3 - "$result" "$@" <<'PY'
+import json
+import os
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as result:
+    os.environ.update(json.load(result)["buildPreparation"]["environment"])
+os.execvp(sys.argv[2], sys.argv[2:])
+PY
+}
+
+source_result="$TMPDIR/source.json"
+dotnet tool run hexalith-module -- prepare-build \
+    --manifest module/hexalith.module-manifest.v2.json --mode source \
+    --workspace "$TMPDIR/source-mapping" --output json > "$source_result"
+contracts=tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj
+mapped "$source_result" dotnet restore "$contracts" -m:1
+mapped "$source_result" dotnet build "$contracts" --no-restore -m:1
+mapped "$source_result" dotnet "$(dirname "$contracts")/bin/Debug/net11.0/Hexalith.Conversations.Contracts.Tests.dll" \
+    -class Hexalith.Conversations.Contracts.Tests.PublicQueryCompatibilityTests
+```
+
+Prepare a separate package mapping in the same shell. Package mode selects
+Release. The maintained tooling suite uses real mapped Release assets for its
+portable surface checks.
+
+```bash
+package_result="$TMPDIR/package.json"
+dotnet tool run hexalith-module -- prepare-build \
+    --manifest module/hexalith.module-manifest.v2.json --mode package \
+    --workspace "$TMPDIR/package-mapping" --output json > "$package_result"
+mapped "$package_result" dotnet restore Hexalith.Conversations.slnx -m:1
+mapped "$package_result" dotnet build Hexalith.Conversations.slnx --no-restore -m:1
+mapped "$package_result" npm test
+```
+
+`npm test` runs `uv run --frozen pytest`, using the `tests/tooling` discovery
+configured in `pyproject.toml`. Run each native test project under the same
+mapping with `dotnet test --project <project.csproj> --no-build --no-restore`.
+The integration lanes use Docker and Dapr. After the Release build, install
+Chromium for the Admin Web tests with
+`mapped "$package_result" pwsh -File tests/install-playwright.ps1 -Configuration Release -SkipBuild`.
+
+Run the live AppHost boundary case with the package mapping after the Release
+build. It starts the AppHost and exercises the Dapr-backed admission boundary.
+
+```bash
+apphost_tests=tests/Hexalith.Conversations.AppHost.Tests/bin/Release/net11.0/Hexalith.Conversations.AppHost.Tests.dll
+HEXALITH_RUN_APPHOST_BOUNDARY_TESTS=true mapped "$package_result" dotnet "$apphost_tests" \
+    -method Hexalith.Conversations.AppHost.Tests.ConversationsAppHostRuntimeBoundaryTest.RetainedAppHostShouldRefuseCommandsWithoutCatalogAuthority \
+    -noLogo -failSkips
+```
+
+## Release package qualification
+
+Hexalith.CiCd took ownership of the release workflow in
+`18fc9c90403b457ef81fedbd3c069577f8041e09`, which also removed `.releaserc.json`.
+Commit `ebf0f5f0ac9e1a61b7fed199ab66065c3596c17a` removed
+`scripts/verify-semantic-release-plan.mjs`. The `verify:release-plan` npm
+alias was retired after those changes.
+
+After the mapped Release build, run
+`mapped "$package_result" python3 scripts/validate-built-packages.py`. The job
+validates the five candidate packages and their portable symbol archives. The
+public consumer restores Conversations, Contracts, Client, and
+EventStoreExtensions at the exact candidate version. The testing consumer
+restores Testing at that version. Each uses its own empty package and HTTP
+caches, maps the five exact IDs to the candidate feed, and gets dependencies
+from nuget.org with NuGet auditing enabled.
+
+Qualify the minimal-module fixture locally with its published-feed procedure.
+It restores the four successor locks, builds the fixture and AppHost in Release,
+and runs seven native assertions. Builds CI supplies the managed authority for
+the isolated adapter. [Minimal-module qualification](../../tests/compatibility/MinimalModule/README.md)
+
 ## Published symbol check
 
 After NuGet.org indexes a release, pass the directory containing that release's
@@ -59,12 +158,7 @@ evidence verifier, schemas, records, and their tests remain in Git for historica
 inspection. They are not required for future pushes, CI, or routine lifecycle
 transitions. Do not create another authority successor solely because a new
 commit touches a path they governed.
-The default `pytest` collection is `tests/tooling`, as configured in
-`pyproject.toml`. The local `npm test` command runs the package contract and
-minimal-module compatibility overlay unittests. These require Python, the .NET
-SDK from `global.json` and the pinned direct Hexalith.Builds checkout. Shared CI
-runs these suites through the Conversations after-unit-tests action alongside
-the built compatibility and installed package checks. The retired Story 5.4 installed-delivery packet test used evidence held
+The retired Story 5.4 installed-delivery packet test used evidence held
 on the capture machine. The [delivery spec](../../_bmad-output/implementation-artifacts/spec-5-4-ext-conv-ai-1-installed-delivery.md)
 records the delivery attempt and its evidence status. Run the relevant BMad tests locally for
 a tooling or workflow change, for example

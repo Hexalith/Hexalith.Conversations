@@ -112,23 +112,22 @@ Those retained test results are not new executions against the later candidate.
 
 ## Mapped validation workflow
 
-1. A qualified Platform/Builds caller must select the workspace/dependencies and
-   mode and materialize its mapping with Builds'
-   `SourceMappingMaterializer.WriteAsync`. It must pass the complete generated
-   `SourceMappingMaterializer.Environment` to every restore/build/test child.
-   The published CLI pinned in `.config/dotnet-tools.json` exposes this through
-   the runtime-free `prepare-build` command. `validate` does not resolve mappings.
-   Do not set dependency roots/modes by hand or probe sibling layouts.
-2. In source mode, build the affected test projects individually in Debug under
-   that environment, then invoke their built native xUnit assemblies with
-   `-class`/`-method`. The prerequisite slice used the public materializer with a
-   synthetic direct-root mapping, not an ordinary accepted Platform run.
+1. Restore the published Builds CLI pinned in `.config/dotnet-tools.json` from
+   the Conversations root. With the direct submodules checked out and the SDK
+   in `global.json`, run the CLI's runtime-free `prepare-build` command for
+   the desired mode. It emits the complete `buildPreparation.environment`.
+   Pass those entries to every restore, build, and test child.
+   [Clean-checkout commands](../docs/runbooks/current-change-validation.md#mapped-build-and-tests)
+2. Source mode selects Debug. Build the affected test projects under the
+   generated environment. Run each project's built xUnit assembly with
+   `-class` or `-method` when checking a specific case.
    `PlatformEnrollmentMappingTest` also evaluates all eight consumer project
    files in source/Debug and package/Release, rejects missing/mismatched inputs,
    and checks competing layouts. Package evaluation compiles no Release assets.
-3. Keep package/Release and deployed acceptance separate, with exact tool,
-   mapping/catalog, source/package/image and provider identities. The pending
-   [Platform handoff](platform-handoff.md) lists those owner gates.
+3. Package mode selects Release. Build the solution under the package mapping
+   before running package qualification and `npm test`. Use the external
+   overlay to qualify the minimal-module fixture locally. The
+   [Platform handoff](platform-handoff.md) lists the deployment owner gates.
 4. Current root `.github/workflows/ci.yml` and Builds
    `.github/workflows/domain-ci.yml` invoke the producer's
    `Github/prepare-module-build` action before affected restores/builds. That

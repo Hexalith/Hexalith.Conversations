@@ -184,13 +184,12 @@ class PackageContractTests(unittest.TestCase):
             config = root / "NuGet.Config"
             config.write_text("<configuration />\n", encoding="utf-8")
             failure = subprocess.CalledProcessError(9, ["dotnet", "PublicConsumer.dll"])
-            with mock.patch.object(
-                validate_consumer_packages,
-                "run_dotnet",
-                side_effect=[None, None, failure],
-            ) as run_dotnet:
+            with (
+                mock.patch.object(validate_consumer_packages, "run_dotnet", side_effect=[None, None, failure]) as run_dotnet,
+                mock.patch.object(validate_consumer_packages, "verify_candidate_packages"),
+            ):
                 with self.assertRaises(subprocess.CalledProcessError) as raised:
-                    validate_consumer_packages.validate_consumer(project, config, {}, False)
+                    validate_consumer_packages.validate_consumer(project, config, {}, False, root, "1.0.0")
             self.assertEqual(9, raised.exception.returncode)
             executed = run_dotnet.call_args_list[2].args[0]
             self.assertEqual(str(root / "bin/Release/net11.0/PublicConsumer.dll"), executed[0])
@@ -207,6 +206,127 @@ class PackageContractTests(unittest.TestCase):
             self.assertIsNotNone(source)
             self.assertEqual(str(package_source), source.attrib["value"])
 
+    def test_consumers_reference_the_exact_five_candidate_packages(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            version = "2.1.0-candidate"
+            public = validate_consumer_packages.write_public_consumer(root, version)
+            testing = validate_consumer_packages.write_testing_consumer(root, version, {
+                "Microsoft.NET.Test.Sdk": "18.12.0", "xunit.v3": "4.0.3", "xunit.runner.visualstudio": "4.0.1",
+            })
+            candidates = []
+            for project in (public, testing):
+                for reference in ElementTree.parse(project).findall(".//PackageReference"):
+                    identity = reference.attrib["Include"]
+                    if identity.startswith("Hexalith.Conversations"):
+                        candidates.append(identity)
+                        self.assertEqual(f"[{version}]", reference.attrib["Version"], identity)
+            self.assertCountEqual(release_contract.EXACT_PACKAGE_IDS, candidates)
+
+    def test_consumer_entry_point_restores_from_candidate_feed_into_two_empty_caches(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            candidate, published = root / "candidate", root / "published"
+            version = "1.0.0"
+            dependency = "Hexalith.Conversations.PublishedDependency"
+            test_tools = {name: version for name in (
+                "Microsoft.NET.Test.Sdk", "xunit.v3", "xunit.runner.visualstudio",
+            )}
+            for feed, identities in (
+                (candidate, release_contract.EXACT_PACKAGE_IDS),
+                (published, (*release_contract.EXACT_PACKAGE_IDS, dependency, *test_tools)),
+            ):
+                feed.mkdir()
+                for identity in identities:
+                    dependencies = ""
+                    if identity in release_contract.EXACT_PACKAGE_IDS:
+                        dependencies = f'<dependencies><dependency id="{dependency}" version="[{version}]" /></dependencies>'
+                    with zipfile.ZipFile(feed / f"{identity}.{version}.nupkg", "w") as archive:
+                        archive.writestr(f"{identity}.nuspec", (
+                            f"<package><metadata><id>{identity}</id><version>{version}</version>"
+                            f"<authors>Hexalith</authors><description>{feed.name}</description>"
+                            f"{dependencies}</metadata></package>"
+                        ))
+                        archive.writestr("lib/net11.0/_._", b"")
+
+            write_config = validate_consumer_packages.write_nuget_config
+
+            def use_local_published_feed(destination, packages):
+                config = write_config(destination, packages)
+                document = ElementTree.parse(config)
+                candidate_patterns = document.findall(".//packageSourceMapping/packageSource[@key='local-conversations']/package")
+                self.assertCountEqual(release_contract.EXACT_PACKAGE_IDS, [row.attrib["pattern"] for row in candidate_patterns])
+                published_source = document.find(".//packageSources/add[@key='nuget.org']")
+                self.assertEqual("https://api.nuget.org/v3/index.json", published_source.attrib["value"])
+                published_source.set("value", str(published))
+                del published_source.attrib["protocolVersion"]
+                document.write(config, encoding="utf-8", xml_declaration=True)
+                return config
+
+            work = root / "consumers"
+            ambient_packages = root / "ambient"
+            seed = root / "Seed.csproj"
+            seed.write_text(
+                '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net11.0</TargetFramework>'
+                '</PropertyGroup><ItemGroup><PackageReference Include="Hexalith.Conversations" Version="[1.0.0]" />'
+                '</ItemGroup></Project>', encoding="utf-8",
+            )
+            run_dotnet = validate_consumer_packages.run_dotnet
+            run_dotnet(
+                ["restore", str(seed), "--source", str(published), "--packages", str(ambient_packages)],
+                root, validate_consumer_packages.isolated_consumer_environment(os.environ.copy()),
+            )
+            cached_copy = ambient_packages / "hexalith.conversations/1.0.0/hexalith.conversations.1.0.0.nupkg"
+            published_bytes = (published / "Hexalith.Conversations.1.0.0.nupkg").read_bytes()
+            self.assertEqual(published_bytes, cached_copy.read_bytes())
+            cache_paths = []
+            restored_candidates = set()
+            candidate_ids = {item.lower(): item for item in release_contract.EXACT_PACKAGE_IDS}
+
+            def restore_real_consumer(arguments, directory, environment):
+                if arguments[0] != "restore":
+                    # These feed fixtures contain metadata and placeholders. Real consumer code is
+                    # compiled and executed by validate-built-packages.py.
+                    return
+                packages = Path(arguments[arguments.index("--packages") + 1])
+                http_cache = Path(environment["NUGET_HTTP_CACHE_PATH"])
+                self.assertEqual(packages, Path(environment["NUGET_PACKAGES"]))
+                self.assertTrue(packages.is_relative_to(directory) and http_cache.is_relative_to(directory))
+                self.assertFalse(packages.exists())
+                self.assertFalse(http_cache.exists())
+                cache_paths.append((packages, http_cache))
+                run_dotnet(arguments, directory, environment)
+                for metadata_path in packages.glob("*/*/.nupkg.metadata"):
+                    package = metadata_path.parent
+                    identity = package.parent.name
+                    source = Path(json.loads(metadata_path.read_bytes())["source"])
+                    expected_source = candidate if identity in candidate_ids else published
+                    self.assertEqual(expected_source, source, identity)
+                    if expected_source == candidate:
+                        restored_candidates.add(identity)
+                        self.assertEqual(
+                            (candidate / f"{candidate_ids[identity]}.{version}.nupkg").read_bytes(),
+                            (package / f"{identity}.{version}.nupkg").read_bytes(),
+                        )
+                self.assertTrue((packages / dependency.lower() / version / ".nupkg.metadata").is_file())
+
+            with (
+                mock.patch.dict(os.environ, {
+                    "RestorePackagesPath": str(ambient_packages), "RestoreFallbackFolders": str(ambient_packages),
+                    "RestoreAdditionalProjectFallbackFolders": str(ambient_packages),
+                    "NUGET_FALLBACK_PACKAGES": str(ambient_packages), "NUGET_PACKAGES": str(ambient_packages),
+                    "NUGET_HTTP_CACHE_PATH": str(ambient_packages),
+                }),
+                mock.patch.object(sys, "argv", ["validate-consumer-package-references.py", str(candidate), "--work-directory", str(work)]),
+                mock.patch.object(validate_consumer_packages, "catalog_versions", return_value=test_tools),
+                mock.patch.object(validate_consumer_packages, "write_nuget_config", side_effect=use_local_published_feed),
+                mock.patch.object(validate_consumer_packages, "run_dotnet", side_effect=restore_real_consumer),
+            ):
+                self.assertEqual(0, validate_consumer_packages.main())
+            self.assertEqual(2, len(cache_paths))
+            self.assertEqual(4, len({path for pair in cache_paths for path in pair}))
+            self.assertEqual(set(candidate_ids), restored_candidates)
+            self.assertEqual(published_bytes, cached_copy.read_bytes())
 
     def test_unmapped_build_refuses_every_ambient_configuration(self) -> None:
         # Use the real consumer XML with an inert catalog bootstrap so absent nested
@@ -239,17 +359,25 @@ class PackageContractTests(unittest.TestCase):
             "AfterMicrosoftNETSdkTargets", "HEXALITH_SOURCE_MAPPING_HASH", "Configuration")}
         parent.update(PATH="/bin", NUGET_PACKAGES="cache", customaftermicrosoftcommonprops="case-insensitive")
         isolated = validate_consumer_packages.isolated_consumer_environment(parent)
-        self.assertEqual({"PATH": "/bin", "NUGET_PACKAGES": "cache"}, isolated)
+        self.assertEqual({"PATH": "/bin"}, isolated)
         self.assertEqual("parent-owned", parent["Configuration"])
         with tempfile.TemporaryDirectory() as temporary:
             project = validate_consumer_packages.write_public_consumer(Path(temporary), "1.0.0")
-            with mock.patch.object(validate_consumer_packages, "run_dotnet") as run:
-                validate_consumer_packages.validate_consumer(project, Path(temporary) / "NuGet.Config", isolated, False)
+            with (
+                mock.patch.object(validate_consumer_packages, "run_dotnet") as run,
+                mock.patch.object(validate_consumer_packages, "verify_candidate_packages"),
+            ):
+                validate_consumer_packages.validate_consumer(
+                    project, Path(temporary) / "NuGet.Config", isolated, False, Path(temporary), "1.0.0",
+                )
             self.assertEqual(3, run.call_count)
             self.assertIn("-p:Configuration=Release", run.call_args_list[0].args[0])
             self.assertEqual("Release", run.call_args_list[1].args[0][4])
             for call in run.call_args_list:
-                self.assertEqual(isolated, call.args[2])
+                self.assertEqual(isolated | {
+                    "NUGET_PACKAGES": str(project.parent / ".nuget/packages"),
+                    "NUGET_HTTP_CACHE_PATH": str(project.parent / ".nuget/http-cache"),
+                }, call.args[2])
 
 
     def test_release_solution_and_projects_exclude_external_release_source_edges(self) -> None:
@@ -257,6 +385,9 @@ class PackageContractTests(unittest.TestCase):
         self.assertNotIn("references/Hexalith.", solution)
 
         for project in [*ROOT.glob("src/**/*.csproj"), *ROOT.glob("tests/**/*.csproj")]:
+            if project.is_relative_to(ROOT / "tests/fixtures/Hexalith.Conversations.MinimalModule"):
+                # The frozen source edges are checked after conversion by the overlay tests.
+                continue
             root = __import__("xml.etree.ElementTree", fromlist=["ElementTree"]).parse(project).getroot()
             for item_group in root.findall("ItemGroup"):
                 for reference in item_group.findall("ProjectReference"):
