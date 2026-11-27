@@ -287,7 +287,6 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
             Dispatches = dispatches,
             HasIncompleteDispatch = hasIncompleteDispatch,
             ReadState = readState,
-            GenerationToken = index.GenerationToken,
         };
     }
 
@@ -303,23 +302,9 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
     internal static ConversationProjectionIndexReadState ClassifyLifecycle(ConversationProjectionIndexReadModel index)
     {
         ArgumentNullException.ThrowIfNull(index);
-        if (index.SchemaVersion is 0 or 1)
+        if (!TryValidateLifecycleHeader(index, out ConversationProjectionIndexLifecycle lifecycle, out IReadOnlyDictionary<string, long> watermarks))
         {
-            // A version 1 record has no lifecycle or v2 generation token; one that carries them contradicts itself.
-            if (index.Lifecycle is not null || index.Watermarks is not null || index.GenerationToken is not null)
-            {
-                throw new ConversationProjectionConsistencyException();
-            }
-
             return ConversationProjectionIndexReadState.Rebuilding;
-        }
-
-        if (!index.IsLifecycleRecord
-            || index.Lifecycle is not { } lifecycle
-            || !Enum.IsDefined(lifecycle)
-            || index.Watermarks is not { } watermarks)
-        {
-            throw new ConversationProjectionConsistencyException();
         }
 
         foreach (KeyValuePair<string, long> pair in watermarks)
@@ -364,35 +349,16 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
             }
         }
 
-        if (lifecycle == ConversationProjectionIndexLifecycle.Rebuilding)
-        {
-            return ConversationProjectionIndexReadState.Rebuilding;
-        }
-
-        return gap ? ConversationProjectionIndexReadState.GapDetected : ConversationProjectionIndexReadState.Ready;
+        return FinalizeLifecycleReadState(lifecycle, gap);
     }
 
     private static ConversationProjectionIndexReadState ClassifyLifecycle(
         ConversationProjectionIndexReadModel index,
         Dictionary<string, long> positions)
     {
-        if (index.SchemaVersion is 0 or 1)
+        if (!TryValidateLifecycleHeader(index, out ConversationProjectionIndexLifecycle lifecycle, out IReadOnlyDictionary<string, long> watermarks))
         {
-            // A version 1 record has no lifecycle or v2 generation token; one that carries them contradicts itself.
-            if (index.Lifecycle is not null || index.Watermarks is not null || index.GenerationToken is not null)
-            {
-                throw new ConversationProjectionConsistencyException();
-            }
-
             return ConversationProjectionIndexReadState.Rebuilding;
-        }
-
-        if (!index.IsLifecycleRecord
-            || index.Lifecycle is not { } lifecycle
-            || !Enum.IsDefined(lifecycle)
-            || index.Watermarks is not { } watermarks)
-        {
-            throw new ConversationProjectionConsistencyException();
         }
 
         bool gap = false;
@@ -431,13 +397,48 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
             gap = true;
         }
 
-        if (lifecycle == ConversationProjectionIndexLifecycle.Rebuilding)
+        return FinalizeLifecycleReadState(lifecycle, gap);
+    }
+
+    private static bool TryValidateLifecycleHeader(
+        ConversationProjectionIndexReadModel index,
+        out ConversationProjectionIndexLifecycle lifecycle,
+        out IReadOnlyDictionary<string, long> watermarks)
+    {
+        if (index.SchemaVersion is 0 or 1)
         {
-            return ConversationProjectionIndexReadState.Rebuilding;
+            // A version 1 record has no lifecycle or v2 generation token; one that carries them contradicts itself.
+            if (index.Lifecycle is not null || index.Watermarks is not null || index.GenerationToken is not null)
+            {
+                throw new ConversationProjectionConsistencyException();
+            }
+
+            lifecycle = default;
+            watermarks = null!;
+            return false;
         }
 
-        return gap ? ConversationProjectionIndexReadState.GapDetected : ConversationProjectionIndexReadState.Ready;
+        if (!index.IsLifecycleRecord
+            || index.Lifecycle is not { } parsedLifecycle
+            || !Enum.IsDefined(parsedLifecycle)
+            || index.Watermarks is not { } parsedWatermarks)
+        {
+            throw new ConversationProjectionConsistencyException();
+        }
+
+        lifecycle = parsedLifecycle;
+        watermarks = parsedWatermarks;
+        return true;
     }
+
+    private static ConversationProjectionIndexReadState FinalizeLifecycleReadState(
+        ConversationProjectionIndexLifecycle lifecycle,
+        bool gap)
+        => lifecycle == ConversationProjectionIndexLifecycle.Rebuilding
+            ? ConversationProjectionIndexReadState.Rebuilding
+            : gap
+                ? ConversationProjectionIndexReadState.GapDetected
+                : ConversationProjectionIndexReadState.Ready;
 
     /// <inheritdoc/>
     public async ValueTask<IReadOnlySet<string>> ValidatePageAsync(
@@ -498,36 +499,18 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
             }
         }
 
-        // Start both bounded bulk reads before awaiting either so network-backed stores (Dapr+Redis) overlap them.
-        // Link cancellation so a fault on detailsTask cancels and cleanly awaits ledgersTask before rethrowing.
-        using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        Task<IReadOnlyDictionary<string, ConversationPageValidationRecord?>> detailsTask =
-            BulkReadAsync<ConversationPageValidationRecord>(detailKeys, linkedCts.Token);
-        Task<IReadOnlyDictionary<string, ConversationProjectionDispatchLedger?>> ledgersTask =
-            BulkReadAsync<ConversationProjectionDispatchLedger>(uniqueLedgerKeys, linkedCts.Token);
+        // Observe page details BEFORE reading dispatch ledgers. During restoration of a missing detail after
+        // ledger expiry, reading ledgers in parallel could observe the expired (absent) ledger before redelivery
+        // recreates it pending and then observe the restored detail before dispatch completion, falsely certifying
+        // Current. Reading details first guarantees that if a restored detail is observed, the subsequent ledger
+        // read observes at least the pending ledger (step 1 precedes detail step 5).
+        IReadOnlyDictionary<string, ConversationPageValidationRecord?> details = await BulkReadAsync<ConversationPageValidationRecord>(
+            detailKeys,
+            cancellationToken).ConfigureAwait(false);
 
-        IReadOnlyDictionary<string, ConversationPageValidationRecord?> details;
-        IReadOnlyDictionary<string, ConversationProjectionDispatchLedger?> ledgers;
-        try
-        {
-            details = await detailsTask.ConfigureAwait(false);
-        }
-        catch
-        {
-            await linkedCts.CancelAsync().ConfigureAwait(false);
-            try
-            {
-                _ = await ledgersTask.ConfigureAwait(false);
-            }
-            catch
-            {
-                // Primary detailsTask exception takes precedence after cancelling and awaiting ledgersTask.
-            }
-
-            throw;
-        }
-
-        ledgers = await ledgersTask.ConfigureAwait(false);
+        IReadOnlyDictionary<string, ConversationProjectionDispatchLedger?> ledgers = await BulkReadAsync<ConversationProjectionDispatchLedger>(
+            uniqueLedgerKeys,
+            cancellationToken).ConfigureAwait(false);
 
         for (int index = 0; index < verifiableCount; index++)
         {
@@ -695,19 +678,35 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
             return true;
         }
 
-        foreach (KeyValuePair<string, string> entry in firstData)
+        if (secondData is Dictionary<string, string> secondDict
+            && (ReferenceEquals(secondDict.Comparer, StringComparer.Ordinal)
+                || ReferenceEquals(secondDict.Comparer, EqualityComparer<string>.Default)))
         {
-            bool matched = false;
-            foreach (KeyValuePair<string, string> other in secondData)
+            foreach (KeyValuePair<string, string> entry in firstData)
             {
-                if (string.Equals(entry.Key, other.Key, StringComparison.Ordinal))
+                if (!secondDict.TryGetValue(entry.Key, out string? otherValue)
+                    || !string.Equals(entry.Value, otherValue, StringComparison.Ordinal))
                 {
-                    matched = string.Equals(entry.Value, other.Value, StringComparison.Ordinal);
-                    break;
+                    return false;
                 }
             }
 
-            if (!matched)
+            return true;
+        }
+
+        Dictionary<string, string> secondOrdinal = new(secondData.Count, StringComparer.Ordinal);
+        foreach (KeyValuePair<string, string> other in secondData)
+        {
+            if (!secondOrdinal.TryAdd(other.Key, other.Value))
+            {
+                return false;
+            }
+        }
+
+        foreach (KeyValuePair<string, string> entry in firstData)
+        {
+            if (!secondOrdinal.TryGetValue(entry.Key, out string? otherValue)
+                || !string.Equals(entry.Value, otherValue, StringComparison.Ordinal))
             {
                 return false;
             }

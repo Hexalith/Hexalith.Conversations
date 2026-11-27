@@ -290,11 +290,27 @@
     "laneResult": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["lane", "path", "sha256", "total", "passed", "failed", "skipped", "notRun", "outcome"],
+      "required": [
+        "lane",
+        "path",
+        "sha256",
+        "boundCommit",
+        "serverAssemblySha256",
+        "testAssemblySha256",
+        "total",
+        "passed",
+        "failed",
+        "skipped",
+        "notRun",
+        "outcome"
+      ],
       "properties": {
         "lane": { "type": "string", "enum": ["unit", "integration", "dapr"] },
         "path": { "type": "string", "minLength": 1 },
         "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "boundCommit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "serverAssemblySha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "testAssemblySha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
         "total": { "type": "integer", "minimum": 1 },
         "passed": { "type": "integer", "minimum": 1 },
         "failed": { "type": "integer", "const": 0 },

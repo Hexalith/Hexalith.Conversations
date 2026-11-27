@@ -23,6 +23,8 @@ internal sealed class DerivedKeyDaprFaultStore(DaprReadModelStore inner)
 {
     private readonly Lock _gate = new();
     private readonly List<string> _writes = [];
+    private int _getCalls;
+    private int _getManyCalls;
 
     /// <summary>Gets or sets a key whose writes are rejected to simulate partial writes.</summary>
     public string? BlockedWriteKey { get; set; }
@@ -36,6 +38,30 @@ internal sealed class DerivedKeyDaprFaultStore(DaprReadModelStore inner)
     /// <summary>Gets or sets an artificial read latency injected before delegating to Dapr.</summary>
     public TimeSpan ReadLatency { get; set; } = TimeSpan.Zero;
 
+    /// <summary>Gets the number of single-key reads observed since the last reset.</summary>
+    public int GetCalls
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _getCalls;
+            }
+        }
+    }
+
+    /// <summary>Gets the number of bulk reads observed since the last reset.</summary>
+    public int GetManyCalls
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _getManyCalls;
+            }
+        }
+    }
+
     /// <summary>Gets a snapshot of all recorded write operations.</summary>
     public IReadOnlyList<string> Writes
     {
@@ -48,12 +74,14 @@ internal sealed class DerivedKeyDaprFaultStore(DaprReadModelStore inner)
         }
     }
 
-    /// <summary>Clears all recorded write operations.</summary>
+    /// <summary>Clears all recorded read counts and write operations.</summary>
     public void ResetWrites()
     {
         lock (_gate)
         {
             _writes.Clear();
+            _getCalls = 0;
+            _getManyCalls = 0;
         }
     }
 
@@ -64,6 +92,11 @@ internal sealed class DerivedKeyDaprFaultStore(DaprReadModelStore inner)
         CancellationToken cancellationToken = default)
         where T : class
     {
+        lock (_gate)
+        {
+            _getCalls++;
+        }
+
         if (ReadLatency > TimeSpan.Zero)
         {
             await Task.Delay(ReadLatency, cancellationToken).ConfigureAwait(false);
@@ -84,6 +117,11 @@ internal sealed class DerivedKeyDaprFaultStore(DaprReadModelStore inner)
         CancellationToken cancellationToken = default)
         where T : class
     {
+        lock (_gate)
+        {
+            _getCalls++;
+        }
+
         if (ReadLatency > TimeSpan.Zero)
         {
             await Task.Delay(ReadLatency, cancellationToken).ConfigureAwait(false);
@@ -105,6 +143,11 @@ internal sealed class DerivedKeyDaprFaultStore(DaprReadModelStore inner)
         CancellationToken cancellationToken)
         where T : class
     {
+        lock (_gate)
+        {
+            _getManyCalls++;
+        }
+
         if (ReadLatency > TimeSpan.Zero)
         {
             await Task.Delay(ReadLatency, cancellationToken).ConfigureAwait(false);

@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
@@ -49,6 +50,7 @@ public sealed class DerivedKeyOptimizationTests
     [Fact]
     public async Task ListAndOpenShouldUseApprovedBoundedReads()
     {
+        EmitCandidateBinding();
         CancellationToken cancellationToken = TestContext.Current.CancellationToken;
         ITestOutputHelper? output = TestContext.Current.TestOutputHelper;
 
@@ -124,6 +126,7 @@ public sealed class DerivedKeyOptimizationTests
     [Fact]
     public async Task InvalidDerivedStateShouldFailClosedWithoutRepair()
     {
+        EmitCandidateBinding();
         CancellationToken cancellationToken = TestContext.Current.CancellationToken;
         ConversationId convA = new("conversation-00000");
         ConversationId convB = new("conversation-00001");
@@ -432,6 +435,191 @@ public sealed class DerivedKeyOptimizationTests
             page2.Conversations.Count.ShouldBe(5);
             spy.Writes.ShouldBeEmpty("READ_SIDE_REPAIR_ATTEMPTED");
         }
+
+        // 13. Stale valid-shaped persisted GenerationToken after summaries and matching detail records change/reorder -> old cursor MUST fail closed (Forbidden).
+        {
+            InMemoryReadModelStore backing = new();
+            SeedReadyTenant(backing, 30);
+            ConversationProjectionIndexReadModel initialIndex = backing.Snapshot<ConversationProjectionIndexReadModel>(
+                ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!;
+            string originalToken = ConversationIndexGenerationToken.Compute(initialIndex.Summaries);
+            backing.SeedRaw(
+                ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
+                new ConversationProjectionIndexReadModel
+                {
+                    SchemaVersion = ConversationProjectionIndexReadModel.LifecycleSchemaVersion,
+                    Lifecycle = ConversationProjectionIndexLifecycle.Ready,
+                    Watermarks = initialIndex.Watermarks,
+                    Summaries = initialIndex.Summaries,
+                    Dispatches = initialIndex.Dispatches,
+                    GenerationToken = originalToken,
+                });
+            DerivedKeyReadStoreSpy spy = new(backing);
+            ConversationQueryHandler handler = CreateHandler(spy);
+
+            ConversationListResult page1 = await handler.ListAsync(ListQuery(filter, pageSize: 25), cancellationToken);
+            page1.FreshnessState.ShouldBe(ProjectionTrustState.Current);
+            string oldCursor = page1.Page.ContinuationCursor!;
+            oldCursor.ShouldNotBeNullOrWhiteSpace();
+
+            // Mutate conversation-00029 (moving its timestamp so list order changes) AND update its detail/ledger,
+            // while leaving the old valid-shaped 64-hex GenerationToken on the tenant index.
+            ConversationId movedId = new("conversation-00029");
+            ConversationProjectedReadModels updatedModels = BuildModels(
+                Tenant,
+                movedId,
+                position: 2,
+                dispatchId: "dispatch-moved-00029",
+                timestampOverride: BaseTimestamp.AddMinutes(5));
+            backing.SeedRaw(
+                ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.ConversationKey(Tenant, movedId),
+                updatedModels);
+            backing.SeedRaw(
+                ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.DispatchLedgerKey("dispatch-moved-00029"),
+                new ConversationProjectionDispatchLedger(
+                    "dispatch-moved-00029",
+                    "fingerprint-moved-00029",
+                    Tenant,
+                    movedId,
+                    updatedModels.Summary.Freshness.ProjectionGeneratedAt,
+                    ConversationProjectionDispatchStatus.Completed));
+            List<ConversationSummaryProjectionV1> mutatedSummaries =
+            [
+                .. initialIndex.Summaries.Where(s => s.ConversationId != movedId),
+                updatedModels.Summary,
+            ];
+            Dictionary<string, long> mutatedWatermarks = new(initialIndex.Watermarks!, StringComparer.Ordinal)
+            {
+                [movedId.Value] = 2,
+            };
+            Dictionary<string, ConversationProjectionDispatchReference> mutatedDispatches = new(initialIndex.Dispatches, StringComparer.Ordinal)
+            {
+                [movedId.Value] = new("dispatch-moved-00029", 2, IsPending: false),
+            };
+            backing.SeedRaw(
+                ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
+                new ConversationProjectionIndexReadModel
+                {
+                    SchemaVersion = ConversationProjectionIndexReadModel.LifecycleSchemaVersion,
+                    Lifecycle = ConversationProjectionIndexLifecycle.Ready,
+                    Watermarks = mutatedWatermarks,
+                    Summaries = mutatedSummaries,
+                    Dispatches = mutatedDispatches,
+                    GenerationToken = originalToken, // stale valid-shaped 64-hex digest
+                });
+
+            spy.Reset();
+            ConversationListResult stalePage2 = await handler.ListAsync(ListQuery(filter, pageSize: 25, cursor: oldCursor), cancellationToken);
+            stalePage2.FreshnessState.ShouldBe(
+                ProjectionTrustState.Forbidden,
+                "DERIVED_STATE_FAIL_CLOSED_VIOLATION: stale valid-shaped GenerationToken must not validate cursor against changed rows");
+            stalePage2.Conversations.ShouldBeEmpty();
+            spy.Writes.ShouldBeEmpty("READ_SIDE_REPAIR_ATTEMPTED");
+        }
+
+        // 14. Syntactically valid malformed detail/wrapper records (missing/invalid lifecycleState, missing
+        // schemaVersion, null message element, empty/NBSP attribute key, type-corrupted wrapper metadata) must fail closed on BOTH Open and List.
+        foreach (string mutation in new[] { "missing-lifecycle", "invalid-lifecycle", "missing-schema", "null-message", "empty-attr-key", "nbsp-attr-key", "bad-source-head-seq", "bad-replay-anchor" })
+        {
+            InMemoryReadModelStore backing = new();
+            SeedReadyTenant(backing, 3);
+            string detailKey = ConversationProjectionReadModelKeys.ConversationKey(Tenant, convA);
+            JsonObject stored = backing.Snapshot<JsonObject>(ConversationProjectionReadModelKeys.StateStoreName, detailKey)!;
+            JsonObject detailObj = stored["detail"]!.AsObject();
+            switch (mutation)
+            {
+                case "missing-lifecycle":
+                    _ = detailObj.Remove("lifecycleState");
+                    break;
+                case "invalid-lifecycle":
+                    detailObj["lifecycleState"] = "Deleted";
+                    break;
+                case "missing-schema":
+                    _ = detailObj.Remove("schemaVersion");
+                    break;
+                case "null-message":
+                    detailObj["messages"] = new JsonArray((JsonNode?)null);
+                    break;
+                case "empty-attr-key":
+                    detailObj["attributes"] = new JsonObject { ["  "] = "bad" };
+                    break;
+                case "nbsp-attr-key":
+                    detailObj["attributes"] = new JsonObject { ["\u00A0"] = "bad" };
+                    break;
+                case "bad-source-head-seq":
+                    stored["sourceHeadSequence"] = "not-a-number";
+                    break;
+                case "bad-replay-anchor":
+                    stored["replayAnchorAt"] = "not-a-timestamp";
+                    break;
+            }
+
+            backing.SeedRaw(ConversationProjectionReadModelKeys.StateStoreName, detailKey, stored);
+            DerivedKeyReadStoreSpy spy = new(backing);
+            ConversationQueryHandler handler = CreateHandler(spy);
+
+            ConversationDetailResult open = await handler.GetAsync(OpenQuery(convA), cancellationToken);
+            ConversationListResult list = await handler.ListAsync(ListQuery(filter), cancellationToken);
+
+            open.FreshnessState.ShouldNotBe(ProjectionTrustState.Current, $"DERIVED_STATE_FAIL_CLOSED_VIOLATION: open accepted malformed detail ({mutation})");
+            open.Details.ShouldBeNull();
+            list.FreshnessState.ShouldNotBe(ProjectionTrustState.Current, $"DERIVED_STATE_FAIL_CLOSED_VIOLATION: list certified malformed detail ({mutation})");
+            list.Conversations.ShouldNotContain(c => c.ConversationId == convA);
+            spy.Writes.ShouldBeEmpty("READ_SIDE_REPAIR_ATTEMPTED");
+        }
+
+        // 15. Malformed recognized fields on tenant index (schemaVersion, watermarks, lifecycle, sibling dispatch,
+        // sibling summary missing conversationId, and null dispatches on absent open) must fail closed on Open.
+        foreach (string indexMutation in new[] { "bad-schema", "bad-watermarks-type", "bad-watermark-value", "bad-lifecycle", "bad-sibling-dispatch-type", "bad-sibling-dispatch-position", "sibling-summary-missing-id", "null-dispatches-absent-open" })
+        {
+            InMemoryReadModelStore backing = new();
+            SeedReadyTenant(backing, 3);
+            string indexKey = ConversationProjectionReadModelKeys.TenantIndexKey(Tenant);
+            JsonObject indexObj = backing.Snapshot<JsonObject>(ConversationProjectionReadModelKeys.StateStoreName, indexKey)!;
+            ConversationId queryTarget = convA;
+            switch (indexMutation)
+            {
+                case "bad-schema":
+                    indexObj["schemaVersion"] = "two";
+                    break;
+                case "bad-watermarks-type":
+                    indexObj["watermarks"] = "corrupt";
+                    break;
+                case "bad-watermark-value":
+                    indexObj["watermarks"]!.AsObject()[convB.Value] = "not-a-number";
+                    break;
+                case "bad-lifecycle":
+                    indexObj["lifecycle"] = "not-an-enum";
+                    break;
+                case "bad-sibling-dispatch-type":
+                    indexObj["dispatches"]!.AsObject()[convB.Value] = "not-an-object";
+                    break;
+                case "bad-sibling-dispatch-position":
+                    indexObj["dispatches"]!.AsObject()[convB.Value]!.AsObject()["lastAppliedEventPosition"] = "bad";
+                    break;
+                case "sibling-summary-missing-id":
+                    indexObj["summaries"]!.AsArray().Add(new JsonObject());
+                    break;
+                case "null-dispatches-absent-open":
+                    indexObj["dispatches"] = null;
+                    queryTarget = new ConversationId("conversation-absent");
+                    break;
+            }
+
+            backing.SeedRaw(ConversationProjectionReadModelKeys.StateStoreName, indexKey, indexObj);
+            DerivedKeyReadStoreSpy spy = new(backing);
+            ConversationQueryHandler handler = CreateHandler(spy);
+
+            ConversationDetailResult open = await handler.GetAsync(OpenQuery(queryTarget), cancellationToken);
+            open.FreshnessState.ShouldBeOneOf(ProjectionTrustState.Unavailable, ProjectionTrustState.Rebuilding);
+            open.Details.ShouldBeNull();
+            spy.Writes.ShouldBeEmpty("READ_SIDE_REPAIR_ATTEMPTED");
+        }
     }
 
     /// <summary>
@@ -505,7 +693,7 @@ public sealed class DerivedKeyOptimizationTests
     [Fact]
     public void GenerationTokenShouldHashAllSummaryPropertiesCanonically()
     {
-        // Reflection guard: any newly added property on ConversationSummaryProjectionV1 must update the canonicalizer.
+        // Reflection guard: any newly added property on ConversationSummaryProjectionV1 must remain covered.
         string[] expectedProperties =
         [
             "BusinessReference",
@@ -540,16 +728,6 @@ public sealed class DerivedKeyOptimizationTests
                 SchemaVersion.Current,
                 "sess-1",
                 "resp-1",
-                new Dictionary<string, string>(StringComparer.Ordinal) { ["b"] = "2", ["a"] = "1" }),
-        };
-        ConversationSummaryProjectionV1 s1ReorderedExt = s1 with
-        {
-            ProviderCorrelation = new ProviderCorrelationMetadata(
-                "openai",
-                "assistant",
-                SchemaVersion.Current,
-                "sess-1",
-                "resp-1",
                 new Dictionary<string, string>(StringComparer.Ordinal) { ["a"] = "1", ["b"] = "2" }),
         };
         ConversationSummaryProjectionV1 s1MutatedExt = s1 with
@@ -565,12 +743,186 @@ public sealed class DerivedKeyOptimizationTests
         ConversationSummaryProjectionV1 s2 = BuildModels(Tenant, new ConversationId("conv-b"), 1, "d-b").Summary;
 
         string orderedToken = ConversationIndexGenerationToken.Compute([s1, s2]);
-        string unsortedToken = ConversationIndexGenerationToken.Compute([s2, s1ReorderedExt]);
+        string unsortedToken = ConversationIndexGenerationToken.Compute([s2, s1]);
         string mutatedToken = ConversationIndexGenerationToken.Compute([s1MutatedExt, s2]);
 
+        // Pin byte-for-byte digest compatibility with pre-Story-12.3 JsonSerializer.SerializeToUtf8Bytes implementation.
+        string expectedPreviousDigest = Convert.ToHexStringLower(SHA256.HashData(
+            JsonSerializer.SerializeToUtf8Bytes(
+                new[] { s2, s1 }.OrderBy(static s => s.ConversationId.Value, StringComparer.Ordinal))));
+
         ConversationIndexGenerationToken.IsValidPersistedToken(orderedToken).ShouldBeTrue();
+        orderedToken.ShouldBe(expectedPreviousDigest, "DERIVED_KEY_TRANSITION_UNSAFE: streaming token must match pre-deployment digest");
         unsortedToken.ShouldBe(orderedToken);
         mutatedToken.ShouldNotBe(orderedToken);
+    }
+
+    /// <summary>
+    /// <see cref="ConversationProjectionReadStore.ValidatePageAsync"/> observes page details BEFORE reading dispatch
+    /// ledgers so a detail restored during redelivery cannot combine with an earlier expired-ledger read to falsely
+    /// report <c>Current</c>, and a failed detail bulk read never launches a sibling ledger read.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Fact]
+    public async Task ValidatePageShouldObserveLedgerAfterDetailReadAndNotLeakReadsOnFailure()
+    {
+        CancellationToken cancellationToken = TestContext.Current.CancellationToken;
+        ConversationId convA = new("conversation-00000");
+
+        // Case A: Detail restoration race — detail is missing and ledger expired; while detail bulk read is gated,
+        // redelivery creates Pending ledger (step 1) and writes restored detail (step 5) before completion (step 10).
+        {
+            InMemoryReadModelStore backing = new();
+            SeedReadyTenant(backing, 2);
+            string detailKey = ConversationProjectionReadModelKeys.ConversationKey(Tenant, convA);
+            string ledgerKey = ConversationProjectionReadModelKeys.DispatchLedgerKey("dispatch-00000");
+            ConversationProjectedReadModels originalDetail = backing.Snapshot<ConversationProjectedReadModels>(
+                ConversationProjectionReadModelKeys.StateStoreName,
+                detailKey)!;
+
+            // Remove detail and expire ledger.
+            (bool dp, string dEtag) = await backing.TryReadEtagAsync(ConversationProjectionReadModelKeys.StateStoreName, detailKey, cancellationToken);
+            dp.ShouldBeTrue();
+            (await backing.TryEraseAsync(ConversationProjectionReadModelKeys.StateStoreName, detailKey, dEtag, cancellationToken)).ShouldBeTrue();
+            (bool lp, string lEtag) = await backing.TryReadEtagAsync(ConversationProjectionReadModelKeys.StateStoreName, ledgerKey, cancellationToken);
+            lp.ShouldBeTrue();
+            (await backing.TryEraseAsync(ConversationProjectionReadModelKeys.StateStoreName, ledgerKey, lEtag, cancellationToken)).ShouldBeTrue();
+
+            TaskCompletionSource detailEntered = new(TaskCreationOptions.RunContinuationsAsynchronously);
+            TaskCompletionSource releaseDetail = new(TaskCreationOptions.RunContinuationsAsynchronously);
+            DerivedKeyGatedBulkStore gatedStore = new(backing)
+            {
+                OnDetailBulkReadAsync = async ct =>
+                {
+                    detailEntered.SetResult();
+                    await releaseDetail.Task.WaitAsync(ct).ConfigureAwait(false);
+                },
+            };
+
+            ConversationQueryHandler handler = CreateHandler(gatedStore);
+            Task<ConversationListResult> listTask = handler.ListAsync(ListQuery(new()), cancellationToken).AsTask();
+
+            await detailEntered.Task.WaitAsync(TimeSpan.FromSeconds(5), cancellationToken);
+            gatedStore.DetailBulkCalls.ShouldBe(1);
+            gatedStore.LedgerBulkCalls.ShouldBe(0, "ledger bulk read must not start before detail bulk read completes");
+
+            // Redelivery step 1 (Pending ledger) + step 5 (restored detail), before step 10 (Completed ledger).
+            backing.SeedRaw(
+                ConversationProjectionReadModelKeys.StateStoreName,
+                ledgerKey,
+                new ConversationProjectionDispatchLedger(
+                    "dispatch-00000",
+                    "fingerprint-00000",
+                    Tenant,
+                    convA,
+                    originalDetail.Summary.Freshness.ProjectionGeneratedAt,
+                    ConversationProjectionDispatchStatus.Pending));
+            backing.SeedRaw(ConversationProjectionReadModelKeys.StateStoreName, detailKey, originalDetail);
+
+            releaseDetail.SetResult();
+            ConversationListResult result = await listTask.WaitAsync(TimeSpan.FromSeconds(5), cancellationToken);
+            gatedStore.LedgerBulkCalls.ShouldBe(1);
+            result.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding, "DERIVED_STATE_FAIL_CLOSED_VIOLATION: in-flight restoration must not certify Current");
+            result.Conversations.ShouldNotContain(c => c.ConversationId == convA);
+        }
+
+        // Case B: Detail bulk read fails -> ledger bulk read is never started (zero leaked sibling reads).
+        {
+            InMemoryReadModelStore backing = new();
+            SeedReadyTenant(backing, 2);
+            DerivedKeyGatedBulkStore gatedStore = new(backing)
+            {
+                OnDetailBulkReadAsync = static _ => Task.FromException(new InvalidOperationException("Simulated detail bulk read outage.")),
+            };
+            ConversationProjectionReadStore readStore = new(gatedStore);
+            ConversationProjectionIndexSnapshot snapshot = await readStore.ListAsync(Tenant, cancellationToken);
+            _ = await Should.ThrowAsync<InvalidOperationException>(
+                () => readStore.ValidatePageAsync(Tenant, snapshot, snapshot.Summaries, cancellationToken).AsTask());
+            gatedStore.DetailBulkCalls.ShouldBe(1);
+            gatedStore.LedgerBulkCalls.ShouldBe(0);
+        }
+    }
+
+    /// <summary>
+    /// Provider correlation extension comparison preserves ordinal equality in linear time across populated bags
+    /// and non-ordinal dictionary implementations.
+    /// </summary>
+    /// <returns>A task.</returns>
+    [Fact]
+    public async Task ProviderCorrelationExtensionComparisonShouldBeLinearAndOrdinal()
+    {
+        CancellationToken cancellationToken = TestContext.Current.CancellationToken;
+        InMemoryReadModelStore backing = new();
+        SeedReadyTenant(backing, 2);
+        ConversationId convA = new("conversation-00000");
+
+        Dictionary<string, string> bagForward = new(StringComparer.Ordinal);
+        Dictionary<string, string> bagReverse = new(StringComparer.Ordinal);
+        for (int i = 0; i < 150; i++)
+        {
+            bagForward[$"ext-key-{i:000}"] = $"val-{i:000}";
+        }
+
+        for (int i = 149; i >= 0; i--)
+        {
+            bagReverse[$"ext-key-{i:000}"] = $"val-{i:000}";
+        }
+
+        ConversationProjectedReadModels original = backing.Snapshot<ConversationProjectedReadModels>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, convA))!;
+        ConversationSummaryProjectionV1 withForward = original.Summary with
+        {
+            ProviderCorrelation = new ProviderCorrelationMetadata("openai", "assistant", SchemaVersion.Current, "s-1", "r-1", bagForward),
+        };
+        ConversationSummaryProjectionV1 withReverse = original.Summary with
+        {
+            ProviderCorrelation = new ProviderCorrelationMetadata("openai", "assistant", SchemaVersion.Current, "s-1", "r-1", bagReverse),
+        };
+        ConversationProjectedReadModels updatedDetail = new(withForward, original.Detail with { ProviderCorrelation = withForward.ProviderCorrelation })
+        {
+            DispatchId = original.DispatchId,
+        };
+        backing.SeedRaw(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, convA),
+            updatedDetail);
+        ConversationProjectionIndexReadModel idx = backing.Snapshot<ConversationProjectionIndexReadModel>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!;
+        backing.SeedRaw(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
+            new ConversationProjectionIndexReadModel
+            {
+                SchemaVersion = idx.SchemaVersion,
+                Lifecycle = idx.Lifecycle,
+                Watermarks = idx.Watermarks,
+                Summaries = [withReverse, .. idx.Summaries.Skip(1)],
+                Dispatches = idx.Dispatches,
+            });
+
+        ConversationProjectionReadStore readStore = new(backing);
+        ConversationProjectedReadModels? opened = await readStore.ReadAsync(Tenant, convA, cancellationToken);
+        opened.ShouldNotBeNull();
+
+        ConversationProjectionIndexSnapshot snapshot = await readStore.ListAsync(Tenant, cancellationToken);
+        IReadOnlySet<string> inconsistent = await readStore.ValidatePageAsync(Tenant, snapshot, snapshot.Summaries, cancellationToken);
+        inconsistent.ShouldBeEmpty();
+
+        // Case-different key must fail ordinal equality (even when compared against a case-insensitive dictionary).
+        Dictionary<string, string> caseDifferent = new(StringComparer.OrdinalIgnoreCase);
+        foreach (KeyValuePair<string, string> kv in bagForward)
+        {
+            caseDifferent[kv.Key.ToUpperInvariant()] = kv.Value;
+        }
+
+        ConversationSummaryProjectionV1 withCaseDifferent = original.Summary with
+        {
+            ProviderCorrelation = new ProviderCorrelationMetadata("openai", "assistant", SchemaVersion.Current, "s-1", "r-1", caseDifferent),
+        };
+        IReadOnlySet<string> caseMismatch = await readStore.ValidatePageAsync(Tenant, snapshot, [withCaseDifferent], cancellationToken);
+        caseMismatch.ShouldContain(convA.Value);
     }
 
     /// <summary>
@@ -771,22 +1123,24 @@ public sealed class DerivedKeyOptimizationTests
         _ = Should.Throw<ObjectDisposedException>(() => writer.GetMemory(1));
         _ = Should.Throw<ObjectDisposedException>(() => writer.Advance(0));
 
-        // MarkGenerationPendingAsync preserves valid persisted GenerationToken when Summaries are unchanged.
+        // Compose omits persisted GenerationToken (zero write overhead) while preserving SchemaVersion=2, Lifecycle, and Watermarks.
         InMemoryReadModelStore store = new();
         ConversationProjectionReadModelWriter readModelWriter = new(store);
         await readModelWriter.InitializeTenantIndexAsync(Tenant, cancellationToken);
         ConversationProjectedReadModels initial = BuildModels(Tenant, convA, 1, "dispatch-1");
         await readModelWriter.PersistGenerationAsync(initial, cancellationToken);
-        string beforePendingToken = store.Snapshot<ConversationProjectionIndexReadModel>(
+        ConversationProjectionIndexReadModel afterPersist = store.Snapshot<ConversationProjectionIndexReadModel>(
             ConversationProjectionReadModelKeys.StateStoreName,
-            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!.GenerationToken!;
-        ConversationIndexGenerationToken.IsValidPersistedToken(beforePendingToken).ShouldBeTrue();
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!;
+        afterPersist.SchemaVersion.ShouldBe(ConversationProjectionIndexReadModel.LifecycleSchemaVersion);
+        afterPersist.GenerationToken.ShouldBeNull();
 
         await readModelWriter.MarkGenerationPendingAsync(BuildModels(Tenant, convA, 2, "dispatch-2"), cancellationToken);
-        string afterPendingToken = store.Snapshot<ConversationProjectionIndexReadModel>(
+        ConversationProjectionIndexReadModel afterPending = store.Snapshot<ConversationProjectionIndexReadModel>(
             ConversationProjectionReadModelKeys.StateStoreName,
-            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!.GenerationToken!;
-        afterPendingToken.ShouldBe(beforePendingToken);
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!;
+        afterPending.SchemaVersion.ShouldBe(ConversationProjectionIndexReadModel.LifecycleSchemaVersion);
+        afterPending.GenerationToken.ShouldBeNull();
     }
 
     private static void ProfileScaleRow(
@@ -842,60 +1196,37 @@ public sealed class DerivedKeyOptimizationTests
             GC.KeepAlive(r);
         }, iterations);
 
-        // Also profile persisted-token List mode (index carrying v2 GenerationToken).
+        // Measure full two-phase write path (MarkGenerationPendingAsync + PersistGenerationAsync) on a fresh clone.
         ConversationProjectionIndexReadModel indexSnapshot = backing.Snapshot<ConversationProjectionIndexReadModel>(
             ConversationProjectionReadModelKeys.StateStoreName,
             ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!;
-        backing.SeedRaw(
-            ConversationProjectionReadModelKeys.StateStoreName,
-            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
-            new ConversationProjectionIndexReadModel
-            {
-                SchemaVersion = indexSnapshot.SchemaVersion,
-                Lifecycle = indexSnapshot.Lifecycle,
-                Watermarks = indexSnapshot.Watermarks,
-                Summaries = indexSnapshot.Summaries,
-                Dispatches = indexSnapshot.Dispatches,
-                GenerationToken = ConversationIndexGenerationToken.Compute(indexSnapshot.Summaries),
-            });
-        (double listP1PersistedUs, long listP1PersistedAlloc) = MeasureSync(() =>
-        {
-            ConversationListResult r = handler.ListAsync(
-                new ListConversationsQuery(SchemaVersion.Current, Tenant, Caller, "prof-p1-tok", filter, new ConversationPageRequest(25)),
-                cancellationToken).AsTask().GetAwaiter().GetResult();
-            GC.KeepAlive(r);
-        }, iterations);
-        (double listP2PersistedUs, long listP2PersistedAlloc) = MeasureSync(() =>
-        {
-            ConversationListResult r = handler.ListAsync(
-                new ListConversationsQuery(SchemaVersion.Current, Tenant, Caller, "prof-p2-tok", filter, new ConversationPageRequest(25, cursor)),
-                cancellationToken).AsTask().GetAwaiter().GetResult();
-            GC.KeepAlive(r);
-        }, iterations);
-
-        // Measure full write path (MarkGenerationPendingAsync + PersistGenerationAsync) on a fresh clone of the index.
         InMemoryReadModelStore writeStore = new();
         writeStore.SeedRaw(
             ConversationProjectionReadModelKeys.StateStoreName,
             ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
             indexSnapshot);
-        ConversationProjectionReadModelWriter writer = new(writeStore);
+        DerivedKeyReadStoreSpy writeSpy = new(writeStore);
+        ConversationProjectionReadModelWriter writer = new(writeSpy);
         ConversationProjectedReadModels writeSample = BuildModels(Tenant, new ConversationId($"conversation-{rowCount + 1:00000}"), position: 1, dispatchId: $"dispatch-w-{rowCount}");
         writer.MarkGenerationPendingAsync(writeSample, cancellationToken).GetAwaiter().GetResult();
         writer.PersistGenerationAsync(writeSample, cancellationToken).GetAwaiter().GetResult();
 
         int writeCounter = 2;
+        int writeIterations = Math.Max(2, iterations / 2);
+        writeSpy.Reset();
         (double writeUs, long writeAlloc) = MeasureSync(() =>
         {
             ConversationProjectedReadModels next = BuildModels(Tenant, targetId, position: writeCounter, dispatchId: $"dispatch-w-{writeCounter}");
             writeCounter++;
             writer.MarkGenerationPendingAsync(next, cancellationToken).GetAwaiter().GetResult();
             writer.PersistGenerationAsync(next, cancellationToken).GetAwaiter().GetResult();
-        }, Math.Max(2, iterations / 2));
+        }, writeIterations);
+        int writeReadsPerOp = writeSpy.GetCalls / writeIterations;
+        int writeWritesPerOp = writeSpy.Writes.Count / writeIterations;
 
         output.WriteLine(string.Create(
             CultureInfo.InvariantCulture,
-            $"SCALE_PROFILE|rows={rowCount}|listP1_fallback_us={listP1Us:F1}|listP1_fallback_alloc={listP1Alloc}|listP2_fallback_us={listP2Us:F1}|listP2_fallback_alloc={listP2Alloc}|listP1_persisted_us={listP1PersistedUs:F1}|listP1_persisted_alloc={listP1PersistedAlloc}|listP2_persisted_us={listP2PersistedUs:F1}|listP2_persisted_alloc={listP2PersistedAlloc}|open_us={openUs:F1}|open_alloc={openAlloc}|fullWrite_us={writeUs:F1}|fullWrite_alloc={writeAlloc}"));
+            $"SCALE_PROFILE|rows={rowCount}|listP1_us={listP1Us:F1}|listP1_alloc={listP1Alloc}|listP2_us={listP2Us:F1}|listP2_alloc={listP2Alloc}|open_us={openUs:F1}|open_alloc={openAlloc}|fullWrite_us={writeUs:F1}|fullWrite_alloc={writeAlloc}|fullWrite_reads={writeReadsPerOp}|fullWrite_writes={writeWritesPerOp}"));
     }
 
     private static (double MeanMicroseconds, long AllocBytesPerOp) MeasureSync(Action action, int iterations)
@@ -982,18 +1313,34 @@ public sealed class DerivedKeyOptimizationTests
         ConversationId conversationId,
         long position,
         string dispatchId,
-        bool rich = false)
+        bool rich = false,
+        DateTimeOffset? timestampOverride = null)
     {
+        DateTimeOffset eventTime = timestampOverride ?? BaseTimestamp;
         ProjectionFreshnessV1 freshness = new(
             SchemaVersion.Current,
             $"pos:{position:0000000000}",
             position,
-            BaseTimestamp,
-            BaseTimestamp.AddSeconds(1),
+            eventTime,
+            eventTime.AddSeconds(1),
             TimeSpan.FromSeconds(1),
             IsStale: false,
             ProjectionTrustState.Current,
             ProjectionFreshnessReasonCode.Current);
+
+        ProviderCorrelationMetadata providerCorrelation = new(
+            "openai",
+            "assistant",
+            SchemaVersion.Current,
+            $"sess-{conversationId.Value}",
+            $"resp-{dispatchId}",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["region"] = "eu-west",
+                ["channel"] = "web",
+                ["model"] = "gpt-4.1",
+                ["trace"] = dispatchId,
+            });
 
         ConversationSummaryProjectionV1 summary = new(
             SchemaVersion.Current,
@@ -1007,7 +1354,8 @@ public sealed class DerivedKeyOptimizationTests
             Folder,
             [Actor, Participant],
             MessageCount: rich ? 10 : 1,
-            FileReferenceCount: rich ? 1 : 0);
+            FileReferenceCount: rich ? 1 : 0,
+            ProviderCorrelation: providerCorrelation);
 
         ConversationDetailProjectionV1 detail = rich
             ? BuildRichDetail(summary)
@@ -1021,10 +1369,24 @@ public sealed class DerivedKeyOptimizationTests
                 Business,
                 Project,
                 Folder,
+                ProviderCorrelation: providerCorrelation,
                 Participants: [new ConversationParticipantProjectionV1(Actor, ParticipantType.Human, ParticipantRole.Member)],
-                Messages: [new ConversationTimelineMessageProjectionV1(new MessageId($"msg-{conversationId.Value}"), Actor, "Visible message", BaseTimestamp)]);
+                Messages: [new ConversationTimelineMessageProjectionV1(new MessageId($"msg-{conversationId.Value}"), Actor, "Visible message", eventTime)]);
 
         return new ConversationProjectedReadModels(summary, detail) { DispatchId = dispatchId };
+    }
+
+    private static void EmitCandidateBinding()
+    {
+        Assembly serverAssembly = typeof(ConversationProjectionReadStore).Assembly;
+        Assembly testAssembly = typeof(DerivedKeyOptimizationTests).Assembly;
+        string info = serverAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? string.Empty;
+        int plus = info.LastIndexOf('+');
+        string commit = plus >= 0 && plus + 1 < info.Length ? info[(plus + 1)..] : "unknown";
+        string serverSha = Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(serverAssembly.Location)));
+        string testSha = Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(testAssembly.Location)));
+        TestContext.Current.TestOutputHelper?.WriteLine(
+            $"CANDIDATE_BINDING|commit={commit}|serverSha256={serverSha}|testAssemblySha256={testSha}");
     }
 
     private static ConversationDetailProjectionV1 BuildRichDetail(ConversationSummaryProjectionV1 summary)
@@ -1048,6 +1410,7 @@ public sealed class DerivedKeyOptimizationTests
             Business,
             Project,
             Folder,
+            ProviderCorrelation: summary.ProviderCorrelation,
             Participants:
             [
                 new ConversationParticipantProjectionV1(Actor, ParticipantType.Human, ParticipantRole.Facilitator),

@@ -38,6 +38,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="Hexalith.Conversations.Api" />
     <InternalsVisibleTo Include="Hexalith.Conversations.Server.Tests" />
+    <InternalsVisibleTo Include="Hexalith.Conversations.AppHost.Tests" />
     <InternalsVisibleTo Include="Hexalith.Conversations.DeletionConformance.Tests" />
   </ItemGroup>
 </Project>

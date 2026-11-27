@@ -3,6 +3,7 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -35,19 +36,20 @@ public sealed class DerivedKeyDaprFaultTests(DerivedKeyDaprLiveFixture fixture) 
 
     /// <summary>
     /// End-to-end bounded list (page 1 &amp; 2) and open through real <c>daprd</c> + Redis prove streaming
-    /// <c>Utf8JsonReader</c> lookup, minimal detail-header bulk reads, and persisted <c>GenerationToken</c>
-    /// cursor continuity + invalidation.
+    /// <c>Utf8JsonReader</c> lookup, minimal detail-header bulk reads, bounded store-call counts, and
+    /// canonical generation-token cursor continuity + invalidation.
     /// </summary>
     /// <returns>A task.</returns>
     [Fact]
     public async Task BoundedReadsAndCursorContinuityShouldWorkOverRealDaprRedis()
     {
+        EmitCandidateBinding();
         CancellationToken cancellationToken = TestContext.Current.CancellationToken;
         TenantId tenant = new("tenant-dapr-ok-" + Guid.NewGuid().ToString("N")[..8]);
         DerivedKeyDaprFaultStore faultStore = new(fixture.Store);
         ConversationProjectionReadModelWriter writer = new(fixture.StoreOptions, faultStore, null);
 
-        await InitializeTenantViaWriterAsync(faultStore, tenant, cancellationToken);
+        await InitializeTenantViaWriterAsync(faultStore, writer, tenant, cancellationToken);
         for (int index = 0; index < 6; index++)
         {
             ConversationId convId = new($"conv-dapr-{index:00}");
@@ -65,7 +67,11 @@ public sealed class DerivedKeyDaprFaultTests(DerivedKeyDaprLiveFixture fixture) 
         page1.FreshnessState.ShouldBe(ProjectionTrustState.Current);
         page1.Conversations.Count.ShouldBe(3);
         page1.Page.ContinuationCursor.ShouldNotBeNullOrWhiteSpace();
+        faultStore.GetCalls.ShouldBe(1, "DERIVED_KEY_FANOUT_UNBOUNDED: live Dapr list page 1 must read index once");
+        faultStore.GetManyCalls.ShouldBe(2, "DERIVED_KEY_FANOUT_UNBOUNDED: live Dapr list page 1 must use 2 bounded bulk reads");
+        faultStore.Writes.ShouldBeEmpty("READ_SIDE_REPAIR_ATTEMPTED: real Dapr reads must never write");
 
+        faultStore.ResetWrites();
         ConversationListResult page2 = await handler.ListAsync(
             new ListConversationsQuery(SchemaVersion.Current, tenant, Caller, "corr-p2", Page: new ConversationPageRequest(3, page1.Page.ContinuationCursor)),
             cancellationToken);
@@ -73,13 +79,19 @@ public sealed class DerivedKeyDaprFaultTests(DerivedKeyDaprLiveFixture fixture) 
         page2.Conversations.Count.ShouldBe(3);
         page2.Page.ContinuationCursor.ShouldBeNull();
         page2.Conversations.Select(static c => c.ConversationId).Intersect(page1.Conversations.Select(static c => c.ConversationId)).ShouldBeEmpty();
+        faultStore.GetCalls.ShouldBe(1, "DERIVED_KEY_FANOUT_UNBOUNDED: live Dapr list page 2 must read index once");
+        faultStore.GetManyCalls.ShouldBe(2, "DERIVED_KEY_FANOUT_UNBOUNDED: live Dapr list page 2 must use 2 bounded bulk reads");
+        faultStore.Writes.ShouldBeEmpty("READ_SIDE_REPAIR_ATTEMPTED: real Dapr reads must never write");
 
+        faultStore.ResetWrites();
         ConversationDetailResult opened = await handler.GetAsync(
             new GetConversationQuery(SchemaVersion.Current, tenant, Caller, "corr-open", new ConversationId("conv-dapr-00")),
             cancellationToken);
         opened.FreshnessState.ShouldBe(ProjectionTrustState.Current);
         opened.Details.ShouldNotBeNull();
         opened.Details!.ConversationId.ShouldBe(new ConversationId("conv-dapr-00"));
+        faultStore.GetCalls.ShouldBe(3, "DERIVED_KEY_FANOUT_UNBOUNDED: live Dapr open must use exactly 3 single-key reads");
+        faultStore.GetManyCalls.ShouldBe(0, "DERIVED_KEY_FANOUT_UNBOUNDED: live Dapr open must not issue bulk reads");
         faultStore.Writes.ShouldBeEmpty("READ_SIDE_REPAIR_ATTEMPTED: real Dapr reads must never write");
 
         // Mutating one conversation invalidates the prior page-1 cursor.
@@ -101,11 +113,12 @@ public sealed class DerivedKeyDaprFaultTests(DerivedKeyDaprLiveFixture fixture) 
     [Fact]
     public async Task PartialWriteShouldFailClosedAndRetryShouldConvergeOverRealDaprRedis()
     {
+        EmitCandidateBinding();
         CancellationToken cancellationToken = TestContext.Current.CancellationToken;
         TenantId tenant = new("tenant-dapr-pw-" + Guid.NewGuid().ToString("N")[..8]);
         DerivedKeyDaprFaultStore faultStore = new(fixture.Store);
         ConversationProjectionReadModelWriter writer = new(fixture.StoreOptions, faultStore, null);
-        await InitializeTenantViaWriterAsync(faultStore, tenant, cancellationToken);
+        await InitializeTenantViaWriterAsync(faultStore, writer, tenant, cancellationToken);
 
         ConversationId healthyId = new("conv-healthy");
         ConversationId partialId = new("conv-partial");
@@ -179,11 +192,12 @@ public sealed class DerivedKeyDaprFaultTests(DerivedKeyDaprLiveFixture fixture) 
     [Fact]
     public async Task LatencyAndOutageShouldFailClosedWithoutRepairOverRealDaprRedis()
     {
+        EmitCandidateBinding();
         CancellationToken cancellationToken = TestContext.Current.CancellationToken;
         TenantId tenant = new("tenant-dapr-lat-" + Guid.NewGuid().ToString("N")[..8]);
         DerivedKeyDaprFaultStore faultStore = new(fixture.Store);
         ConversationProjectionReadModelWriter writer = new(fixture.StoreOptions, faultStore, null);
-        await InitializeTenantViaWriterAsync(faultStore, tenant, cancellationToken);
+        await InitializeTenantViaWriterAsync(faultStore, writer, tenant, cancellationToken);
 
         ConversationId[] convIds = [.. Enumerable.Range(0, 6).Select(index => new ConversationId($"conv-lat-{index:00}"))];
         for (int index = 0; index < convIds.Length; index++)
@@ -265,13 +279,14 @@ public sealed class DerivedKeyDaprFaultTests(DerivedKeyDaprLiveFixture fixture) 
     [Fact]
     public async Task PoisonRecordsAndCrossTenantIsolationShouldNeverDiscloseOverRealDaprRedis()
     {
+        EmitCandidateBinding();
         CancellationToken cancellationToken = TestContext.Current.CancellationToken;
         TenantId tenantA = new("tenant-dapr-pa-" + Guid.NewGuid().ToString("N")[..8]);
         TenantId tenantB = new("tenant-dapr-pb-" + Guid.NewGuid().ToString("N")[..8]);
         DerivedKeyDaprFaultStore faultStore = new(fixture.Store);
         ConversationProjectionReadModelWriter writer = new(fixture.StoreOptions, faultStore, null);
-        await InitializeTenantViaWriterAsync(faultStore, tenantA, cancellationToken);
-        await InitializeTenantViaWriterAsync(faultStore, tenantB, cancellationToken);
+        await InitializeTenantViaWriterAsync(faultStore, writer, tenantA, cancellationToken);
+        await InitializeTenantViaWriterAsync(faultStore, writer, tenantB, cancellationToken);
 
         ConversationId convGood = new("conv-good");
         ConversationId convPoison = new("conv-poison");
@@ -348,11 +363,12 @@ public sealed class DerivedKeyDaprFaultTests(DerivedKeyDaprLiveFixture fixture) 
     [Fact]
     public async Task ConcurrentWritesShouldConvergeOverRealDaprRedis()
     {
+        EmitCandidateBinding();
         CancellationToken cancellationToken = TestContext.Current.CancellationToken;
         TenantId tenant = new("tenant-dapr-conc-" + Guid.NewGuid().ToString("N")[..8]);
         DerivedKeyDaprFaultStore faultStore = new(fixture.Store);
         ConversationProjectionReadModelWriter writer = new(fixture.StoreOptions, faultStore, null);
-        await InitializeTenantViaWriterAsync(faultStore, tenant, cancellationToken);
+        await InitializeTenantViaWriterAsync(faultStore, writer, tenant, cancellationToken);
 
         Task[] writers = Enumerable.Range(0, 6).Select(async index =>
         {
@@ -402,23 +418,13 @@ public sealed class DerivedKeyDaprFaultTests(DerivedKeyDaprLiveFixture fixture) 
             hydrationService: new ConversationReadHydrationService());
     }
 
-    private async Task InitializeTenantViaWriterAsync(
+    private static async Task InitializeTenantViaWriterAsync(
         DerivedKeyDaprFaultStore store,
+        ConversationProjectionReadModelWriter writer,
         TenantId tenant,
         CancellationToken cancellationToken)
     {
-        await fixture.Client.SaveStateAsync(
-            DerivedKeyDaprLiveFixture.StateStoreName,
-            TenantIndexKey(tenant),
-            new
-            {
-                SchemaVersion = 2,
-                Lifecycle = 2,
-                Watermarks = new Dictionary<string, long>(StringComparer.Ordinal),
-                Summaries = Array.Empty<ConversationSummaryProjectionV1>(),
-                Dispatches = new Dictionary<string, ConversationProjectionDispatchReference>(StringComparer.Ordinal),
-            },
-            cancellationToken: cancellationToken);
+        (await writer.InitializeTenantIndexAsync(tenant, cancellationToken)).ShouldBeTrue();
         store.ResetWrites();
     }
 
@@ -494,4 +500,17 @@ public sealed class DerivedKeyDaprFaultTests(DerivedKeyDaprLiveFixture fixture) 
 
     private static string EncodeSegment(string value)
         => Convert.ToBase64String(Encoding.UTF8.GetBytes(value)).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+
+    private static void EmitCandidateBinding()
+    {
+        Assembly serverAssembly = typeof(ConversationProjectionReadStore).Assembly;
+        Assembly testAssembly = typeof(DerivedKeyDaprFaultTests).Assembly;
+        string info = serverAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? string.Empty;
+        int plus = info.LastIndexOf('+');
+        string commit = plus >= 0 && plus + 1 < info.Length ? info[(plus + 1)..] : "unknown";
+        string serverSha = Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(serverAssembly.Location)));
+        string testSha = Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(testAssembly.Location)));
+        TestContext.Current.TestOutputHelper?.WriteLine(
+            $"CANDIDATE_BINDING|commit={commit}|serverSha256={serverSha}|testAssemblySha256={testSha}");
+    }
 }

@@ -321,12 +321,11 @@ public sealed class ConversationQueryHandler
         // Tenant-scoped poison guard: reject any row whose stored TenantId disagrees with the request scope
         // before any filter, count, ordering, or freshness evaluation runs. Avoid copying when poison-free.
         IReadOnlyList<ConversationSummaryProjectionV1> tenantScoped = FilterTenantScope(snapshot.Summaries, query.TenantId);
-        bool poisonFree = ReferenceEquals(tenantScoped, snapshot.Summaries);
 
         string? projectionGenerationToken = null;
         if (cursor.HasValue)
         {
-            projectionGenerationToken = ResolveGenerationToken(snapshot, tenantScoped, poisonFree);
+            projectionGenerationToken = ResolveGenerationToken(tenantScoped);
 
             // Projection-generation binding is re-checked here rather than in the codec scope: the token is only
             // knowable after the projection read. A cursor issued against a superseded generation fails closed,
@@ -431,7 +430,7 @@ public sealed class ConversationQueryHandler
         string? nextCursor = null;
         if (issueContinuation && !withheldFromThisPage)
         {
-            projectionGenerationToken ??= ResolveGenerationToken(snapshot, tenantScoped, poisonFree);
+            projectionGenerationToken ??= ResolveGenerationToken(tenantScoped);
             cursorScope ??= ConversationListCursor.BuildScope(query.TenantId, query.CallerPrincipalId, query.Filter);
             nextCursor = _cursorCodec.Encode(
                 ConversationListCursor.QueryType,
@@ -615,24 +614,16 @@ public sealed class ConversationQueryHandler
             : StringComparer.Ordinal.Compare(left.ConversationId.Value, right.ConversationId.Value);
     }
 
-    private static string ResolveGenerationToken(
-        ConversationProjectionIndexSnapshot snapshot,
-        IReadOnlyList<ConversationSummaryProjectionV1> tenantScoped,
-        bool poisonFree)
+    private static string ResolveGenerationToken(IReadOnlyList<ConversationSummaryProjectionV1> tenantScoped)
     {
         if (tenantScoped.Count == 0)
         {
             return ConversationIndexGenerationToken.EmptyToken;
         }
 
-        if (poisonFree && ConversationIndexGenerationToken.IsValidPersistedToken(snapshot.GenerationToken))
-        {
-            return snapshot.GenerationToken!;
-        }
-
-        // Bind continuation to the complete logical tenant index rather than one row plus the maximum
-        // position. Different conversations legitimately carry different cursors, and a mutation below the
-        // prior maximum must still invalidate a continuation that could otherwise skip or duplicate rows.
+        // Always bind continuation directly to the digest of the current tenant-scoped summaries rather than
+        // trusting an unverified stored token. A stale, valid-shaped persisted token after summaries change or
+        // reorder must never allow a continuation cursor to reuse its old offset.
         return ConversationIndexGenerationToken.Compute(tenantScoped);
     }
 

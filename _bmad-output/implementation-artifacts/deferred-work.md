@@ -1617,3 +1617,7 @@ The 20 groups below combine duplicate reports and related validation steps. They
 - source_spec: `_bmad-output/implementation-artifacts/spec-12-3-implement-correctness-preserving-list-open-optimization-and-migration-behavior.md`
   summary: Regenerate `docs/release-evidence/derived-key-correctness-proof-v1.{json,md}` (`AC-12.3-06`) against the committed Story 12.3 `HEAD` before Story 12.4 consumes it.
   evidence: During Story 12.3 build/review no commit is created, so the working-tree proof binds pre-Story-12.3 `HEAD` (`f8d81ca843c855cd5b87677617600e97bdcdee2f`) while hashing Story 12.3's uncommitted production files; re-running `AC-12.3-06` after committing Story 12.3 binds `headCommit` to the exact Story 12.3 commit.
+
+## Deferred from: code review of spec-12-3-implement-correctness-preserving-list-open-optimization-and-migration-behavior.md (2026-11-27)
+
+- The existing tenant initializer redelivery test failure was reproduced in isolation during review. It returned `RetryableInProgress` instead of `Processed`. See the existing Story 12.3 deferral above for the conditional deletion test-double defect.

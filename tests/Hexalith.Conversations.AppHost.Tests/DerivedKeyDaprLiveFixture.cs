@@ -239,18 +239,23 @@ public sealed class DerivedKeyDaprLiveFixture : IAsyncLifetime
 
     private static int[] AllocatePorts(int count)
     {
-        TcpListener[] listeners = new TcpListener[count];
+        TcpListener?[] listeners = new TcpListener?[count];
         int[] ports = new int[count];
-        for (int index = 0; index < count; index++)
+        try
         {
-            listeners[index] = new TcpListener(IPAddress.Loopback, 0);
-            listeners[index].Start();
-            ports[index] = ((IPEndPoint)listeners[index].LocalEndpoint).Port;
+            for (int index = 0; index < count; index++)
+            {
+                listeners[index] = new TcpListener(IPAddress.Loopback, 0);
+                listeners[index]!.Start();
+                ports[index] = ((IPEndPoint)listeners[index]!.LocalEndpoint).Port;
+            }
         }
-
-        foreach (TcpListener listener in listeners)
+        finally
         {
-            listener.Stop();
+            foreach (TcpListener? listener in listeners)
+            {
+                listener?.Stop();
+            }
         }
 
         return ports;
@@ -283,7 +288,37 @@ public sealed class DerivedKeyDaprLiveFixture : IAsyncLifetime
         using Process process = Process.Start(startInfo) ?? throw new InvalidOperationException("Failed to start docker.");
         Task<string> stdout = process.StandardOutput.ReadToEndAsync();
         Task<string> stderr = process.StandardError.ReadToEndAsync();
-        await process.WaitForExitAsync(timeout.Token).ConfigureAwait(false);
+        try
+        {
+            await process.WaitForExitAsync(timeout.Token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            try
+            {
+                if (!process.HasExited)
+                {
+                    process.Kill(entireProcessTree: true);
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                // Process already exited.
+            }
+
+            using CancellationTokenSource killWait = new(TimeSpan.FromSeconds(10));
+            try
+            {
+                await process.WaitForExitAsync(killWait.Token).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                // Bounded wait after terminating timed-out docker process before fixture cleanup.
+            }
+
+            throw;
+        }
+
         string output = await stdout.ConfigureAwait(false);
         string error = await stderr.ConfigureAwait(false);
         if (allowMissing && process.ExitCode != 0 && error.Contains("No such container", StringComparison.OrdinalIgnoreCase))

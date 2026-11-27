@@ -63,8 +63,8 @@ public sealed class ConversationProjectionIndexReadModel
     internal IReadOnlyDictionary<string, long>? Watermarks { get; init; }
 
     /// <summary>
-    /// Gets the canonical SHA-256 generation token over the ordered tenant summaries, persisted on version 2 writes
-    /// so list queries can reuse it when no cross-tenant poison rows are present; absent on legacy records.
+    /// Gets an optional legacy generation-token field retained only for backward deserialization and version 1
+    /// contradiction rejection; current writers do not persist it and readers never trust it without hashing summaries.
     /// </summary>
     [JsonInclude]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

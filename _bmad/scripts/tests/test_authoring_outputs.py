@@ -323,3 +323,42 @@ def test_ab_pair_failure_restores_every_output_and_reports_blocked(output_case, 
     assert "Traceback" not in captured.err and source.read_bytes() == source_bytes
     assert [(path.read_bytes() if path.exists() else None) for path in outputs] == [b"previous\n" if seeded else None] * 2
     assert not list((repo / "out").glob(".*.tmp")) and not list((repo / "out").glob(".*.restore"))
+
+
+def test_replace_tracked_is_strictly_scoped_and_recreates_deleted_tracked_files(tmp_path: Path):
+    fixture_tests.git(tmp_path, "init", "--quiet")
+    allowed = tmp_path / "docs/proof.json"
+    other = tmp_path / "docs/other.json"
+    allowed.parent.mkdir(parents=True, exist_ok=True)
+    allowed.write_bytes(b"old-proof\n")
+    other.write_bytes(b"old-other\n")
+    fixture_tests.git(tmp_path, "add", "--", "docs/proof.json", "docs/other.json")
+
+    # (a) A tracked file NOT in replace_tracked is still rejected even when replace_tracked is non-empty.
+    with pytest.raises(writer.OutputError, match="tracked source or publication"):
+        writer.write_outputs(
+            tmp_path,
+            [("docs/proof.json", b"new-proof\n"), ("docs/other.json", b"new-other\n")],
+            replace_tracked=("docs/proof.json",),
+        )
+    assert allowed.read_bytes() == b"old-proof\n"
+    assert other.read_bytes() == b"old-other\n"
+
+    # (b) readonly overrides replace_tracked.
+    with pytest.raises(writer.OutputError, match="read-only input"):
+        writer.write_outputs(
+            tmp_path,
+            [("docs/proof.json", b"new-proof\n")],
+            readonly=("docs/proof.json",),
+            replace_tracked=("docs/proof.json",),
+        )
+    assert allowed.read_bytes() == b"old-proof\n"
+
+    # (c) A deleted tracked file in replace_tracked is recreated cleanly without crashing on missing bytes.
+    allowed.unlink()
+    writer.write_outputs(
+        tmp_path,
+        [("docs/proof.json", b"recreated-proof\n")],
+        replace_tracked=("docs/proof.json",),
+    )
+    assert allowed.read_bytes() == b"recreated-proof\n"

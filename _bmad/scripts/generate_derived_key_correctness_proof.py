@@ -11,7 +11,6 @@ No final SM-C2 verdict is issued by this script. AC-12.3-08 is recorded as waive
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -31,7 +30,6 @@ SCHEMA_PATH = PREFIX + ".schema.json"
 JSON_PATH = PREFIX + ".json"
 MARKDOWN_PATH = PREFIX + ".md"
 CONTRACT_PATH = "_bmad-output/planning-artifacts/v9/story-contracts/12.3.json"
-AUTHORITY_PATH = "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json"
 EPICS_PATH = "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md"
 SPRINT_PATH = "_bmad-output/implementation-artifacts/sprint-status.yaml"
 ADR_PATH = "docs/adrs/0005-conversation-derived-key-lifecycle.md"
@@ -71,18 +69,46 @@ READ_SIDE_PATHS = (
     "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadService.cs",
     "src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs",
     "src/Hexalith.Conversations.Server/Hydration/ConversationReadHydrationService.cs",
+    "src/Hexalith.Conversations.Server/Hydration/EmptyHydrationResults.cs",
+    "src/Hexalith.Conversations.Server/Projections/ConversationDetailValidationHeader.cs",
+    "src/Hexalith.Conversations.Server/Projections/ConversationDetailValidationHeaderConverter.cs",
+    "src/Hexalith.Conversations.Server/Projections/ConversationPageValidationRecord.cs",
+    "src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupConverter.cs",
+    "src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupScope.cs",
+    "src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupTarget.cs",
+    "src/Hexalith.Conversations.Server/Projections/ConversationIndexGenerationToken.cs",
+    "src/Hexalith.Conversations.Server/Projections/IncrementalHashBufferWriter.cs",
 )
 
-EXPECTED_LANE_TESTS = {
-    "unit": "Hexalith.Conversations.Server.Tests.Projections.DerivedKeyOptimizationTests.InvalidDerivedStateShouldFailClosedWithoutRepair",
-    "integration": "Hexalith.Conversations.IntegrationTests.Projections.DerivedKeyLifecycleTests.",
-    "dapr": "Hexalith.Conversations.AppHost.Tests.DerivedKeyDaprFaultTests.",
+EXPECTED_LANE_TESTS: dict[str, tuple[str, ...]] = {
+    "unit": (
+        "Hexalith.Conversations.Server.Tests.Projections.DerivedKeyOptimizationTests.InvalidDerivedStateShouldFailClosedWithoutRepair",
+    ),
+    "integration": (
+        "Hexalith.Conversations.IntegrationTests.Projections.DerivedKeyLifecycleTests.TenantCollisionsShouldNeverDiscloseAcrossTenants",
+        "Hexalith.Conversations.IntegrationTests.Projections.DerivedKeyLifecycleTests.RetriesOutOfOrderAndEqualPositionConflictsShouldConvergeDeterministically",
+        "Hexalith.Conversations.IntegrationTests.Projections.DerivedKeyLifecycleTests.LegacyV1AndV2WithoutPersistedTokenShouldMatchPersistedGenerationToken",
+        "Hexalith.Conversations.IntegrationTests.Projections.DerivedKeyLifecycleTests.ConcurrentWritesShouldConvergeWithoutLostUpdates",
+        "Hexalith.Conversations.IntegrationTests.Projections.DerivedKeyLifecycleTests.DeletionInterruptedRebuildReplayAndRollbackRehearsalShouldConvergeDeterministically",
+    ),
+    "dapr": (
+        "Hexalith.Conversations.AppHost.Tests.DerivedKeyDaprFaultTests.BoundedReadsAndCursorContinuityShouldWorkOverRealDaprRedis",
+        "Hexalith.Conversations.AppHost.Tests.DerivedKeyDaprFaultTests.PartialWriteShouldFailClosedAndRetryShouldConvergeOverRealDaprRedis",
+        "Hexalith.Conversations.AppHost.Tests.DerivedKeyDaprFaultTests.LatencyAndOutageShouldFailClosedWithoutRepairOverRealDaprRedis",
+        "Hexalith.Conversations.AppHost.Tests.DerivedKeyDaprFaultTests.PoisonRecordsAndCrossTenantIsolationShouldNeverDiscloseOverRealDaprRedis",
+        "Hexalith.Conversations.AppHost.Tests.DerivedKeyDaprFaultTests.ConcurrentWritesShouldConvergeOverRealDaprRedis",
+    ),
 }
+
+CANDIDATE_BINDING_RE = re.compile(
+    r"CANDIDATE_BINDING\|commit=([0-9a-f]{40})\|serverSha256=([0-9a-f]{64})\|testAssemblySha256=([0-9a-f]{64})"
+)
 
 PRODUCTION_PATHS = (
     ("src/Hexalith.Conversations.Server/Hydration/ConversationReadHydrationService.cs", "response-hydration"),
     ("src/Hexalith.Conversations.Server/Hydration/EmptyHydrationResults.cs", "hydration-empty-singleton"),
     ("src/Hexalith.Conversations.Server/Projections/ConversationDetailValidationHeader.cs", "page-validation-detail-header-dto"),
+    ("src/Hexalith.Conversations.Server/Projections/ConversationDetailValidationHeaderConverter.cs", "page-validation-detail-header-converter"),
     ("src/Hexalith.Conversations.Server/Projections/ConversationIndexGenerationToken.cs", "streaming-canonical-generation-token"),
     ("src/Hexalith.Conversations.Server/Projections/ConversationPageValidationRecord.cs", "page-validation-record-dto"),
     ("src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupConverter.cs", "targeted-utf8-index-lookup-converter"),
@@ -212,9 +238,32 @@ def read_file(repository: Path, relative: str) -> bytes:
         raise Blocked(INPUT_UNAVAILABLE, f"cannot read {relative}: {error}") from None
 
 
-def read_root_submodules(repository: Path) -> list[dict]:
-    """Read all root .gitmodules declarations and their indexed mode-160000 gitlinks."""
+def read_committed_and_verify_clean(
+    repository: Path,
+    head_commit: str,
+    relative: str,
+    errors: list[tuple[str, str]],
+) -> bytes:
+    """Read a tracked input and bind its working-tree bytes to the exact committed candidate tree."""
+    working = read_file(repository, relative)
+    committed = committed_blob(repository, head_commit, relative)
+    if committed is None or committed != working:
+        errors.append(
+            (
+                BLOCK_GATE,
+                f"Input {relative} differs from committed candidate {head_commit[:12]}; commit changes and rerun tests.",
+            )
+        )
+    return working
+
+
+def read_root_submodules(repository: Path, head_commit: str) -> list[dict]:
+    """Read all root .gitmodules declarations and bind gitlinks from the committed candidate tree and index."""
     gitmodules = read_file(repository, ".gitmodules")
+    committed_gitmodules = committed_blob(repository, head_commit, ".gitmodules")
+    if committed_gitmodules is None or committed_gitmodules != gitmodules:
+        raise ProofError([(BLOCK_GATE, f"Root .gitmodules differs from committed candidate {head_commit[:12]}.")])
+
     try:
         config = subprocess.run(
             ["git", "config", "--file", "-", "--null", "--get-regexp", r"^submodule\..*\.(path|url)$"],
@@ -228,44 +277,67 @@ def read_root_submodules(repository: Path) -> list[dict]:
         raise Blocked(INPUT_UNAVAILABLE, "cannot parse root .gitmodules")
 
     settings: dict[str, dict[str, str]] = {}
-    for entry in config.stdout.split(b"\0"):
-        if not entry:
-            continue
-        key, sep, value = entry.partition(b"\n")
-        if not sep:
-            continue
-        match = re.fullmatch(r"submodule\.(.+)\.(path|url)", key.decode("utf-8"))
-        if not match:
-            continue
-        name, field = match.groups()
-        settings.setdefault(name, {})[field] = value.decode("utf-8")
+    try:
+        for entry in config.stdout.split(b"\0"):
+            if not entry:
+                continue
+            key, sep, value = entry.partition(b"\n")
+            if not sep:
+                continue
+            match = re.fullmatch(r"submodule\.(.+)\.(path|url)", key.decode("utf-8"))
+            if not match:
+                continue
+            name, field = match.groups()
+            settings.setdefault(name, {})[field] = value.decode("utf-8")
 
-    indexed: dict[str, str] = {}
-    ls_files = git(repository, "ls-files", "--stage", "-z", "--", "references/").stdout
-    for entry in ls_files.split(b"\0"):
-        if not entry:
-            continue
-        meta, sep, path_bytes = entry.partition(b"\t")
-        if not sep:
-            continue
-        parts = meta.decode("ascii", errors="replace").split()
-        if len(parts) == 3 and parts[0] == "160000" and parts[2] == "0":
-            indexed[path_bytes.decode("utf-8")] = parts[1]
+        committed_links: dict[str, str] = {}
+        ls_tree = git(repository, "ls-tree", "-z", head_commit, "--", "references/").stdout
+        for entry in ls_tree.split(b"\0"):
+            if not entry:
+                continue
+            meta, sep, path_bytes = entry.partition(b"\t")
+            if not sep:
+                continue
+            parts = meta.decode("ascii", errors="replace").split()
+            if len(parts) == 3 and parts[0] == "160000" and parts[1] == "commit":
+                committed_links[path_bytes.decode("utf-8")] = parts[2]
+
+        indexed: dict[str, str] = {}
+        ls_files = git(repository, "ls-files", "--stage", "-z", "--", "references/").stdout
+        for entry in ls_files.split(b"\0"):
+            if not entry:
+                continue
+            meta, sep, path_bytes = entry.partition(b"\t")
+            if not sep:
+                continue
+            parts = meta.decode("ascii", errors="replace").split()
+            if len(parts) == 3 and parts[0] == "160000" and parts[2] == "0":
+                indexed[path_bytes.decode("utf-8")] = parts[1]
+    except UnicodeDecodeError as error:
+        raise Blocked(INPUT_UNAVAILABLE, f"root .gitmodules or gitlink entry is not valid UTF-8: {error}") from None
 
     rows = []
     for fields in sorted(settings.values(), key=lambda item: item.get("path", "")):
         path = fields.get("path", "")
         url = fields.get("url", "")
-        gitlink = indexed.get(path)
+        gitlink = committed_links.get(path)
+        staged = indexed.get(path)
         if not path or not url or not gitlink or not re.fullmatch(r"[0-9a-f]{40}", gitlink):
-            raise ProofError([(BLOCK_GATE, f"Root submodule binding missing or mismatched for {path or '<unknown>'}.")])
+            raise ProofError([(BLOCK_GATE, f"Root submodule binding missing or malformed in {head_commit[:12]} for {path or '<unknown>'}.")])
+        if staged != gitlink:
+            raise ProofError([(BLOCK_GATE, f"Staged gitlink for {path} differs from committed candidate {head_commit[:12]}.")])
         rows.append({"path": path, "gitlink": gitlink, "url": url})
     if not rows:
         raise ProofError([(BLOCK_GATE, "No root submodules found.")])
     return rows
 
 
-def parse_trx(repository: Path, lane: str, relative_path: str) -> tuple[dict, list[tuple[str, str]]]:
+def parse_trx(
+    repository: Path,
+    lane: str,
+    relative_path: str,
+    head_commit: str,
+) -> tuple[dict, list[tuple[str, str]]]:
     raw = read_file(repository, relative_path)
     try:
         root = ET.fromstring(raw)
@@ -275,6 +347,10 @@ def parse_trx(repository: Path, lane: str, relative_path: str) -> tuple[dict, li
     ns = ""
     if root.tag.startswith("{"):
         ns = root.tag.split("}", 1)[0] + "}"
+
+    summary_el = root.find(f".//{ns}ResultSummary")
+    summary_outcome = summary_el.attrib.get("outcome") if summary_el is not None else None
+    summary_outcome_ok = summary_outcome is None or summary_outcome in ("Passed", "Completed")
 
     counters = root.find(f".//{ns}Counters")
     if counters is None:
@@ -289,41 +365,76 @@ def parse_trx(repository: Path, lane: str, relative_path: str) -> tuple[dict, li
 
     raw_counts = {
         name: attr_int(name)
-        for name in ("total", "executed", "passed", "failed", "error", "timeout", "aborted", "notExecuted")
+        for name in (
+            "total",
+            "executed",
+            "passed",
+            "failed",
+            "error",
+            "timeout",
+            "aborted",
+            "inconclusive",
+            "notRunnable",
+            "notExecuted",
+        )
     }
     has_negative = any(v < 0 for v in raw_counts.values())
     total = raw_counts["total"]
     executed = raw_counts["executed"]
     passed = raw_counts["passed"]
     failed = raw_counts["failed"] + raw_counts["error"] + raw_counts["timeout"] + raw_counts["aborted"]
+    inconclusive = raw_counts["inconclusive"]
+    not_runnable = raw_counts["notRunnable"]
     not_executed = raw_counts["notExecuted"]
     skipped = max(0, total - passed - failed)
     not_run = max(0, total - executed)
 
-    # Resolve full test names from TestDefinitions (if present) and verify every UnitTestResult outcome.
+    # Resolve full test names and assembly paths from TestDefinitions.
     test_id_to_full_name: dict[str, str] = {}
+    code_bases: set[str] = set()
     for unit_test in root.findall(f".//{ns}TestDefinitions/{ns}UnitTest"):
         tid = unit_test.attrib.get("id", "")
         method = unit_test.find(f"{ns}TestMethod")
-        if tid and method is not None:
-            cls = method.attrib.get("className", "").split(",", 1)[0].strip()
-            mname = method.attrib.get("name", "").strip()
-            if cls and mname:
-                test_id_to_full_name[tid] = f"{cls}.{mname}"
+        if method is not None:
+            cb = method.attrib.get("codeBase", "").strip()
+            if cb:
+                code_bases.add(cb)
+            if tid:
+                cls = method.attrib.get("className", "").split(",", 1)[0].strip()
+                mname = method.attrib.get("name", "").strip()
+                if cls and mname:
+                    test_id_to_full_name[tid] = f"{cls}.{mname}"
 
-    expected_prefix = EXPECTED_LANE_TESTS[lane]
+    required_tests = set(EXPECTED_LANE_TESTS[lane])
     unit_results = root.findall(f".//{ns}Results/{ns}UnitTestResult")
-    matched_expected = 0
+    seen_test_names: list[str] = []
+    passed_test_names: set[str] = set()
     non_passing_results = 0
+    per_result_bindings: list[set[tuple[str, str, str]]] = []
     for item in unit_results:
         outcome = item.attrib.get("outcome", "")
-        if outcome != "Passed":
-            non_passing_results += 1
         tid = item.attrib.get("testId", "")
         tname = item.attrib.get("testName", "")
         full_name = test_id_to_full_name.get(tid, tname)
-        if full_name == expected_prefix or full_name.startswith(expected_prefix) or tname == expected_prefix or tname.startswith(expected_prefix):
-            matched_expected += 1
+        seen_test_names.append(full_name)
+        if outcome == "Passed":
+            passed_test_names.add(full_name)
+            if tname:
+                passed_test_names.add(tname)
+        else:
+            non_passing_results += 1
+
+        # xUnit v3 emits test output in <Output><TextMessages><Message>; also support <Output><StdOut>.
+        item_texts = []
+        for tag in (f".//{ns}TextMessages/{ns}Message", f".//{ns}StdOut"):
+            for node in item.findall(tag):
+                if node.text:
+                    item_texts.append(node.text)
+        item_bindings = set(CANDIDATE_BINDING_RE.findall("\n".join(item_texts)))
+        per_result_bindings.append(item_bindings)
+
+    has_duplicate_results = len(set(seen_test_names)) != len(seen_test_names)
+    missing_required = sorted(required_tests - passed_test_names)
 
     errors: list[tuple[str, str]] = []
     messages = []
@@ -335,17 +446,72 @@ def parse_trx(repository: Path, lane: str, relative_path: str) -> tuple[dict, li
             messages.append(elem.text)
     combined_messages = "\n".join(messages)
 
+    # Require every UnitTestResult to emit the exact same CANDIDATE_BINDING matching head_commit.
+    all_bindings = set().union(*per_result_bindings) if per_result_bindings else set()
+    every_result_bound = bool(per_result_bindings) and all(len(b) == 1 for b in per_result_bindings)
+    bound_commit = ""
+    server_sha = ""
+    test_sha = ""
+    binding_ok = False
+    if every_result_bound and len(all_bindings) == 1:
+        bound_commit, server_sha, test_sha = next(iter(all_bindings))
+        binding_ok = bound_commit == head_commit
+        # If the tested binary path recorded in the TRX exists inside this repository checkout, verify its
+        # current bytes still match the TRX stamp (preventing stale TRXs after a rebuild).
+        if binding_ok:
+            for cb in sorted(code_bases):
+                cb_path = Path(cb)
+                if not cb_path.is_absolute():
+                    cb_path = repository / cb_path
+                try:
+                    if not cb_path.is_file():
+                        continue
+                    cb_resolved = cb_path.resolve()
+                    cb_resolved.relative_to(repository)
+                except ValueError:
+                    continue
+                except OSError as error:
+                    raise Blocked(INPUT_UNAVAILABLE, f"cannot access tested assembly {cb}: {error}") from None
+                try:
+                    cb_bytes = cb_resolved.read_bytes()
+                    server_sibling = cb_resolved.parent / "Hexalith.Conversations.Server.dll"
+                    server_bytes = server_sibling.read_bytes() if server_sibling.is_file() else None
+                except OSError as error:
+                    raise Blocked(INPUT_UNAVAILABLE, f"cannot read tested assembly for {lane}: {error}") from None
+                if sha256_bytes(cb_bytes) != test_sha:
+                    binding_ok = False
+                    errors.append(
+                        (
+                            BLOCK_GATE,
+                            f"{lane} TRX test assembly digest disagrees with on-disk binary {cb_resolved.name}.",
+                        )
+                    )
+                if server_bytes is not None and sha256_bytes(server_bytes) != server_sha:
+                    binding_ok = False
+                    errors.append(
+                        (
+                            BLOCK_GATE,
+                            f"{lane} TRX server assembly digest disagrees with on-disk {server_sibling.name}.",
+                        )
+                    )
+
     is_green = (
-        not has_negative
+        summary_outcome_ok
+        and not has_negative
         and total > 0
+        and total == executed
+        and total == passed
+        and total == len(unit_results)
         and failed == 0
+        and inconclusive == 0
+        and not_runnable == 0
         and skipped == 0
         and not_executed == 0
         and not_run == 0
-        and passed == total
-        and len(unit_results) == total
         and non_passing_results == 0
-        and matched_expected > 0
+        and not has_duplicate_results
+        and not missing_required
+        and binding_ok
     )
     if not is_green:
         for token in (
@@ -360,13 +526,41 @@ def parse_trx(repository: Path, lane: str, relative_path: str) -> tuple[dict, li
             if token in combined_messages:
                 errors.append((token, f"{lane} lane reported blocker {token} in {relative_path}."))
         if lane == "dapr":
-            errors.append((BLOCK_DAPR, f"Dapr correctness lane is not green (total={total}, passed={passed}, failed={failed}, skipped={skipped}, notRun={not_run}, matchedExpected={matched_expected})."))
-        errors.append((BLOCK_GATE, f"{lane} correctness lane failed, had invalid/skipped/not-run counts, or lacked expected tests ({relative_path})."))
+            errors.append(
+                (
+                    BLOCK_DAPR,
+                    f"Dapr correctness lane is not green (total={total}, executed={executed}, passed={passed}, failed={failed}, skipped={skipped}, missing={len(missing_required)}, bindingOk={binding_ok}).",
+                )
+            )
+        if missing_required:
+            errors.append(
+                (
+                    BLOCK_GATE,
+                    f"{lane} correctness lane is missing required contracted test(s): {', '.join(missing_required)}.",
+                )
+            )
+        elif not binding_ok:
+            errors.append(
+                (
+                    BLOCK_GATE,
+                    f"{lane} correctness lane TRX ({relative_path}) is not bound to committed candidate {head_commit[:12]} (found {bound_commit[:12] if bound_commit else 'none'}).",
+                )
+            )
+        else:
+            errors.append(
+                (
+                    BLOCK_GATE,
+                    f"{lane} correctness lane failed or had inconsistent execution/result counts ({relative_path}).",
+                )
+            )
 
     lane_record = {
         "lane": lane,
         "path": relative_path,
         "sha256": sha256_bytes(raw),
+        "boundCommit": bound_commit,
+        "serverAssemblySha256": server_sha,
+        "testAssemblySha256": test_sha,
         "total": total,
         "passed": passed,
         "failed": failed,
@@ -380,21 +574,57 @@ def parse_trx(repository: Path, lane: str, relative_path: str) -> tuple[dict, li
 def _assert_schema_closed(node: object, location: str) -> None:
     if not isinstance(node, dict):
         return
-    if node.get("type") == "object" or "properties" in node:
-        if node.get("additionalProperties") is not False:
-            raise ProofError([(BLOCK_GATE, f"The proof schema must stay closed (additionalProperties: false) at {location}.")])
-    for key in ("properties", "$defs", "definitions"):
+    node_type = node.get("type")
+    has_object_shape = (
+        node_type == "object"
+        or (isinstance(node_type, list) and "object" in node_type)
+        or any(
+            k in node
+            for k in (
+                "properties",
+                "patternProperties",
+                "required",
+                "minProperties",
+                "maxProperties",
+                "dependentRequired",
+                "dependentSchemas",
+                "propertyNames",
+            )
+        )
+    )
+    is_untyped_open = (
+        "type" not in node
+        and "$ref" not in node
+        and "const" not in node
+        and "enum" not in node
+        and not any(k in node for k in ("allOf", "anyOf", "oneOf"))
+    )
+    if (has_object_shape or is_untyped_open) and node.get("additionalProperties") is not False:
+        raise ProofError([(BLOCK_GATE, f"The proof schema must stay closed (additionalProperties: false) at {location}.")])
+
+    has_composition = any(k in node for k in ("allOf", "anyOf", "oneOf"))
+    if has_composition:
+        if node.get("additionalProperties") is not False and node.get("unevaluatedProperties") is not False:
+            raise ProofError(
+                [(BLOCK_GATE, f"Composed proof schema node must stay closed (additionalProperties/unevaluatedProperties: false) at {location}.")]
+            )
+
+    for key in ("properties", "patternProperties", "dependentSchemas", "$defs", "definitions"):
         mapping = node.get(key)
         if isinstance(mapping, dict):
             for child_name, child_schema in mapping.items():
                 _assert_schema_closed(child_schema, f"{location}.{key}.{child_name}")
-    items = node.get("items")
-    if isinstance(items, dict):
-        _assert_schema_closed(items, f"{location}.items")
-    prefix_items = node.get("prefixItems")
-    if isinstance(prefix_items, list):
-        for idx, child_schema in enumerate(prefix_items):
-            _assert_schema_closed(child_schema, f"{location}.prefixItems[{idx}]")
+
+    for key in ("allOf", "anyOf", "oneOf", "prefixItems"):
+        branches = node.get(key)
+        if isinstance(branches, list):
+            for idx, child_schema in enumerate(branches):
+                _assert_schema_closed(child_schema, f"{location}.{key}[{idx}]")
+
+    for key in ("items", "contains", "not", "if", "then", "else", "propertyNames", "additionalProperties", "unevaluatedProperties"):
+        child = node.get(key)
+        if isinstance(child, dict):
+            _assert_schema_closed(child, f"{location}.{key}")
 
 
 def load_schema(repository: Path) -> dict:
@@ -414,13 +644,16 @@ def load_schema(repository: Path) -> dict:
     return schema
 
 
-def check_read_store_no_repair(repository: Path) -> list[tuple[str, str]]:
+def check_read_store_no_repair(repository: Path, head_commit: str, errors: list[tuple[str, str]]) -> list[tuple[str, str]]:
+    found: list[tuple[str, str]] = []
     for relative in READ_SIDE_PATHS:
-        text = read_file(repository, relative).decode("utf-8", errors="replace")
+        raw = read_committed_and_verify_clean(repository, head_commit, relative, errors)
+        text = raw.decode("utf-8", errors="replace")
         for pattern in FORBIDDEN_READ_STORE_WRITES:
             if re.search(pattern, text):
-                return [(BLOCK_READ_REPAIR, f"{relative} contains forbidden write call matching {pattern}.")]
-    return []
+                found.append((BLOCK_READ_REPAIR, f"{relative} contains forbidden write call matching {pattern}."))
+                return found
+    return found
 
 
 def verify_predecessor(
@@ -504,6 +737,7 @@ def build_payload(
     unit_result_path: str,
     integration_result_path: str,
     dapr_result_path: str,
+    candidate_revision: str = "HEAD",
 ) -> dict:
     errors: list[tuple[str, str]] = []
 
@@ -513,23 +747,27 @@ def build_payload(
     if git(repository, "rev-parse", "--is-shallow-repository").stdout.strip() == b"true":
         raise Blocked(HISTORY_UNAVAILABLE, "shallow history cannot prove Story 12.3 predecessor bindings")
 
-    head_commit = resolve_commit(repository, "HEAD")
-    root_submodules = read_root_submodules(repository)
+    head_commit = resolve_commit(repository, candidate_revision)
+    root_submodules = read_root_submodules(repository, head_commit)
 
-    # Contract & inventory binding
+    # Contract & inventory binding (V9 authority bundle is retired under 24 November execution rules).
     try:
         contract_raw = read_file(repository, CONTRACT_PATH)
         contract = json.loads(contract_raw)
-        authority = json.loads(read_file(repository, AUTHORITY_PATH))
-        if not isinstance(authority, dict) or not isinstance(authority.get("artifacts"), list):
-            raise ValueError("authority bundle must contain an artifacts list")
+        if not isinstance(contract, dict):
+            raise ValueError("story contract must be a JSON object")
+        inventory_obj = contract.get("inventory")
+        rollback_obj = contract.get("rollback")
+        if not isinstance(inventory_obj, dict):
+            raise ValueError("contract inventory must be a JSON object")
+        if not isinstance(rollback_obj, dict):
+            raise ValueError("contract rollback must be a JSON object")
         if contract.get("storyId") != "12.3" or contract.get("predecessors") != ["12.1", "12.2"]:
             errors.append((BLOCK_GATE, "Story 12.3 contract identity or predecessors changed."))
-        declared = [row["sha256"] for row in authority["artifacts"] if isinstance(row, dict) and row.get("path") == CONTRACT_PATH]
-        if declared != [sha256_bytes(contract_raw)]:
-            errors.append((BLOCK_GATE, "Story 12.3 contract differs from authority-bundle digest."))
         epics = read_file(repository, EPICS_PATH).decode("utf-8")
-        inv_id = contract["inventory"]["id"]
+        inv_id = inventory_obj["id"]
+        if not isinstance(inv_id, str):
+            raise ValueError("contract inventory.id must be a string")
         match = re.search(
             r"\*\*Frozen inventory:\*\* `" + re.escape(inv_id)
             + r"` contains, in order,\s+(.*?);\s+SHA-256\s+`([0-9a-f]{64})`",
@@ -538,13 +776,17 @@ def build_payload(
         )
         rows = re.findall(r"`([A-Z0-9][A-Za-z0-9.-]*)`", match.group(1)) if match else []
         inv_digest = sha256_bytes(("\n".join(rows) + "\n").encode())
-        if inv_id != "V9-12.3-ENTRY-v1" or rows != list(INVENTORY_ROWS) or inv_digest != contract["inventory"]["sha256"] or not match or match.group(2) != inv_digest:
+        if inv_id != "V9-12.3-ENTRY-v1" or rows != list(INVENTORY_ROWS) or inv_digest != inventory_obj.get("sha256") or not match or match.group(2) != inv_digest:
             errors.append((BLOCK_GATE, "Story 12.3 entry inventory V9-12.3-ENTRY-v1 does not recompute."))
-        rollback_boundary = contract["rollback"]["boundary"]
+        rollback_boundary = rollback_obj["boundary"]
         if not isinstance(rollback_boundary, str) or not rollback_boundary.strip():
             raise ValueError("contract rollback.boundary must be a non-empty string")
     except (ValueError, KeyError, TypeError, UnicodeDecodeError) as error:
-        raise Blocked(INPUT_UNAVAILABLE, f"unreadable Story 12.3 authority inputs: {error}") from None
+        raise Blocked(INPUT_UNAVAILABLE, f"unreadable Story 12.3 contract inputs: {error}") from None
+
+    # Verify contract and schema working-tree bytes match committed candidate HEAD after parsing.
+    _ = read_committed_and_verify_clean(repository, head_commit, CONTRACT_PATH, errors)
+    _ = read_committed_and_verify_clean(repository, head_commit, SCHEMA_PATH, errors)
 
     # Predecessors 12.1 & 12.2
     pred_12_1, err_12_1 = verify_predecessor(
@@ -580,11 +822,12 @@ def build_payload(
     if bench_sha != FROZEN_BENCHMARK_SHA:
         errors.append((BLOCK_GATE, "Frozen SmC2HotPathBenchmark.cs bytes changed."))
 
-    # Key grammar immutability & read-side no-repair static guard
-    keys_sha = sha256_bytes(read_file(repository, KEYS_PATH))
+    # Key grammar immutability & read-side no-repair static guard (bound to committed candidate)
+    keys_bytes = read_committed_and_verify_clean(repository, head_commit, KEYS_PATH, errors)
+    keys_sha = sha256_bytes(keys_bytes)
     if keys_sha != KEYS_SHA:
         errors.append((BLOCK_TRANSITION, "Immutable ConversationProjectionReadModelKeys.cs bytes changed."))
-    errors.extend(check_read_store_no_repair(repository))
+    errors.extend(check_read_store_no_repair(repository, head_commit, errors))
 
     # Public contract snapshot immutability
     v4_sha = sha256_bytes(read_file(repository, PUBLIC_CONTRACT_V4_PATH))
@@ -597,20 +840,36 @@ def build_payload(
             errors.append((BLOCK_CONTRACT, f"Frozen public contract snapshot {path} drifted."))
         frozen_snaps.append({"path": path, "sha256": actual_sha})
 
-    # Three correctness lanes
-    unit_lane, unit_errors = parse_trx(repository, "unit", unit_result_path)
-    integration_lane, integration_errors = parse_trx(repository, "integration", integration_result_path)
-    dapr_lane, dapr_errors = parse_trx(repository, "dapr", dapr_result_path)
+    # Three correctness lanes bound to head_commit and the same tested server binary
+    unit_lane, unit_errors = parse_trx(repository, "unit", unit_result_path, head_commit)
+    integration_lane, integration_errors = parse_trx(repository, "integration", integration_result_path, head_commit)
+    dapr_lane, dapr_errors = parse_trx(repository, "dapr", dapr_result_path, head_commit)
     errors.extend(unit_errors)
     errors.extend(integration_errors)
     errors.extend(dapr_errors)
 
-    # Production path inventory
+    server_shas = {
+        lane["serverAssemblySha256"]
+        for lane in (unit_lane, integration_lane, dapr_lane)
+        if lane["serverAssemblySha256"]
+    }
+    if len(server_shas) != 1 or not all(
+        lane["serverAssemblySha256"] for lane in (unit_lane, integration_lane, dapr_lane)
+    ):
+        errors.append(
+            (
+                BLOCK_GATE,
+                "All three correctness lanes must execute against the exact same Hexalith.Conversations.Server binary.",
+            )
+        )
+
+    # Production path inventory bound to committed candidate tree
     production_inventory = []
     for path, role in sorted(PRODUCTION_PATHS, key=lambda item: item[0]):
+        raw = read_committed_and_verify_clean(repository, head_commit, path, errors)
         production_inventory.append({
             "path": path,
-            "sha256": sha256_bytes(read_file(repository, path)),
+            "sha256": sha256_bytes(raw),
             "role": role,
         })
 
@@ -748,7 +1007,6 @@ def readonly_inputs(unit_path: str, integration_path: str, dapr_path: str) -> tu
     return (
         SCHEMA_PATH,
         CONTRACT_PATH,
-        AUTHORITY_PATH,
         EPICS_PATH,
         SPRINT_PATH,
         ADR_PATH,
@@ -781,6 +1039,7 @@ def main(argv: list[str] | None = None) -> int:
         "output-markdown",
     ):
         parser.add_argument("--" + flag, required=True)
+    parser.add_argument("--candidate", default="HEAD")
     args = parser.parse_args(argv)
     repository = Path(args.repository).resolve()
     ignore_replace_objects()
@@ -789,7 +1048,13 @@ def main(argv: list[str] | None = None) -> int:
         if [args.contract, args.output_json, args.output_markdown] != [CONTRACT_PATH, JSON_PATH, MARKDOWN_PATH]:
             raise Blocked(ARGUMENT_INVALID, "the contracted Story 12.3 contract and output paths are required")
         schema = load_schema(repository)
-        payload = build_payload(repository, args.unit_result, args.integration_result, args.dapr_result)
+        payload = build_payload(
+            repository,
+            args.unit_result,
+            args.integration_result,
+            args.dapr_result,
+            candidate_revision=args.candidate,
+        )
         json_text, markdown = finalize(payload)
         try:
             import jsonschema
@@ -802,6 +1067,7 @@ def main(argv: list[str] | None = None) -> int:
             repository,
             [(JSON_PATH, json_text.encode("utf-8")), (MARKDOWN_PATH, markdown.encode("utf-8"))],
             readonly_inputs(args.unit_result, args.integration_result, args.dapr_result),
+            replace_tracked=(JSON_PATH, MARKDOWN_PATH),
         )
     except ProofError as error:
         for code, message in error.errors:

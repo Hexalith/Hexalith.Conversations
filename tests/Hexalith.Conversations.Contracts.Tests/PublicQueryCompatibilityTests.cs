@@ -3,6 +3,7 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Globalization;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -86,6 +87,24 @@ public sealed class PublicQueryCompatibilityTests
 
             if (actualType.IsEnum)
             {
+                Type underlying = Enum.GetUnderlyingType(actualType);
+                FormatTypeName(underlying).ShouldBe(
+                    expectedType.GetProperty("enumUnderlyingType").GetString(),
+                    $"PUBLIC_QUERY_CONTRACT_DRIFT: enum underlying type changed on {fullName}");
+                string[] enumNames = Enum.GetNames(actualType);
+                Array enumValues = Enum.GetValuesAsUnderlyingType(actualType);
+                (string Name, string Value)[] actualEnumMembers = new (string Name, string Value)[enumNames.Length];
+                for (int memberIndex = 0; memberIndex < enumNames.Length; memberIndex++)
+                {
+                    actualEnumMembers[memberIndex] = (
+                        enumNames[memberIndex],
+                        Convert.ToString(enumValues.GetValue(memberIndex), CultureInfo.InvariantCulture)!);
+                }
+
+                (string Name, string Value)[] expectedEnumMembers = expectedType.TryGetProperty("enumMembers", out JsonElement enumMembersEl)
+                    ? [.. enumMembersEl.EnumerateArray().Select(static m => (m.GetProperty("name").GetString()!, m.GetProperty("value").GetString()!))]
+                    : [];
+                actualEnumMembers.ShouldBe(expectedEnumMembers, $"PUBLIC_QUERY_CONTRACT_DRIFT: enum members changed on {fullName}");
                 continue;
             }
 

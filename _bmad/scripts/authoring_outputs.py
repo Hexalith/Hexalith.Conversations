@@ -28,10 +28,11 @@ def output_target(repository: Path, path: str) -> Path:
 
 
 def write_outputs(repository: Path, outputs: list[tuple[str, bytes]], readonly: tuple[str, ...] = (),
-                  readonly_roots: tuple[str, ...] = ()) -> None:
+                  readonly_roots: tuple[str, ...] = (), *, replace_tracked: tuple[str, ...] = ()) -> None:
     """Preflight the entire output set, then install it with the shared atomic writer.
 
-    Existing tracked files are immutable unless the requested bytes already match;
+    Existing tracked files are immutable unless the requested bytes already match or the
+    exact repository-relative path is explicitly authorized in ``replace_tracked``;
     matching tracked files are retained without rewriting. Explicit inputs protect
     disposable repositories that have no Git index. Ordinary output hardlinks are
     replaced rather than followed. This is a static alias boundary, not a concurrent
@@ -43,6 +44,7 @@ def write_outputs(repository: Path, outputs: list[tuple[str, bytes]], readonly: 
         repository = repository.resolve(strict=True)
         protected = {(repository / path).resolve() for path in readonly}
         protected_roots = {(repository / path).resolve() for path in readonly_roots}
+        allowed_replace = {PurePosixPath(path).as_posix() for path in replace_tracked}
         tracked = set()
         administration = set()
         if (repository / ".git").exists():
@@ -67,9 +69,10 @@ def write_outputs(repository: Path, outputs: list[tuple[str, bytes]], readonly: 
             if any(parent.as_posix() in tracked for parent in PurePosixPath(relative.as_posix()).parents):
                 raise ValueError("output is inside a tracked dependency")
             if relative.as_posix() in tracked:
-                if target.read_bytes() != content:
+                if target.exists() and target.read_bytes() == content:
+                    continue
+                if relative.as_posix() not in allowed_replace:
                     raise ValueError("output would change a tracked source or publication")
-                continue
             targets.append((target, content))
         records.v2_write_outputs(targets)
     except (OSError, ValueError, RuntimeError, records.GateError, records.V2OutputDrift) as error:

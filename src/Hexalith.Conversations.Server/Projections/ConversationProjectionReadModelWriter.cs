@@ -271,11 +271,7 @@ public sealed class ConversationProjectionReadModelWriter
 
         if (!summariesChanged && persisted.Summaries.Count == byConversation.Count)
         {
-            return Compose(
-                header,
-                persisted.Summaries,
-                dispatches,
-                preservedGenerationToken: persisted.GenerationToken);
+            return Compose(header, persisted.Summaries, dispatches);
         }
 
         return Compose(header, byConversation.Values, dispatches);
@@ -385,28 +381,13 @@ public sealed class ConversationProjectionReadModelWriter
     private static ConversationProjectionIndexReadModel Compose(
         ConversationProjectionIndexHeader header,
         IEnumerable<ConversationSummaryProjectionV1> summaries,
-        IReadOnlyDictionary<string, ConversationProjectionDispatchReference> dispatches,
-        string? preservedGenerationToken = null)
+        IReadOnlyDictionary<string, ConversationProjectionDispatchReference> dispatches)
     {
-        IReadOnlyList<ConversationSummaryProjectionV1> orderedSummaries;
-        string? generationToken;
-        if (summaries is IReadOnlyList<ConversationSummaryProjectionV1> existingList
-            && existingList.Count > 0
-            && ConversationIndexGenerationToken.IsValidPersistedToken(preservedGenerationToken)
-            && ConversationIndexGenerationToken.IsOrdered(existingList))
-        {
-            orderedSummaries = existingList;
-            generationToken = preservedGenerationToken;
-        }
-        else
-        {
-            ConversationSummaryProjectionV1[] sorted =
-                [.. summaries.OrderBy(static summary => summary.ConversationId.Value, StringComparer.Ordinal)];
-            orderedSummaries = sorted;
-            generationToken = sorted.Length == 0
-                ? null
-                : ConversationIndexGenerationToken.Compute(sorted);
-        }
+        IReadOnlyList<ConversationSummaryProjectionV1> orderedSummaries =
+            summaries is IReadOnlyList<ConversationSummaryProjectionV1> existingList
+            && ConversationIndexGenerationToken.IsOrdered(existingList)
+                ? [.. existingList]
+                : [.. summaries.OrderBy(static summary => summary.ConversationId.Value, StringComparer.Ordinal)];
 
         return new()
         {
@@ -419,7 +400,6 @@ public sealed class ConversationProjectionReadModelWriter
             Dispatches = dispatches
                 .OrderBy(static pair => pair.Key, StringComparer.Ordinal)
                 .ToDictionary(static pair => pair.Key, static pair => pair.Value, StringComparer.Ordinal),
-            GenerationToken = generationToken,
         };
     }
 
@@ -506,7 +486,7 @@ public sealed class ConversationProjectionReadModelWriter
             || !string.Equals(marker.DispatchId, dispatchId, StringComparison.Ordinal)
             || !marker.IsPending)
         {
-            return Compose(AdvanceHeader(existing), current.Summaries, current.Dispatches, preservedGenerationToken: existing?.GenerationToken);
+            return Compose(AdvanceHeader(existing), current.Summaries, current.Dispatches);
         }
 
         var dispatches = new Dictionary<string, ConversationProjectionDispatchReference>(current.Dispatches, StringComparer.Ordinal);
@@ -522,7 +502,7 @@ public sealed class ConversationProjectionReadModelWriter
             _ = dispatches.Remove(conversationId);
         }
 
-        return Compose(AdvanceHeader(existing), current.Summaries, dispatches, preservedGenerationToken: existing?.GenerationToken);
+        return Compose(AdvanceHeader(existing), current.Summaries, dispatches);
     }
 
     private static ConversationProjectionDispatchReference PrepareWinningReference(

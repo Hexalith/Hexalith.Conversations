@@ -50,9 +50,6 @@ public sealed record ConversationProjectionIndexSnapshot
     /// <summary>Gets how the read store mapped the persisted lifecycle record; <c>Ready</c> by default.</summary>
     internal ConversationProjectionIndexReadState ReadState { get; init; }
 
-    /// <summary>Gets the optional persisted canonical generation token from a version 2 tenant index.</summary>
-    internal string? GenerationToken { get; init; }
-
     /// <summary>Gets the snapshot of an authorized tenant whose index record does not exist.</summary>
     internal static ConversationProjectionIndexSnapshot Missing { get; } = new() { ReadState = ConversationProjectionIndexReadState.Missing };
 }
