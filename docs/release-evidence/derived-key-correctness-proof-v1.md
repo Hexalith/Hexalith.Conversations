@@ -3,8 +3,8 @@
 Deterministic correctness proof within ADR 0005 (`conversations-derived-keys-v2`). No final SM-C2 performance verdict is issued.
 
 - Schema version: `hexalith.conversations.derived-key-correctness-proof.v1`
-- Candidate `HEAD`: `d89ed076f174583100447629d5b3a31fa3f6f44c`
-- Payload SHA-256: `a8cd47c718534b822051ad87bdbcfe55eccac24bbd3433f274ab6d570874184d`
+- Candidate `HEAD`: `70c3749058b27bbd4108fc3c1d306308298dd51a`
+- Payload SHA-256: `92071401a8dd37e3b21574f693fe5ed9ecdecc089786306ca0eea050d4f52d9e`
 - Waived scenarios: `AC-12.3-08` (`waived`, never `PASS`)
 
 ## Correctness Lanes
@@ -26,7 +26,7 @@ Deterministic correctness proof within ADR 0005 (`conversations-derived-keys-v2`
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/12.3.json",
       "sha256": "b4d30cd3433e7524196814d47dad233f6a88fad2f90e01e46e2b9a53aec0dcb7"
     },
-    "headCommit": "d89ed076f174583100447629d5b3a31fa3f6f44c",
+    "headCommit": "70c3749058b27bbd4108fc3c1d306308298dd51a",
     "rootSubmodules": [
       {
         "path": "references/Hexalith.AI.Tools",
@@ -233,9 +233,19 @@ Deterministic correctness proof within ADR 0005 (`conversations-derived-keys-v2`
       "role": "streaming-canonical-generation-token"
     },
     {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationPageValidationFields.cs",
+      "sha256": "90df57abf12b5d1658114d00bfa4e06acea41e463d6a8a00bebd096e5e44a38d",
+      "role": "page-validation-persisted-fields"
+    },
+    {
       "path": "src/Hexalith.Conversations.Server/Projections/ConversationPageValidationRecord.cs",
-      "sha256": "e75fa8595a0f9ef4a1977e35de8985381302f0137fbb5236eb7f4926c7c1cd96",
+      "sha256": "6aef33287c52da214856805f304f50d6c21ee6c7baf5ba7c5929ac4471ba9c00",
       "role": "page-validation-record-dto"
+    },
+    {
+      "path": "src/Hexalith.Conversations.Server/Projections/ConversationPageValidationRecordConverter.cs",
+      "sha256": "bf6c69c6e0b00bf0c5e34b40c1a7bd7843358a27fad3c791860cda5e5e564ffe",
+      "role": "page-validation-record-converter"
     },
     {
       "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupConverter.cs",
@@ -269,7 +279,7 @@ Deterministic correctness proof within ADR 0005 (`conversations-derived-keys-v2`
     },
     {
       "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionJsonValidation.cs",
-      "sha256": "479842410242670c6bc8eaea73ff2b162242c08b192500c4427fb8cdeb8b0c5a",
+      "sha256": "1abc14bb2f44739942aef6e5645053bd9f03618609352a3f096b05d8d3ffd952",
       "role": "streaming-json-validation"
     },
     {
@@ -325,10 +335,10 @@ Deterministic correctness proof within ADR 0005 (`conversations-derived-keys-v2`
     "unit": {
       "lane": "unit",
       "path": "artifacts/v9/12.3/AC-12.3-02.trx",
-      "sha256": "c7acc95be4333c5ad8293fca490af8bd9d1869033b8032c3d0c499a715a054e2",
-      "boundCommit": "d89ed076f174583100447629d5b3a31fa3f6f44c",
-      "serverAssemblySha256": "1d130679edb74414f1253e59a86dab00f55d8be91b52867f432d4595c2d9957f",
-      "testAssemblySha256": "05cfd410978df15f4673a0bae481ba081fe911f7057f3d4231ebfc508e20a161",
+      "sha256": "7f03a309a9aa737bbba7f1d9611afe6c29cb4ff4ecea6ec9a9927d071de41cb3",
+      "boundCommit": "70c3749058b27bbd4108fc3c1d306308298dd51a",
+      "serverAssemblySha256": "a0f7992b57e71a5944e56c1a7bf96e489ef0b37343e1ec6a2dc746db96236fff",
+      "testAssemblySha256": "62dda046a977304e2e52b9d1853112154ff791cdf6954b9867a734cc222639c2",
       "total": 1,
       "passed": 1,
       "failed": 0,
@@ -339,10 +349,10 @@ Deterministic correctness proof within ADR 0005 (`conversations-derived-keys-v2`
     "integration": {
       "lane": "integration",
       "path": "artifacts/v9/12.3/integration.trx",
-      "sha256": "f38d4cfe2a9c90de24e617305bf6c1668adb7d37adc019ca6a55ff1c2a223fb4",
-      "boundCommit": "d89ed076f174583100447629d5b3a31fa3f6f44c",
-      "serverAssemblySha256": "1d130679edb74414f1253e59a86dab00f55d8be91b52867f432d4595c2d9957f",
-      "testAssemblySha256": "c6e9e54344a0272ede4f0530e72290adeddefd187c93e112cc7e4674e3f9b1c3",
+      "sha256": "2b847024094f5f33fb9104cabe6ca74fb1a1616b68981e16460ccf1c07895e8f",
+      "boundCommit": "70c3749058b27bbd4108fc3c1d306308298dd51a",
+      "serverAssemblySha256": "a0f7992b57e71a5944e56c1a7bf96e489ef0b37343e1ec6a2dc746db96236fff",
+      "testAssemblySha256": "dd5367055c1aab11be4da281d18d763d73ac38816b0ce21d4273376166072fb0",
       "total": 5,
       "passed": 5,
       "failed": 0,
@@ -353,10 +363,10 @@ Deterministic correctness proof within ADR 0005 (`conversations-derived-keys-v2`
     "dapr": {
       "lane": "dapr",
       "path": "artifacts/v9/12.3/dapr.trx",
-      "sha256": "c1f6ce937cd529f17ed84ba56ff64d54d2b209c648b83c82bd7ef50b3e2055db",
-      "boundCommit": "d89ed076f174583100447629d5b3a31fa3f6f44c",
-      "serverAssemblySha256": "1d130679edb74414f1253e59a86dab00f55d8be91b52867f432d4595c2d9957f",
-      "testAssemblySha256": "085bb2c02b212fdcf8a0f00014357085bb02d7415b61e5fbd5ab7c6ca1fc8339",
+      "sha256": "da211c846b00e3a0245cd3ee88b4a530e62d534dabfedf73b4ded0c0eef60673",
+      "boundCommit": "70c3749058b27bbd4108fc3c1d306308298dd51a",
+      "serverAssemblySha256": "a0f7992b57e71a5944e56c1a7bf96e489ef0b37343e1ec6a2dc746db96236fff",
+      "testAssemblySha256": "e89c51758326bc2397f17b7bb5a3aeda4adf7c5a7a232c3f281d23a5ecd88b29",
       "total": 5,
       "passed": 5,
       "failed": 0,

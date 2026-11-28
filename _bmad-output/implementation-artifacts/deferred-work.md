@@ -1630,3 +1630,7 @@ The 20 groups below combine duplicate reports and related validation steps. They
 - source_spec: `_bmad-output/implementation-artifacts/spec-12-3-implement-correctness-preserving-list-open-optimization-and-migration-behavior.md`
   summary: Prove that package qualification rejects an exact-version package restored from the wrong feed.
   evidence: All four consumer qualification tests passed with the provenance verifier replaced by a no-op. Add a wrong-source restore fixture and require rejection before build. The gap was present in the package-tooling change at aaabc916.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-3-implement-correctness-preserving-list-open-optimization-and-migration-behavior.md`
+  summary: Verify dispatch-route ledger acquisition and completion through the live Dapr and Redis adapter.
+  evidence: The live List and Open fault tests inject failures at the tenant-index and detail writes. The integration lane exercises the canonical route separately. A combined test would observe acquire and complete through the same live adapter.

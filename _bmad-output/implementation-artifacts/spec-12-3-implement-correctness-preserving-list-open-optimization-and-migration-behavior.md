@@ -2,7 +2,7 @@
 title: 'Story 12.3: Implement correctness-preserving list/open optimization and migration behavior'
 type: 'feature'
 created: '2026-11-27'
-status: 'in-progress'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: 'f8d81ca843c855cd5b87677617600e97bdcdee2f'
@@ -224,7 +224,10 @@ The five focused acceptance lanes passed 13 tests with zero skips using the exis
 
 - **Review pass 4 maintained suite.** The package-mapped Release/net11.0 solution built with zero warnings and errors. All 3,297 tests passed across the 11 maintained projects with zero skips. Root-submodule and diff whitespace checks passed. The [final verification logs](../../.artifacts/story-12.3-pass-4) contain the exact commands and results. The completion gate requires a clean committed implementation. The owner chose to retain the working-tree changes, so the spec and sprint row remain in progress.
 
-- **Committed correctness proof.** AC-12.3-06 rendered byte-identically twice from source commit `d89ed076f174583100447629d5b3a31fa3f6f44c` (payload `a8cd47c718534b822051ad87bdbcfe55eccac24bbd3433f274ab6d570874184d`). The 13 focused tests and all 68 fault-matrix cases passed with zero skips. The [tracked proof](../../docs/release-evidence/derived-key-correctness-proof-v1.md) identifies the measured source.
+- **Committed correctness proof.** AC-12.3-06 rendered byte-identically twice from source commit `d89ed076f174583100447629d5b3a31fa3f6f44c` (payload `a8cd47c718534b822051ad87bdbcfe55eccac24bbd3433f274ab6d570874184d`). The 13 focused tests and all 68 fault-matrix cases passed with zero skips. Commit `b150f2a7cf9850cd59a79d19c1a5aea93f941a45` contains that proof.
+
+- **Review pass 5 verification.** The package-mapped Release/net11.0 solution built with zero warnings and errors. All 3,297 tests passed across 11 maintained projects with zero skips. The tested snapshot tree `872877268cea73f141f078238fde4b3959ca4a6e` exactly matches local source commit `70c3749058b27bbd4108fc3c1d306308298dd51a`. Root-submodule validation and the whitespace check passed. [Build and test logs](../../.artifacts/story-12.3-pass-5).
+- **Current committed proof.** The Debug/net11.0 solution and all 13 tests for AC-12.3-01 through AC-12.3-05 passed on `70c3749058b27bbd4108fc3c1d306308298dd51a`. AC-12.3-06 rendered identical bytes twice with payload `92071401a8dd37e3b21574f693fe5ed9ecdecc089786306ca0eea050d4f52d9e`. All 80 AC-12.3-07 cases passed with zero skips. AC-12.3-08 retains its owner-approved waiver. [Measurement receipts](../../.artifacts/story-12.3-pass-5/committed-measurement) · [Correctness proof](../../docs/release-evidence/derived-key-correctness-proof-v1.md).
 
 ## Spec Change Log
 
@@ -347,6 +350,31 @@ The five focused acceptance lanes passed 13 tests with zero skips using the exis
 | Verification 02 — Malformed native source proof has no regression case | medium | The wrapper fault corpus only exercises other metadata fields. Add a malformed native proof and check List and Open fail closed. |
 | Verification 03 — Package provenance verifier lacks a negative test | medium | Deferred. This coverage gap predates the resumed story and belongs to package tooling from `aaabc916`. |
 | Verification 04 — Checked-in proof binds earlier code | high | Carried. Same deferred committed-proof refresh as Blind 01. |
+
+### Review pass 5 — 2026-11-28
+
+Reviewed the committed story at `b150f2a7cf9850cd59a79d19c1a5aea93f941a45` against its recorded baseline.
+
+| Finding | Verdict | Evidence and route |
+| --- | --- | --- |
+| Blind 01 — Configured JSON converters and reference handling bypass typed validation | high | The probe deserialized a valid preserved collection with the typed reader and reproduced a targeted Open failure. Patch both readers to use typed validation with customized serializer settings. |
+| Blind 02 — TRX accepts nonterminal counters | medium | A positive pending count and matching receipt produced PASS. Reject nonterminal counts and retain support for the zero completed count emitted by xUnit in passing TRXs. |
+| Blind 03 — Pattern properties admit undeclared proof fields | medium | A schema with both `additionalProperties: false` and a property pattern admitted a new field. Patch schema admission and exercise the fault. |
+| Blind 04 — Frozen snapshot digests can come from a different tree | high | Restoring approved snapshot bytes only in the worktree can mask candidate drift. Require snapshots to match their committed blobs before hashing. |
+| Blind 05 — Successful pytest status can conceal unevaluated matrix rows | medium | Pytest can exit zero with skipped tests. Verify a nonempty all-passing JUnit report before retaining measurement artifacts. |
+| Blind 06 — Live route's ledger transitions are outside the Dapr fault fixture | medium | The live fixture injects state-store failures around tenant-index and detail writes. The integration lane separately exercises the actual route. Defer a composed route-and-store test for unchanged ledger acquisition and completion. |
+| Blind 07 — Rollback receipts omit required metadata and fence checks | medium | The fixture verifies the ordinary streams, proof and query results. Patch persisted-key assertions for metadata and fence before removal and after rebuild. The native selection is optional for these streams. |
+| Blind 08 — List can silently resume full detail materialization | medium | The allocation assertion applies to Open only. Patch the List test with a same-fixture comparison. |
+| Blind 09 — The runtime contract lane omits four List filter dimensions | medium | The runtime responses exercise project, lifecycle and participant. Patch the fixture to exercise folder, business reference, date boundaries and trust state through the handler. |
+| Blind 10 — Nested wire names can drift under CLR and root-property checks | medium | A rename within the page, summary or detail can preserve every presently checked root property. Extend the exact serialized assertions. |
+| Edge 01 — Reference-preserving Web settings reject valid records | high | The typed reader accepted a stored `$values` wrapper that the targeted reader rejected. Apply the same fallback as Blind 01, including at the whole page record boundary. |
+| Edge 02 — Narrow property patterns still open the schema | medium | A pattern admitting a single extra field passed the same structural closure check. Apply the same patch as Blind 03. |
+| Edge 03 — Standalone proof accepts no public-query TRX | false | AC-12.3-06 binds the frozen snapshots and three named lane TRXs. The measurement runner also requires and retains the separate AC-12.3-05 receipt before AC-12.3-06. |
+| Edge 04 — Checked-off bullet describes parallel bulk reads | low | Carried from pass 4. The current implementation preserves detail-before-ledger ordering and the implementation notes explain the change. Reject the spec-only proposal. |
+| Edge 05 — Checked-off bullet describes persisted token reuse | low | Carried from pass 4. The implementation notes explain the current digest binding and removal of token persistence. Reject the spec-only proposal. |
+| Edge 06 — Deferred initializer failure blocks the maintained suite | false | Carried from pass 4. The current package-mapped Server run passed all 1,816 tests. The reported reproduction uses a Debug assembly and the existing source-mode issue remains deferred. |
+| Verification 01 — Compiled List fallback mutation passes focused tests | medium | All 11 focused tests passed against the mutated assembly even though List allocated more on both measured pages. Apply the List allocation guard from Blind 08. |
+| Verification 02 — Custom ID conversion is ignored despite matching Web naming | high | A custom wire prefix round-trips with the typed parser and produces zero target matches with the streaming reader. Apply the guard and regression coverage from Blind 01. |
 
 ## Design Notes
 
