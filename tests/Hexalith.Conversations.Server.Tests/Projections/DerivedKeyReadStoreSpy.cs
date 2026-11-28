@@ -91,6 +91,9 @@ internal sealed class DerivedKeyReadStoreSpy(InMemoryReadModelStore inner)
     /// <summary>Gets or sets whether targeted reads use the typed full index as an allocation baseline.</summary>
     public bool MaterializeFullIndexForTargetedRead { get; set; }
 
+    /// <summary>Gets or sets whether page reads use typed full details as an allocation baseline.</summary>
+    public bool MaterializeFullDetailForPageRead { get; set; }
+
     /// <summary>Gets or sets a value indicating whether all reads throw an <see cref="InvalidOperationException"/>.</summary>
     public bool FailReads { get; set; }
 
@@ -171,6 +174,16 @@ internal sealed class DerivedKeyReadStoreSpy(InMemoryReadModelStore inner)
         if (FailReads)
         {
             throw new InvalidOperationException("Simulated store bulk-read outage.");
+        }
+
+        if (MaterializeFullDetailForPageRead && typeof(TValue) == typeof(ConversationPageValidationRecord))
+        {
+            IReadOnlyList<ReadModelBulkEntry<ConversationProjectedReadModels>> fullEntries = await _inner
+                .GetManyAsync<ConversationProjectedReadModels>(storeName, keys, parallelism, cancellationToken)
+                .ConfigureAwait(false);
+            return fullEntries.Select(entry => new ReadModelBulkEntry<TValue>(entry.Key,
+                entry.Value is null ? null : (TValue)(object)ConversationPageValidationRecord.FromFullRecord(entry.Value),
+                entry.ETag)).ToArray();
         }
 
         IReadOnlyList<ReadModelBulkEntry<TValue>> entries = await _inner

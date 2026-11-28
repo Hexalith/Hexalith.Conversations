@@ -99,6 +99,7 @@ def make_trx(
     passed = max(0, total - max(0, failed) - max(0, skipped)) if force_passed is None else force_passed
     exec_count = (total - max(0, skipped)) if executed is None else executed
     not_executed = max(0, total - exec_count)
+    completed = 0 if lane == "unit" else exec_count
 
     binding_line = (
         f"CANDIDATE_BINDING|commit={commit_sha}|serverSha256={server_sha}|testAssemblySha256={test_sha}"
@@ -139,7 +140,7 @@ def make_trx(
         f'<Results>{"".join(results)}</Results>'
         f'<TestDefinitions>{"".join(definitions)}</TestDefinitions>'
         f'<ResultSummary outcome="{summary_outcome}">'
-        f'<Counters total="{total}" executed="{exec_count}" passed="{passed}" failed="{failed}" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="{not_executed}" disconnected="0" warning="0" completed="{exec_count}" inProgress="0" pending="0" />'
+        f'<Counters total="{total}" executed="{exec_count}" passed="{passed}" failed="{failed}" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="{not_executed}" disconnected="0" warning="0" completed="{completed}" inProgress="0" pending="0" />'
         "</ResultSummary>"
         "</TestRun>\n"
     )
@@ -604,6 +605,11 @@ def test_complete_fault_matrix_uncommitted_contract_and_schema_rejected(reposito
         ("unit-not-run", UNIT_TRX, lambda sha: make_trx("unit", sha, executed=0, force_passed=1), ["CORRECTNESS_GATE_RED"]),
         ("unit-failed-result-item", UNIT_TRX, lambda sha: make_trx("unit", sha, force_result_outcome="Failed", force_passed=1), ["CORRECTNESS_GATE_RED"]),
         ("unit-summary-failed-outcome", UNIT_TRX, lambda sha: make_trx("unit", sha, summary_outcome="Failed"), ["CORRECTNESS_GATE_RED"]),
+        ("unit-pending", UNIT_TRX, lambda sha: make_trx("unit", sha).replace(b'pending="0"', b'pending="1"'), ["CORRECTNESS_GATE_RED"]),
+        ("unit-in-progress", UNIT_TRX, lambda sha: make_trx("unit", sha).replace(b'inProgress="0"', b'inProgress="1"'), ["CORRECTNESS_GATE_RED"]),
+        ("unit-disconnected", UNIT_TRX, lambda sha: make_trx("unit", sha).replace(b'disconnected="0"', b'disconnected="1"'), ["CORRECTNESS_GATE_RED"]),
+        ("unit-passed-but-aborted", UNIT_TRX, lambda sha: make_trx("unit", sha).replace(b'passedButRunAborted="0"', b'passedButRunAborted="1"'), ["CORRECTNESS_GATE_RED"]),
+        ("unit-completed-mismatch", UNIT_TRX, lambda sha: make_trx("unit", sha).replace(b'completed="0"', b'completed="2"'), ["CORRECTNESS_GATE_RED"]),
         ("unit-missing-binding", UNIT_TRX, lambda sha: make_trx("unit", sha, include_binding=False), ["CORRECTNESS_GATE_RED"]),
         ("unit-mismatched-server-sha", UNIT_TRX, lambda sha: make_trx("unit", sha, server_sha="f" * 64), ["CORRECTNESS_GATE_RED"]),
         ("integration-empty", INTEGRATION_TRX, lambda sha: make_trx("integration", sha, methods=(), force_total=0, force_passed=0), ["CORRECTNESS_GATE_RED"]),
@@ -637,6 +643,12 @@ def test_complete_fault_matrix_lane_faults(repository, name, trx_path, builder, 
 def _open_nested_schema(raw: bytes) -> bytes:
     schema = json.loads(raw)
     schema["properties"]["lanes"]["additionalProperties"] = True
+    return json.dumps(schema).encode("utf-8")
+
+
+def _open_pattern_properties(raw: bytes) -> bytes:
+    schema = json.loads(raw)
+    schema["properties"]["lanes"]["patternProperties"] = {"^unexpected$": {"type": "string"}}
     return json.dumps(schema).encode("utf-8")
 
 
@@ -772,6 +784,13 @@ def _untyped_open_schema(raw: bytes) -> bytes:
             False,
         ),
         (
+            "pattern-properties-opened",
+            gen.SCHEMA_PATH,
+            _open_pattern_properties,
+            ["CORRECTNESS_GATE_RED"],
+            True,
+        ),
+        (
             "allof-composed-schema-opened",
             gen.SCHEMA_PATH,
             _open_allof_schema,
@@ -846,6 +865,22 @@ def test_complete_fault_matrix_code_and_contract_mutations(
         assert result.returncode == 1, (FAULT_NOT_DETECTED, result.stdout, result.stderr)
         assert blocker_codes(result.stderr) == expected_blockers, (FAULT_NOT_DETECTED, result.stderr)
         assert "Traceback" not in result.stderr
+    finally:
+        restore(repo, before, head_sha)
+    assert snapshot(repo) == before, FIXTURE_NOT_RESTORED
+
+
+@pytest.mark.parametrize("path", [gen.PUBLIC_CONTRACT_V4_PATH, gen.FROZEN_CONTRACT_SNAPSHOTS[0][0]])
+def test_complete_fault_matrix_approved_working_snapshot_cannot_mask_committed_drift(repository, path):
+    repo, head_sha = repository
+    before = snapshot(repo)
+    try:
+        commit_mutation(repo, path, before[path] + b" ")
+        (repo / path).write_bytes(before[path])
+        result = run_cli(repo)
+        assert result.returncode == 1, (FAULT_NOT_DETECTED, result.stdout, result.stderr)
+        assert blocker_codes(result.stderr) == ["PUBLIC_QUERY_CONTRACT_DRIFT"], result.stderr
+        assert path in result.stderr
     finally:
         restore(repo, before, head_sha)
     assert snapshot(repo) == before, FIXTURE_NOT_RESTORED
@@ -1082,6 +1117,28 @@ def test_measurement_restores_pinned_tool_before_prepare_build(repository, tmp_p
     assert build_calls[0] == (checkout, ("dotnet", "tool", "restore"))
     assert build_calls[1][0] == checkout
     assert build_calls[1][1][:6] == ("dotnet", "tool", "run", "hexalith-module", "--", "prepare-build")
+
+
+@pytest.mark.parametrize(
+    "suite,expected_error",
+    [
+        ('<testsuite tests="0"/>', "contains no tests"),
+        ('<testsuite tests="1" skipped="1"><testcase><skipped/></testcase></testsuite>', "non-passing tests"),
+        ('<testsuite tests="1"><testcase><skipped/></testcase></testsuite>', "non-passing tests"),
+        ('<testsuite tests="2"><testcase/></testsuite>', "inconsistent counts"),
+    ],
+)
+def test_complete_fault_matrix_measurement_rejects_non_passing_junit(tmp_path, suite, expected_error):
+    result = tmp_path / "matrix.xml"
+    result.write_text(f"<testsuites>{suite}</testsuites>", encoding="utf-8")
+    with pytest.raises(ValueError, match=expected_error):
+        measurement.verify_fault_matrix_result(result)
+
+
+def test_measurement_accepts_passing_junit(tmp_path):
+    result = tmp_path / "matrix.xml"
+    result.write_text('<testsuites><testsuite tests="1"><testcase/></testsuite></testsuites>', encoding="utf-8")
+    measurement.verify_fault_matrix_result(result)
 
 
 def test_complete_fault_matrix_crlf_sprint_status(repository):

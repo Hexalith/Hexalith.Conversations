@@ -87,7 +87,9 @@ READ_SIDE_PATHS = (
     "src/Hexalith.Conversations.Server/Hydration/EmptyHydrationResults.cs",
     "src/Hexalith.Conversations.Server/Projections/ConversationDetailValidationHeader.cs",
     "src/Hexalith.Conversations.Server/Projections/ConversationDetailValidationHeaderConverter.cs",
+    "src/Hexalith.Conversations.Server/Projections/ConversationPageValidationFields.cs",
     "src/Hexalith.Conversations.Server/Projections/ConversationPageValidationRecord.cs",
+    "src/Hexalith.Conversations.Server/Projections/ConversationPageValidationRecordConverter.cs",
     "src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupConverter.cs",
     "src/Hexalith.Conversations.Server/Projections/ConversationProjectionJsonValidation.cs",
     "src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupScope.cs",
@@ -126,7 +128,9 @@ PRODUCTION_PATHS = (
     ("src/Hexalith.Conversations.Server/Projections/ConversationDetailValidationHeader.cs", "page-validation-detail-header-dto"),
     ("src/Hexalith.Conversations.Server/Projections/ConversationDetailValidationHeaderConverter.cs", "page-validation-detail-header-converter"),
     ("src/Hexalith.Conversations.Server/Projections/ConversationIndexGenerationToken.cs", "streaming-canonical-generation-token"),
+    ("src/Hexalith.Conversations.Server/Projections/ConversationPageValidationFields.cs", "page-validation-persisted-fields"),
     ("src/Hexalith.Conversations.Server/Projections/ConversationPageValidationRecord.cs", "page-validation-record-dto"),
+    ("src/Hexalith.Conversations.Server/Projections/ConversationPageValidationRecordConverter.cs", "page-validation-record-converter"),
     ("src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupConverter.cs", "targeted-utf8-index-lookup-converter"),
     ("src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupResult.cs", "targeted-utf8-index-lookup-dto"),
     ("src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupScope.cs", "targeted-utf8-index-lookup-scope"),
@@ -281,7 +285,17 @@ def read_committed_and_verify_clean(
                 f"Input {relative} differs from committed candidate {head_commit[:12]}; commit changes and rerun tests.",
             )
         )
-    return working
+    return committed if committed is not None else working
+
+
+def verify_frozen_contract_snapshot(
+    repository: Path, head_commit: str, relative: str, expected: str, errors: list[tuple[str, str]],
+) -> str:
+    drift: list[tuple[str, str]] = []
+    actual = sha256_bytes(read_committed_and_verify_clean(repository, head_commit, relative, drift))
+    if drift or actual != expected:
+        errors.append((BLOCK_CONTRACT, f"Frozen public contract snapshot {relative} drifted from the committed candidate or approved bytes."))
+    return actual
 
 
 def read_root_submodules(repository: Path, head_commit: str) -> list[dict]:
@@ -424,6 +438,11 @@ def parse_trx(
             "inconclusive",
             "notRunnable",
             "notExecuted",
+            "passedButRunAborted",
+            "disconnected",
+            "completed",
+            "inProgress",
+            "pending",
         )
     }
     has_negative = any(v < 0 for v in raw_counts.values())
@@ -548,6 +567,11 @@ def parse_trx(
         and skipped == 0
         and not_executed == 0
         and not_run == 0
+        and raw_counts["passedButRunAborted"] == 0
+        and raw_counts["disconnected"] == 0
+        and raw_counts["completed"] in (0, executed)
+        and raw_counts["inProgress"] == 0
+        and raw_counts["pending"] == 0
         and non_passing_results == 0
         and not has_duplicate_results
         and not bad_definition
@@ -665,6 +689,8 @@ def _assert_schema_closed(node: object, location: str, resolver, active_refs: fr
         raise ProofError([(BLOCK_GATE, f"The proof schema must constrain the value type at {location}.")])
     if has_object_shape and node.get("additionalProperties") is not False:
         raise ProofError([(BLOCK_GATE, f"The proof schema must stay closed (additionalProperties: false) at {location}.")])
+    if node.get("patternProperties"):
+        raise ProofError([(BLOCK_GATE, f"The proof schema cannot admit pattern properties at {location}.")])
 
     if (
         "array" in types
@@ -683,7 +709,7 @@ def _assert_schema_closed(node: object, location: str, resolver, active_refs: fr
                 [(BLOCK_GATE, f"Composed proof schema node must stay closed (additionalProperties/unevaluatedProperties: false) at {location}.")]
             )
 
-    for key in ("properties", "patternProperties", "dependentSchemas", "$defs", "definitions"):
+    for key in ("properties", "dependentSchemas", "$defs", "definitions"):
         mapping = node.get(key)
         if isinstance(mapping, dict):
             for child_name, child_schema in mapping.items():
@@ -909,14 +935,10 @@ def build_payload(
     errors.extend(check_read_store_no_repair(repository, head_commit, errors))
 
     # Public contract snapshot immutability
-    v4_sha = sha256_bytes(read_file(repository, PUBLIC_CONTRACT_V4_PATH))
-    if v4_sha != PUBLIC_CONTRACT_V4_SHA:
-        errors.append((BLOCK_CONTRACT, f"Public contract snapshot {PUBLIC_CONTRACT_V4_PATH} drifted."))
+    v4_sha = verify_frozen_contract_snapshot(repository, head_commit, PUBLIC_CONTRACT_V4_PATH, PUBLIC_CONTRACT_V4_SHA, errors)
     frozen_snaps = []
     for path, expected_sha in FROZEN_CONTRACT_SNAPSHOTS:
-        actual_sha = sha256_bytes(read_file(repository, path))
-        if actual_sha != expected_sha:
-            errors.append((BLOCK_CONTRACT, f"Frozen public contract snapshot {path} drifted."))
+        actual_sha = verify_frozen_contract_snapshot(repository, head_commit, path, expected_sha, errors)
         frozen_snaps.append({"path": path, "sha256": actual_sha})
 
     # Three correctness lanes bound to head_commit and the same tested server binary

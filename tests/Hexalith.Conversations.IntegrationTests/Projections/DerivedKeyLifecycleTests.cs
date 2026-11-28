@@ -379,6 +379,8 @@ public sealed class DerivedKeyLifecycleTests
         ConversationId[] identities = [SharedConversation, sibling];
         for (int index = 0; index < identities.Length; index++)
         {
+            string dispatchId = index == 0 ? "dispatch-rb-01" : "dispatch-rb-02";
+            AssertRequiredConversationKeys(candidateStore, TenantA, identities[index], dispatchId);
             before[index] = await candidateHandler.GetAsync(RollbackOpen(identities[index]), cancellationToken);
             before[index].FreshnessState.ShouldBe(ProjectionTrustState.Current);
             before[index].Details!.Freshness.LastAppliedEventTimestamp.ShouldBe(OccurredAt);
@@ -429,10 +431,7 @@ public sealed class DerivedKeyLifecycleTests
             ProjectionDispatchRequest request = await FromPersistedHistoryAsync(streamReader, identity, dispatchId, cancellationToken);
             (await RebuildAsync(rollback, request, cancellationToken)).Outcomes.ShouldHaveSingleItem()
                 .Status.ShouldBe(ProjectionDispatchStatus.Completed, "DERIVED_KEY_TRANSITION_UNSAFE: persisted full replay");
-            rollbackStore.SnapshotRaw(StateStoreName, ConversationKey(TenantA, identities[index])).ShouldNotBeNull();
-            rollbackStore.SnapshotRaw(StateStoreName, DispatchLedgerKey(dispatchId)).ShouldNotBeNull();
-            rollbackStore.SnapshotRaw(StateStoreName,
-                ResolutionKey("projection:conversations-resolution-proof", TenantA, identities[index])).ShouldNotBeNull();
+            AssertRequiredConversationKeys(rollbackStore, TenantA, identities[index], dispatchId);
         }
 
         JsonObject rebuiltIndex = rollbackStore.Snapshot<JsonObject>(StateStoreName, indexKey)!;
@@ -853,13 +852,9 @@ public sealed class DerivedKeyLifecycleTests
     {
         string[] keys =
         [
-            ConversationKey(tenant, conversationId),
+            .. RequiredConversationKeys(tenant, conversationId, dispatchId),
             TenantIndexKey(tenant),
-            DispatchLedgerKey(dispatchId),
-            ResolutionKey("projection:conversations-resolution", tenant, conversationId),
             ResolutionKey("projection:conversations-resolution-selection", tenant, conversationId),
-            ResolutionKey("projection:conversations-resolution-proof", tenant, conversationId),
-            ResolutionKey("projection:conversations-resolution-fence", tenant, conversationId),
         ];
         foreach (string key in keys)
         {
@@ -868,8 +863,31 @@ public sealed class DerivedKeyLifecycleTests
             {
                 (await store.TryEraseAsync(StateStoreName, key, etag, cancellationToken)).ShouldBeTrue(key);
             }
+
+            store.SnapshotRaw(StateStoreName, key).ShouldBeNull($"DERIVED_KEY_TRANSITION_UNSAFE: erased key {key}");
         }
     }
+
+    private static void AssertRequiredConversationKeys(
+        InMemoryReadModelStore store,
+        TenantId tenant,
+        ConversationId conversationId,
+        string dispatchId)
+    {
+        foreach (string key in RequiredConversationKeys(tenant, conversationId, dispatchId))
+        {
+            store.SnapshotRaw(StateStoreName, key).ShouldNotBeNull($"DERIVED_KEY_TRANSITION_UNSAFE: required key {key}");
+        }
+    }
+
+    private static string[] RequiredConversationKeys(TenantId tenant, ConversationId conversationId, string dispatchId) =>
+    [
+        ConversationKey(tenant, conversationId),
+        DispatchLedgerKey(dispatchId),
+        ResolutionKey("projection:conversations-resolution", tenant, conversationId),
+        ResolutionKey("projection:conversations-resolution-proof", tenant, conversationId),
+        ResolutionKey("projection:conversations-resolution-fence", tenant, conversationId),
+    ];
 
     private static string CanonicalizeWithoutObservationTimes<T>(T value)
     {

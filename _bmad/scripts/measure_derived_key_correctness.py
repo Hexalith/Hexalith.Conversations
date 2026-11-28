@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import xml.etree.ElementTree as ET
 
 import generate_derived_key_correctness_proof as proof
 
@@ -56,6 +57,27 @@ def checkout_snapshot(repository: Path, checkout: Path, commit: str, submodules:
         )
         run(target, "git", "remote", "add", "origin", submodule["url"], env=git_env)
         run(target, "git", "checkout", "--quiet", "--detach", submodule["gitlink"], env=git_env)
+
+
+def verify_fault_matrix_result(path: Path) -> None:
+    """Require an executed, all-passing pytest JUnit report."""
+    try:
+        root = ET.parse(path).getroot()
+        if root.tag not in ("testsuites", "testsuite"):
+            raise ValueError("Fault-matrix report is not a JUnit test suite.")
+        suites = root.findall("testsuite") if root.tag == "testsuites" else [root]
+        total = 0
+        for suite in suites:
+            cases = suite.findall("testcase")
+            if int(suite.get("tests", "0")) != len(cases) or any(
+                int(suite.get(counter, "0")) != 0 for counter in ("errors", "failures", "skipped")
+            ) or any(case.find(tag) is not None for case in cases for tag in ("error", "failure", "skipped")):
+                raise ValueError("Fault-matrix JUnit report contains inconsistent counts or non-passing tests.")
+            total += len(cases)
+        if total == 0:
+            raise ValueError("Fault-matrix JUnit report contains no tests.")
+    except ET.ParseError as error:
+        raise ValueError(f"Cannot read the fault-matrix JUnit report: {error}") from None
 
 
 def measure(repository: Path, checkout: Path, commit: str, scratch: Path, output: Path) -> None:
@@ -165,6 +187,7 @@ def measure(repository: Path, checkout: Path, commit: str, scratch: Path, output
         "_bmad/scripts/tests/test_derived_key_correctness.py", "-k", "complete_fault_matrix",
         f"--junitxml={matrix_result}", env=environment, timeout=1200,
     )
+    verify_fault_matrix_result(matrix_result)
     output.mkdir(parents=True)
     filenames = (*lane_results.values(), *(scenario[2] for scenario in extra_scenarios), matrix_result.name)
     files = (

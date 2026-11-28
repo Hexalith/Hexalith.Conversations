@@ -6,6 +6,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 namespace Hexalith.Conversations.Server.Projections;
 
@@ -16,6 +17,11 @@ internal static class ConversationProjectionJsonValidation
     internal static bool UsesStreamingPropertyBinding(JsonSerializerOptions options)
         => options.PropertyNamingPolicy == JsonNamingPolicy.CamelCase
             && options.PropertyNameCaseInsensitive
+            && options.Converters.Count == 0
+            && options.ReferenceHandler is null
+            && (options.TypeInfoResolver is null
+                || (options.TypeInfoResolver.GetType() == typeof(DefaultJsonTypeInfoResolver)
+                    && options.TypeInfoResolver is DefaultJsonTypeInfoResolver { Modifiers.Count: 0 }))
             && options.UnmappedMemberHandling == JsonUnmappedMemberHandling.Skip
             && !options.RespectRequiredConstructorParameters
             && !options.RespectNullableAnnotations

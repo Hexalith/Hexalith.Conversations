@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
@@ -141,6 +142,41 @@ public sealed class DerivedKeyOptimizationTests
             // Record scale profile (list page 1, list page 2, open, write) at 100 / 1,000 / 10,000 rows.
             ProfileScaleRow(output, backing, handler, filter, rowCount, targetId, cancellationToken);
         }
+
+        AssertListAllocations(cancellationToken);
+    }
+
+    private static void AssertListAllocations(CancellationToken cancellationToken)
+    {
+        InMemoryReadModelStore backing = new();
+        SeedReadyTenant(backing, rowCount: 100, richRowCount: 25, richMessageCount: 100);
+        DerivedKeyReadStoreSpy spy = new(backing);
+        ConversationQueryHandler handler = CreateHandler(spy);
+        ListConversationsQuery query = ListQuery(new ConversationListFilterV1(BusinessReference: Business));
+
+        void ListForAllocationMeasurement()
+        {
+            ConversationListResult result = handler.ListAsync(query, cancellationToken).AsTask().GetAwaiter().GetResult();
+            if (result.FreshnessState != ProjectionTrustState.Current || result.Conversations.Count != 25)
+            {
+                throw new InvalidOperationException("Allocation profiling requires a complete List page.");
+            }
+
+            GC.KeepAlive(result);
+        }
+
+        ListForAllocationMeasurement();
+        (_, long pageValidationBytes) = MeasureSync(ListForAllocationMeasurement, iterations: 3);
+        spy.MaterializeFullDetailForPageRead = true;
+        ListForAllocationMeasurement();
+        (_, long fullDetailBytes) = MeasureSync(ListForAllocationMeasurement, iterations: 3);
+        TestContext.Current.TestOutputHelper?.WriteLine(
+            $"List allocation validation: {pageValidationBytes} B optimized, {fullDetailBytes} B with full detail");
+        (fullDetailBytes - pageValidationBytes).ShouldBeGreaterThan(4_096,
+            "DERIVED_KEY_FANOUT_UNBOUNDED: warmed List must avoid full detail materialization allocations");
+        spy.GetCalls.ShouldBe(8);
+        spy.BulkGetCalls.ShouldBe(16);
+        spy.Writes.ShouldBeEmpty("READ_SIDE_REPAIR_ATTEMPTED");
     }
 
     /// <summary>
@@ -709,8 +745,9 @@ public sealed class DerivedKeyOptimizationTests
         string storeName = ConversationProjectionReadModelKeys.StateStoreName;
         string indexKey = ConversationProjectionReadModelKeys.TenantIndexKey(Tenant);
         ConversationProjectionIndexReadModel index = backing.Snapshot<ConversationProjectionIndexReadModel>(storeName, indexKey)!;
-        ConversationDetailProjectionV1 detail = backing.Snapshot<ConversationProjectedReadModels>(
-            storeName, ConversationProjectionReadModelKeys.ConversationKey(Tenant, targetId))!.Detail;
+        ConversationProjectedReadModels models = backing.Snapshot<ConversationProjectedReadModels>(
+            storeName, ConversationProjectionReadModelKeys.ConversationKey(Tenant, targetId))!;
+        ConversationDetailProjectionV1 detail = models.Detail;
         JsonSerializerOptions web = new(JsonSerializerDefaults.Web);
         string indexJson = JsonSerializer.Serialize(index, web);
         ConversationProjectionIndexLookupTarget? previous = ConversationProjectionIndexLookupScope.Begin(targetId.Value);
@@ -740,11 +777,55 @@ public sealed class DerivedKeyOptimizationTests
             alternateDetail["unmapped"] = true;
             _ = Should.Throw<JsonException>(() => alternateIndex.Deserialize<ConversationProjectionIndexLookupResult>(alternate));
             _ = Should.Throw<JsonException>(() => alternateDetail.Deserialize<ConversationDetailValidationHeader>(alternate));
+
+            JsonSerializerOptions customId = new(JsonSerializerDefaults.Web);
+            customId.Converters.Add(new DerivedKeyConversationIdConverter());
+            JsonSerializer.Deserialize<ConversationProjectionIndexLookupResult>(JsonSerializer.Serialize(index, customId), customId)!
+                .MatchedSummary!.ConversationId.ShouldBe(targetId);
+            AssertPageRoundTrip(models, customId);
+
+            DefaultJsonTypeInfoResolver resolver = new();
+            resolver.Modifiers.Add(static info =>
+            {
+                if (info.Type == typeof(ConversationProjectedReadModels))
+                {
+                    info.Properties.Single(property => property.Name == "detail").Name = "projectionDetail";
+                }
+            });
+            AssertPageRoundTrip(models, new JsonSerializerOptions(JsonSerializerDefaults.Web) { TypeInfoResolver = resolver });
+
+            JsonSerializerOptions preserve = new(JsonSerializerDefaults.Web) { ReferenceHandler = ReferenceHandler.Preserve };
+            JsonObject preserveIndex = new()
+            {
+                ["summaries"] = new JsonObject
+                {
+                    ["$id"] = "summaries",
+                    ["$values"] = new JsonArray(JsonSerializer.SerializeToNode(models.Summary, web)),
+                },
+                ["dispatches"] = JsonSerializer.SerializeToNode(index.Dispatches, web),
+            };
+            ConversationProjectionIndexReadModel expectedIndex = preserveIndex.Deserialize<ConversationProjectionIndexReadModel>(preserve)!;
+            ConversationProjectionIndexLookupResult preservedLookup = preserveIndex.Deserialize<ConversationProjectionIndexLookupResult>(preserve)!;
+            preservedLookup.MatchedSummary!.ConversationId.ShouldBe(expectedIndex.Summaries.ShouldHaveSingleItem().ConversationId);
+            preservedLookup.MatchCount.ShouldBe(1);
         }
         finally
         {
             ConversationProjectionIndexLookupScope.End(previous);
         }
+    }
+
+    private static void AssertPageRoundTrip(ConversationProjectedReadModels models, JsonSerializerOptions options)
+        => AssertPageValidation(JsonSerializer.Serialize(models, options), options);
+
+    private static void AssertPageValidation(string json, JsonSerializerOptions options)
+    {
+        ConversationProjectedReadModels expected = JsonSerializer.Deserialize<ConversationProjectedReadModels>(json, options)!;
+        ConversationPageValidationRecord page = JsonSerializer.Deserialize<ConversationPageValidationRecord>(json, options)!;
+        page.Summary.ConversationId.ShouldBe(expected.Summary.ConversationId);
+        page.Detail.ConversationId.ShouldBe(expected.Detail.ConversationId);
+        page.Detail.Freshness.ShouldBe(expected.Detail.Freshness);
+        page.DispatchId.ShouldBe(expected.DispatchId);
     }
 
     /// <summary>
@@ -1389,7 +1470,8 @@ public sealed class DerivedKeyOptimizationTests
             hydrationService: new ConversationReadHydrationService());
     }
 
-    private static void SeedReadyTenant(InMemoryReadModelStore store, int rowCount)
+    private static void SeedReadyTenant(
+        InMemoryReadModelStore store, int rowCount, int richRowCount = 1, int richMessageCount = 10)
     {
         List<ConversationSummaryProjectionV1> summaries = new(rowCount);
         Dictionary<string, ConversationProjectionDispatchReference> dispatches = new(rowCount, StringComparer.Ordinal);
@@ -1399,7 +1481,8 @@ public sealed class DerivedKeyOptimizationTests
         {
             ConversationId conversationId = new($"conversation-{index:00000}");
             string dispatchId = $"dispatch-{index:00000}";
-            ConversationProjectedReadModels models = BuildModels(Tenant, conversationId, position: 1, dispatchId, rich: index == 0);
+            ConversationProjectedReadModels models = BuildModels(
+                Tenant, conversationId, position: 1, dispatchId, rich: index < richRowCount, richMessageCount: richMessageCount);
             summaries.Add(models.Summary);
             dispatches[conversationId.Value] = new ConversationProjectionDispatchReference(dispatchId, 1, IsPending: false);
             watermarks[conversationId.Value] = 1;
@@ -1439,7 +1522,8 @@ public sealed class DerivedKeyOptimizationTests
         long position,
         string dispatchId,
         bool rich = false,
-        DateTimeOffset? timestampOverride = null)
+        DateTimeOffset? timestampOverride = null,
+        int richMessageCount = 10)
     {
         DateTimeOffset eventTime = timestampOverride ?? BaseTimestamp;
         ProjectionFreshnessV1 freshness = new(
@@ -1478,12 +1562,12 @@ public sealed class DerivedKeyOptimizationTests
             Project,
             Folder,
             [Actor, Participant],
-            MessageCount: rich ? 10 : 1,
+            MessageCount: rich ? richMessageCount : 1,
             FileReferenceCount: rich ? 1 : 0,
             ProviderCorrelation: providerCorrelation);
 
         ConversationDetailProjectionV1 detail = rich
-            ? BuildRichDetail(summary)
+            ? BuildRichDetail(summary, richMessageCount)
             : new ConversationDetailProjectionV1(
                 SchemaVersion.Current,
                 tenantId,
@@ -1514,14 +1598,14 @@ public sealed class DerivedKeyOptimizationTests
             $"CANDIDATE_BINDING|commit={commit}|serverSha256={serverSha}|testAssemblySha256={testSha}");
     }
 
-    private static ConversationDetailProjectionV1 BuildRichDetail(ConversationSummaryProjectionV1 summary)
+    private static ConversationDetailProjectionV1 BuildRichDetail(ConversationSummaryProjectionV1 summary, int messageCount)
     {
         ConversationTimelineMessageProjectionV1[] messages =
         [
-            .. Enumerable.Range(0, 10).Select(index => new ConversationTimelineMessageProjectionV1(
+            .. Enumerable.Range(0, messageCount).Select(index => new ConversationTimelineMessageProjectionV1(
                 new MessageId($"msg-rich-{index:00}"),
                 index % 2 == 0 ? Actor : Participant,
-                index == 9 ? "[redacted]" : $"Visible message {index:00}",
+                index == messageCount - 1 ? "[redacted]" : $"Visible message {index:00}",
                 BaseTimestamp.AddSeconds(index))),
         ];
 

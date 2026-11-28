@@ -308,30 +308,60 @@ public sealed class PublicQueryCompatibilityTests
         ConversationId ordinalSecond = new("contract-z");
         ConversationId newer = new("contract-newer");
         ProjectId project = ContractSamples.Project;
+        FolderId folder = ContractSamples.Folder;
+        BusinessReference business = ContractSamples.Business;
         DateTimeOffset tiedAt = ContractSamples.FreshnessV1.LastAppliedEventTimestamp;
+        DateTimeOffset newerAt = tiedAt.AddHours(1);
         InMemoryReadModelStore store = new();
 
         ConversationSummaryProjectionV1 Summary(
-            ConversationId id, DateTimeOffset time, ProjectId projectId, string lifecycle = "Open", PartyId? participant = null)
-            => new(
-                ContractSamples.Version,
-                tenant,
-                id,
-                new ProjectionFreshnessV1(
-                    ContractSamples.Version, "pos:0000000001", 1, time, time, TimeSpan.Zero, false,
-                    ProjectionTrustState.Current, ProjectionFreshnessReasonCode.Current),
-                lifecycle,
-                ProjectId: projectId,
-                ParticipantPartyIds: [participant ?? ContractSamples.Participant]);
+            string id,
+            DateTimeOffset time,
+            ProjectId? projectId = null,
+            FolderId? folderId = null,
+            BusinessReference? businessReference = null,
+            string lifecycle = "Open",
+            PartyId? participant = null,
+            bool stale = false,
+            ProjectionTrustState? redaction = null,
+            ConversationAuditReadinessState? auditReadiness = null,
+            ConversationVerificationState? verification = null)
+        {
+            ProjectionFreshnessV1 freshness = new(
+                ContractSamples.Version, "pos:0000000001", 1, time, time, TimeSpan.Zero, stale,
+                stale ? ProjectionTrustState.Stale : ProjectionTrustState.Current,
+                stale ? ProjectionFreshnessReasonCode.StaleThresholdExceeded : ProjectionFreshnessReasonCode.Current);
+            return new ConversationSummaryProjectionV1(
+                ContractSamples.Version, tenant, new ConversationId(id), freshness, lifecycle,
+                BusinessReference: businessReference ?? business,
+                ProjectId: projectId ?? project,
+                FolderId: folderId ?? folder,
+                ParticipantPartyIds: [participant ?? ContractSamples.Participant],
+                SearchTrustPreview: new ConversationSearchTrustPreviewV1(
+                    freshness.FreshnessState, freshness.ReasonCode, redaction ?? ProjectionTrustState.Redacted,
+                    ProjectionTrustState.Current, ConversationCitationAvailability.Available,
+                    auditReadiness ?? ConversationAuditReadinessState.Ready,
+                    verification ?? ConversationVerificationState.Verified,
+                    ConversationSearchMatchSource.Unknown, "Visible through authorized tenant scope."));
+        }
 
         ConversationSummaryProjectionV1[] summaries =
         [
-            Summary(ordinalSecond, tiedAt, project),
-            Summary(new ConversationId("contract-other-project"), tiedAt.AddHours(2), new ProjectId("other-project")),
-            Summary(new ConversationId("contract-closed"), tiedAt.AddHours(2), project, lifecycle: "Closed"),
-            Summary(new ConversationId("contract-other-participant"), tiedAt.AddHours(2), project, participant: new PartyId("other-party")),
-            Summary(ordinalFirst, tiedAt, project),
-            Summary(newer, tiedAt.AddHours(1), project),
+            Summary(ordinalSecond.Value, tiedAt),
+            Summary("contract-other-project", tiedAt, projectId: new ProjectId("other-project")),
+            Summary("contract-other-folder", tiedAt, folderId: new FolderId("other-folder")),
+            Summary("contract-other-business-system", tiedAt, businessReference: new BusinessReference("other", business.Value)),
+            Summary("contract-other-business-value", tiedAt, businessReference: new BusinessReference(business.System, "other")),
+            Summary("contract-closed", tiedAt, lifecycle: "Closed"),
+            Summary("contract-other-participant", tiedAt, participant: new PartyId("other-party")),
+            Summary("contract-stale", tiedAt, stale: true),
+            Summary("contract-unredacted", tiedAt, redaction: ProjectionTrustState.Current),
+            Summary("contract-audit-incomplete", tiedAt, auditReadiness: ConversationAuditReadinessState.Incomplete),
+            Summary("contract-unverified", tiedAt, verification: ConversationVerificationState.Unverified),
+            Summary("contract-before-range", tiedAt.AddTicks(-1)),
+            Summary("contract-after-range", newerAt.AddTicks(1)),
+            Summary(ordinalFirst.Value, tiedAt),
+            Summary(newer.Value, newerAt),
         ];
         string tenantSegment = EncodeSegment(tenant.Value);
         store.SeedRaw(storeName, $"projection:conversations-index:{tenantSegment}", new
@@ -349,7 +379,7 @@ public sealed class PublicQueryCompatibilityTests
         {
             ConversationDetailProjectionV1 detail = new(
                 summary.SchemaVersion, tenant, summary.ConversationId, summary.Freshness, summary.LifecycleState,
-                ProjectId: summary.ProjectId);
+                BusinessReference: summary.BusinessReference, ProjectId: summary.ProjectId, FolderId: summary.FolderId);
             store.SeedRaw(
                 storeName,
                 $"projection:conversations:{tenantSegment}:{EncodeSegment(summary.ConversationId.Value)}",
@@ -363,7 +393,11 @@ public sealed class PublicQueryCompatibilityTests
             readStore,
             new ConversationProjectionReadService(tenantAccess, readStore),
             new QueryCursorCodec(new EphemeralDataProtectionProvider(), "Conversations.PublicQueryCompatibility"));
-        ConversationListFilterV1 filter = new(ProjectId: project, LifecycleState: "Open", ParticipantPartyId: ContractSamples.Participant);
+        ConversationListFilterV1 filter = new(
+            BusinessReference: business, ProjectId: project, FolderId: folder, LifecycleState: "Open",
+            ProjectedAtFrom: tiedAt, ProjectedAtTo: newerAt, ParticipantPartyId: ContractSamples.Participant,
+            RedactionState: ProjectionTrustState.Redacted, FreshnessState: ProjectionTrustState.Current,
+            AuditReadiness: ConversationAuditReadinessState.Ready, VerificationState: ConversationVerificationState.Verified);
         ConversationListResult first = await handler.ListAsync(
             new ListConversationsQuery(ContractSamples.Version, tenant, member, "contract-page-1", filter, new ConversationPageRequest(2)),
             cancellationToken);
@@ -381,11 +415,33 @@ public sealed class PublicQueryCompatibilityTests
             .ShouldBe([ordinalSecond], "PUBLIC_QUERY_CONTRACT_DRIFT: continuation rows");
         second.Page.ContinuationCursor.ShouldBeNull("PUBLIC_QUERY_CONTRACT_DRIFT: final page cursor");
 
+        ConversationListResult recent = await handler.ListAsync(
+            new ListConversationsQuery(ContractSamples.Version, tenant, member, "contract-recent",
+                filter with { RecentActivityAfter = tiedAt }, new ConversationPageRequest(25)), cancellationToken);
+        recent.Conversations.Select(static row => row.ConversationId)
+            .ShouldBe([newer], "PUBLIC_QUERY_CONTRACT_DRIFT: recent activity bound is exclusive");
+
         ConversationDetailResult existing = await handler.GetAsync(
             new GetConversationQuery(ContractSamples.Version, tenant, member, "contract-existing", ordinalFirst), cancellationToken);
         existing.FreshnessState.ShouldBe(ProjectionTrustState.Current, "PUBLIC_QUERY_CONTRACT_DRIFT: existing detail");
-        AssertResponseProperties(first, ["conversations", "freshnessState", "page", "reasonCode", "safeNextAction", "schemaVersion"]);
-        AssertResponseProperties(existing, ["details", "freshnessState", "reasonCode", "safeNextAction", "schemaVersion"]);
+        JsonElement firstJson = JsonSerializer.SerializeToElement(first, WebOptions);
+        JsonElement existingJson = JsonSerializer.SerializeToElement(existing, WebOptions);
+        AssertResponseProperties(firstJson, ["conversations", "freshnessState", "page", "reasonCode", "safeNextAction", "schemaVersion"]);
+        AssertResponseProperties(firstJson.GetProperty("page"), ["continuationCursor", "returnedCount"]);
+        AssertResponseProperties(firstJson.GetProperty("conversations")[0],
+        [
+            "businessReference", "conversationId", "fileReferenceCount", "folderHydration", "folderId", "freshness",
+            "label", "lifecycleState", "messageCount", "participantPartyIds", "partyHydration", "projectHydration",
+            "projectId", "providerCorrelation", "schemaVersion", "searchTrustPreview", "tenantId",
+        ]);
+        AssertResponseProperties(existingJson, ["details", "freshnessState", "reasonCode", "safeNextAction", "schemaVersion"]);
+        AssertResponseProperties(existingJson.GetProperty("details"),
+        [
+            "attributes", "businessReference", "conversationId", "evidenceEntries", "fileHydration", "fileReferences",
+            "folderHydration", "folderId", "freshness", "governanceState", "label", "lifecycleState", "messages",
+            "participants", "partyHydration", "projectHydration", "projectId", "providerCorrelation", "redactions",
+            "schemaVersion", "sensitivityMarks", "tenantId", "trustPosture",
+        ]);
         ConversationDetailResult unauthorized = await handler.GetAsync(
             new GetConversationQuery(ContractSamples.Version, tenant, "caller-outsider", "contract-denied", ordinalFirst), cancellationToken);
         ConversationDetailResult nonexistent = await handler.GetAsync(
@@ -396,11 +452,11 @@ public sealed class PublicQueryCompatibilityTests
             .ShouldBe(JsonSerializer.Serialize(nonexistent, WebOptions), "PUBLIC_QUERY_CONTRACT_DRIFT: denied and absent detail shapes");
     }
 
-    private static void AssertResponseProperties<T>(T value, string[] expected)
-        => JsonSerializer.SerializeToElement(value, WebOptions).EnumerateObject()
+    private static void AssertResponseProperties(JsonElement value, string[] expected)
+        => value.EnumerateObject()
             .Select(property => property.Name)
             .Order(StringComparer.Ordinal)
-            .ShouldBe(expected, Case.Sensitive, "PUBLIC_QUERY_CONTRACT_DRIFT: serialized root response properties");
+            .ShouldBe(expected, Case.Sensitive, "PUBLIC_QUERY_CONTRACT_DRIFT: serialized response properties");
 
     private static string EncodeSegment(string value)
         => Convert.ToBase64String(Encoding.UTF8.GetBytes(value)).TrimEnd('=').Replace('+', '-').Replace('/', '_');
