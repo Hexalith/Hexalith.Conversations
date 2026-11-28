@@ -53,7 +53,7 @@ dotnet tool restore
 dotnet tool run hexalith-module -- --version
 ```
 
-The published workspace tool is Hexalith.Builds Module CLI 6.9.1. Start a
+Use the Hexalith.Builds Module CLI pinned in `.config/dotnet-tools.json`. Start a
 fresh Bash session from the repository root. Prepare a source mapping and pass
 its complete environment to each command. Source mode selects Debug.
 
