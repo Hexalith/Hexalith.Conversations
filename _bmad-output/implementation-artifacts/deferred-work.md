@@ -1617,6 +1617,7 @@ The 20 groups below combine duplicate reports and related validation steps. They
 - source_spec: `_bmad-output/implementation-artifacts/spec-12-3-implement-correctness-preserving-list-open-optimization-and-migration-behavior.md`
   summary: Regenerate `docs/release-evidence/derived-key-correctness-proof-v1.{json,md}` (`AC-12.3-06`) against the committed Story 12.3 `HEAD` before Story 12.4 consumes it.
   evidence: During Story 12.3 build/review no commit is created, so the working-tree proof binds pre-Story-12.3 `HEAD` (`f8d81ca843c855cd5b87677617600e97bdcdee2f`) while hashing Story 12.3's uncommitted production files; re-running `AC-12.3-06` after committing Story 12.3 binds `headCommit` to the exact Story 12.3 commit.
+  resolution: The tracked proof pair was regenerated from committed source `d89ed076f174583100447629d5b3a31fa3f6f44c` with matching double renders and a green fault matrix.
 
 ## Deferred from: code review of spec-12-3-implement-correctness-preserving-list-open-optimization-and-migration-behavior.md (2026-11-27)
 

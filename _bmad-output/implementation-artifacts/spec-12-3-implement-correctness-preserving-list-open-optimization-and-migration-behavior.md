@@ -224,6 +224,8 @@ The five focused acceptance lanes passed 13 tests with zero skips using the exis
 
 - **Review pass 4 maintained suite.** The package-mapped Release/net11.0 solution built with zero warnings and errors. All 3,297 tests passed across the 11 maintained projects with zero skips. Root-submodule and diff whitespace checks passed. The [final verification logs](../../.artifacts/story-12.3-pass-4) contain the exact commands and results. The completion gate requires a clean committed implementation. The owner chose to retain the working-tree changes, so the spec and sprint row remain in progress.
 
+- **Committed correctness proof.** AC-12.3-06 rendered byte-identically twice from source commit `d89ed076f174583100447629d5b3a31fa3f6f44c` (payload `a8cd47c718534b822051ad87bdbcfe55eccac24bbd3433f274ab6d570874184d`). The 13 focused tests and all 68 fault-matrix cases passed with zero skips. The [tracked proof](../../docs/release-evidence/derived-key-correctness-proof-v1.md) identifies the measured source.
+
 ## Spec Change Log
 
 ## Review Triage Log
