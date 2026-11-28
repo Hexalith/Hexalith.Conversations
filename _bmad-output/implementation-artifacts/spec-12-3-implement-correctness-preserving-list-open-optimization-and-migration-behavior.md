@@ -130,43 +130,43 @@ Reviewed `a1cb5c41` against `f8d81ca8` on 2026-11-27. Four review layers complet
 
 Reviewed the Story 12.3 changes through `fe303008` against `f8d81ca8`. The four paths delivered by the intervening CI/CD commit were outside the story review. All four review layers completed.
 
-- [ ] [Review][Patch] High — Preserve detail validation on List [src/Hexalith.Conversations.Server/Projections/ConversationDetailValidationHeaderConverter.cs:279]
+- [x] [Review][Patch] High — Preserve detail validation on List [src/Hexalith.Conversations.Server/Projections/ConversationDetailValidationHeaderConverter.cs:279]
   A persisted message object missing required fields made List return the row as `Current` while Open returned `Unavailable`. The lightweight parser also accepts undecodable strings in fields it only type-checks and validates repeated lifecycle values before the final value is known. Match the typed reader's validation and exercise these cases in AC-12.3-02.
-- [ ] [Review][Patch] High — Validate sibling summaries during targeted Open [src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupConverter.cs:205]
+- [x] [Review][Patch] High — Validate sibling summaries during targeted Open [src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupConverter.cs:205]
   Removing `freshness` from a sibling while retaining its ID made Open return `Current` and List return `Unavailable`. The scan also accepts invalid sibling ID strings and skips recognized fields with malformed values. Preserve typed validation while scanning the targeted index.
-- [ ] [Review][Patch] Medium — Honor the store serializer's numeric handling during Open [src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupConverter.cs:268]
+- [x] [Review][Patch] Medium — Honor the store serializer's numeric handling during Open [src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupConverter.cs:268]
   With a quoted `schemaVersion`, List remained `Current` and Open returned `Unavailable`. The same mismatch applies to quoted watermarks and sibling dispatch sequences. Dapr and the in-memory store use Web JSON number handling, which accepts these persisted values.
-- [ ] [Review][Patch] High — Resolve TRX results through their test definitions [\_bmad/scripts/generate_derived_key_correctness_proof.py:418]
+- [x] [Review][Patch] High — Resolve TRX results through their test definitions [\_bmad/scripts/generate_derived_key_correctness_proof.py:418]
   A copy of the real unit TRX still reported `PASS` after its linked definition changed to a different method and the result retained the expected display name. Resolve each result to a unique definition and use that identity for required-method checks.
-- [ ] [Review][Patch] High — Verify the source and configuration of tested binaries [\_bmad/scripts/generate_derived_key_correctness_proof.py:449]
+- [x] [Review][Patch] High — Verify the source and configuration of tested binaries [\_bmad/scripts/generate_derived_key_correctness_proof.py:449]
   A commit suffix in assembly metadata can identify the same commit after a build from modified sources. The generator checks the checkout later and skips assembly verification when the TRX assembly path is missing. A receipt with a nonexistent assembly passed the parser. Build and test from a verified committed snapshot and bind the assembly digests, framework and configuration to that run before certifying it.
-- [ ] [Review][Patch] High — Rebuild the complete tenant during rollback rehearsal [tests/Hexalith.Conversations.IntegrationTests/Projections/DerivedKeyLifecycleTests.cs:514]
+- [x] [Review][Patch] High — Rebuild the complete tenant during rollback rehearsal [tests/Hexalith.Conversations.IntegrationTests/Projections/DerivedKeyLifecycleTests.cs:514]
   The rehearsal erases two conversations, rebuilds one with a synthetic request, and accepts a `Rebuilding` List. Use persisted EventStore replay for both conversations and assert that the prior binary restores the complete tenant index and both Open results.
-- [ ] [Review][Patch] High — Exercise an interruption after rebuild starts writing [tests/Hexalith.Conversations.IntegrationTests/Projections/DerivedKeyLifecycleTests.cs:420]
+- [x] [Review][Patch] High — Exercise an interruption after rebuild starts writing [tests/Hexalith.Conversations.IntegrationTests/Projections/DerivedKeyLifecycleTests.cs:420]
   The first fault hook runs at `BeforeDispatch`. The target row starts absent, which accounts for the observed withholding. Inject after intermediate state is durable and verify the partial state, withheld target, visible sibling, and successful retry.
-- [ ] [Review][Patch] Medium — Verify outage and recovery through the real state-store adapter [tests/Hexalith.Conversations.AppHost.Tests/DerivedKeyDaprFaultStore.cs:105]
+- [x] [Review][Patch] Medium — Verify outage and recovery through the real state-store adapter [tests/Hexalith.Conversations.AppHost.Tests/DerivedKeyDaprFaultStore.cs:105]
   The decorator throws before the production adapter runs for both full and bulk outage cases. Exercise a Dapr or Redis interruption and verify the public results during the outage and after service resumes.
-- [ ] [Review][Patch] Medium — Reject allow-all schemas in proof value positions [\_bmad/scripts/generate_derived_key_correctness_proof.py:574]
+- [x] [Review][Patch] Medium — Reject allow-all schemas in proof value positions [\_bmad/scripts/generate_derived_key_correctness_proof.py:574]
   A boolean `true` subschema bypasses the closure check. The modified schema accepts the published proof and arbitrary nested fields at the opened location.
-- [ ] [Review][Patch] Medium — Compare proof source with Git-normalized bytes [\_bmad/scripts/generate_derived_key_correctness_proof.py:250]
+- [x] [Review][Patch] Medium — Compare proof source with Git-normalized bytes [\_bmad/scripts/generate_derived_key_correctness_proof.py:250]
   A clean checkout with `core.autocrlf=true` can receive translated source bytes for paths such as `ConversationQueryHandler.cs`. Proof generation treats the resulting difference as source drift. Normalize according to the tracked Git rules or pin the byte format for hashed sources.
-- [ ] [Review][Patch] Medium — Verify property accessors against the public snapshot [tests/Hexalith.Conversations.Contracts.Tests/PublicQueryCompatibilityTests.cs:114]
+- [x] [Review][Patch] Medium — Verify property accessors against the public snapshot [tests/Hexalith.Conversations.Contracts.Tests/PublicQueryCompatibilityTests.cs:114]
   The comparison reads property names and types and omits the snapshot's `canRead` and `canWrite` attributes. An accessor change can pass the compatibility test.
-- [ ] [Review][Patch] Medium — Exercise public query behavior in the compatibility lane [tests/Hexalith.Conversations.Contracts.Tests/PublicQueryCompatibilityTests.cs:149]
+- [x] [Review][Patch] Medium — Exercise public query behavior in the compatibility lane [tests/Hexalith.Conversations.Contracts.Tests/PublicQueryCompatibilityTests.cs:149]
   The lane constructs filter, cursor and result objects directly. Add runtime assertions for filter and ordering behavior and for the equivalence between unauthorized and nonexistent Open results.
-- [ ] [Review][Patch] Medium — Require the exact compiled fault blocker set [\_bmad/scripts/tests/test_derived_key_correctness.py:851]
+- [x] [Review][Patch] Medium — Require the exact compiled fault blocker set [\_bmad/scripts/tests/test_derived_key_correctness.py:851]
   The compiled mutations check membership of two blockers and accept unexpected additional blockers. Assert the complete expected blocker set for each mutation.
-- [ ] [Review][Patch] Medium — Exercise actual Dapr and public-contract faults in the matrix [\_bmad/scripts/tests/test_derived_key_correctness.py:560]
+- [x] [Review][Patch] Medium — Exercise actual Dapr and public-contract faults in the matrix [\_bmad/scripts/tests/test_derived_key_correctness.py:560]
   The synthetic Dapr receipts verify reporting behavior, and the public snapshot mutation verifies the file digest. Add runtime mutations that exercise the live Dapr failure and public query contract assertions and verify the reported blockers.
-- [ ] [Review][Patch] Medium — Include SDK recovery writes in the read-side guard [\_bmad/scripts/generate_derived_key_correctness_proof.py:164]
+- [x] [Review][Patch] Medium — Include SDK recovery writes in the read-side guard [\_bmad/scripts/generate_derived_key_correctness_proof.py:164]
   The static guard omits mutating recovery methods including `RecoverPendingAsync` and `PrepareRecoveryManifestAsync`. A call through those interfaces would bypass this guard. Include the recovery operations and exercise the guard with a recovery-call mutation.
-- [ ] [Review][Patch] Low — Avoid allocating strings for ordinary property-name mismatches [src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupConverter.cs:444]
+- [x] [Review][Patch] Low — Avoid allocating strings for ordinary property-name mismatches [src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupConverter.cs:444]
   An unescaped ASCII property name of a different length falls through to `GetString()`. This allocates for most fields in every sibling summary scanned by Open. Return early for ordinary ASCII length mismatches.
-- [ ] [Review][Patch] Medium — Make the concurrent-read test spy safe for parallel calls [tests/Hexalith.Conversations.Server.Tests/Projections/DerivedKeyReadStoreSpy.cs:66]
+- [x] [Review][Patch] Medium — Make the concurrent-read test spy safe for parallel calls [tests/Hexalith.Conversations.Server.Tests/Projections/DerivedKeyReadStoreSpy.cs:66]
   The delayed Open test can resume on several threads and update mutable counters and lists concurrently. Synchronize recording and reset so the spy cannot lose observations or introduce failures of its own.
-- [ ] [Review][Patch] Medium — Apply a single deadline to Dapr health polling [tests/Hexalith.Conversations.AppHost.Tests/DerivedKeyDaprLiveFixture.cs:210]
+- [x] [Review][Patch] Medium — Apply a single deadline to Dapr health polling [tests/Hexalith.Conversations.AppHost.Tests/DerivedKeyDaprLiveFixture.cs:210]
   An unresponsive sidecar can consume up to 240 three-second HTTP timeouts plus delays. The documented 60-second budget then lasts about 13 minutes. Use one deadline for requests and retry delays.
-- [ ] [Review][Patch] Medium — Pin exact cross-binary cursor pages for tied timestamps [tests/Hexalith.Conversations.IntegrationTests/Projections/DerivedKeyLifecycleTests.cs:494]
+- [x] [Review][Patch] Medium — Pin exact cross-binary cursor pages for tied timestamps [tests/Hexalith.Conversations.IntegrationTests/Projections/DerivedKeyLifecycleTests.cs:494]
   The rehearsal uses distinct timestamps and counts one result per page. It misses dropped or repeated rows if the ordinal tie-break changes while a cursor remains valid. Seed tied timestamps in nonordinal storage order and assert exact identities in both directions.
 - [x] [Review][Defer] Tenant initializer redelivery still blocks the maintained suite [tests/Hexalith.Conversations.Server.Tests/TenantAccess/ConversationTenantIndexInitializerTest.cs:119] — deferred: the existing Story 16.2 test-double issue is already in the deferred-work ledger. The isolated rerun exited `1` with `RetryableInProgress` instead of `Processed`.
 
@@ -212,6 +212,17 @@ The five focused acceptance lanes passed 13 tests with zero skips using the exis
   - `10,000` rows: List P1 `206,042.4 µs / 68,149,453 B -> 215,071.5 µs / 55,658,592 B` (`-18.3%` alloc, `-12.5 MB/op`); List P2 `209,969.6 µs / 68,147,272 B -> 220,994.9 µs / 55,659,845 B` (`-18.3%` alloc); Open `127,368.0 µs / 46,503,597 B -> 122,526.1 µs / 12,998,490 B` (`-72.0%` alloc, `-33.5 MB/op`); Full Write `385,075.0 µs / 140,528,328 B (3R,3W) -> 400,915.5 µs / 140,065,584 B (3R,3W)` (`-0.3%` alloc, 0 op delta).
   - **Token persistence conclusion:** Because fail-closed reads must verify digest binding against current tenant-scoped summaries (preventing stale valid-shaped tokens from validating cursors against reordered rows), persisting `GenerationToken` on writes is not justified and is omitted from `Compose`.
 - **Review Pass 2 Post-Patch Verification (2026-11-27):** Resolved all 11 Review Pass 2 patch groups (real xUnit v3 `<TextMessages><Message>` per-result `CANDIDATE_BINDING` parsing, `ResultSummary/@outcome`, relative `codeBase` + `OSError` guards, 9 new read-side files in `READ_SIDE_PATHS`, untyped schema closure, committed `CONTRACT_PATH`/`SCHEMA_PATH` checks, `.gitmodules` UTF-8 guard, `authoring_outputs.py` deleted-file guard + `replace_tracked` tests, Unicode whitespace attribute-key fallback, 7 persisted metadata fields on `ConversationPageValidationRecord`, mandatory `conversationId` on sibling summaries + non-null `dispatches`, non-aliasing `Compose`, dead `Snapshot.GenerationToken` removal & `ClassifyLifecycle` deduplication, Contracts enum checks, worktree-safe prior-binary harness + full proxy checks + populated interrupted-rebuild check, live Dapr bounded-read counts + writer tenant init + `AllocatePorts` cleanup). Root `Hexalith.Conversations.slnx` Debug build passed (`0` warnings, `0` errors); `AC-12.3-01` (`1/1`), `AC-12.3-02` (`1/1`), `AC-12.3-03` (`5/5`), `AC-12.3-04` (`5/5`), `AC-12.3-05` (`1/1`) PASS; `test_authoring_outputs.py` (`77/77`) PASS; `AC-12.3-07` (`50/50`) PASS; maintained test assemblies passed (`Contracts.Tests` 649/649, `Client.Tests` 76/76, `Tests` 189/189, `Conformance.Tests` 91/91, `Conformance.Portable.Tests` 308/308, `TestSupport.Tests` 44/44, `DeletionConformance.Tests` 35/35, `Admin.Web.Tests` 14/14, `Server.Tests` 1,815/1,816 with only the pre-existing deferred `ConversationTenantIndexInitializerTest` failure); `check-root-submodules.py` PASS; `git diff --check` clean; protected paths untouched.
+
+- **Review pass 3 implementation.** List validates persisted detail values and targeted Open validates sibling summaries with the store's numeric handling. Integration replay restores the complete tenant with the prior binary and exercises both directions of tied cursor paging. The interrupted batch case verifies persisted partial state, withheld target, visible sibling, and successful retry. The live Dapr lane stops and restarts the sidecar and checks queries through the same adapter. The proof binds linked TRX definitions, verified assembly files, and the build receipt for the committed source snapshot.
+- **Review pass 3 verification.** The source-mapped Debug/net11.0 solution built with zero warnings and errors. AC-12.3-01 through AC-12.3-05 passed 13 tests with zero skips. AC-12.3-06 produced identical bytes on both runs against disposable commit `2c49abf8ed7c425599e6beb7b92e78f45e76ed7b` (payload `8236016e59000c80fdb8d4f61ac605b25782e7fb4446aff23f0bc843bc000134`). AC-12.3-07 passed 62 cases, including actual Dapr outage and public ordering mutations. The [measurement artifacts](../../.artifacts/story-12.3-pass-3/final-source/measured-2c49abf8) contain the TRXs and proof.
+- **Review pass 3 profiling.** Across 100, 1,000, and 10,000 rows, Open allocated 387,662 B, 3,526,895 B, and 34,918,957 B, down about 23–25% against the recorded prior baseline. Both List pages reduced allocations at each size. Open latency improved at 100 and 10,000 rows and increased at 1,000 rows in the Debug sample. Full writes remained at three reads and three writes per operation.
+
+- **Maintained suite.** The package-mapped Release/net11.0 solution built with zero warnings and errors. All 11 maintained projects passed individually with 3,297 tests and zero skips, including the live AppHost and integration tests. Root-submodule and diff whitespace checks passed. The [verification logs](../../.artifacts/story-12.3-pass-3/package) contain the individual commands and results.
+
+- **Review pass 4.** The readers now preserve custom serializer options and last-property semantics. List caps its initial allocation by page size. The rebuild test uses the SDK's pending-batch recovery against an installed key and durable manifest. Contract tests check each filter and exact response properties. The fault matrix covers additional schema and read-side SDK cases, and the scale test compares warmed Open allocations to full index materialization.
+- **Review pass 4 source verification.** The Debug/net11.0 solution build and 13 focused tests passed with zero skips. AC-12.3-06 rendered byte-identically twice (payload `9939a6a65cbd6c6fccd8a4a92b96b834dc623bc9cbd48547cd75eed939011547`). AC-12.3-07 passed 68 cases with zero skips. The [proof and receipts](../../.artifacts/story-12.3-pass-4/measured-01c749fc) bind disposable source commit `01c749fcf596319c8377641342fd11bec95acb44`, retained in the [candidate bundle](../../.artifacts/story-12.3-pass-4/verified-candidate.bundle). The owner requested uncommitted workspace changes. The tracked proof refresh remains a prerequisite for Story 12.4.
+
+- **Review pass 4 maintained suite.** The package-mapped Release/net11.0 solution built with zero warnings and errors. All 3,297 tests passed across the 11 maintained projects with zero skips. Root-submodule and diff whitespace checks passed. The [final verification logs](../../.artifacts/story-12.3-pass-4) contain the exact commands and results. The completion gate requires a clean committed implementation. The owner chose to retain the working-tree changes, so the spec and sprint row remain in progress.
 
 ## Spec Change Log
 
@@ -306,6 +317,35 @@ The five focused acceptance lanes passed 13 tests with zero skips using the exis
 | EC2-20 — claim: `Tasks & Acceptance` mentions concurrent bulk reads | low | Rejected per review rule (never route spec-only wording edits); `Implementation Notes` already explains why sequential detail-before-ledger reads were restored in Review Pass 2. |
 | EC2-21 — claim: `Server.Tests` has 1 pre-existing deferred failure | low | Carried (BH-15) and rejected as spec-only wording edit; already logged as `[Review][Defer]`. |
 
+### Review pass 4 — 2026-11-28
+
+| Finding | Verdict | Evidence and route |
+| --- | --- | --- |
+| Blind 01 — Tracked proof names the prior implementation | high | Carried. The tracked pair binds `07f1ad4a`. Refresh after a local implementation commit, as recorded in deferred work. |
+| Blind 02 — Proof omits AC-12.3-01 and AC-12.3-05 receipts | false | The frozen AC-12.3-06 contract names three input receipts. The measurement command separately requires AC-12.3-01 and AC-12.3-05 to pass and retains both results. |
+| Blind 03 — Archived TRXs refer to the temporary build directory | low | The original binaries and paths are required when using those exact inputs to render the proof again. The contracted double render ran in that checkout. The retained source bundle and measurement command support fresh reproduction. Offline rendering from these reports alone is outside the contracted measurement. |
+| Blind 04 — Interrupted rebuild retries a captured batch directly | medium | The test passes the batch to `ExecuteAsync` at the store instead of recovering the persisted pending batch by key. Patch the integration lane to use SDK recovery. |
+| Blind 05 — Alternate Dapr serializer settings diverge | high | DaprReadModelStore deserializes with the Dapr client's options. Camel-case, case-insensitive matching can reject records emitted with another naming policy. Use typed validation for those options. |
+| Blind 06 — Sparse filters preallocate the full tenant capacity | low | The match list reserves `tenantScoped.Count` before evaluating filters. Cap the initial allocation at the page size. |
+| Blind 07 — Untyped schema leaves admit arbitrary nested values | medium | `additionalProperties: false` on an untyped leaf still permits unconstrained arrays. Patch closed-schema traversal and its fault cases. |
+| Blind 08 — Read-side guard omits two mutating SDK methods | medium | `ApplyEventsAsync` calls the SDK write policy and `ReconcileAppliedReceiptAsync` can finish a pending write. Add both to the guard and fault matrix. |
+| Blind 09 — Measurement requires a pre-restored .NET tool | low | A clean environment lacks the pinned local command until `dotnet tool restore` runs. Restore the tool inside the measurement checkout. |
+| Blind 10 — Runtime fixture misses lifecycle and participant filter regressions | medium | All current fixture rows match those two filters. Add independent mismatches. |
+| Blind 11 — Wire-shape check misses missing or renamed fields | medium | CLR reflection and substring bans allow a serialized root property rename to survive. Assert the approved serialized property sets. |
+| Edge 01 — Overwritten null summary element | medium | A final typed array replaces an earlier array containing null. Patch streaming lookup to evaluate null elements in the final array. |
+| Edge 02 — Overwritten null dispatch map | medium | A later dispatch object replaces an earlier explicit null. Apply the final-map null check after scanning. |
+| Edge 03 — Nondefault serializer behavior | high | Dapr passes the configured serializer options to both scalar and bulk reads. Group with Blind 05. |
+| Edge 04 — Archived TRX codebase cannot resolve after cleanup | low | Same archival limitation as Blind 03. The frozen contract measures and regenerates in a live checkout. |
+| Edge 05 — Unresolved schema reference escapes the blocker | medium | Schema syntax can pass preflight with a missing target, and instance validation then raises an unhandled resolution error. Return a stable blocker. |
+| Edge 06 — Tracked proof certifies earlier converter bytes | high | Carried. Same deferred committed-proof refresh as Blind 01. |
+| Edge 07 — Historical task bullet promises parallel reads | low | The current implementation preserves detail-before-ledger ordering. The implementation notes already record the change. Reject the spec-only proposal. |
+| Edge 08 — Historical task bullet promises persisted token reuse | low | The implementation notes document digest recomputation and removal of token persistence. Reject the spec-only proposal. |
+| Edge 09 — Tenant initializer makes maintained verification red | false | The fresh package-mode suite passed 1,816 Server tests, including this test. The retained source-mode failure remains in deferred work. |
+| Verification 01 — Full summary materialization can evade focused tests | medium | The compiled mutation passed all 11 tests while increasing 10,000-row Open allocations from 34,918,957 to 45,554,773 bytes. Add a same-fixture allocation comparison. |
+| Verification 02 — Malformed native source proof has no regression case | medium | The wrapper fault corpus only exercises other metadata fields. Add a malformed native proof and check List and Open fail closed. |
+| Verification 03 — Package provenance verifier lacks a negative test | medium | Deferred. This coverage gap predates the resumed story and belongs to package tooling from `aaabc916`. |
+| Verification 04 — Checked-in proof binds earlier code | high | Carried. Same deferred committed-proof refresh as Blind 01. |
+
 ## Design Notes
 
 - **Streaming DTOs on existing keys:** `InMemoryReadModelStore` and `DaprReadModelStore` both call `JsonSerializer.Deserialize<TValue>`, honoring `[JsonConverter]` on internal DTOs. `ReadAsync` scans `tenant-index` via `Utf8JsonReader` for the target `conversationId` (still counting all `summaries` matches for duplicate detection and reading only `dispatches[id]`). `ValidatePageAsync` reads only `Summary`, `DispatchId`, and `DetailHeader` (`TenantId`, `ConversationId`, `Freshness`).
@@ -315,6 +355,7 @@ The five focused acceptance lanes passed 13 tests with zero skips using the exis
 ## Verification
 
 **Commands:**
+- From the committed source revision, run `run-with-temp python3 _bmad/scripts/measure_derived_key_correctness.py --output-directory .artifacts/story-12.3-measurement` with a new output directory. The runner checks out the committed source and direct dependencies, builds in source mode, verifies the tested binary and TRX digests, renders the proof twice, and runs the compiled fault matrix.
 - `dotnet tool run hexalith-module -- prepare-build --manifest module/hexalith.module-manifest.v2.json --workspace <tmp> --mode source --output json`
 - Build & run `AC-12.3-01`..`AC-12.3-05` (`Debug/net11.0`, `-automated sync -failSkips -trx artifacts/v9/12.3/...`) -- expected: exit `0`, 0 failed/skipped.
 - Run `AC-12.3-06` twice (byte equality) and `python3 -m pytest -q _bmad/scripts/tests/test_derived_key_correctness.py -k complete_fault_matrix --junitxml=artifacts/v9/12.3/AC-12.3-07.xml` -- expected: exit `0`.

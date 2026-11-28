@@ -6,7 +6,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Projections;
+using Hexalith.Conversations.Contracts.Queries;
+using Hexalith.Conversations.Contracts.Versioning;
+
+using static Hexalith.Conversations.Server.Projections.ConversationProjectionJsonValidation;
 
 namespace Hexalith.Conversations.Server.Projections;
 
@@ -30,6 +35,12 @@ internal sealed class ConversationProjectionIndexLookupConverter : JsonConverter
             return null;
         }
 
+        if (!UsesStreamingPropertyBinding(options))
+        {
+            ConversationProjectionIndexReadModel? index = JsonSerializer.Deserialize<ConversationProjectionIndexReadModel>(ref reader, options);
+            return index is null ? null : FromFullIndex(index, target.ConversationId);
+        }
+
         if (reader.TokenType != JsonTokenType.StartObject)
         {
             throw new JsonException("Expected a JSON object for the tenant index.");
@@ -38,11 +49,14 @@ internal sealed class ConversationProjectionIndexLookupConverter : JsonConverter
         ConversationSummaryProjectionV1? matchedSummary = null;
         int matchCount = 0;
         ConversationProjectionDispatchReference? dispatchReference = null;
+        bool summariesContainNull = false;
+        bool dispatchesAreNull = false;
 
         while (reader.Read())
         {
             if (reader.TokenType == JsonTokenType.EndObject)
             {
+                ValidateIndexShape(summariesContainNull, dispatchesAreNull);
                 return new ConversationProjectionIndexLookupResult
                 {
                     MatchedSummary = matchedSummary,
@@ -58,15 +72,15 @@ internal sealed class ConversationProjectionIndexLookupConverter : JsonConverter
 
             if (PropertyNameEqualsIgnoreCase(ref reader, "summaries"u8))
             {
-                ReadSummaries(ref reader, target, options, ref matchedSummary, ref matchCount);
+                summariesContainNull = ReadSummaries(ref reader, target, options, out matchedSummary, out matchCount);
             }
             else if (PropertyNameEqualsIgnoreCase(ref reader, "dispatches"u8))
             {
-                dispatchReference = ReadDispatches(ref reader, target, options);
+                dispatchReference = ReadDispatches(ref reader, target, options, out dispatchesAreNull);
             }
             else if (PropertyNameEqualsIgnoreCase(ref reader, "schemaversion"u8))
             {
-                ValidateSchemaVersion(ref reader);
+                ValidateSchemaVersion(ref reader, options);
             }
             else if (PropertyNameEqualsIgnoreCase(ref reader, "lifecycle"u8))
             {
@@ -74,7 +88,7 @@ internal sealed class ConversationProjectionIndexLookupConverter : JsonConverter
             }
             else if (PropertyNameEqualsIgnoreCase(ref reader, "watermarks"u8))
             {
-                ValidateWatermarks(ref reader);
+                ValidateWatermarks(ref reader, options);
             }
             else if (PropertyNameEqualsIgnoreCase(ref reader, "generationtoken"u8))
             {
@@ -82,6 +96,7 @@ internal sealed class ConversationProjectionIndexLookupConverter : JsonConverter
             }
             else
             {
+                ValidateStringEncoding(ref reader);
                 if (!reader.Read())
                 {
                     throw new JsonException("Unexpected end of JSON in the tenant index.");
@@ -101,16 +116,52 @@ internal sealed class ConversationProjectionIndexLookupConverter : JsonConverter
         JsonSerializerOptions options)
         => throw new NotSupportedException("Targeted tenant index lookup results are read-only.");
 
-    private static void ReadSummaries(
+    /// <summary>Extracts the targeted row and duplicate count from a typed index.</summary>
+    internal static ConversationProjectionIndexLookupResult FromFullIndex(
+        ConversationProjectionIndexReadModel index,
+        string targetId)
+    {
+        ConversationSummaryProjectionV1? matchedSummary = null;
+        int matchCount = 0;
+        foreach (ConversationSummaryProjectionV1? summary in index.Summaries ?? [])
+        {
+            ValidateIndexShape(summary is null, dispatchesAreNull: false);
+            if (summary?.ConversationId.Value == targetId)
+            {
+                matchedSummary ??= summary;
+                matchCount++;
+            }
+        }
+
+        ValidateIndexShape(summariesContainNull: false, index.Dispatches is null);
+        _ = index.Dispatches!.TryGetValue(targetId, out ConversationProjectionDispatchReference? dispatchReference);
+        return new ConversationProjectionIndexLookupResult
+        {
+            MatchedSummary = matchedSummary,
+            MatchCount = matchCount,
+            DispatchReference = dispatchReference,
+        };
+    }
+
+    private static void ValidateIndexShape(bool summariesContainNull, bool dispatchesAreNull)
+    {
+        if (summariesContainNull || dispatchesAreNull)
+        {
+            throw new JsonException("Tenant index summaries must contain objects and dispatches must be an object.");
+        }
+    }
+
+    private static bool ReadSummaries(
         ref Utf8JsonReader reader,
         ConversationProjectionIndexLookupTarget target,
         JsonSerializerOptions options,
-        ref ConversationSummaryProjectionV1? matchedSummary,
-        ref int matchCount)
+        out ConversationSummaryProjectionV1? matchedSummary,
+        out int matchCount)
     {
         // Last-write-wins for duplicate JSON "summaries" properties, matching System.Text.Json behavior.
         matchedSummary = null;
         matchCount = 0;
+        bool containsNull = false;
 
         if (!reader.Read())
         {
@@ -119,7 +170,7 @@ internal sealed class ConversationProjectionIndexLookupConverter : JsonConverter
 
         if (reader.TokenType == JsonTokenType.Null)
         {
-            return;
+            return false;
         }
 
         if (reader.TokenType != JsonTokenType.StartArray)
@@ -131,7 +182,13 @@ internal sealed class ConversationProjectionIndexLookupConverter : JsonConverter
         {
             if (reader.TokenType == JsonTokenType.EndArray)
             {
-                return;
+                return containsNull;
+            }
+
+            if (reader.TokenType == JsonTokenType.Null)
+            {
+                containsNull = true;
+                continue;
             }
 
             if (reader.TokenType != JsonTokenType.StartObject)
@@ -140,7 +197,7 @@ internal sealed class ConversationProjectionIndexLookupConverter : JsonConverter
             }
 
             Utf8JsonReader elementStart = reader;
-            bool isMatch = ScanSummaryObjectForTarget(ref reader, target);
+            bool isMatch = ScanSummaryObjectForTarget(ref reader, target, options);
             if (isMatch)
             {
                 matchCount++;
@@ -164,17 +221,26 @@ internal sealed class ConversationProjectionIndexLookupConverter : JsonConverter
 
     private static bool ScanSummaryObjectForTarget(
         ref Utf8JsonReader reader,
-        ConversationProjectionIndexLookupTarget target)
+        ConversationProjectionIndexLookupTarget target,
+        JsonSerializerOptions options)
     {
         bool matched = false;
         bool hasConversationId = false;
+        bool hasTenantId = false;
+        bool hasSchemaVersion = false;
+        bool hasFreshness = false;
+        bool hasLifecycle = false;
+        bool validParticipants = true;
+        int messageCount = 0;
+        int fileReferenceCount = 0;
         while (reader.Read())
         {
             if (reader.TokenType == JsonTokenType.EndObject)
             {
-                if (!hasConversationId)
+                if (!hasConversationId || !hasTenantId || !hasSchemaVersion || !hasFreshness || !hasLifecycle
+                    || !validParticipants || messageCount < 0 || fileReferenceCount < 0)
                 {
-                    throw new JsonException("Expected conversationId in every tenant index summary element.");
+                    throw new JsonException("A tenant index summary is missing required fields or has invalid values.");
                 }
 
                 return matched;
@@ -185,25 +251,77 @@ internal sealed class ConversationProjectionIndexLookupConverter : JsonConverter
                 throw new JsonException("Expected a property name in a summary element.");
             }
 
-            bool isConversationId = PropertyNameEqualsIgnoreCase(ref reader, "conversationid"u8);
+            // Keep the current property token for name matching after advancing to its value.
+            Utf8JsonReader name = reader;
             if (!reader.Read())
             {
                 throw new JsonException("Unexpected end of JSON inside a summary element.");
             }
 
-            if (isConversationId)
+            if (PropertyNameEqualsIgnoreCase(ref name, "conversationid"u8))
             {
-                if (reader.TokenType != JsonTokenType.String)
-                {
-                    throw new JsonException("Expected a JSON string for summary conversationId.");
-                }
-
-                hasConversationId = true;
-                // Last-write-wins if a JSON object repeats conversationId.
-                matched = reader.ValueTextEquals(target.PrefixedIdUtf8);
+                hasConversationId = IsValidIdentifier<ConversationId>(ref reader, options, "conv:"u8);
+                matched = hasConversationId && reader.ValueTextEquals(target.PrefixedIdUtf8);
             }
-            else if (reader.TokenType is JsonTokenType.StartObject or JsonTokenType.StartArray)
+            else if (PropertyNameEqualsIgnoreCase(ref name, "tenantid"u8))
             {
+                hasTenantId = IsValidIdentifier<TenantId>(ref reader, options, "tenant:"u8);
+            }
+            else if (PropertyNameEqualsIgnoreCase(ref name, "schemaversion"u8))
+            {
+                hasSchemaVersion = JsonSerializer.Deserialize<SchemaVersion>(ref reader, options) is not null;
+            }
+            else if (PropertyNameEqualsIgnoreCase(ref name, "freshness"u8))
+            {
+                hasFreshness = JsonSerializer.Deserialize<ProjectionFreshnessV1>(ref reader, options) is not null;
+            }
+            else if (PropertyNameEqualsIgnoreCase(ref name, "lifecyclestate"u8))
+            {
+                ValidateNullableString(ref reader);
+                hasLifecycle = reader.TokenType == JsonTokenType.String
+                    && (reader.ValueTextEquals("Initializing"u8) || reader.ValueTextEquals("Open"u8)
+                        || reader.ValueTextEquals("Closed"u8) || reader.ValueTextEquals("Archived"u8));
+            }
+            else if (PropertyNameEqualsIgnoreCase(ref name, "label"u8))
+            {
+                ValidateNullableString(ref reader);
+            }
+            else if (PropertyNameEqualsIgnoreCase(ref name, "businessreference"u8))
+            {
+                _ = JsonSerializer.Deserialize<BusinessReference>(ref reader, options);
+            }
+            else if (PropertyNameEqualsIgnoreCase(ref name, "projectid"u8))
+            {
+                _ = IsValidIdentifier<ProjectId>(ref reader, options, "project:"u8);
+            }
+            else if (PropertyNameEqualsIgnoreCase(ref name, "folderid"u8))
+            {
+                _ = IsValidIdentifier<FolderId>(ref reader, options, "folder:"u8);
+            }
+            else if (PropertyNameEqualsIgnoreCase(ref name, "participantpartyids"u8))
+            {
+                IReadOnlyList<PartyId>? participants = JsonSerializer.Deserialize<IReadOnlyList<PartyId>>(ref reader, options);
+                validParticipants = participants is null || !participants.Any(party => party is null);
+            }
+            else if (PropertyNameEqualsIgnoreCase(ref name, "messagecount"u8))
+            {
+                messageCount = ReadInt32(ref reader, options);
+            }
+            else if (PropertyNameEqualsIgnoreCase(ref name, "filereferencecount"u8))
+            {
+                fileReferenceCount = ReadInt32(ref reader, options);
+            }
+            else if (PropertyNameEqualsIgnoreCase(ref name, "providercorrelation"u8))
+            {
+                _ = JsonSerializer.Deserialize<ProviderCorrelationMetadata>(ref reader, options);
+            }
+            else if (PropertyNameEqualsIgnoreCase(ref name, "searchtrustpreview"u8))
+            {
+                _ = JsonSerializer.Deserialize<ConversationSearchTrustPreviewV1>(ref reader, options);
+            }
+            else
+            {
+                ValidateStringEncoding(ref name);
                 reader.Skip();
             }
         }
@@ -211,14 +329,42 @@ internal sealed class ConversationProjectionIndexLookupConverter : JsonConverter
         throw new JsonException("Unexpected end of JSON while scanning a summary element.");
     }
 
+    private static bool IsValidIdentifier<T>(
+        ref Utf8JsonReader reader,
+        JsonSerializerOptions options,
+        ReadOnlySpan<byte> prefix)
+        where T : class
+    {
+        // These contracts accept any non-whitespace identifier suffix. Let the contract converter
+        // validate escaped, non-ASCII and invalid tokens.
+        if (reader.TokenType == JsonTokenType.String && !reader.ValueIsEscaped && !reader.HasValueSequence)
+        {
+            ReadOnlySpan<byte> text = reader.ValueSpan;
+            if (text.StartsWith(prefix) && text.Length > prefix.Length && System.Text.Ascii.IsValid(text)
+                && text[prefix.Length..].IndexOfAnyExcept((byte)' ') >= 0)
+            {
+                return true;
+            }
+        }
+
+        return JsonSerializer.Deserialize<T>(ref reader, options) is not null;
+    }
+
     private static ConversationProjectionDispatchReference? ReadDispatches(
         ref Utf8JsonReader reader,
         ConversationProjectionIndexLookupTarget target,
-        JsonSerializerOptions options)
+        JsonSerializerOptions options,
+        out bool isNull)
     {
         if (!reader.Read())
         {
             throw new JsonException("Unexpected end of JSON while reading dispatches.");
+        }
+
+        isNull = reader.TokenType == JsonTokenType.Null;
+        if (isNull)
+        {
+            return null;
         }
 
         if (reader.TokenType != JsonTokenType.StartObject)
@@ -239,6 +385,7 @@ internal sealed class ConversationProjectionIndexLookupConverter : JsonConverter
                 throw new JsonException("Expected a property name in tenant index dispatches.");
             }
 
+            ValidateStringEncoding(ref reader);
             bool isTarget = reader.ValueTextEquals(target.RawIdUtf8);
             if (!reader.Read())
             {
@@ -251,24 +398,21 @@ internal sealed class ConversationProjectionIndexLookupConverter : JsonConverter
             }
             else
             {
-                ValidateSiblingDispatchReference(ref reader);
+                ValidateSiblingDispatchReference(ref reader, options);
             }
         }
 
         throw new JsonException("Unexpected end of JSON while scanning dispatches.");
     }
 
-    private static void ValidateSchemaVersion(ref Utf8JsonReader reader)
+    private static void ValidateSchemaVersion(ref Utf8JsonReader reader, JsonSerializerOptions options)
     {
         if (!reader.Read())
         {
             throw new JsonException("Unexpected end of JSON while reading tenant index schemaVersion.");
         }
 
-        if (reader.TokenType != JsonTokenType.Number || !reader.TryGetInt32(out _))
-        {
-            throw new JsonException("Expected a 32-bit integer for tenant index schemaVersion.");
-        }
+        _ = ReadInt32(ref reader, options);
     }
 
     private static void ValidateLifecycle(ref Utf8JsonReader reader, JsonSerializerOptions options)
@@ -286,7 +430,7 @@ internal sealed class ConversationProjectionIndexLookupConverter : JsonConverter
         _ = JsonSerializer.Deserialize<ConversationProjectionIndexLifecycle?>(ref reader, options);
     }
 
-    private static void ValidateWatermarks(ref Utf8JsonReader reader)
+    private static void ValidateWatermarks(ref Utf8JsonReader reader, JsonSerializerOptions options)
     {
         if (!reader.Read())
         {
@@ -315,15 +459,13 @@ internal sealed class ConversationProjectionIndexLookupConverter : JsonConverter
                 throw new JsonException("Expected a property name in tenant index watermarks.");
             }
 
+            ValidateStringEncoding(ref reader);
             if (!reader.Read())
             {
                 throw new JsonException("Unexpected end of JSON while reading a tenant index watermark value.");
             }
 
-            if (reader.TokenType != JsonTokenType.Number || !reader.TryGetInt64(out _))
-            {
-                throw new JsonException("Expected a 64-bit integer value in tenant index watermarks.");
-            }
+            _ = ReadInt64(ref reader, options);
         }
 
         throw new JsonException("Unexpected end of JSON while scanning tenant index watermarks.");
@@ -336,13 +478,10 @@ internal sealed class ConversationProjectionIndexLookupConverter : JsonConverter
             throw new JsonException("Unexpected end of JSON while reading tenant index generationToken.");
         }
 
-        if (reader.TokenType is not (JsonTokenType.Null or JsonTokenType.String))
-        {
-            throw new JsonException("Expected a JSON string or null for tenant index generationToken.");
-        }
+        ValidateNullableString(ref reader);
     }
 
-    private static void ValidateSiblingDispatchReference(ref Utf8JsonReader reader)
+    private static void ValidateSiblingDispatchReference(ref Utf8JsonReader reader, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Null)
         {
@@ -366,6 +505,7 @@ internal sealed class ConversationProjectionIndexLookupConverter : JsonConverter
                 throw new JsonException("Expected a property name in a tenant index dispatch reference.");
             }
 
+            ValidateStringEncoding(ref reader);
             bool isDispatchId = PropertyNameEqualsIgnoreCase(ref reader, "dispatchid"u8);
             bool isLastPosition = !isDispatchId && PropertyNameEqualsIgnoreCase(ref reader, "lastappliedeventposition"u8);
             bool isPending = !isDispatchId && !isLastPosition && PropertyNameEqualsIgnoreCase(ref reader, "ispending"u8);
@@ -380,17 +520,11 @@ internal sealed class ConversationProjectionIndexLookupConverter : JsonConverter
 
             if (isDispatchId || isPrevDispatch)
             {
-                if (reader.TokenType is not (JsonTokenType.Null or JsonTokenType.String))
-                {
-                    throw new JsonException("Expected a JSON string or null for dispatch reference identifier.");
-                }
+                ValidateNullableString(ref reader);
             }
             else if (isLastPosition)
             {
-                if (reader.TokenType != JsonTokenType.Number || !reader.TryGetInt64(out _))
-                {
-                    throw new JsonException("Expected a 64-bit integer for dispatch reference lastAppliedEventPosition.");
-                }
+                _ = ReadInt64(ref reader, options);
             }
             else if (isPending)
             {
@@ -401,10 +535,9 @@ internal sealed class ConversationProjectionIndexLookupConverter : JsonConverter
             }
             else if (isPrevPosition)
             {
-                if (reader.TokenType != JsonTokenType.Null
-                    && (reader.TokenType != JsonTokenType.Number || !reader.TryGetInt64(out _)))
+                if (reader.TokenType != JsonTokenType.Null)
                 {
-                    throw new JsonException("Expected a 64-bit integer or null for dispatch reference previousLastAppliedEventPosition.");
+                    _ = ReadInt64(ref reader, options);
                 }
             }
             else
@@ -416,51 +549,13 @@ internal sealed class ConversationProjectionIndexLookupConverter : JsonConverter
         throw new JsonException("Unexpected end of JSON while scanning a tenant index dispatch reference.");
     }
 
-    private static bool PropertyNameEqualsIgnoreCase(ref Utf8JsonReader reader, ReadOnlySpan<byte> lowerAsciiName)
-    {
-        if (!reader.HasValueSequence)
-        {
-            ReadOnlySpan<byte> span = reader.ValueSpan;
-            if (span.Length == lowerAsciiName.Length && span.IndexOf((byte)'\\') < 0)
-            {
-                for (int index = 0; index < span.Length; index++)
-                {
-                    byte b = span[index];
-                    if ((uint)(b - 'A') <= ('Z' - 'A'))
-                    {
-                        b = (byte)(b | 0x20);
-                    }
+    private static int ReadInt32(ref Utf8JsonReader reader, JsonSerializerOptions options)
+        => reader.TokenType == JsonTokenType.Number && reader.TryGetInt32(out int value)
+            ? value
+            : JsonSerializer.Deserialize<int>(ref reader, options);
 
-                    if (b != lowerAsciiName[index])
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-        }
-
-        string? text = reader.GetString();
-        if (text is null || text.Length != lowerAsciiName.Length)
-        {
-            return false;
-        }
-
-        for (int index = 0; index < lowerAsciiName.Length; index++)
-        {
-            char c = text[index];
-            if ((uint)(c - 'A') <= ('Z' - 'A'))
-            {
-                c = (char)(c | 0x20);
-            }
-
-            if (c != lowerAsciiName[index])
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
+    private static long ReadInt64(ref Utf8JsonReader reader, JsonSerializerOptions options)
+        => reader.TokenType == JsonTokenType.Number && reader.TryGetInt64(out long value)
+            ? value
+            : JsonSerializer.Deserialize<long>(ref reader, options);
 }

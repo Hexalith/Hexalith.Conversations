@@ -29,11 +29,8 @@ internal sealed class DerivedKeyDaprFaultStore(DaprReadModelStore inner)
     /// <summary>Gets or sets a key whose writes are rejected to simulate partial writes.</summary>
     public string? BlockedWriteKey { get; set; }
 
-    /// <summary>Gets or sets a value indicating whether all store reads throw a transient outage error.</summary>
-    public bool SimulateOutage { get; set; }
-
-    /// <summary>Gets or sets a value indicating whether bulk reads throw a transient outage error while single-key reads succeed.</summary>
-    public bool SimulateBulkReadOutage { get; set; }
+    /// <summary>Gets or sets an action to run immediately before calling the live bulk-read adapter.</summary>
+    public Func<Task>? BeforeBulkReadAsync { get; set; }
 
     /// <summary>Gets or sets an artificial read latency injected before delegating to Dapr.</summary>
     public TimeSpan ReadLatency { get; set; } = TimeSpan.Zero;
@@ -102,11 +99,6 @@ internal sealed class DerivedKeyDaprFaultStore(DaprReadModelStore inner)
             await Task.Delay(ReadLatency, cancellationToken).ConfigureAwait(false);
         }
 
-        if (SimulateOutage)
-        {
-            throw new InvalidOperationException("Simulated live Dapr state-store outage.");
-        }
-
         return await base.GetAsync<T>(storeName, key, cancellationToken).ConfigureAwait(false);
     }
 
@@ -125,11 +117,6 @@ internal sealed class DerivedKeyDaprFaultStore(DaprReadModelStore inner)
         if (ReadLatency > TimeSpan.Zero)
         {
             await Task.Delay(ReadLatency, cancellationToken).ConfigureAwait(false);
-        }
-
-        if (SimulateOutage)
-        {
-            throw new InvalidOperationException("Simulated live Dapr compacted-read outage.");
         }
 
         return await base.GetCompactedAsync<T>(storeName, key, cancellationToken).ConfigureAwait(false);
@@ -153,9 +140,9 @@ internal sealed class DerivedKeyDaprFaultStore(DaprReadModelStore inner)
             await Task.Delay(ReadLatency, cancellationToken).ConfigureAwait(false);
         }
 
-        if (SimulateOutage || SimulateBulkReadOutage)
+        if (BeforeBulkReadAsync is { } beforeRead)
         {
-            throw new InvalidOperationException("Simulated live Dapr bulk state-store outage.");
+            await beforeRead().ConfigureAwait(false);
         }
 
         return await base.GetManyAsync<T>(storeName, keys, parallelism, cancellationToken).ConfigureAwait(false);

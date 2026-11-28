@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
@@ -112,6 +113,30 @@ public sealed class DerivedKeyOptimizationTests
                 ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
                 ConversationProjectionReadModelKeys.DispatchLedgerKey("dispatch-00000"),
             ]);
+
+            if (rowCount == 10_000)
+            {
+                void OpenForAllocationMeasurement()
+                {
+                    ConversationDetailResult result = handler.GetAsync(OpenQuery(targetId), cancellationToken)
+                        .AsTask().GetAwaiter().GetResult();
+                    if (result.FreshnessState != ProjectionTrustState.Current)
+                    {
+                        throw new InvalidOperationException("Allocation profiling requires a successful Open.");
+                    }
+
+                    GC.KeepAlive(result);
+                }
+
+                OpenForAllocationMeasurement();
+                (_, long targetedBytes) = MeasureSync(OpenForAllocationMeasurement, iterations: 3);
+                spy.MaterializeFullIndexForTargetedRead = true;
+                OpenForAllocationMeasurement();
+                (_, long fullIndexBytes) = MeasureSync(OpenForAllocationMeasurement, iterations: 3);
+                spy.MaterializeFullIndexForTargetedRead = false;
+                targetedBytes.ShouldBeLessThan(fullIndexBytes * 9 / 10,
+                    "DERIVED_KEY_FANOUT_UNBOUNDED: warmed Open must avoid full index materialization allocations");
+            }
 
             // Record scale profile (list page 1, list page 2, open, write) at 100 / 1,000 / 10,000 rows.
             ProfileScaleRow(output, backing, handler, filter, rowCount, targetId, cancellationToken);
@@ -524,7 +549,7 @@ public sealed class DerivedKeyOptimizationTests
 
         // 14. Syntactically valid malformed detail/wrapper records (missing/invalid lifecycleState, missing
         // schemaVersion, null message element, empty/NBSP attribute key, type-corrupted wrapper metadata) must fail closed on BOTH Open and List.
-        foreach (string mutation in new[] { "missing-lifecycle", "invalid-lifecycle", "missing-schema", "null-message", "empty-attr-key", "nbsp-attr-key", "bad-source-head-seq", "bad-replay-anchor" })
+        foreach (string mutation in new[] { "missing-lifecycle", "invalid-lifecycle", "missing-schema", "null-message", "message-without-required-fields", "empty-attr-key", "nbsp-attr-key", "bad-source-head-seq", "bad-replay-anchor", "bad-native-source-proof" })
         {
             InMemoryReadModelStore backing = new();
             SeedReadyTenant(backing, 3);
@@ -545,6 +570,9 @@ public sealed class DerivedKeyOptimizationTests
                 case "null-message":
                     detailObj["messages"] = new JsonArray((JsonNode?)null);
                     break;
+                case "message-without-required-fields":
+                    detailObj["messages"] = new JsonArray(new JsonObject());
+                    break;
                 case "empty-attr-key":
                     detailObj["attributes"] = new JsonObject { ["  "] = "bad" };
                     break;
@@ -556,6 +584,9 @@ public sealed class DerivedKeyOptimizationTests
                     break;
                 case "bad-replay-anchor":
                     stored["replayAnchorAt"] = "not-a-timestamp";
+                    break;
+                case "bad-native-source-proof":
+                    stored["nativeSourceProof"] = new JsonArray();
                     break;
             }
 
@@ -573,9 +604,8 @@ public sealed class DerivedKeyOptimizationTests
             spy.Writes.ShouldBeEmpty("READ_SIDE_REPAIR_ATTEMPTED");
         }
 
-        // 15. Malformed recognized fields on tenant index (schemaVersion, watermarks, lifecycle, sibling dispatch,
-        // sibling summary missing conversationId, and null dispatches on absent open) must fail closed on Open.
-        foreach (string indexMutation in new[] { "bad-schema", "bad-watermarks-type", "bad-watermark-value", "bad-lifecycle", "bad-sibling-dispatch-type", "bad-sibling-dispatch-position", "sibling-summary-missing-id", "null-dispatches-absent-open" })
+        // 15. Malformed recognized tenant-index fields, including sibling summaries, fail closed on Open.
+        foreach (string indexMutation in new[] { "bad-schema", "bad-watermarks-type", "bad-watermark-value", "bad-lifecycle", "bad-sibling-dispatch-type", "bad-sibling-dispatch-position", "sibling-summary-missing-id", "sibling-summary-missing-freshness", "sibling-summary-invalid-id", "sibling-summary-negative-message-count", "null-dispatches-absent-open" })
         {
             InMemoryReadModelStore backing = new();
             SeedReadyTenant(backing, 3);
@@ -605,6 +635,15 @@ public sealed class DerivedKeyOptimizationTests
                 case "sibling-summary-missing-id":
                     indexObj["summaries"]!.AsArray().Add(new JsonObject());
                     break;
+                case "sibling-summary-missing-freshness":
+                    _ = indexObj["summaries"]!.AsArray()[1]!.AsObject().Remove("freshness");
+                    break;
+                case "sibling-summary-invalid-id":
+                    indexObj["summaries"]!.AsArray()[1]!.AsObject()["conversationId"] = "conv: ";
+                    break;
+                case "sibling-summary-negative-message-count":
+                    indexObj["summaries"]!.AsArray()[1]!.AsObject()["messageCount"] = -1;
+                    break;
                 case "null-dispatches-absent-open":
                     indexObj["dispatches"] = null;
                     queryTarget = new ConversationId("conversation-absent");
@@ -619,6 +658,92 @@ public sealed class DerivedKeyOptimizationTests
             open.FreshnessState.ShouldBeOneOf(ProjectionTrustState.Unavailable, ProjectionTrustState.Rebuilding);
             open.Details.ShouldBeNull();
             spy.Writes.ShouldBeEmpty("READ_SIDE_REPAIR_ATTEMPTED");
+        }
+
+        // 16. Legacy Web JSON numeric strings and the final value of a repeated lifecycle remain readable.
+        {
+            InMemoryReadModelStore backing = new();
+            SeedReadyTenant(backing, 3);
+            string indexKey = ConversationProjectionReadModelKeys.TenantIndexKey(Tenant);
+            JsonObject index = backing.Snapshot<JsonObject>(ConversationProjectionReadModelKeys.StateStoreName, indexKey)!;
+            index["schemaVersion"] = "2";
+            index["watermarks"]!.AsObject()[convB.Value] = "1";
+            JsonObject siblingDispatch = index["dispatches"]!.AsObject()[convB.Value]!.AsObject();
+            siblingDispatch["lastAppliedEventPosition"] = "1";
+            siblingDispatch["previousLastAppliedEventPosition"] = "1";
+            index["summaries"]!.AsArray()[1]!.AsObject()["messageCount"] = "1";
+            backing.SeedRaw(ConversationProjectionReadModelKeys.StateStoreName, indexKey, index);
+
+            string detailKey = ConversationProjectionReadModelKeys.ConversationKey(Tenant, convA);
+            string detailJson = backing.Snapshot<JsonObject>(ConversationProjectionReadModelKeys.StateStoreName, detailKey)!.ToJsonString();
+            using JsonDocument repeatedLifecycle = JsonDocument.Parse(detailJson.Replace(
+                "\"detail\":{",
+                "\"detail\":{\"lifecycleState\":\"Deleted\",",
+                StringComparison.Ordinal));
+            backing.SeedRaw(ConversationProjectionReadModelKeys.StateStoreName, detailKey, repeatedLifecycle);
+
+            DerivedKeyReadStoreSpy spy = new(backing);
+            ConversationQueryHandler handler = CreateHandler(spy);
+            ConversationDetailResult open = await handler.GetAsync(OpenQuery(convA), cancellationToken);
+            ConversationListResult list = await handler.ListAsync(ListQuery(filter), cancellationToken);
+
+            open.FreshnessState.ShouldBe(ProjectionTrustState.Current);
+            open.Details!.LifecycleState.ShouldBe("Open");
+            list.FreshnessState.ShouldBe(ProjectionTrustState.Current);
+            list.Conversations.Select(summary => summary.ConversationId).ShouldContain(convA);
+            spy.Writes.ShouldBeEmpty("READ_SIDE_REPAIR_ATTEMPTED");
+
+            string scalarDetail = repeatedLifecycle.RootElement.GetProperty("detail").GetRawText();
+            string malformedLabel = string.Concat("{\"label\":\"\\uD800\",", scalarDetail.AsSpan(1));
+            JsonSerializerOptions options = new(JsonSerializerDefaults.Web);
+            _ = Should.Throw<Exception>(() => JsonSerializer.Deserialize<ConversationDetailProjectionV1>(malformedLabel, options));
+            _ = Should.Throw<Exception>(
+                () => JsonSerializer.Deserialize<ConversationDetailValidationHeader>(malformedLabel, options),
+                "DERIVED_STATE_FAIL_CLOSED_VIOLATION: list accepted an undecodable label");
+            AssertIndexAndDetailSerializerBinding(backing, convA);
+        }
+    }
+
+    private static void AssertIndexAndDetailSerializerBinding(InMemoryReadModelStore backing, ConversationId targetId)
+    {
+        string storeName = ConversationProjectionReadModelKeys.StateStoreName;
+        string indexKey = ConversationProjectionReadModelKeys.TenantIndexKey(Tenant);
+        ConversationProjectionIndexReadModel index = backing.Snapshot<ConversationProjectionIndexReadModel>(storeName, indexKey)!;
+        ConversationDetailProjectionV1 detail = backing.Snapshot<ConversationProjectedReadModels>(
+            storeName, ConversationProjectionReadModelKeys.ConversationKey(Tenant, targetId))!.Detail;
+        JsonSerializerOptions web = new(JsonSerializerDefaults.Web);
+        string indexJson = JsonSerializer.Serialize(index, web);
+        ConversationProjectionIndexLookupTarget? previous = ConversationProjectionIndexLookupScope.Begin(targetId.Value);
+        try
+        {
+            string repeated = string.Concat("{\"summaries\":[null],\"dispatches\":null,", indexJson.AsSpan(1));
+            ConversationProjectionIndexLookupResult lookup = JsonSerializer
+                .Deserialize<ConversationProjectionIndexLookupResult>(repeated, web)!;
+            lookup.MatchedSummary!.ConversationId.ShouldBe(targetId);
+            lookup.DispatchReference.ShouldNotBeNull();
+            string invalidEarlierSummary = string.Concat("{\"summaries\":[{}],", indexJson.AsSpan(1));
+            _ = Should.Throw<JsonException>(
+                () => JsonSerializer.Deserialize<ConversationProjectionIndexLookupResult>(invalidEarlierSummary, web));
+
+            JsonSerializerOptions alternate = new(JsonSerializerDefaults.Web)
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+                PropertyNameCaseInsensitive = false,
+                UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+            };
+            JsonObject alternateIndex = JsonSerializer.SerializeToNode(index, alternate)!.AsObject();
+            JsonObject alternateDetail = JsonSerializer.SerializeToNode(detail, alternate)!.AsObject();
+            alternateIndex.Deserialize<ConversationProjectionIndexLookupResult>(alternate)!.MatchedSummary!.ConversationId.ShouldBe(targetId);
+            alternateDetail.Deserialize<ConversationDetailValidationHeader>(alternate)!.ConversationId.ShouldBe(targetId);
+
+            alternateIndex["unmapped"] = true;
+            alternateDetail["unmapped"] = true;
+            _ = Should.Throw<JsonException>(() => alternateIndex.Deserialize<ConversationProjectionIndexLookupResult>(alternate));
+            _ = Should.Throw<JsonException>(() => alternateDetail.Deserialize<ConversationDetailValidationHeader>(alternate));
+        }
+        finally
+        {
+            ConversationProjectionIndexLookupScope.End(previous);
         }
     }
 

@@ -1,7 +1,6 @@
 """Story 12.3 real-CLI complete fault matrix (AC-12.3-07); every fault restores all fixture bytes."""
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -15,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[3]
 SCRIPTS = ROOT / "_bmad/scripts"
 sys.path.insert(0, str(SCRIPTS))
 import generate_derived_key_correctness_proof as gen
+import measure_derived_key_correctness as measurement
 
 FAULT_NOT_DETECTED = "FAULT_NOT_DETECTED"
 FIXTURE_NOT_RESTORED = "FIXTURE_NOT_RESTORED"
@@ -25,10 +25,44 @@ DAPR_TRX = "artifacts/v9/12.3/dapr.trx"
 
 SERVER_TEST_BIN = ROOT / "tests/Hexalith.Conversations.Server.Tests/bin/Debug/net11.0"
 INTEGRATION_TEST_BIN = ROOT / "tests/Hexalith.Conversations.IntegrationTests/bin/Debug/net11.0"
+DAPR_TEST_BIN = ROOT / "tests/Hexalith.Conversations.AppHost.Tests/bin/Debug/net11.0"
 CONTRACTS_TEST_BIN = ROOT / "tests/Hexalith.Conversations.Contracts.Tests/bin/Debug/net11.0"
 
-FAKE_SERVER_SHA = "a" * 64
-FAKE_TEST_SHA = "b" * 64
+SERVER_BYTES = b"fixture-server-assembly"
+TEST_BYTES = b"fixture-test-assembly"
+FAKE_SERVER_SHA = gen.sha256_bytes(SERVER_BYTES)
+FAKE_TEST_SHA = gen.sha256_bytes(TEST_BYTES)
+LANE_TRX = {"unit": UNIT_TRX, "integration": INTEGRATION_TRX, "dapr": DAPR_TRX}
+
+
+def seed_lane_receipts(repo: Path, commit: str) -> None:
+    for lane, relative in LANE_TRX.items():
+        result = repo / relative
+        result.parent.mkdir(parents=True, exist_ok=True)
+        result.write_bytes(make_trx(lane, commit))
+        assembly = repo / gen.lane_assembly(lane)
+        assembly.parent.mkdir(parents=True, exist_ok=True)
+        assembly.write_bytes(TEST_BYTES)
+        assembly.with_name(gen.SERVER_ASSEMBLY).write_bytes(SERVER_BYTES)
+    write_build_receipt(repo, commit)
+
+
+def write_build_receipt(repo: Path, commit: str) -> None:
+    receipt = {
+        "commit": commit,
+        "tree": git_run(repo, "rev-parse", f"{commit}^{{tree}}"),
+        "configuration": gen.BUILD_CONFIGURATION,
+        "targetFramework": gen.TARGET_FRAMEWORK,
+        "lanes": {
+            lane: {
+                "testAssemblySha256": FAKE_TEST_SHA,
+                "serverAssemblySha256": FAKE_SERVER_SHA,
+                "trxSha256": gen.sha256_bytes((repo / path).read_bytes()),
+            }
+            for lane, path in LANE_TRX.items()
+        },
+    }
+    (repo / gen.BUILD_RECEIPT_PATH).write_bytes(gen.canonical(receipt))
 
 
 def git_run(repo: Path, *args: str) -> str:
@@ -71,7 +105,7 @@ def make_trx(
         if include_binding
         else ""
     )
-    code_base_attr = f' codeBase="{code_base}"' if code_base else ""
+    code_base_attr = f' codeBase="{code_base if code_base is not None else gen.lane_assembly(lane)}"'
     results = []
     definitions = []
     for idx, full_name in enumerate(selected):
@@ -141,6 +175,9 @@ def snapshot(repo: Path) -> dict[str, bytes | None]:
         ".gitmodules",
         gen.JSON_PATH,
         gen.MARKDOWN_PATH,
+        ".git/config",
+        *(gen.lane_assembly(lane) for lane in LANE_TRX),
+        *(str(Path(gen.lane_assembly(lane)).with_name(gen.SERVER_ASSEMBLY)) for lane in LANE_TRX),
         ".git/objects/info/alternates",
         ".git/shallow",
     ]
@@ -179,8 +216,7 @@ def commit_mutation(repo: Path, relative_path: str, mutated_bytes: bytes) -> str
         "commit", "-q", "--no-verify", "-m", f"test: mutate {relative_path}",
     )
     new_head = git_run(repo, "rev-parse", "HEAD")
-    for lane_name, trx_rel in (("unit", UNIT_TRX), ("integration", INTEGRATION_TRX), ("dapr", DAPR_TRX)):
-        (repo / trx_rel).write_bytes(make_trx(lane_name, new_head))
+    seed_lane_receipts(repo, new_head)
     return new_head
 
 
@@ -368,10 +404,7 @@ def repository(tmp_path_factory):
     )
     head_sha = git_run(repo, "rev-parse", "HEAD")
 
-    for lane_name, trx_rel in (("unit", UNIT_TRX), ("integration", INTEGRATION_TRX), ("dapr", DAPR_TRX)):
-        target = repo / trx_rel
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(make_trx(lane_name, head_sha))
+    seed_lane_receipts(repo, head_sha)
 
     first = run_cli(repo)
     assert first.returncode == 0, (first.stdout, first.stderr)
@@ -426,8 +459,7 @@ def test_complete_fault_matrix_refreshable_tracked_proof_pair(repository):
             "commit", "-q", "--no-verify", "-m", "test: commit stale tracked proof pair",
         )
         new_head = git_run(repo, "rev-parse", "HEAD")
-        for lane_name, trx_rel in (("unit", UNIT_TRX), ("integration", INTEGRATION_TRX), ("dapr", DAPR_TRX)):
-            (repo / trx_rel).write_bytes(make_trx(lane_name, new_head))
+        seed_lane_receipts(repo, new_head)
 
         refreshed = run_cli(repo)
         assert refreshed.returncode == 0, (refreshed.stdout, refreshed.stderr)
@@ -471,52 +503,73 @@ def test_complete_fault_matrix_real_xunit_trx_and_codebase_digest_verification(r
     """Real xUnit v3 TRX shape (<TextMessages><Message>) and repo-local codeBase DLL digests pass when matching and fail when tampered."""
     repo, head_sha = repository
     before = snapshot(repo)
-    bin_dir = repo / "tmp-bin"
+    test_dll = repo / gen.lane_assembly("unit")
+    server_dll = test_dll.with_name(gen.SERVER_ASSEMBLY)
     try:
-        bin_dir.mkdir(parents=True, exist_ok=True)
-        server_dll = bin_dir / "Hexalith.Conversations.Server.dll"
-        test_dll = bin_dir / "Hexalith.Conversations.Server.Tests.dll"
-        server_dll.write_bytes(b"server-binary-v1")
-        test_dll.write_bytes(b"unit-test-binary-v1")
-        server_sha = hashlib.sha256(server_dll.read_bytes()).hexdigest()
-        test_sha = hashlib.sha256(test_dll.read_bytes()).hexdigest()
+        for assembly in (server_dll, test_dll):
+            raw = assembly.read_bytes()
+            for tampered in (b"tampered", None):
+                if tampered is None:
+                    assembly.unlink()
+                else:
+                    assembly.write_bytes(tampered)
+                result = run_cli(repo)
+                assert result.returncode == 1, (FAULT_NOT_DETECTED, result.stdout, result.stderr)
+                assert blocker_codes(result.stderr) == ["CORRECTNESS_GATE_RED"], result.stderr
+                assembly.write_bytes(raw)
 
-        # Use relative codeBase inside repository and matching server_sha across all 3 lanes.
-        rel_code_base = "tmp-bin/Hexalith.Conversations.Server.Tests.dll"
-        (repo / UNIT_TRX).write_bytes(
-            make_trx("unit", head_sha, server_sha=server_sha, test_sha=test_sha, code_base=rel_code_base)
-        )
-        (repo / INTEGRATION_TRX).write_bytes(
-            make_trx("integration", head_sha, server_sha=server_sha, test_sha=FAKE_TEST_SHA)
-        )
-        (repo / DAPR_TRX).write_bytes(
-            make_trx("dapr", head_sha, server_sha=server_sha, test_sha=FAKE_TEST_SHA)
-        )
-
-        # Matching on-disk DLLs pass.
-        ok = run_cli(repo)
-        assert ok.returncode == 0, (ok.stdout, ok.stderr)
-
-        # Tampering with sibling server DLL on disk fails with CORRECTNESS_GATE_RED.
-        server_dll.write_bytes(b"server-binary-tampered")
-        tampered_server = run_cli(repo)
-        assert tampered_server.returncode == 1, (FAULT_NOT_DETECTED, tampered_server.stdout, tampered_server.stderr)
-        assert blocker_codes(tampered_server.stderr) == ["CORRECTNESS_GATE_RED"], tampered_server.stderr
-
-        # Restore server DLL and tamper with test DLL on disk -> also fails with CORRECTNESS_GATE_RED.
-        server_dll.write_bytes(b"server-binary-v1")
-        test_dll.write_bytes(b"unit-test-binary-tampered")
-        tampered_test = run_cli(repo)
-        assert tampered_test.returncode == 1, (FAULT_NOT_DETECTED, tampered_test.stdout, tampered_test.stderr)
-        assert blocker_codes(tampered_test.stderr) == ["CORRECTNESS_GATE_RED"], tampered_test.stderr
-
-        # Verify actual xUnit v3 TRX XML file emitted on disk (if present) parses via parse_trx structure.
-        real_trx = ROOT / UNIT_TRX
-        if real_trx.is_file():
-            raw = real_trx.read_bytes()
-            assert b"<TextMessages><Message>CANDIDATE_BINDING|" in raw
+        # An assembly outside the selected Debug/net11.0 path cannot certify the run.
+        (repo / UNIT_TRX).write_bytes(make_trx("unit", head_sha, code_base="no-such-bin/Test.dll"))
+        write_build_receipt(repo, head_sha)
+        result = run_cli(repo)
+        assert result.returncode == 1 and blocker_codes(result.stderr) == ["CORRECTNESS_GATE_RED"]
     finally:
-        shutil.rmtree(bin_dir, ignore_errors=True)
+        restore(repo, before, head_sha)
+    assert snapshot(repo) == before, FIXTURE_NOT_RESTORED
+
+
+@pytest.mark.parametrize("transform", [
+    lambda raw: raw.replace(
+        b'name="InvalidDerivedStateShouldFailClosedWithoutRepair"', b'name="AnotherMethod"'
+    ),
+    lambda raw: raw.replace(b"<Execution id=", b"<Execution remappedId="),
+    lambda raw: raw.replace(
+        b"</TestDefinitions>",
+        raw.split(b"<TestDefinitions>", 1)[1].split(b"</TestDefinitions>", 1)[0] + b"</TestDefinitions>",
+    ),
+])
+def test_complete_fault_matrix_result_definitions(repository, transform):
+    repo, head_sha = repository
+    before = snapshot(repo)
+    try:
+        changed = transform(before[UNIT_TRX])
+        assert changed != before[UNIT_TRX]
+        (repo / UNIT_TRX).write_bytes(changed)
+        write_build_receipt(repo, head_sha)
+        result = run_cli(repo)
+        assert result.returncode == 1, (FAULT_NOT_DETECTED, result.stdout, result.stderr)
+        assert blocker_codes(result.stderr) == ["CORRECTNESS_GATE_RED"], result.stderr
+    finally:
+        restore(repo, before, head_sha)
+    assert snapshot(repo) == before, FIXTURE_NOT_RESTORED
+
+
+@pytest.mark.parametrize("field,value", [
+    ("configuration", "Release"),
+    ("targetFramework", "net10.0"),
+    ("tree", "1" * 40),
+])
+def test_complete_fault_matrix_build_receipt_source_and_configuration(repository, field, value):
+    repo, head_sha = repository
+    before = snapshot(repo)
+    try:
+        receipt = json.loads(before[gen.BUILD_RECEIPT_PATH])
+        receipt[field] = value
+        (repo / gen.BUILD_RECEIPT_PATH).write_bytes(gen.canonical(receipt))
+        result = run_cli(repo)
+        assert result.returncode == 1, (FAULT_NOT_DETECTED, result.stdout, result.stderr)
+        assert blocker_codes(result.stderr) == ["CORRECTNESS_GATE_RED"], result.stderr
+    finally:
         restore(repo, before, head_sha)
     assert snapshot(repo) == before, FIXTURE_NOT_RESTORED
 
@@ -571,6 +624,7 @@ def test_complete_fault_matrix_lane_faults(repository, name, trx_path, builder, 
     before = snapshot(repo)
     try:
         (repo / trx_path).write_bytes(builder(head_sha))
+        write_build_receipt(repo, head_sha)
         result = run_cli(repo)
         assert result.returncode == 1, (FAULT_NOT_DETECTED, result.stdout, result.stderr)
         assert blocker_codes(result.stderr) == expected_blockers, (FAULT_NOT_DETECTED, result.stderr)
@@ -596,6 +650,24 @@ def _open_allof_schema(raw: bytes) -> bytes:
             },
         }
     ]
+    return json.dumps(schema).encode("utf-8")
+
+
+def _allow_all_value_schema(raw: bytes) -> bytes:
+    schema = json.loads(raw)
+    schema["properties"]["productionPathInventory"]["items"] = True
+    return json.dumps(schema).encode("utf-8")
+
+
+def _open_array_items(raw: bytes) -> bytes:
+    schema = json.loads(raw)
+    del schema["properties"]["productionPathInventory"]["items"]
+    return json.dumps(schema).encode("utf-8")
+
+
+def _untyped_closed_object_schema(raw: bytes) -> bytes:
+    schema = json.loads(raw)
+    schema["properties"]["candidate"]["properties"]["headCommit"] = {"additionalProperties": False}
     return json.dumps(schema).encode("utf-8")
 
 
@@ -626,6 +698,27 @@ def _untyped_open_schema(raw: bytes) -> bytes:
             "read-side-repair-in-read-service",
             "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadService.cs",
             lambda raw: raw + b'\n// mutated: _store.TryEraseAsync("s", "k", "e");\n',
+            ["READ_SIDE_REPAIR_ATTEMPTED"],
+            True,
+        ),
+        (
+            "read-side-sdk-recovery-mutation",
+            "src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs",
+            lambda raw: raw + b'\n// mutated: await _recovery.PrepareRecoveryManifestAsync(request, cancellationToken);\n',
+            ["READ_SIDE_REPAIR_ATTEMPTED"],
+            True,
+        ),
+        (
+            "read-side-sdk-apply-events-mutation",
+            gen.READ_STORE_PATH,
+            lambda raw: raw + b'\n// mutated: await _recovery.ApplyEventsAsync(request, cancellationToken);\n',
+            ["READ_SIDE_REPAIR_ATTEMPTED"],
+            True,
+        ),
+        (
+            "read-side-sdk-reconcile-receipt-mutation",
+            gen.READ_STORE_PATH,
+            lambda raw: raw + b'\n// mutated: await _recovery.ReconcileAppliedReceiptAsync(request, cancellationToken);\n',
             ["READ_SIDE_REPAIR_ATTEMPTED"],
             True,
         ),
@@ -689,6 +782,27 @@ def _untyped_open_schema(raw: bytes) -> bytes:
             "untyped-empty-schema-opened",
             gen.SCHEMA_PATH,
             _untyped_open_schema,
+            ["CORRECTNESS_GATE_RED"],
+            False,
+        ),
+        (
+            "array-with-unconstrained-items",
+            gen.SCHEMA_PATH,
+            _open_array_items,
+            ["CORRECTNESS_GATE_RED"],
+            False,
+        ),
+        (
+            "untyped-value-with-closed-object-keyword",
+            gen.SCHEMA_PATH,
+            _untyped_closed_object_schema,
+            ["CORRECTNESS_GATE_RED"],
+            False,
+        ),
+        (
+            "allow-all-value-schema",
+            gen.SCHEMA_PATH,
+            _allow_all_value_schema,
             ["CORRECTNESS_GATE_RED"],
             False,
         ),
@@ -774,6 +888,27 @@ def test_complete_fault_matrix_code_and_contract_mutations(
             "READ_SIDE_REPAIR_ATTEMPTED",
         ),
         (
+            "real-dapr-outage-reported-as-forbidden",
+            "src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs",
+            """catch (Exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            return ConversationListResult.Unavailable(query.SchemaVersion);
+        }
+
+        // A row that cannot prove""",
+            """catch (Exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            return ConversationListResult.Hidden(query.SchemaVersion);
+        }
+
+        // A row that cannot prove""",
+            DAPR_TEST_BIN,
+            "Hexalith.Conversations.AppHost.Tests.dll",
+            "Hexalith.Conversations.AppHost.Tests.DerivedKeyDaprFaultTests.LatencyAndOutageShouldFailClosedWithoutRepairOverRealDaprRedis",
+            DAPR_TRX,
+            "DAPR_CORRECTNESS_LANE_RED",
+        ),
+        (
             "real-tenant-disclosure",
             "src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs",
             "if (query.Page.ContinuationCursor is not null)",
@@ -847,12 +982,106 @@ def test_complete_fault_matrix_real_runtime_mutations(
         (repo / target_trx).write_bytes(trx_bytes)
         result = run_cli(repo)
         assert result.returncode == 1, (FAULT_NOT_DETECTED, result.stdout, result.stderr)
-        codes = blocker_codes(result.stderr)
-        assert expected_blocker in codes and "CORRECTNESS_GATE_RED" in codes, (FAULT_NOT_DETECTED, result.stderr)
+        assert blocker_codes(result.stderr) == [expected_blocker, "CORRECTNESS_GATE_RED"], (FAULT_NOT_DETECTED, result.stderr)
         assert "Traceback" not in result.stderr
     finally:
         restore(repo, before, head_sha)
     assert snapshot(repo) == before, FIXTURE_NOT_RESTORED
+
+
+def test_complete_fault_matrix_real_public_contract_ordering_mutation(tmp_path):
+    source = "src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs"
+    before = (ROOT / source).read_bytes()
+    mutated_dll = _compile_mutated_server_dll(
+        tmp_path / "public-ordering",
+        source,
+        "StringComparer.Ordinal.Compare(left.ConversationId.Value, right.ConversationId.Value)",
+        "StringComparer.Ordinal.Compare(right.ConversationId.Value, left.ConversationId.Value)",
+        CONTRACTS_TEST_BIN,
+    )
+    run_root = tmp_path / "public-ordering-run"
+    for relative in (
+        "Hexalith.Conversations.slnx",
+        gen.PUBLIC_CONTRACT_V4_PATH,
+        *(path for path, _ in gen.FROZEN_CONTRACT_SNAPSHOTS),
+    ):
+        target = run_root / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, target)
+    trx = _run_mutated_test_assembly(
+        run_root,
+        CONTRACTS_TEST_BIN,
+        "Hexalith.Conversations.Contracts.Tests.dll",
+        mutated_dll,
+        "Hexalith.Conversations.Contracts.Tests.PublicQueryCompatibilityTests.DerivedKeyOptimizationShouldPreserveQueryContract",
+    )
+    result = trx.read_bytes()
+    assert [code for code in gen.CODE_ORDER if code.encode("ascii") in result] == [gen.BLOCK_CONTRACT], (
+        FAULT_NOT_DETECTED, result
+    )
+    assert (ROOT / source).read_bytes() == before, FIXTURE_NOT_RESTORED
+
+
+def test_complete_fault_matrix_normalized_source_bytes(repository):
+    repo, head_sha = repository
+    before = snapshot(repo)
+    path = "src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs"
+    try:
+        git_run(repo, "config", "core.autocrlf", "true")
+        (repo / path).write_bytes(before[path].replace(b"\r\n", b"\n").replace(b"\n", b"\r\n"))
+        result = run_cli(repo)
+        assert result.returncode == 0, (result.stdout, result.stderr)
+        assert (repo / gen.JSON_PATH).read_bytes() == before[gen.JSON_PATH]
+    finally:
+        restore(repo, before, head_sha)
+    assert snapshot(repo) == before, FIXTURE_NOT_RESTORED
+
+
+def test_complete_fault_matrix_measurement_uses_committed_snapshot(repository, tmp_path):
+    repo, head_sha = repository
+    before = snapshot(repo)
+    path = "src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs"
+    try:
+        (repo / path).write_bytes(before[path] + b"\n// dirty source\n")
+        checkout = tmp_path / "committed-snapshot"
+        measurement.checkout_snapshot(repo, checkout, head_sha, [])
+        measurement.assert_snapshot(checkout, head_sha)
+        assert (checkout / path).read_bytes() == before[path]
+
+        (checkout / path).write_bytes(before[path] + b"\n// dirty snapshot\n")
+        with pytest.raises(ValueError, match="Build input changed"):
+            measurement.assert_snapshot(checkout, head_sha)
+    finally:
+        restore(repo, before, head_sha)
+    assert snapshot(repo) == before, FIXTURE_NOT_RESTORED
+
+
+def test_measurement_restores_pinned_tool_before_prepare_build(repository, tmp_path, monkeypatch):
+    repo, head_sha = repository
+    build_calls = []
+    prepare_started = RuntimeError("stop after checking prepare-build")
+
+    def restore_tool(checkout, *args, **_kwargs):
+        build_calls.append((checkout, args))
+
+    def prepare_build(args, *, cwd, **_kwargs):
+        build_calls.append((cwd, args))
+        raise prepare_started
+
+    # Provision the snapshot with real Git before replacing later subprocess work.
+    checkout = tmp_path / "fresh"
+    measurement.checkout_snapshot(repo, checkout, head_sha, [])
+    monkeypatch.setattr(measurement, "checkout_snapshot", lambda *_: None)
+    monkeypatch.setattr(measurement, "assert_snapshot", lambda *_: None)
+    monkeypatch.setattr(measurement.proof, "read_root_submodules", lambda *_: [])
+    monkeypatch.setattr(measurement, "run", restore_tool)
+    monkeypatch.setattr(measurement.subprocess, "run", prepare_build)
+    with pytest.raises(RuntimeError) as thrown:
+        measurement.measure(repo, checkout, head_sha, tmp_path, tmp_path)
+    assert thrown.value is prepare_started
+    assert build_calls[0] == (checkout, ("dotnet", "tool", "restore"))
+    assert build_calls[1][0] == checkout
+    assert build_calls[1][1][:6] == ("dotnet", "tool", "run", "hexalith-module", "--", "prepare-build")
 
 
 def test_complete_fault_matrix_crlf_sprint_status(repository):
@@ -874,9 +1103,18 @@ def _strip_rollback_boundary(repo: Path) -> None:
     (repo / gen.CONTRACT_PATH).write_text(json.dumps(contract, indent=2) + "\n", encoding="utf-8")
 
 
+def _replace_schema_reference(repo: Path, reference: str) -> None:
+    path = repo / gen.SCHEMA_PATH
+    schema = json.loads(path.read_bytes())
+    schema["properties"]["lanes"]["properties"]["unit"]["$ref"] = reference
+    path.write_text(json.dumps(schema), encoding="utf-8")
+
+
 @pytest.mark.parametrize(
     "name,setup,expected_code",
     [
+        ("unresolved-schema-reference", lambda repo: _replace_schema_reference(repo, "#/$defs/missingLane"), "INPUT_UNAVAILABLE"),
+        ("reference-to-non-schema", lambda repo: _replace_schema_reference(repo, "#/title"), "INPUT_UNAVAILABLE"),
         ("malformed-trx", lambda repo: (repo / UNIT_TRX).write_bytes(b"<not-xml"), "INPUT_UNAVAILABLE"),
         ("non-object-story-contract", lambda repo: (repo / gen.CONTRACT_PATH).write_bytes(b"[]\n"), "INPUT_UNAVAILABLE"),
         ("missing-rollback-boundary", _strip_rollback_boundary, "INPUT_UNAVAILABLE"),

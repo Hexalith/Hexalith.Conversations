@@ -29,6 +29,21 @@ PREFIX = "docs/release-evidence/derived-key-correctness-proof-v1"
 SCHEMA_PATH = PREFIX + ".schema.json"
 JSON_PATH = PREFIX + ".json"
 MARKDOWN_PATH = PREFIX + ".md"
+BUILD_RECEIPT_PATH = "artifacts/v9/12.3/build-receipt.json"
+BUILD_CONFIGURATION = "Debug"
+TARGET_FRAMEWORK = "net11.0"
+LANE_PROJECTS = {
+    "unit": "Hexalith.Conversations.Server.Tests",
+    "integration": "Hexalith.Conversations.IntegrationTests",
+    "dapr": "Hexalith.Conversations.AppHost.Tests",
+}
+SERVER_ASSEMBLY = "Hexalith.Conversations.Server.dll"
+
+
+def lane_assembly(lane: str) -> str:
+    project = LANE_PROJECTS[lane]
+    return f"tests/{project}/bin/{BUILD_CONFIGURATION}/{TARGET_FRAMEWORK}/{project}.dll"
+
 CONTRACT_PATH = "_bmad-output/planning-artifacts/v9/story-contracts/12.3.json"
 EPICS_PATH = "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md"
 SPRINT_PATH = "_bmad-output/implementation-artifacts/sprint-status.yaml"
@@ -74,6 +89,7 @@ READ_SIDE_PATHS = (
     "src/Hexalith.Conversations.Server/Projections/ConversationDetailValidationHeaderConverter.cs",
     "src/Hexalith.Conversations.Server/Projections/ConversationPageValidationRecord.cs",
     "src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupConverter.cs",
+    "src/Hexalith.Conversations.Server/Projections/ConversationProjectionJsonValidation.cs",
     "src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupScope.cs",
     "src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupTarget.cs",
     "src/Hexalith.Conversations.Server/Projections/ConversationIndexGenerationToken.cs",
@@ -115,6 +131,7 @@ PRODUCTION_PATHS = (
     ("src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupResult.cs", "targeted-utf8-index-lookup-dto"),
     ("src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupScope.cs", "targeted-utf8-index-lookup-scope"),
     ("src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexLookupTarget.cs", "targeted-utf8-index-lookup-target"),
+    ("src/Hexalith.Conversations.Server/Projections/ConversationProjectionJsonValidation.cs", "streaming-json-validation"),
     ("src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexReadModel.cs", "v2-tenant-index-model"),
     ("src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexSnapshot.cs", "tenant-index-snapshot"),
     (KEYS_PATH, "immutable-derived-key-grammar"),
@@ -170,6 +187,7 @@ FORBIDDEN_READ_STORE_WRITES = (
     r"\.\s*StageAsync\s*\(",
     r"\.\s*CommitAsync\s*\(",
     r"\.\s*AbortAsync\s*\(",
+    r"\.\s*(?:Recover(?:NonExpiring)?Pending|PrepareRecoveryManifest|SettleRecoveryScope|RetireRecoveryScope|ReleaseRecoveryScope|ApplyEvents|ReconcileAppliedReceipt)Async\s*[<(]",
     r"\.\s*SaveStateAsync\s*[<(]",
     r"\.\s*DeleteStateAsync\s*[<(]",
     r"\.\s*ExecuteStateTransactionAsync\s*\(",
@@ -247,7 +265,16 @@ def read_committed_and_verify_clean(
     """Read a tracked input and bind its working-tree bytes to the exact committed candidate tree."""
     working = read_file(repository, relative)
     committed = committed_blob(repository, head_commit, relative)
-    if committed is None or committed != working:
+    if committed != working:
+        # Git applies the tracked attributes and configured EOL conversion to this path.
+        # Hash via that same conversion, then use the committed bytes for proof digests.
+        candidate_object = git(repository, "rev-parse", "--verify", f"{head_commit}:{relative}", allowed=(0, 128))
+        working_object = git(
+            repository, "-c", "core.autocrlf=true", f"--attr-source={head_commit}",
+            "hash-object", f"--path={relative}", "--", relative,
+        )
+        if committed is not None and candidate_object.returncode == 0 and working_object.stdout == candidate_object.stdout:
+            return committed
         errors.append(
             (
                 BLOCK_GATE,
@@ -332,11 +359,34 @@ def read_root_submodules(repository: Path, head_commit: str) -> list[dict]:
     return rows
 
 
+def read_build_receipt(repository: Path, head_commit: str, errors: list[tuple[str, str]]) -> dict:
+    try:
+        receipt = json.loads(read_file(repository, BUILD_RECEIPT_PATH))
+    except (ValueError, UnicodeDecodeError) as error:
+        raise Blocked(INPUT_UNAVAILABLE, f"invalid Story 12.3 build receipt: {error}") from None
+    tree = git(repository, "rev-parse", f"{head_commit}^{{tree}}").stdout.decode("ascii").strip()
+    if (
+        not isinstance(receipt, dict)
+        or set(receipt) != {"commit", "tree", "configuration", "targetFramework", "lanes"}
+        or receipt.get("commit") != head_commit
+        or receipt.get("tree") != tree
+        or receipt.get("configuration") != BUILD_CONFIGURATION
+        or receipt.get("targetFramework") != TARGET_FRAMEWORK
+        or not isinstance(receipt.get("lanes"), dict)
+        or set(receipt["lanes"]) != LANE_PROJECTS.keys()
+    ):
+        errors.append((BLOCK_GATE, "The Story 12.3 build receipt does not bind the required source tree and build configuration."))
+    if isinstance(receipt, dict) and isinstance(receipt.get("lanes"), dict):
+        return receipt["lanes"]
+    return {}
+
+
 def parse_trx(
     repository: Path,
     lane: str,
     relative_path: str,
     head_commit: str,
+    build_lane: object,
 ) -> tuple[dict, list[tuple[str, str]]]:
     raw = read_file(repository, relative_path)
     try:
@@ -348,11 +398,9 @@ def parse_trx(
     if root.tag.startswith("{"):
         ns = root.tag.split("}", 1)[0] + "}"
 
-    summary_el = root.find(f".//{ns}ResultSummary")
-    summary_outcome = summary_el.attrib.get("outcome") if summary_el is not None else None
-    summary_outcome_ok = summary_outcome is None or summary_outcome in ("Passed", "Completed")
-
-    counters = root.find(f".//{ns}Counters")
+    summary_el = root.find(f"{ns}ResultSummary")
+    summary_outcome_ok = summary_el is not None and summary_el.attrib.get("outcome") in ("Passed", "Completed")
+    counters = summary_el.find(f"{ns}Counters") if summary_el is not None else None
     if counters is None:
         raise Blocked(INPUT_UNAVAILABLE, f"{lane} TRX {relative_path} lacks ResultSummary/Counters")
 
@@ -389,39 +437,52 @@ def parse_trx(
     skipped = max(0, total - passed - failed)
     not_run = max(0, total - executed)
 
-    # Resolve full test names and assembly paths from TestDefinitions.
-    test_id_to_full_name: dict[str, str] = {}
-    code_bases: set[str] = set()
-    for unit_test in root.findall(f".//{ns}TestDefinitions/{ns}UnitTest"):
+    # Test display names are presentation data. Match each result to its unique
+    # definition and verify the execution and selected assembly from that definition.
+    definitions: dict[str, tuple[str, str, str]] = {}
+    bad_definition = False
+    for unit_test in root.findall(f"{ns}TestDefinitions/{ns}UnitTest"):
         tid = unit_test.attrib.get("id", "")
-        method = unit_test.find(f"{ns}TestMethod")
-        if method is not None:
-            cb = method.attrib.get("codeBase", "").strip()
-            if cb:
-                code_bases.add(cb)
-            if tid:
-                cls = method.attrib.get("className", "").split(",", 1)[0].strip()
-                mname = method.attrib.get("name", "").strip()
-                if cls and mname:
-                    test_id_to_full_name[tid] = f"{cls}.{mname}"
+        executions = unit_test.findall(f"{ns}Execution")
+        methods = unit_test.findall(f"{ns}TestMethod")
+        if not tid or tid in definitions or len(executions) != 1 or len(methods) != 1:
+            bad_definition = True
+            continue
+        execution_id = executions[0].attrib.get("id", "")
+        method = methods[0]
+        class_name = method.attrib.get("className", "").split(",", 1)[0].strip()
+        method_name = method.attrib.get("name", "").strip()
+        code_base = method.attrib.get("codeBase", "").strip()
+        if not (execution_id and class_name and method_name and code_base):
+            bad_definition = True
+            continue
+        definitions[tid] = (execution_id, f"{class_name}.{method_name}", code_base)
 
     required_tests = set(EXPECTED_LANE_TESTS[lane])
-    unit_results = root.findall(f".//{ns}Results/{ns}UnitTestResult")
+    unit_results = root.findall(f"{ns}Results/{ns}UnitTestResult")
     seen_test_names: list[str] = []
     passed_test_names: set[str] = set()
     non_passing_results = 0
     per_result_bindings: list[set[tuple[str, str, str]]] = []
+    seen_ids: set[str] = set()
+    seen_execution_ids: set[str] = set()
+    code_bases: set[str] = set()
     for item in unit_results:
         outcome = item.attrib.get("outcome", "")
         tid = item.attrib.get("testId", "")
-        tname = item.attrib.get("testName", "")
-        full_name = test_id_to_full_name.get(tid, tname)
-        seen_test_names.append(full_name)
-        if outcome == "Passed":
-            passed_test_names.add(full_name)
-            if tname:
-                passed_test_names.add(tname)
+        execution_id = item.attrib.get("executionId", "")
+        definition = definitions.get(tid)
+        if definition is None or tid in seen_ids or execution_id in seen_execution_ids or execution_id != definition[0]:
+            bad_definition = True
         else:
+            _, full_name, code_base = definition
+            seen_test_names.append(full_name)
+            code_bases.add(code_base)
+            if outcome == "Passed":
+                passed_test_names.add(full_name)
+        seen_ids.add(tid)
+        seen_execution_ids.add(execution_id)
+        if outcome != "Passed":
             non_passing_results += 1
 
         # xUnit v3 emits test output in <Output><TextMessages><Message>; also support <Output><StdOut>.
@@ -455,45 +516,24 @@ def parse_trx(
     binding_ok = False
     if every_result_bound and len(all_bindings) == 1:
         bound_commit, server_sha, test_sha = next(iter(all_bindings))
-        binding_ok = bound_commit == head_commit
-        # If the tested binary path recorded in the TRX exists inside this repository checkout, verify its
-        # current bytes still match the TRX stamp (preventing stale TRXs after a rebuild).
-        if binding_ok:
-            for cb in sorted(code_bases):
-                cb_path = Path(cb)
-                if not cb_path.is_absolute():
-                    cb_path = repository / cb_path
-                try:
-                    if not cb_path.is_file():
-                        continue
-                    cb_resolved = cb_path.resolve()
-                    cb_resolved.relative_to(repository)
-                except ValueError:
-                    continue
-                except OSError as error:
-                    raise Blocked(INPUT_UNAVAILABLE, f"cannot access tested assembly {cb}: {error}") from None
-                try:
-                    cb_bytes = cb_resolved.read_bytes()
-                    server_sibling = cb_resolved.parent / "Hexalith.Conversations.Server.dll"
-                    server_bytes = server_sibling.read_bytes() if server_sibling.is_file() else None
-                except OSError as error:
-                    raise Blocked(INPUT_UNAVAILABLE, f"cannot read tested assembly for {lane}: {error}") from None
-                if sha256_bytes(cb_bytes) != test_sha:
-                    binding_ok = False
-                    errors.append(
-                        (
-                            BLOCK_GATE,
-                            f"{lane} TRX test assembly digest disagrees with on-disk binary {cb_resolved.name}.",
-                        )
-                    )
-                if server_bytes is not None and sha256_bytes(server_bytes) != server_sha:
-                    binding_ok = False
-                    errors.append(
-                        (
-                            BLOCK_GATE,
-                            f"{lane} TRX server assembly digest disagrees with on-disk {server_sibling.name}.",
-                        )
-                    )
+        expected_assembly = repository / lane_assembly(lane)
+        expected_server = expected_assembly.with_name(SERVER_ASSEMBLY)
+        expected_lane = {
+            "testAssemblySha256": test_sha,
+            "serverAssemblySha256": server_sha,
+            "trxSha256": sha256_bytes(raw),
+        }
+        try:
+            binding_ok = (
+                bound_commit == head_commit
+                and build_lane == expected_lane
+                and bool(code_bases)
+                and all((repository / cb).resolve() == expected_assembly for cb in code_bases)
+                and sha256_bytes(read_file(repository, lane_assembly(lane))) == test_sha
+                and sha256_bytes(read_file(repository, expected_server.relative_to(repository).as_posix())) == server_sha
+            )
+        except (Blocked, OSError, ValueError):
+            binding_ok = False
 
     is_green = (
         summary_outcome_ok
@@ -510,6 +550,9 @@ def parse_trx(
         and not_run == 0
         and non_passing_results == 0
         and not has_duplicate_results
+        and not bad_definition
+        and seen_ids == definitions.keys()
+        and set(seen_test_names) == required_tests
         and not missing_required
         and binding_ok
     )
@@ -571,13 +614,31 @@ def parse_trx(
     return lane_record, errors
 
 
-def _assert_schema_closed(node: object, location: str) -> None:
-    if not isinstance(node, dict):
+def _assert_schema_closed(node: object, location: str, resolver, active_refs: frozenset[str] = frozenset()) -> None:
+    from referencing.exceptions import Unresolvable
+
+    if node is True:
+        raise ProofError([(BLOCK_GATE, f"The proof schema cannot allow arbitrary values at {location}.")])
+    if node is False:
         return
+    if not isinstance(node, dict):
+        raise Blocked(INPUT_UNAVAILABLE, f"proof schema reference does not identify a schema at {location}")
+    for reference_keyword in ("$ref", "$dynamicRef"):
+        reference = node.get(reference_keyword)
+        if reference is None:
+            continue
+        if reference in active_refs:
+            raise ProofError([(BLOCK_GATE, f"The proof schema cannot reference itself recursively at {location}.")])
+        try:
+            resolved = resolver.lookup(reference)
+        except Unresolvable:
+            raise Blocked(INPUT_UNAVAILABLE, f"proof schema reference {reference!r} is unresolved at {location}") from None
+        _assert_schema_closed(resolved.contents, location + "." + reference_keyword, resolved.resolver, active_refs | {reference})
+
     node_type = node.get("type")
+    types = [node_type] if isinstance(node_type, str) else node_type or []
     has_object_shape = (
-        node_type == "object"
-        or (isinstance(node_type, list) and "object" in node_type)
+        "object" in types
         or any(
             k in node
             for k in (
@@ -595,12 +656,25 @@ def _assert_schema_closed(node: object, location: str) -> None:
     is_untyped_open = (
         "type" not in node
         and "$ref" not in node
+        and "$dynamicRef" not in node
         and "const" not in node
         and "enum" not in node
         and not any(k in node for k in ("allOf", "anyOf", "oneOf"))
     )
-    if (has_object_shape or is_untyped_open) and node.get("additionalProperties") is not False:
+    if is_untyped_open:
+        raise ProofError([(BLOCK_GATE, f"The proof schema must constrain the value type at {location}.")])
+    if has_object_shape and node.get("additionalProperties") is not False:
         raise ProofError([(BLOCK_GATE, f"The proof schema must stay closed (additionalProperties: false) at {location}.")])
+
+    if (
+        "array" in types
+        and "items" not in node
+        and node.get("unevaluatedItems") is not False
+        and node.get("maxItems") != 0
+        and "const" not in node
+        and "enum" not in node
+    ):
+        raise ProofError([(BLOCK_GATE, f"The proof schema must constrain array items at {location}.")])
 
     has_composition = any(k in node for k in ("allOf", "anyOf", "oneOf"))
     if has_composition:
@@ -613,23 +687,27 @@ def _assert_schema_closed(node: object, location: str) -> None:
         mapping = node.get(key)
         if isinstance(mapping, dict):
             for child_name, child_schema in mapping.items():
-                _assert_schema_closed(child_schema, f"{location}.{key}.{child_name}")
+                _assert_schema_closed(child_schema, f"{location}.{key}.{child_name}", resolver, active_refs)
 
     for key in ("allOf", "anyOf", "oneOf", "prefixItems"):
         branches = node.get(key)
         if isinstance(branches, list):
             for idx, child_schema in enumerate(branches):
-                _assert_schema_closed(child_schema, f"{location}.{key}[{idx}]")
+                _assert_schema_closed(child_schema, f"{location}.{key}[{idx}]", resolver, active_refs)
 
-    for key in ("items", "contains", "not", "if", "then", "else", "propertyNames", "additionalProperties", "unevaluatedProperties"):
-        child = node.get(key)
-        if isinstance(child, dict):
-            _assert_schema_closed(child, f"{location}.{key}")
+    for key in (
+        "items", "additionalItems", "unevaluatedItems", "contains", "not", "if", "then", "else",
+        "propertyNames", "additionalProperties", "unevaluatedProperties", "contentSchema",
+    ):
+        if key in node:
+            _assert_schema_closed(node[key], f"{location}.{key}", resolver, active_refs)
 
 
 def load_schema(repository: Path) -> dict:
     try:
         import jsonschema
+        from referencing import Registry
+        from referencing.jsonschema import DRAFT202012
     except ImportError:
         raise Blocked(TOOLING_UNAVAILABLE, "jsonschema is unavailable") from None
     raw = read_file(repository, SCHEMA_PATH)
@@ -640,7 +718,8 @@ def load_schema(repository: Path) -> dict:
         jsonschema.Draft202012Validator.check_schema(schema)
     except (ValueError, jsonschema.SchemaError) as error:
         raise Blocked(INPUT_UNAVAILABLE, f"proof schema invalid: {error}") from None
-    _assert_schema_closed(schema, "$")
+    registry = Registry().with_resource("", DRAFT202012.create_resource(schema))
+    _assert_schema_closed(schema, "$", registry.resolver())
     return schema
 
 
@@ -815,10 +894,10 @@ def build_payload(
     errors.extend(err_12_2)
 
     # ADR 0005 & frozen benchmark immutability
-    adr_sha = sha256_bytes(read_file(repository, ADR_PATH))
+    adr_sha = sha256_bytes(read_committed_and_verify_clean(repository, head_commit, ADR_PATH, errors))
     if adr_sha != ADR_SHA256:
         errors.append((BLOCK_GATE, "ADR 0005 bytes changed; approval is void."))
-    bench_sha = sha256_bytes(read_file(repository, FROZEN_BENCHMARK_PATH))
+    bench_sha = sha256_bytes(read_committed_and_verify_clean(repository, head_commit, FROZEN_BENCHMARK_PATH, errors))
     if bench_sha != FROZEN_BENCHMARK_SHA:
         errors.append((BLOCK_GATE, "Frozen SmC2HotPathBenchmark.cs bytes changed."))
 
@@ -841,9 +920,10 @@ def build_payload(
         frozen_snaps.append({"path": path, "sha256": actual_sha})
 
     # Three correctness lanes bound to head_commit and the same tested server binary
-    unit_lane, unit_errors = parse_trx(repository, "unit", unit_result_path, head_commit)
-    integration_lane, integration_errors = parse_trx(repository, "integration", integration_result_path, head_commit)
-    dapr_lane, dapr_errors = parse_trx(repository, "dapr", dapr_result_path, head_commit)
+    build_lanes = read_build_receipt(repository, head_commit, errors)
+    unit_lane, unit_errors = parse_trx(repository, "unit", unit_result_path, head_commit, build_lanes.get("unit"))
+    integration_lane, integration_errors = parse_trx(repository, "integration", integration_result_path, head_commit, build_lanes.get("integration"))
+    dapr_lane, dapr_errors = parse_trx(repository, "dapr", dapr_result_path, head_commit, build_lanes.get("dapr"))
     errors.extend(unit_errors)
     errors.extend(integration_errors)
     errors.extend(dapr_errors)
@@ -1021,6 +1101,7 @@ def readonly_inputs(unit_path: str, integration_path: str, dapr_path: str) -> tu
         *(path for path, _ in FROZEN_CONTRACT_SNAPSHOTS),
         *READ_SIDE_PATHS,
         *(path for path, _ in PRODUCTION_PATHS),
+        BUILD_RECEIPT_PATH,
         unit_path,
         integration_path,
         dapr_path,
@@ -1058,9 +1139,14 @@ def main(argv: list[str] | None = None) -> int:
         json_text, markdown = finalize(payload)
         try:
             import jsonschema
+            from referencing import Registry
+            from referencing.exceptions import Unresolvable
         except ImportError:
             raise Blocked(TOOLING_UNAVAILABLE, "jsonschema is unavailable") from None
-        schema_errors = list(jsonschema.Draft202012Validator(schema).iter_errors(json.loads(json_text)))
+        try:
+            schema_errors = list(jsonschema.Draft202012Validator(schema, registry=Registry()).iter_errors(json.loads(json_text)))
+        except Unresolvable as error:
+            raise Blocked(INPUT_UNAVAILABLE, f"proof schema reference is unresolved: {error}") from None
         if schema_errors:
             raise ProofError([(BLOCK_GATE, f"Generated proof violates closed schema: {schema_errors[0].message}")])
         output_writer.write_outputs(

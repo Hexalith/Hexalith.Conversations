@@ -32,6 +32,7 @@ public sealed class DerivedKeyDaprLiveFixture : IAsyncLifetime
     private string? _componentsDirectory;
     private Process? _daprProcess;
     private int _redisPort;
+    private int[] _daprPorts = [];
     private bool _containerStarted;
 
     /// <summary>Gets the configured Dapr Redis state-store component name.</summary>
@@ -89,49 +90,12 @@ public sealed class DerivedKeyDaprLiveFixture : IAsyncLifetime
             await File.WriteAllTextAsync(Path.Combine(_componentsDirectory, "statestore.yaml"), componentYaml)
                 .ConfigureAwait(false);
 
-            int[] daprPorts = AllocatePorts(4);
-            string httpEndpoint = $"http://127.0.0.1:{daprPorts[0]}";
-            string grpcEndpoint = $"http://127.0.0.1:{daprPorts[1]}";
-
-            _daprProcess = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = ResolveDaprdPath(),
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true,
-                },
-                EnableRaisingEvents = true,
-            };
-            foreach (string arg in new[]
-                     {
-                         "--app-id", _appId,
-                         "--dapr-http-port", daprPorts[0].ToString(CultureInfo.InvariantCulture),
-                         "--dapr-grpc-port", daprPorts[1].ToString(CultureInfo.InvariantCulture),
-                         "--dapr-internal-grpc-port", daprPorts[2].ToString(CultureInfo.InvariantCulture),
-                         "--metrics-port", daprPorts[3].ToString(CultureInfo.InvariantCulture),
-                         "--resources-path", _componentsDirectory,
-                         "--placement-host-address", string.Empty,
-                         "--scheduler-host-address", string.Empty,
-                         "--log-level", "warn",
-                     })
-            {
-                _daprProcess.StartInfo.ArgumentList.Add(arg);
-            }
-
-            _daprProcess.OutputDataReceived += (_, args) => AppendLog(args.Data);
-            _daprProcess.ErrorDataReceived += (_, args) => AppendLog(args.Data);
-            _ = _daprProcess.Start();
-            _daprProcess.BeginOutputReadLine();
-            _daprProcess.BeginErrorReadLine();
-
-            await WaitForDaprHealthAsync(httpEndpoint).ConfigureAwait(false);
+            _daprPorts = AllocatePorts(4);
+            await StartSidecarAsync().ConfigureAwait(false);
 
             Client = new DaprClientBuilder()
-                .UseHttpEndpoint(httpEndpoint)
-                .UseGrpcEndpoint(grpcEndpoint)
+                .UseHttpEndpoint($"http://127.0.0.1:{_daprPorts[0]}")
+                .UseGrpcEndpoint($"http://127.0.0.1:{_daprPorts[1]}")
                 .Build();
             Store = new DaprReadModelStore(Client);
         }
@@ -153,34 +117,7 @@ public sealed class DerivedKeyDaprLiveFixture : IAsyncLifetime
         {
             try
             {
-                if (_daprProcess is not null)
-                {
-                    try
-                    {
-                        if (!_daprProcess.HasExited)
-                        {
-                            _daprProcess.Kill(entireProcessTree: true);
-                            using CancellationTokenSource exitTimeout = new(TimeSpan.FromSeconds(10));
-                            try
-                            {
-                                await _daprProcess.WaitForExitAsync(exitTimeout.Token).ConfigureAwait(false);
-                            }
-                            catch (OperationCanceledException)
-                            {
-                                // Bounded wait prevents fixture teardown from hanging if daprd ignores termination.
-                            }
-                        }
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        // Process already exited.
-                    }
-                    finally
-                    {
-                        _daprProcess.Dispose();
-                        _daprProcess = null;
-                    }
-                }
+                await StopSidecarAsync().ConfigureAwait(false);
             }
             finally
             {
@@ -203,38 +140,125 @@ public sealed class DerivedKeyDaprLiveFixture : IAsyncLifetime
         }
     }
 
-    private async Task WaitForDaprHealthAsync(string httpEndpoint)
+    /// <summary>Starts the sidecar on the original endpoints while retaining the backing Redis state.</summary>
+    internal async Task StartSidecarAsync()
     {
-        using HttpClient http = new() { Timeout = TimeSpan.FromSeconds(3) };
-        string? lastError = null;
-        for (int attempt = 0; attempt < HealthTimeoutSeconds * 4; attempt++)
+        if (_daprProcess is { HasExited: false })
         {
-            if (_daprProcess?.HasExited == true)
-            {
-                throw new InvalidOperationException($"daprd exited with code {_daprProcess.ExitCode}: {LogTail()}");
-            }
-
-            try
-            {
-                using HttpResponseMessage response = await http
-                    .GetAsync(new Uri($"{httpEndpoint}/v1.0/healthz/outbound"))
-                    .ConfigureAwait(false);
-                if (response.IsSuccessStatusCode)
-                {
-                    return;
-                }
-
-                lastError = $"HTTP {(int)response.StatusCode}";
-            }
-            catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
-            {
-                lastError = ex.Message;
-            }
-
-            await Task.Delay(250).ConfigureAwait(false);
+            return;
         }
 
-        throw new InvalidOperationException($"daprd did not become healthy: {lastError}. {LogTail()}");
+        Process sidecar = new()
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = ResolveDaprdPath(),
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+            },
+            EnableRaisingEvents = true,
+        };
+        _daprProcess = sidecar;
+        foreach (string arg in new[]
+                 {
+                     "--app-id", _appId,
+                     "--dapr-http-port", _daprPorts[0].ToString(CultureInfo.InvariantCulture),
+                     "--dapr-grpc-port", _daprPorts[1].ToString(CultureInfo.InvariantCulture),
+                     "--dapr-internal-grpc-port", _daprPorts[2].ToString(CultureInfo.InvariantCulture),
+                     "--metrics-port", _daprPorts[3].ToString(CultureInfo.InvariantCulture),
+                     "--resources-path", _componentsDirectory!,
+                     "--placement-host-address", string.Empty,
+                     "--scheduler-host-address", string.Empty,
+                     "--log-level", "warn",
+                 })
+        {
+            sidecar.StartInfo.ArgumentList.Add(arg);
+        }
+
+        sidecar.OutputDataReceived += (_, args) => AppendLog(args.Data);
+        sidecar.ErrorDataReceived += (_, args) => AppendLog(args.Data);
+        _ = sidecar.Start();
+        sidecar.BeginOutputReadLine();
+        sidecar.BeginErrorReadLine();
+        await WaitForDaprHealthAsync(sidecar, $"http://127.0.0.1:{_daprPorts[0]}").ConfigureAwait(false);
+    }
+
+    /// <summary>Stops the live sidecar so requests through the production adapter observe a real outage.</summary>
+    internal async Task StopSidecarAsync()
+    {
+        if (_daprProcess is not { } sidecar)
+        {
+            return;
+        }
+
+        try
+        {
+            if (!sidecar.HasExited)
+            {
+                sidecar.Kill(entireProcessTree: true);
+                using CancellationTokenSource exitTimeout = new(TimeSpan.FromSeconds(10));
+                await sidecar.WaitForExitAsync(exitTimeout.Token).ConfigureAwait(false);
+            }
+        }
+        catch (InvalidOperationException)
+        {
+            // The process exited or failed to start.
+        }
+        finally
+        {
+            sidecar.Dispose();
+            _daprProcess = null;
+        }
+    }
+
+    private async Task WaitForDaprHealthAsync(Process sidecar, string httpEndpoint)
+    {
+        using HttpClient http = new() { Timeout = TimeSpan.FromSeconds(3) };
+        using CancellationTokenSource deadline = new(TimeSpan.FromSeconds(HealthTimeoutSeconds));
+        string? lastError = null;
+        try
+        {
+            while (true)
+            {
+                if (sidecar.HasExited)
+                {
+                    throw new InvalidOperationException($"daprd exited with code {sidecar.ExitCode}: {LogTail()}");
+                }
+
+                try
+                {
+                    using HttpResponseMessage response = await http
+                        .GetAsync(new Uri($"{httpEndpoint}/v1.0/healthz/outbound"), deadline.Token)
+                        .ConfigureAwait(false);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        if (Store is not null)
+                        {
+                            // The reused gRPC channel can still be reconnecting after HTTP is healthy.
+                            _ = await Store.GetAsync<object>(StateStoreName, "sidecar-readiness", deadline.Token)
+                                .ConfigureAwait(false);
+                        }
+
+                        return;
+                    }
+
+                    lastError = $"HTTP {(int)response.StatusCode}";
+                }
+                catch (Exception ex) when (ex is HttpRequestException or Dapr.DaprException
+                    || ex is TaskCanceledException && !deadline.IsCancellationRequested)
+                {
+                    lastError = ex.Message;
+                }
+
+                await Task.Delay(250, deadline.Token).ConfigureAwait(false);
+            }
+        }
+        catch (OperationCanceledException ex) when (deadline.IsCancellationRequested)
+        {
+            throw new InvalidOperationException($"daprd did not become healthy: {lastError}. {LogTail()}", ex);
+        }
     }
 
     private static int[] AllocatePorts(int count)

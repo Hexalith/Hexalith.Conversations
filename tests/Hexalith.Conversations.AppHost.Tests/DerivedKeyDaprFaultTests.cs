@@ -211,7 +211,7 @@ public sealed class DerivedKeyDaprFaultTests(DerivedKeyDaprLiveFixture fixture) 
 
         ConversationQueryHandler handler = CreateHandler(faultStore, tenant);
 
-        // Latency injection: concurrent detail+ledger bulk reads and concurrent multi-conversation GetAsync succeed cleanly.
+        // Latency injection exercises both page bulk reads and overlapping Open requests.
         faultStore.ReadLatency = TimeSpan.FromMilliseconds(20);
         faultStore.ResetWrites();
         ConversationListResult delayedList = await handler.ListAsync(
@@ -239,36 +239,49 @@ public sealed class DerivedKeyDaprFaultTests(DerivedKeyDaprLiveFixture fixture) 
         faultStore.Writes.ShouldBeEmpty();
         faultStore.ReadLatency = TimeSpan.Zero;
 
-        // Mid-page bulk-read outage: index read succeeds, page bulk validation throws -> List fails closed to Unavailable.
-        faultStore.SimulateBulkReadOutage = true;
-        ConversationListResult midPageOutage = await handler.ListAsync(
-            new ListConversationsQuery(SchemaVersion.Current, tenant, Caller, "corr-bulk-outage"),
-            cancellationToken);
-        midPageOutage.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
-        midPageOutage.Conversations.ShouldBeEmpty();
-        faultStore.Writes.ShouldBeEmpty("READ_SIDE_REPAIR_ATTEMPTED");
-        faultStore.SimulateBulkReadOutage = false;
+        // The index read completes, then the sidecar stops immediately before the real bulk read.
+        faultStore.ResetWrites();
+        try
+        {
+            faultStore.BeforeBulkReadAsync = fixture.StopSidecarAsync;
+            ConversationListResult midPageOutage = await handler.ListAsync(
+                new ListConversationsQuery(SchemaVersion.Current, tenant, Caller, "corr-bulk-outage"),
+                cancellationToken);
+            midPageOutage.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable, "DAPR_CORRECTNESS_LANE_RED: page read during sidecar outage");
+            midPageOutage.Conversations.ShouldBeEmpty();
+            faultStore.GetCalls.ShouldBe(1);
+            faultStore.GetManyCalls.ShouldBe(1);
 
-        // Full outage injection: both List and Open fail closed to Unavailable with zero writes.
-        faultStore.SimulateOutage = true;
-        ConversationListResult outageList = await handler.ListAsync(
-            new ListConversationsQuery(SchemaVersion.Current, tenant, Caller, "corr-outage-list"),
-            cancellationToken);
-        ConversationDetailResult outageOpen = await handler.GetAsync(
-            new GetConversationQuery(SchemaVersion.Current, tenant, Caller, "corr-outage-open", convIds[0]),
-            cancellationToken);
-        outageList.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
-        outageList.Conversations.ShouldBeEmpty();
-        outageOpen.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
-        outageOpen.Details.ShouldBeNull();
-        faultStore.Writes.ShouldBeEmpty("READ_SIDE_REPAIR_ATTEMPTED");
+            ConversationListResult outageList = await handler.ListAsync(
+                new ListConversationsQuery(SchemaVersion.Current, tenant, Caller, "corr-outage-list"),
+                cancellationToken);
+            ConversationDetailResult outageOpen = await handler.GetAsync(
+                new GetConversationQuery(SchemaVersion.Current, tenant, Caller, "corr-outage-open", convIds[0]),
+                cancellationToken);
+            outageList.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable, "DAPR_CORRECTNESS_LANE_RED: index read during sidecar outage");
+            outageList.Conversations.ShouldBeEmpty();
+            outageOpen.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable, "DAPR_CORRECTNESS_LANE_RED: detail read during sidecar outage");
+            outageOpen.Details.ShouldBeNull();
+            faultStore.Writes.ShouldBeEmpty("READ_SIDE_REPAIR_ATTEMPTED");
+        }
+        finally
+        {
+            faultStore.BeforeBulkReadAsync = null;
+            await fixture.StartSidecarAsync();
+        }
 
-        // Recovery after outage clears.
-        faultStore.SimulateOutage = false;
         ConversationDetailResult recoveredOpen = await handler.GetAsync(
             new GetConversationQuery(SchemaVersion.Current, tenant, Caller, "corr-rec-open", convIds[0]),
             cancellationToken);
-        recoveredOpen.FreshnessState.ShouldBe(ProjectionTrustState.Current);
+        ConversationListResult recoveredList = await handler.ListAsync(
+            new ListConversationsQuery(SchemaVersion.Current, tenant, Caller, "corr-rec-list"),
+            cancellationToken);
+        recoveredOpen.FreshnessState.ShouldBe(ProjectionTrustState.Current, "DAPR_CORRECTNESS_LANE_RED: detail did not recover");
+        recoveredOpen.Details!.ConversationId.ShouldBe(convIds[0]);
+        recoveredList.FreshnessState.ShouldBe(ProjectionTrustState.Current, "DAPR_CORRECTNESS_LANE_RED: list did not recover");
+        recoveredList.Conversations.Select(static row => row.ConversationId)
+            .ShouldBe(convIds.Reverse());
+        faultStore.Writes.ShouldBeEmpty("READ_SIDE_REPAIR_ATTEMPTED");
     }
 
     /// <summary>

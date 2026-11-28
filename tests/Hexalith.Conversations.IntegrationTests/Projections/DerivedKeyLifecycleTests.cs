@@ -16,6 +16,7 @@ using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Contracts.Queries;
 using Hexalith.Conversations.Contracts.TrustStates;
 using Hexalith.Conversations.Contracts.Versioning;
+using Hexalith.Conversations.Events;
 using Hexalith.Conversations.Server;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.Queries;
@@ -23,8 +24,13 @@ using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.EventStore.Client.Projections;
 using Hexalith.EventStore.Client.Queries;
 using Hexalith.EventStore.Client.Subscriptions;
+using Hexalith.EventStore.Contracts.Commands;
+using Hexalith.EventStore.Contracts.Events;
+using Hexalith.EventStore.Contracts.Identity;
 using Hexalith.EventStore.Contracts.Projections;
+using Hexalith.EventStore.Contracts.Results;
 using Hexalith.EventStore.DomainService;
+using Hexalith.EventStore.Server.Events;
 using Hexalith.EventStore.Testing.Fakes;
 using Hexalith.Tenants.Contracts.Events;
 
@@ -32,6 +38,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
+
+using EventEnvelope = Hexalith.EventStore.Server.Events.EventEnvelope;
 
 namespace Hexalith.Conversations.IntegrationTests.Projections;
 
@@ -329,240 +338,273 @@ public sealed class DerivedKeyLifecycleTests
     {
         EmitCandidateBinding();
         CancellationToken cancellationToken = TestContext.Current.CancellationToken;
-        InMemoryReadModelStore storeA = new();
+        InMemoryStateManager eventState = new();
+        EventStreamReader streamReader = new(eventState, NullLogger<EventStreamReader>.Instance);
+        AggregateIdentity tenantStream = new("system", "tenants", TenantA.Value);
+        AggregateIdentity targetStream = new(TenantA.Value, ConversationProjectionHandler.ConversationDomain, SharedConversation.Value);
+        ConversationId sibling = new("conv-sibling-002");
+        AggregateIdentity siblingStream = new(TenantA.Value, ConversationProjectionHandler.ConversationDomain, sibling.Value);
+
+        // The authoritative tenant creation precedes these two streams. A complete offline replay can
+        // apply that history to fresh derived storage before it admits any readers.
+        await PersistEventAsync(eventState, tenantStream, new TenantCreated(TenantA.Value, "Rollback Tenant", null, OccurredAt.AddSeconds(-1)), cancellationToken);
+        (await streamReader.RehydrateAsync(targetStream, null, cancellationToken)).ShouldBeNull();
+        (await streamReader.RehydrateAsync(siblingStream, null, cancellationToken)).ShouldBeNull();
+        await PersistEventAsync(eventState, targetStream, RollbackCreated(SharedConversation, "Rollback Target"), cancellationToken);
+        await PersistEventAsync(eventState, siblingStream, RollbackCreated(sibling, "Rollback Sibling"), cancellationToken);
+
+        InMemoryReadModelStore candidateStore = new();
         DerivedKeyLifecycleFixedTimeProvider clockA = new(OccurredAt.AddSeconds(10));
         EphemeralDataProtectionProvider sharedProtection = new();
-        await using WebApplication appA = ComposeHost(storeA, clockA, sharedProtection, TenantA);
-        using IServiceScope scopeA = appA.Services.CreateScope();
-        await InitializeTenantAsync(scopeA.ServiceProvider, TenantA, cancellationToken);
+        await using WebApplication candidateApp = ComposeHost(candidateStore, clockA, sharedProtection, TenantA);
+        using IServiceScope candidateScope = candidateApp.Services.CreateScope();
+        IServiceProvider candidate = candidateScope.ServiceProvider;
+        await ReplayTenantCreatedAsync(candidate, streamReader, tenantStream, cancellationToken);
+        await DispatchInitialRequestAsync(candidate,
+            await FromPersistedHistoryAsync(streamReader, siblingStream, "dispatch-rb-02", cancellationToken), cancellationToken);
+        await DispatchInitialRequestAsync(candidate,
+            await FromPersistedHistoryAsync(streamReader, targetStream, "dispatch-rb-01", cancellationToken), cancellationToken);
 
-        ConversationId siblingConversation = new("conv-rb-sibling-002");
-        await DispatchCreatedAsync(scopeA.ServiceProvider, TenantA, SharedConversation, "dispatch-rb-01", "Rollback Target", 1, OccurredAt, cancellationToken);
-        await DispatchCreatedAsync(scopeA.ServiceProvider, TenantA, siblingConversation, "dispatch-rb-02", "Rollback Sibling", 1, OccurredAt.AddSeconds(1), cancellationToken);
-        ConversationQueryHandler handlerA = scopeA.ServiceProvider.GetRequiredService<ConversationQueryHandler>();
-        ConversationDetailResult beforeDelete = await handlerA.GetAsync(
-            new GetConversationQuery(SchemaVersion.Current, TenantA, Caller, "corr-before", SharedConversation),
-            cancellationToken);
-        beforeDelete.FreshnessState.ShouldBe(ProjectionTrustState.Current);
+        // Deliberately store the tied rows in reverse ordinal order so paging must apply the public tie-break.
+        string indexKey = TenantIndexKey(TenantA);
+        JsonObject storedIndex = candidateStore.Snapshot<JsonObject>(StateStoreName, indexKey)!;
+        JsonArray rows = storedIndex["summaries"]!.AsArray();
+        storedIndex["summaries"] = new JsonArray(
+            [.. rows.OrderByDescending(row => row!["conversationId"]!.GetValue<string>(), StringComparer.Ordinal)
+                .Select(row => row!.DeepClone())]);
+        candidateStore.SeedRaw(StateStoreName, indexKey, storedIndex);
 
-        ConversationListResult candidatePage1BeforeRollback = await handlerA.ListAsync(
-            new ListConversationsQuery(SchemaVersion.Current, TenantA, Caller, "corr-cand-p1", Page: new ConversationPageRequest(1)),
-            cancellationToken);
-        candidatePage1BeforeRollback.FreshnessState.ShouldBe(ProjectionTrustState.Current);
-        candidatePage1BeforeRollback.Page.ContinuationCursor.ShouldNotBeNullOrWhiteSpace();
-
-        // Operator delete of all derived keys for both conversations.
-        await EraseAllDerivedKeysAsync(storeA, TenantA, SharedConversation, "dispatch-rb-01", cancellationToken);
-        await EraseAllDerivedKeysAsync(storeA, TenantA, siblingConversation, "dispatch-rb-02", cancellationToken);
-        ConversationListResult deletedList = await handlerA.ListAsync(
-            new ListConversationsQuery(SchemaVersion.Current, TenantA, Caller, "corr-del"),
-            cancellationToken);
-        deletedList.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
-
-        // Interrupted rebuild (fault injected during batch execution): must fail closed without reporting completion
-        // and both List and Open must withhold the incomplete generation before the fault clears.
-        bool faultedOnce = false;
-        storeA.BatchFaultHook = (_, _, _) =>
+        ConversationQueryHandler candidateHandler = candidate.GetRequiredService<ConversationQueryHandler>();
+        ConversationDetailResult[] before = new ConversationDetailResult[2];
+        ConversationId[] identities = [SharedConversation, sibling];
+        for (int index = 0; index < identities.Length; index++)
         {
-            if (!faultedOnce)
-            {
-                faultedOnce = true;
-                throw new InvalidOperationException("Simulated mid-rebuild crash.");
-            }
+            before[index] = await candidateHandler.GetAsync(RollbackOpen(identities[index]), cancellationToken);
+            before[index].FreshnessState.ShouldBe(ProjectionTrustState.Current);
+            before[index].Details!.Freshness.LastAppliedEventTimestamp.ShouldBe(OccurredAt);
+        }
 
-            return Task.CompletedTask;
-        };
-
-        ProjectionDispatchRequest rebuildRequest = CreateRequest(TenantA, SharedConversation, "rebuild-rb-01", "Rollback Target", 1, OccurredAt);
-        ProjectionDispatchResponse interrupted = await DomainProjectionDispatcher.RebuildAsync(
-            scopeA.ServiceProvider,
-            rebuildRequest,
-            new ProjectionDispatchOptions(),
-            new DomainProjectionIdentityOptions { AppId = AppId, ServiceVersion = ServiceVersion },
-            cancellationToken);
-        interrupted.Outcomes.ShouldHaveSingleItem().Status.ShouldNotBe(ProjectionDispatchStatus.Completed);
-        faultedOnce.ShouldBeTrue();
-
-        // Verify read outcomes DURING interrupted rebuild BEFORE clearing the fault.
-        ConversationListResult listDuringInterruptedRebuild = await handlerA.ListAsync(
-            new ListConversationsQuery(SchemaVersion.Current, TenantA, Caller, "corr-interrupted-list"),
-            cancellationToken);
-        listDuringInterruptedRebuild.FreshnessState.ShouldNotBe(ProjectionTrustState.Current);
-        listDuringInterruptedRebuild.Conversations.ShouldNotContain(c => c.ConversationId == SharedConversation);
-
-        ConversationDetailResult openDuringInterruptedRebuild = await handlerA.GetAsync(
-            new GetConversationQuery(SchemaVersion.Current, TenantA, Caller, "corr-interrupted-open", SharedConversation),
-            cancellationToken);
-        openDuringInterruptedRebuild.FreshnessState.ShouldNotBe(ProjectionTrustState.Current);
-        openDuringInterruptedRebuild.Details.ShouldBeNull();
-
-        // Retry rebuild after fault clears -> converges cleanly.
-        storeA.BatchFaultHook = null;
-        ProjectionDispatchResponse rebuiltA = await DomainProjectionDispatcher.RebuildAsync(
-            scopeA.ServiceProvider,
-            rebuildRequest,
-            new ProjectionDispatchOptions(),
-            new DomainProjectionIdentityOptions { AppId = AppId, ServiceVersion = ServiceVersion },
-            cancellationToken);
-        rebuiltA.Outcomes.ShouldHaveSingleItem().Status.ShouldBe(ProjectionDispatchStatus.Completed);
-
-        // Also verify interrupted rebuild on a POPULATED tenant index: leave siblingConversation readable while
-        // injecting a mid-batch fault when rebuilding a new conversation, confirming BOTH List and Open withhold
-        // the incomplete generation BEFORE clearing the fault.
-        InMemoryReadModelStore populatedStore = new();
-        await using WebApplication populatedApp = ComposeHost(populatedStore, clockA, sharedProtection, TenantA);
-        using IServiceScope populatedScope = populatedApp.Services.CreateScope();
-        await InitializeTenantAsync(populatedScope.ServiceProvider, TenantA, cancellationToken);
-        await DispatchCreatedAsync(populatedScope.ServiceProvider, TenantA, siblingConversation, "dispatch-pop-sib", "Healthy Sibling", 1, OccurredAt, cancellationToken);
-
-        ConversationId interruptedPopId = new("conv-rb-interrupted-pop");
-        bool popFaultedOnce = false;
-        populatedStore.BatchFaultHook = (_, _, _) =>
-        {
-            if (!popFaultedOnce)
-            {
-                popFaultedOnce = true;
-                throw new InvalidOperationException("Simulated mid-rebuild crash on populated index.");
-            }
-
-            return Task.CompletedTask;
-        };
-        ProjectionDispatchRequest popRebuildReq = CreateRequest(TenantA, interruptedPopId, "rebuild-pop-01", "Interrupted Target", 1, OccurredAt.AddSeconds(2));
-        ProjectionDispatchResponse popInterrupted = await DomainProjectionDispatcher.RebuildAsync(
-            populatedScope.ServiceProvider,
-            popRebuildReq,
-            new ProjectionDispatchOptions(),
-            new DomainProjectionIdentityOptions { AppId = AppId, ServiceVersion = ServiceVersion },
-            cancellationToken);
-        popInterrupted.Outcomes.ShouldHaveSingleItem().Status.ShouldNotBe(ProjectionDispatchStatus.Completed);
-        popFaultedOnce.ShouldBeTrue();
-
-        ConversationQueryHandler populatedHandler = populatedScope.ServiceProvider.GetRequiredService<ConversationQueryHandler>();
-        ConversationListResult popListDuringFault = await populatedHandler.ListAsync(
-            new ListConversationsQuery(SchemaVersion.Current, TenantA, Caller, "corr-pop-int-list"),
-            cancellationToken);
-        popListDuringFault.Conversations.ShouldNotContain(c => c.ConversationId == interruptedPopId);
-        ConversationDetailResult popOpenDuringFault = await populatedHandler.GetAsync(
-            new GetConversationQuery(SchemaVersion.Current, TenantA, Caller, "corr-pop-int-open", interruptedPopId),
-            cancellationToken);
-        popOpenDuringFault.FreshnessState.ShouldNotBe(ProjectionTrustState.Current);
-        popOpenDuringFault.Details.ShouldBeNull();
-
-        populatedStore.BatchFaultHook = null;
-        ProjectionDispatchResponse popRebuilt = await DomainProjectionDispatcher.RebuildAsync(
-            populatedScope.ServiceProvider,
-            popRebuildReq,
-            new ProjectionDispatchOptions(),
-            new DomainProjectionIdentityOptions { AppId = AppId, ServiceVersion = ServiceVersion },
-            cancellationToken);
-        popRebuilt.Outcomes.ShouldHaveSingleItem().Status.ShouldBe(ProjectionDispatchStatus.Completed);
-        ConversationDetailResult popOpenAfterRetry = await populatedHandler.GetAsync(
-            new GetConversationQuery(SchemaVersion.Current, TenantA, Caller, "corr-pop-rec-open", interruptedPopId),
-            cancellationToken);
-        popOpenAfterRetry.FreshnessState.ShouldBe(ProjectionTrustState.Current);
-
-        // Real prior-binary rollback rehearsal (redeploy pre-Story-12.3 binary from commit b7c12907, then rebuild
-        // from EventStore under a different wall clock without reverse-writing derived state).
         using DerivedKeyPriorBinaryRollbackHarness priorHarness = DerivedKeyPriorBinaryRollbackHarness.LoadPriorBinary();
+        await using (WebApplication priorApp = priorHarness.ComposePriorHost(
+            candidateStore, ComponentConfiguration, StateStoreName, clockA, sharedProtection, TenantA))
+        {
+            using IServiceScope priorScope = priorApp.Services.CreateScope();
+            IServiceProvider prior = priorScope.ServiceProvider;
+            ConversationListResult candidatePage1 = await candidateHandler.ListAsync(RollbackPage(), cancellationToken);
+            AssertRollbackPage(candidatePage1, SharedConversation);
+            candidatePage1.Page.ContinuationCursor.ShouldNotBeNullOrWhiteSpace();
 
-        // First prove the prior binary reads unchanged candidate-written state and accepts the candidate's
-        // continuation cursor (cross-binary deployment/rollback cursor continuity).
-        InMemoryReadModelStore crossBinaryStore = new();
-        await using WebApplication candidateCrossApp = ComposeHost(crossBinaryStore, clockA, sharedProtection, TenantA);
-        using IServiceScope candidateCrossScope = candidateCrossApp.Services.CreateScope();
-        await InitializeTenantAsync(candidateCrossScope.ServiceProvider, TenantA, cancellationToken);
-        await DispatchCreatedAsync(candidateCrossScope.ServiceProvider, TenantA, SharedConversation, "dispatch-rb-01", "Rollback Target", 1, OccurredAt, cancellationToken);
-        await DispatchCreatedAsync(candidateCrossScope.ServiceProvider, TenantA, siblingConversation, "dispatch-rb-02", "Rollback Sibling", 1, OccurredAt.AddSeconds(1), cancellationToken);
-        ConversationQueryHandler candidateCrossHandler = candidateCrossScope.ServiceProvider.GetRequiredService<ConversationQueryHandler>();
-        ConversationListResult candidateCrossP1 = await candidateCrossHandler.ListAsync(
-            new ListConversationsQuery(SchemaVersion.Current, TenantA, Caller, "corr-xb-cand-p1", Page: new ConversationPageRequest(1)),
-            cancellationToken);
-        candidateCrossP1.Page.ContinuationCursor.ShouldNotBeNullOrWhiteSpace();
+            ConversationListResult priorPage2 = await priorHarness.ListAsync(
+                prior, RollbackPage(candidatePage1.Page.ContinuationCursor), cancellationToken);
+            AssertRollbackPage(priorPage2, sibling);
+            priorPage2.Page.ContinuationCursor.ShouldBeNull();
 
-        await using WebApplication priorCrossApp = priorHarness.ComposePriorHost(
-            crossBinaryStore,
-            ComponentConfiguration,
-            StateStoreName,
-            clockA,
-            sharedProtection,
-            TenantA);
-        using IServiceScope priorCrossScope = priorCrossApp.Services.CreateScope();
-        ConversationListResult priorCrossP2 = await priorHarness.ListAsync(
-            priorCrossScope.ServiceProvider,
-            new ListConversationsQuery(SchemaVersion.Current, TenantA, Caller, "corr-xb-prior-p2", Page: new ConversationPageRequest(1, candidateCrossP1.Page.ContinuationCursor)),
-            cancellationToken);
-        priorCrossP2.FreshnessState.ShouldBe(
-            ProjectionTrustState.Current,
-            "DERIVED_KEY_TRANSITION_UNSAFE: prior binary must accept candidate cursor on unchanged state");
-        priorCrossP2.Conversations.Count.ShouldBe(1);
+            ConversationListResult priorPage1 = await priorHarness.ListAsync(prior, RollbackPage(), cancellationToken);
+            AssertRollbackPage(priorPage1, SharedConversation);
+            priorPage1.Page.ContinuationCursor.ShouldNotBeNullOrWhiteSpace();
 
-        ConversationListResult priorIssuedP1 = await priorHarness.ListAsync(
-            priorCrossScope.ServiceProvider,
-            new ListConversationsQuery(SchemaVersion.Current, TenantA, Caller, "corr-xb-prior-p1", Page: new ConversationPageRequest(1)),
-            cancellationToken);
-        priorIssuedP1.Page.ContinuationCursor.ShouldNotBeNullOrWhiteSpace();
-        ConversationListResult candidateAcceptsPriorP2 = await candidateCrossHandler.ListAsync(
-            new ListConversationsQuery(SchemaVersion.Current, TenantA, Caller, "corr-xb-cand-p2", Page: new ConversationPageRequest(1, priorIssuedP1.Page.ContinuationCursor)),
-            cancellationToken);
-        candidateAcceptsPriorP2.FreshnessState.ShouldBe(
-            ProjectionTrustState.Current,
-            "DERIVED_KEY_TRANSITION_UNSAFE: candidate binary must accept prior binary cursor on unchanged state");
-        candidateAcceptsPriorP2.Conversations.Count.ShouldBe(1);
+            ConversationListResult candidatePage2 = await candidateHandler.ListAsync(
+                RollbackPage(priorPage1.Page.ContinuationCursor), cancellationToken);
+            AssertRollbackPage(candidatePage2, sibling);
+            candidatePage2.Page.ContinuationCursor.ShouldBeNull();
+        }
 
-        // Now execute full redeploy-then-rebuild on the prior binary: delete derived keys, redeploy prior binary
-        // on a different wall clock, rebuild from EventStore, and inspect persisted keys + List/Open outcomes.
-        await EraseAllDerivedKeysAsync(crossBinaryStore, TenantA, SharedConversation, "dispatch-rb-01", cancellationToken);
-        await EraseAllDerivedKeysAsync(crossBinaryStore, TenantA, siblingConversation, "dispatch-rb-02", cancellationToken);
+        await EraseAllDerivedKeysAsync(candidateStore, TenantA, SharedConversation, "dispatch-rb-01", cancellationToken);
+        await EraseAllDerivedKeysAsync(candidateStore, TenantA, sibling, "dispatch-rb-02", cancellationToken);
+        (await candidateHandler.ListAsync(RollbackPage(), cancellationToken)).FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
 
+        // Deploy the prior binary with an offline replacement store. Replay TenantCreated at the empty
+        // historical cutoff, then both complete event streams before exposing the replacement to queries.
+        InMemoryReadModelStore rollbackStore = new();
         DerivedKeyLifecycleFixedTimeProvider clockB = new(OccurredAt.AddSeconds(45));
-        await using WebApplication priorRollbackApp = priorHarness.ComposePriorHost(
-            crossBinaryStore,
-            ComponentConfiguration,
-            StateStoreName,
-            clockB,
-            sharedProtection,
-            TenantA);
-        using IServiceScope priorRollbackScope = priorRollbackApp.Services.CreateScope();
-        ProjectionDispatchResponse rebuiltByPrior = await DomainProjectionDispatcher.RebuildAsync(
-            priorRollbackScope.ServiceProvider,
-            rebuildRequest,
-            new ProjectionDispatchOptions(),
-            new DomainProjectionIdentityOptions { AppId = AppId, ServiceVersion = ServiceVersion },
-            cancellationToken);
-        rebuiltByPrior.Outcomes.ShouldHaveSingleItem().Status.ShouldBe(ProjectionDispatchStatus.Completed);
+        await using WebApplication rollbackApp = priorHarness.ComposePriorHost(
+            rollbackStore, ComponentConfiguration, StateStoreName, clockB, sharedProtection, TenantA);
+        using IServiceScope rollbackScope = rollbackApp.Services.CreateScope();
+        IServiceProvider rollback = rollbackScope.ServiceProvider;
+        await ReplayTenantCreatedAsync(rollback, streamReader, tenantStream, cancellationToken);
+        for (int index = 0; index < identities.Length; index++)
+        {
+            AggregateIdentity identity = new(TenantA.Value, ConversationProjectionHandler.ConversationDomain, identities[index].Value);
+            string dispatchId = $"rebuild-rb-{index + 1:00}";
+            ProjectionDispatchRequest request = await FromPersistedHistoryAsync(streamReader, identity, dispatchId, cancellationToken);
+            (await RebuildAsync(rollback, request, cancellationToken)).Outcomes.ShouldHaveSingleItem()
+                .Status.ShouldBe(ProjectionDispatchStatus.Completed, "DERIVED_KEY_TRANSITION_UNSAFE: persisted full replay");
+            rollbackStore.SnapshotRaw(StateStoreName, ConversationKey(TenantA, identities[index])).ShouldNotBeNull();
+            rollbackStore.SnapshotRaw(StateStoreName, DispatchLedgerKey(dispatchId)).ShouldNotBeNull();
+            rollbackStore.SnapshotRaw(StateStoreName,
+                ResolutionKey("projection:conversations-resolution-proof", TenantA, identities[index])).ShouldNotBeNull();
+        }
 
-        // Verify persisted derived-key state written by the prior binary matches ADR 0005 keys and structure.
-        JsonObject? priorPersistedConversation = crossBinaryStore.Snapshot<JsonObject>(StateStoreName, ConversationKey(TenantA, SharedConversation));
-        JsonObject? priorPersistedIndex = crossBinaryStore.Snapshot<JsonObject>(StateStoreName, TenantIndexKey(TenantA));
-        JsonObject? priorPersistedLedger = crossBinaryStore.Snapshot<JsonObject>(StateStoreName, DispatchLedgerKey("rebuild-rb-01"));
-        JsonObject? priorPersistedProof = crossBinaryStore.Snapshot<JsonObject>(StateStoreName, ResolutionKey("projection:conversations-resolution-proof", TenantA, SharedConversation));
-        priorPersistedConversation.ShouldNotBeNull();
-        priorPersistedIndex.ShouldNotBeNull();
-        priorPersistedLedger.ShouldNotBeNull();
-        priorPersistedProof.ShouldNotBeNull();
-
-        ConversationDetailResult afterA = await handlerA.GetAsync(
-            new GetConversationQuery(SchemaVersion.Current, TenantA, Caller, "corr-after-a", SharedConversation),
-            cancellationToken);
-        ConversationDetailResult afterPriorOpen = await priorHarness.GetAsync(
-            priorRollbackScope.ServiceProvider,
-            new GetConversationQuery(SchemaVersion.Current, TenantA, Caller, "corr-after-prior-open", SharedConversation),
-            cancellationToken);
+        JsonObject rebuiltIndex = rollbackStore.Snapshot<JsonObject>(StateStoreName, indexKey)!;
+        rebuiltIndex["lifecycle"]!.GetValue<int>().ShouldBe(2);
+        rebuiltIndex["watermarks"]!.AsObject().Select(item => (item.Key, item.Value!.GetValue<long>()))
+            .ShouldBe(identities.Select(id => (id.Value, 1L)));
+        rebuiltIndex["dispatches"]!.AsObject().Select(item => item.Key).ShouldBe(identities.Select(id => id.Value));
         ConversationListResult afterPriorList = await priorHarness.ListAsync(
-            priorRollbackScope.ServiceProvider,
-            new ListConversationsQuery(SchemaVersion.Current, TenantA, Caller, "corr-after-prior-list"),
-            cancellationToken);
+            rollback, new ListConversationsQuery(SchemaVersion.Current, TenantA, Caller, "corr-after-prior-list"), cancellationToken);
+        afterPriorList.FreshnessState.ShouldBe(ProjectionTrustState.Current, "DERIVED_KEY_TRANSITION_UNSAFE: complete rollback tenant index");
+        afterPriorList.Conversations.Select(row => row.ConversationId).ShouldBe(identities);
+        for (int index = 0; index < identities.Length; index++)
+        {
+            ConversationDetailResult opened = await priorHarness.GetAsync(rollback, RollbackOpen(identities[index]), cancellationToken);
+            opened.FreshnessState.ShouldBe(ProjectionTrustState.Current);
+            CanonicalizeWithoutObservationTimes(opened.Details!).ShouldBe(
+                CanonicalizeWithoutObservationTimes(before[index].Details!),
+                "REPLAY_NONDETERMINISTIC: prior-binary rollback must recover both conversations from persisted streams");
+        }
 
-        afterA.FreshnessState.ShouldBe(ProjectionTrustState.Current);
-        afterPriorOpen.FreshnessState.ShouldBe(ProjectionTrustState.Current);
-        afterPriorList.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
-        afterPriorList.Conversations.ShouldContain(c => c.ConversationId == SharedConversation);
-        CanonicalizeWithoutObservationTimes(afterA.Details!).ShouldBe(
-            CanonicalizeWithoutObservationTimes(beforeDelete.Details!),
-            "REPLAY_NONDETERMINISTIC: rebuild must reproduce pre-deletion detail");
-        CanonicalizeWithoutObservationTimes(afterPriorOpen.Details!).ShouldBe(
-            CanonicalizeWithoutObservationTimes(afterA.Details!),
-            "REPLAY_NONDETERMINISTIC: prior-binary rollback rebuild under a different clock must match candidate rebuild");
+        await VerifyInterruptedRebuildAsync(streamReader, targetStream, siblingStream, clockA, cancellationToken);
+    }
+
+    private static async Task VerifyInterruptedRebuildAsync(
+        EventStreamReader streamReader,
+        AggregateIdentity targetStream,
+        AggregateIdentity siblingStream,
+        TimeProvider timeProvider,
+        CancellationToken cancellationToken)
+    {
+        InMemoryReadModelStore store = new();
+        DerivedKeyRecoverableRebuildBatchStore rebuildBatches = new(store);
+        await using WebApplication app = ComposeHost(store, timeProvider, null, rebuildBatches, TenantA);
+        using IServiceScope scope = app.Services.CreateScope();
+        IServiceProvider services = scope.ServiceProvider;
+        await InitializeTenantAsync(services, TenantA, cancellationToken);
+        await DispatchInitialRequestAsync(services,
+            await FromPersistedHistoryAsync(streamReader, siblingStream, "dispatch-interruption-sibling", cancellationToken), cancellationToken);
+        ProjectionDispatchRequest request = await FromPersistedHistoryAsync(streamReader, targetStream, "rebuild-interrupted", cancellationToken);
+        string indexKey = TenantIndexKey(TenantA);
+        string targetKey = ConversationKey(TenantA, SharedConversation);
+        ConversationId sibling = new(siblingStream.AggregateId);
+        bool interrupted = false;
+        store.BatchFaultHook = (phase, ordinal, _) =>
+        {
+            // The detail and index have already been installed behind the SDK's visibility marker.
+            if (phase == ReadModelBatchPhase.AfterInstallOperation && ordinal == 3)
+            {
+                interrupted = true;
+                throw new InvalidOperationException("Simulated crash after installing the rebuild index candidate.");
+            }
+
+            return Task.CompletedTask;
+        };
+
+        (await RebuildAsync(services, request, cancellationToken)).Outcomes.ShouldHaveSingleItem()
+            .Status.ShouldNotBe(ProjectionDispatchStatus.Completed);
+        interrupted.ShouldBeTrue();
+        store.HasPendingEnvelope(StateStoreName, targetKey).ShouldBeTrue();
+        store.HasPendingEnvelope(StateStoreName, indexKey).ShouldBeTrue();
+        byte[] detailDuringRebuild = store.SnapshotRaw(StateStoreName, targetKey)!;
+        byte[] indexDuringRebuild = store.SnapshotRaw(StateStoreName, indexKey)!;
+
+        ConversationQueryHandler handler = services.GetRequiredService<ConversationQueryHandler>();
+        ConversationListResult list = await handler.ListAsync(
+            new ListConversationsQuery(SchemaVersion.Current, TenantA, Caller, "corr-interrupted-list"), cancellationToken);
+        list.Conversations.ShouldHaveSingleItem().ConversationId.ShouldBe(sibling);
+        ConversationDetailResult target = await handler.GetAsync(RollbackOpen(SharedConversation), cancellationToken);
+        target.FreshnessState.ShouldNotBe(ProjectionTrustState.Current);
+        target.Details.ShouldBeNull();
+        (await handler.GetAsync(RollbackOpen(sibling), cancellationToken)).FreshnessState.ShouldBe(ProjectionTrustState.Current);
+        store.SnapshotRaw(StateStoreName, targetKey).ShouldBe(detailDuringRebuild, "READ_SIDE_REPAIR_ATTEMPTED");
+        store.SnapshotRaw(StateStoreName, indexKey).ShouldBe(indexDuringRebuild, "READ_SIDE_REPAIR_ATTEMPTED");
+
+        store.BatchFaultHook = null;
+        // A fresh SDK recovery call discovers the durable manifest through the installed detail key.
+        ReadModelBatchScope recoveryScope = new(StateStoreName, TenantA.Value, targetStream.Domain,
+            targetStream.AggregateId, "rebuild", request.DispatchId);
+        ReadModelPendingBatchRecoveryResult recovery = await store.RecoverPendingAsync(recoveryScope, targetKey, cancellationToken);
+        recovery.IsResolved.ShouldBeTrue($"DERIVED_KEY_TRANSITION_UNSAFE: pending rebuild recovery: {recovery.Reason}");
+        recovery.WasRecovered.ShouldBeTrue();
+        store.HasPendingEnvelope(StateStoreName, targetKey).ShouldBeFalse();
+        store.HasPendingEnvelope(StateStoreName, indexKey).ShouldBeFalse();
+        (await handler.GetAsync(RollbackOpen(SharedConversation), cancellationToken)).FreshnessState.ShouldBe(ProjectionTrustState.Current);
+        (await handler.GetAsync(RollbackOpen(sibling), cancellationToken)).FreshnessState.ShouldBe(ProjectionTrustState.Current);
+        ConversationListResult after = await handler.ListAsync(
+            new ListConversationsQuery(SchemaVersion.Current, TenantA, Caller, "corr-retried-list"), cancellationToken);
+        after.FreshnessState.ShouldBe(ProjectionTrustState.Current);
+        after.Conversations.Select(row => row.ConversationId).ShouldBe([SharedConversation, sibling]);
+    }
+
+    private static ConversationCreatedDomainEvent RollbackCreated(ConversationId id, string label)
+        => new(
+            new ConversationEventMetadata(SchemaVersion.Current, $"evt-{id.Value}", ConversationEventType.ConversationCreated,
+                TenantA, id, $"corr-{id.Value}", OccurredAt, Actor, $"caus-{id.Value}"),
+            Label: label);
+
+    private static async Task PersistEventAsync(
+        InMemoryStateManager state,
+        AggregateIdentity identity,
+        IEventPayload payload,
+        CancellationToken cancellationToken)
+    {
+        EventPersister persister = new(state, NullLogger<EventPersister>.Instance, new NoOpEventPayloadProtectionService());
+        CommandEnvelope command = new(
+            UniqueIdHelper.GenerateSortableUniqueStringId(), identity.TenantId, identity.Domain, identity.AggregateId,
+            "Create", [], $"corr-{identity.AggregateId}", null, Caller, null);
+        EventPersistResult result = await persister.PersistEventsAsync(
+            identity, identity.Domain, command, DomainResult.Success([payload]), ServiceVersion, cancellationToken);
+        result.NewSequenceNumber.ShouldBe(1);
+        await state.SaveStateAsync(cancellationToken);
+        await state.ClearCacheAsync(cancellationToken);
+    }
+
+    private static async Task ReplayTenantCreatedAsync(
+        IServiceProvider services,
+        EventStreamReader reader,
+        AggregateIdentity identity,
+        CancellationToken cancellationToken)
+    {
+        RehydrationResult history = (await reader.RehydrateAsync(identity, null, cancellationToken))!;
+        EventEnvelope persisted = history.Events.ShouldHaveSingleItem();
+        EventStoreDomainEventEnvelope envelope = new(
+            persisted.MessageId, persisted.AggregateId, persisted.TenantId, persisted.EventTypeName, persisted.SequenceNumber,
+            persisted.Timestamp, persisted.CorrelationId, persisted.SerializationFormat, persisted.Payload)
+        {
+            Domain = persisted.Domain,
+            UserId = persisted.UserId,
+        };
+        (await services.GetRequiredService<EventStoreDomainEventProcessor>().ProcessAsync(envelope, cancellationToken))
+            .ShouldBe(EventStoreDomainEventProcessingResult.Processed);
+    }
+
+    private static async Task<ProjectionDispatchRequest> FromPersistedHistoryAsync(
+        EventStreamReader reader,
+        AggregateIdentity identity,
+        string dispatchId,
+        CancellationToken cancellationToken)
+    {
+        RehydrationResult history = (await reader.RehydrateAsync(identity, null, cancellationToken))!;
+        history.UsedSnapshot.ShouldBeFalse();
+        ((long)history.Events.Count).ShouldBe(history.CurrentSequence);
+        ProjectionEventDto[] events =
+        [
+            .. history.Events.Select(persisted => new ProjectionEventDto(
+                persisted.EventTypeName, persisted.Payload, persisted.SerializationFormat, persisted.SequenceNumber,
+                persisted.Timestamp, persisted.CorrelationId, persisted.MessageId, persisted.UserId)),
+        ];
+        ProjectionDispatchRoute[] routes = [new(identity.Domain, ProjectionType)];
+        return new ProjectionDispatchRequest(
+            new ProjectionRequest(identity.TenantId, identity.Domain, identity.AggregateId, events),
+            [ProjectionType], dispatchId, ProjectionRouteCatalogFingerprint.Compute(AppId, ServiceVersion, routes));
+    }
+
+    private static Task<ProjectionDispatchResponse> RebuildAsync(
+        IServiceProvider services,
+        ProjectionDispatchRequest request,
+        CancellationToken cancellationToken)
+        => DomainProjectionDispatcher.RebuildAsync(services, request, new ProjectionDispatchOptions(),
+            new DomainProjectionIdentityOptions { AppId = AppId, ServiceVersion = ServiceVersion }, cancellationToken);
+
+    private static ListConversationsQuery RollbackPage(string? continuation = null)
+        => new(SchemaVersion.Current, TenantA, Caller, "corr-rollback-page", Page: new ConversationPageRequest(1, continuation));
+
+    private static GetConversationQuery RollbackOpen(ConversationId id)
+        => new(SchemaVersion.Current, TenantA, Caller, $"corr-rollback-open-{id.Value}", id);
+
+    private static void AssertRollbackPage(ConversationListResult result, ConversationId id)
+    {
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Current, "DERIVED_KEY_TRANSITION_UNSAFE: cross-binary cursor");
+        result.Conversations.Select(row => row.ConversationId)
+            .ShouldBe([id], "DERIVED_KEY_TRANSITION_UNSAFE: exact cross-binary page ordering");
     }
 
     private static async Task<ConversationProjectedReadModels> RunEqualPositionConflictAsync(
@@ -624,6 +666,14 @@ public sealed class DerivedKeyLifecycleTests
         TimeProvider timeProvider,
         IDataProtectionProvider? dataProtectionProvider,
         params TenantId[] allowedTenants)
+        => ComposeHost(store, timeProvider, dataProtectionProvider, store, allowedTenants);
+
+    private static WebApplication ComposeHost(
+        InMemoryReadModelStore store,
+        TimeProvider timeProvider,
+        IDataProtectionProvider? dataProtectionProvider,
+        IReadModelBatchStore batches,
+        params TenantId[] allowedTenants)
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder();
         builder.Configuration.AddConfiguration(ComponentConfiguration);
@@ -634,7 +684,7 @@ public sealed class DerivedKeyLifecycleTests
             typeof(ConversationsAssemblyMarker).Assembly,
             typeof(ServerAssemblyMarker).Assembly);
         builder.Services.AddSingleton<IReadModelStore>(store);
-        builder.Services.AddSingleton<IReadModelBatchStore>(store);
+        builder.Services.AddSingleton(batches);
         builder.Services.AddSingleton<IReadModelBatchStagingStore>(store);
         builder.Services.AddSingleton(timeProvider);
         builder.Services.AddSingleton<IConversationTenantAccessService>(new DerivedKeyLifecycleTenantAccess(allowedTenants));
@@ -680,7 +730,15 @@ public sealed class DerivedKeyLifecycleTests
         DateTimeOffset occurredAt,
         CancellationToken cancellationToken)
     {
-        ProjectionDispatchRequest request = CreateRequest(tenant, conversationId, dispatchId, label, sequence, occurredAt);
+        await DispatchInitialRequestAsync(services,
+            CreateRequest(tenant, conversationId, dispatchId, label, sequence, occurredAt), cancellationToken);
+    }
+
+    private static async Task DispatchInitialRequestAsync(
+        IServiceProvider services,
+        ProjectionDispatchRequest request,
+        CancellationToken cancellationToken)
+    {
         DomainProjectionCatalogRegistry catalog = services.GetRequiredService<DomainProjectionCatalogRegistry>();
         catalog.Register(
             request.CatalogFingerprint,
@@ -808,7 +866,7 @@ public sealed class DerivedKeyLifecycleTests
             (bool present, string etag) = await store.TryReadEtagAsync(StateStoreName, key, cancellationToken);
             if (present)
             {
-                _ = await store.TryEraseAsync(StateStoreName, key, etag, cancellationToken);
+                (await store.TryEraseAsync(StateStoreName, key, etag, cancellationToken)).ShouldBeTrue(key);
             }
         }
     }

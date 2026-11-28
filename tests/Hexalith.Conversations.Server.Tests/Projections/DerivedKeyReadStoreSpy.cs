@@ -3,6 +3,7 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using Hexalith.Conversations.Server.Projections;
 using Hexalith.EventStore.Client.Projections;
 using Hexalith.EventStore.Testing.Fakes;
 
@@ -22,20 +23,73 @@ internal sealed class DerivedKeyReadStoreSpy(InMemoryReadModelStore inner)
 {
     private readonly InMemoryReadModelStore _inner = inner ?? throw new ArgumentNullException(nameof(inner));
 
+    private readonly Lock _observations = new();
+    private readonly List<string> _singleReadKeys = [];
+    private readonly List<IReadOnlyList<string>> _bulkReadBatches = [];
+    private readonly List<string> _writes = [];
+
     /// <summary>Gets the number of single-key reads observed.</summary>
-    public int GetCalls { get; private set; }
+    public int GetCalls
+    {
+        get
+        {
+            lock (_observations)
+            {
+                return _singleReadKeys.Count;
+            }
+        }
+    }
 
     /// <summary>Gets the number of bulk read calls observed.</summary>
-    public int BulkGetCalls { get; private set; }
+    public int BulkGetCalls
+    {
+        get
+        {
+            lock (_observations)
+            {
+                return _bulkReadBatches.Count;
+            }
+        }
+    }
 
-    /// <summary>Gets the exact single-key read keys observed in call order.</summary>
-    public List<string> SingleReadKeys { get; } = [];
+    /// <summary>Gets a snapshot of the exact single-key read keys observed in call order.</summary>
+    public IReadOnlyList<string> SingleReadKeys
+    {
+        get
+        {
+            lock (_observations)
+            {
+                return [.. _singleReadKeys];
+            }
+        }
+    }
 
-    /// <summary>Gets the exact key batches requested through bulk reads.</summary>
-    public List<IReadOnlyList<string>> BulkReadBatches { get; } = [];
+    /// <summary>Gets a snapshot of the exact key batches requested through bulk reads.</summary>
+    public IReadOnlyList<IReadOnlyList<string>> BulkReadBatches
+    {
+        get
+        {
+            lock (_observations)
+            {
+                return [.. _bulkReadBatches];
+            }
+        }
+    }
 
-    /// <summary>Gets every write or erase operation attempted against the store.</summary>
-    public List<string> Writes { get; } = [];
+    /// <summary>Gets a snapshot of every write or erase operation attempted against the store.</summary>
+    public IReadOnlyList<string> Writes
+    {
+        get
+        {
+            lock (_observations)
+            {
+                return [.. _writes];
+            }
+        }
+    }
+
+    /// <summary>Gets or sets whether targeted reads use the typed full index as an allocation baseline.</summary>
+    public bool MaterializeFullIndexForTargetedRead { get; set; }
 
     /// <summary>Gets or sets a value indicating whether all reads throw an <see cref="InvalidOperationException"/>.</summary>
     public bool FailReads { get; set; }
@@ -49,11 +103,12 @@ internal sealed class DerivedKeyReadStoreSpy(InMemoryReadModelStore inner)
     /// <summary>Resets all recorded read and write counters.</summary>
     public void Reset()
     {
-        GetCalls = 0;
-        BulkGetCalls = 0;
-        SingleReadKeys.Clear();
-        BulkReadBatches.Clear();
-        Writes.Clear();
+        lock (_observations)
+        {
+            _singleReadKeys.Clear();
+            _bulkReadBatches.Clear();
+            _writes.Clear();
+        }
     }
 
     /// <inheritdoc/>
@@ -63,8 +118,7 @@ internal sealed class DerivedKeyReadStoreSpy(InMemoryReadModelStore inner)
         CancellationToken cancellationToken = default)
         where TValue : class
     {
-        GetCalls++;
-        SingleReadKeys.Add(key);
+        Record(_singleReadKeys, key);
         if (AsyncReadDelay > TimeSpan.Zero)
         {
             await Task.Delay(AsyncReadDelay, cancellationToken).ConfigureAwait(false);
@@ -73,6 +127,17 @@ internal sealed class DerivedKeyReadStoreSpy(InMemoryReadModelStore inner)
         if (FailReads)
         {
             throw new InvalidOperationException("Simulated store read outage.");
+        }
+
+        if (MaterializeFullIndexForTargetedRead && typeof(TValue) == typeof(ConversationProjectionIndexLookupResult))
+        {
+            ReadModelEntry<ConversationProjectionIndexReadModel> index = await _inner
+                .GetAsync<ConversationProjectionIndexReadModel>(storeName, key, cancellationToken).ConfigureAwait(false);
+            ConversationProjectionIndexLookupResult? result = index.Value is null
+                ? null
+                : ConversationProjectionIndexLookupConverter.FromFullIndex(
+                    index.Value, ConversationProjectionIndexLookupScope.Current!.ConversationId);
+            return new ReadModelEntry<TValue>((TValue?)(object?)result, index.ETag);
         }
 
         return await _inner.GetAsync<TValue>(storeName, key, cancellationToken).ConfigureAwait(false);
@@ -85,8 +150,7 @@ internal sealed class DerivedKeyReadStoreSpy(InMemoryReadModelStore inner)
         CancellationToken cancellationToken = default)
         where TValue : class
     {
-        GetCalls++;
-        SingleReadKeys.Add(key);
+        Record(_singleReadKeys, key);
         if (FailReads)
         {
             throw new InvalidOperationException("Simulated store read outage.");
@@ -103,8 +167,7 @@ internal sealed class DerivedKeyReadStoreSpy(InMemoryReadModelStore inner)
         CancellationToken cancellationToken = default)
         where TValue : class
     {
-        BulkGetCalls++;
-        BulkReadBatches.Add([.. keys]);
+        Record(_bulkReadBatches, keys.ToArray());
         if (FailReads)
         {
             throw new InvalidOperationException("Simulated store bulk-read outage.");
@@ -125,7 +188,7 @@ internal sealed class DerivedKeyReadStoreSpy(InMemoryReadModelStore inner)
     public Task SaveAsync<TValue>(string storeName, string key, TValue value, CancellationToken cancellationToken = default)
         where TValue : class
     {
-        Writes.Add($"save:{key}");
+        Record(_writes, $"save:{key}");
         return _inner.SaveAsync(storeName, key, value, cancellationToken);
     }
 
@@ -133,7 +196,7 @@ internal sealed class DerivedKeyReadStoreSpy(InMemoryReadModelStore inner)
     public Task<bool> TrySaveAsync<TValue>(string storeName, string key, TValue value, string etag, CancellationToken cancellationToken = default)
         where TValue : class
     {
-        Writes.Add($"try-save:{key}");
+        Record(_writes, $"try-save:{key}");
         return _inner.TrySaveAsync(storeName, key, value, etag, cancellationToken);
     }
 
@@ -147,7 +210,7 @@ internal sealed class DerivedKeyReadStoreSpy(InMemoryReadModelStore inner)
         CancellationToken cancellationToken = default)
         where TValue : class
     {
-        Writes.Add($"try-save-ttl:{key}");
+        Record(_writes, $"try-save-ttl:{key}");
         return _inner.TrySaveWithTimeToLiveAsync(storeName, key, value, etag, timeToLive, cancellationToken);
     }
 
@@ -157,22 +220,29 @@ internal sealed class DerivedKeyReadStoreSpy(InMemoryReadModelStore inner)
     /// <inheritdoc/>
     public Task<ReadModelBatchResult> ExecuteAsync(ReadModelBatch batch, CancellationToken cancellationToken = default)
     {
-        Writes.Add("batch");
+        Record(_writes, "batch");
         return _inner.ExecuteAsync(batch, cancellationToken);
     }
 
     /// <inheritdoc/>
     public Task<bool> TryEraseAsync(string storeName, string key, string etag, CancellationToken cancellationToken = default)
     {
-        Writes.Add($"erase:{key}");
+        Record(_writes, $"erase:{key}");
         return _inner.TryEraseAsync(storeName, key, etag, cancellationToken);
     }
 
     /// <inheritdoc/>
     public Task<(bool Present, string Etag)> TryReadEtagAsync(string storeName, string key, CancellationToken cancellationToken = default)
     {
-        GetCalls++;
-        SingleReadKeys.Add(key);
+        Record(_singleReadKeys, key);
         return _inner.TryReadEtagAsync(storeName, key, cancellationToken);
+    }
+
+    private void Record<T>(List<T> observations, T observation)
+    {
+        lock (_observations)
+        {
+            observations.Add(observation);
+        }
     }
 }

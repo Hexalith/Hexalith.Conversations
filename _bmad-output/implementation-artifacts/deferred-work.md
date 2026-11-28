@@ -1625,3 +1625,7 @@ The 20 groups below combine duplicate reports and related validation steps. They
 - source_spec: _bmad-output/implementation-artifacts/spec-11-4-restore-package-qualification-and-maintainer-commands.md
   summary: Isolate a retained package consumer workspace from build imports inherited from its ancestors.
   evidence: The existing explicit `--work-directory` accepts a descendant of the module root, where SDK evaluation inherits the root's mapped-build requirement. The default consumer workspace is outside the repository and passes independently.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-12-3-implement-correctness-preserving-list-open-optimization-and-migration-behavior.md`
+  summary: Prove that package qualification rejects an exact-version package restored from the wrong feed.
+  evidence: All four consumer qualification tests passed with the provenance verifier replaced by a no-op. Add a wrong-source restore fixture and require rejection before build. The gap was present in the package-tooling change at aaabc916.

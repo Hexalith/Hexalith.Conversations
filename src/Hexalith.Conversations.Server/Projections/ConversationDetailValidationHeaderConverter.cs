@@ -11,12 +11,14 @@ using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Contracts.Queries;
 using Hexalith.Conversations.Contracts.Versioning;
 
+using static Hexalith.Conversations.Server.Projections.ConversationProjectionJsonValidation;
+
 namespace Hexalith.Conversations.Server.Projections;
 
 /// <summary>
 /// Streaming <see cref="Utf8JsonReader"/> converter for <see cref="ConversationDetailValidationHeader"/> that
 /// validates all required and recognized <see cref="ConversationDetailProjectionV1"/> fields fail-closed
-/// without allocating full timeline, participant, file-reference, or evidence CLR object graphs.
+/// without assembling timeline, participant, file-reference, or evidence collections.
 /// </summary>
 internal sealed class ConversationDetailValidationHeaderConverter : JsonConverter<ConversationDetailValidationHeader>
 {
@@ -31,6 +33,15 @@ internal sealed class ConversationDetailValidationHeaderConverter : JsonConverte
             return null;
         }
 
+        if (!UsesStreamingPropertyBinding(options))
+        {
+            ConversationDetailProjectionV1? detail = JsonSerializer.Deserialize<ConversationDetailProjectionV1>(ref reader, options);
+            return detail is null
+                ? null
+                : new ConversationDetailValidationHeader(
+                    detail.SchemaVersion, detail.TenantId, detail.ConversationId, detail.Freshness, detail.LifecycleState);
+        }
+
         if (reader.TokenType != JsonTokenType.StartObject)
         {
             throw new JsonException("Expected a JSON object for conversation detail.");
@@ -41,6 +52,13 @@ internal sealed class ConversationDetailValidationHeaderConverter : JsonConverte
         ConversationId? conversationId = null;
         ProjectionFreshnessV1? freshness = null;
         string? lifecycleState = null;
+        IReadOnlyDictionary<string, string>? attributes = null;
+        bool participantsValid = true;
+        bool messagesValid = true;
+        bool fileReferencesValid = true;
+        bool sensitivityMarksValid = true;
+        bool redactionsValid = true;
+        bool evidenceEntriesValid = true;
 
         while (reader.Read())
         {
@@ -53,6 +71,18 @@ internal sealed class ConversationDetailValidationHeaderConverter : JsonConverte
                     || lifecycleState is null)
                 {
                     throw new JsonException("Conversation detail is missing one or more required header fields.");
+                }
+
+                if (!participantsValid || !messagesValid || !fileReferencesValid
+                    || !sensitivityMarksValid || !redactionsValid || !evidenceEntriesValid)
+                {
+                    throw new JsonException("Detail collection elements must be non-null.");
+                }
+
+                if (attributes is not null
+                    && attributes.Any(attribute => string.IsNullOrWhiteSpace(attribute.Key) || attribute.Value is null))
+                {
+                    throw new JsonException("Detail attribute keys must be non-empty and values must be non-null.");
                 }
 
                 return new ConversationDetailValidationHeader(
@@ -70,77 +100,84 @@ internal sealed class ConversationDetailValidationHeaderConverter : JsonConverte
 
             if (PropertyNameEqualsIgnoreCase(ref reader, "schemaversion"u8))
             {
-                schemaVersion = DeserializeRequired<SchemaVersion>(ref reader, options, "schemaVersion");
+                schemaVersion = ReadValue<SchemaVersion>(ref reader, options, "schemaVersion");
             }
             else if (PropertyNameEqualsIgnoreCase(ref reader, "tenantid"u8))
             {
-                tenantId = DeserializeRequired<TenantId>(ref reader, options, "tenantId");
+                tenantId = ReadValue<TenantId>(ref reader, options, "tenantId");
             }
             else if (PropertyNameEqualsIgnoreCase(ref reader, "conversationid"u8))
             {
-                conversationId = DeserializeRequired<ConversationId>(ref reader, options, "conversationId");
+                conversationId = ReadValue<ConversationId>(ref reader, options, "conversationId");
             }
             else if (PropertyNameEqualsIgnoreCase(ref reader, "freshness"u8))
             {
-                freshness = DeserializeRequired<ProjectionFreshnessV1>(ref reader, options, "freshness");
+                freshness = ReadValue<ProjectionFreshnessV1>(ref reader, options, "freshness");
             }
             else if (PropertyNameEqualsIgnoreCase(ref reader, "lifecyclestate"u8))
             {
-                ReadValueToken(ref reader, "lifecycleState");
-                if (reader.TokenType != JsonTokenType.String)
-                {
-                    throw new JsonException("Expected a JSON string for detail lifecycleState.");
-                }
-
-                lifecycleState = ValidateLifecycle(reader.GetString());
+                lifecycleState = ReadValue<string>(ref reader, options, "lifecycleState");
             }
             else if (PropertyNameEqualsIgnoreCase(ref reader, "label"u8))
             {
                 ReadValueToken(ref reader, "label");
-                if (reader.TokenType is not (JsonTokenType.Null or JsonTokenType.String))
-                {
-                    throw new JsonException("Expected a JSON string or null for detail label.");
-                }
+                ValidateNullableString(ref reader);
             }
             else if (PropertyNameEqualsIgnoreCase(ref reader, "businessreference"u8))
             {
-                ValidateOptionalObject<BusinessReference>(ref reader, options, "businessReference");
+                _ = ReadValue<BusinessReference>(ref reader, options, "businessReference");
             }
             else if (PropertyNameEqualsIgnoreCase(ref reader, "projectid"u8))
             {
-                ValidateOptionalObject<ProjectId>(ref reader, options, "projectId");
+                _ = ReadValue<ProjectId>(ref reader, options, "projectId");
             }
             else if (PropertyNameEqualsIgnoreCase(ref reader, "folderid"u8))
             {
-                ValidateOptionalObject<FolderId>(ref reader, options, "folderId");
+                _ = ReadValue<FolderId>(ref reader, options, "folderId");
             }
             else if (PropertyNameEqualsIgnoreCase(ref reader, "providercorrelation"u8))
             {
-                ValidateOptionalObject<ProviderCorrelationMetadata>(ref reader, options, "providerCorrelation");
+                _ = ReadValue<ProviderCorrelationMetadata>(ref reader, options, "providerCorrelation");
             }
             else if (PropertyNameEqualsIgnoreCase(ref reader, "activeretentionpolicy"u8))
             {
-                ValidateOptionalObject<ConversationRetentionPolicyProjectionV1>(ref reader, options, "activeRetentionPolicy");
+                _ = ReadValue<ConversationRetentionPolicyProjectionV1>(ref reader, options, "activeRetentionPolicy");
             }
             else if (PropertyNameEqualsIgnoreCase(ref reader, "trustposture"u8))
             {
-                ValidateOptionalObject<ConversationEvidenceTrustPostureV1>(ref reader, options, "trustPosture");
+                _ = ReadValue<ConversationEvidenceTrustPostureV1>(ref reader, options, "trustPosture");
             }
             else if (PropertyNameEqualsIgnoreCase(ref reader, "attributes"u8))
             {
-                ValidateAttributes(ref reader);
+                attributes = ReadValue<IReadOnlyDictionary<string, string>>(ref reader, options, "attributes");
             }
-            else if (PropertyNameEqualsIgnoreCase(ref reader, "participants"u8)
-                || PropertyNameEqualsIgnoreCase(ref reader, "messages"u8)
-                || PropertyNameEqualsIgnoreCase(ref reader, "filereferences"u8)
-                || PropertyNameEqualsIgnoreCase(ref reader, "sensitivitymarks"u8)
-                || PropertyNameEqualsIgnoreCase(ref reader, "redactions"u8)
-                || PropertyNameEqualsIgnoreCase(ref reader, "evidenceentries"u8))
+            else if (PropertyNameEqualsIgnoreCase(ref reader, "participants"u8))
             {
-                ValidateNonNullObjectArray(ref reader);
+                participantsValid = ValidateCollection<ConversationParticipantProjectionV1>(ref reader, options);
+            }
+            else if (PropertyNameEqualsIgnoreCase(ref reader, "messages"u8))
+            {
+                messagesValid = ValidateCollection<ConversationTimelineMessageProjectionV1>(ref reader, options);
+            }
+            else if (PropertyNameEqualsIgnoreCase(ref reader, "filereferences"u8))
+            {
+                fileReferencesValid = ValidateCollection<ConversationFileReferenceProjectionV1>(ref reader, options);
+            }
+            else if (PropertyNameEqualsIgnoreCase(ref reader, "sensitivitymarks"u8))
+            {
+                sensitivityMarksValid = ValidateCollection<ConversationSensitivityMarkProjectionV1>(ref reader, options);
+            }
+            else if (PropertyNameEqualsIgnoreCase(ref reader, "redactions"u8))
+            {
+                redactionsValid = ValidateCollection<ConversationRedactionProjectionV1>(ref reader, options);
+            }
+            else if (PropertyNameEqualsIgnoreCase(ref reader, "evidenceentries"u8))
+            {
+                evidenceEntriesValid = ValidateCollection<ConversationEvidenceEntryV1>(ref reader, options);
             }
             else
             {
+                ValidateStringEncoding(ref reader);
                 ReadValueToken(ref reader, "unknown");
                 reader.Skip();
             }
@@ -156,107 +193,23 @@ internal sealed class ConversationDetailValidationHeaderConverter : JsonConverte
         JsonSerializerOptions options)
         => throw new NotSupportedException("Conversation detail validation headers are read-only.");
 
-    private static T DeserializeRequired<T>(
+    private static T? ReadValue<T>(
         ref Utf8JsonReader reader,
         JsonSerializerOptions options,
         string fieldName)
         where T : class
     {
         ReadValueToken(ref reader, fieldName);
-        if (reader.TokenType == JsonTokenType.Null)
-        {
-            throw new JsonException($"Required detail field '{fieldName}' must not be null.");
-        }
-
-        try
-        {
-            return JsonSerializer.Deserialize<T>(ref reader, options)
-                ?? throw new JsonException($"Required detail field '{fieldName}' must not be null.");
-        }
-        catch (ArgumentException ex)
-        {
-            throw new JsonException($"Detail field '{fieldName}' failed validation.", ex);
-        }
+        return JsonSerializer.Deserialize<T>(ref reader, options);
     }
 
-    private static void ValidateOptionalObject<T>(
-        ref Utf8JsonReader reader,
-        JsonSerializerOptions options,
-        string fieldName)
+    private static bool ValidateCollection<T>(ref Utf8JsonReader reader, JsonSerializerOptions options)
         where T : class
-    {
-        ReadValueToken(ref reader, fieldName);
-        if (reader.TokenType == JsonTokenType.Null)
-        {
-            return;
-        }
-
-        try
-        {
-            _ = JsonSerializer.Deserialize<T>(ref reader, options);
-        }
-        catch (ArgumentException ex)
-        {
-            throw new JsonException($"Detail field '{fieldName}' failed validation.", ex);
-        }
-    }
-
-    private static string ValidateLifecycle(string? value)
-    {
-        if (value is not ("Initializing" or "Open" or "Closed" or "Archived"))
-        {
-            throw new JsonException("Unsupported or missing conversation detail lifecycleState.");
-        }
-
-        return value;
-    }
-
-    private static void ValidateAttributes(ref Utf8JsonReader reader)
-    {
-        ReadValueToken(ref reader, "attributes");
-        if (reader.TokenType == JsonTokenType.Null)
-        {
-            return;
-        }
-
-        if (reader.TokenType != JsonTokenType.StartObject)
-        {
-            throw new JsonException("Expected a JSON object or null for detail attributes.");
-        }
-
-        while (reader.Read())
-        {
-            if (reader.TokenType == JsonTokenType.EndObject)
-            {
-                return;
-            }
-
-            if (reader.TokenType != JsonTokenType.PropertyName)
-            {
-                throw new JsonException("Expected a property name in detail attributes.");
-            }
-
-            if (IsWhitespacePropertyName(ref reader))
-            {
-                throw new JsonException("Detail attribute keys must be non-empty.");
-            }
-
-            ReadValueToken(ref reader, "attributes value");
-            if (reader.TokenType != JsonTokenType.String)
-            {
-                throw new JsonException("Detail attribute values must be non-null JSON strings.");
-            }
-        }
-
-        throw new JsonException("Unexpected end of JSON while reading detail attributes.");
-    }
-
-    private static void ValidateNonNullObjectArray(ref Utf8JsonReader reader)
     {
         ReadValueToken(ref reader, "collection");
         if (reader.TokenType == JsonTokenType.Null)
         {
-            return;
+            return true;
         }
 
         if (reader.TokenType != JsonTokenType.StartArray)
@@ -264,19 +217,16 @@ internal sealed class ConversationDetailValidationHeaderConverter : JsonConverte
             throw new JsonException("Expected a JSON array or null for detail collection.");
         }
 
+        // Constructor validation applies to the final collection when a property repeats.
+        bool hasNullElement = false;
         while (reader.Read())
         {
             if (reader.TokenType == JsonTokenType.EndArray)
             {
-                return;
+                return !hasNullElement;
             }
 
-            if (reader.TokenType != JsonTokenType.StartObject)
-            {
-                throw new JsonException("Detail collection elements must be non-null JSON objects.");
-            }
-
-            reader.Skip();
+            hasNullElement |= JsonSerializer.Deserialize<T>(ref reader, options) is null;
         }
 
         throw new JsonException("Unexpected end of JSON while reading detail collection.");
@@ -288,81 +238,5 @@ internal sealed class ConversationDetailValidationHeaderConverter : JsonConverte
         {
             throw new JsonException($"Unexpected end of JSON while reading detail field '{fieldName}'.");
         }
-    }
-
-    private static bool IsWhitespacePropertyName(ref Utf8JsonReader reader)
-    {
-        if (!reader.HasValueSequence)
-        {
-            ReadOnlySpan<byte> span = reader.ValueSpan;
-            if (span.IndexOf((byte)'\\') < 0)
-            {
-                for (int index = 0; index < span.Length; index++)
-                {
-                    byte b = span[index];
-                    if (b >= 0x80)
-                    {
-                        return string.IsNullOrWhiteSpace(reader.GetString());
-                    }
-
-                    if (b > (byte)' ')
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-        }
-
-        return string.IsNullOrWhiteSpace(reader.GetString());
-    }
-
-    private static bool PropertyNameEqualsIgnoreCase(ref Utf8JsonReader reader, ReadOnlySpan<byte> lowerAsciiName)
-    {
-        if (!reader.HasValueSequence)
-        {
-            ReadOnlySpan<byte> span = reader.ValueSpan;
-            if (span.Length == lowerAsciiName.Length && span.IndexOf((byte)'\\') < 0)
-            {
-                for (int index = 0; index < span.Length; index++)
-                {
-                    byte b = span[index];
-                    if ((uint)(b - 'A') <= ('Z' - 'A'))
-                    {
-                        b = (byte)(b | 0x20);
-                    }
-
-                    if (b != lowerAsciiName[index])
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-        }
-
-        string? text = reader.GetString();
-        if (text is null || text.Length != lowerAsciiName.Length)
-        {
-            return false;
-        }
-
-        for (int index = 0; index < lowerAsciiName.Length; index++)
-        {
-            char c = text[index];
-            if ((uint)(c - 'A') <= ('Z' - 'A'))
-            {
-                c = (char)(c | 0x20);
-            }
-
-            if (c != lowerAsciiName[index])
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 }

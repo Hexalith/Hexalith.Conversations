@@ -337,7 +337,7 @@ public sealed class ConversationQueryHandler
         }
 
         int offset = cursor?.Offset ?? 0;
-        List<ConversationSummaryProjectionV1> accessibleMatches = new(tenantScoped.Count);
+        List<ConversationSummaryProjectionV1> accessibleMatches = new(Math.Min(tenantScoped.Count, query.Page.PageSize));
         for (int index = 0; index < tenantScoped.Count; index++)
         {
             ConversationSummaryProjectionV1 summary = tenantScoped[index];
